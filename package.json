@@ -1,6 +1,6 @@
 {
   "name": "ainative-business",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "Companion software for the AI Native Business book — a local-first agent runtime and builder scaffold for AI-native businesses.",
   "keywords": [
     "ai",
