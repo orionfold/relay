@@ -113,7 +113,7 @@ describe("addRows end-to-end manifest-trigger dispatch", () => {
       } as any,
     ]);
 
-    const ids = await addRows("tbl-int", [
+    const { ids } = await addRows("tbl-int", [
       { data: { topic: "test row data", depth: "standard" } },
     ]);
     const rowId = ids[0]!;

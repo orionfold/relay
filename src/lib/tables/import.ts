@@ -300,8 +300,10 @@ export async function importRows(
     }
 
     if (validRows.length > 0) {
-      await addRows(tableId, validRows);
-      rowsImported += validRows.length;
+      const { ids } = await addRows(tableId, validRows);
+      // F10: count actual inserts, not attempted inserts. Duplicates are
+      // silently deduped at the DB layer; surface them as skipped.
+      rowsImported += ids.length;
     }
   }
 

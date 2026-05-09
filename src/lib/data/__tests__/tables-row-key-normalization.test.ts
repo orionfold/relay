@@ -90,7 +90,7 @@ describe("addRows row-key normalization", () => {
   });
 
   it("rewrites display_name keys to canonical column names on insert", async () => {
-    const [rowId] = await addRows(TABLE_ID, [
+    const { ids: [rowId] } = await addRows(TABLE_ID, [
       { data: { Ticker: "AAPL", "Cost Basis ($)": 145.2 } },
     ]);
     const data = readRowData(rowId);
@@ -98,28 +98,28 @@ describe("addRows row-key normalization", () => {
   });
 
   it("passes canonical-name keys through unchanged", async () => {
-    const [rowId] = await addRows(TABLE_ID, [
+    const { ids: [rowId] } = await addRows(TABLE_ID, [
       { data: { ticker: "MSFT", cost_basis: 310.5 } },
     ]);
     expect(readRowData(rowId)).toEqual({ ticker: "MSFT", cost_basis: 310.5 });
   });
 
   it("rewrites case-insensitively when the agent lowercases display names", async () => {
-    const [rowId] = await addRows(TABLE_ID, [
+    const { ids: [rowId] } = await addRows(TABLE_ID, [
       { data: { ticker: "NVDA", "cost basis ($)": 425.75 } },
     ]);
     expect(readRowData(rowId)).toEqual({ ticker: "NVDA", cost_basis: 425.75 });
   });
 
   it("preserves canonical entry when both canonical and display key are sent", async () => {
-    const [rowId] = await addRows(TABLE_ID, [
+    const { ids: [rowId] } = await addRows(TABLE_ID, [
       { data: { cost_basis: 1, "Cost Basis ($)": 2 } },
     ]);
     expect(readRowData(rowId)).toEqual({ cost_basis: 1 });
   });
 
   it("retains unknown keys instead of dropping them", async () => {
-    const [rowId] = await addRows(TABLE_ID, [
+    const { ids: [rowId] } = await addRows(TABLE_ID, [
       { data: { ticker: "GOOG", note: "added by hand" } },
     ]);
     expect(readRowData(rowId)).toEqual({ ticker: "GOOG", note: "added by hand" });
@@ -135,7 +135,7 @@ describe("updateRow row-key normalization", () => {
   });
 
   it("collapses a display_name patch onto the canonical key already on disk", async () => {
-    const [rowId] = await addRows(TABLE_ID, [
+    const { ids: [rowId] } = await addRows(TABLE_ID, [
       { data: { ticker: "AAPL", current_price: 100 } },
     ]);
     const updated = await updateRow(rowId, {

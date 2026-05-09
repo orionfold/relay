@@ -217,11 +217,11 @@ export async function seedSampleData() {
     if (created) {
       tableIdByName.set(tableSeed.name, created.id);
       if (tableSeed.rows.length > 0) {
-        await addRows(
+        const { ids } = await addRows(
           created.id,
           tableSeed.rows.map((data) => ({ data }))
         );
-        totalTableRows += tableSeed.rows.length;
+        totalTableRows += ids.length;
       }
     }
   }

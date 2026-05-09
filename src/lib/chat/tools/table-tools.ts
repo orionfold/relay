@@ -257,11 +257,17 @@ export function tableTools(ctx: ToolContext) {
       },
       async (args) => {
         try {
-          const ids = await addRows(
+          const { ids, skippedHashes } = await addRows(
             args.tableId,
             args.rows.map((data) => ({ data, createdBy: "agent" }))
           );
-          return ok({ added: ids.length, rowIds: ids });
+          // F10: surface dedupe count so the agent doesn't silently
+          // believe it inserted N rows when M were deduped.
+          return ok({
+            added: ids.length,
+            skipped: skippedHashes.length,
+            rowIds: ids,
+          });
         } catch (e) {
           return err(e instanceof Error ? e.message : "Failed to add rows");
         }

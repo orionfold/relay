@@ -20,6 +20,7 @@ import type {
   CloneFromTemplateInput,
 } from "@/lib/tables/types";
 import { buildRowQuery } from "@/lib/tables/query-builder";
+import { hashRowData } from "@/lib/data/row-hash";
 
 // ── Table CRUD ───────────────────────────────────────────────────────
 
@@ -317,12 +318,20 @@ export function _normalizeRowKeysAgainstColumns(
   return normalizeRowKeysAgainstColumns(data, columns);
 }
 
-export async function addRows(tableId: string, rows: AddRowInput[]) {
+export interface AddRowsResult {
+  /** IDs of rows actually inserted (excludes deduped rows). */
+  ids: string[];
+  /** SHA-256 hashes of rows skipped because of duplicate (table_id, data_hash). */
+  skippedHashes: string[];
+}
+
+export async function addRows(tableId: string, rows: AddRowInput[]): Promise<AddRowsResult> {
   const now = new Date();
 
   // Load column metadata once so every row in this batch normalizes
   // against the same schema snapshot.
   const cols = loadColumnsForNormalization(tableId);
+  const columnNames = cols.map((c) => c.name);
 
   // Get current max position
   const maxPos = db
@@ -337,33 +346,70 @@ export async function addRows(tableId: string, rows: AddRowInput[]) {
     data: normalizeRowKeysAgainstColumns(row.data, cols),
   }));
 
-  const ids: string[] = [];
+  const insertedIds: string[] = [];
+  const skippedHashes: string[] = [];
+  const seenInBatch = new Set<string>();
+  // Parallel array to track which input row got which inserted ID (or skipped).
+  // Used to fire triggers only for actually-inserted rows.
+  const idForRow: Array<string | null> = [];
+
   for (const row of normalizedRows) {
+    const dataHash = hashRowData(row.data, columnNames);
+
+    // Within-batch guard: skip exact dup before hitting the DB.
+    if (seenInBatch.has(dataHash)) {
+      skippedHashes.push(dataHash);
+      idForRow.push(null);
+      continue;
+    }
+    seenInBatch.add(dataHash);
+
     const id = randomUUID();
-    ids.push(id);
-    await db.insert(userTableRows).values({
-      id,
-      tableId,
-      data: JSON.stringify(row.data),
-      position: nextPosition++,
-      createdBy: row.createdBy ?? "user",
-      createdAt: now,
-      updatedAt: now,
-    });
+    // ON CONFLICT DO NOTHING (no target) matches ANY unique constraint —
+    // including the partial UNIQUE INDEX on (table_id, data_hash). Specifying
+    // `{ target: [...] }` would require echoing the partial WHERE clause,
+    // which Drizzle's syntax doesn't emit; SQLite then refuses the upsert.
+    const result = await db
+      .insert(userTableRows)
+      .values({
+        id,
+        tableId,
+        data: JSON.stringify(row.data),
+        dataHash,
+        position: nextPosition,
+        createdBy: row.createdBy ?? "user",
+        createdAt: now,
+        updatedAt: now,
+      })
+      .onConflictDoNothing()
+      .returning({ id: userTableRows.id });
+
+    if (result.length > 0) {
+      insertedIds.push(id);
+      idForRow.push(id);
+      nextPosition++;
+    } else {
+      skippedHashes.push(dataHash);
+      idForRow.push(null);
+    }
   }
 
-  // Update denormalized row count
-  await updateRowCount(tableId);
+  // Update denormalized row count only if at least one row landed.
+  if (insertedIds.length > 0) {
+    await updateRowCount(tableId);
+  }
 
-  // Fire triggers for new rows (fire-and-forget). Use the normalized
+  // Fire triggers only for rows actually inserted. Use the normalized
   // payload so trigger conditions and manifest variables resolve against
   // canonical column names — same contract as the persisted row.
-  for (const [i] of normalizedRows.entries()) {
+  for (let i = 0; i < normalizedRows.length; i++) {
+    const id = idForRow[i];
+    if (!id) continue;
     evaluateTriggers(tableId, "row_added", normalizedRows[i].data).catch(() => {});
-    evaluateManifestTriggers(tableId, ids[i], normalizedRows[i].data).catch(() => {});
+    evaluateManifestTriggers(tableId, id, normalizedRows[i].data).catch(() => {});
   }
 
-  return ids;
+  return { ids: insertedIds, skippedHashes };
 }
 
 export async function getRow(rowId: string) {

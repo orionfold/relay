@@ -767,6 +767,7 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
       id TEXT PRIMARY KEY NOT NULL,
       table_id TEXT NOT NULL,
       data TEXT NOT NULL DEFAULT '{}',
+      data_hash TEXT,
       position INTEGER NOT NULL,
       created_by TEXT DEFAULT 'user',
       created_at INTEGER NOT NULL,
@@ -959,9 +960,21 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
   for (const alter of [
     "ALTER TABLE tasks ADD COLUMN max_budget_usd REAL",
     "ALTER TABLE workflows ADD COLUMN runtime_id TEXT",
+    // F10: row-add idempotency — see src/lib/data/row-hash.ts and addRows().
+    // The partial UNIQUE INDEX is created below on every boot.
+    "ALTER TABLE user_table_rows ADD COLUMN data_hash TEXT",
   ]) {
     try { sqlite.exec(alter); } catch { /* column already exists — expected */ }
   }
+
+  // F10: partial unique index. Idempotent — IF NOT EXISTS guards re-runs.
+  // Lives here (after ALTER) so legacy DBs without data_hash get the column
+  // first, then the index. The partial WHERE clause means rows pre-backfill
+  // don't conflict with each other.
+  sqlite.exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_user_table_rows_table_data_hash
+      ON user_table_rows(table_id, data_hash) WHERE data_hash IS NOT NULL;
+  `);
 }
 
 export function hasLegacyTables(sqlite: Database.Database): boolean {

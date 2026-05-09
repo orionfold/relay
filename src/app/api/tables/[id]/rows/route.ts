@@ -89,8 +89,11 @@ export async function POST(
       );
     }
 
-    const rows = await addRows(id, parsed.data.rows);
-    return NextResponse.json(rows, { status: 201 });
+    const { ids, skippedHashes } = await addRows(id, parsed.data.rows);
+    return NextResponse.json(
+      { ids, skipped: skippedHashes.length },
+      { status: 201 }
+    );
   } catch (err) {
     console.error("[tables] POST rows error:", err);
     return NextResponse.json(

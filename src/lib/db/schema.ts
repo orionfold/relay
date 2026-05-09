@@ -954,6 +954,9 @@ export const userTableRows = sqliteTable(
       .notNull(),
     /** JSON object with column values keyed by column name */
     data: text("data").notNull().default("{}"),
+    /** SHA-256 of canonicalized data (F10 idempotency). Nullable for legacy
+     * rows pre-backfill; new rows always populate it. */
+    dataHash: text("data_hash"),
     position: integer("position").notNull(),
     /** Who created this row: 'user' or agent profile ID */
     createdBy: text("created_by").default("user"),
