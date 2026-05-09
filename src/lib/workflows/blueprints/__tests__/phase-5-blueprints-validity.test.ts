@@ -1,40 +1,23 @@
-import { describe, it, expect, beforeAll } from "vitest";
-import fs from "node:fs";
-import path from "node:path";
-import { homedir } from "node:os";
-import { getBlueprint, reloadBlueprints, getUserBlueprintsDir } from "../registry";
+import { describe, it, expect } from "vitest";
+import { getBlueprint } from "../registry";
 
 /**
- * Phase 5 blueprints live at `~/.ainative/blueprints/<id>.yaml` (gitignored,
- * authored as part of the row-trigger-blueprint-execution feature). vitest
- * setup overrides AINATIVE_DATA_DIR to a temp dir, so the registry would not
- * see them by default. Stage them into the test data dir before each suite
- * so we validate the ACTUAL ship YAML against BlueprintSchema rather than a
- * test-only fixture that could drift.
+ * Phase 5 blueprints (`customer-follow-up-drafter--draft-followup` and
+ * `research-digest--weekly-digest`) ship as repo-bundled builtins under
+ * `src/lib/workflows/blueprints/builtins/`. The registry auto-scans
+ * BUILTINS_DIR on first load, so a plain `getBlueprint()` call resolves
+ * them regardless of the test runner's `AINATIVE_DATA_DIR` override.
+ *
+ * Earlier versions of this test copied from `~/.ainative/blueprints/`
+ * (gitignored), which only worked on the developer's machine that
+ * authored Phase 5. Promoting to builtins/ makes the test pass for all
+ * contributors. Per the row-trigger-blueprint-execution handoff
+ * recommendation: "a missing builtin is a real gap, not a test infra
+ * issue."
  */
-const SOURCE_DIR = path.join(homedir(), ".ainative", "blueprints");
-const TARGET_IDS = [
-  "customer-follow-up-drafter--draft-followup",
-  "research-digest--weekly-digest",
-];
-
-beforeAll(() => {
-  const targetDir = getUserBlueprintsDir();
-  fs.mkdirSync(targetDir, { recursive: true });
-  for (const id of TARGET_IDS) {
-    const src = path.join(SOURCE_DIR, `${id}.yaml`);
-    if (!fs.existsSync(src)) {
-      throw new Error(
-        `Phase 5 blueprint missing at ${src}. Did Wave 3 author it under ~/.ainative/blueprints/?`
-      );
-    }
-    fs.copyFileSync(src, path.join(targetDir, `${id}.yaml`));
-  }
-  reloadBlueprints();
-});
 
 describe("customer-follow-up-drafter--draft-followup blueprint", () => {
-  it("loads from the user blueprints dir and parses cleanly", () => {
+  it("loads from the registry and parses cleanly", () => {
     const bp = getBlueprint("customer-follow-up-drafter--draft-followup");
     expect(bp).toBeDefined();
     expect(bp!.id).toBe("customer-follow-up-drafter--draft-followup");
@@ -45,7 +28,7 @@ describe("customer-follow-up-drafter--draft-followup blueprint", () => {
 });
 
 describe("research-digest--weekly-digest blueprint", () => {
-  it("loads from the user blueprints dir and parses cleanly", () => {
+  it("loads from the registry and parses cleanly", () => {
     const bp = getBlueprint("research-digest--weekly-digest");
     expect(bp).toBeDefined();
     expect(bp!.id).toBe("research-digest--weekly-digest");

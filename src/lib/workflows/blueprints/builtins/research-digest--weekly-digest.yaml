@@ -1,0 +1,35 @@
+id: research-digest--weekly-digest
+name: Weekly research digest
+description: Synthesize the most important developments across configured research sources
+version: "1.0.0"
+domain: work
+tags:
+  - research
+  - synthesis
+  - digest
+pattern: sequence
+difficulty: beginner
+estimatedDuration: "3-5 min"
+author: ainative
+variables:
+  - id: period
+    type: text
+    label: Period
+    description: Time period to synthesize
+    required: false
+    default: "the past week"
+steps:
+  - name: Synthesize sources
+    profileId: researcher
+    requiresApproval: false
+    promptTemplate: >
+      Read the rows in the `sources` table. For each source, fetch the
+      latest content and identify the 1-2 most significant developments
+      from {{period}}.
+
+      Combine into a digest with three sections:
+      1. Top developments (3 bullets max)
+      2. Cross-source themes (2 bullets max)
+      3. Watchlist items for next week (1 bullet)
+
+      Output as markdown with the title "Digest for week ending <today>".

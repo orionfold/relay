@@ -1,0 +1,55 @@
+id: customer-follow-up-drafter--draft-followup
+name: Draft customer follow-up
+description: Drafts a personalized follow-up reply for a customer touchpoint
+version: "1.0.0"
+domain: work
+tags:
+  - customer-success
+  - drafting
+  - inbox
+pattern: sequence
+difficulty: beginner
+estimatedDuration: "1-2 min"
+author: ainative
+variables:
+  - id: customer
+    type: text
+    label: Customer
+    description: Auto-populated from row.customer
+    required: true
+    default: "{{row.customer}}"
+  - id: summary
+    type: text
+    label: Touchpoint summary
+    description: Auto-populated from row.summary
+    required: true
+    default: "{{row.summary}}"
+  - id: sentiment
+    type: text
+    label: Detected sentiment
+    description: Auto-populated from row.sentiment
+    required: false
+    default: "{{row.sentiment}}"
+  - id: channel
+    type: text
+    label: Source channel
+    description: Auto-populated from row.channel
+    required: false
+    default: "{{row.channel}}"
+steps:
+  - name: Draft reply
+    profileId: cs-coach
+    requiresApproval: false
+    promptTemplate: >
+      Draft a brief, empathetic follow-up reply for {{customer}}.
+
+      Touchpoint summary: {{summary}}
+      Channel: {{channel}}
+      Detected sentiment: {{sentiment}}
+
+      Keep the reply under 120 words. Match the tone to the sentiment —
+      apologetic for negative, appreciative for positive, helpful for
+      neutral. End with a clear next-step.
+
+      Output as a markdown document with a level-1 heading
+      "Reply to {{customer}}" followed by the body.
