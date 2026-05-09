@@ -1,8 +1,9 @@
 ---
 id: TDR-038
 title: Kit Auto-Inference Heuristic Vocabulary — Conservative Column-Shape Probes
-status: proposed
+status: accepted
 date: 2026-05-08
+accepted-date: 2026-05-08
 category: classification
 related-spec: docs/superpowers/specs/2026-05-08-f2-f4-kit-inference-design.md
 ---
@@ -94,7 +95,33 @@ When adding a new probe term:
 
 ## Status
 
-Proposed 2026-05-08. Will be promoted to **accepted** after F2+F4 ship + smoke-verify.
+**Accepted 2026-05-08.** Promoted from `proposed` after F2+F4 shipped and smoke verification passed against the live `portfolio-manager` (→ `workflow-hub`) and `marketing-campaign-tracker` (→ `tracker`) apps with their manifest `view.kit:` pins removed. Smoke ran the inference rules against the actual on-disk DB column shapes:
+
+```
+[portfolio-manager] schedules=1 blueprints=1 tables=1
+  cols: ticker(text), name(text), shares(number), cost_basis(number), current_price(number), market_value(number)
+  PASS — portfolio-manager → workflow-hub (expected workflow-hub)
+
+[marketing-campaign-tracker] schedules=1 blueprints=1 tables=1
+  cols: title(text), channel(select), status(select), publish_date(date), engagement_count(number), notes(text)
+  PASS — marketing-campaign-tracker → tracker (expected tracker)
+```
+
+Live browser render confirmed: portfolio-manager shows workflow-hub KPI tiles (no ledger series chart), marketing-campaign-tracker shows the hero table (tracker hero pane).
+
+## Amendment 2026-05-08 — EXPAND scope
+
+The implementation pass also tightened two pre-existing regexes against substring leaks (no new vocabulary):
+
+- `DOC_BLUEPRINT_RE` gained word-boundary anchors `(^|[-_])X([-_]|$)` — `executive-briefcase` no longer matches `brief`.
+- `INBOX_BLUEPRINT_RE` gained word-boundary anchors — `triaged-results` no longer matches `triage`.
+- `rule3_research`'s legacy `if (!schemas) return true` fallback was replaced with `return false`. Production callers always pass schemas; this closes a backdoor in test/edge paths.
+
+These changes are tightening, not widening — they remove false-positive risk in existing terms rather than introducing new ones, and remain conformant with the "real reproducer required" rule for vocabulary additions.
+
+## Latent issue surfaced (not fixed by this TDR)
+
+During F4 smoke verification, `loadColumnSchemas` (`src/lib/apps/view-kits/index.ts`) was observed to return empty columns for both reproducers under a tsx ESM context. Root cause: a transitive import chain hits `src/lib/utils/app-root.ts:11` which uses `require("fs")` in an ES module scope — a `ReferenceError` that the silent `try/catch` in `loadColumnSchemas` swallows. Smoke worked around this by using `better-sqlite3` directly. The Next.js production runtime is unaffected (it executes in a different module context), but the silent-error swallow is a footgun: any future column-load regression will fail open to "no columns" instead of surfacing. Out of scope for F2/F4; tracked separately.
 
 ## Related
 
