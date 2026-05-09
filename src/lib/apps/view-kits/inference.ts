@@ -125,8 +125,8 @@ const MESSAGE_NAME_RE = /(^|_)(body|message|subject|summary|content)(_|$)/i;
 const STATUS_NAME_RE = /(^|_)(status|state|stage|phase)(_|$)/i;
 const COUNT_NAME_RE = /(^|_)(count|total)(_|$)/i;
 const COACH_RE = /(^|[-_])coach($|[-_])/i;
-const DOC_BLUEPRINT_RE = /(digest|report|summary|brief|synthesis)/i;
-const INBOX_BLUEPRINT_RE = /(drafter|inbox|notification|message|follow[-_]?up|triage)/i;
+const DOC_BLUEPRINT_RE = /(^|[-_])(digest|report|summary|brief|synthesis)([-_]|$)/i;
+const INBOX_BLUEPRINT_RE = /(^|[-_])(drafter|inbox|notification|message|follow[-_]?up|triage)([-_]|$)/i;
 
 export function hasCurrency(cols: Col[]): boolean {
   return cols.some(

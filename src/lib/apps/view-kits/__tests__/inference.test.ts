@@ -223,6 +223,20 @@ describe("decision table — per-rule negative near-misses", () => {
     });
     expect(rule6_multiBlueprint(m)).toBe(false);
   });
+
+  it("rule3_research: blueprint id 'executive-briefcase' does not fire (substring leak)", () => {
+    const m = makeManifest({
+      blueprints: [{ id: "executive-briefcase" }],
+      schedules: [{ id: "s" }],
+    });
+    expect(rule3_research(m)).toBe(false);
+  });
+  it("rule5_inbox: blueprint id 'triaged-results' does not fire (substring leak)", () => {
+    // 'triage' appears as a prefix of 'triaged' without a separator after it.
+    // Current regex substring-matches; word-boundary tightening rejects it.
+    const m = makeManifest({ blueprints: [{ id: "triaged-results" }] });
+    expect(rule5_inbox(m)).toBe(false);
+  });
 });
 
 describe("rule1_ledger — currency + date hero + ≥1 blueprint", () => {
