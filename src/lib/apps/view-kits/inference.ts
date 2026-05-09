@@ -52,10 +52,16 @@ export function rule2_tracker(
   if (m.schedules.length < 1) return false;
   const cols = lookupColumns(schemas, heroId);
   if (!cols) return false;
-  // A tracker has dated entries with some kind of completion or scoring signal.
-  // Most often this is a boolean (`completed`, `done`); personal-log shapes
-  // commonly use a numeric rating/score/stars instead — both belong here.
-  return hasDate(cols) && (hasBoolean(cols) || hasRating(cols));
+  // A tracker has dated entries with some kind of progress signal: boolean
+  // (completed/done), rating (stars/score), categorical state (status/stage),
+  // or numeric measurement (count/total). All four shapes belong here.
+  return (
+    hasDate(cols) &&
+    (hasBoolean(cols) ||
+      hasRating(cols) ||
+      hasStatusLike(cols) ||
+      hasCountLike(cols))
+  );
 }
 
 export function rule3_research(

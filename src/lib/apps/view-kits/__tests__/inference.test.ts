@@ -277,7 +277,7 @@ describe("rule1_ledger — currency + date hero + ≥1 blueprint", () => {
   });
 });
 
-describe("rule2_tracker — boolean+date hero + ≥1 schedule", () => {
+describe("rule2_tracker — date + (bool|rating|status|count) hero + ≥1 schedule", () => {
   it("fires when hero table has boolean+date AND ≥1 schedule", () => {
     const m = makeManifest({
       tables: [{ id: "t1" }],
@@ -299,6 +299,36 @@ describe("rule2_tracker — boolean+date hero + ≥1 schedule", () => {
       schedules: [{ id: "s" }],
     });
     expect(rule2_tracker(m, cols("t1", [{ name: "date" }]))).toBe(false);
+  });
+  it("fires when hero has date + status-like column (campaign tracker shape)", () => {
+    const m = makeManifest({
+      tables: [{ id: "t1" }],
+      schedules: [{ id: "s" }],
+    });
+    expect(
+      rule2_tracker(m, cols("t1", [{ name: "publish_date" }, { name: "status" }]))
+    ).toBe(true);
+  });
+  it("fires when hero has date + count-like column (engagement tracker shape)", () => {
+    const m = makeManifest({
+      tables: [{ id: "t1" }],
+      schedules: [{ id: "s" }],
+    });
+    expect(
+      rule2_tracker(
+        m,
+        cols("t1", [{ name: "date" }, { name: "engagement_count" }])
+      )
+    ).toBe(true);
+  });
+  it("still does not fire on date alone (no progress signal)", () => {
+    const m = makeManifest({
+      tables: [{ id: "t1" }],
+      schedules: [{ id: "s" }],
+    });
+    expect(
+      rule2_tracker(m, cols("t1", [{ name: "date" }, { name: "title" }]))
+    ).toBe(false);
   });
 });
 
