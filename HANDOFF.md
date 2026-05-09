@@ -2,7 +2,7 @@
 
 **Created:** 2026-05-08, end of a session that shipped F2 + F4 (kit-inference rule-set tightening) and TDR-038 (heuristic-vocabulary discipline). Prior handoff archived at `.archive/handoff/2026-05-08-design-queue-f2-f4-pre-ship.md`.
 
-**Status:** clean on `main` at `79a84e5a`. `package.json` still at `ainative-business@0.14.2` (unpublished). Publish remains deferred until F9 / F10 / Phase-5 are each shipped or formally punted. If anything else lands in code, bump to `0.14.3` and publish that single tag.
+**Status:** clean on `main` at `9fa90098`, pushed to `origin/main` (12 commits landed in this session). `package.json` still at `ainative-business@0.14.2` (unpublished). Publish remains deferred until F9 / F10 / Phase-5 are each shipped or formally punted. If anything else lands in code, bump to `0.14.3` and publish that single tag.
 
 ---
 
@@ -79,7 +79,7 @@ Pre-existing failure (4 in `router.test.ts`, 1 each in `api-version-window` / `s
 ## State left behind
 
 ### Branch / remote
-On `main`, clean tree, ahead by 0 commits. Latest: `79a84e5a docs(tdr-038): promote to accepted; record EXPAND amendment`. Tag in `package.json`: `ainative-business@0.14.2` (unpublished).
+On `main`, clean tree, in sync with `origin/main`. Latest: `9fa90098 docs(handoff): archive prior handoff (design-queue-f2-f4-pre-ship)`. The full session pushed as `858de3c1..9fa90098` (12 commits: spec + plan + 7 view-kits commits + TDR + handoff rotation + handoff archive). Tag in `package.json`: `ainative-business@0.14.2` (unpublished).
 
 ### Dev server
 Was running on port 3000 through this session's smoke. If still up when you arrive, leave it. Otherwise restart per `MEMORY.md` (`pkill -f "next dev --turbopack$"` + `pkill -f "next-server"` + check `lsof ~/.ainative/ainative.db`).
@@ -105,5 +105,17 @@ Was running on port 3000 through this session's smoke. If still up when you arri
 - **TDR-038 is now the gatekeeper for column-shape vocabulary.** Any future probe-term addition needs a real reproducer (a live composed app misfiring because of a missing term). Speculative additions are rejected; live-app column shapes become permanent test fixtures.
 - **F2/F4 reproducers are now passing fixtures, not pinned.** Both apps prove the inference rules end-to-end — if either re-misfires, it's a regression and the fix is in `inference.ts`, not the manifests.
 - **`loadColumnSchemas` silent-swallow** is the biggest non-feature footgun on this surface. F2/F4 closed the inference rules but not the load path. Worth a small followup if anyone is in `src/lib/apps/view-kits/index.ts` for other reasons.
-- **Smoke pattern for inference work:** drop a `.something-smoke-verify.ts` (gitignored implicit by leading dot) at project root, use `better-sqlite3` directly + manifest YAML parsing rather than `@/lib/apps/registry`. Avoids the require()-in-ESM chain. Always clean up.
+- **Smoke pattern for inference work:** drop a `.something-smoke-verify.ts` (gitignored implicit by leading dot) at project root, use `better-sqlite3` directly + `js-yaml` for manifest parsing rather than `@/lib/apps/registry`. Avoids the `require()`-in-ESM chain in `app-root.ts`. Always clean up after. Working example pattern (extracted from this session's smoke):
+
+```ts
+import Database from "better-sqlite3";
+import { load as parseYaml } from "js-yaml";
+import { readFileSync } from "fs";
+import { homedir } from "os";
+import { join } from "path";
+
+const db = new Database(join(homedir(), ".ainative", "ainative.db"), { readonly: true });
+const stmt = db.prepare("SELECT name, data_type, config FROM user_table_columns WHERE table_id = ? ORDER BY position");
+// then call your pure inference function with manifest YAML + stmt.all(tableId)
+```
 - "Fix at the chokepoint" pattern continues to pay off — F2+F4 closed the inference misfires at the predicate layer, no per-app pins needed. Same as F1, F8.
