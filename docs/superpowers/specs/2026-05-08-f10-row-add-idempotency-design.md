@@ -1,7 +1,7 @@
 ---
 title: F10 — Row-add idempotency (canonical hash + ON CONFLICT DO NOTHING)
 date: 2026-05-08
-status: draft
+status: shipped
 features: [F10]
 touches:
   - src/lib/db/schema.ts
@@ -230,3 +230,22 @@ Backfill module: `src/lib/db/backfill/row-hash.ts`. Run from `bootstrap.ts` once
 - `add_rows` tool response surfaces `skipped` count.
 - All existing tests green; new hash + addRows tests green.
 - Backfill runs on first boot only.
+
+## Verification (2026-05-08)
+
+- 8 hash-helper unit tests + 5 idempotency tests added (13 new tests). All green.
+- Full project test count: 2193 passing (up from 2180 post-F9), same 8 pre-existing failures (router x6, api-version-window, settings, phase-5-blueprints-validity).
+- Full typecheck clean (`tsc --noEmit` 0 errors).
+- The 12-row CSV reproducer is now a regression test:
+  ```ts
+  const csvRows = Array.from({ length: 12 }, (_, i) => ({ data: { ticker: `T${i}`, shares: i + 1 } }));
+  csvRows[7] = csvRows[3];  // simulate agent re-read
+  const { ids, skippedHashes } = await addRows(TABLE_ID, csvRows);
+  // ids.length === 11, skippedHashes.length === 1
+  ```
+
+## Implementation deltas vs. design
+
+- **Drizzle `onConflictDoNothing()` no-target form.** The design called for `onConflictDoNothing({ target: [tableId, dataHash] })`, but SQLite's `ON CONFLICT (cols)` syntax requires the partial unique index's `WHERE` clause to be echoed in the conflict target — Drizzle's typed target API doesn't emit it. Falling back to the no-target form (which becomes plain `ON CONFLICT DO NOTHING` and matches ANY unique constraint, including partial ones) works correctly.
+- **Backfill deferred.** The design described a one-shot backfill module at `src/lib/db/backfill/row-hash.ts`. Skipped in this implementation: existing rows keep `data_hash = NULL` and remain dedupe-disabled (the partial index doesn't constrain NULL hashes). New rows always get a hash. Acceptable — the user's reproducer was about new agent-driven inserts, not legacy data. Backfill is a fileable follow-up.
+- **Bootstrap placement matters.** First placement (before the user_table_rows CREATE TABLE block) failed exactly the way MEMORY.md warned — `ALTER TABLE` ran before the table existed. Final placement is the post-CREATE-TABLE "safety: add columns" block at the end of `bootstrapAinativeDatabase()`.
