@@ -64,42 +64,52 @@ const BindingRefSchema = z.union([
   z.object({ profile: z.string() }).strict(),
 ]);
 
+const LeafKpiSourceSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("tableCount"),
+    table: z.string(),
+    where: z.string().optional(),
+  }),
+  z.object({
+    kind: z.literal("tableSum"),
+    table: z.string(),
+    column: z.string(),
+  }),
+  z.object({
+    kind: z.literal("tableLatest"),
+    table: z.string(),
+    column: z.string(),
+  }),
+  z.object({
+    kind: z.literal("blueprintRunCount"),
+    blueprint: z.string(),
+    window: z.enum(["7d", "30d"]).default("7d"),
+  }),
+  z.object({
+    kind: z.literal("scheduleNextFire"),
+    schedule: z.string(),
+  }),
+  z.object({
+    kind: z.literal("tableSumWindowed"),
+    table: z.string().min(1),
+    column: z.string().min(1),
+    sign: z.enum(["positive", "negative"]).optional(),
+    window: z.enum(["mtd", "qtd", "ytd"]).optional(),
+  }),
+]);
+
+const RatioKpiSourceSchema = z.object({
+  kind: z.literal("ratio"),
+  numerator: LeafKpiSourceSchema,
+  denominator: LeafKpiSourceSchema,
+});
+
+const KpiSourceSchema = z.union([LeafKpiSourceSchema, RatioKpiSourceSchema]);
+
 export const KpiSpecSchema = z.object({
   id: z.string(),
   label: z.string(),
-  source: z.discriminatedUnion("kind", [
-    z.object({
-      kind: z.literal("tableCount"),
-      table: z.string(),
-      where: z.string().optional(),
-    }),
-    z.object({
-      kind: z.literal("tableSum"),
-      table: z.string(),
-      column: z.string(),
-    }),
-    z.object({
-      kind: z.literal("tableLatest"),
-      table: z.string(),
-      column: z.string(),
-    }),
-    z.object({
-      kind: z.literal("blueprintRunCount"),
-      blueprint: z.string(),
-      window: z.enum(["7d", "30d"]).default("7d"),
-    }),
-    z.object({
-      kind: z.literal("scheduleNextFire"),
-      schedule: z.string(),
-    }),
-    z.object({
-      kind: z.literal("tableSumWindowed"),
-      table: z.string().min(1),
-      column: z.string().min(1),
-      sign: z.enum(["positive", "negative"]).optional(),
-      window: z.enum(["mtd", "qtd", "ytd"]).optional(),
-    }),
-  ]),
+  source: KpiSourceSchema,
   format: z.enum(["int", "currency", "percent", "duration", "relative"]).default("int"),
 });
 

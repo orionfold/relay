@@ -117,6 +117,82 @@ describe("AppManifestSchema — view: field", () => {
     expect(r.success).toBe(false);
   });
 
+  it("accepts a KpiSpec with kind: ratio composed of two leaf sources", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          kpis: [
+            {
+              id: "avg",
+              label: "Avg",
+              format: "currency",
+              source: {
+                kind: "ratio",
+                numerator: { kind: "tableSum", table: "t", column: "amount" },
+                denominator: { kind: "tableCount", table: "t" },
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects a ratio with a nested ratio (depth limited by construction)", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          kpis: [
+            {
+              id: "x",
+              label: "X",
+              source: {
+                kind: "ratio",
+                numerator: {
+                  kind: "ratio",
+                  numerator: { kind: "tableCount", table: "t" },
+                  denominator: { kind: "tableCount", table: "t" },
+                },
+                denominator: { kind: "tableCount", table: "t" },
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("rejects a ratio missing denominator", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          kpis: [
+            {
+              id: "x",
+              label: "X",
+              source: {
+                kind: "ratio",
+                numerator: { kind: "tableCount", table: "t" },
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(r.success).toBe(false);
+  });
+
   it("defaults KpiSpec.format to 'int' when omitted", () => {
     const r = AppManifestSchema.safeParse({
       id: "a",
