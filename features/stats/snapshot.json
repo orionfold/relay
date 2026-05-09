@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-05T00:00:00Z",
-  "fromSha": "0016ca1b12773829d2c961484b53b72ea9216022",
-  "previousSha": "15d721ba4a8849f688e7733937b2f9a5b7f66350",
+  "generatedAt": "2026-05-08T00:00:00Z",
+  "fromSha": "9670a9fd",
+  "previousSha": "0016ca1b12773829d2c961484b53b72ea9216022",
   "features": {
     "completed": 211,
     "inProgress": 4,
@@ -11,7 +11,7 @@
   "chatTools": 99,
   "dbTables": 45,
   "builtinProfiles": 21,
-  "workflowBlueprints": 13,
+  "workflowBlueprints": 15,
   "skills": {
     "claude": 25,
     "codex": 35,
@@ -21,17 +21,18 @@
   "velocity": {
     "source": "git log --since=7days",
     "note": "features/retros/ does not exist; using git-derived velocity. Run /supervisor retrospective to upgrade.",
-    "commitsLast7d": 124,
-    "featOrFixCommitsLast7d": 55
+    "commitsLast7d": 167,
+    "featOrFixCommitsLast7d": 61
   },
   "diffVsPrevious": {
-    "features": "+25 completed, +4 in-progress, -15 planned (15 promoted to completed), =27 deferred",
-    "chatTools": "+14 (85 → 99)",
+    "features": "0 completed-spec count change; F2/F4/F9/F10/Phase-5 are tactical fixes within existing feature specs (composed-app-auto-inference-hardening, tables, row-trigger-blueprint-execution), captured under docs/superpowers/specs/ rather than new features/*.md files",
+    "chatTools": "0",
+    "workflowBlueprints": "+2 (13 → 15) — Phase-5 promoted customer-follow-up-drafter--draft-followup + research-digest--weekly-digest from gitignored ~/.ainative/blueprints/ to repo-level builtins",
     "skills": {
-      "codex": "-1 (36 → 35)",
+      "codex": "0",
       "claude": "0",
       "shared": "0"
     },
-    "unchanged": ["dbTables", "builtinProfiles", "workflowBlueprints", "referenceLibraries"]
+    "unchanged": ["features.completed", "chatTools", "dbTables", "builtinProfiles", "referenceLibraries", "skills"]
   }
 }

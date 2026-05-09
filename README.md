@@ -273,6 +273,7 @@ Airtable-like structured data system at `/tables` with 14 features. Create table
 - **Cross-table relations** — Link rows across tables with searchable relation combobox
 - **Export** — CSV, XLSX, and JSON export for any table
 - **Row versioning** — History tab with snapshot-before-mutation and rollback to previous versions
+- **Idempotent inserts** — agent-driven row adds are deduped via canonical SHA-256 hash + partial unique index, so re-reads inside a tool call don't silently insert duplicates
 
 ### Knowledge
 
@@ -568,13 +569,13 @@ All 14 features shipped across three layers:
 |----------|---------|
 | **Documents** (5) | File attachments, preprocessing (5 formats), agent context injection, document browser, output generation |
 | **Agent Intelligence** (6) | Multi-agent routing, autonomous loops, multi-agent swarm, AI assist→workflows, agent self-improvement, workflow context batching |
-| **Agent Profiles** (2) | Agent profile catalog (<!-- STAT:builtinProfiles -->21<!-- /STAT --> profiles), workflow blueprints (<!-- STAT:workflowBlueprints -->13<!-- /STAT --> templates) |
+| **Agent Profiles** (2) | Agent profile catalog (<!-- STAT:builtinProfiles -->21<!-- /STAT --> profiles), workflow blueprints (<!-- STAT:workflowBlueprints -->15<!-- /STAT --> templates) |
 | **UI Enhancement** (13) | Ambient approvals, learned context UX, micro-visualizations, command palette, operational surface, profile surface, accessibility, UI density, kanban operations, board persistence, detail view redesign, playbook documentation, workflow UX overhaul |
 | **Platform** (8) | Scheduled prompt loops, tool permissions, provider runtimes, OpenAI Codex runtime, cross-provider profiles, parallel fork/join, tool permission presets, npm publish (deferred) |
 | **Runtime Quality** (2) | SDK runtime hardening, E2E test automation |
 | **Governance** (3) | Usage metering ledger, spend budget guardrails, cost & usage dashboard |
 | **Chat** (12) | Chat data layer, chat engine (5-tier context, CRUD tools), API routes (SSE streaming), UI shell, message rendering (Quick Access pills), input composer (tool catalog, model selector), skill composition (multi-skill with conflict detection), filter namespace (`#key:value` grammar), pinned + saved searches, conversation templates, **conversation branching + rewind** (`⌘Z`/`⌘⇧Z`), **chat-driven app builder** |
-| **Composed Apps** (10) | Apps surface (`/apps` route), starters showcase, kit-aware detail views, 6 layout kits (Tracker, Coach, Ledger, Inbox, Research, Workflow Hub), manifest authoring tools (`set_app_view_kit`/`bindings`/`kpis`), atomic manifest writes |
+| **Composed Apps** (10) | Apps surface (`/apps` route), starters showcase, kit-aware detail views, 6 layout kits (Tracker, Coach, Ledger, Inbox, Research, Workflow Hub), manifest authoring tools (`set_app_view_kit`/`bindings`/`kpis`), atomic manifest writes, KPI ratio composition (`kind: ratio` over leaf sources for averages / percentages / win-rates) |
 | **Onboarding** (2) | First-launch runtime preference modal (Best quality / Balanced / Lowest cost / Best privacy), instance bootstrap with dev-mode gate |
 | **Plugin Platform** (5) | M3 chat-tools plugin kind, MCP plugin spec, plugin tools registry, plugin spec tools, schedule spec tools |
 | **Platform Hardening** (2) | Runtime validation hardening (MCP-tool runtime-id validation with safe fallbacks), upgrade detection (hourly upstream poll + guided merge sessions) |
