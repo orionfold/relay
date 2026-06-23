@@ -1,79 +1,85 @@
-# Handoff: Claude Code self-improvement pass (Opus 4.8 alignment)
+# Handoff: Claude Code self-improvement pass — Session 5 (the public de-commit) remaining
 
-**Created:** 2026-06-23. Prior handoff (F9/F10/Phase-5 `@0.14.3` release) archived at
-`.archive/handoff/2026-05-08-f9-f10-phase5-published.md`.
+**Updated:** 2026-06-23. Sessions 1–4 complete. Prior handoff (the full 5-session plan, before
+S3/S4 landed) is captured in commit messages `553d217e` (S1+S2) and `a0b532d5` (S3+S4).
 
-**Status:** clean on `main` at `d34d797e`, pushed to `origin/main`. Returning to the project after
-a gap; now on Opus 4.8. This session researched and **approved** a 5-session plan to align the
-project's Claude Code setup with current best practices, replicating the `orionfold-proof` pass.
+**Status:** clean on `main` at `a0b532d5`, **not yet pushed** to `origin/main` (S1–S4 commits are
+local — push is operator-gated; see below). Only **Session 5** of the pass remains, and it was
+**deliberately deferred** to a separate, careful session because it is the highest-blast-radius
+step and affects the PUBLIC repo.
 
 **Full approved plan:** `~/.claude/plans/read-handoff-md-it-soft-token.md`.
 **Playbook + standard:** `_REFER/cc-self-improve-all-projects.md` +
-`_REFER/claude-code-opus-4.8-best-practices-2026.md` (seeded in Session 1 below).
+`_REFER/claude-code-opus-4.8-best-practices-2026.md` (gitignored, local).
 
 ---
 
-## Two ainative-specific forces (why this differs from orionfold-proof)
+## What's done (S1–S4)
 
-1. **Paid-model shift.** Repo is **PUBLIC** today; every commit of `.claude/skills/`, `CLAUDE.md`,
-   steering publishes the "secret sauce." Moving to paid + selective OSS → stop committing it,
-   keep as gitignored local files (orionfold-website pattern).
-2. **Meta-harness coupling — VERIFIED SAFE.** The shipped product reads CLAUDE.md / `.claude/skills`
-   relative to the *end user's* cwd / `~/.ainative` (`claude-agent.ts:614,628`,
-   `profiles/registry.ts:35,408`), NOT this dev repo. npm `files` already excludes `.claude/`.
-   Keeping dev-repo steering local-only does NOT break the product. **One exception:**
-   `.claude/apps/starters/*.yaml` IS product seed data the homepage renders
-   (`src/lib/apps/starters.ts:40-47`) → must stay tracked. De-commit is **surgical**, not blanket.
+- **S1 ✅** (`553d217e`) — `_REFER/` reference docs (gitignored); `.claude/hooks/secrets-guard.py`
+  (executable, PreToolUse guard). 5/5 fixtures verified.
+- **S2 ✅** (`553d217e`) — committed `.claude/settings.json`: model pin `claude-opus-4-8`; 15 allow
+  / 5 ask / 3 deny rules; 4 plugins disabled (`stripe`/`agent-sdk-dev`/`ralph-loop`/
+  `session-report`); secrets-guard hook wired via `$CLAUDE_PROJECT_DIR`.
+- **S3 ✅** (`a0b532d5`, local-only) — pruned `.claude/settings.local.json` 326 → 117 allow rules
+  (dead `/Developer/stagent/*` paths, one-off PIDs/cp/sed, shell fragments removed; deduped vs
+  committed baseline; dropped broad `Bash(git:*)`). Still gitignored + valid JSON.
+- **S4 ✅** (`a0b532d5`) — `strategy/ainative/` (`_RELAY.md` + `_IDEAS/`) committed in the **private**
+  `orionfold/strategy` repo (commit `39e0f90` there, **not pushed**). In ainative: `_IDEAS ->
+  ../strategy/ainative/_IDEAS` symlink (resolves); `CLAUDE.local.md` with the 4 operator workflow
+  policies; both gitignored. Verified: symlink resolves, `git check-ignore` lists all three,
+  nothing tracked except the `.gitignore` edit.
 
-## Decisions (operator-confirmed)
-- Secrets hook: adapt orionfold-proof `secrets-guard.py` for ainative keys.
-- New committed `.claude/settings.json` + prune dead `stagent`-path entries from `settings.local.json`.
-- Disable plugins (this project): `stripe`, `ralph-loop`, `session-report`, `agent-sdk-dev`.
-- Surgical de-commit (keep `.claude/apps/starters/`). Strategy channel at `~/orionfold/strategy/ainative/`.
+## Outstanding pushes (operator-gated — nothing has left a remote yet)
+- ainative `origin/main`: commits `553d217e` + `a0b532d5` are local-only. Push when ready.
+- `orionfold/strategy` `origin/main`: commit `39e0f90` (ainative channel) is local-only. Push when ready.
 
 ---
 
-## Work breakdown — session by session (`/clear` between; ascending blast radius)
+## Session 5 — Surgical de-commit (REMAINING; highest blast radius; operator approval before push)
 
-- [ ] **Session 1 — Reference docs + secrets-guard hook (low risk, additive)**
-  1. Create `_REFER/`; copy the 3 docs from `orionfold-proof/_REFER/`; add `_REFER/` to `.gitignore`.
-  2. Create `.claude/hooks/secrets-guard.py` (adapt orionfold-proof; tune BLOCKED msg + ainative keys); `chmod +x`.
-  3. Verify: 5 hand-run fixtures block/allow correctly (show stderr evidence).
+**Goal:** stop publishing the dev-time secret sauce to the PUBLIC ainative repo, without deleting
+anything from disk or breaking the homepage starters.
 
-- [x] **Session 2 — Curated committed `.claude/settings.json` + plugin disables — DONE 2026-06-23**
-  - Created `.claude/settings.json` (untracked, NOT gitignored → tracked on commit): model pin
-    `claude-opus-4-8`; 15 allow rules (npm dev/build/test, npx vitest/tsc/next, drizzle-kit generate,
-    sqlite3, git status/diff/log/add/commit); 5 ask rules (git push, npm install/publish,
-    drizzle-kit push, brew install); deny `Read(.env*)`; 4 plugins disabled
-    (`stripe`/`agent-sdk-dev`/`ralph-loop`/`session-report`@claude-plugins-official); PreToolUse hook
-    wired with matcher `Write|Edit|Bash` via `$CLAUDE_PROJECT_DIR`.
-  - **Verified:** JSON parses; hook **activated mid-session** (no restart needed — CC re-reads on file
-    change; my own `git add .env.local` test string got blocked live); 5/5 fixtures block/allow correct
-    (real key BLOCK, process.env ALLOW, placeholder ALLOW, `git add .env` BLOCK, npm test ALLOW); deny
-    rule confirmed safe (no src file reads `.env.local` via fs — runtime uses `process.env`).
+1. Add to root `.gitignore`, scoped precisely (KEEP `.claude/apps/starters/` TRACKED):
+   ```
+   # Secret sauce — dev-time CC/Codex steering, held back for the paid model.
+   # NOT product runtime deps (SDK reads end-user cwd, not this repo). Kept local on disk.
+   /CLAUDE.md
+   /AGENTS.md
+   /MEMORY.md
+   /FLOW.md
+   .claude/skills/
+   .claude/plans/
+   .claude/reference/
+   .claude/agents/
+   .claude/commands/
+   .claude/rules/
+   .claude/hooks/
+   # KEEP TRACKED (product seed data the homepage renders): .claude/apps/starters/
+   ```
+   (`/CLAUDE.local.md` is already gitignored from S4 — don't double-add.)
+2. `git rm -r --cached` the now-ignored tracked paths. **DOUBLE-CHECK `.claude/apps/starters/` is
+   EXCLUDED from the `rm`** so product seed data stays tracked. Files stay on disk (--cached only).
+3. **Verify before any push:** starters test green; homepage renders 5 starters
+   (`src/lib/apps/starters.ts:40-47`); `git ls-files .claude/` drops ~342 → ~6 (only
+   `apps/starters/*` + maybe `settings.json`/`.gitignore`); `ls .claude/skills` still shows files
+   on disk (nothing deleted).
+4. **STOP and get operator approval before `git push`.**
 
-- [ ] **Session 3 — Prune stale `settings.local.json` (local-only hygiene)**
-  - Drop dead `/Developer/stagent/...` path rules + one-off kills/cps; keep generic patterns; dedup vs settings.json.
-  - Verify JSON parses.
+## Meta-harness safety (VERIFIED SAFE — recorded for confidence)
+The shipped product reads CLAUDE.md / `.claude/skills` relative to the *end user's* cwd / `~/.ainative`
+(`claude-agent.ts:614,628`, `profiles/registry.ts:35,408`), NOT this dev repo. npm `files` already
+excludes `.claude/`. Gitignoring dev-repo steering does NOT break the product. The ONE exception is
+`.claude/apps/starters/*.yaml` (homepage seed data) → must stay tracked.
 
-- [ ] **Session 4 — Strategy channel + gitignored `CLAUDE.local.md`**
-  - In `~/orionfold/strategy` repo: create `strategy/ainative/` (`_RELAY.md` + `_IDEAS/`), commit there.
-  - In ainative: symlink `_IDEAS` → strategy; gitignore the target. Write `CLAUDE.local.md` with the 4 operator
-    workflow policies. Verify symlink resolves + files untracked.
-
-- [ ] **Session 5 — Surgical de-commit (highest blast radius; operator approval before push)**
-  - Add surgical secret-sauce ignores to `.gitignore` (KEEP `.claude/apps/starters/`); `git rm -r --cached` the
-    ignored tracked paths (files stay on disk). Verify: starters test green, homepage renders 5 starters,
-    `git ls-files .claude/` drops 342 → ~6, nothing deleted from disk. Operator approval before push.
+## Gotchas
+- The S5 `.gitignore` edit will trip the auto-mode classifier? No — `.gitignore` isn't a permissions
+  file. But the `git rm --cached` + push are the consequential steps; keep them operator-visible.
+- Hook activation: secrets-guard already active (S2 verified live). No restart needed.
+- Don't re-add `/CLAUDE.local.md` or `_IDEAS`/`_REFER` to `.gitignore` in S5 — already there.
 
 ## Out of scope (record, don't do)
-- Global personal-skill cull (multi-project rule). Relocating starters out of `.claude/`. New skills.
+- Global personal-skill cull. Relocating starters out of `.claude/`. New skills.
 - Repo-privatization / history purge of already-published secret sauce (separate decision; this pass
   only stops *future* commits).
-
-## Gotchas for whoever executes
-- The hook only activates on **session restart** — verify after restart, not in the same session.
-- The `Read(.env*)` deny must NOT break dev flows; ainative reads env via `process.env` at runtime,
-  not via Claude's `Read` tool, so it should be safe — confirm in Session 2.
-- Session 5's `git rm --cached` removes from the index only; double-check `.claude/apps/starters/` is
-  excluded from the `rm` so product data stays tracked.
