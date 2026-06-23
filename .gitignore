@@ -33,6 +33,10 @@ ideas/
 methods/
 output/
 
+# Claude Code self-improvement reference docs (local only — playbook + Opus 4.8
+# best-practices standard; see _REFER/cc-self-improve-all-projects.md)
+_REFER/
+
 # local package artifacts
 ainative-*.tgz
 supabase/.temp/

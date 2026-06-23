@@ -1,0 +1,54 @@
+{
+  "//": "Harness-enforced behavior for ainative (Next.js 16 / React 19 / Drizzle / better-sqlite3). Allow-rules widen what runs without prompting — keep them tight to the dev loop; ask-rules gate outward-facing or stateful actions; deny blocks reading secrets. The PreToolUse hook enforces the no-secrets prime directive (see .claude/hooks/secrets-guard.py and the sdk-subprocess-env-isolation lesson). Rationale + the Opus-4.8 standard: _REFER/cc-self-improve-all-projects.md and _REFER/claude-code-opus-4.8-best-practices-2026.md (gitignored, local).",
+  "model": "claude-opus-4-8",
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run build:cli:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run test:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx next:*)",
+      "Bash(npx drizzle-kit generate:*)",
+      "Bash(sqlite3:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(npm install:*)",
+      "Bash(npm publish:*)",
+      "Bash(npx drizzle-kit push:*)",
+      "Bash(brew install:*)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(./**/.env)",
+      "Read(./**/.env.*)"
+    ]
+  },
+  "enabledPlugins": {
+    "stripe@claude-plugins-official": false,
+    "agent-sdk-dev@claude-plugins-official": false,
+    "ralph-loop@claude-plugins-official": false,
+    "session-report@claude-plugins-official": false
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/secrets-guard.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
