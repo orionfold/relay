@@ -1,12 +1,10 @@
-# Handoff: Claude Code self-improvement pass — Session 5 (the public de-commit) remaining
+# Handoff: Claude Code self-improvement pass — COMPLETE (S1–S5); pushes operator-gated
 
-**Updated:** 2026-06-23. Sessions 1–4 complete. Prior handoff (the full 5-session plan, before
-S3/S4 landed) is captured in commit messages `553d217e` (S1+S2) and `a0b532d5` (S3+S4).
+**Updated:** 2026-06-23. **All five sessions (S1–S5) done.** The only thing left is the
+**operator-gated push** of local commits to the public/private remotes — nothing has left a
+remote yet, by design (push is the operator's call).
 
-**Status:** clean on `main` at `a0b532d5`, **not yet pushed** to `origin/main` (S1–S4 commits are
-local — push is operator-gated; see below). Only **Session 5** of the pass remains, and it was
-**deliberately deferred** to a separate, careful session because it is the highest-blast-radius
-step and affects the PUBLIC repo.
+**Status:** clean on `main` at `b1c3b3d0`, **4 commits ahead of `origin/main`, none pushed**.
 
 **Full approved plan:** `~/.claude/plans/read-handoff-md-it-soft-token.md`.
 **Playbook + standard:** `_REFER/cc-self-improve-all-projects.md` +
@@ -14,72 +12,55 @@ step and affects the PUBLIC repo.
 
 ---
 
-## What's done (S1–S4)
+## What's done (S1–S5)
 
 - **S1 ✅** (`553d217e`) — `_REFER/` reference docs (gitignored); `.claude/hooks/secrets-guard.py`
   (executable, PreToolUse guard). 5/5 fixtures verified.
 - **S2 ✅** (`553d217e`) — committed `.claude/settings.json`: model pin `claude-opus-4-8`; 15 allow
-  / 5 ask / 3 deny rules; 4 plugins disabled (`stripe`/`agent-sdk-dev`/`ralph-loop`/
-  `session-report`); secrets-guard hook wired via `$CLAUDE_PROJECT_DIR`.
-- **S3 ✅** (`a0b532d5`, local-only) — pruned `.claude/settings.local.json` 326 → 117 allow rules
-  (dead `/Developer/stagent/*` paths, one-off PIDs/cp/sed, shell fragments removed; deduped vs
-  committed baseline; dropped broad `Bash(git:*)`). Still gitignored + valid JSON.
-- **S4 ✅** (`a0b532d5`) — `strategy/ainative/` (`_RELAY.md` + `_IDEAS/`) committed in the **private**
-  `orionfold/strategy` repo (commit `39e0f90` there, **not pushed**). In ainative: `_IDEAS ->
-  ../strategy/ainative/_IDEAS` symlink (resolves); `CLAUDE.local.md` with the 4 operator workflow
-  policies; both gitignored. Verified: symlink resolves, `git check-ignore` lists all three,
-  nothing tracked except the `.gitignore` edit.
-
-## Outstanding pushes (operator-gated — nothing has left a remote yet)
-- ainative `origin/main`: commits `553d217e` + `a0b532d5` are local-only. Push when ready.
-- `orionfold/strategy` `origin/main`: commit `39e0f90` (ainative channel) is local-only. Push when ready.
+  / 5 ask / 3 deny rules; 4 plugins disabled; secrets-guard hook wired via `$CLAUDE_PROJECT_DIR`.
+- **S3 ✅** (`a0b532d5`, local-only) — pruned `.claude/settings.local.json` 326 → 117 allow rules.
+- **S4 ✅** (`a0b532d5`) — `strategy/ainative/` committed in private `orionfold/strategy` repo
+  (commit `39e0f90` there, **not pushed**); `_IDEAS` symlink + `CLAUDE.local.md` (4 operator
+  policies), both gitignored in ainative.
+- **S5 ✅** (`b1c3b3d0`, local-only) — **surgical de-commit of dev-time steering from the PUBLIC
+  ainative repo.** Scoped `.gitignore` block (`/CLAUDE.md /AGENTS.md /MEMORY.md /FLOW.md` +
+  `.claude/{skills,plans,reference,agents,commands,rules,hooks}/`); `git rm -r --cached` untracked
+  341 paths (files stay on disk). **`git ls-files .claude/` dropped 344 → 7** (only the 5
+  `apps/starters/*.yaml` + `settings.json` + `.claude/.gitignore` remain tracked). 0 files deleted
+  from disk. `starters.test` green (10/10). Product-safety re-verified: npm `files` never included
+  `.claude/`; SDK reads end-user cwd; starters loader resolves a filesystem path needing only the
+  YAMLs on disk.
 
 ---
 
-## Session 5 — Surgical de-commit (REMAINING; highest blast radius; operator approval before push)
+## Outstanding pushes (operator-gated — NOTHING has left a remote yet)
 
-**Goal:** stop publishing the dev-time secret sauce to the PUBLIC ainative repo, without deleting
-anything from disk or breaking the homepage starters.
+These are the ONLY remaining actions. Each is the operator's call:
 
-1. Add to root `.gitignore`, scoped precisely (KEEP `.claude/apps/starters/` TRACKED):
-   ```
-   # Secret sauce — dev-time CC/Codex steering, held back for the paid model.
-   # NOT product runtime deps (SDK reads end-user cwd, not this repo). Kept local on disk.
-   /CLAUDE.md
-   /AGENTS.md
-   /MEMORY.md
-   /FLOW.md
-   .claude/skills/
-   .claude/plans/
-   .claude/reference/
-   .claude/agents/
-   .claude/commands/
-   .claude/rules/
-   .claude/hooks/
-   # KEEP TRACKED (product seed data the homepage renders): .claude/apps/starters/
-   ```
-   (`/CLAUDE.local.md` is already gitignored from S4 — don't double-add.)
-2. `git rm -r --cached` the now-ignored tracked paths. **DOUBLE-CHECK `.claude/apps/starters/` is
-   EXCLUDED from the `rm`** so product seed data stays tracked. Files stay on disk (--cached only).
-3. **Verify before any push:** starters test green; homepage renders 5 starters
-   (`src/lib/apps/starters.ts:40-47`); `git ls-files .claude/` drops ~342 → ~6 (only
-   `apps/starters/*` + maybe `settings.json`/`.gitignore`); `ls .claude/skills` still shows files
-   on disk (nothing deleted).
-4. **STOP and get operator approval before `git push`.**
+1. **ainative `origin/main`** — 4 local commits ahead, none pushed:
+   `553d217e` (S1+S2), `a0b532d5` (S3+S4), `5fa8b3c7` (handoff), `b1c3b3d0` (S5 de-commit).
+   `git push origin main` when ready. **S5's push is the highest blast radius** — it makes the
+   public repo stop carrying the steering files going forward.
+2. **`orionfold/strategy` `origin/main`** — commit `39e0f90` (ainative channel) is local-only.
+   Push that repo when ready.
+
+## Pre-push sanity (re-run right before pushing, optional but cheap)
+- `git ls-files .claude/` → expect 7 (`.gitignore`, 5 `apps/starters/*.yaml`, `settings.json`).
+- `git ls-files CLAUDE.md AGENTS.md MEMORY.md FLOW.md` → expect EMPTY.
+- `ls .claude/skills | wc -l` → still ~25 on disk (nothing deleted).
+- `npx vitest run src/lib/apps/__tests__/starters.test.ts` → 10/10 green.
 
 ## Meta-harness safety (VERIFIED SAFE — recorded for confidence)
-The shipped product reads CLAUDE.md / `.claude/skills` relative to the *end user's* cwd / `~/.ainative`
-(`claude-agent.ts:614,628`, `profiles/registry.ts:35,408`), NOT this dev repo. npm `files` already
-excludes `.claude/`. Gitignoring dev-repo steering does NOT break the product. The ONE exception is
-`.claude/apps/starters/*.yaml` (homepage seed data) → must stay tracked.
-
-## Gotchas
-- The S5 `.gitignore` edit will trip the auto-mode classifier? No — `.gitignore` isn't a permissions
-  file. But the `git rm --cached` + push are the consequential steps; keep them operator-visible.
-- Hook activation: secrets-guard already active (S2 verified live). No restart needed.
-- Don't re-add `/CLAUDE.local.md` or `_IDEAS`/`_REFER` to `.gitignore` in S5 — already there.
+The shipped product reads CLAUDE.md / `.claude/skills` relative to the *end user's* cwd / `~/.ainative`,
+NOT this dev repo. npm `files` already excludes `.claude/`. Gitignoring dev-repo steering does NOT
+break the product. The ONE exception — `.claude/apps/starters/*.yaml` (homepage seed data) — was kept
+tracked, confirmed by the 344 → 7 ls-files result above.
 
 ## Out of scope (record, don't do)
 - Global personal-skill cull. Relocating starters out of `.claude/`. New skills.
 - Repo-privatization / history purge of already-published secret sauce (separate decision; this pass
-  only stops *future* commits).
+  only stopped *future* commits — the steering files already in git history remain in history).
+- Note (pre-existing, unrelated to S5): published-npx starters rely on `.claude/apps/starters/`
+  existing at the package root, but `.claude/` is in neither npm `files` nor the bin/cli.ts hoist
+  list. The loader degrades gracefully (`if (!fs.existsSync(dir)) return []`). Untracking did not
+  change this either way; flagged only so it isn't mistaken for an S5 regression.
