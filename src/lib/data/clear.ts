@@ -18,8 +18,6 @@ import {
   environmentTemplates,
   chatMessages,
   conversations,
-  readingProgress,
-  bookmarks,
   profileTestResults,
   repoImports,
   channelBindings,
@@ -97,10 +95,6 @@ export function clearAllData() {
   const channelBindingsDeleted = step("channelBindings", () => db.delete(channelBindings).run().changes);
   const chatMessagesDeleted = step("chatMessages", () => db.delete(chatMessages).run().changes);
   const conversationsDeleted = step("conversations", () => db.delete(conversations).run().changes);
-
-  // Book tables (no FK dependencies)
-  const bookmarksDeleted = step("bookmarks", () => db.delete(bookmarks).run().changes);
-  const readingProgressDeleted = step("readingProgress", () => db.delete(readingProgress).run().changes);
 
   // Agent messages reference tasks — delete before tasks
   const agentMessagesDeleted = step("agentMessages", () => db.delete(agentMessages).run().changes);
@@ -188,8 +182,6 @@ export function clearAllData() {
     environmentTemplates: envTemplatesDeleted,
     chatMessages: chatMessagesDeleted,
     conversations: conversationsDeleted,
-    bookmarks: bookmarksDeleted,
-    readingProgress: readingProgressDeleted,
     repoImports: repoImportsDeleted,
     profileTestResults: profileTestResultsDeleted,
     agentMessages: agentMessagesDeleted,

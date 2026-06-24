@@ -3,8 +3,6 @@ import { getDocBySlug, getManifest } from "@/lib/docs/reader";
 import { getAdoptionMap } from "@/lib/docs/adoption";
 import { PageShell } from "@/components/shared/page-shell";
 import { PlaybookDetailView } from "@/components/playbook/playbook-detail-view";
-import { getChapterForDoc } from "@/lib/book/chapter-mapping";
-import { getChapter } from "@/lib/book/content";
 
 export const dynamic = "force-dynamic";
 
@@ -56,13 +54,6 @@ export default async function PlaybookDetailPage({
 
   const adoption = Object.fromEntries(adoptionMap);
 
-  // Find related book chapter for "Read the story" breadcrumb
-  const bookChapterId = getChapterForDoc(slug);
-  const bookChapter = bookChapterId ? getChapter(bookChapterId) : undefined;
-  const bookChapterLink = bookChapter && bookChapterId
-    ? { title: `Ch. ${bookChapter.number}: ${bookChapter.title}`, id: bookChapterId }
-    : undefined;
-
   // Collect all known doc slugs so markdown links resolve correctly
   const allSlugs = [
     ...manifest.sections.map((s) => s.slug),
@@ -78,7 +69,6 @@ export default async function PlaybookDetailPage({
         relatedSections={relatedSections}
         adoption={adoption}
         allSlugs={allSlugs}
-        bookChapterLink={bookChapterLink}
       />
     </PageShell>
   );

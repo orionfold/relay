@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowLeft, ArrowRight, BookOpen, ExternalLink } from "lucide-react";
+import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PROSE_READER_FULL } from "@/lib/constants/prose-styles";
@@ -17,7 +17,6 @@ interface PlaybookDetailViewProps {
   relatedSections: DocSection[];
   adoption: Record<string, AdoptionEntry>;
   allSlugs: string[];
-  bookChapterLink?: { title: string; id: string };
 }
 
 /** Convert a heading text to a slug-style ID */
@@ -33,7 +32,6 @@ export function PlaybookDetailView({
   relatedSections,
   adoption,
   allSlugs,
-  bookChapterLink,
 }: PlaybookDetailViewProps) {
   const title =
     (doc.frontmatter.title as string) || doc.slug.replace(/-/g, " ");
@@ -168,14 +166,6 @@ export function PlaybookDetailView({
             <Link href={route}>
               Open {title}
               <ArrowRight className="h-3.5 w-3.5 ml-1" />
-            </Link>
-          </Button>
-        )}
-        {bookChapterLink && (
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/book" className="text-muted-foreground">
-              <BookOpen className="h-3.5 w-3.5 mr-1" />
-              Read the story: {bookChapterLink.title}
             </Link>
           </Button>
         )}

@@ -122,7 +122,6 @@ Run the same business process on different AI providers without changing a line 
 | 🔎 | **[Filters & Saved Searches](#filters--saved-searches)** | `#key:value` filter grammar, pinned and saved searches surfaced in `⌘K` palette |
 | 🛡️ | **[Upgrade Detection](#upgrade-detection)** | Hourly upstream check with in-app notifications and guided merge sessions |
 | 📖 | **[Playbook](#playbook)** | Built-in documentation with usage-stage awareness, adoption heatmap, and guided learning journeys |
-| 📚 | **[Living Book](#living-book)** | AI-native book reader with 9 chapters, agent-powered regeneration, staleness detection, and reading paths |
 | 🌐 | **[Environment](#environment)** | Control plane for Claude Code and Codex CLI environments with scanning, caching, sync, and templates |
 | 🔧 | **[Browser Tools](#browser-tools)** | Chrome DevTools and Playwright MCP integration for browser automation in chat and task execution |
 
@@ -282,16 +281,6 @@ Built-in documentation system at `/playbook` with usage-stage awareness that ada
 
 <img src="https://raw.githubusercontent.com/manavsehgal/ainative/main/public/readme/user-guide-list.png" alt="ainative-business playbook documentation" width="1200" />
 
-#### Living Book
-AI-native book reader at `/book` with 9 chapters across 3 parts (Foundation, Intelligence, Autonomy). Each chapter is generated from `ainative-business`'s own source code and feature docs by the document-writer agent — making this a book that writes itself.
-
-- **Chapter regeneration** — one-click regeneration via the document-writer agent profile with fire-and-forget task execution
-- **Staleness detection** — git-based change tracking compares source file timestamps against `lastGeneratedBy` frontmatter to show when chapters need updating
-- **Live progress streaming** — SSE subscription shows real-time agent steps during generation (Reading files → Planning → Composing → Writing) with fade-in animation
-- **Reading paths** — 4 persona-based paths (Getting Started, Team Lead, Power User, Developer) filter chapter navigation
-- **Try It Now** — each chapter links to related Playbook feature docs and user journeys
-- **Author's Notes** — collapsible callout blocks with behind-the-scenes commentary
-
 ### Environment
 
 #### Environment
@@ -388,7 +377,7 @@ Configuration hub with provider-aware sections: Claude authentication (API key o
 The `npx ainative-business` entry point boots a Next.js server from the published npm package. It is built from `bin/cli.ts` into `dist/cli.js` using tsup, and serves as the primary distribution channel — no clone required.
 
 #### Database
-SQLite with WAL mode via better-sqlite3 + Drizzle ORM. <!-- STAT:dbTables -->45<!-- /STAT --> tables including core tables: `projects`, `tasks`, `workflows`, `agent_logs`, `notifications`, `documents`, `schedules`, `settings`, `learned_context`, `usage_ledger`, `conversations`, `chat_messages`, `environments`, `environment_configs`. Self-healing bootstrap — tables are created on startup if missing.
+SQLite with WAL mode via better-sqlite3 + Drizzle ORM. <!-- STAT:dbTables -->43<!-- /STAT --> tables including core tables: `projects`, `tasks`, `workflows`, `agent_logs`, `notifications`, `documents`, `schedules`, `settings`, `learned_context`, `usage_ledger`, `conversations`, `chat_messages`, `environments`, `environment_configs`. Self-healing bootstrap — tables are created on startup if missing.
 
 #### Command Palette
 Global `⌘K` command palette for fast navigation and search across tasks, projects, workflows, and settings. Recent items, fuzzy search, and keyboard-driven navigation.
@@ -449,7 +438,6 @@ src/
 │   ├── costs/            # Cost & usage dashboard
 │   ├── playbook/         # Documentation & learning journeys
 │   ├── chat/             # Conversational AI (tool catalog)
-│   ├── book/             # AI Native Book reader
 │   ├── environment/      # Environment control plane
 │   ├── inbox/            # Notifications
 │   ├── monitor/          # Log streaming
@@ -465,7 +453,6 @@ src/
 │   ├── schedules/        # Schedule management
 │   ├── monitoring/       # Log viewer
 │   ├── chat/             # Chat shell, messages, input composer, tool catalog
-│   ├── book/             # Book reader, chapters, reading paths
 │   ├── environment/      # Environment dashboard, scanner, templates
 │   ├── notifications/    # Inbox + permission actions
 │   ├── settings/         # Auth, permissions, budgets, browser tools, data mgmt
@@ -580,7 +567,6 @@ All 14 features shipped across three layers:
 | **Plugin Platform** (5) | M3 chat-tools plugin kind, MCP plugin spec, plugin tools registry, plugin spec tools, schedule spec tools |
 | **Platform Hardening** (2) | Runtime validation hardening (MCP-tool runtime-id validation with safe fallbacks), upgrade detection (hourly upstream poll + guided merge sessions) |
 | **Environment** (11) | Environment scanner, cache, dashboard, git checkpoint manager, sync engine, project onboarding, templates, cross-project comparison, skill portfolio, health scoring, agent profile from environment |
-| **Living Book** (5) | Content merge (chapters → playbook), author's notes, reading paths, markdown pipeline, self-updating chapters |
 
 The category list above is illustrative — see `features/roadmap.md` for the full feature inventory and `features/stats/snapshot.json` for the canonical counts.
 

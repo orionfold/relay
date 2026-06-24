@@ -49,14 +49,14 @@ describe("npx safety: no process.cwd() for app-internal asset resolution", () =>
    * We look for join/resolve calls that combine process.cwd() with known app dirs.
    */
   const DANGEROUS_PATTERNS = [
-    /process\.cwd\(\)\s*,\s*["'](?:public|docs|book|ai-native-notes|src)\b/,
+    /process\.cwd\(\)\s*,\s*["'](?:public|docs|src)\b/,
     /process\.cwd\(\)\s*,\s*["'].*?\.(?:png|ico|svg|jpg|md|json)["']/,
-    // Catch bare process.cwd() in book/docs/profiles modules (even without join)
+    // Catch bare process.cwd() in docs/profiles modules (even without join)
     /process\.cwd\(\)/,
   ];
 
   // Files in these directories are NEVER allowed to use process.cwd()
-  const STRICT_DIRS = ["src/lib/book/", "src/lib/docs/", "src/lib/agents/profiles/"];
+  const STRICT_DIRS = ["src/lib/docs/", "src/lib/agents/profiles/"];
 
   it("server-side code does not use process.cwd() for internal asset paths", () => {
     const srcFiles = collectFiles(join(PROJECT_ROOT, "src"));

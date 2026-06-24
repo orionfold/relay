@@ -20,8 +20,6 @@ const LEGACY_DATA_TABLES = [
   "environment_templates",
   "conversations",
   "chat_messages",
-  "reading_progress",
-  "bookmarks",
   "profile_test_results",
   "repo_imports",
   "agent_memory",
@@ -510,28 +508,6 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
 
     CREATE INDEX IF NOT EXISTS idx_chat_messages_conversation_id ON chat_messages(conversation_id);
     CREATE INDEX IF NOT EXISTS idx_chat_messages_conversation_created ON chat_messages(conversation_id, created_at);
-  `);
-
-  // ── Book reading progress & bookmarks ────────────────────────────────
-  sqlite.exec(`
-    CREATE TABLE IF NOT EXISTS reading_progress (
-      chapter_id TEXT PRIMARY KEY NOT NULL,
-      progress INTEGER DEFAULT 0 NOT NULL,
-      scroll_position INTEGER DEFAULT 0 NOT NULL,
-      last_read_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS bookmarks (
-      id TEXT PRIMARY KEY NOT NULL,
-      chapter_id TEXT NOT NULL,
-      section_id TEXT,
-      scroll_position INTEGER DEFAULT 0 NOT NULL,
-      label TEXT NOT NULL,
-      created_at INTEGER NOT NULL
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_bookmarks_chapter_id ON bookmarks(chapter_id);
   `);
 
   // ── Repo imports (skills repo import tracking) ─────────────────────

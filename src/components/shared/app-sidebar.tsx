@@ -14,7 +14,6 @@ import {
   Bot,
   Clock,
   Wallet,
-  BookOpen,
   BookMarked,
   Globe,
   Settings,
@@ -89,7 +88,6 @@ const observeItems: NavItem[] = [
 ];
 
 const learnItems: NavItem[] = [
-  { title: "AI Native Business", href: "/book", icon: BookOpen, description: "Philosophy and patterns" },
   { title: "User Guide", href: "/user-guide", icon: BookMarked, description: "How-tos and walkthroughs" },
 ];
 

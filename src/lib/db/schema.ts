@@ -672,36 +672,6 @@ export const profileTestResults = sqliteTable(
   ]
 );
 
-// ── Book reading progress & bookmarks ───────────────────────────────────
-
-export const readingProgress = sqliteTable("reading_progress", {
-  chapterId: text("chapter_id").primaryKey(),
-  /** Fraction 0–1 of scroll progress (high-water mark) */
-  progress: integer("progress").default(0).notNull(),
-  /** Raw scroll position (pixels) for restoring exact location */
-  scrollPosition: integer("scroll_position").default(0).notNull(),
-  lastReadAt: integer("last_read_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-});
-
-export const bookmarks = sqliteTable(
-  "bookmarks",
-  {
-    id: text("id").primaryKey(),
-    chapterId: text("chapter_id").notNull(),
-    /** Section ID within the chapter (optional — null means chapter-level) */
-    sectionId: text("section_id"),
-    /** Scroll position in pixels for restoring location */
-    scrollPosition: integer("scroll_position").default(0).notNull(),
-    /** User-provided label or auto-generated from section title */
-    label: text("label").notNull(),
-    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  },
-  (table) => [
-    index("idx_bookmarks_chapter_id").on(table.chapterId),
-  ]
-);
-
 export const repoImports = sqliteTable(
   "repo_imports",
   {
@@ -1229,8 +1199,6 @@ export type EnvironmentTemplateRow = InferSelectModel<typeof environmentTemplate
 export type ConversationRow = InferSelectModel<typeof conversations>;
 export type ChatMessageRow = InferSelectModel<typeof chatMessages>;
 export type ProfileTestResultRow = InferSelectModel<typeof profileTestResults>;
-export type ReadingProgressRow = InferSelectModel<typeof readingProgress>;
-export type BookmarkRow = InferSelectModel<typeof bookmarks>;
 export type RepoImportRow = InferSelectModel<typeof repoImports>;
 export type AgentMessageRow = InferSelectModel<typeof agentMessages>;
 export type UserTableRow = InferSelectModel<typeof userTables>;

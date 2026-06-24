@@ -4,8 +4,8 @@ category: "user-journey"
 persona: "personal"
 difficulty: "beginner"
 estimatedTime: "30 minutes"
-sections: ["home-workspace", "dashboard-kanban", "projects", "chat", "tables", "schedules", "user-guide", "book"]
-tags: ["beginner", "solo", "tasks", "kanban", "chat", "tables", "schedules", "delivery-channels", "book"]
+sections: ["home-workspace", "dashboard-kanban", "projects", "chat", "tables", "schedules", "user-guide"]
+tags: ["beginner", "solo", "tasks", "kanban", "chat", "tables", "schedules", "delivery-channels"]
 lastUpdated: "2026-04-16"
 ---
 
@@ -264,18 +264,11 @@ Alex discovers the built-in documentation hub.
 
 ### Step 15: Read the AI Native Business book
 
-Alex wants deeper context on how `ainative-business` fits into the broader shift to AI-native work. The Living Book is built into the sidebar under the **Learn** group.
+Alex wants deeper context on how `ainative-business` fits into the broader shift to AI-native work. The companion book — **AI Native Business** — is published online at [ainative.business/book](https://ainative.business/book).
 
-![AI Native Business — chapter list with reading progress](../screengrabs/book-list.png)
-
-1. Click **AI Native Business** in the sidebar under the **Learn** group to open the chapter list
+1. Open [ainative.business/book](https://ainative.business/book) in your browser
 2. Scan the table of contents — chapters are organised from foundational concepts (From Hierarchy to Intelligence) through advanced topics (Autonomous Organization, The Road Ahead)
-3. Pick a reading path that matches your current focus:
-   - **Newcomer path** — start with the intro chapters on the AI-native blueprint and refinery
-   - **Practitioner path** — jump straight to the chapters on workflow orchestration, scheduled intelligence, and human-in-the-loop
-   - **Visionary path** — skip ahead to agent self-improvement, multi-agent swarms, and the governance layer
-4. As you read, the book merges content updates on each upgrade — new chapters and revisions appear automatically when you pull the latest release, so the book stays in sync with the product
-5. Reading progress persists per chapter, so you can dip in and out without losing your place
+3. Read the chapters that match your current focus — the blueprint and refinery chapters for newcomers; workflow orchestration, scheduled intelligence, and human-in-the-loop for practitioners; agent self-improvement, multi-agent swarms, and the governance layer for the road ahead
 
 > **Tip:** The book treats every example project as a case study — when you see a workflow or schedule described in a chapter, try building the same thing in your own workspace to anchor the idea in muscle memory.
 

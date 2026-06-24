@@ -85,7 +85,6 @@
     { "file": "costs-list.png", "page": "costs", "view": "list", "route": "/costs", "type": "default", "features": ["cost-and-usage-dashboard", "usage-metering-ledger"], "description": "Cost & Usage dashboard top viewport" },
     { "file": "cost-usage-below-fold.png", "page": "costs", "view": "below-fold", "route": "/costs", "type": "alternate", "features": ["cost-and-usage-dashboard"], "description": "Cost & Usage dashboard scrolled to detailed usage breakdown" },
     { "file": "analytics-list.png", "page": "analytics", "view": "list", "route": "/analytics", "type": "default", "features": ["workflow-intelligence-observability"], "description": "Analytics throughput and outcomes view" },
-    { "file": "book-list.png", "page": "book", "view": "list", "route": "/book", "type": "default", "features": ["living-book-content-merge"], "description": "AI Native Business book reader" },
     { "file": "user-guide-list.png", "page": "user-guide", "view": "list", "route": "/user-guide", "type": "default", "features": ["playbook-documentation"], "description": "User Guide how-tos and walkthroughs" },
     { "file": "environment-list.png", "page": "environment", "view": "list", "route": "/environment", "type": "default", "features": ["environment-dashboard", "environment-scanner"], "description": "Environment system prerequisites and discovered artifacts" },
 
@@ -115,7 +114,7 @@
     { "file": "journey-app-builder-detail.png", "page": "journey", "view": "app-builder-detail", "route": "/apps/[id]", "type": "journey", "features": ["composed-app-view-shell", "app-view-tracker-kit"], "description": "Journey: app-builder — composed app live with kit-aware layout" }
   ],
   "coverage": {
-    "routesCaptured": 17,
+    "routesCaptured": 16,
     "subRoutesCaptured": 4,
     "formsCaptured": 18,
     "detailsCaptured": 18,

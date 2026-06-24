@@ -3,16 +3,16 @@ import { readFileSync, readdirSync, existsSync } from "fs";
 import { join, resolve } from "path";
 
 /**
- * M5 install-parity regression test: lock the npm publish contract so
- * that runtime-read directories stay in package.json's `files` array.
+ * npm publish contract test.
  *
- * Drift history (2026-04-21): `book/` and `ai-native-notes/` were missing
- * from the published tarball for multiple releases. The book UI + chapter
- * generator silently degraded on `npx ainative` installs — `existsSync`
- * returned false and the code fell back to stub content, so no crash
- * surfaced in CI. This test makes the drift loud.
+ * History: `book/` and `ai-native-notes/` once HAD to ship because the in-app
+ * kindle reader + in-app chapter generator read them at runtime. That reader
+ * was removed (the book lives at ainative.business; authoring now happens via
+ * the `book-updater` skill editing markdown directly). So those dirs are now
+ * dev/authoring assets that must NOT bloat the published tarball — while the
+ * working-tree copies must remain so authoring keeps working.
  */
-describe("M5: npm publish contract — runtime-read directories must ship", () => {
+describe("npm publish contract", () => {
   const PROJECT_ROOT = resolve(__dirname, "..", "..", "..");
   const pkg = JSON.parse(
     readFileSync(join(PROJECT_ROOT, "package.json"), "utf-8")
@@ -20,24 +20,24 @@ describe("M5: npm publish contract — runtime-read directories must ship", () =
 
   const filesSet = new Set(pkg.files);
 
-  it("includes book/chapters/ — runtime-read by src/lib/book/content.ts", () => {
-    expect(
-      filesSet.has("book/chapters/") || filesSet.has("book/"),
-      `package.json files must include "book/chapters/" or "book/" — read at runtime by src/lib/book/content.ts:204. Current files: ${JSON.stringify(pkg.files)}`
-    ).toBe(true);
-  });
-
-  it("includes ai-native-notes/*.md — runtime-read by chapter-generator.ts", () => {
-    const hasPattern = pkg.files.some(
-      (f) =>
-        f === "ai-native-notes/*.md" ||
-        f === "ai-native-notes/" ||
-        f === "ai-native-notes"
+  it("does NOT publish book/ — reader removed, book/ is an authoring asset", () => {
+    const shipsBook = pkg.files.some(
+      (f) => f.startsWith("book/") || f === "book"
     );
     expect(
-      hasPattern,
-      `package.json files must include ai-native-notes markdown — read at runtime by src/lib/book/chapter-generator.ts:58,66. Current files: ${JSON.stringify(pkg.files)}`
-    ).toBe(true);
+      shipsBook,
+      `package.json files must NOT include book/* — the in-app reader was removed. Current files: ${JSON.stringify(pkg.files)}`
+    ).toBe(false);
+  });
+
+  it("does NOT publish ai-native-notes/ — authoring-only input to book-updater", () => {
+    const shipsNotes = pkg.files.some(
+      (f) => f.startsWith("ai-native-notes")
+    );
+    expect(
+      shipsNotes,
+      `package.json files must NOT include ai-native-notes — authoring-only. Current files: ${JSON.stringify(pkg.files)}`
+    ).toBe(false);
   });
 
   it("includes dist/ and src/ — CLI entry + Next.js server code", () => {
@@ -45,17 +45,16 @@ describe("M5: npm publish contract — runtime-read directories must ship", () =
     expect(filesSet.has("src/")).toBe(true);
   });
 
-  it("includes docs/ — published user-facing documentation", () => {
+  it("includes docs/ — published user-facing documentation (User Guide)", () => {
     expect(filesSet.has("docs/")).toBe(true);
   });
 
-  it("runtime-read dirs actually exist in the working tree", () => {
-    // If this test fails, the previous tests might be passing against
-    // a non-existent directory (silent drift).
+  it("authoring sources still exist in the working tree (book-updater inputs)", () => {
+    // The reader is gone, but the book-updater skill still authors chapters
+    // from these dirs in a CC/Codex session — they must remain in the repo.
     expect(existsSync(join(PROJECT_ROOT, "book", "chapters"))).toBe(true);
     expect(existsSync(join(PROJECT_ROOT, "ai-native-notes"))).toBe(true);
 
-    // Spot-check: at least one .md in each.
     const bookChapters = readdirSync(join(PROJECT_ROOT, "book", "chapters"));
     const notes = readdirSync(join(PROJECT_ROOT, "ai-native-notes"));
     expect(bookChapters.some((f) => f.endsWith(".md"))).toBe(true);

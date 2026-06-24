@@ -4,7 +4,7 @@
  * - Turbopack compiles it to /ROOT/... (virtual, doesn't exist) → fall back to process.cwd()
  *
  * Uses dynamic require() for fs/path to avoid bundling Node built-ins
- * into client components (content.ts is shared with book-reader.tsx).
+ * into client components that may share modules importing this helper.
  */
 export function getAppRoot(metaDirname: string | undefined, depth: number): string {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
