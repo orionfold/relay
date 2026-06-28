@@ -32,16 +32,22 @@ The book (content + authoring) is being moved OUT of this public/npm repo into t
   `asciinema-player` — needs `npm install` in that clone; NOT book-related, NOT fixed here per
   no-sibling-edits.)
 
-**Pending pushes / next actions (operator-gated):**
-1. **ainative `origin/main`** — Phase B commit `07917182` made, **NOT pushed** (1 ahead).
-2. **books/** — local-only git; commits `cdbbc9a` (Phase A) + the Phase C skill edit **not pushed**;
-   no remote (see plan operator-decision #1).
-3. **Reader PR (Phase C first real run)** — when you next update a chapter (or to land the skill
-   decommission): run the books/ `book-updater` Phase 7b to open the PR to
-   `orionfold/ainative-business.github.io`, including `git rm -r .claude/skills/apply-book-update`.
-   Today it'd be a content no-op + the skill deletion.
-4. **Optional:** delete on-disk `book/` + `ai-native-notes/` copies in ainative once books/ confirmed
-   sole home (further gated step).
+**Status (2026-06-28):**
+1. **ainative `origin/main`** — ✅ pushed (`50ea3e10`). Public repo confirmed clean of `book/` +
+   `ai-native-notes/`.
+2. **books/** — local-only git by decision (NO remote, settled — book stays Mac-only). Commits
+   `cdbbc9a` (Phase A) + `f8b09e5` (Phase C) live only on this Mac; nothing to push.
+3. **Reader skill deletion** — ✅ **PR #6 opened** in `orionfold/ainative-business.github.io`
+   (`chore/remove-redundant-apply-book-update`) deleting the dead `apply-book-update` skill.
+   Awaiting Spark merge.
+4. **On-disk copies + past public history** — left as-is by decision (don't delete, don't purge).
+
+**⏳ FOLLOW-UP (migration closure — come back to this):** the new book-sync round-trip has only
+been dry-run'd (0-file content diff) — it has NOT done a real chapter-content PR yet. Closure =
+on the next actual chapter update, run books/ `book-updater` Phase 7b end-to-end so
+**orionfold/books creates the PR → ainative.business on Spark picks it up + merges + deploys** —
+confirming the full Mac-authors → Spark-deploys path works for live content, not just the skill
+deletion. Also confirm PR #6 merged on Spark.
 
 ---
 
