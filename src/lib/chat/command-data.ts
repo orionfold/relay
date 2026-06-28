@@ -10,7 +10,6 @@ import {
   Clock,
   Wallet,
   Settings,
-  BookOpen,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -38,7 +37,6 @@ export const navigationItems: NavigationItem[] = [
   { title: "Profiles", href: "/profiles", icon: Bot, keywords: "agents configuration" },
   { title: "Schedules", href: "/schedules", icon: Clock, keywords: "cron recurring timer" },
   { title: "Cost & Usage", href: "/costs", icon: Wallet, keywords: "spend tokens metering budget analytics" },
-  { title: "User Guide", href: "/user-guide", icon: BookOpen, keywords: "docs guide documentation help playbook" },
   { title: "Settings", href: "/settings", icon: Settings, keywords: "preferences configuration" },
 ];
 

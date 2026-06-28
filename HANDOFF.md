@@ -1,8 +1,41 @@
-# Handoff: Book extracted to ~/orionfold/books (Phase A+B+C done, local); pushes + first reader PR pending
+# Handoff: Content extraction → ~/orionfold/books (Book + User-Guide/docs done, local); pushes pending
 
 **Updated:** 2026-06-28.
 
-## ACTIVE: AI Native Business book extraction → ~/orionfold/books
+## DONE: User Guide / docs extraction → ~/orionfold/books (content-factory model)
+
+Governing principle realized: **ALL content generation lives in `~/orionfold/books`, reading the
+ainative product repo read-only via `$AINATIVE_REPO` sibling path; ainative keeps zero generation
+machinery.** Plan: `~/.claude/plans/extract-user-guide-docs-to-books.md`.
+
+- **Phase A ✅:** field-manual already fully self-contained in `books/field-manual/` (69/69
+  screenshots local, `make BOOK=field-manual all` green, epubcheck 0). No copy needed.
+- **Phase B ✅ (books/ commit `ff02215`, local):** all 5 generation skills moved to books/ and
+  rewritten to sibling-path with loud guards — doc-generator (writes `books/ainative-docs/` corpus,
+  the field-manual authoring source), screengrab (drives ainative dev server, writes back to
+  `$AINATIVE_REPO/screengrabs/`), user-guide-sync (writes README images to
+  `$AINATIVE_REPO/public/readme/`), refresh-content-pipeline (orchestrates from books/),
+  book-updater (prior). Seeded `books/ainative-docs/` (22 features, 5 journeys, 2 use-cases). All 5
+  skills removed from ainative `.claude/skills/` (gitignored; on-disk only).
+- **Phase C ✅ (ainative, local — NOT pushed):** full in-app User Guide removal. Deleted
+  `src/app/user-guide/`, `src/app/api/user-guide/`, `src/components/playbook/` (10), `src/lib/docs/`
+  (5, DB-backed loader). Decoupled the **command palette** (route + component + command-data — it
+  surfaced docs via getManifest). Removed sidebar "Learn" group + User Guide entry. Dropped `docs/`
+  from `package.json files` + `bin/cli.ts` hoist. De-committed the generated docs corpus
+  (gitignore + `git rm --cached`; files on disk; KEPT `docs/superpowers/` + `docs/plugin-security.md`
+  tracked). Updated `npm-pack-files.test.ts` (asserts docs/ NOT shipped) + `npx-process-cwd.test.ts`.
+  **Smoke verified:** `npm run build` clean (no /user-guide route), `npm run dev` boots, `/` → 200,
+  `/user-guide` → 404, command-palette API → 200 (no playbook field). Full suite: my changes add
+  ZERO failures (10 pre-existing failures confirmed via stash-and-retest, all unrelated:
+  settings/charts/plugin-version/router/blueprint-e2e).
+
+**Pushes pending (operator-gated):** ainative Phase C commit (local), books/ Phase B `ff02215`
+(local, no remote by decision). On-disk generated `docs/` corpus + past public history left as-is
+(same accept stance as the book).
+
+---
+
+## DONE: AI Native Business book extraction → ~/orionfold/books
 
 The book (content + authoring) is being moved OUT of this public/npm repo into the private
 `~/orionfold/books` repo, so book IP stays out of the open repo + packaging. Plan:

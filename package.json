@@ -27,7 +27,6 @@
   },
   "files": [
     "dist/",
-    "docs/",
     "src/",
     "public/icon-512.png",
     "public/ainative-s-64.png",

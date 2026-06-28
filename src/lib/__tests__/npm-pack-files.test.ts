@@ -48,8 +48,15 @@ describe("npm publish contract", () => {
     expect(filesSet.has("src/")).toBe(true);
   });
 
-  it("includes docs/ — published user-facing documentation (User Guide)", () => {
-    expect(filesSet.has("docs/")).toBe(true);
+  it("does NOT publish docs/ — User Guide UI removed; doc generation moved to ~/orionfold/books", () => {
+    // The in-app User Guide UI and the generated docs corpus were removed in
+    // 2026-06; doc generation now lives in the private books repo. docs/ must
+    // not ship in the tarball.
+    const shipsDocs = pkg.files.some((f) => f === "docs/" || f.startsWith("docs/"));
+    expect(
+      shipsDocs,
+      `package.json files must NOT include docs/ — User Guide removed, docs generation extracted. Current files: ${JSON.stringify(pkg.files)}`
+    ).toBe(false);
   });
 
   it("book content is no longer git-tracked in this repo (extracted to ~/orionfold/books)", () => {

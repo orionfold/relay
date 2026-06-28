@@ -14,7 +14,6 @@ import {
   Bot,
   Clock,
   Wallet,
-  BookMarked,
   Globe,
   Settings,
   MessageCircle,
@@ -62,7 +61,7 @@ interface NavItem {
   alsoMatches?: string[];
 }
 
-type GroupId = "home" | "compose" | "observe" | "learn" | "configure";
+type GroupId = "home" | "compose" | "observe" | "configure";
 
 const homeItems: NavItem[] = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard, description: "Today's work at a glance" },
@@ -87,10 +86,6 @@ const observeItems: NavItem[] = [
   { title: "Analytics", href: "/analytics", icon: BarChart3, description: "Throughput and outcomes" },
 ];
 
-const learnItems: NavItem[] = [
-  { title: "User Guide", href: "/user-guide", icon: BookMarked, description: "How-tos and walkthroughs" },
-];
-
 const configureItems: NavItem[] = [
   { title: "Environment", href: "/environment", icon: Globe, description: "System prerequisites check" },
   { title: "Settings", href: "/settings", icon: Settings, description: "Models, auth, and defaults" },
@@ -100,7 +95,6 @@ const groupMap: { id: GroupId; label: string; items: NavItem[] }[] = [
   { id: "home", label: "Home", items: homeItems },
   { id: "compose", label: "Compose", items: composeItems },
   { id: "observe", label: "Observe", items: observeItems },
-  { id: "learn", label: "Learn", items: learnItems },
   { id: "configure", label: "Configure", items: configureItems },
 ];
 

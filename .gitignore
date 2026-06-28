@@ -88,3 +88,19 @@ CLAUDE.local.md
 # is already covered by the .claude/skills/ rule above.)
 /book/
 /ai-native-notes/
+
+# User Guide / docs generated corpus — generation moved to ~/orionfold/books
+# (the field-manual's authoring source) and the in-app User Guide UI was
+# removed (2026-06). The generated docs no longer ship (dropped from npm
+# `files` + cli hoist). Kept local on disk; only un-tracked from git.
+# KEEP docs/superpowers/ (dev plans/specs) and docs/plugin-security.md
+# (hand-written) TRACKED — they are not generated User Guide content.
+/docs/features/
+/docs/journeys/
+/docs/use-cases/
+/docs/index.md
+/docs/getting-started.md
+/docs/why-ainative.md
+/docs/manifest.json
+/docs/.coverage-gaps.json
+/docs/.last-generated

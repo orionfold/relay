@@ -20,7 +20,6 @@ import {
   Moon,
   CheckCheck,
   Loader2,
-  BookOpen,
   Sparkles,
   FileCode,
   Bookmark,
@@ -56,13 +55,6 @@ interface RecentTask {
   status: string;
 }
 
-interface PlaybookItem {
-  slug: string;
-  title: string;
-  tags: string[];
-}
-
-
 function statusColorClass(status: string): string {
   switch (status) {
     case "running":
@@ -81,7 +73,6 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
   const [recentTasks, setRecentTasks] = useState<RecentTask[]>([]);
-  const [playbookItems, setPlaybookItems] = useState<PlaybookItem[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(false);
   const [fileQuery, setFileQuery] = useState("");
   const [fileResults, setFileResults] = useState<Array<{ entityId: string; label: string; description?: string }>>([]);
@@ -135,7 +126,6 @@ export function CommandPalette() {
         if (data) {
           setRecentProjects(data.projects);
           setRecentTasks(data.tasks);
-          setPlaybookItems(data.playbook ?? []);
         }
       })
       .catch(() => {
@@ -394,25 +384,6 @@ export function CommandPalette() {
         <CommandSeparator />
 
         {/* User Guide */}
-        {playbookItems.length > 0 && (
-          <>
-            <CommandGroup heading="User Guide">
-              {playbookItems.map((item) => (
-                <CommandItem
-                  key={`playbook-${item.slug}`}
-                  value={`playbook-${item.title}`}
-                  onSelect={() => navigate(`/user-guide/${item.slug}`)}
-                  keywords={["docs", "guide", ...item.tags]}
-                >
-                  <BookOpen className="h-4 w-4" />
-                  <span className="flex-1 truncate">{item.title}</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-            <CommandSeparator />
-          </>
-        )}
-
         {/* Create */}
         <CommandGroup heading="Create">
           {createItems.map((item) => (
