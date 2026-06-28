@@ -33,6 +33,29 @@ machinery.** Plan: `~/.claude/plans/extract-user-guide-docs-to-books.md`.
 (local, no remote by decision). On-disk generated `docs/` corpus + past public history left as-is
 (same accept stance as the book).
 
+### ⚠️ QUEUED: features obsoleted by the User Guide removal (roadmap status now stale)
+
+Removing the in-app User Guide does NOT break anything at runtime (build clean, dev boots, no
+orphaned imports or DB writes — the `settings`/usage tables stay; only their playbook reads are
+gone). But it **obsoletes two roadmap features marked `completed`** whose shipping implementation
+was just deleted:
+
+1. **`playbook-documentation`** (P2, `features/playbook-documentation.md`, roadmap L89) — the in-app
+   User Guide UI itself (route + playbook components). Implementation removed in Phase C.
+2. **`documentation-adoption-tracking`** (P2, `features/documentation-adoption-tracking.md`,
+   roadmap L90) — the DB-backed adoption heatmap (`src/lib/docs/adoption.ts`, queried 7 tables).
+   Its only consumer was the playbook UI; removed in Phase C.
+
+Downstream specs that referenced playbook-documentation as a dependency (still valid as history,
+not broken): `living-book-*` (content-merge/reading-paths/markdown-pipeline), `composed-app-kit-
+coach-and-ledger`, `sidebar-ia-route-restructure`.
+
+**Decision needed (operator):** how to reconcile the roadmap — mark these two as
+`superseded`/`removed` with a note pointing to the books-repo content factory + the doc-extraction,
+or leave `completed` as a historical record. `features/` IS tracked (250 files), so a status edit
+would ship — left untouched pending your call. Also cosmetic: a stale "(playbook)" comment in
+`src/lib/constants/prose-styles.ts:5` (harmless).
+
 ---
 
 ## DONE: AI Native Business book extraction → ~/orionfold/books

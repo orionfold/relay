@@ -383,7 +383,6 @@ export function CommandPalette() {
 
         <CommandSeparator />
 
-        {/* User Guide */}
         {/* Create */}
         <CommandGroup heading="Create">
           {createItems.map((item) => (
