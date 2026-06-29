@@ -216,7 +216,7 @@ function SummaryCard({
   icon: typeof Wallet;
 }) {
   return (
-    <div className="surface-card rounded-3xl p-5">
+    <div className="surface-card rounded-xl p-5">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="space-y-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -224,7 +224,7 @@ function SummaryCard({
           </p>
           <h2 className="text-sm font-medium text-foreground">{title}</h2>
         </div>
-        <div className="surface-card-muted rounded-2xl p-2.5">
+        <div className="surface-card-muted rounded-lg p-2.5">
           <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
       </div>
@@ -336,7 +336,7 @@ export function CostDashboard({
       </div>
 
       <div
-        className={`surface-card rounded-3xl p-5 ${
+        className={`surface-card rounded-xl p-5 ${
           pacingTone === "blocked"
             ? "border border-status-failed/25 bg-status-failed/8"
             : pacingTone === "warning"
@@ -380,7 +380,7 @@ export function CostDashboard({
           </div>
 
           <div className="grid gap-2 lg:min-w-[340px]">
-            <div className="surface-card-muted rounded-2xl p-3">
+            <div className="surface-card-muted rounded-lg p-3">
               <p className="text-sm font-medium">Primary spend driver</p>
               <p className="text-xs text-muted-foreground">
                 {dominantRuntime
@@ -391,7 +391,7 @@ export function CostDashboard({
               </p>
             </div>
             {overallMonthly ? (
-              <div className="surface-card-muted rounded-2xl p-3">
+              <div className="surface-card-muted rounded-lg p-3">
                 <p className="text-sm font-medium">
                   {formatCurrencyMicros(overallMonthly.currentValue)} of{" "}
                   {overallMonthly.limitValue == null
@@ -415,10 +415,10 @@ export function CostDashboard({
       {hasUsage ? (
         <>
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-            <div className="surface-card rounded-3xl p-5">
+            <div className="surface-card rounded-xl p-5">
               <SectionHeading>Spend Trends</SectionHeading>
               <div className="grid gap-4 lg:grid-cols-2">
-                <div className="surface-card-muted rounded-2xl p-4">
+                <div className="surface-card-muted rounded-lg p-4">
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-medium">Spend velocity</p>
@@ -429,7 +429,7 @@ export function CostDashboard({
                     <Badge variant="outline">{formatCurrencyMicros(summary.monthSpendMicros)}</Badge>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-border/50 bg-background/40 p-3">
+                    <div className="rounded-lg border border-border/50 bg-background p-3">
                       <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                         7-day
                       </p>
@@ -442,7 +442,7 @@ export function CostDashboard({
                         className="w-full"
                       />
                     </div>
-                    <div className="rounded-2xl border border-border/50 bg-background/40 p-3">
+                    <div className="rounded-lg border border-border/50 bg-background p-3">
                       <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                         30-day
                       </p>
@@ -460,7 +460,7 @@ export function CostDashboard({
                   </div>
                 </div>
 
-                <div className="surface-card-muted rounded-2xl p-4">
+                <div className="surface-card-muted rounded-lg p-4">
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-medium">Activity tokens</p>
@@ -471,7 +471,7 @@ export function CostDashboard({
                     <Badge variant="outline">{formatCompactCount(summary.monthTokens)} tokens</Badge>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-border/50 bg-background/40 p-3">
+                    <div className="rounded-lg border border-border/50 bg-background p-3">
                       <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                         7-day
                       </p>
@@ -484,7 +484,7 @@ export function CostDashboard({
                         className="w-full"
                       />
                     </div>
-                    <div className="rounded-2xl border border-border/50 bg-background/40 p-3">
+                    <div className="rounded-lg border border-border/50 bg-background p-3">
                       <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                         30-day
                       </p>
@@ -504,7 +504,7 @@ export function CostDashboard({
               </div>
             </div>
 
-            <div className="surface-card rounded-3xl p-5">
+            <div className="surface-card rounded-xl p-5">
               <SectionHeading>
                 {runtimeBreakdown.length <= 1 ? "Active Provider" : "Provider Breakdown"}
               </SectionHeading>
@@ -513,7 +513,7 @@ export function CostDashboard({
                   runtimeBreakdown.map((runtime) => (
                     <div
                       key={runtime.runtimeId}
-                      className="surface-card-muted flex items-center justify-between gap-4 rounded-2xl p-4"
+                      className="surface-card-muted flex items-center justify-between gap-4 rounded-lg p-4"
                     >
                       <div className="flex items-center gap-4">
                         {runtimeBreakdown.length > 1 ? (
@@ -526,7 +526,7 @@ export function CostDashboard({
                             label={`${runtime.label} share of spend`}
                           />
                         ) : (
-                          <div className="rounded-2xl border border-border/60 bg-background/40 px-3 py-2 text-sm font-semibold">
+                          <div className="rounded-lg border border-border/60 bg-background px-3 py-2 text-sm font-semibold">
                             {runtime.label}
                           </div>
                         )}
@@ -574,7 +574,7 @@ export function CostDashboard({
                     </div>
                   ))
                 ) : (
-                  <div className="surface-card-muted rounded-2xl p-4 text-sm text-muted-foreground">
+                  <div className="surface-card-muted rounded-lg p-4 text-sm text-muted-foreground">
                     No metered provider activity exists for{" "}
                     {formatDateRangeLabel(filters.dateRange).toLowerCase()}.
                   </div>
@@ -583,7 +583,7 @@ export function CostDashboard({
             </div>
           </div>
 
-          <div className="surface-card rounded-3xl p-5">
+          <div className="surface-card rounded-xl p-5">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <SectionHeading className="mb-2">Model Breakdown</SectionHeading>
@@ -605,7 +605,7 @@ export function CostDashboard({
                 {modelBreakdown.map((row) => (
                   <div
                     key={`${row.runtimeId}-${row.modelId ?? "unknown"}`}
-                    className="surface-card-muted rounded-2xl p-4"
+                    className="surface-card-muted rounded-lg p-4"
                   >
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div className="min-w-0 space-y-1">
@@ -647,13 +647,13 @@ export function CostDashboard({
                 ))}
               </div>
             ) : (
-              <div className="surface-card-muted rounded-2xl p-4 text-sm text-muted-foreground">
+              <div className="surface-card-muted rounded-lg p-4 text-sm text-muted-foreground">
                 No model breakdown is available for the selected window yet.
               </div>
             )}
           </div>
 
-          <div className="surface-card rounded-3xl p-5">
+          <div className="surface-card rounded-xl p-5">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <SectionHeading className="mb-2">Audit Log</SectionHeading>
@@ -665,7 +665,7 @@ export function CostDashboard({
             </div>
 
             {auditEntries.length > 0 ? (
-              <div className="surface-scroll rounded-2xl">
+              <div className="surface-scroll rounded-lg">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -737,7 +737,7 @@ export function CostDashboard({
                 </Table>
               </div>
             ) : (
-              <div className="surface-card-muted rounded-2xl p-4 text-sm text-muted-foreground">
+              <div className="surface-card-muted rounded-lg p-4 text-sm text-muted-foreground">
                 No audit rows match the current filters. Adjust the runtime, status,
                 activity, or date range to widen the view.
               </div>
