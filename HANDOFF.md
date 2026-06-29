@@ -1,8 +1,10 @@
-# Handoff: Orionfold DS — core slice + Arena shell + telemetry cockpit + brand icons SHIPPED (local-only)
+# Handoff: Orionfold DS — core + Arena shell + cockpit + icons + boot splash + DS polish + a11y contrast SHIPPED (local-only)
 
-**Updated:** 2026-06-28 (Orionfold Relay redesign — telemetry-cockpit + favicon session). Four local
-commits now: `cc0a2a5c` (DS core) · `a0b4b444` (Arena shell) · `7832143f` (rail→cockpit + dashboard
-dedup) · `e74f3a20` (brand icon set + metadata). None pushed.
+**Updated:** 2026-06-29 (Orionfold Relay redesign — boot-splash + cost-dashboard polish + dark-theme
+contrast session). Seven local commits now: `cc0a2a5c` (DS core) · `a0b4b444` (Arena shell) ·
+`7832143f` (rail→cockpit + dashboard dedup) · `e74f3a20` (brand icon set + metadata) · `ef9719b3`
+(.of-boot splash) · `4d72a8b7` (cost-dashboard DS polish) · `78688d38` (dark-theme WCAG AA contrast).
+None pushed.
 
 > **Operator policy:** all commits stay **local-only** through the next release. Do NOT push or
 > prompt to push (`feedback-no-push-reminders-pre-release`). Default to `main`
@@ -117,23 +119,70 @@ Business". **Operator chose:** disc-fills-the-frame canvas + full modern set.
 - Verified: tsc · `validate:tokens` · npx test 4/4 · dev smoke (home + manifest + favicon + icons all
   200, TDR-032) · browser (title + manifest + head links + rendered mark correct).
 
-## Deferred / roadmap (NOT yet built) — 3 left
-`.of-boot` splash (brand boot screen, uses `OfMark`) · proof "signature objects" (receipt card /
-verdict banner) on `/monitor` + `/tasks/[id]` — **the heavy from-scratch design build, no existing
-receipt/verdict primitives** · per-route off-system finish polish (e.g. `cost-dashboard.tsx` ~20
-`rounded-3xl`/`rounded-2xl` + `bg-background/40` → DS radii/opaque). First two roadmap items
-(HOST CPU/RAM, RUNTIME SDK version) + favicon + phone-mode are now resolved (see above). Full
-roadmap: `~/orionfold-design-system/apply/ainative/roadmap/2026-06-28-164854-log.md`.
+## DONE (committed `ef9719b3`, local — NOT pushed): .of-boot brand boot splash
 
-**Suggested next:** the two light items (`.of-boot` splash + cost-dashboard polish — one short session
-each or bundled), then proof signature objects as its own properly-spec'd feature.
+CSS-only, FOUC-safe brand boot screen (roadmap light item). Operator chose **every-load CSS fade**
+(not first-visit JS-gated, not Suspense-gated).
+
+- **`src/app/globals.css`** — `.of-boot` opaque full-screen veil (`z-100`, `var(--background)`) +
+  `of-boot-out` (700ms fade) / `of-boot-mark` (scale-in) keyframes. Sits above app content, below
+  modal/toast layers.
+- **`src/app/layout.tsx`** — splash markup as first `<body>` child: `OfMark size={72}` + inlined
+  "Orion·**fold**·Relay" lockup (inlined, not `AinativeWordmark`, because the splash needs a larger
+  mark than that component's fixed 28px). `aria-hidden`.
+- **Edge case handled:** the global `prefers-reduced-motion` reset zeroes `animation-duration`,
+  which would FREEZE the veil at `opacity:1` and lock the app. Explicit `.of-boot { display:none }`
+  under reduced-motion skips it for those users — don't remove that override.
+- Verified: validate:tokens · tsc · dev smoke (`/` 200, TDR-032 layout.tsx adjacent) · live browser
+  (composition + clean natural dismiss, both themes).
+
+## DONE (committed `4d72a8b7`, local — NOT pushed): cost-dashboard DS radius/opacity polish
+
+Roadmap light item. `src/components/costs/cost-dashboard.tsx` only:
+- `rounded-3xl`→`rounded-xl` ×6 · `rounded-2xl`→`rounded-lg` ×16 · `bg-background/40`→opaque
+  `bg-background` ×5.
+- **Left intentionally:** `bg-status-*/{8,10}` semantic alert tints (accepted DS pattern, not glass).
+- **Also left (minimal-diff):** pre-existing dead `Coins` import + `formatTokenCount` fn — unrelated
+  to this polish; same call as the prior session's 4 uncalled chart-data fns. Remove later if wanted.
+- Verified: validate:tokens · tsc · live browser.
+
+## DONE (committed `78688d38`, local — NOT pushed): dark-theme WCAG AA contrast fix
+
+Operator caught low-contrast gray nav + telemetry text on the near-black dark surface (live walkthrough).
+Root cause: muted text **double-diluted** — `text-muted-foreground` PLUS `/70 /60 /50` opacity
+suffixes — and the un-diluted token (L0.58 ≈ 3.6:1) was itself borderline.
+
+- **`globals.css`** — dark `--muted-foreground` L0.58 → **L0.66** (≈5.3:1, clears AA 4.5:1). **Scoped
+  to `.dark` only**; light theme (L0.45) untouched. Lifts the floor for ALL dark muted text while
+  staying subordinate to `--foreground` (L0.92) — hierarchy preserved.
+- **`app-bar.tsx`** — nav group/child icons `/70`→full token; group chevron `/50`→`/70`.
+- **`rail-cell.tsx`** — label `/70` + sub-line value `/60`→full token.
+- **Kept diluted:** loading `—` placeholder (`/50`, transient) + group chevron (`/70`, affordance).
+- Verified: validate:tokens · tsc · live browser (rail/nav brightened, light theme un-regressed).
+
+## Deferred / roadmap (NOT yet built) — 2 left
+proof "signature objects" (receipt card / verdict banner) on `/monitor` + `/tasks/[id]` — **the heavy
+from-scratch design build, no existing receipt/verdict primitives** · per-route off-system finish
+polish for any OTHER routes (cost-dashboard now done; sweep remaining pages for stray
+`rounded-2xl/3xl` + `bg-*/NN`). The two light items (`.of-boot` splash + cost-dashboard polish) shipped
+this session, plus an unplanned dark-theme contrast fix. Earlier roadmap items (HOST CPU/RAM, RUNTIME
+SDK version, favicon, phone-mode) already resolved. Full roadmap:
+`~/orionfold-design-system/apply/ainative/roadmap/2026-06-28-164854-log.md`.
+
+**Suggested next:** proof signature objects as its own properly-spec'd feature (the only heavy item
+left). Optionally a quick `rg 'rounded-[23]xl|bg-\w+/[0-9]'` sweep of remaining routes first.
 
 ## State
-- Branch `main`, dev server may be running on `:3000` (operator's). Four local redesign commits,
+- Branch `main`, dev server may be running on `:3000` (operator's). **Seven** local redesign commits,
   none pushed: `cc0a2a5c` (DS core) · `a0b4b444` (Arena shell) · `7832143f` (rail→cockpit + dedup) ·
-  `e74f3a20` (brand icons + metadata).
+  `e74f3a20` (brand icons + metadata) · `ef9719b3` (.of-boot splash) · `4d72a8b7` (cost-dashboard
+  polish) · `78688d38` (dark-theme WCAG AA contrast).
 - Version NOT bumped per-commit — `0.15.0` accumulates toward the next batched release
   (`project-self-extending-machine-npm-deferred`).
+- **Operator prefers side-by-side walkthroughs in Claude in Chrome** (drives the live Chrome session,
+  not headless/DevTools) — memory `feedback-prefer-claude-in-chrome-walkthroughs`. NB: the live tab
+  doesn't auto-raise to front; tell the operator to switch to the Browser-1 window, and DON'T auto-
+  close the tab mid-session.
 - The sibling repo `~/orionfold-design-system` has my round-trip logs under `apply/ainative/` —
   do NOT commit/push that repo (it's the producer's; `feedback-no-sibling-repo-edits`).
 - Prior content-extraction + book-migration handoff archived at
