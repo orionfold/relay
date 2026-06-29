@@ -38,9 +38,9 @@ export function RailCell({
 }) {
   return (
     <div className="flex min-w-[8.5rem] flex-none flex-col gap-0.5 border-r border-border px-4 pt-2.5">
-      <div className="flex items-center gap-1.5 font-mono text-[0.58rem] font-medium uppercase tracking-[0.08em] text-muted-foreground/70">
+      <div className="flex items-center gap-1.5 font-mono text-[0.58rem] font-medium uppercase tracking-[0.08em] text-muted-foreground">
         {icon && (
-          <span className="flex h-3 w-3 items-center justify-center text-muted-foreground/70 [&_svg]:h-3 [&_svg]:w-3">
+          <span className="flex h-3 w-3 items-center justify-center text-muted-foreground [&_svg]:h-3 [&_svg]:w-3">
             {icon}
           </span>
         )}
@@ -70,7 +70,7 @@ export function RailCell({
         )}
       </div>
       {sub != null && (
-        <div className="truncate font-mono text-[0.65rem] text-muted-foreground/60">
+        <div className="truncate font-mono text-[0.65rem] text-muted-foreground">
           {sub}
         </div>
       )}

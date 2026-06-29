@@ -63,14 +63,14 @@ function GroupAccordion({
         <GroupIcon
           className={cn(
             "h-4 w-4 shrink-0",
-            groupActive ? "text-primary" : "text-muted-foreground/70",
+            groupActive ? "text-primary" : "text-muted-foreground",
           )}
           aria-hidden
         />
         {group.label}
         <ChevronDown
           className={cn(
-            "h-3 w-3 shrink-0 text-muted-foreground/50 transition-transform duration-200",
+            "h-3 w-3 shrink-0 text-muted-foreground/70 transition-transform duration-200",
             open && "rotate-180",
           )}
           aria-hidden
@@ -108,7 +108,7 @@ function GroupAccordion({
                         "h-4 w-4 shrink-0",
                         active
                           ? "text-primary-foreground"
-                          : "text-muted-foreground/70",
+                          : "text-muted-foreground",
                       )}
                       aria-hidden
                     />
