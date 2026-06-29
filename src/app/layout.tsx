@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppSidebar } from "@/components/shared/app-sidebar";
+import { AppShell } from "@/components/shell/app-shell";
 import { CommandPalette } from "@/components/shared/command-palette";
 import { PendingApprovalHost } from "@/components/notifications/pending-approval-host";
 import { GlobalShortcuts } from "@/components/shared/global-shortcuts";
@@ -102,14 +101,7 @@ export default async function RootLayout({
         </a>
         <TooltipProvider>
           <ChatSessionProvider>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset className="min-w-0">
-                <main id="main-content">
-                  {children}
-                </main>
-              </SidebarInset>
-            </SidebarProvider>
+            <AppShell>{children}</AppShell>
             <PendingApprovalHost />
             <CommandPalette />
             <GlobalShortcuts />
