@@ -30,14 +30,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Native Business",
-  description: "AI agent task management",
+  title: "Orionfold Relay",
+  description: "Multi-agent orchestration for AI-native work",
   icons: {
+    // Explicit metadata.icons (not convention-based icon.tsx) — convention files
+    // use process.cwd() and break under npx. See npx-process-cwd.test.ts.
     icon: [
-      { url: "/ainative-s-64.png", sizes: "64x64", type: "image/png" },
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48" },
+      { url: "/icon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/ainative-s-128.png", sizes: "128x128", type: "image/png" },
+      { url: "/apple-icon-180.png", sizes: "180x180", type: "image/png" },
     ],
   },
 };

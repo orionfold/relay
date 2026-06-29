@@ -134,7 +134,14 @@ describe("npx safety: no process.cwd() for app-internal asset resolution", () =>
 
   it("icon assets referenced in metadata exist in public/", () => {
     const publicDir = join(PROJECT_ROOT, "public");
-    const requiredIcons = ["ainative-s-64.png", "ainative-s-128.png"];
+    const requiredIcons = [
+      "favicon.ico",
+      "icon-16.png",
+      "icon-32.png",
+      "icon-192.png",
+      "icon-512.png",
+      "apple-icon-180.png",
+    ];
 
     const missing = requiredIcons.filter((name) => {
       try {

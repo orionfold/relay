@@ -2,17 +2,19 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "ainative",
-    short_name: "ainative",
-    description: "AI agent task management",
+    name: "Orionfold Relay",
+    short_name: "Relay",
+    description: "Multi-agent orchestration for AI-native work",
     start_url: "/",
     display: "standalone",
-    background_color: "#0f172a",
-    theme_color: "#2563eb",
+    // Brand: dark slate base + Tide cyan (= --primary). Replaces pre-brand
+    // indigo/slate left over from before the Orionfold rebrand.
+    background_color: "#040a11",
+    theme_color: "#009b97",
     icons: [
       {
-        src: "/icon-512.png",
-        sizes: "512x512",
+        src: "/icon-192.png",
+        sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
@@ -20,12 +22,13 @@ export default function manifest(): MetadataRoute.Manifest {
         src: "/icon-512.png",
         sizes: "512x512",
         type: "image/png",
-        purpose: "maskable",
+        purpose: "any",
       },
       {
-        src: "/ainative-s-64.png",
-        sizes: "64x64",
+        src: "/icon-512-maskable.png",
+        sizes: "512x512",
         type: "image/png",
+        purpose: "maskable",
       },
     ],
   };
