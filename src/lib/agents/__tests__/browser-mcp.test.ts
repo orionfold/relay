@@ -147,7 +147,7 @@ describe("browser-mcp", () => {
     });
 
     it("rejects non-browser tools", () => {
-      expect(isBrowserTool("mcp__ainative__list_tasks")).toBe(false);
+      expect(isBrowserTool("mcp__relay__list_tasks")).toBe(false);
       expect(isBrowserTool("Read")).toBe(false);
       expect(isBrowserTool("Bash")).toBe(false);
     });

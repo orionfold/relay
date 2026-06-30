@@ -53,10 +53,10 @@ import {
 // fixes — do not duplicate these patterns inline.
 
 /**
- * Merge the in-process ainative MCP server into a five-source MCP server map.
- * Spread order: profile → browser → external → plugin → ainative (TDR-035 §1).
- * ainative is spread LAST so no upstream source can shadow the `ainative` key
- * with its own server. A plugin declaring `mcpServers: { ainative: ... }` in
+ * Merge the in-process relay MCP server into a five-source MCP server map.
+ * Spread order: profile → browser → external → plugin → relay (TDR-035 §1).
+ * relay is spread LAST so no upstream source can shadow the `relay` key
+ * with its own server. A plugin declaring `mcpServers: { relay: ... }` in
  * its `.mcp.json` will be silently overwritten by the real in-process server.
  *
  * `@/lib/chat/ainative-tools` is loaded via dynamic `import()` to avoid a
@@ -82,18 +82,20 @@ export async function withAinativeMcpServer(
   projectId?: string | null,
 ): Promise<Record<string, unknown>> {
   const { createToolServer } = await import("@/lib/chat/ainative-tools");
-  const ainativeServer = createToolServer(projectId).asMcpServer();
+  const relayServer = createToolServer(projectId).asMcpServer();
   return {
     ...profileServers,
     ...browserServers,
     ...externalServers,
     ...pluginServers,
-    ainative: ainativeServer,
+    // Map key MUST match createSdkMcpServer({ name: "relay" }) — the SDK builds
+    // the mcp__relay__* namespace from this key, and openai-direct.ts skips by it.
+    relay: relayServer,
   };
 }
 
 /**
- * Prepend `mcp__ainative__*` to a profile's explicit allowedTools so the
+ * Prepend `mcp__relay__*` to a profile's explicit allowedTools so the
  * ainative tool registration survives the SDK preset filter. When the
  * profile has no explicit allowlist and `includeSdkTools` is true, fall
  * back to Phase 1a's CLAUDE_SDK_ALLOWED_TOOLS (Skill, Read/Grep/Glob,
@@ -108,17 +110,17 @@ function withAinativeAllowedTools(
 ): string[] | undefined {
   // An empty `allowedTools: []` is treated the same as `undefined` — an
   // empty array is almost never the profile author's intent (they'd get
-  // only `mcp__ainative__*` and nothing else). Require at least one tool
+  // only `mcp__relay__*` and nothing else). Require at least one tool
   // name for the "profile has explicit list" branch.
   if (profileAllowedTools && profileAllowedTools.length > 0) {
     // Profile has explicit list — respect it. Only prepend ainative.
-    return Array.from(new Set(["mcp__ainative__*", ...profileAllowedTools]));
+    return Array.from(new Set(["mcp__relay__*", ...profileAllowedTools]));
   }
   if (includeSdkTools) {
     // No profile allowlist but runtime has native skills — pass the
-    // Phase 1a tool set alongside mcp__ainative__* + browser/external
+    // Phase 1a tool set alongside mcp__relay__* + browser/external
     // (callers merge their own browser/external patterns into this list).
-    return ["mcp__ainative__*", ...CLAUDE_SDK_ALLOWED_TOOLS];
+    return ["mcp__relay__*", ...CLAUDE_SDK_ALLOWED_TOOLS];
   }
   return undefined;
 }

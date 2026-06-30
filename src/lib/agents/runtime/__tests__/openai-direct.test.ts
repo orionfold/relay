@@ -29,7 +29,7 @@ describe("withOpenAiDirectMcpServers (T9 — 5-source merge)", () => {
     vi.clearAllMocks();
   });
 
-  it("T9-1: happy path — plugin server present + ainative is last key", async () => {
+  it("T9-1: happy path — plugin server present + relay is last key", async () => {
     const result = await withOpenAiDirectMcpServers(
       {},
       {},
@@ -39,26 +39,26 @@ describe("withOpenAiDirectMcpServers (T9 — 5-source merge)", () => {
     );
     const keys = Object.keys(result);
     expect(keys).toContain("plugin-a");
-    expect(keys).toContain("ainative");
-    // ainative must be the LAST key (TDR-035 §1 position 5)
-    expect(keys[keys.length - 1]).toBe("ainative");
+    expect(keys).toContain("relay");
+    // relay must be the LAST key (TDR-035 §1 position 5)
+    expect(keys[keys.length - 1]).toBe("relay");
   });
 
-  it("T9-2: plugin cannot shadow ainative — real server wins", async () => {
+  it("T9-2: plugin cannot shadow relay — real server wins", async () => {
     const result = await withOpenAiDirectMcpServers(
       {},
       {},
       {},
-      { ainative: { command: "evil-override" } },
+      { relay: { command: "evil-override" } },
       null,
     );
-    // The plugin's ainative key must be overwritten by the real in-process server
-    expect((result.ainative as Record<string, unknown>)._mockAinativeServer).toBe(true);
-    // Only the real ainative key remains
-    expect(Object.keys(result)).toEqual(["ainative"]);
+    // The plugin's relay key must be overwritten by the real in-process server
+    expect((result.relay as Record<string, unknown>)._mockAinativeServer).toBe(true);
+    // Only the real relay key remains
+    expect(Object.keys(result)).toEqual(["relay"]);
   });
 
-  it("T9-3: merge order preserves upstream keys — profile → browser → external → plugin → ainative", async () => {
+  it("T9-3: merge order preserves upstream keys — profile → browser → external → plugin → relay", async () => {
     const result = await withOpenAiDirectMcpServers(
       { a: 1 },
       { b: 2 },
@@ -66,7 +66,7 @@ describe("withOpenAiDirectMcpServers (T9 — 5-source merge)", () => {
       { d: 4 },
       null,
     );
-    expect(Object.keys(result)).toEqual(["a", "b", "c", "d", "ainative"]);
+    expect(Object.keys(result)).toEqual(["a", "b", "c", "d", "relay"]);
   });
 });
 
@@ -82,15 +82,15 @@ describe("mcpServersToOpenAiTools (T9 — transform to OpenAI shape)", () => {
     });
   });
 
-  it("T9-5: transform skips ainative key — not emitted as MCP tool", () => {
+  it("T9-5: transform skips relay key — not emitted as MCP tool", () => {
     const tools = mcpServersToOpenAiTools({
-      ainative: { _mockAinativeServer: true },
+      relay: { _mockRelayServer: true },
       foo: { command: "x" },
     });
     expect(tools).toHaveLength(1);
     expect(tools[0].server_label).toBe("foo");
-    // ainative must NOT appear in output
-    expect(tools.map((t) => t.server_label)).not.toContain("ainative");
+    // relay must NOT appear in output
+    expect(tools.map((t) => t.server_label)).not.toContain("relay");
   });
 
   it("T9-6: url field maps to server_url", () => {

@@ -68,13 +68,13 @@ export async function withAnthropicDirectMcpServers(
   projectId?: string | null,
 ): Promise<Record<string, unknown>> {
   const { createToolServer } = await import("@/lib/chat/ainative-tools");
-  const ainativeServer = createToolServer(projectId).asMcpServer();
+  const relayServer = createToolServer(projectId).asMcpServer();
   return {
     ...profileServers,
     ...browserServers,
     ...externalServers,
     ...pluginServers,
-    ainative: ainativeServer,
+    relay: relayServer,
   };
 }
 

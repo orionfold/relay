@@ -142,15 +142,15 @@ describe("drift-heuristic", () => {
     ];
 
     for (const { file, fn } of MERGE_HELPERS) {
-      it(`${path.relative(repoRoot, file)}: ${fn} places 'ainative:' after all ...Servers spreads`, () => {
+      it(`${path.relative(repoRoot, file)}: ${fn} places 'relay:' after all ...Servers spreads`, () => {
         expect(fs.existsSync(file)).toBe(true);
         const src = fs.readFileSync(file, "utf-8");
         const body = extractFunctionBody(src, fn);
         expect(body, `function ${fn} not found in ${file}`).not.toBeNull();
 
         // Locate the FIRST occurrence of `ainative:` (the merged-key assignment).
-        const ainativeIdx = body!.search(/\bainative\s*:/);
-        expect(ainativeIdx, `'ainative:' key not found in ${fn} body`).toBeGreaterThan(-1);
+        const ainativeIdx = body!.search(/\brelay\s*:/);
+        expect(ainativeIdx, `'relay:' key not found in ${fn} body`).toBeGreaterThan(-1);
 
         // Locate the LAST `...xxxServers` spread index. Matches any spread
         // whose identifier ends in `Servers` (pluginServers, profileServers,
@@ -168,8 +168,8 @@ describe("drift-heuristic", () => {
 
         expect(
           ainativeIdx,
-          `DRIFT: 'ainative:' appears BEFORE last ...Servers spread in ${fn} — ` +
-            `plugins can shadow ainative tools. TDR-035 §1 requires ainative-last.`,
+          `DRIFT: 'relay:' appears BEFORE last ...Servers spread in ${fn} — ` +
+            `plugins can shadow relay tools. TDR-035 §1 requires relay-last.`,
         ).toBeGreaterThan(lastSpreadIdx);
       });
     }
@@ -180,7 +180,7 @@ describe("drift-heuristic", () => {
       const badSource = [
         "export async function badHelper(pluginServers: Record<string, unknown>) {",
         "  return {",
-        "    ainative: {},",
+        "    relay: {},",
         "    ...pluginServers,",
         "  };",
         "}",
@@ -190,7 +190,7 @@ describe("drift-heuristic", () => {
       const body = extractFunctionBody(badSource, "badHelper");
       expect(body).not.toBeNull();
 
-      const ainativeIdx = body!.search(/\bainative\s*:/);
+      const ainativeIdx = body!.search(/\brelay\s*:/);
       const spreadRe = /\.\.\.\s*[A-Za-z_][A-Za-z0-9_]*Servers\b/g;
       let lastSpreadIdx = -1;
       let m: RegExpExecArray | null;

@@ -181,7 +181,7 @@ export async function connectCodexClient(options: {
 export async function initializeCodexClient(client: CodexAppServerClient) {
   await client.request("initialize", {
     clientInfo: {
-      name: "ainative",
+      name: "relay",
       version: "0.1.1",
     },
     capabilities: null,

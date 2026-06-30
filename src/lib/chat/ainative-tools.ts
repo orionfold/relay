@@ -109,7 +109,11 @@ export function createToolServer(
         sdkTool(def.name, def.description, def.zodShape, def.handler),
       );
       return createSdkMcpServer({
-        name: "ainative",
+        // MCP server label — produces the mcp__relay__* tool namespace the
+        // runtime allow-lists prepend. Renamed from "ainative" in the Relay
+        // rebrand; must stay in lockstep with the mcp__relay__* prefixes in
+        // claude-agent.ts, chat/engine.ts, and the runtime adapters.
+        name: "relay",
         version: "1.0.0",
         tools: sdkTools,
       });

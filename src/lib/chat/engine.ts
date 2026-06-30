@@ -507,7 +507,7 @@ export async function* sendMessage(
         },
         mcpServers: { ainative: ainativeServer, ...browserServers, ...externalServers },
         allowedTools: [
-          "mcp__ainative__*",
+          "mcp__relay__*",
           ...browserToolPatterns,
           ...externalToolPatterns,
           ...CLAUDE_SDK_ALLOWED_TOOLS,
@@ -520,19 +520,19 @@ export async function* sendMessage(
         ): Promise<ToolPermissionResponse> => {
           // Auto-allow safe ainative tools; gate dangerous ones through permission bridge
           const PERMISSION_GATED_TOOLS = new Set([
-            "mcp__ainative__execute_task",
-            "mcp__ainative__cancel_task",
-            "mcp__ainative__execute_workflow",
-            "mcp__ainative__delete_workflow",
-            "mcp__ainative__delete_schedule",
-            "mcp__ainative__upload_document",
-            "mcp__ainative__update_document",
-            "mcp__ainative__delete_document",
-            "mcp__ainative__set_settings",
+            "mcp__relay__execute_task",
+            "mcp__relay__cancel_task",
+            "mcp__relay__execute_workflow",
+            "mcp__relay__delete_workflow",
+            "mcp__relay__delete_schedule",
+            "mcp__relay__upload_document",
+            "mcp__relay__update_document",
+            "mcp__relay__delete_document",
+            "mcp__relay__set_settings",
           ]);
-          if (toolName.startsWith("mcp__ainative__") && !PERMISSION_GATED_TOOLS.has(toolName)) {
+          if (toolName.startsWith("mcp__relay__") && !PERMISSION_GATED_TOOLS.has(toolName)) {
             // Emit tool-use status so the user sees what the model is doing
-            const shortName = toolName.replace("mcp__ainative__", "").replace(/_/g, " ");
+            const shortName = toolName.replace("mcp__relay__", "").replace(/_/g, " ");
             emitSideChannelEvent(conversationId, {
               type: "status",
               phase: "tool_use",

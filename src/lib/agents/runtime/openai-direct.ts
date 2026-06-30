@@ -70,13 +70,13 @@ export async function withOpenAiDirectMcpServers(
   projectId?: string | null,
 ): Promise<Record<string, unknown>> {
   const { createToolServer } = await import("@/lib/chat/ainative-tools");
-  const ainativeServer = createToolServer(projectId).asMcpServer();
+  const relayServer = createToolServer(projectId).asMcpServer();
   return {
     ...profileServers,
     ...browserServers,
     ...externalServers,
     ...pluginServers,
-    ainative: ainativeServer,
+    relay: relayServer,
   };
 }
 
@@ -84,8 +84,8 @@ export async function withOpenAiDirectMcpServers(
  * Transform a merged MCP server map into OpenAI's Responses API tools shape.
  * Each entry becomes { type: "mcp", server_label, ... } in the tools array.
  *
- * The "ainative" in-process server is NOT emitted — OpenAI direct uses its own
- * function-calling tools path for ainative (existing createToolServer flow).
+ * The "relay" in-process server is NOT emitted — OpenAI direct uses its own
+ * function-calling tools path for it (existing createToolServer flow).
  * Plugin servers (stdio or ainative-sdk) are emitted as MCP entries.
  */
 export function mcpServersToOpenAiTools(
@@ -93,7 +93,7 @@ export function mcpServersToOpenAiTools(
 ): Array<{ type: "mcp"; server_label: string; [key: string]: unknown }> {
   const tools: Array<{ type: "mcp"; server_label: string; [key: string]: unknown }> = [];
   for (const [name, config] of Object.entries(mergedServers)) {
-    if (name === "ainative") continue; // ainative handled via function-calling, not MCP path
+    if (name === "relay") continue; // relay in-process tools handled via function-calling, not MCP path
     const cfg = config as Record<string, unknown>;
     const entry: { type: "mcp"; server_label: string; [key: string]: unknown } = {
       type: "mcp",

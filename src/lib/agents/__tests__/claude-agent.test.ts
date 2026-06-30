@@ -298,7 +298,7 @@ describe("executeClaudeTask", () => {
     expect(completionArg.tokenCount).toBe(300);
   });
 
-  it("A-ainative-1: injects ainative MCP server into query mcpServers", async () => {
+  it("A-ainative-1: injects relay MCP server into query mcpServers", async () => {
     mockWhere.mockResolvedValueOnce([makeTask({ projectId: "proj-7" })]);
     mockQuery.mockReturnValue(
       createMockStream([
@@ -312,11 +312,11 @@ describe("executeClaudeTask", () => {
       options: { mcpServers?: Record<string, unknown> };
     };
     expect(queryCall.options.mcpServers).toBeDefined();
-    expect(queryCall.options.mcpServers!.ainative).toEqual({ __mockAinativeServer: true });
+    expect(queryCall.options.mcpServers!.relay).toEqual({ __mockAinativeServer: true });
     expect(vi.mocked(createToolServer)).toHaveBeenCalledWith("proj-7");
   });
 
-  it("A-ainative-2: prepends mcp__ainative__* when profile has allowedTools", async () => {
+  it("A-ainative-2: prepends mcp__relay__* when profile has allowedTools", async () => {
     mockWhere.mockResolvedValueOnce([makeTask({ projectId: "proj-7" })]);
     mockGetProfile.mockReturnValueOnce({
       id: "restricted",
@@ -336,12 +336,12 @@ describe("executeClaudeTask", () => {
       options: { allowedTools?: string[] };
     };
     expect(queryCall.options.allowedTools).toBeDefined();
-    expect(queryCall.options.allowedTools).toContain("mcp__ainative__*");
+    expect(queryCall.options.allowedTools).toContain("mcp__relay__*");
     expect(queryCall.options.allowedTools).toContain("Read");
     expect(queryCall.options.allowedTools).toContain("Grep");
     // Duplicates not added when profile didn't already include the pattern
     const ainativeCount = queryCall.options.allowedTools!.filter(
-      (t) => t === "mcp__ainative__*"
+      (t) => t === "mcp__relay__*"
     ).length;
     expect(ainativeCount).toBe(1);
   });
@@ -350,7 +350,7 @@ describe("executeClaudeTask", () => {
     mockWhere.mockResolvedValueOnce([makeTask({ projectId: "proj-7" })]);
     // Default mockGetProfile returns allowedTools: undefined. Task-runtime-skill-parity
     // (Task 3) changed withAinativeAllowedTools so the Phase 1a tool set (Skill,
-    // Read/Grep/Glob, Edit/Write/Bash, TodoWrite) is passed alongside mcp__ainative__*
+    // Read/Grep/Glob, Edit/Write/Bash, TodoWrite) is passed alongside mcp__relay__*
     // when the runtime has hasNativeSkills=true — which is the claude-code default.
     mockQuery.mockReturnValue(
       createMockStream([
@@ -365,7 +365,7 @@ describe("executeClaudeTask", () => {
     };
     expect(queryCall.options.allowedTools).toBeDefined();
     expect(queryCall.options.allowedTools).toEqual([
-      "mcp__ainative__*",
+      "mcp__relay__*",
       "Skill",
       "Read",
       "Grep",
@@ -739,7 +739,7 @@ describe("resumeClaudeTask", () => {
     expect(mockRemoveExecution).toHaveBeenCalledWith("task-1");
   });
 
-  it("R-ainative-1: injects ainative MCP server into query mcpServers on resume", async () => {
+  it("R-ainative-1: injects relay MCP server into query mcpServers on resume", async () => {
     mockWhere.mockResolvedValueOnce([
       makeTask({
         projectId: "proj-7",
@@ -760,11 +760,11 @@ describe("resumeClaudeTask", () => {
     };
     expect(queryCall.options.resume).toBe("session-abc");
     expect(queryCall.options.mcpServers).toBeDefined();
-    expect(queryCall.options.mcpServers!.ainative).toEqual({ __mockAinativeServer: true });
+    expect(queryCall.options.mcpServers!.relay).toEqual({ __mockAinativeServer: true });
     expect(vi.mocked(createToolServer)).toHaveBeenCalledWith("proj-7");
   });
 
-  it("R-ainative-2: prepends mcp__ainative__* on resume when profile has allowedTools", async () => {
+  it("R-ainative-2: prepends mcp__relay__* on resume when profile has allowedTools", async () => {
     mockWhere.mockResolvedValueOnce([
       makeTask({
         projectId: "proj-7",
@@ -789,9 +789,9 @@ describe("resumeClaudeTask", () => {
     const queryCall = mockQuery.mock.calls[0][0] as {
       options: { allowedTools?: string[] };
     };
-    expect(queryCall.options.allowedTools).toContain("mcp__ainative__*");
+    expect(queryCall.options.allowedTools).toContain("mcp__relay__*");
     expect(queryCall.options.allowedTools).toContain("Read");
-    expect(queryCall.options.allowedTools![0]).toBe("mcp__ainative__*");
+    expect(queryCall.options.allowedTools![0]).toBe("mcp__relay__*");
   });
 });
 
@@ -1244,26 +1244,26 @@ describe("withAinativeMcpServer (T6 — 5-source merge)", () => {
     );
     const keys = Object.keys(result);
     expect(keys).toContain("echo-server");
-    expect(keys).toContain("ainative");
-    // ainative must be the LAST key (TDR-035 §1 position 5)
-    expect(keys[keys.length - 1]).toBe("ainative");
+    expect(keys).toContain("relay");
+    // relay must be the LAST key (TDR-035 §1 position 5)
+    expect(keys[keys.length - 1]).toBe("relay");
   });
 
-  it("T6-2: plugin cannot shadow ainative — real server wins", async () => {
+  it("T6-2: plugin cannot shadow relay — real server wins", async () => {
     const result = await withAinativeMcpServer(
       {},
       {},
       {},
-      { ainative: { command: "evil-override" } },
+      { relay: { command: "evil-override" } },
       null,
     );
     // The plugin's ainative key must be overwritten by the real in-process server
-    expect((result.ainative as Record<string, unknown>).__mockAinativeServer).toBe(true);
+    expect((result.relay as Record<string, unknown>).__mockAinativeServer).toBe(true);
     // No extra keys from the plugin's attempt to shadow
-    expect(Object.keys(result)).toEqual(["ainative"]);
+    expect(Object.keys(result)).toEqual(["relay"]);
   });
 
-  it("T6-3: merge order preserves upstream keys — profile → browser → external → plugin → ainative", async () => {
+  it("T6-3: merge order preserves upstream keys — profile → browser → external → plugin → relay", async () => {
     const result = await withAinativeMcpServer(
       { a: 1 },
       { b: 2 },
@@ -1271,7 +1271,7 @@ describe("withAinativeMcpServer (T6 — 5-source merge)", () => {
       { d: 4 },
       null,
     );
-    expect(Object.keys(result)).toEqual(["a", "b", "c", "d", "ainative"]);
+    expect(Object.keys(result)).toEqual(["a", "b", "c", "d", "relay"]);
   });
 
   it("T6-4: source-grep invariant — both call sites pass loadPluginMcpServers({ runtime: 'claude-code' })", () => {

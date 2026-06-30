@@ -99,6 +99,6 @@ describe("persistScreenshot", () => {
   it("exports correct screenshot tool names", () => {
     expect(SCREENSHOT_TOOL_NAMES.has("mcp__chrome-devtools__take_screenshot")).toBe(true);
     expect(SCREENSHOT_TOOL_NAMES.has("mcp__playwright__browser_take_screenshot")).toBe(true);
-    expect(SCREENSHOT_TOOL_NAMES.has("mcp__ainative__execute_task")).toBe(false);
+    expect(SCREENSHOT_TOOL_NAMES.has("mcp__relay__execute_task")).toBe(false);
   });
 });

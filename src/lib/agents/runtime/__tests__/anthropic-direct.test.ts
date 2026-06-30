@@ -22,7 +22,7 @@ import { withAnthropicDirectMcpServers } from "../anthropic-direct";
 // ═══════════════════════════════════════════════════════════════════════
 
 describe("withAnthropicDirectMcpServers (T8 — 5-source merge)", () => {
-  it("T8-1: happy path — plugin server present + ainative is last key", async () => {
+  it("T8-1: happy path — plugin server present + relay is last key", async () => {
     const result = await withAnthropicDirectMcpServers(
       {},
       {},
@@ -32,23 +32,23 @@ describe("withAnthropicDirectMcpServers (T8 — 5-source merge)", () => {
     );
     const keys = Object.keys(result);
     expect(keys).toContain("plugin-a");
-    expect(keys).toContain("ainative");
-    // ainative must be the LAST key (TDR-035 §1 position 5)
-    expect(keys[keys.length - 1]).toBe("ainative");
+    expect(keys).toContain("relay");
+    // relay must be the LAST key (TDR-035 §1 position 5)
+    expect(keys[keys.length - 1]).toBe("relay");
   });
 
-  it("T8-2: plugin cannot shadow ainative — real server wins", async () => {
+  it("T8-2: plugin cannot shadow relay — real server wins", async () => {
     const result = await withAnthropicDirectMcpServers(
       {},
       {},
       {},
-      { ainative: "fake" },
+      { relay: "fake" },
       null,
     );
-    // The plugin's ainative key must be overwritten by the real in-process server
-    expect((result.ainative as Record<string, unknown>).__mockAinativeServer).toBe(true);
-    // Only one key — the plugin's override was silently replaced
-    expect(Object.keys(result)).toEqual(["ainative"]);
+    // The plugin's relay key must be overwritten by the real in-process server
+    expect((result.relay as Record<string, unknown>).__mockAinativeServer).toBe(true);
+    // Only the relay key remains — the plugin's override was silently replaced
+    expect(Object.keys(result)).toEqual(["relay"]);
   });
 
   it("T8-3: source-grep invariant — loadPluginMcpServers({ runtime: 'anthropic-direct' }) called exactly once", () => {
