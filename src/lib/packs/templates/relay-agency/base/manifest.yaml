@@ -1,0 +1,83 @@
+id: relay-agency
+version: "0.1.0"
+name: Relay Agency
+description: >
+  The agency operating layer — every client a customer, every vertical a profile,
+  every service a reusable workflow. CRE + nonprofit verticals, with per-client
+  cost attribution and human-in-the-loop governance.
+persona: >
+  An agency running Relay for commercial-real-estate and nonprofit clients: lease
+  abstraction, listing ops, bookkeeping, grant cycles, impact reporting, client
+  onboarding, and per-client governance & billing.
+author: Orionfold
+
+profiles:
+  - id: relay-agency--cre-analyst
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--cre-analyst/
+  - id: relay-agency--cre-listing-writer
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--cre-listing-writer/
+  - id: relay-agency--bookkeeper
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--bookkeeper/
+  - id: relay-agency--grant-researcher
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--grant-researcher/
+  - id: relay-agency--impact-writer
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--impact-writer/
+  - id: relay-agency--onboarding-runner
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--onboarding-runner/
+  - id: relay-agency--governance-officer
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--governance-officer/
+
+blueprints:
+  - id: relay-agency--lease-abstraction
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--lease-abstraction.yaml
+  - id: relay-agency--cre-listing
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--cre-listing.yaml
+  - id: relay-agency--bookkeeping
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--bookkeeping.yaml
+  - id: relay-agency--grant-cycle
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--grant-cycle.yaml
+  - id: relay-agency--impact-reporting
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--impact-reporting.yaml
+  - id: relay-agency--intake-summary
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--intake-summary.yaml
+  - id: relay-agency--client-onboarding
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--client-onboarding.yaml
+  - id: relay-agency--governance-billing
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--governance-billing.yaml
+
+tables:
+  - id: clients
+    columns: [name, vertical, retainer_tier, status]
+    seed: seed/tables/clients.json
+
+schedules: []
+
+view:
+  kit: workflow-hub
+  bindings:
+    hero:
+      table: clients
+    secondary:
+      - blueprint: relay-agency--lease-abstraction
+      - blueprint: relay-agency--grant-cycle
+    kpis:
+      - id: client-count
+        label: Clients
+        source:
+          kind: tableCount
+          table: clients
+        format: int
+      - id: lease-runs
+        label: Lease abstractions (30d)
+        source:
+          kind: blueprintRunCount
+          blueprint: relay-agency--lease-abstraction
+          window: 30d
+        format: int
+      - id: grant-runs
+        label: Grant cycles (30d)
+        source:
+          kind: blueprintRunCount
+          blueprint: relay-agency--grant-cycle
+          window: 30d
+        format: int

@@ -101,6 +101,9 @@ Examples:
   node dist/cli.js --port 3210 --no-open
   node dist/cli.js --data-dir ~/.ainative-dogfood --port 3100
   node dist/cli.js plugin dry-run my-plugin    # print confinement policy
+  node dist/cli.js pack add ./my-pack          # install a Relay pack (folder or git url)
+  node dist/cli.js pack list                   # list installed packs
+  node dist/cli.js pack remove my-pack         # uninstall a pack
 `;
 }
 
@@ -126,6 +129,7 @@ program
  */
 const firstArg = process.argv[2];
 const isPluginSubcommand = firstArg === "plugin";
+const isPackSubcommand = firstArg === "pack";
 
 if (isPluginSubcommand) {
   const action = process.argv[3];
@@ -147,6 +151,20 @@ if (isPluginSubcommand) {
   const result = await dryRunConfinement(pluginId);
   console.log(result);
   process.exit(0);
+}
+
+if (isPackSubcommand) {
+  // `ainative pack add|list|remove|update` — installs/manages Relay packs.
+  // Detected here, BEFORE program.parse(), so the pack path short-circuits the
+  // default server-launch flow. The command logic is dynamically imported so
+  // its DB/install dependency chain never enters the default startup graph
+  // (TDR-032 — no static top-level import of runtime-registry-adjacent code).
+  const { runPackCommand } = await import("../src/lib/packs/cli");
+  const code = await runPackCommand(process.argv.slice(3), {
+    log: (m) => console.log(m),
+    error: (m) => console.error(m),
+  });
+  process.exit(code);
 }
 
 program.parse();

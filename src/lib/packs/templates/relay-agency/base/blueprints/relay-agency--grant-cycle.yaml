@@ -1,0 +1,53 @@
+id: relay-agency--grant-cycle
+name: Grant & Donor Research
+description: >
+  Scope a nonprofit's funding priorities, research winnable grant opportunities,
+  run a donor-CRM hygiene check, and write a ranked funding-pipeline memo.
+version: "1.0.0"
+domain: work
+tags: [nonprofit, grants, donor-crm, fundraising]
+pattern: planner-executor
+difficulty: intermediate
+estimatedDuration: "30-45 min"
+author: Orionfold
+variables:
+  - id: client
+    type: text
+    label: Client
+    required: true
+    placeholder: Community Impact Alliance
+  - id: priorities
+    type: textarea
+    label: Program areas / funding priorities
+    required: false
+steps:
+  - name: Scope funding priorities
+    profileId: relay-agency--grant-researcher
+    requiresApproval: false
+    promptTemplate: >
+      Review {{client}}'s mission, programs, and last-FY funding mix ({{priorities}}).
+      Define a research scope: program areas, geography, grant-size range, and any
+      restricted-funding constraints.
+    expectedOutput: A defined, targeted research scope.
+  - name: Research grant opportunities
+    profileId: relay-agency--grant-researcher
+    requiresApproval: false
+    promptTemplate: >
+      Find 8-12 active grants (foundation, government, corporate). For each capture
+      funder, focus area, typical award, deadline, eligibility fit (high/med/low),
+      and a one-line rationale.
+    expectedOutput: A list of 8-12 fit-rated grant prospects.
+  - name: Donor-CRM hygiene check
+    profileId: relay-agency--grant-researcher
+    requiresApproval: false
+    promptTemplate: >
+      Review the donor export for {{client}}: lapsed major donors, duplicates, and
+      missing fields. Recommend a re-engagement segment and flag data-quality issues.
+    expectedOutput: A donor re-engagement segment and a data-quality issue list.
+  - name: Write funding pipeline memo
+    profileId: relay-agency--grant-researcher
+    requiresApproval: false
+    promptTemplate: >
+      Write a funding-pipeline memo: a ranked grant shortlist with deadlines, the
+      donor re-engagement segment, and the three highest-leverage actions this month.
+    expectedOutput: A ranked, deadline-aware funding pipeline memo.

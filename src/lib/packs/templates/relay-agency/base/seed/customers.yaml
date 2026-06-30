@@ -1,0 +1,56 @@
+# Relay Agency — customer seed.
+# Read by installPack -> ensureCustomer (slug-idempotent: re-seeding never
+# clobbers operator edits). 6 scrubbed-but-believable clients: 3 CRE, 3 nonprofit.
+# Retainer / cap / spend figures are ILLUSTRATIVE seed notes only — the pack
+# records cost ATTRIBUTION via the ledger rollup, not billing POLICY
+# (that's the future customer-billing-policy spec). Canonical name for the P6
+# slot is "Lakeshore Family Services" (the demo's "Riverside" alias is dropped).
+
+- slug: meridian-cre
+  name: Meridian Commercial Realty
+  industry: CRE
+  notes: >
+    Flagship CRE client (Minneapolis, MN). 14-property office & retail portfolio;
+    lease abstraction, rent-roll, comp research, LP investor reporting.
+    Illustrative retainer tier: ~$1,200/mo guardrail cap.
+
+- slug: summit-cre
+  name: Summit CRE Advisors
+  industry: CRE
+  notes: >
+    CRE brokerage. Twin Cities industrial & multifamily listings and
+    market/submarket analysis, tenant-prospect research.
+    Illustrative retainer tier: ~$600/mo guardrail cap.
+
+- slug: parkview-pm
+  name: Parkview Property Management
+  industry: CRE
+  notes: >
+    Property management (220 managed units / 38 properties). Receipt-to-bookkeeping
+    intake, vendor-invoice triage, monthly owner statements. "Simple-module" client.
+    Illustrative retainer tier: ~$500/mo guardrail cap.
+
+- slug: community-impact
+  name: Community Impact Alliance
+  industry: nonprofit
+  notes: >
+    Coalition of 9 member nonprofits (MN / Upper Midwest, youth-services focus).
+    Grant research, donor-CRM hygiene, board-report drafting.
+    Illustrative retainer tier: ~$450/mo guardrail cap.
+
+- slug: cornerstone
+  name: Cornerstone Community Foundation
+  industry: nonprofit
+  notes: >
+    Community foundation; 6 active restricted grants. Grant-compliance reporting,
+    impact-narrative drafting, annual-report content. Forward-deployed retainer.
+    Illustrative retainer tier: ~$400/mo guardrail cap.
+
+- slug: lakeshore
+  name: Lakeshore Family Services
+  industry: nonprofit
+  notes: >
+    Family-services nonprofit. Program-intake summarization and funder-update
+    drafting (de-identified intakes only — no PII). Onboarding currently paused
+    pending the client's data-sharing agreement.
+    Illustrative retainer tier: ~$200/mo guardrail cap.

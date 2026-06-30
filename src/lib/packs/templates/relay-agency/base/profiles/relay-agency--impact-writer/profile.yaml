@@ -1,0 +1,19 @@
+id: relay-agency--impact-writer
+name: Impact & Compliance Writer
+version: "1.0.0"
+domain: work
+tags: [nonprofit, grant-compliance, impact-reporting, narrative, restricted-grants, annual-report]
+supportedRuntimes: [claude-code, anthropic-direct, openai-direct, ollama]
+preferredRuntime: anthropic-direct
+allowedTools:
+  - Read
+  - Grep
+  - Glob
+  - WebSearch
+  - WebFetch
+  - Write
+canUseToolPolicy:
+  autoApprove: [Read, Grep, Glob, WebSearch]
+  autoDeny: [Bash]
+maxTurns: 18
+author: Orionfold

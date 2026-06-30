@@ -1,0 +1,64 @@
+id: relay-agency--client-onboarding
+name: Client Onboarding Runbook
+description: >
+  Stand up a new client: select vertical profiles and blueprints, configure budget
+  guardrails (approval-gated), schedule recurring deliverables, and produce a
+  one-page onboarding handoff.
+version: "1.0.0"
+domain: work
+tags: [agency-ops, onboarding, runbook, guardrails]
+pattern: planner-executor
+difficulty: intermediate
+estimatedDuration: "20-30 min"
+author: Orionfold
+variables:
+  - id: client
+    type: text
+    label: New client
+    required: true
+  - id: vertical
+    type: select
+    label: Vertical
+    required: true
+    options:
+      - value: cre
+        label: Commercial Real Estate
+      - value: nonprofit
+        label: Nonprofit
+  - id: retainer
+    type: text
+    label: Retainer tier / monthly cap
+    description: Illustrative budget guardrail (e.g. "$600/mo")
+    required: false
+steps:
+  - name: Select vertical profiles
+    profileId: relay-agency--onboarding-runner
+    requiresApproval: false
+    promptTemplate: >
+      For {{client}} (vertical: {{vertical}}), select which agent profiles to
+      assign and which workflow blueprints to instantiate. Note the client-specific
+      reference docs to gather (brand guide, chart of accounts, grant calendar).
+    expectedOutput: A profile + blueprint assignment plan with reference-doc list.
+  - name: Configure budget guardrails
+    profileId: relay-agency--onboarding-runner
+    requiresApproval: true
+    promptTemplate: >
+      Set {{client}}'s monthly budget guardrail to the retainer tier ({{retainer}}),
+      configure approval requirements for client-facing output, and define the
+      delivery channel (email/Slack).
+    expectedOutput: A guardrail + approval-policy + delivery-channel configuration.
+  - name: Schedule recurring deliverables
+    profileId: relay-agency--onboarding-runner
+    requiresApproval: false
+    promptTemplate: >
+      Create the recurring schedules {{client}} needs (weekly report, monthly
+      statement, grant-deadline watch). Confirm cadence and active hours.
+    expectedOutput: A set of recurring schedules with confirmed cadence.
+  - name: Produce onboarding handoff
+    profileId: relay-agency--onboarding-runner
+    requiresApproval: false
+    promptTemplate: >
+      Produce a one-page onboarding handoff for {{client}}: the project, assigned
+      profiles, instantiated blueprints, schedules, and guardrails — a repeatable
+      checklist for the next client.
+    expectedOutput: A one-page onboarding handoff document.
