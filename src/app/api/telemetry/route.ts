@@ -1,3 +1,7 @@
+// FROZEN SCOPE (_SPECS/feature-cut-freeze.md Target 4 · _IDEAS/reprioritze.md §4)
+// Frozen aggregate shape; no new trend series or live-host metrics without
+// revisiting reprioritze §4. The telemetry cockpit is maintain-only.
+
 import { NextResponse } from "next/server";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";

@@ -1,6 +1,7 @@
 ---
 title: Marketplace Install Hardening
-status: deferred
+status: dropped
+dropped: "Not pursuing — app distribution/marketplace ambition cut per _IDEAS/reprioritze.md §4 (concentration cutline, 2026-06-29)."
 priority: P1
 milestone: post-mvp
 source: code-review of commit 56e2839 (runtime bundle marketplace foundation)

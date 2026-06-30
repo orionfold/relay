@@ -8,16 +8,24 @@ import {
 } from "../nav-items";
 
 describe("nav-items", () => {
-  it("exposes the five IA groups with 16 routes total", () => {
+  it("exposes the four IA groups with 13 routes total", () => {
+    // The `configure` group was dissolved per _SPECS/feature-cut-freeze.md:
+    // Environment deferred, Analytics deprecated, Settings moved to the app-bar.
     expect(NAV_GROUPS.map((g) => g.id)).toEqual([
       "home",
       "compose",
       "data",
       "observe",
-      "configure",
     ]);
     const total = NAV_GROUPS.reduce((n, g) => n + g.items.length, 0);
-    expect(total).toBe(16);
+    expect(total).toBe(13);
+  });
+
+  it("keeps the cut routes out of every nav group", () => {
+    const allHrefs = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.href));
+    expect(allHrefs).not.toContain("/analytics");
+    expect(allHrefs).not.toContain("/environment");
+    expect(allHrefs).not.toContain("/settings");
   });
 
   it("caps every group at 4 children (keeps the expanded row narrow)", () => {
@@ -56,11 +64,14 @@ describe("nav-items", () => {
       expect(activeGroupId("/schedules")).toBe("data");
       expect(activeGroupId("/documents")).toBe("data");
       expect(activeGroupId("/costs")).toBe("observe");
-      expect(activeGroupId("/settings")).toBe("configure");
     });
 
     it("falls back to 'home' for an unknown route", () => {
       expect(activeGroupId("/nonexistent")).toBe("home");
+    });
+
+    it("falls back to 'home' for /settings (now in the app-bar, not a group)", () => {
+      expect(activeGroupId("/settings")).toBe("home");
     });
   });
 

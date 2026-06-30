@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AinativeWordmark } from "@/components/shared/ainative-wordmark";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -18,9 +18,9 @@ import {
 } from "./nav-items";
 
 // The Arena app bar with an IN-BAR horizontal accordion (operator's model). The
-// bar shows the 5 group buttons; clicking one slides its children open inline,
+// bar shows the 4 group buttons; clicking one slides its children open inline,
 // pushing siblings right, and slides any previously-open group closed — so at
-// most one group's children (≤4) plus the 5 group buttons are visible at once.
+// most one group's children (≤4) plus the 4 group buttons are visible at once.
 // Each child shows a single-line label (icon + title); its tip survives only as
 // the native title tooltip, so children stay narrow on small viewports. Active
 // child = cyan fill (the one action color). No drawer, no separate primary tabs:
@@ -143,6 +143,7 @@ export function AppBar() {
   // Default the open group to whichever owns the current route; re-sync on
   // navigation so deep links land with the right group already expanded.
   const routeGroup = activeGroupId(pathname);
+  const settingsActive = pathname.startsWith("/settings");
   const [openGroup, setOpenGroup] = useState<NavGroupId | null>(routeGroup);
 
   useEffect(() => {
@@ -177,6 +178,23 @@ export function AppBar() {
       </nav>
 
       <div className="ml-auto flex shrink-0 items-center gap-2">
+        {/* Settings — icon-only gear promoted here from the dissolved `configure`
+            nav group (_SPECS/feature-cut-freeze.md Target 3b). Active = cyan, the
+            bar's single action color. */}
+        <Link
+          href="/settings"
+          aria-label="Settings"
+          title="Settings"
+          aria-current={settingsActive ? "page" : undefined}
+          className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
+            settingsActive
+              ? "text-primary"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <Settings className="h-4 w-4 shrink-0" aria-hidden />
+        </Link>
         <button
           type="button"
           onClick={openCommandPalette}

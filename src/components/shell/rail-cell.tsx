@@ -1,3 +1,7 @@
+// FROZEN SCOPE (_SPECS/feature-cut-freeze.md Target 4 · _IDEAS/reprioritze.md §4)
+// Frozen RailCell API; extend only to serve the Operations Receipt, not new
+// live-host metrics. The telemetry rail's scope is locked at 10 cells.
+
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Sparkline } from "@/components/charts/sparkline";

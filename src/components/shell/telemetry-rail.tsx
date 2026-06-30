@@ -1,5 +1,10 @@
 "use client";
 
+// FROZEN SCOPE (_SPECS/feature-cut-freeze.md Target 4 · _IDEAS/reprioritze.md §4)
+// 10 cells is the frozen surface; do not add cells or out-build Arena's machine
+// monitor — Relay loses that fight on the same buyer's screen. Redirect telemetry
+// energy to the Operations Receipt (outcome/SLA), not new live-host metrics.
+
 import {
   Server,
   Cpu,

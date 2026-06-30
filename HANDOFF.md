@@ -1,190 +1,258 @@
-# Handoff: Orionfold DS — core + Arena shell + cockpit + icons + boot splash + DS polish + a11y contrast SHIPPED (local-only)
+<!-- ============================================================= -->
+<!-- QUEUED ALSO — Relay partner brochure revisions (2026-06-29)    -->
+<!-- ============================================================= -->
+<!--
+RELAY BROCHURE — built this session, lives in the BOOKS peer repo, not here.
+  - Source:   orionfold/books/relay-brochure/ (relay-brochure.qmd + theme/brochure.typ)
+  - Skill:    orionfold/books/.claude/skills/publish-brochure/
+  - Output:   ainative/output/relay-brochure/Orionfold-Relay-Partner-Brief.pdf (+ .html, screenshots/)
+  - Seed:     feat/relay-agency-seed-dataset branch (CRE+nonprofit "Relay Agency Demo" dataset)
+  - Render:   cd orionfold/books/relay-brochure && TYPST_FONT_PATHS="$(pwd)/theme/fonts" \
+              quarto render relay-brochure.qmd --to typst   (then copy _output PDF to ainative/output)
 
-**Updated:** 2026-06-29 (Orionfold Relay redesign — boot-splash + cost-dashboard polish + dark-theme
-contrast session). Seven local commits now: `cc0a2a5c` (DS core) · `a0b4b444` (Arena shell) ·
-`7832143f` (rail→cockpit + dashboard dedup) · `e74f3a20` (brand icon set + metadata) · `ef9719b3`
-(.of-boot splash) · `4d72a8b7` (cost-dashboard DS polish) · `78688d38` (dark-theme WCAG AA contrast).
-None pushed.
+OPERATOR FEEDBACK to apply (in progress this session):
+  1. Whitespace/newline issues between text blocks — review thoroughly: caption→next paragraph,
+     section title→paragraph start, between blocks. (Typst/Pandoc margin-collapse.)
+  2. Do NOT dangle a headline at a page bottom with its section starting the next page
+     (keep heading with its first content block — orphan/widow control).
+  3. De-personalize: remove partner/co-founder NAMES (Harun/Daniel/Jeff), remove confidential
+     partner-customer $ details ($5K retainer, 73% margin, specific client identities), generalize
+     to a CRE+nonprofit agency audience.
+  4. Add Orionfold branding: the OfMark disc+star (src/components/shared/of-mark.tsx — cyan disc
+     #009b97 Tide cyan + white 45°-rotated star), a © copyright line, and Apache-2.0 license note
+     (Orionfold-wide convention per website terms.astro + seo.ts).
+  ALL FOUR APPLIED (2026-06-29) — brochure re-rendered, copied to ainative/output/relay-brochure/.
+  PLUS: logo fixed (was broken — hand-rolled Typst star collapsed; now embeds theme/of-mark.svg +
+  of-mark-ondark.svg, geometry from of-mark.tsx). PLUS: added 5 workflow/app screenshots (09 simple
+  sequence, 10 complex human-in-the-loop checkpoint, 11 blueprints gallery, 12 blueprint detail, 13
+  "Describe an app — Relay builds it" magic-feature) + new Orchestration section + upgraded zero-code
+  apps pillar. Now ~11 pages, 13 screenshots.
+  SPACING FIX SHIPPED: text-led section() H2s no longer hug their body — the fix was adding an optional
+  `lead:` arg to section() so the first paragraph renders INSIDE the heading's block (no Pandoc raw-block
+  boundary for the margin to collapse against). Converted the 4 text-led openers (Why-this-brief, Five-
+  gaps, Orchestration, Zero-code-apps); grid/roadmap-led ones never had the problem.
+  CLIENT NAMES SCRUBBED: re-seeded relay-agency with generic-but-believable names + re-captured all 13
+  screenshots (light theme). Mapping: Lakeside→Meridian Commercial Realty, North Star→Summit CRE
+  Advisors, Cedar & Co.→Parkview Property Management, Twin Cities Nonprofit Alliance→Community Impact
+  Alliance, Headwaters→Cornerstone Community Foundation, Riverside Family→Lakeshore Family Services.
+  Kept Twin Cities geography (Bloomington/Edina/Minneapolis — not client identities). Renames applied in
+  BOTH worktree (relay-demo) and need mirroring to the feature branch's seed files at PR time.
+  Minor remaining: (1) page-3 has a lone "5·Distribution" panel from the Five-Gaps grid split (layout,
+  not a bug); (2) the build-an-app screenshot's chat-history sidebar shows generic default-dataset chat
+  titles (createConversations isn't CRE-specific) — cosmetic background only.
+  THEME-STICK NOTE: DevTools MCP page renders dark server-side (no theme cookie in that context); set
+  the ainative-theme=light cookie + DOM class per route before each capture (navigate initScript helps).
+  Open follow-up (optional): demo SCREENSHOTS still show invented client names (Lakeside, North Star,
+  etc.) baked into seed data; captions frame them as "a sample agency." To fully scrub, re-seed with
+  generic names + re-capture.
 
-> **Operator policy:** all commits stay **local-only** through the next release. Do NOT push or
-> prompt to push (`feedback-no-push-reminders-pre-release`). Default to `main`
-> (`feedback-default-main-not-worktree`).
+NPM NAMING — DONE (2026-06-29):
+  - npm account `orionfoldllc` created (2FA on); org `@orionfold` created (scope for
+    @orionfold/relay|proof|arena). Username ≠ org name on purpose — npm shares the username/org/scope
+    namespace, so `orionfold` had to go to the ORG, not the personal account.
+  - Reservation placeholders PUBLISHED: `orionfold@0.0.1` + `orionfold-relay@0.0.1` (1 kB stubs,
+    "coming soon" bin, Apache-2.0). Source: orionfold/npm-reserve/ (untracked). `orionfold-relay`
+    bins: `orionfold-relay` + `relay`.
+  - PyPI parity: orionfold / orionfold-proof / orionfold-arena already held on PyPI (separate registry,
+    no conflict). npm siblings orionfold-proof / orionfold-arena NOT yet reserved.
+  - DEFERRED (per project-self-extending-machine-npm-deferred): the real `orionfold-relay@0.1.0`
+    rename-release (package + bin rename, ~18-file sweep of "ainative-business"/"ainative" bin, npx
+    hoisting, README/docs) ships with the BATCHED pivot release, not now. `npx ainative-business` is
+    still the current command until then.
+  - Bypass-2FA publish token was created, used once, then REVOKED + scrubbed from .env.local.
 
-## CONTEXT: ainative → "Orionfold Relay" rebrand + redesign
+DONE (2026-06-29): SENT the Harun email from manav@orionfold.com (Orionfold Mail / u/1) via
+  gmail-browser-ops Claude-in-Chrome flow. Operator added recipient + attached the PDF manually, then
+  sent. Two in-session revisions vs the approved draft below: (1) DROPPED the "Tue/Wed once Cloud Code
+  credits refresh + I'll send the install" launch commitment — credits situation resolved, operator
+  chose to commit no further action and let the PDF be the "killer" next step; (2) cut the whole
+  "next steps / your one-pager" forward-ask paragraph, closing on "PDF attached. Would love your
+  unfiltered read." Generic tone preserved (no client names / $). Subject unchanged.
+  Note: account default signature (Founder/Orionfold + CAN-SPAM opt-out line + physical address)
+  auto-appended; left as-is per operator (flagged that the opt-out line reads marketing-ish on a warm 1:1).
 
-ainative is aligning to the **Orionfold design system** (the system the sibling products Orionfold
-Proof + Orionfold Arena already use). Prep + DS-package review are done. See
-`_IDEAS/orionfold-relay-redesign-prep.md` and memory `project-orionfold-relay-rebrand`.
+  APPROVED DRAFT TEXT (generic version — paste into the Gmail body):
+  --------------------------------------------------------------------
+  Subject: Orionfold Relay — the partner brief I mentioned
 
-## DONE (committed `cc0a2a5c`, local — NOT pushed): Orionfold DS core slice
+  Hi Harun,
 
-Applied + verified end-to-end (validator + tsc + `npm run dev` + browser, both themes):
-- **Tokens → Tide cyan** single accent (`--primary`/`--ring`/`--status-running`/`--chart-1..5` +
-  sidebar tokens), both themes. Zero indigo. (`src/app/globals.css`)
-- **Fonts → Geist + Geist Mono** (operator chose Option B = align with brand). `validate-tokens.ts`
-  **inverted**: now rejects leftover Inter/JetBrains Mono instead of Geist. (`layout.tsx`,
-  `globals.css`, `tokens.json`, `validate-tokens.ts`)
-- **Charts single-accent** — every sparkline/donut cyan; `projects/[id]` status bar → status tokens.
-- **Voice** — `section-heading` mono-uppercase. `status-chip` / `permission-response-actions` /
-  `sonner` were already DS-compliant (no change).
-- **Brand** — new `src/components/shared/of-mark.tsx` (theme-aware delta-star SVG); wordmark →
-  "Orion**fold** Relay" (cyan `fold`); logo → delta mark.
-- Round-trip logs written back to the DS package:
-  `~/orionfold-design-system/apply/ainative/{aligned,roadmap}/2026-06-28-164854-log.md`.
+  Great catching up the other day — congrats again on the LLC and signing your first customer. The
+  forward-deployed, agency-managed model you described is exactly the shape Relay is built for, so I put
+  together a short partner brief to make the case concrete.
 
-## DONE (committed `a0b4b444`, local — NOT pushed): Arena shell w/ in-bar accordion nav
+  The thesis in one line: Relay is the agency operating layer you'd otherwise spend months building —
+  every client a project, every vertical a profile, every service a reusable workflow, every model a
+  switch, with per-client billing and human-in-the-loop governance built in. The brief walks through it
+  with real screenshots: the one-board cockpit, simple vs. governed multi-step workflows, multi-vendor
+  model switching (Claude/Codex/Gemini/local), and the "describe an app, Relay builds it" zero-code
+  composition.
 
-Replaced the left sidebar with the Arena stack **app bar → telemetry rail → centered canvas**.
-Spec was `_SPECS/arena-shell-migration.md` (the drawer nav model in it is SUPERSEDED — see below).
+  I also flagged the one piece that's still ahead of us — a first-class customer dimension for true
+  multi-tenant agency management. That's the part I'd want to design with you, from your one-pager,
+  rather than retrofit later.
 
-**Nav model — in-bar horizontal accordion (NOT tabs+drawer):**
-- The app bar (`h-16`) holds **5 group buttons**: `Home · Compose · Data · Observe · Config`.
-  Clicking a group slides its children open **inline** (grid-cols 0fr→1fr), pushing siblings
-  right, and slides any prior-open group closed. Max visible at once = 5 buttons + one group's
-  ≤4 children. Active child = cyan fill. `useEffect` auto-opens the group owning the current
-  route (deep links land expanded).
-- **Compose was SPLIT** to cap children at 4: Compose(Apps/Projects/Workflows/Profiles) +
-  new **Data** group (Schedules/Documents/Tables). IA is still all 16 routes. `nav-items.ts` is the
-  single source. **No drawer, no hamburger** — the whole IA lives in the bar.
-- **Children are single-line** (icon + title only). The per-item tip (`item.description`) is
-  **dropped from the bar** — keeps each child pill narrow on small viewports — and survives as
-  the native `title=` tooltip on hover. (Operator decision for narrow-viewport; see below.)
+  Next steps on my side: Relay goes public Tuesday/Wednesday once the Cloud Code credits refresh — I'll
+  send you the install the moment it's live so you can put it through its paces and tell me where the
+  gaps are. On yours, whenever it's ready, the one-pager on how you'd deploy Relay for clients (and what
+  your customer/group schema looks like) would let me start shaping the agency surface around how you
+  actually run accounts. Then we can structure the subcontractor/partnership side.
 
-**Files (`src/components/shell/`):** `app-shell.tsx` (Server Component wrapper, mounted in
-`layout.tsx`), `app-bar.tsx` (the accordion — client), `telemetry-rail.tsx` + `rail-cell.tsx`
-(6 real cells, `sticky top-16`), `use-telemetry.ts` + `telemetry-types.ts`, `nav-items.ts`,
-`__tests__/nav-items.test.ts`. **New API:** `src/app/api/telemetry/route.ts` (`force-dynamic`;
-one `getBudgetGuardrailSnapshot()` yields BOTH costs + runtime states, + 2 Drizzle counts +
-`getWorkspaceContext()`). **Modified:** `layout.tsx` (sidebar → `<AppShell>`). **Deleted:**
-`app-sidebar.tsx`. `nav-drawer.tsx` was built then removed when the model changed (recoverable
-from git history if ever needed).
+  PDF attached. Would love your unfiltered read.
 
-**Telemetry rail — originally 6 cells; reshaped to 10 in `7832143f` (see below).** Hook polls ~12s,
-pauses on hidden tab. On poll error: keeps last snapshot + flips live-pip to red "stale".
+  Best,
+  Manav
+  --------------------------------------------------------------------
+-->
 
-**Deviation from reference CSS:** the Arena mock used `backdrop-filter:blur` on the bar — Calm Ops
-BANS it (validator caught it). Fixed → opaque `--surface-1` bar. (Flagged back to DS producer.)
+<!-- npm bin decision (from operator): eventually want THREE launch commands — `relay`,
+     `orionfold-relay`, AND `orionfold` (umbrella dispatcher). Bake into the 0.1.0 rename plan.
+     Watch: a bare `orionfold` npm bin could PATH-collide with the PyPI `orionfold` CLI if a user
+     installs both globally; npx is unaffected. Keep npm bin names distinct (relay/orionfold-relay)
+     or make the umbrella dispatch, to avoid the collision. -->
 
-**Verified end-to-end (all green):** `validate:tokens` ✓ · `tsc --noEmit` clean · `nav-items` test
-7/7 · **`npm run dev` smoke** (layout.tsx runtime-registry-adjacent, TDR-032): 0 module-load-cycle
-errors, `/api/telemetry` + `/workflows` + `/` 200 · **browser**: accordion route-driven auto-open
-(`/workflows` opens Compose + cyan-active "Workflows"), single-line children render, centered
-canvas, rail live values. Round-trip note appended to DS `aligned/` log.
 
-## Narrow-viewport / phone mode — DECIDED: not building (2026-06-28)
+# Handoff: DONE — `_SPECS/feature-cut-freeze.md` implemented (cut/freeze the below-the-line surfaces)
 
-The lightweight fix (drop per-child tip → narrower pills) shipped in `a0b4b444`. **Operator then
-decided NOT to build a true phone mode:** Relay's floor is **desktop/tablet (≥768px)**; below that the
-bar's `overflow-x-auto` scroll is an accepted, intentional degradation, not a defect. Icon-only
-collapse and the `Sheet`-drawer reinstatement are both **declined** (icon-only was judged a
-half-measure — an expanded group's children still scroll; the drawer is the only real fix but the
-viewport isn't a target). The deleted `nav-drawer.tsx` stays recoverable from git if this ever
-reverses, but it is off the roadmap.
+**Updated:** 2026-06-29 (cut-freeze implementation session). The cutline is **SHIPPED + local**
+(one commit, not pushed). All spec gates passed: `tsc --noEmit` clean, `validate:tokens` green,
+`nav-items` 9/9, dev smoke + Claude-in-Chrome walkthrough (both themes) confirmed. Prior DS/redesign
+handoff archived at `.archive/handoff/2026-06-29-orionfold-ds-redesign-shipped.md` (those 7 commits
+shipped + local). The queued-task detail below is kept as the implementation record.
 
-## DONE (committed `7832143f`, local — NOT pushed): telemetry rail → orchestration cockpit + dashboard dedup
+## WHAT SHIPPED (2026-06-29)
+- **Nav cut** — `nav-items.ts`: removed Analytics + Environment; dissolved the `configure` group;
+  `NAV_GROUPS` now **4 groups** (Home · Compose · Data · Observe); dropped 3 unused icon imports.
+- **Settings right-align** — `app-bar.tsx`: icon-only gear in the right utility cluster, cyan-active
+  on `/settings`, `aria-label`/`title`/`aria-current` set; verified no accordion mis-open
+  (`activeGroupId`→home fallback holds).
+- **Freeze markers** — 4 `FROZEN SCOPE` comments: `telemetry-rail.tsx`, `rail-cell.tsx`,
+  `api/telemetry/route.ts`, `lib/plugins/registry.ts`.
+- **Roadmap hygiene** — 11 `features/` distribution/marketplace specs flipped `deferred → dropped`
+  (+ reason); "Dropped — not pursuing" note added to `features/roadmap.md` Post-MVP.
+- **Doc reconcile** — `_IDEAS/reprioritze.md`: revision-log row + "Executed cuts / Frozen surfaces".
+- **Verified zero-regression** — dormant `/analytics` (200, renders) + `/environment` (200, 44KB
+  live workspace scan → `src/lib/environment/**` intact); `/monitor` + `/` charts render
+  (`chart-data.ts` untouched). No `src/lib/**` behavior change, no DB/route/API/component deletion.
+- **NOTE:** untracked `.archive/handoff/2026-06-29-orionfold-ds-redesign-shipped.md` (prior session's
+  archive, not gitignored) was left untracked — not part of this commit; operator to decide.
 
-Reshaped the rail from inert-identity + static counts into a fleet-health cockpit, then made it the
-**single canonical metric surface** by deleting the dashboard's duplicate `StatsCards` strip (operator
-caught the redundancy — rail and cards showed the same numbers from the same queries, stacked).
+---
 
-- **Rail now 10 cells:** HOST (folder · live cpu/mem via `os.loadavg`/`freemem`) · RUNTIME (label ·
-  installed SDK version) · TASKS (running + 24h activity spark) · THROUGHPUT (done today + 7d spark) ·
-  FAILURES (failed, **red** + 7d spark) · REVIEW (pending) · PROJECTS (active) · WORKFLOWS (active) ·
-  COST TODAY · COST TO DATE. Sparklines reuse `Sparkline` + `chart-data` queries.
-- **SDK version** resolved via `createRequire` walk (package `exports` hides `./package.json`); shows
-  *installed* (`0.2.114`) not declared (`^0.2.71`) — drift is the point. Null → no sub-line.
-- **`RailCell` API:** `strong` → `tone: "accent"|"danger"` (FAILURES reads red, not live-cyan); new
-  inline `spark` slot. New `getFailuresByDay()` in `chart-data.ts`.
-- **Dashboard (`page.tsx`):** removed `StatsCards` + dead `stats-cards.tsx`; pruned 5 now-orphaned
-  chart-data queries/vars + unused drizzle imports. Dashboard is now a workspace, not a number recap.
-- **Left in place:** 4 uncalled `chart-data` query *functions* (have tests, harmless exports) — not
-  deleted per minimal-diff. Remove + their tests if cleanliness is wanted later.
-- Verified: tsc · `validate:tokens` · shell/queries/dashboard tests 11/11 · **dev smoke (TDR-032,
-  route is runtime-registry-adjacent)** — `/api/telemetry` 200 real data, no module-load cycle ·
-  browser both themes.
+<details><summary>Original QUEUED handoff (implementation record)</summary>
 
-## DONE (committed `e74f3a20`, local — NOT pushed): brand icon set + fixed stale app metadata
+> **Operator policy:** commits stay **local-only** through the next release — do NOT push or prompt
+> to push (`feedback-no-push-reminders-pre-release`). Default to `main`
+> (`feedback-default-main-not-worktree`). `_IDEAS/` + `_SPECS/` are gitignored local strategy files.
 
-Replaced pre-brand raster logos with a full modern icon set + fixed metadata still reading "AI Native
-Business". **Operator chose:** disc-fills-the-frame canvas + full modern set.
+## CONTEXT — why this work exists
 
-- **`scripts/generate-brand-icons.ts`** (sharp) rasterizes the OfMark → `public/`: `favicon.ico`
-  (16/32/48 multi-res) + icon-16/32/48/192/512 + apple-icon-180 + icon-512-maskable. Disc fill =
-  baked `#009b97` (= `--primary` light, oklch(0.62 0.11 192); rasters have no CSS). **Regenerate via
-  the script** when mark or cyan changes. Deleted orphaned `ainative-s-64/128.png`.
-- **`layout.tsx`:** title → "Orionfold Relay", description → "Multi-agent orchestration for AI-native
-  work", explicit npx-safe icons block. **`manifest.ts`:** name/short → Orionfold Relay/Relay,
-  `theme_color` → `#009b97`, `background_color` → `#040a11` (both were pre-rebrand indigo/slate
-  leftovers). Updated `package.json` hoist list + `npx-process-cwd.test.ts` icon names.
-- Verified: tsc · `validate:tokens` · npx test 4/4 · dev smoke (home + manifest + favicon + icons all
-  200, TDR-032) · browser (title + manifest + head links + rendered mark correct).
+Relay (formerly ainative) is becoming the **third** Orionfold product (menu: **Proof · Arena ·
+Relay**). Positioning landed: **one buyer, three jobs** — Proof = *"which AI can I trust?"*, Arena =
+*"which build wins?"*, **Relay = "now make the trusted AI do the actual work"** (the *operations
+tier*; the only product whose value compounds *after* evaluation stops). Full thesis + a
+28-feature **Desirability/Feasibility/Viability/Uniqueness** matrix is in
+**`_IDEAS/reprioritze.md`** (living doc). Its §4 draws an **aggressive concentration cutline**: ship
+fewer primitives deeper, stop carrying below-the-line surfaces that dilute the ops story or fight a
+peer on the same screen.
 
-## DONE (committed `ef9719b3`, local — NOT pushed): .of-boot brand boot splash
+This handoff is to **execute that cutline** via the approved spec.
 
-CSS-only, FOUC-safe brand boot screen (roadmap light item). Operator chose **every-load CSS fade**
-(not first-visit JS-gated, not Suspense-gated).
+## THE TASK — implement `_SPECS/feature-cut-freeze.md` end-to-end
 
-- **`src/app/globals.css`** — `.of-boot` opaque full-screen veil (`z-100`, `var(--background)`) +
-  `of-boot-out` (700ms fade) / `of-boot-mark` (scale-in) keyframes. Sits above app content, below
-  modal/toast layers.
-- **`src/app/layout.tsx`** — splash markup as first `<body>` child: `OfMark size={72}` + inlined
-  "Orion·**fold**·Relay" lockup (inlined, not `AinativeWordmark`, because the splash needs a larger
-  mark than that component's fixed 28px). `aria-hidden`.
-- **Edge case handled:** the global `prefers-reduced-motion` reset zeroes `animation-duration`,
-  which would FREEZE the veil at `opacity:1` and lock the app. Explicit `.of-boot { display:none }`
-  under reduced-motion skips it for those users — don't remove that override.
-- Verified: validate:tokens · tsc · dev smoke (`/` 200, TDR-032 layout.tsx adjacent) · live browser
-  (composition + clean natural dismiss, both themes).
+Read the spec first; it is the source of truth (status: `spec — awaiting approval`, but operator
+approved the approach + all open decisions in-session). It is **subtractive + zero-regression** —
+removes/relabels, builds almost nothing. Operator decisions already baked into the spec frontmatter:
+- **Cut method = hide from nav, keep routes dormant on disk** (reversible, minimal diff).
+- **Freeze enforcement = doc + code marker comments** (no lint/test guard).
+- **Marketplace DROP = roadmap-only** — there is NO shipped marketplace/`.sap`/remix code to delete
+  (verified by grep). Do not hunt for files.
+- **Settings → right-aligned icon-only gear; dissolve the now-single-item Config group.**
 
-## DONE (committed `4d72a8b7`, local — NOT pushed): cost-dashboard DS radius/opacity polish
+### Execution order (from spec § Sequencing — vertical slice, smallest blast radius first)
 
-Roadmap light item. `src/components/costs/cost-dashboard.tsx` only:
-- `rounded-3xl`→`rounded-xl` ×6 · `rounded-2xl`→`rounded-lg` ×16 · `bg-background/40`→opaque
-  `bg-background` ×5.
-- **Left intentionally:** `bg-status-*/{8,10}` semantic alert tints (accepted DS pattern, not glass).
-- **Also left (minimal-diff):** pre-existing dead `Coins` import + `formatTokenCount` fn — unrelated
-  to this polish; same call as the prior session's 4 uncalled chart-data fns. Remove later if wanted.
-- Verified: validate:tokens · tsc · live browser.
+1. **Nav cut — `src/components/shell/nav-items.ts`** (one file):
+   - Remove the **Analytics** item from `observeItems` (`href: "/analytics"`). Observe keeps Monitor
+     + Cost.
+   - Remove the **Environment** item from `configureItems`; then **dissolve the whole `configure`
+     group** (it's down to a single Settings item): delete `configureItems`, its `NAV_GROUPS` entry,
+     and `"configure"` from the `NavGroupId` union. `NAV_GROUPS` → **4 groups** (Home · Compose ·
+     Data · Observe).
+   - Remove now-unused icon imports: `BarChart3` (Analytics), `Globe` (Environment), `Settings`
+     (moving to app-bar).
+2. **Settings right-align — `src/components/shell/app-bar.tsx`** (one file, the ONLY behavior-bearing
+   UI edit): add an **icon-only gear `Link`** to the right `ml-auto` utility cluster, placed BEFORE
+   the ⌘K button. Mirror the ⌘K button sizing (`h-8`, rounded-md, muted→foreground hover). **Active
+   state** (`pathname.startsWith("/settings")`) = cyan `text-primary` (bar's single action color).
+   Add `aria-label="Settings"`, `title="Settings"` (icon-only needs the accessible name),
+   `aria-current` when active. Import `Settings` from `lucide-react` here.
+   - **Correctness check:** `activeGroupId()` already falls back to `"home"` when no item matches, so
+     `/settings` (now in no group) won't mis-open an accordion — verify in smoke, no code change
+     needed there.
+3. **Test sync — `src/components/shell/__tests__/nav-items.test.ts`**: update to **4 groups**;
+   `observe` = 2 items; no `/analytics`, `/environment`, or `/settings` in any group's items. Keep
+   the `activeGroupId` fallback + active-matching assertions. Run `npm test -- nav-items`.
+4. **Freeze markers** (4 short `FROZEN SCOPE` banner comments, no behavior change), each pointing to
+   this spec + `_IDEAS/reprioritze.md` §4:
+   - `src/components/shell/telemetry-rail.tsx` — 10 cells is the frozen surface; don't out-build
+     Arena's machine monitor.
+   - `src/components/shell/rail-cell.tsx` — frozen RailCell API.
+   - `src/app/api/telemetry/route.ts` — frozen aggregate shape.
+   - `src/lib/plugins/registry.ts` — plugin fall-through is the escape hatch, maintain-only.
+5. **Roadmap hygiene**: flip the deferred app-distribution/marketplace specs under `features/` from
+   `deferred` → `dropped` (the `.sap`/remix/updates/channels/marketplace-reviews/creator-portal/
+   install-widget specs named in `reprioritze.md` gap analysis); add a "Dropped — not pursuing" note
+   to `features/roadmap.md` Post-MVP section.
+6. **Doc reconcile — `_IDEAS/reprioritze.md`**: append a revision-log row + add an "Executed cuts /
+   Frozen surfaces" note so matrix and code agree.
 
-## DONE (committed `78688d38`, local — NOT pushed): dark-theme WCAG AA contrast fix
+## REGRESSION FENCES — the do-not-touch list (critical)
 
-Operator caught low-contrast gray nav + telemetry text on the near-black dark surface (live walkthrough).
-Root cause: muted text **double-diluted** — `text-muted-foreground` PLUS `/70 /60 /50` opacity
-suffixes — and the un-diluted token (L0.58 ≈ 3.6:1) was itself borderline.
+The cut surfaces sit on top of **deeply shared libs**. The danger is grazing the lib while hiding the
+surface. **Do NOT touch** (spec § Regression fences has the full table):
+- `src/lib/queries/chart-data.ts` — shared by telemetry rail (frozen, still reads it), `/monitor`,
+  dashboard, `projects/[id]`. **Distinct from** `src/lib/analytics/queries.ts`.
+- `src/lib/environment/**` — workspace-context / auto-scan / scanner / list-skills / parsers,
+  consumed by chat, agents, runtime, telemetry route, `/monitor`, projects, tasks, plugins. Hiding
+  the `/environment` UI must not graze any of it. `environment_*` DB tables stay.
+- `src/lib/apps/**` — the local app-manifest KEEP (the composability moat we're concentrating ON);
+  load-bearing for chat engine, table row-trigger dispatch, blueprint/profile/schedule tools.
+- No DB migration, no API deletion, no route/component deletion. **Dormant ≠ deleted.**
 
-- **`globals.css`** — dark `--muted-foreground` L0.58 → **L0.66** (≈5.3:1, clears AA 4.5:1). **Scoped
-  to `.dark` only**; light theme (L0.45) untouched. Lifts the floor for ALL dark muted text while
-  staying subordinate to `--foreground` (L0.92) — hierarchy preserved.
-- **`app-bar.tsx`** — nav group/child icons `/70`→full token; group chevron `/50`→`/70`.
-- **`rail-cell.tsx`** — label `/70` + sub-line value `/60`→full token.
-- **Kept diluted:** loading `—` placeholder (`/50`, transient) + group chevron (`/70`, affordance).
-- Verified: validate:tokens · tsc · live browser (rail/nav brightened, light theme un-regressed).
+## VERIFICATION (spec § Verification — do all)
 
-## Deferred / roadmap (NOT yet built) — 2 left
-proof "signature objects" (receipt card / verdict banner) on `/monitor` + `/tasks/[id]` — **the heavy
-from-scratch design build, no existing receipt/verdict primitives** · per-route off-system finish
-polish for any OTHER routes (cost-dashboard now done; sweep remaining pages for stray
-`rounded-2xl/3xl` + `bg-*/NN`). The two light items (`.of-boot` splash + cost-dashboard polish) shipped
-this session, plus an unplanned dark-theme contrast fix. Earlier roadmap items (HOST CPU/RAM, RUNTIME
-SDK version, favicon, phone-mode) already resolved. Full roadmap:
-`~/orionfold-design-system/apply/ainative/roadmap/2026-06-28-164854-log.md`.
+- `npx tsc --noEmit` clean (catches unused imports + stray refs to removed items).
+- `npm run validate:tokens` green (no token edits — sanity gate).
+- `npm test -- nav-items` passes (updated IA).
+- **`npm run dev` smoke** (`nav-items` feeds `app-bar.tsx`, mounted globally):
+  - Bar shows **4 groups** (Home · Compose · Data · Observe); no Config group; Observe = Monitor +
+    Cost (no Analytics). **Settings = icon-only gear in right cluster**, cyan-active on `/settings`,
+    no accordion mis-opens.
+  - **Dormant routes still resolve by direct URL**: `/analytics` + `/environment` each 200 (proves
+    hidden-not-deleted + no shared lib harmed).
+  - `/monitor`, `/`, `/projects/[id]` still render charts (proves `chart-data.ts` untouched);
+    chat `list_skills` still works (proves `src/lib/environment/**` untouched).
+- **Browser walkthrough** — operator prefers **Claude-in-Chrome side-by-side** (drive the live
+  Chrome session, not headless/DevTools; the live tab doesn't auto-raise — tell operator to switch
+  to the Browser-1 window; don't auto-close mid-session). Confirm 4-group bar + right gear +
+  tooltip/active in both themes; frozen rail still renders its 10 cells.
 
-**Suggested next:** proof signature objects as its own properly-spec'd feature (the only heavy item
-left). Optionally a quick `rg 'rounded-[23]xl|bg-\w+/[0-9]'` sweep of remaining routes first.
+## COMMIT (when verified, local-only)
 
-## State
-- Branch `main`, dev server may be running on `:3000` (operator's). **Seven** local redesign commits,
-  none pushed: `cc0a2a5c` (DS core) · `a0b4b444` (Arena shell) · `7832143f` (rail→cockpit + dedup) ·
-  `e74f3a20` (brand icons + metadata) · `ef9719b3` (.of-boot splash) · `4d72a8b7` (cost-dashboard
-  polish) · `78688d38` (dark-theme WCAG AA contrast).
-- Version NOT bumped per-commit — `0.15.0` accumulates toward the next batched release
-  (`project-self-extending-machine-npm-deferred`).
-- **Operator prefers side-by-side walkthroughs in Claude in Chrome** (drives the live Chrome session,
-  not headless/DevTools) — memory `feedback-prefer-claude-in-chrome-walkthroughs`. NB: the live tab
-  doesn't auto-raise to front; tell the operator to switch to the Browser-1 window, and DON'T auto-
-  close the tab mid-session.
-- The sibling repo `~/orionfold-design-system` has my round-trip logs under `apply/ainative/` —
-  do NOT commit/push that repo (it's the producer's; `feedback-no-sibling-repo-edits`).
-- Prior content-extraction + book-migration handoff archived at
-  `.archive/handoff/HANDOFF-2026-06-28-content-extraction.md` (book/User-Guide extraction is DONE;
-  one open follow-up there: a real end-to-end book-content PR round-trip from `~/orionfold/books`).
+Suggested: one focused commit. Conventional-commit style; end body with the Co-Authored-By trailer.
+e.g. `refactor(shell): cut below-the-line surfaces; right-align Settings; freeze telemetry scope`.
+Version NOT bumped per-commit — `0.15.0` accumulates toward the next batched release
+(`project-self-extending-machine-npm-deferred`).
+
+## STATE
+- Branch `main`. Seven shipped local redesign commits (none pushed) — see archived handoff. **No new
+  commit from this session yet** — only `_IDEAS/reprioritze.md` (new) + `_SPECS/feature-cut-freeze.md`
+  (new) written, both gitignored local strategy files. Plus this `HANDOFF.md`.
+- Code still self-identifies as `ainative-business` / "AI Native Business"; "Orionfold Relay" is the
+  brand layer. Rename/CLI/data-dir migration is **out of scope** (operator decision) — do not touch
+  identifiers while implementing the cut.
+- Two artifacts from this session to read at start: **`_SPECS/feature-cut-freeze.md`** (the task) and
+  **`_IDEAS/reprioritze.md`** §4 (the why). `feedback-handoff-md-workflow`: this handoff was written
+  at task boundary for a clean `/clear`.
+
+</details>

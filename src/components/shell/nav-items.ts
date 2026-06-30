@@ -9,12 +9,9 @@ import {
   Bot,
   Clock,
   Wallet,
-  Globe,
-  Settings,
   MessageCircle,
   ListTodo,
   Table2,
-  BarChart3,
   Sparkles,
 } from "lucide-react";
 
@@ -39,8 +36,7 @@ export type NavGroupId =
   | "home"
   | "compose"
   | "data"
-  | "observe"
-  | "configure";
+  | "observe";
 
 export interface NavGroup {
   id: NavGroupId;
@@ -73,20 +69,18 @@ const dataItems: NavItem[] = [
 const observeItems: NavItem[] = [
   { title: "Monitor", href: "/monitor", icon: Activity, description: "Live agent activity stream" },
   { title: "Cost & Usage", href: "/costs", icon: Wallet, description: "Spend and model metering" },
-  { title: "Analytics", href: "/analytics", icon: BarChart3, description: "Throughput and outcomes" },
 ];
 
-const configureItems: NavItem[] = [
-  { title: "Environment", href: "/environment", icon: Globe, description: "System prerequisites check" },
-  { title: "Settings", href: "/settings", icon: Settings, description: "Models, auth, and defaults" },
-];
+// NOTE: the former `configure` group (Environment + Settings) was dissolved per
+// _SPECS/feature-cut-freeze.md (Targets 3 + 3b). Environment is deferred (route
+// dormant on disk); Settings moved to the app-bar right utility cluster as an
+// icon-only gear. The bar is now 4 groups: Home · Compose · Data · Observe.
 
 export const NAV_GROUPS: NavGroup[] = [
   { id: "home", label: "Home", icon: Home, items: homeItems },
   { id: "compose", label: "Compose", icon: Sparkles, items: composeItems },
   { id: "data", label: "Data", icon: FileText, items: dataItems },
   { id: "observe", label: "Observe", icon: Activity, items: observeItems },
-  { id: "configure", label: "Config", icon: Settings, items: configureItems },
 ];
 
 export function isItemActive(item: NavItem, pathname: string): boolean {

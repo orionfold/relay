@@ -1,4 +1,9 @@
 // src/lib/plugins/registry.ts
+//
+// FROZEN SCOPE (_SPECS/feature-cut-freeze.md Target 4 · _IDEAS/reprioritze.md §4)
+// Plugin fall-through is the config-over-code *escape hatch*, not a first-class
+// path. Maintain-only: do not invest in DX that makes plugins the easy default —
+// the moment plugins feel first-class, the config-over-code promise erodes.
 import fs from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";

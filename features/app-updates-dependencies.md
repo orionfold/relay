@@ -1,6 +1,7 @@
 ---
 title: App Updates & Dependencies
-status: deferred
+status: dropped
+dropped: "Not pursuing — app distribution/marketplace ambition cut per _IDEAS/reprioritze.md §4 (concentration cutline, 2026-06-29)."
 priority: P2
 milestone: post-mvp
 source: .archive/handoff/ainative-app-marketplace-spec.md

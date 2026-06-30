@@ -1,6 +1,7 @@
 ---
 title: Marketplace Reviews
-status: deferred
+status: dropped
+dropped: "Not pursuing — app distribution/marketplace ambition cut per _IDEAS/reprioritze.md §4 (concentration cutline, 2026-06-29)."
 priority: P3
 milestone: post-mvp
 source: brainstorm session 2026-04-11

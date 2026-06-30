@@ -39,6 +39,23 @@ Features that enhance the product but aren't essential for first use — homepag
 
 ## Post-MVP
 
+### Dropped — not pursuing
+
+The app **distribution / marketplace** ambition (`.sap` portable format, remix/forking, app
+updates & dependencies, distribution channels, curated collections, reviews, the embeddable
+install widget, and local-first marketplace discovery) is **cut from the active roadmap** per the
+aggressive concentration cutline in `_IDEAS/reprioritze.md` §4 (2026-06-29). It presumes adoption
+Relay doesn't have yet and competes with the studio's own distribution. The **local app manifest**
+(`src/lib/apps/**`, `/apps`) is the KEEP — the composability moat we're concentrating on; only the
+*marketplace* layer on top of it is dropped. Revisit only on a genuine third-party-author demand
+signal. Affected specs (now `status: dropped`): app-distribution-channels,
+app-embeddable-install-widget, app-forking-remix, app-package-format, app-remix,
+app-single-file-format, app-updates-dependencies, curated-collections, marketplace-install-hardening,
+marketplace-local-first-discovery, marketplace-reviews.
+
+The **telemetry cockpit** and **plugin fall-through** are **frozen (maintain-only)** — scope-locked
+via marker comments, not dropped. See `_SPECS/feature-cut-freeze.md` Target 4.
+
 ### Document Management
 
 | Feature | Priority | Status | Dependencies |
