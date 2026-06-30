@@ -18,7 +18,7 @@ import * as registry from "@/lib/apps/registry";
  * Asserts that addRows → evaluateManifestTriggers → instantiateBlueprint
  * persists `_contextRowId` into the workflow's `definition` column. This
  * exercises the full dispatcher path against the real DB (via the test
- * setup at src/test/setup.ts which provisions an isolated AINATIVE_DATA_DIR).
+ * setup at src/test/setup.ts which provisions an isolated RELAY_DATA_DIR).
  *
  * We mock:
  *   1. `listAppsWithManifestsCached` — provide a fixture manifest subscribing

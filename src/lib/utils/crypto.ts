@@ -1,7 +1,7 @@
 import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
 import { readFileSync, writeFileSync, existsSync, mkdirSync, chmodSync } from "fs";
 import { join } from "path";
-import { homedir } from "os";
+import { dataDir } from "@/lib/config/env";
 
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 12;
@@ -9,14 +9,11 @@ const AUTH_TAG_LENGTH = 16;
 const KEY_LENGTH = 32;
 
 function getKeyfilePath(): string {
-  return join(
-    process.env.AINATIVE_DATA_DIR || join(homedir(), ".ainative"),
-    ".keyfile"
-  );
+  return join(dataDir(), ".keyfile");
 }
 
 /**
- * Read or create the encryption keyfile at ~/.ainative/.keyfile.
+ * Read or create the encryption keyfile at ~/.relay/.keyfile.
  * File is 32 random bytes with chmod 0600 (owner-only read/write).
  */
 export function getOrCreateKeyfile(): Buffer {

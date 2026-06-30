@@ -5,8 +5,8 @@ export async function registerNodeInstrumentation() {
 
     // Instance bootstrap — creates local branch, handles dev-mode gates, consent flow.
     // Runs BEFORE other startup so instance config is available downstream.
-    // Safe in the canonical ainative dev repo thanks to AINATIVE_DEV_MODE=true
-    // in .env.local plus the .git/ainative-dev-mode sentinel file.
+    // Safe in the canonical Relay dev repo thanks to RELAY_DEV_MODE=true
+    // in .env.local plus the .git/relay-dev-mode sentinel file.
     const { ensureInstance } = await import("@/lib/instance/bootstrap");
     const instanceResult = await ensureInstance();
     if (instanceResult.skipped) {

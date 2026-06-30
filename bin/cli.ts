@@ -38,11 +38,11 @@ const launchCwd = process.cwd();
 // Auto-write .env.local on first run in a non-dev launch folder. This gives
 // new npx users a per-folder isolated DB by default — no red sidebar badge,
 // no manual Fix click. Skipped in the main dev repo (isDevMode) and skipped
-// when the user has already set AINATIVE_DATA_DIR in their shell.
+// when the user has already set RELAY_DATA_DIR in their shell.
 const _envLocalPath = join(launchCwd, ".env.local");
 const _firstRunNeedsEnv =
   !existsSync(_envLocalPath) &&
-  !process.env.AINATIVE_DATA_DIR &&
+  !process.env.RELAY_DATA_DIR &&
   !isDevMode(launchCwd);
 
 if (_firstRunNeedsEnv) {
@@ -50,12 +50,12 @@ if (_firstRunNeedsEnv) {
   const autoDataDir = join(homedir(), `.${folderName}`);
   writeFileSync(
     _envLocalPath,
-    `# Auto-created by ainative-business on first run.\n` +
+    `# Auto-created by orionfold-relay on first run.\n` +
       `# Points this folder's install at an isolated data directory.\n` +
-      `AINATIVE_DATA_DIR=${autoDataDir}\n`,
+      `RELAY_DATA_DIR=${autoDataDir}\n`,
     "utf-8",
   );
-  console.log(`First run — wrote ${_envLocalPath} (AINATIVE_DATA_DIR=${autoDataDir}).`);
+  console.log(`First run — wrote ${_envLocalPath} (RELAY_DATA_DIR=${autoDataDir}).`);
 }
 
 // Load .env.local from the launch directory. For a local CLI launcher the
@@ -173,14 +173,14 @@ const opts = program.opts();
 
 // Apply --data-dir before resolving paths
 if (opts.dataDir) {
-  process.env.AINATIVE_DATA_DIR = opts.dataDir;
+  process.env.RELAY_DATA_DIR = opts.dataDir;
 }
 
-// Apply --safe-mode: export AINATIVE_SAFE_MODE=true so mcp-loader short-circuits
+// Apply --safe-mode: export RELAY_SAFE_MODE=true so mcp-loader short-circuits
 // Kind-1 plugin MCP servers. Kind-5 primitives bundles are managed separately
 // (src/lib/plugins/registry.ts) and are not affected by this flag.
 if (opts.safeMode) {
-  process.env.AINATIVE_SAFE_MODE = "true";
+  process.env.RELAY_SAFE_MODE = "true";
   console.log("Safe mode: Kind-1 plugin MCP servers disabled for this session.");
 }
 
@@ -318,10 +318,10 @@ async function main() {
     stdio: "inherit",
     env: {
       ...process.env,
-      AINATIVE_DATA_DIR: DATA_DIR,
-      AINATIVE_LAUNCH_CWD: launchCwd,
+      RELAY_DATA_DIR: DATA_DIR,
+      RELAY_LAUNCH_CWD: launchCwd,
       PORT: String(actualPort),
-      ...(opts.safeMode ? { AINATIVE_SAFE_MODE: "true" } : {}),
+      ...(opts.safeMode ? { RELAY_SAFE_MODE: "true" } : {}),
     },
   });
 

@@ -24,14 +24,14 @@ async function loadDetect() {
 }
 
 describe("isDevMode", () => {
-  it("returns true when AINATIVE_DEV_MODE=true", async () => {
-    vi.stubEnv("AINATIVE_DEV_MODE", "true");
+  it("returns true when RELAY_DEV_MODE=true", async () => {
+    vi.stubEnv("RELAY_DEV_MODE", "true");
     const { isDevMode } = await loadDetect();
     expect(isDevMode(tempDir)).toBe(true);
   });
 
-  it("returns true when .git/ainative-dev-mode sentinel file exists", async () => {
-    writeFileSync(join(gitDir, "ainative-dev-mode"), "");
+  it("returns true when .git/relay-dev-mode sentinel file exists", async () => {
+    writeFileSync(join(gitDir, "relay-dev-mode"), "");
     const { isDevMode } = await loadDetect();
     expect(isDevMode(tempDir)).toBe(true);
   });
@@ -41,16 +41,16 @@ describe("isDevMode", () => {
     expect(isDevMode(tempDir)).toBe(false);
   });
 
-  it("returns false when AINATIVE_INSTANCE_MODE=true overrides env gate", async () => {
-    vi.stubEnv("AINATIVE_DEV_MODE", "true");
-    vi.stubEnv("AINATIVE_INSTANCE_MODE", "true");
+  it("returns false when RELAY_INSTANCE_MODE=true overrides env gate", async () => {
+    vi.stubEnv("RELAY_DEV_MODE", "true");
+    vi.stubEnv("RELAY_INSTANCE_MODE", "true");
     const { isDevMode } = await loadDetect();
     expect(isDevMode(tempDir)).toBe(false);
   });
 
-  it("returns false when AINATIVE_INSTANCE_MODE=true overrides sentinel gate", async () => {
-    writeFileSync(join(gitDir, "ainative-dev-mode"), "");
-    vi.stubEnv("AINATIVE_INSTANCE_MODE", "true");
+  it("returns false when RELAY_INSTANCE_MODE=true overrides sentinel gate", async () => {
+    writeFileSync(join(gitDir, "relay-dev-mode"), "");
+    vi.stubEnv("RELAY_INSTANCE_MODE", "true");
     const { isDevMode } = await loadDetect();
     expect(isDevMode(tempDir)).toBe(false);
   });
@@ -70,26 +70,26 @@ describe("hasGitDir", () => {
 });
 
 describe("isPrivateInstance", () => {
-  it("returns false when AINATIVE_DATA_DIR is unset", async () => {
-    vi.stubEnv("AINATIVE_DATA_DIR", "");
+  it("returns false when RELAY_DATA_DIR is unset", async () => {
+    vi.stubEnv("RELAY_DATA_DIR", "");
     const { isPrivateInstance } = await loadDetect();
     expect(isPrivateInstance()).toBe(false);
   });
 
-  it("returns false when AINATIVE_DATA_DIR equals default ~/.ainative", async () => {
-    vi.stubEnv("AINATIVE_DATA_DIR", join(homedir(), ".ainative"));
+  it("returns false when RELAY_DATA_DIR equals default ~/.relay", async () => {
+    vi.stubEnv("RELAY_DATA_DIR", join(homedir(), ".relay"));
     const { isPrivateInstance } = await loadDetect();
     expect(isPrivateInstance()).toBe(false);
   });
 
-  it("returns true when AINATIVE_DATA_DIR is a custom path", async () => {
-    vi.stubEnv("AINATIVE_DATA_DIR", "/Users/manavsehgal/.ainative-wealth");
+  it("returns true when RELAY_DATA_DIR is a custom path", async () => {
+    vi.stubEnv("RELAY_DATA_DIR", "/Users/manavsehgal/.relay-wealth");
     const { isPrivateInstance } = await loadDetect();
     expect(isPrivateInstance()).toBe(true);
   });
 
-  it("returns false when AINATIVE_DATA_DIR equals default with trailing slash", async () => {
-    vi.stubEnv("AINATIVE_DATA_DIR", join(homedir(), ".ainative") + "/");
+  it("returns false when RELAY_DATA_DIR equals default with trailing slash", async () => {
+    vi.stubEnv("RELAY_DATA_DIR", join(homedir(), ".relay") + "/");
     const { isPrivateInstance } = await loadDetect();
     expect(isPrivateInstance()).toBe(false);
   });

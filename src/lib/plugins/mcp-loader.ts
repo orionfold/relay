@@ -19,6 +19,7 @@ import path from "node:path";
 import os from "node:os";
 import yaml from "js-yaml";
 
+import { isSafeMode } from "@/lib/config/env";
 import { PluginManifestSchema } from "@/lib/plugins/sdk/types";
 import {
   deriveManifestHash,
@@ -132,12 +133,17 @@ function logToFile(line: string): void {
 // ---------------------------------------------------------------------------
 
 /**
- * Resolve ${HOME}, ${AINATIVE_DATA_DIR}, and ${PLUGIN_DIR} in a string.
+ * Resolve ${HOME}, ${RELAY_DATA_DIR}, and ${PLUGIN_DIR} in a string.
  * No shell expansion, no nested templates — simple string replace only.
+ *
+ * ${AINATIVE_DATA_DIR} is accepted as a deprecated alias so plugins authored
+ * before the Relay rename keep resolving; new plugins should use
+ * ${RELAY_DATA_DIR}.
  */
 function resolveTemplate(value: string, context: { rootDir: string }): string {
   return value
     .replace(/\$\{HOME\}/g, os.homedir())
+    .replace(/\$\{RELAY_DATA_DIR\}/g, getAinativeDataDir())
     .replace(/\$\{AINATIVE_DATA_DIR\}/g, getAinativeDataDir())
     .replace(/\$\{PLUGIN_DIR\}/g, context.rootDir);
 }
@@ -541,7 +547,7 @@ export async function listPluginMcpRegistrations(opts?: {
   // /api/plugins surface can SHOW the user what is being blocked. Kind 5
   // (primitives-bundle) plugins are not part of this loader — their registry
   // lives in src/lib/plugins/registry.ts and is not affected by safe-mode.
-  if (process.env.AINATIVE_SAFE_MODE === "true") {
+  if (isSafeMode()) {
     return buildSafeModeRegistrations();
   }
 

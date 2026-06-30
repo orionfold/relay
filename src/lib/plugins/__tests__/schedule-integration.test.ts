@@ -69,7 +69,7 @@ function makeScheduleFixture(overrides: Record<string, unknown> = {}): Record<st
 describe("plugin loader → schedule integration", () => {
   beforeEach(async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "plugin-schedules-"));
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    process.env.RELAY_DATA_DIR = tmpDir;
     clearAllPluginProfiles();
     clearAllPluginSchedules();
     removePluginSchedules("test-pack");
@@ -78,7 +78,7 @@ describe("plugin loader → schedule integration", () => {
     await reloadPlugins();
   });
   afterEach(async () => {
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
     clearAllPluginProfiles();
     clearAllPluginSchedules();

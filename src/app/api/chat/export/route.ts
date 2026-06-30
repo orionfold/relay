@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
-import { homedir } from "node:os";
 import path from "node:path";
 import { mkdir, writeFile } from "node:fs/promises";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { documents } from "@/lib/db/schema";
+import { dataDir } from "@/lib/config/env";
 
 const bodySchema = z.object({
   title: z.string().min(1).max(200),
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   const id = randomUUID();
   const safeName = title.replace(/[^a-z0-9-_\. ]/gi, "_").slice(0, 80);
   const filename = `${Date.now()}-${safeName}.md`;
-  const dir = path.join(homedir(), ".ainative", "uploads", "chat-exports");
+  const dir = path.join(dataDir(), "uploads", "chat-exports");
   await mkdir(dir, { recursive: true });
   const storagePath = path.join(dir, filename);
   await writeFile(storagePath, markdown, "utf8");

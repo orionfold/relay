@@ -40,7 +40,7 @@ export async function POST() {
 
   const folderName = basename(cwd);
   const home = homedir();
-  // ainative-wealth → ~/.ainative-wealth, ainative-growth → ~/.ainative-growth
+  // relay-wealth → ~/.relay-wealth, relay-growth → ~/.relay-growth
   const dataDir = join(home, `.${folderName}`);
   const displayDataDir = `~/.${folderName}`;
 
@@ -51,21 +51,21 @@ export async function POST() {
     envContent = readFileSync(envLocalPath, "utf-8");
   }
 
-  // Replace or append AINATIVE_DATA_DIR
-  if (/^AINATIVE_DATA_DIR=.*/m.test(envContent)) {
+  // Replace or append RELAY_DATA_DIR
+  if (/^RELAY_DATA_DIR=.*/m.test(envContent)) {
     envContent = envContent.replace(
-      /^AINATIVE_DATA_DIR=.*/m,
-      `AINATIVE_DATA_DIR=${dataDir}`
+      /^RELAY_DATA_DIR=.*/m,
+      `RELAY_DATA_DIR=${dataDir}`
     );
   } else {
-    envContent = envContent.trimEnd() + `\nAINATIVE_DATA_DIR=${dataDir}\n`;
+    envContent = envContent.trimEnd() + `\nRELAY_DATA_DIR=${dataDir}\n`;
   }
 
   writeFileSync(envLocalPath, envContent, "utf-8");
 
   // --- 2. Create data dir + bootstrap DB ---
   mkdirSync(dataDir, { recursive: true });
-  const dbPath = join(dataDir, "ainative.db");
+  const dbPath = join(dataDir, "relay.db");
   const sqlite = new Database(dbPath);
   sqlite.pragma("journal_mode = WAL");
   sqlite.pragma("foreign_keys = ON");

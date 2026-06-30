@@ -5,7 +5,7 @@ import { tmpdir } from "os";
 
 // Scope the DB to a per-file temp dir BEFORE importing the route module.
 const tmp = mkdtempSync(join(tmpdir(), "ainative-route-branching-"));
-process.env.AINATIVE_DATA_DIR = tmp;
+process.env.RELAY_DATA_DIR = tmp;
 
 // Stub auto-scan to avoid filesystem side effects in unit tests.
 vi.mock("@/lib/environment/auto-scan", () => ({

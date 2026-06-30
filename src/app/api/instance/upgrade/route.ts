@@ -7,6 +7,7 @@ import {
   getUpgradeState,
   setUpgradeState,
 } from "@/lib/instance/settings";
+import { dataDir as getDataDir } from "@/lib/config/env";
 
 /**
  * POST /api/instance/upgrade
@@ -43,7 +44,7 @@ export async function POST() {
 
     const branchName = config.branchName;
     const commitsBehind = upgrade.commitsBehind;
-    const dataDir = process.env.AINATIVE_DATA_DIR ?? "~/.ainative";
+    const dataDir = getDataDir();
 
     const description = [
       `Upgrade instance branch \`${branchName}\` with ${commitsBehind} upstream commit(s) from origin/main.`,

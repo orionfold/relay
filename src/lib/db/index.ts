@@ -1,14 +1,13 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema";
-import { join } from "path";
 import { mkdirSync } from "fs";
-import { getAinativeDataDir } from "@/lib/utils/ainative-paths";
+import { dataDir as getDataDir, dbPath as getDbPath } from "@/lib/config/env";
 import { bootstrapAinativeDatabase } from "./bootstrap";
 
-const dataDir = getAinativeDataDir();
+const dataDir = getDataDir();
 mkdirSync(dataDir, { recursive: true });
-const dbPath = join(dataDir, "ainative.db");
+const dbPath = getDbPath();
 
 const sqlite = new Database(dbPath);
 sqlite.pragma("journal_mode = WAL");

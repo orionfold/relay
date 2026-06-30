@@ -4,6 +4,7 @@ import { join } from "path";
 import type { EnsureStepResult, EnsureResult, GitOps, ConsentStatus } from "./types";
 import { getInstanceConfig, setInstanceConfig, getGuardrails, setGuardrails } from "./settings";
 import { isPrivateInstance, isDevMode, hasGitDir, detectRebaseInProgress } from "./detect";
+import { isDevModeEnv } from "@/lib/config/env";
 import { createGitOps } from "./git-ops";
 
 const DEFAULT_BRANCH_NAME = "local";
@@ -113,12 +114,12 @@ export function ensureMainShim(git: GitOps): EnsureStepResult {
   }
 }
 
-export const AINATIVE_HOOK_VERSION = "1.0.0";
+export const RELAY_HOOK_VERSION = "1.0.0";
 
 /**
  * Pre-push hook template. Installed verbatim at .git/hooks/pre-push.
  *
- * Reads the blocked branch list from the ainative SQLite settings table
+ * Reads the blocked branch list from the Relay SQLite settings table
  * via a bounded sqlite3 invocation. The query is hardcoded — no user
  * input reaches the shell.
  *
@@ -126,7 +127,7 @@ export const AINATIVE_HOOK_VERSION = "1.0.0";
  * for legitimate cherry-pick pushes.
  */
 const PRE_PUSH_HOOK_TEMPLATE = `#!/bin/sh
-# AINATIVE_HOOK_VERSION=${AINATIVE_HOOK_VERSION}
+# RELAY_HOOK_VERSION=${RELAY_HOOK_VERSION}
 # Blocks pushes of private instance branches to origin.
 # Escape hatch: ALLOW_PRIVATE_PUSH=1 git push ...
 #
@@ -141,8 +142,8 @@ if [ -z "$current_branch" ]; then
   exit 0
 fi
 
-data_dir="\${AINATIVE_DATA_DIR:-$HOME/.ainative}"
-db_path="$data_dir/ainative.db"
+data_dir="\${RELAY_DATA_DIR:-$HOME/.relay}"
+db_path="$data_dir/relay.db"
 if [ ! -f "$db_path" ] || ! command -v sqlite3 >/dev/null 2>&1; then
   exit 0
 fi
@@ -153,8 +154,8 @@ if [ -z "$blocked_json" ]; then
 fi
 
 if echo "$blocked_json" | grep -q "\\"$current_branch\\""; then
-  echo "ainative: refusing to push private instance branch '$current_branch' to origin." >&2
-  echo "ainative: set ALLOW_PRIVATE_PUSH=1 to override (not recommended)." >&2
+  echo "relay: refusing to push private instance branch '$current_branch' to origin." >&2
+  echo "relay: set ALLOW_PRIVATE_PUSH=1 to override (not recommended)." >&2
   exit 1
 fi
 
@@ -167,14 +168,14 @@ exit 0
  */
 export function ensurePrePushHook(git: GitOps): EnsureStepResult {
   const hookPath = join(git.getGitDir(), "hooks", "pre-push");
-  const markerLine = `AINATIVE_HOOK_VERSION=${AINATIVE_HOOK_VERSION}`;
+  const markerLine = `RELAY_HOOK_VERSION=${RELAY_HOOK_VERSION}`;
 
   if (existsSync(hookPath)) {
     const existing = readFileSync(hookPath, "utf-8");
     if (existing.includes(markerLine)) {
       return { step: "pre-push-hook", status: "skipped", reason: "already_installed" };
     }
-    if (existing.includes("AINATIVE_HOOK_VERSION=")) {
+    if (existing.includes("RELAY_HOOK_VERSION=") || existing.includes("AINATIVE_HOOK_VERSION=")) {
       try {
         writeFileSync(hookPath, PRE_PUSH_HOOK_TEMPLATE, { mode: 0o755 });
         return { step: "pre-push-hook", status: "ok", reason: "upgraded" };
@@ -187,7 +188,7 @@ export function ensurePrePushHook(git: GitOps): EnsureStepResult {
       }
     }
     try {
-      renameSync(hookPath, `${hookPath}.ainative-backup`);
+      renameSync(hookPath, `${hookPath}.relay-backup`);
     } catch (err) {
       return {
         step: "pre-push-hook",
@@ -280,7 +281,7 @@ export async function resolveConsentDecision(): Promise<ConsentDecision> {
  */
 export async function ensureInstance(cwd: string = process.cwd()): Promise<EnsureResult> {
   if (isDevMode(cwd)) {
-    const reason = process.env.AINATIVE_DEV_MODE === "true" ? "dev_mode_env" : "dev_mode_sentinel";
+    const reason = isDevModeEnv() ? "dev_mode_env" : "dev_mode_sentinel";
     return { skipped: reason, steps: [] };
   }
 
@@ -339,7 +340,7 @@ export async function ensureInstance(cwd: string = process.cwd()): Promise<Ensur
         await setGuardrails({
           ...current,
           prePushHookInstalled: true,
-          prePushHookVersion: AINATIVE_HOOK_VERSION,
+          prePushHookVersion: RELAY_HOOK_VERSION,
           pushRemoteBlocked: blockedBranches,
         });
       }

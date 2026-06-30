@@ -45,10 +45,10 @@ import {
 } from "@/lib/db/schema";
 import { readdirSync, unlinkSync, mkdirSync } from "fs";
 import { join } from "path";
-import { homedir } from "os";
+import { dataDir as getDataDir } from "@/lib/config/env";
 import { clearSampleProfiles } from "./seed-data/profiles";
 
-const dataDir = process.env.AINATIVE_DATA_DIR || join(homedir(), ".ainative");
+const dataDir = getDataDir();
 const uploadsDir = join(dataDir, "uploads");
 const screenshotsDir = join(dataDir, "screenshots");
 

@@ -26,7 +26,7 @@ beforeEach(() => {
   initRepo(tempDir);
   vi.resetModules();
   vi.unstubAllEnvs();
-  vi.stubEnv("AINATIVE_DATA_DIR", dataDir);
+  vi.stubEnv("RELAY_DATA_DIR", dataDir);
 });
 
 afterEach(() => {
@@ -36,8 +36,8 @@ afterEach(() => {
 });
 
 describe("tick", () => {
-  it("returns skipped=dev_mode_or_no_git when AINATIVE_DEV_MODE=true", async () => {
-    vi.stubEnv("AINATIVE_DEV_MODE", "true");
+  it("returns skipped=dev_mode_or_no_git when RELAY_DEV_MODE=true", async () => {
+    vi.stubEnv("RELAY_DEV_MODE", "true");
     const { tick } = await import("../upgrade-poller");
     const result = await tick(tempDir);
     expect(result.skipped).toBe("dev_mode_or_no_git");

@@ -17,7 +17,7 @@ beforeEach(() => {
   blueprintsDir = path.join(dataDir, "blueprints");
   packDir = fs.mkdtempSync(path.join(os.tmpdir(), "ainative-pack-src-"));
   vi.resetModules();
-  vi.stubEnv("AINATIVE_DATA_DIR", dataDir);
+  vi.stubEnv("RELAY_DATA_DIR", dataDir);
 });
 
 afterEach(() => {
@@ -64,13 +64,13 @@ function buildFixturePack(): void {
       profiles: [
         {
           id: "test-agency--manager",
-          source: "$AINATIVE_DATA_DIR/profiles/test-agency--manager/",
+          source: "$RELAY_DATA_DIR/profiles/test-agency--manager/",
         },
       ],
       blueprints: [
         {
           id: "test-agency--weekly",
-          source: "$AINATIVE_DATA_DIR/blueprints/test-agency--weekly.yaml",
+          source: "$RELAY_DATA_DIR/blueprints/test-agency--weekly.yaml",
         },
       ],
       tables: [{ id: "clients", columns: ["name", "stage"] }],

@@ -37,14 +37,14 @@ beforeEach(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "mcp-loader-test-"));
   pluginsDir = path.join(tmpDir, "plugins");
   fs.mkdirSync(pluginsDir, { recursive: true });
-  process.env.AINATIVE_DATA_DIR = tmpDir;
-  delete process.env.AINATIVE_SAFE_MODE;
+  process.env.RELAY_DATA_DIR = tmpDir;
+  delete process.env.RELAY_SAFE_MODE;
 });
 
 afterEach(() => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
-  delete process.env.AINATIVE_DATA_DIR;
-  delete process.env.AINATIVE_SAFE_MODE;
+  delete process.env.RELAY_DATA_DIR;
+  delete process.env.RELAY_SAFE_MODE;
 });
 
 // ---------------------------------------------------------------------------
@@ -217,7 +217,7 @@ it("2. Ainative-SDK transport: accepted plugin with entry file returns transport
 // Test 3: Env template resolution
 // ---------------------------------------------------------------------------
 
-it("3. Env template resolution: ${HOME}, ${AINATIVE_DATA_DIR}, ${PLUGIN_DIR} resolved in env values", async () => {
+it("3. Env template resolution: ${HOME}, ${RELAY_DATA_DIR}, ${PLUGIN_DIR} resolved in env values", async () => {
   const pluginId = "template-env-plugin";
   const yaml = writePluginYaml(pluginId);
   const serverScriptPath = path.join(pluginsDir, pluginId, "bin", "server.js");
@@ -228,7 +228,7 @@ it("3. Env template resolution: ${HOME}, ${AINATIVE_DATA_DIR}, ${PLUGIN_DIR} res
       ...nodeCommand(serverScriptPath),
       env: {
         HOME_VAR: "${HOME}/.config",
-        DATA_VAR: "${AINATIVE_DATA_DIR}/data",
+        DATA_VAR: "${RELAY_DATA_DIR}/data",
         PLUGIN_VAR: "${PLUGIN_DIR}/config.json",
       },
     },
@@ -275,17 +275,17 @@ it("4. Args template resolution: ${PLUGIN_DIR} resolved in args elements", async
 }, 15_000);
 
 // ---------------------------------------------------------------------------
-// Test 5: AINATIVE_SAFE_MODE short-circuit
+// Test 5: RELAY_SAFE_MODE short-circuit
 // ---------------------------------------------------------------------------
 
-it("5. Safe mode: AINATIVE_SAFE_MODE=true returns {} even with accepted plugins", async () => {
+it("5. Safe mode: RELAY_SAFE_MODE=true returns {} even with accepted plugins", async () => {
   const pluginId = "safe-mode-plugin";
   const yaml = writePluginYaml(pluginId);
   touchFile(path.join(pluginsDir, pluginId, "bin", "server"));
   writeMcpJson(pluginId, { "svc": { command: "./bin/server" } });
   acceptPlugin(pluginId, yaml);
 
-  process.env.AINATIVE_SAFE_MODE = "true";
+  process.env.RELAY_SAFE_MODE = "true";
   const result = await loadPluginMcpServers();
   expect(result).toEqual({});
 });
@@ -294,7 +294,7 @@ it("5. Safe mode: AINATIVE_SAFE_MODE=true returns {} even with accepted plugins"
 // T13: safe-mode with visible disabled plugin registrations
 // ---------------------------------------------------------------------------
 
-describe("T13 — safe-mode (AINATIVE_SAFE_MODE=true) with visible disabled plugins", () => {
+describe("T13 — safe-mode (RELAY_SAFE_MODE=true) with visible disabled plugins", () => {
   it("listPluginMcpRegistrations emits one disabled+safe_mode registration per Kind 1 plugin", async () => {
     // Kind 1 plugin (alpha) — would normally be accepted+loaded
     writePluginYaml("alpha");
@@ -319,7 +319,7 @@ describe("T13 — safe-mode (AINATIVE_SAFE_MODE=true) with visible disabled plug
     touchFile(path.join(pluginsDir, "gamma", "bin", "server"));
     writeMcpJson("gamma", { "svc": { command: "./bin/server" } });
 
-    process.env.AINATIVE_SAFE_MODE = "true";
+    process.env.RELAY_SAFE_MODE = "true";
     const regs = await listPluginMcpRegistrations();
 
     // Exactly two entries (alpha + gamma), beta is filtered out as Kind 5.
@@ -347,7 +347,7 @@ describe("T13 — safe-mode (AINATIVE_SAFE_MODE=true) with visible disabled plug
     touchFile(path.join(pluginsDir, "alpha", "bin", "server"));
     writeMcpJson("alpha", { "svc": { command: "./bin/server" } });
 
-    process.env.AINATIVE_SAFE_MODE = "true";
+    process.env.RELAY_SAFE_MODE = "true";
     const result = await loadPluginMcpServers();
     expect(result).toEqual({});
   });
@@ -373,7 +373,7 @@ describe("T13 — safe-mode (AINATIVE_SAFE_MODE=true) with visible disabled plug
     writePluginYaml("valid-alpha");
     writeMcpJson("valid-alpha", { "svc": { command: "./bin/server" } });
 
-    process.env.AINATIVE_SAFE_MODE = "true";
+    process.env.RELAY_SAFE_MODE = "true";
     const regs = await listPluginMcpRegistrations();
 
     expect(regs).toHaveLength(1);
@@ -921,16 +921,16 @@ describe("T12 — listAcceptedInProcessEntriesForPlugin", () => {
 
 // ---------------------------------------------------------------------------
 // T14: confinement mode integration
-// (TDR-037 — these tests require AINATIVE_PLUGIN_CONFINEMENT=1 because
+// (TDR-037 — these tests require RELAY_PLUGIN_CONFINEMENT=1 because
 // confinement is parked by default. Each test sets the flag in a try/finally.)
 // ---------------------------------------------------------------------------
 
 describe("T14 — confinementMode integration (wrap → mcp-loader)", () => {
   beforeEach(() => {
-    process.env.AINATIVE_PLUGIN_CONFINEMENT = "1";
+    process.env.RELAY_PLUGIN_CONFINEMENT = "1";
   });
   afterEach(() => {
-    delete process.env.AINATIVE_PLUGIN_CONFINEMENT;
+    delete process.env.RELAY_PLUGIN_CONFINEMENT;
   });
 
   it("confinementMode:'seatbelt' on non-macOS surfaces confinement_unsupported_on_platform", async () => {

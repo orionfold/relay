@@ -30,12 +30,12 @@ function writeBundle(pluginId: string, profiles: Array<{ id: string; name: strin
 describe("plugin loader → profile integration", () => {
   beforeEach(async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "plugin-profiles-"));
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    process.env.RELAY_DATA_DIR = tmpDir;
     clearAllPluginProfiles();
     await reloadPlugins();
   });
   afterEach(async () => {
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
     clearAllPluginProfiles();
     await reloadPlugins();

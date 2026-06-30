@@ -5,12 +5,12 @@ import path from "node:path";
 describe("plugin path helpers", () => {
   let originalDataDir: string | undefined;
   beforeEach(() => {
-    originalDataDir = process.env.AINATIVE_DATA_DIR;
-    process.env.AINATIVE_DATA_DIR = "/tmp/test-ainative";
+    originalDataDir = process.env.RELAY_DATA_DIR;
+    process.env.RELAY_DATA_DIR = "/tmp/test-ainative";
   });
   afterEach(() => {
-    if (originalDataDir === undefined) delete process.env.AINATIVE_DATA_DIR;
-    else process.env.AINATIVE_DATA_DIR = originalDataDir;
+    if (originalDataDir === undefined) delete process.env.RELAY_DATA_DIR;
+    else process.env.RELAY_DATA_DIR = originalDataDir;
   });
 
   it("getAinativePluginsDir returns <dataDir>/plugins", () => {
@@ -26,7 +26,7 @@ describe("plugin path helpers", () => {
   });
 
   it("getAinativeSchedulesDir returns <dataDir>/schedules", () => {
-    process.env.AINATIVE_DATA_DIR = "/tmp/test-ainative-m2";
+    process.env.RELAY_DATA_DIR = "/tmp/test-ainative-m2";
     expect(getAinativeSchedulesDir()).toBe(path.join("/tmp/test-ainative-m2", "schedules"));
   });
 });

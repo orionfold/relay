@@ -32,6 +32,7 @@ import { fileURLToPath } from "node:url";
 
 import type { Capability } from "@/lib/plugins/sdk/types";
 import { getAinativeLogsDir, getAinativePluginsDir } from "@/lib/utils/ainative-paths";
+import { isPluginConfinementOptOut } from "@/lib/config/env";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -163,7 +164,7 @@ export function wrapStdioSpawn(
   // all confinementMode values fall through to unconfined spawn — the
   // self-extension posture expected by users habituated to Claude Code /
   // Codex CLI freedom.
-  if (process.env.AINATIVE_PLUGIN_CONFINEMENT !== "1") {
+  if (isPluginConfinementOptOut()) {
     return {
       ok: true,
       wrapped: {
@@ -171,7 +172,7 @@ export function wrapStdioSpawn(
         args: input.args,
         ...(input.env !== undefined ? { env: input.env } : {}),
       },
-      describe: `confinement parked (AINATIVE_PLUGIN_CONFINEMENT not set) — direct spawn ${input.command} ${input.args.join(" ")}`,
+      describe: `confinement parked (RELAY_PLUGIN_CONFINEMENT not set) — direct spawn ${input.command} ${input.args.join(" ")}`,
     };
   }
 
@@ -422,7 +423,7 @@ export function dockerBootSweep(): void {
   // TDR-037 PARK — see wrapStdioSpawn header. Don't probe `docker ps`
   // when confinement is off; nothing could have created labeled
   // containers in the first place.
-  if (process.env.AINATIVE_PLUGIN_CONFINEMENT !== "1") {
+  if (isPluginConfinementOptOut()) {
     return;
   }
 

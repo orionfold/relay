@@ -19,7 +19,7 @@ import { getUpgradeState, setUpgradeState } from "./settings";
 
 const POLL_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 const LOCK_TTL_MS = 5 * 60 * 1000; // 5 minutes
-const LOCK_FILENAME = ".ainative-upgrade-check.lock";
+const LOCK_FILENAME = ".relay-upgrade-check.lock";
 const FAILURE_THRESHOLD = 3;
 // Sentinel value in notifications.toolName so we can dedupe / clear the banner.
 const FAILURE_MARKER = "upgrade_check_failing";

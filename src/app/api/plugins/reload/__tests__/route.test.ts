@@ -11,10 +11,10 @@ let tmpDir: string;
 describe("POST /api/plugins/reload", () => {
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "api-reload-"));
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    process.env.RELAY_DATA_DIR = tmpDir;
   });
   afterEach(() => {
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 

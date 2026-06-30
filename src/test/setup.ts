@@ -18,8 +18,8 @@ HTMLElement.prototype.scrollIntoView = () => {};
 HTMLElement.prototype.hasPointerCapture = () => false;
 HTMLElement.prototype.releasePointerCapture = () => {};
 
-if (!process.env.AINATIVE_DATA_DIR) {
-  const tempDataDir = mkdtempSync(join(tmpdir(), "ainative-vitest-"));
+if (!process.env.RELAY_DATA_DIR) {
+  const tempDataDir = mkdtempSync(join(tmpdir(), "relay-vitest-"));
   mkdirSync(tempDataDir, { recursive: true });
-  process.env.AINATIVE_DATA_DIR = tempDataDir;
+  process.env.RELAY_DATA_DIR = tempDataDir;
 }

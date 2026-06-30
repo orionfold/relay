@@ -15,10 +15,10 @@ describe("finance-pack bundle", () => {
     // Copy the example bundle into place
     const src = path.join(getAinativePluginExamplesDir(), "finance-pack");
     fs.cpSync(src, path.join(tmpDir, "plugins", "finance-pack"), { recursive: true });
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    process.env.RELAY_DATA_DIR = tmpDir;
   });
   afterEach(() => {
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 

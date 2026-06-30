@@ -4,7 +4,7 @@ import { join } from "path";
 import { tmpdir } from "os";
 
 const tmp = mkdtempSync(join(tmpdir(), "ainative-route-rewind-"));
-process.env.AINATIVE_DATA_DIR = tmp;
+process.env.RELAY_DATA_DIR = tmp;
 
 vi.mock("@/lib/environment/auto-scan", () => ({
   ensureFreshScan: vi.fn(),
@@ -21,7 +21,7 @@ import { conversations, chatMessages } from "@/lib/db/schema";
 // eslint-disable-next-line import/first
 import { eq } from "drizzle-orm";
 
-const ORIG_FLAG = process.env.AINATIVE_CHAT_BRANCHING;
+const ORIG_FLAG = process.env.RELAY_CHAT_BRANCHING;
 
 function makeReq(body: unknown): Request {
   return new Request("http://localhost/api/chat/conversations/x/rewind", {
@@ -33,13 +33,13 @@ function makeReq(body: unknown): Request {
 
 describe("POST /api/chat/conversations/[id]/rewind", () => {
   beforeEach(() => {
-    process.env.AINATIVE_CHAT_BRANCHING = "true";
+    process.env.RELAY_CHAT_BRANCHING = "true";
   });
   afterEach(async () => {
     await db.delete(chatMessages);
     await db.delete(conversations);
-    if (ORIG_FLAG === undefined) delete process.env.AINATIVE_CHAT_BRANCHING;
-    else process.env.AINATIVE_CHAT_BRANCHING = ORIG_FLAG;
+    if (ORIG_FLAG === undefined) delete process.env.RELAY_CHAT_BRANCHING;
+    else process.env.RELAY_CHAT_BRANCHING = ORIG_FLAG;
   });
 
   it("marks (user, assistant) pair rewound and returns the user content", async () => {
@@ -82,7 +82,7 @@ describe("POST /api/chat/conversations/[id]/rewind", () => {
   });
 
   it("returns 404 when flag is off", async () => {
-    process.env.AINATIVE_CHAT_BRANCHING = "false";
+    process.env.RELAY_CHAT_BRANCHING = "false";
     const conv = await createConversation({ runtimeId: "claude-code" });
     const res = await POST(makeReq({ assistantMessageId: "x" }) as never, {
       params: Promise.resolve({ id: conv.id }),

@@ -142,7 +142,7 @@ describe("create_profile compose-aware routing", () => {
       skillMd,
     });
     // The critical assertion: createProfile (which writes to ~/.claude/skills/)
-    // must NOT be invoked. createPromotedProfile writes to AINATIVE_DATA_DIR.
+    // must NOT be invoked. createPromotedProfile writes to RELAY_DATA_DIR.
     expect(createProfileMock).not.toHaveBeenCalled();
   });
 });

@@ -38,13 +38,13 @@ beforeEach(() => {
   fs.mkdirSync(binDir, { recursive: true });
   fs.mkdirSync(examplesDir, { recursive: true });
 
-  // Set AINATIVE_DATA_DIR so logToFile writes under tmpDir.
-  process.env.AINATIVE_DATA_DIR = tmpDir;
+  // Set RELAY_DATA_DIR so logToFile writes under tmpDir.
+  process.env.RELAY_DATA_DIR = tmpDir;
 });
 
 afterEach(() => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
-  delete process.env.AINATIVE_DATA_DIR;
+  delete process.env.RELAY_DATA_DIR;
 });
 
 // ---------------------------------------------------------------------------

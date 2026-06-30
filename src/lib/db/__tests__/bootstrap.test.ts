@@ -19,8 +19,8 @@ describe("database bootstrap recovery", () => {
   let dbPath: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "ainative-db-bootstrap-"));
-    dbPath = join(tempDir, "ainative.db");
+    tempDir = mkdtempSync(join(tmpdir(), "relay-db-bootstrap-"));
+    dbPath = join(tempDir, "relay.db");
   });
 
   afterEach(() => {

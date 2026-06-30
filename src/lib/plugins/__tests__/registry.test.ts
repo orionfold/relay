@@ -22,12 +22,12 @@ function writePluginManifest(pluginId: string, manifest: Record<string, unknown>
 describe("plugin registry", () => {
   beforeEach(async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ainative-plugins-test-"));
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    process.env.RELAY_DATA_DIR = tmpDir;
     await reloadPlugins();
   });
 
   afterEach(async () => {
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
     await reloadPlugins();
   });

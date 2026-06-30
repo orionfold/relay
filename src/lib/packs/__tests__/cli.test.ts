@@ -21,7 +21,7 @@ beforeEach(() => {
   logs = [];
   errs = [];
   vi.resetModules();
-  vi.stubEnv("AINATIVE_DATA_DIR", dataDir);
+  vi.stubEnv("RELAY_DATA_DIR", dataDir);
 });
 
 afterEach(() => {

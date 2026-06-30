@@ -10,7 +10,7 @@ import yaml from "js-yaml";
 // registry functions. The chat tools call `getApp` / `writeAppManifest`
 // without passing the dir, so we route them through the env override.
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ainative-app-view-tools-test-"));
-process.env.AINATIVE_DATA_DIR = tmp;
+process.env.RELAY_DATA_DIR = tmp;
 
 import { appViewTools } from "../app-view-tools";
 import { invalidateAppsCache } from "@/lib/apps/registry";

@@ -6,7 +6,7 @@ import { tmpdir } from "os";
 // Scope the DB to a per-file temp dir BEFORE importing the data module.
 // The chat module's @/lib/db import initialises a singleton against this path.
 const tmp = mkdtempSync(join(tmpdir(), "ainative-branching-"));
-process.env.AINATIVE_DATA_DIR = tmp;
+process.env.RELAY_DATA_DIR = tmp;
 
 // eslint-disable-next-line import/first
 import {

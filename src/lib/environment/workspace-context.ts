@@ -5,10 +5,11 @@ import { statSync } from "fs";
 import { join } from "path";
 import { getAinativeDataDir } from "@/lib/utils/ainative-paths";
 import { isDevMode, isPrivateInstance } from "@/lib/instance/detect";
+import { launchCwd } from "@/lib/config/env";
 
-/** The directory the user launched ainative from (falls back to process.cwd()). */
+/** The directory the user launched Relay from (falls back to process.cwd()). */
 export function getLaunchCwd(): string {
-  return process.env.AINATIVE_LAUNCH_CWD || process.cwd();
+  return launchCwd();
 }
 
 export interface WorkspaceContext {

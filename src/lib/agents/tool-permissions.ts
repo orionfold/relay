@@ -7,6 +7,7 @@
  */
 
 import { z } from "zod";
+import { isPerToolApprovalEnabled } from "@/lib/config/env";
 import { db } from "@/lib/db";
 import { notifications } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -175,7 +176,7 @@ export async function handleToolPermission(
   if (
     !isQuestion &&
     toolName.startsWith("mcp__") &&
-    process.env.AINATIVE_PER_TOOL_APPROVAL === "1"
+    isPerToolApprovalEnabled()
   ) {
     const { resolvePluginToolApproval } = await import("@/lib/plugins/capability-check");
     const decision = await resolvePluginToolApproval(toolName);

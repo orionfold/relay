@@ -25,10 +25,10 @@ name: Habit Tracker
 description: 'Composed app: Habit Tracker'
 profiles:
   - id: habit-tracker--habit-coach
-    source: $AINATIVE_DATA_DIR/profiles/habit-tracker--habit-coach/
+    source: $RELAY_DATA_DIR/profiles/habit-tracker--habit-coach/
 blueprints:
   - id: habit-tracker--weekly-review
-    source: $AINATIVE_DATA_DIR/blueprints/habit-tracker--weekly-review.yaml
+    source: $RELAY_DATA_DIR/blueprints/habit-tracker--weekly-review.yaml
 tables:
   - id: a41a40e2-f028-47ae-b27c-fde2562cdd9d
     columns:

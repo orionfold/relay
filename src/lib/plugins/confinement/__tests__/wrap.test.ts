@@ -45,18 +45,18 @@ let tmpDir: string;
 
 beforeEach(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "wrap-test-"));
-  process.env.AINATIVE_DATA_DIR = tmpDir;
+  process.env.RELAY_DATA_DIR = tmpDir;
   // TDR-037 — confinement is PARKED behind the flag by default. These
   // tests exercise the wrap logic when the flag is ON. A separate describe
   // block below asserts the parked (OFF) behavior.
-  process.env.AINATIVE_PLUGIN_CONFINEMENT = "1";
+  process.env.RELAY_PLUGIN_CONFINEMENT = "1";
   execFileSyncMock.mockReset();
 });
 
 afterEach(() => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
-  delete process.env.AINATIVE_DATA_DIR;
-  delete process.env.AINATIVE_PLUGIN_CONFINEMENT;
+  delete process.env.RELAY_DATA_DIR;
+  delete process.env.RELAY_PLUGIN_CONFINEMENT;
 });
 
 function makeInput(overrides: Partial<WrapInput> = {}): WrapInput {
@@ -453,13 +453,13 @@ describe("dockerBootSweep", () => {
 });
 
 // ---------------------------------------------------------------------------
-// TDR-037 — confinement parked by default (AINATIVE_PLUGIN_CONFINEMENT unset)
+// TDR-037 — confinement parked by default (RELAY_PLUGIN_CONFINEMENT unset)
 // ---------------------------------------------------------------------------
 
 describe("confinement parked by default (TDR-037)", () => {
   beforeEach(() => {
     // These tests simulate a fresh process with no flag set.
-    delete process.env.AINATIVE_PLUGIN_CONFINEMENT;
+    delete process.env.RELAY_PLUGIN_CONFINEMENT;
     execFileSyncMock.mockReset();
   });
 

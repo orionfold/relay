@@ -15,7 +15,7 @@ import { hasGitDir, isDevMode } from "@/lib/instance/detect";
  *
  * Mirrors ensureInstance()'s decision tree (src/lib/instance/bootstrap.ts):
  *
- * - devMode (AINATIVE_DEV_MODE=true or .git/ainative-dev-mode sentinel):
+ * - devMode (RELAY_DEV_MODE=true or .git/relay-dev-mode sentinel):
  *   returns `{ devMode: true }`. Prevents stale instance rows from prior
  *   testing from surfacing as if the dev repo were a real instance.
  *

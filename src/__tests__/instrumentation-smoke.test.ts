@@ -6,7 +6,7 @@ describe("instrumentation register()", () => {
   });
 
   it("ensureInstance is importable from the bootstrap module and returns a skipped result in dev mode", async () => {
-    vi.stubEnv("AINATIVE_DEV_MODE", "true");
+    vi.stubEnv("RELAY_DEV_MODE", "true");
     const { ensureInstance } = await import("@/lib/instance/bootstrap");
     const result = await ensureInstance();
     expect(result.skipped).toBe("dev_mode_env");

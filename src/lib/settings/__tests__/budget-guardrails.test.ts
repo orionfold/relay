@@ -10,7 +10,7 @@ beforeEach(() => {
   vi.resetModules();
   vi.useFakeTimers();
   vi.setSystemTime(new Date("2026-03-17T12:00:00.000Z"));
-  vi.stubEnv("AINATIVE_DATA_DIR", tempDir);
+  vi.stubEnv("RELAY_DATA_DIR", tempDir);
 });
 
 afterEach(() => {

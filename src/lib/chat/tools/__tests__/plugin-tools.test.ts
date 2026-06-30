@@ -52,7 +52,7 @@ describe("plugin chat tools", () => {
 
   beforeEach(async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "plugin-tools-"));
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    process.env.RELAY_DATA_DIR = tmpDir;
     ctx = {};
     // Make sure the registry cache is clean before each test so that the
     // env-var change above takes effect for the very first scan.
@@ -61,7 +61,7 @@ describe("plugin chat tools", () => {
   });
 
   afterEach(async () => {
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
     const { reloadPlugins } = await import("@/lib/plugins/registry");
     await reloadPlugins();

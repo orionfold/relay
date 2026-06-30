@@ -60,13 +60,13 @@ function writeBundle(pluginId: string, opts: {
 describe("plugin loader → blueprint integration", () => {
   beforeEach(async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "plugin-blueprints-"));
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    process.env.RELAY_DATA_DIR = tmpDir;
     clearAllPluginProfiles();
     clearAllPluginBlueprints();
     await reloadPlugins();
   });
   afterEach(async () => {
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
     clearAllPluginProfiles();
     clearAllPluginBlueprints();

@@ -9,15 +9,15 @@ describe("plugin-spec-tools — scaffoldPluginSpec + create_plugin_spec chat too
   let originalDataDir: string | undefined;
 
   beforeEach(() => {
-    originalDataDir = process.env.AINATIVE_DATA_DIR;
+    originalDataDir = process.env.RELAY_DATA_DIR;
     tmpDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "ainative-plugin-spec-test-"));
-    process.env.AINATIVE_DATA_DIR = tmpDataDir;
+    process.env.RELAY_DATA_DIR = tmpDataDir;
     fs.mkdirSync(path.join(tmpDataDir, "plugins"), { recursive: true });
   });
 
   afterEach(() => {
-    if (originalDataDir === undefined) delete process.env.AINATIVE_DATA_DIR;
-    else process.env.AINATIVE_DATA_DIR = originalDataDir;
+    if (originalDataDir === undefined) delete process.env.RELAY_DATA_DIR;
+    else process.env.RELAY_DATA_DIR = originalDataDir;
     fs.rmSync(tmpDataDir, { recursive: true, force: true });
   });
 

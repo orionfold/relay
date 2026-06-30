@@ -42,16 +42,16 @@ describe("install-path parity", () => {
   afterEach(() => {
     fs.rmSync(npxLikeDir, { recursive: true, force: true });
     fs.rmSync(cloneLikeDir, { recursive: true, force: true });
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
   });
 
   it("loader output is identical (modulo paths) across both data dirs", async () => {
-    process.env.AINATIVE_DATA_DIR = npxLikeDir;
+    process.env.RELAY_DATA_DIR = npxLikeDir;
     const npxResult = (await reloadPlugins()).map((p) => ({
       ...p, rootDir: "<dir>",
     }));
 
-    process.env.AINATIVE_DATA_DIR = cloneLikeDir;
+    process.env.RELAY_DATA_DIR = cloneLikeDir;
     const cloneResult = (await reloadPlugins()).map((p) => ({
       ...p, rootDir: "<dir>",
     }));

@@ -8,7 +8,7 @@ let tempDir: string;
 beforeEach(() => {
   tempDir = mkdtempSync(join(tmpdir(), "ainative-customers-"));
   vi.resetModules();
-  vi.stubEnv("AINATIVE_DATA_DIR", tempDir);
+  vi.stubEnv("RELAY_DATA_DIR", tempDir);
 });
 
 afterEach(() => {

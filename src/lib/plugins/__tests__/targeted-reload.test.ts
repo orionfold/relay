@@ -18,11 +18,11 @@ function writePlugin(id: string, version = "0.1.0") {
 describe("targeted reloadPlugin(id)", () => {
   beforeEach(async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "targeted-reload-"));
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    process.env.RELAY_DATA_DIR = tmpDir;
     await reloadPlugins();
   });
   afterEach(async () => {
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
     await reloadPlugins();
   });

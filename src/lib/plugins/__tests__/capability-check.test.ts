@@ -33,12 +33,12 @@ let tmpDir: string;
 
 beforeEach(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "capability-check-"));
-  process.env.AINATIVE_DATA_DIR = tmpDir;
+  process.env.RELAY_DATA_DIR = tmpDir;
 });
 
 afterEach(() => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
-  delete process.env.AINATIVE_DATA_DIR;
+  delete process.env.RELAY_DATA_DIR;
 });
 
 const lockPath = () => path.join(tmpDir, "plugins.lock");

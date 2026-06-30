@@ -1,13 +1,17 @@
-import { homedir } from "os";
 import { join } from "path";
 import { getAppRoot } from "@/lib/utils/app-root";
+import { dataDir, dbPath } from "@/lib/config/env";
 
+// Canonical data-dir + db-path resolution now lives in @/lib/config/env (the
+// single RELAY_* accessor). These helpers delegate so the resolver exists in
+// exactly one place. The getAinative* names are kept (internal symbols, not a
+// platform API surface) to avoid churning ~36 import sites.
 export function getAinativeDataDir(): string {
-  return process.env.AINATIVE_DATA_DIR || join(homedir(), ".ainative");
+  return dataDir();
 }
 
 export function getAinativeDbPath(): string {
-  return join(getAinativeDataDir(), "ainative.db");
+  return dbPath();
 }
 
 export function getAinativeUploadsDir(): string {

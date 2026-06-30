@@ -5,7 +5,7 @@ import { tmpdir } from "os";
 
 // Scope the DB to a per-file temp dir BEFORE importing the chat modules.
 const tmp = mkdtempSync(join(tmpdir(), "ainative-ctx-branching-"));
-process.env.AINATIVE_DATA_DIR = tmp;
+process.env.RELAY_DATA_DIR = tmp;
 
 // eslint-disable-next-line import/first
 import {

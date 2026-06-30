@@ -16,13 +16,13 @@ describe("GET /api/plugins", () => {
       path.join(tmpDir, "plugins", "demo", "plugin.yaml"),
       yaml.dump({ id: "demo", version: "0.1.0", apiVersion: "0.14", kind: "primitives-bundle" })
     );
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    process.env.RELAY_DATA_DIR = tmpDir;
     // Reset registry cache so the env-var change takes effect for the first scan.
     const { reloadPlugins } = await import("@/lib/plugins/registry");
     await reloadPlugins();
   });
   afterEach(async () => {
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
     const { reloadPlugins } = await import("@/lib/plugins/registry");
     await reloadPlugins();

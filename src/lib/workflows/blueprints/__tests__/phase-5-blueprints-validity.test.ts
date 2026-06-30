@@ -6,7 +6,7 @@ import { getBlueprint } from "../registry";
  * `research-digest--weekly-digest`) ship as repo-bundled builtins under
  * `src/lib/workflows/blueprints/builtins/`. The registry auto-scans
  * BUILTINS_DIR on first load, so a plain `getBlueprint()` call resolves
- * them regardless of the test runner's `AINATIVE_DATA_DIR` override.
+ * them regardless of the test runner's `RELAY_DATA_DIR` override.
  *
  * Earlier versions of this test copied from `~/.ainative/blueprints/`
  * (gitignored), which only worked on the developer's machine that

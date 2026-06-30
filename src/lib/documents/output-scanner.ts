@@ -1,15 +1,13 @@
-import { homedir } from "node:os";
 import path from "node:path";
 import fs from "node:fs/promises";
 import { db } from "@/lib/db";
 import { documents, tasks } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
+import { dataDir } from "@/lib/config/env";
 import { processDocument } from "./processor";
 
-const AINATIVE_DATA_DIR =
-  process.env.AINATIVE_DATA_DIR || path.join(homedir(), ".ainative");
-const TASK_OUTPUTS_DIR = path.join(AINATIVE_DATA_DIR, "outputs");
-const OUTPUT_ARCHIVE_DIR = path.join(AINATIVE_DATA_DIR, "documents", "output");
+const TASK_OUTPUTS_DIR = path.join(dataDir(), "outputs");
+const OUTPUT_ARCHIVE_DIR = path.join(dataDir(), "documents", "output");
 
 const OUTPUT_MIME_TYPES: Record<string, string> = {
   ".md": "text/markdown",

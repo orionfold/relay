@@ -22,12 +22,12 @@ function writeBundleWithTable(pluginId: string, table: Record<string, unknown>) 
 describe("plugin loader → table integration", () => {
   beforeEach(async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "plugin-tables-"));
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    process.env.RELAY_DATA_DIR = tmpDir;
     removePluginTables("test-pack");
     await reloadPlugins();
   });
   afterEach(async () => {
-    delete process.env.AINATIVE_DATA_DIR;
+    delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
     removePluginTables("test-pack");
     await reloadPlugins();

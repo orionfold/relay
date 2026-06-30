@@ -4,7 +4,7 @@ import { join } from "path";
 import { tmpdir } from "os";
 
 const tmp = mkdtempSync(join(tmpdir(), "ainative-route-redo-"));
-process.env.AINATIVE_DATA_DIR = tmp;
+process.env.RELAY_DATA_DIR = tmp;
 
 vi.mock("@/lib/environment/auto-scan", () => ({
   ensureFreshScan: vi.fn(),
@@ -23,7 +23,7 @@ import { db } from "@/lib/db";
 // eslint-disable-next-line import/first
 import { conversations, chatMessages } from "@/lib/db/schema";
 
-const ORIG_FLAG = process.env.AINATIVE_CHAT_BRANCHING;
+const ORIG_FLAG = process.env.RELAY_CHAT_BRANCHING;
 
 function makeReq(): Request {
   return new Request("http://localhost/api/chat/conversations/x/redo", {
@@ -33,13 +33,13 @@ function makeReq(): Request {
 
 describe("POST /api/chat/conversations/[id]/redo", () => {
   beforeEach(() => {
-    process.env.AINATIVE_CHAT_BRANCHING = "true";
+    process.env.RELAY_CHAT_BRANCHING = "true";
   });
   afterEach(async () => {
     await db.delete(chatMessages);
     await db.delete(conversations);
-    if (ORIG_FLAG === undefined) delete process.env.AINATIVE_CHAT_BRANCHING;
-    else process.env.AINATIVE_CHAT_BRANCHING = ORIG_FLAG;
+    if (ORIG_FLAG === undefined) delete process.env.RELAY_CHAT_BRANCHING;
+    else process.env.RELAY_CHAT_BRANCHING = ORIG_FLAG;
   });
 
   it("restores the most recently rewound pair", async () => {
@@ -71,7 +71,7 @@ describe("POST /api/chat/conversations/[id]/redo", () => {
   });
 
   it("returns 404 when flag is off", async () => {
-    process.env.AINATIVE_CHAT_BRANCHING = "false";
+    process.env.RELAY_CHAT_BRANCHING = "false";
     const conv = await createConversation({ runtimeId: "claude-code" });
     const res = await POST(makeReq() as never, {
       params: Promise.resolve({ id: conv.id }),

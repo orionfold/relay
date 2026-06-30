@@ -4,7 +4,7 @@ import path from "node:path";
 import os from "node:os";
 import yaml from "js-yaml";
 
-// Tests manipulate AINATIVE_DATA_DIR; since the registry caches USER_DIR at
+// Tests manipulate RELAY_DATA_DIR; since the registry caches USER_DIR at
 // module-load (mirroring blueprints/registry.ts), tests use vi.resetModules()
 // for each case that depends on a fresh data dir. This is the project
 // convention — blueprints' own pattern is captured-once.
@@ -15,15 +15,15 @@ describe("schedule registry", () => {
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "sched-reg-"));
-    origDataDir = process.env.AINATIVE_DATA_DIR;
-    process.env.AINATIVE_DATA_DIR = tmpDir;
+    origDataDir = process.env.RELAY_DATA_DIR;
+    process.env.RELAY_DATA_DIR = tmpDir;
     vi.resetModules(); // force registry to re-capture USER_DIR
   });
 
   afterEach(() => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
-    if (origDataDir === undefined) delete process.env.AINATIVE_DATA_DIR;
-    else process.env.AINATIVE_DATA_DIR = origDataDir;
+    if (origDataDir === undefined) delete process.env.RELAY_DATA_DIR;
+    else process.env.RELAY_DATA_DIR = origDataDir;
   });
 
   function writeUserSchedule(filename: string, data: Record<string, unknown>) {

@@ -69,7 +69,7 @@ beforeEach(() => {
   initRepo(tempDir);
   vi.resetModules();
   vi.unstubAllEnvs();
-  vi.stubEnv("AINATIVE_DATA_DIR", dataDir);
+  vi.stubEnv("RELAY_DATA_DIR", dataDir);
 });
 
 afterEach(() => {
@@ -88,7 +88,7 @@ describe("ensureInstanceConfig (Phase A)", () => {
     expect(config).not.toBeNull();
     expect(config!.instanceId).toMatch(/^[a-f0-9-]{36}$/);
     expect(config!.branchName).toBe("local");
-    // AINATIVE_DATA_DIR is stubbed to a temp dir (non-default), so this clone
+    // RELAY_DATA_DIR is stubbed to a temp dir (non-default), so this clone
     // correctly registers as a private instance in the test environment.
     expect(config!.isPrivateInstance).toBe(true);
     expect(config!.createdAt).toBeGreaterThan(0);
@@ -281,7 +281,7 @@ describe("ensureMainShim (Phase A — domain clones only)", () => {
 });
 
 describe("ensurePrePushHook (Phase B)", () => {
-  it("writes a pre-push hook with the AINATIVE_HOOK_VERSION marker", async () => {
+  it("writes a pre-push hook with the RELAY_HOOK_VERSION marker", async () => {
     const { createGitOps } = await import("../git-ops");
     const { ensurePrePushHook } = await import("../bootstrap");
     const ops = createGitOps(tempDir);
@@ -290,7 +290,7 @@ describe("ensurePrePushHook (Phase B)", () => {
     const hookPath = join(tempDir, ".git", "hooks", "pre-push");
     expect(existsSync(hookPath)).toBe(true);
     const content = readFileSync(hookPath, "utf-8");
-    expect(content).toContain("AINATIVE_HOOK_VERSION=");
+    expect(content).toContain("RELAY_HOOK_VERSION=");
     expect(content).toContain("ALLOW_PRIVATE_PUSH");
     const mode = statSync(hookPath).mode & 0o777;
     expect(mode & 0o100).toBeTruthy();
@@ -309,7 +309,7 @@ describe("ensurePrePushHook (Phase B)", () => {
     expect(secondMtime).toBe(firstMtime);
   });
 
-  it("backs up a pre-existing non-ainative hook before installing", async () => {
+  it("backs up a pre-existing non-relay hook before installing", async () => {
     const customHook = "#!/bin/sh\necho custom hook\n";
     writeFileSync(join(tempDir, ".git", "hooks", "pre-push"), customHook);
     chmodSync(join(tempDir, ".git", "hooks", "pre-push"), 0o755);
@@ -318,11 +318,11 @@ describe("ensurePrePushHook (Phase B)", () => {
     const ops = createGitOps(tempDir);
     const result = ensurePrePushHook(ops);
     expect(result.status).toBe("ok");
-    const backupPath = join(tempDir, ".git", "hooks", "pre-push.ainative-backup");
+    const backupPath = join(tempDir, ".git", "hooks", "pre-push.relay-backup");
     expect(existsSync(backupPath)).toBe(true);
     expect(readFileSync(backupPath, "utf-8")).toBe(customHook);
     expect(readFileSync(join(tempDir, ".git", "hooks", "pre-push"), "utf-8"))
-      .toContain("AINATIVE_HOOK_VERSION=");
+      .toContain("RELAY_HOOK_VERSION=");
   });
 });
 
@@ -402,8 +402,8 @@ describe("resolveConsentDecision", () => {
 });
 
 describe("ensureInstance orchestrator", () => {
-  it("returns skipped with dev_mode_env when AINATIVE_DEV_MODE=true", async () => {
-    vi.stubEnv("AINATIVE_DEV_MODE", "true");
+  it("returns skipped with dev_mode_env when RELAY_DEV_MODE=true", async () => {
+    vi.stubEnv("RELAY_DEV_MODE", "true");
     const { ensureInstance } = await import("../bootstrap");
     const result = await ensureInstance(tempDir);
     expect(result.skipped).toBe("dev_mode_env");
@@ -414,7 +414,7 @@ describe("ensureInstance orchestrator", () => {
   });
 
   it("returns skipped with dev_mode_sentinel when sentinel file exists", async () => {
-    writeFileSync(join(tempDir, ".git", "ainative-dev-mode"), "");
+    writeFileSync(join(tempDir, ".git", "relay-dev-mode"), "");
     const { ensureInstance } = await import("../bootstrap");
     const result = await ensureInstance(tempDir);
     expect(result.skipped).toBe("dev_mode_sentinel");
@@ -472,9 +472,9 @@ describe("ensureInstance orchestrator", () => {
     expect(existsSync(join(tempDir, ".git", "hooks", "pre-push"))).toBe(true);
   });
 
-  it("AINATIVE_INSTANCE_MODE=true override beats AINATIVE_DEV_MODE=true", async () => {
-    vi.stubEnv("AINATIVE_DEV_MODE", "true");
-    vi.stubEnv("AINATIVE_INSTANCE_MODE", "true");
+  it("RELAY_INSTANCE_MODE=true override beats RELAY_DEV_MODE=true", async () => {
+    vi.stubEnv("RELAY_DEV_MODE", "true");
+    vi.stubEnv("RELAY_INSTANCE_MODE", "true");
     const { ensureInstance } = await import("../bootstrap");
     const result = await ensureInstance(tempDir);
     expect(result.skipped).toBeUndefined();
@@ -514,12 +514,12 @@ describe("ensureInstance orchestrator", () => {
       consentStatus: "enabled",
       firstBootCompletedAt: null,
     });
-    const { ensureInstance, AINATIVE_HOOK_VERSION } = await import("../bootstrap");
+    const { ensureInstance, RELAY_HOOK_VERSION } = await import("../bootstrap");
     const result = await ensureInstance(tempDir);
     expect(result.skipped).toBeUndefined();
     const guardrails = getGuardrails();
     expect(guardrails.prePushHookInstalled).toBe(true);
-    expect(guardrails.prePushHookVersion).toBe(AINATIVE_HOOK_VERSION);
+    expect(guardrails.prePushHookVersion).toBe(RELAY_HOOK_VERSION);
     expect(guardrails.pushRemoteBlocked).toContain("local");
   });
 
@@ -573,15 +573,15 @@ describe("ensureInstance orchestrator", () => {
     }
   });
 
-  // NOTE: We do not test "single-clone user (AINATIVE_DATA_DIR equals default)" at the
+  // NOTE: We do not test "single-clone user (RELAY_DATA_DIR equals default)" at the
   // orchestrator level here because vi.spyOn(os, "homedir") is not possible in ESM —
   // Node's os module exports are non-configurable and cannot be redefined (vitest throws
-  // "Cannot redefine property: homedir"). Stubbing AINATIVE_DATA_DIR to the real ~/.ainative
+  // "Cannot redefine property: homedir"). Stubbing RELAY_DATA_DIR to the real ~/.ainative
   // would pollute the developer's live database, which is also unacceptable.
   //
   // The single-clone path is fully covered at the unit level by
   // src/lib/instance/__tests__/detect.test.ts → "isPrivateInstance" describe block,
-  // specifically the test "returns false when AINATIVE_DATA_DIR equals default ~/.ainative".
+  // specifically the test "returns false when RELAY_DATA_DIR equals default ~/.ainative".
   // That test directly exercises the detect.isPrivateInstance() function that
   // ensureInstanceConfig() delegates to, making an orchestrator-level duplicate redundant.
 });

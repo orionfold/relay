@@ -1,11 +1,8 @@
 import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
-import { homedir } from "os";
+import { dataDir } from "@/lib/config/env";
 
-const uploadsDir = join(
-  process.env.AINATIVE_DATA_DIR || join(homedir(), ".ainative"),
-  "uploads"
-);
+const uploadsDir = join(dataDir(), "uploads");
 
 export interface DocumentSeed {
   id: string;
