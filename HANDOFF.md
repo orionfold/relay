@@ -1,6 +1,6 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-01 (pt: real prod license VERIFIED — licensing workstream CLOSED)_
+_Last updated: 2026-07-01 (pt: 0.15.1 shipped via OIDC + ainative-business deprecated — licensing/launch plumbing all closed)_
 
 ## ✅ CLOSED: Licensing/fulfilment — prod path PROVEN end-to-end
 
@@ -31,23 +31,28 @@ HTTP 200 on `origin/main` (customers-* were 404ing before the push). Answered We
 on `orionfold-website/_RELAY.md` → `later 16`.
 
 ## Not-started backlog
-- **Deprecate legacy `ainative-business`** (do NOT unpublish). `ainative-business@0.14.3`
-  still live, points at old repo + `ainative.business`. Plan: `npm deprecate ainative-business
-  "<msg → orionfold-relay>"` (optional final `0.14.4` migration-notice). The pointer now
-  lands somewhere real (orionfold-relay is published). NOTE: needs its own npm auth — the
-  publish token was scoped to `orionfold-relay` only + revoked; a deprecate on a different
-  package needs fresh auth (see anchor).
+- **⚠️ `ainative-business` deprecation message is GENERIC, not a redirect.** DONE-ish:
+  `ainative-business@0.14.3` is now deprecated on npm (2026-07-01), but the live message is
+  npm's default *"Package no longer supported. Contact Support…"* — it does NOT point users to
+  `orionfold-relay`. Re-run to fix: `npm deprecate ainative-business "Renamed → install
+  orionfold-relay instead (npx orionfold-relay)"` while logged in as **`manavsehgal`** (the
+  personal account that owns it — NOT `orionfoldllc`, which owns `orionfold-relay`). Idempotent,
+  re-runnable, non-destructive. (Package was NOT unpublished — correct; existing installs still work.)
 - **`/relay/` free-vs-paid boundary is not yet in the README** — README predates licensing.
   Stated to Website in `later 10`; README should eventually gain the section so page+package agree.
 
 ## Anchors
 - **Strategy repo = read/write only** (memory `strategy-repo-readwrite-only`): edit its
   files, NEVER commit/push/merge. Owning box does git + push. Relay-channel edits are UNCOMMITTED.
-- **Licensing code is MERGED to `main` + pushed** (`main` @ `6d7cb351`, `origin/main` in sync).
-  `feat/licensing-verifier` == `main` now; safe to delete the branch when convenient.
-- **npm publish auth is painful** (passkey/`auth-and-writes` 2FA; CLI token can't satisfy it).
-  This session used a throwaway granular bypass-2FA token (revoked after). Durable fix worth
-  doing: GitHub Actions Trusted Publishing (OIDC) — no token, no prompt. See memory `npm-publish-2fa-friction`.
+- **Licensing code is MERGED to `main` + pushed**; `feat/licensing-verifier` branch DELETED
+  (was `6d7cb351`, fully merged). Work directly on `main` here — no worktrees/branches unless
+  the operator explicitly asks (memory `work-on-main-no-worktrees`).
+- **npm publishing is SOLVED for `orionfold-relay`** via OIDC Trusted Publishing:
+  `.github/workflows/publish.yml` publishes on a `vX.Y.Z` tag push, zero tokens/OTP, provenance
+  auto-generated (`0.15.1` shipped this way 2026-07-01). Release = `npm version patch && git push
+  --follow-tags`. Runbook `docs/RELEASING.md`. NOTE: this OIDC only covers `orionfold-relay`
+  (under `orionfoldllc`); `ainative-business` is a separate `manavsehgal`-owned package.
+  The old passkey-2FA/bypass-token friction is fallback-only now. See `npm-publish-2fa-friction`.
 - Pack plumbing + relay-agency pack + customer ledger DONE (`538121f4` + `3375f325`) — the
   thing the license gates.
 

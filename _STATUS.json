@@ -1,17 +1,17 @@
 {
-  "focus": "orionfold-relay@0.15.1 PUBLISHED via tokenless OIDC Trusted Publishing (with provenance); npm 2FA friction is now permanently solved",
+  "focus": "Launch plumbing closed: 0.15.1 shipped via tokenless OIDC + ainative-business deprecated. Loose end: deprecation message is generic, not a redirect",
   "blockers": [],
   "next": [
-    "Deprecate legacy ainative-business -> point to orionfold-relay (still needs its own npm auth; not covered by the relay OIDC)",
-    "Optional: npm Publishing access -> 'require 2FA + disallow tokens' now that OIDC works, to lock the token path off",
+    "Re-run `npm deprecate ainative-business` with a redirect msg (currently npm's generic default) — as manavsehgal, not orionfoldllc",
+    "Optional: npm Publishing access -> 'require 2FA + disallow tokens' now OIDC works, to lock the token path off",
     "Add free-vs-paid boundary section to README (page+package agree; README predates licensing)"
   ],
   "recent": [
+    "ainative-business DEPRECATED on npm (0.14.3) — but message is npm's generic default, not an orionfold-relay redirect; re-run to fix",
     "orionfold-relay@0.15.1 PUBLISHED via GitHub Actions OIDC Trusted Publishing — zero tokens/OTP, provenance auto-generated; first tokenless release",
     "Built OIDC publish pipeline (.github/workflows/publish.yml on v* tag) + docs/RELEASING.md; fixed stale package.json repo URL (ainative->relay)",
-    "MERGED feat/licensing-verifier -> main + PUSHED; origin/main has verifier + real-license test + dark screengrabs",
-    "Shipped 8 dark-theme Relay-branded /relay/ screengrabs; all 8 README raw URLs now HTTP 200 (customers-* were 404ing)",
-    "Removed README About-author section (stale AWS disclaimer; operator left AWS) per Website later 15; answered later 14+15 -> later 16"
+    "MERGED feat/licensing-verifier -> main; deleted branch; shipped 8 dark-theme /relay/ screengrabs (README URLs now 200)",
+    "Removed README About-author section (stale AWS disclaimer; operator left AWS); answered Website later 14+15 -> later 16"
   ],
   "metrics": {}
 }
