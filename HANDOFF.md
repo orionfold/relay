@@ -1,6 +1,6 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-01 (pt: 0.15.1 shipped via OIDC + ainative-business deprecated — licensing/launch plumbing all closed)_
+_Last updated: 2026-07-01 (pt: 0.15.1 shipped via OIDC + ainative-business deprecated w/ redirect — launch plumbing all closed)_
 
 ## ✅ CLOSED: Licensing/fulfilment — prod path PROVEN end-to-end
 
@@ -31,15 +31,10 @@ HTTP 200 on `origin/main` (customers-* were 404ing before the push). Answered We
 on `orionfold-website/_RELAY.md` → `later 16`.
 
 ## Not-started backlog
-- **⚠️ `ainative-business` deprecation message is GENERIC, not a redirect.** DONE-ish:
-  `ainative-business@0.14.3` is now deprecated on npm (2026-07-01), but the live message is
-  npm's default *"Package no longer supported. Contact Support…"* — it does NOT point users to
-  `orionfold-relay`. Re-run to fix: `npm deprecate ainative-business "Renamed → install
-  orionfold-relay instead (npx orionfold-relay)"` while logged in as **`manavsehgal`** (the
-  personal account that owns it — NOT `orionfoldllc`, which owns `orionfold-relay`). Idempotent,
-  re-runnable, non-destructive. (Package was NOT unpublished — correct; existing installs still work.)
 - **`/relay/` free-vs-paid boundary is not yet in the README** — README predates licensing.
   Stated to Website in `later 10`; README should eventually gain the section so page+package agree.
+- **Optional:** npm Publishing access → "require 2FA + disallow tokens" on `orionfold-relay`
+  now that OIDC works, to lock the bypass-token path off for good.
 
 ## Anchors
 - **Strategy repo = read/write only** (memory `strategy-repo-readwrite-only`): edit its
@@ -57,8 +52,10 @@ on `orionfold-website/_RELAY.md` → `later 16`.
   thing the license gates.
 
 ## Recently shipped (durable record in git + memory)
+- `orionfold-relay@0.15.1` published via tokenless OIDC; `ainative-business@0.14.3` deprecated
+  on npm with a redirect message ("Renamed → install orionfold-relay instead: npx orionfold-relay").
 - Licensing verifier (`src/lib/licensing/`: canonicalize/verify/gate/load) + entitlement
-  field + `--license-url` gate at `pack add` — 62/62 tests, branch `feat/licensing-verifier`.
+  field + `--license-url` gate at `pack add` — merged to `main`; real-license fixture/test pinned.
 - `orionfold-relay@0.15.0` PUBLISHED to npm (0.0.1 stub → 0.15.0). Tarball trimmed (tests
   excluded via files[] negation), install-from-tarball smoke verified the gate enforces.
 - ainative→relay rename + customer dimension + pack format — DONE (memory `relay-folder-and-remote-renamed`).
