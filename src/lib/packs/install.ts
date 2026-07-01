@@ -19,14 +19,28 @@ import {
   type ResolvedPackFile,
 } from "./format";
 
-// The current relay-core version. Sourced from package.json at module load.
-// Kept here (not inlined) so the compat gate has a single point of truth.
+// Compile-time core version, embedded by tsup's `define` (see tsup.config.ts).
+// Present ONLY in the bundled CLI; `undefined` in dev/test/Next.js builds,
+// where the runtime lookup below takes over. Declared as a global so the
+// reference type-checks in the non-bundled builds where it doesn't exist.
+declare const __RELAY_CORE_VERSION__: string | undefined;
+
+// The current relay-core version. Kept here (not inlined) so the compat gate
+// has a single point of truth.
 function relayCoreVersion(): string {
-  // Resolve the app root via getAppRoot (NOT process.cwd() — under npx that is
-  // the user's launch dir, not the app, which would read the wrong
-  // package.json; see npx-process-cwd.test.ts). install.ts lives at
-  // src/lib/packs/, so the app root is 3 levels up from this file's dir —
-  // same depth ainative-paths.ts uses.
+  // 1. Bundle path: the version baked in at build time. This eliminates the
+  //    runtime package.json lookup entirely in the shipped CLI — the source of
+  //    the "0.0.0" bug, where the flattened dist/ layout broke the depth-based
+  //    getAppRoot resolution and fell back to the user's launch dir.
+  if (typeof __RELAY_CORE_VERSION__ === "string" && semver.valid(__RELAY_CORE_VERSION__)) {
+    return __RELAY_CORE_VERSION__;
+  }
+
+  // 2. Dev/test/Next.js path: resolve the app root via getAppRoot (NOT
+  //    process.cwd() — under npx that is the user's launch dir; see
+  //    npx-process-cwd.test.ts) and read package.json. getAppRoot is now
+  //    bundle-aware (walks up to the orionfold-relay package.json), so this
+  //    path is also correct in the bundle even if the define is ever dropped.
   try {
     const root = getAppRoot(import.meta.dirname, 3);
     const pkg = JSON.parse(
