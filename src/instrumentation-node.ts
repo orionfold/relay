@@ -3,6 +3,22 @@ export async function registerNodeInstrumentation() {
     const { migrateLegacyData } = await import("@/lib/utils/migrate-to-ainative");
     await migrateLegacyData();
 
+    // ainative→relay hop: the runtime now publishes chat/compose tools as
+    // mcp__relay__* (engine.ts server key), so previously-saved allow-lists and
+    // "Always Allow" records — matched by exact string — must be rewritten too.
+    // Runs against the live DB; idempotent, never throws.
+    const { migrateMcpNamespace } = await import("@/lib/utils/migrate-mcp-namespace");
+    const { sqlite } = await import("@/lib/db");
+    const nsReport = migrateMcpNamespace(sqlite);
+    if (nsReport.profilesUpdated > 0 || nsReport.permissionsUpdated > 0) {
+      console.log(
+        `[migrate] mcp namespace ainative→relay: ${nsReport.profilesUpdated} profile(s), ${nsReport.permissionsUpdated} permission set(s)`,
+      );
+    }
+    for (const err of nsReport.errors) {
+      console.error(`[migrate] mcp namespace: ${err}`);
+    }
+
     // Instance bootstrap — creates local branch, handles dev-mode gates, consent flow.
     // Runs BEFORE other startup so instance config is available downstream.
     // Safe in the canonical Relay dev repo thanks to RELAY_DEV_MODE=true

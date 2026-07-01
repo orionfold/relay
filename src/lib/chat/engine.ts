@@ -505,7 +505,10 @@ export async function* sendMessage(
           // Keep only last 50 chunks to avoid unbounded memory
           if (stderrChunks.length > 50) stderrChunks.shift();
         },
-        mcpServers: { ainative: ainativeServer, ...browserServers, ...externalServers },
+        // Server key = tool namespace: the Agent SDK derives `mcp__<key>__*`
+        // from THIS map key. Must be `relay` so published tools match the
+        // allow-list (:510) and the auto-allow gate (:533) below.
+        mcpServers: { relay: ainativeServer, ...browserServers, ...externalServers },
         allowedTools: [
           "mcp__relay__*",
           ...browserToolPatterns,
