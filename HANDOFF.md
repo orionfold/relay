@@ -4,7 +4,7 @@ _Last updated: 2026-07-01 (pt: customer issue #1 WSL crash fixed + published 0.1
 feature shipped 0.15.3; compose P0 defect #3 (dup-project dedup) landed on main; release-notes CI
 automation + public feature-issue conventions established. See git 17ae4002/2dcdeb13/e32562a3/7c1eb566.)_
 
-## ▶️ NEXT SESSION — finish the compose P0 (`fix-compose-approval-orchestration`)
+## ▶️ NEXT SESSION (1) — finish the compose P0 (`fix-compose-approval-orchestration`)
 Defect #3 of 3 is DONE + on main (dup-project dedup, `e32562a3`). Two defects remain — both need a
 **live `npm run dev` compose repro** to root-cause honestly (systematic-debugging Phase 1), and both
 touch `src/lib/chat/engine.ts` → **runtime-registry smoke budget applies** (CLAUDE.md):
@@ -18,10 +18,19 @@ touch `src/lib/chat/engine.ts` → **runtime-registry smoke budget applies** (CL
 Then cut ONE release covering all three defects (auto-Release + flip issue #3 → `shipped`).
 Spec: `features/fix-compose-approval-orchestration.md` (verified accurate, NO stale `agent_profiles`).
 
-## Then — remaining ICP fixes (leverage order; `roadmap.md` → "ICP Walkthrough Fixes")
+## Then (2) — remaining ICP user-journey smoke fixes (leverage order; `roadmap.md` → "ICP Walkthrough Fixes")
 - **P1s:** `fix-workflow-model-preference-propagation` (smoke budget), `fix-dashboard-budget-vs-cost-labeling`,
   `fix-pack-install-discoverability` (dep done), `fix-chat-spend-metering-diagnose` (repro 0-rows; code exists).
 - **P2:** `fix-inbox-checkpoint-realtime`.
+
+## Then (3) — triage the live customer-issue queue (AFTER the ICP smoke backlog above)
+**Customer is working live in Relay right now — expect MORE issues to keep arriving on GitHub.** Do a
+triage pass once the ICP smoke backlog is clear: root-cause + label each (like #7/#8 → parent #10), fold
+into backlog, dedup against existing items. Currently untriaged: GitHub **#4** (resolution/resize), **#5**
+(dark mode), **#6** (home button), **#9** (provider list won't load) — plus whatever lands after this.
+Re-run `gh issue list --state open` at session start to catch new ones. Note: some may be dev-mode
+artifacts that `feat-ship-production-build-for-npx` (#10) resolves — check that before deep-diving.
+Hot fixes (crash/broken-for-customer) can jump the queue ahead of the ICP backlog, as issue #1 (WSL) did.
 
 ## New process (this session — see memory `release-and-issue-conventions`)
 - **Release notes auto-generate:** `publish.yml` now creates a GitHub Release from the matching
