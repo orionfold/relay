@@ -1,61 +1,42 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-01 (pt: 0.15.1 shipped via OIDC + ainative-business deprecated w/ redirect — launch plumbing all closed)_
+_Last updated: 2026-07-01 (pt: shipped the 3 P0 ICP-walkthrough fixes — customer-link UI,
+chat MCP namespace + migration, pack core-version. See git a61f8ad0/1fa0cfba/cdf66e94 +
+changelog. Prior pt (backlog groom): git log.)_
 
-## ✅ CLOSED: Licensing/fulfilment — prod path PROVEN end-to-end
+## ▶️ NEXT SESSION — continue the ICP fixes
+3 of 4 P0s shipped this session. Remaining, in leverage order (see `roadmap.md` → "ICP Walkthrough Fixes"):
+1. **`fix-compose-approval-orchestration`** (P0) — NOW UNBLOCKED by the namespace fix (`1fa0cfba`
+   removed the spurious manual prompts). Reworks the compose tool loop (dup `create_project`,
+   next-gate auto-surface, parallel-tool tangle). Runtime-registry-adjacent → smoke budget applies.
+2. **P1s:** `fix-workflow-model-preference-propagation` (smoke budget), `fix-dashboard-budget-vs-cost-labeling`,
+   `fix-pack-install-discoverability` (dep: pack-core, now done), `fix-chat-spend-metering-diagnose`
+   (reproduce the 0-rows observation — metering code exists).
+3. **P2:** `fix-inbox-checkpoint-realtime`.
 
-The real website-signed license (`OF-RELAY-VERIFY-20260701`) landed on the **`strategy/relay/_RELAY.md`**
-channel (NOT the website channel — the artifact came in on `relay`) and **verified green under the
-shipped `orionfold-relay@0.15.0` verifier**: signature under embedded `of-license-prod-2026` +
-full 3-step gate + `assertEntitled` chokepoint + tamper-negative. **36/36 tests** (5 new). Pinned
-as a tracked fixture (`src/lib/licensing/__tests__/fixtures/of-relay-verify-20260701.license.json`
-+ `real-license.test.ts`) — the OF-RELAY analog of Proof's `OF-PROOF-2026-0001`. Relayed the
-verified-close back to Website+Proof (`strategy/relay/_RELAY.md`, `2026-07-01 (verified)`); both
-threads can now close. Full crypto detail: memory `licensing-fulfilment-workstream`.
+## Known caveats from this session
+- **Profiles are file-based, no `agent_profiles` table** (memory `profiles-are-file-based-not-db`) —
+  specs citing `agent_profiles.allowed_tools` are stale; persisted tool-perms live in `settings.permissions.allow`.
+- **`fix-compose-approval-orchestration` spec** may carry the same stale `agent_profiles` assumption —
+  verify against the tree before implementing (per `verify-walkthrough-findings-before-grooming`).
 
-**MERGED + PUSHED (2026-07-01, operator-directed):** `feat/licensing-verifier` fast-forwarded to
-`main` and pushed (`144211db..6d7cb351`). Main now carries the full licensing verifier + real-license
-fixture/test + the dark-theme screengrabs. The 25-commit unpushed lead on `main` (rename/brand work)
-shipped in the same push. Only the relay-channel close entries stay uncommitted (strategy repo is
-read/write-only — never commit there per the anchor).
+## Cleanup pending
+- `~/.relay-isolated` (6.4M throwaway test DB) — safe to `rm -rf ~/.relay-isolated`.
 
-## ✅ SHIPPED this session: dark-theme Relay-branded screengrabs + README author-bio drop
-Regenerated the 8 `/relay/`-facing screenshots (home-list, tasks-list, apps-starter-to-chat,
-costs-list, customers-list, customers-detail, workflows-blueprints, inbox-list) on the current
-Relay UI in **dark theme**, replacing the stale May-5 light-theme "ainative business" shots — in
-`public/readme/` + `screengrabs/` (commit `72d09016`). Fixed the `customers-detail` honesty gap
-(seeded demo env + linked projects + shifted usage-ledger into the 30d window → real `$0.05 · 6
-runs` attribution, not $0.00). Removed the `## About the author` section (bio + stale AWS-employer
-disclaimer) per operator + Website `later 15` (operator left AWS). All 8 README raw URLs now return
-HTTP 200 on `origin/main` (customers-* were 404ing before the push). Answered Website `later 14 + 15`
-on `orionfold-website/_RELAY.md` → `later 16`.
-
-## Not-started backlog
-- **`/relay/` free-vs-paid boundary is not yet in the README** — README predates licensing.
-  Stated to Website in `later 10`; README should eventually gain the section so page+package agree.
-- **Optional:** npm Publishing access → "require 2FA + disallow tokens" on `orionfold-relay`
-  now that OIDC works, to lock the bypass-token path off for good.
+## Not-started backlog (pre-existing)
+- **`/relay/` free-vs-paid boundary not yet in README** — README predates licensing (Website `later 10`).
+- **`feat-prepublish-tarball-smoke`** — CI tarball pack-install smoke so the pack-`0.0.0` class can't
+  ship again (surfaced by `fix-pack-core-version-resolution`, excluded from its scope).
+- **Optional:** npm Publishing → "require 2FA + disallow tokens" on `orionfold-relay` now OIDC works.
 
 ## Anchors
-- **Strategy repo = read/write only** (memory `strategy-repo-readwrite-only`): edit its
-  files, NEVER commit/push/merge. Owning box does git + push. Relay-channel edits are UNCOMMITTED.
-- **Licensing code is MERGED to `main` + pushed**; `feat/licensing-verifier` branch DELETED
-  (was `6d7cb351`, fully merged). Work directly on `main` here — no worktrees/branches unless
-  the operator explicitly asks (memory `work-on-main-no-worktrees`).
-- **npm publishing is SOLVED for `orionfold-relay`** via OIDC Trusted Publishing:
-  `.github/workflows/publish.yml` publishes on a `vX.Y.Z` tag push, zero tokens/OTP, provenance
-  auto-generated (`0.15.1` shipped this way 2026-07-01). Release = `npm version patch && git push
-  --follow-tags`. Runbook `docs/RELEASING.md`. NOTE: this OIDC only covers `orionfold-relay`
-  (under `orionfoldllc`); `ainative-business` is a separate `manavsehgal`-owned package.
-  The old passkey-2FA/bypass-token friction is fallback-only now. See `npm-publish-2fa-friction`.
-- Pack plumbing + relay-agency pack + customer ledger DONE (`538121f4` + `3375f325`) — the
-  thing the license gates.
+- **Strategy repo = read/write only** (memory `strategy-repo-readwrite-only`): edit, NEVER commit/push/merge.
+- **Work directly on `main`** — no worktrees/branches unless operator asks (memory `work-on-main-no-worktrees`).
+- **npm publishing SOLVED** via OIDC (`.github/workflows/publish.yml` on `vX.Y.Z` tag; `docs/RELEASING.md`).
+- **Smoke-test budget** (CLAUDE.md): runtime-registry-adjacent import changes need a real `npm run dev` smoke.
 
-## Recently shipped (durable record in git + memory)
-- `orionfold-relay@0.15.1` published via tokenless OIDC; `ainative-business@0.14.3` deprecated
-  on npm with a redirect message ("Renamed → install orionfold-relay instead: npx orionfold-relay").
-- Licensing verifier (`src/lib/licensing/`: canonicalize/verify/gate/load) + entitlement
-  field + `--license-url` gate at `pack add` — merged to `main`; real-license fixture/test pinned.
-- `orionfold-relay@0.15.0` PUBLISHED to npm (0.0.1 stub → 0.15.0). Tarball trimmed (tests
-  excluded via files[] negation), install-from-tarball smoke verified the gate enforces.
-- ainative→relay rename + customer dimension + pack format — DONE (memory `relay-folder-and-remote-renamed`).
+## Recently shipped (durable in git + memory)
+- This session: 3 P0 ICP fixes — `cdf66e94` customer-link UI, `1fa0cfba` chat MCP namespace + approval
+  migration, `a61f8ad0` pack core-version (build-time embed + bundle-aware getAppRoot). All smoke-verified.
+- Prior: ICP backlog verified + groomed → 9 `fix-*` specs; `0.15.1` via OIDC; `ainative-business`
+  deprecated. Full detail: git + `_IDEAS/backlog.md` + memory `licensing-fulfilment-workstream`.

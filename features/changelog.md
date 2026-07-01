@@ -1,5 +1,73 @@
 # Feature Changelog
 
+## 2026-07-01 — shipped 3 of 4 P0 ICP-walkthrough fixes
+
+Executed the top of the groomed ICP backlog. All three are smoke-verified (two are
+runtime-registry-adjacent, so a real `npm run dev` / built-bundle smoke was mandatory per CLAUDE.md).
+
+- **`fix-project-customer-link-ui`** (`cdf66e94`) — added the Customer selector to `ProjectFormSheet`
+  (create + edit), persisted `customerId` through the validators + POST insert + GET/page projections.
+  Caught a data-loss shadow path: the GET route + both `Project` interfaces omitted `customerId`, so
+  edit-mode pre-fill would silently clear the link on save. DB round-trip + browser verified.
+- **`fix-chat-mcp-namespace-relay`** (`1fa0cfba`) — flipped the `engine.ts` MCP server map key
+  `ainative`→`relay` (the SDK derives the tool namespace from the key, so tools published as
+  `mcp__ainative__*` while the auto-allow gate matched `mcp__relay__*` — every compose tool fell to a
+  manual prompt). Added an idempotent `migrateMcpNamespace()` rewriting saved "Always Allow" records
+  (`settings.permissions.allow`) `ainative`→`relay`. **Spec correction:** current Relay has no
+  `agent_profiles` table (profiles are file-based) — the DB profile migration the spec called for is a
+  guarded no-op. Verified: seeded `mcp__ainative__` approval rewrote to `mcp__relay__` on boot; chat
+  `list_projects` auto-advanced with no gate.
+- **`fix-pack-core-version-resolution`** (`a61f8ad0`) — packs were DOA on npx (`this install is 0.0.0`).
+  Fixed via tsup `define: { __RELAY_CORE_VERSION__ }` (build-time embed, no runtime lookup) **and** a
+  bundle-aware `getAppRoot` that walks up to the `orionfold-relay` package.json — fixing all 5
+  depth-mismatched call sites at once, not just `install.ts`. npx-simulation smoke from a fresh dir
+  installed the pack fully (project + 6 customers + table + 7 profiles + 8 blueprints).
+
+Remaining: `fix-compose-approval-orchestration` (P0, now unblocked) + P1/P2 tail. See roadmap.
+
+## 2026-07-01 — ICP walkthrough backlog groomed into 9 sequenced fix units (code-verified)
+
+Groomed the two-pass ICP browser walkthrough findings (`_IDEAS/backlog.md` — 10 blockers found on
+published `orionfold-relay@0.15.1`) into 9 self-contained, dependency-ordered `fix-*` feature specs.
+**Before grooming, every code-rooted blocker was re-verified against the current tree by read-only
+agents** — which materially changed three findings, so the specs carry the corrected mechanisms, not
+the walkthrough's raw guesses.
+
+### Verification-driven corrections (folded into both `_IDEAS/backlog.md` and the specs)
+
+- **#8 pack `0.0.0`** — symptom real, but the mechanism was wrong. It is NOT a bundler-flattened
+  relative path; it's a **hardcoded `depth: 3`** in `getAppRoot(import.meta.dirname, 3)`
+  (`install.ts:31`) that's correct for `src/` but overshoots in `dist/`, falling back to
+  `process.cwd()` (`app-root.ts:23`) then to the `"0.0.0"` catch (`install.ts:39`). Fix = embed the
+  version at build time via tsup `define`. Same depth pattern flagged at 3 other `dist/cli.js` sites.
+- **#10 chat not metered** — **NOT CONFIRMED as a build gap.** `chat_turn` metering exists on every
+  chat path (`engine.ts:413,882,952,979`; `codex-engine.ts:406,430`; all via `recordUsageLedgerEntry`,
+  `ledger.ts:217`). Re-scoped from "add metering" to **reproduce-and-diagnose** the 0-rows observation
+  (Ollama-path drop? version skew? silent write failure?).
+- **#5 model-routing leak** — mechanism confirmed (`execution-target.ts:440` uses the runtime-catalog
+  default, never `chat.modelPreference`); only the example model id `claude-opus-4-7` was stale (now
+  `claude-opus-4-8`, `catalog.ts:217`).
+
+Confirmed-as-written: **#2** (`engine.ts:508` MCP key `ainative:` vs `mcp__relay__*` allow-list — all
+lines accurate; fix needs a **data migration** for saved approvals since `permissions.ts:57-65` matches
+tool names by exact string) and **#3/#4** (project→customer link missing; add selector to the active
+`ProjectFormSheet`, NOT the dead `project-*-dialog.tsx`).
+
+### Groomed (9 units → `features/`, roadmap "ICP Walkthrough Fixes" section)
+
+- **P0:** `fix-chat-mcp-namespace-relay` (key flip + migration — unblocks compose), then
+  `fix-compose-approval-orchestration` (auto-advance / no duplicate projects);
+  `fix-project-customer-link-ui` (highest ROI — one selector unblocks the whole per-customer margin
+  chain #3→#4); `fix-pack-core-version-resolution` (packs DOA on npx).
+- **P1:** `fix-workflow-model-preference-propagation`, `fix-dashboard-budget-vs-cost-labeling`,
+  `fix-pack-install-discoverability` (dep: core-version fix), `fix-chat-spend-metering-diagnose`.
+- **P2:** `fix-inbox-checkpoint-realtime`.
+
+Sequencing rationale: fix `mcp-namespace` before `compose-orchestration` (removes the spurious manual
+prompts first); `customer-link-ui` first among independents (the J1→J6 causal chain is the highest-
+leverage fix). Blockers #1/#7 merged into compose-orchestration; #3/#4 into customer-link. No code
+changed this session — grooming + doc-correction only.
+
 ## 2026-05-03 — `chat-conversation-branches` Phase 2 shipped (UI + Claude smoke; spec → completed)
 
 Real build session, third of the day, executes Phase 1's deferred UI work end-to-end. Phase 1 (committed in `4b080ccd` earlier today) shipped the data layer + flag; Phase 2 wires branch action, tree dialog, ⌘Z/⌘⇧Z keybindings, and verifies cross-runtime behavior on Claude. Plan at `docs/superpowers/plans/2026-05-03-chat-conversation-branches-phase-2.md`. Scope challenge replaced the spec's literal "conversation detail sheet with Branches tab" — which would have invented a one-off UI pattern — with a `BranchesTreeDialog` opened from the existing `ConversationList` row dropdown (DD-7). Spec moves `in-progress` → `completed`. AC #6 (Ollama smoke) deferred with rationale: Ollama is not exposed in the chat-model selector today (only at the agent-runtime layer); branching is purely chat-layer.

@@ -476,6 +476,28 @@ Per-app view redesign so that composed apps render domain-aware dashboards drive
 | [composed-app-manifest-authoring-tools](composed-app-manifest-authoring-tools.md) (Phase 5) | P3 | completed | composed-app-manifest-view-field, composed-app-auto-inference-hardening, chat-app-builder |
 | [row-trigger-blueprint-execution](row-trigger-blueprint-execution.md) (Phase 5) | P1 | completed | composed-app-kit-inbox-and-research, workflow-engine |
 
+### ICP Walkthrough Fixes (2026-07-01)
+
+Groomed from the two-pass ICP browser walkthrough of published `orionfold-relay@0.15.1`
+(`_IDEAS/backlog.md`) — 10 blockers, code-claim-verified against the current tree before grooming
+(see backlog "Code-claim verification"). Ordered by leverage: fix `mcp-namespace` before
+`compose-orchestration` (it removes the spurious prompts); `customer-link-ui` is highest ROI (one
+selector unblocks the entire per-customer margin story). `#10 chat-metering` is re-scoped to
+diagnose (metering exists in HEAD). Blockers #1/#7 merged into compose-orchestration; #3/#4 merged
+into customer-link.
+
+| Feature | Priority | Status | Dependencies |
+|---------|----------|--------|--------------|
+| [fix-chat-mcp-namespace-relay](fix-chat-mcp-namespace-relay.md) | P0 | done | — |
+| [fix-compose-approval-orchestration](fix-compose-approval-orchestration.md) | P0 | planned | fix-chat-mcp-namespace-relay |
+| [fix-project-customer-link-ui](fix-project-customer-link-ui.md) | P0 | done | — |
+| [fix-pack-core-version-resolution](fix-pack-core-version-resolution.md) | P0 | done | — |
+| [fix-workflow-model-preference-propagation](fix-workflow-model-preference-propagation.md) | P1 | planned | — |
+| [fix-dashboard-budget-vs-cost-labeling](fix-dashboard-budget-vs-cost-labeling.md) | P1 | planned | — |
+| [fix-pack-install-discoverability](fix-pack-install-discoverability.md) | P1 | planned | fix-pack-core-version-resolution |
+| [fix-chat-spend-metering-diagnose](fix-chat-spend-metering-diagnose.md) | P1 | planned | — |
+| [fix-inbox-checkpoint-realtime](fix-inbox-checkpoint-realtime.md) | P2 | planned | — |
+
 ## Dependency Graph
 
 Critical path through the MVP:

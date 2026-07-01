@@ -1,16 +1,19 @@
 {
-  "focus": "Launch plumbing fully closed: 0.15.1 shipped via tokenless OIDC + ainative-business deprecated with a redirect to orionfold-relay",
+  "focus": "Shipped 3 of 4 P0 ICP-walkthrough fixes (customer-link UI, chat MCP namespace + migration, pack core-version); next: fix-compose-approval-orchestration (now unblocked)",
   "blockers": [],
   "next": [
-    "Add free-vs-paid boundary section to README (page+package agree; README predates licensing)",
-    "Optional: npm Publishing access -> 'require 2FA + disallow tokens' now OIDC works, to lock the token path off"
+    "fix-compose-approval-orchestration (P0, NOW UNBLOCKED by 1fa0cfba): rework compose tool loop — dup create_project, next-gate auto-surface, parallel-tool tangle (smoke budget)",
+    "P1s: workflow-model-preference-propagation, dashboard-budget-vs-cost-labeling, pack-install-discoverability, chat-spend-metering-diagnose",
+    "fix-inbox-checkpoint-realtime (P2)",
+    "rm -rf ~/.relay-isolated (6.4M throwaway)",
+    "Verify fix-compose spec vs tree — may carry stale agent_profiles assumption"
   ],
   "recent": [
-    "ainative-business@0.14.3 deprecation message now redirects: 'Renamed -> install orionfold-relay instead: npx orionfold-relay' (verified live)",
-    "orionfold-relay@0.15.1 PUBLISHED via GitHub Actions OIDC Trusted Publishing — zero tokens/OTP, provenance auto-generated; first tokenless release",
-    "Built OIDC publish pipeline (.github/workflows/publish.yml on v* tag) + docs/RELEASING.md; fixed stale package.json repo URL (ainative->relay)",
-    "MERGED feat/licensing-verifier -> main; deleted branch; shipped 8 dark-theme /relay/ screengrabs (README URLs now 200)",
-    "Removed README About-author section (stale AWS disclaimer; operator left AWS); answered Website later 14+15 -> later 16"
+    "cdf66e94 feat(projects): customer selector on ProjectFormSheet — DB round-trip + browser verified",
+    "1fa0cfba fix(chat): MCP server key ainative→relay + settings.permissions.allow migration — DB + browser smoke",
+    "a61f8ad0 fix(packs): pack core-version 0.0.0→real via tsup define + bundle-aware getAppRoot — npx smoke passed",
+    "Discovered profiles are file-based (no agent_profiles table) — saved as memory; corrects a groomed spec",
+    "Prior: ICP backlog verified + groomed into 9 fix-* specs"
   ],
   "metrics": {}
 }
