@@ -18,6 +18,7 @@ import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import {
   buildNextLaunchArgs,
   buildSidecarUrl,
+  isNonLoopbackHost,
   resolveNextEntrypoint,
   resolveSidecarPort,
 } from "../src/lib/desktop/sidecar-launch";
@@ -124,6 +125,7 @@ Environment variables:
 
 Examples:
   node dist/cli.js --port 3210 --no-open
+  node dist/cli.js --hostname 0.0.0.0 --port 3000    # expose on the LAN (see warning)
   node dist/cli.js --data-dir ~/.relay-dogfood --port 3100
   node dist/cli.js plugin dry-run my-plugin    # print confinement policy
   node dist/cli.js pack add ./my-pack          # install a Relay pack (folder or git url)
@@ -138,6 +140,11 @@ program
   .version(pkg.version)
   .addHelpText("after", getHelpText)
   .option("-p, --port <number>", "port to start on", "3000")
+  .option(
+    "--hostname <host>",
+    "host to bind to (default 127.0.0.1; use 0.0.0.0 to expose on the network)",
+    "127.0.0.1",
+  )
   .option("--data-dir <path>", "custom data directory (overrides RELAY_DATA_DIR)")
   .option("--reset", "delete the local database before starting")
   .option("--no-open", "don't auto-open browser")
@@ -325,11 +332,22 @@ async function main() {
   // 7. Spawn Next.js server (production if pre-built, dev otherwise)
   const nextEntrypoint = resolveNextEntrypoint(effectiveCwd);
   const isPrebuilt = existsSync(join(effectiveCwd, ".next", "BUILD_ID"));
+  const bindHost = (opts.hostname as string) || "127.0.0.1";
+  // Warn before exposing a local-first, auth-light app beyond this machine.
+  if (isNonLoopbackHost(bindHost)) {
+    console.warn(
+      `⚠ Binding to ${bindHost} — Relay will be reachable from other machines ` +
+        `on the network. It is designed for local-first, single-user use and has ` +
+        `no network authentication. Only do this on a trusted network, and put a ` +
+        `reverse proxy with auth in front if exposing it more broadly.`,
+    );
+  }
   const nextArgs = buildNextLaunchArgs({
     isPrebuilt,
     port: actualPort,
+    host: bindHost,
   });
-  const sidecarUrl = buildSidecarUrl(actualPort);
+  const sidecarUrl = buildSidecarUrl(actualPort, bindHost);
 
   console.log(`Orionfold Relay ${pkg.version} — Community Edition`);
   console.log(`Data dir: ${DATA_DIR}`);
@@ -350,12 +368,18 @@ async function main() {
     },
   });
 
-  // 8. Auto-open browser
+  // 8. Auto-open browser. When bound to a non-loopback host (e.g. 0.0.0.0 =
+  // "all interfaces"), that address isn't browsable from a client, so open the
+  // loopback equivalent on this machine instead — the server still listens on
+  // it because 0.0.0.0 includes loopback.
   if (opts.open !== false) {
+    const openUrl = isNonLoopbackHost(bindHost)
+      ? buildSidecarUrl(actualPort, "127.0.0.1")
+      : sidecarUrl;
     setTimeout(async () => {
       try {
         const open = (await import("open")).default;
-        await open(sidecarUrl);
+        await open(openUrl);
       } catch {
         // Silently fail — user can open manually
       }

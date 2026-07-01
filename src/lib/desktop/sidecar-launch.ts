@@ -83,3 +83,21 @@ export function buildNextLaunchArgs({
 export function buildSidecarUrl(port: number, host = SIDECAR_LOOPBACK_HOST): string {
   return `http://${host}:${port}`;
 }
+
+/**
+ * True when `host` is NOT a loopback address — i.e. binding to it exposes the
+ * server beyond the local machine. Relay is local-first with light auth, so the
+ * CLI warns before binding to such a host (`--hostname 0.0.0.0`, a LAN IP, a
+ * hostname, etc.). This is an advisory gate, not access control, so it errs
+ * toward warning: anything not provably loopback returns true.
+ *
+ * Loopback = `localhost`, IPv6 `::1`, or any `127.0.0.0/8` address (Linux lets
+ * you bind e.g. `127.0.0.5`). `0.0.0.0` / `::` are INADDR_ANY ("all
+ * interfaces") — the most exposing choice — and are treated as non-loopback.
+ */
+export function isNonLoopbackHost(host: string): boolean {
+  const h = host.trim().toLowerCase();
+  if (h === "localhost" || h === "::1") return false;
+  if (/^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(h)) return false;
+  return true;
+}

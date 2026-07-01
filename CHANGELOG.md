@@ -4,6 +4,12 @@
 
 This project was formerly published as `stagent` on npm and hosted at `github.com/manavsehgal/stagent`. As of 2026-04-17 it is `ainative`. The old GitHub URL redirects permanently; `stagent` on npm is deprecated with an upgrade pointer to `ainative`.
 
+## [0.15.3] — 2026-07-01
+
+### Added
+
+- **`--hostname` flag** — the CLI can now bind to a host other than loopback, e.g. `npx orionfold-relay --hostname 0.0.0.0` to expose Relay on the LAN (requested for headless/Alpine deployments). Defaults to `127.0.0.1`. Because Relay is local-first with no network authentication, binding to a non-loopback host prints a security warning, and the auto-open browser step opens the loopback URL (a `0.0.0.0` address isn't browsable). The host is forwarded to Next's `--hostname` and reflected in the startup URL.
+
 ## [0.15.2] — 2026-07-01
 
 ### Fixed
