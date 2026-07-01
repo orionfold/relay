@@ -1,22 +1,18 @@
 {
-  "focus": "Licensing + fulfilment (free engine + paid pack-unlock, mirror Proof) — verifier build unblocked",
-  "blockers": [
-    "Operator: lock SKU naming + founding/standard/renewal pricing (not code-blocking)",
-    "Operator/Stripe: create 3 live license_orionfold_relay* prices before any sale"
-  ],
+  "focus": "Licensing/fulfilment CLOSED — real prod license verified end-to-end under shipped orionfold-relay@0.15.0; prod path proven",
+  "blockers": [],
   "next": [
-    "LICENSING FIRST (before npm publish): port canonicalization_js, reproduce all 4 conformance cases",
-    "Build embedded-pubkey Ed25519 verifier (3-step gate: verify→term→entitlement); add entitlement field to PackManifestSchema",
-    "Gate `relay pack add <premium>` at the verb; request OF-RELAY-2026 license; prove prod path e2e",
-    "THEN publish real orionfold-relay@0.x (currently 0.0.1 reservation stub; local 0.15.0)",
-    "Deprecate legacy ainative-business@0.14.3 -> point to orionfold-relay (do NOT unpublish)"
+    "Deprecate legacy ainative-business -> point to orionfold-relay (needs fresh npm auth; publish token was revoked)",
+    "Add free-vs-paid boundary section to README (page+package agree; README predates licensing)",
+    "Consider GitHub Actions Trusted Publishing (OIDC) to kill the npm 2FA publish friction",
+    "Delete merged feat/licensing-verifier branch (== main now)"
   ],
   "recent": [
-    "Both peers replied (Website later 4 + Proof later 5) — licensing build UNBLOCKED both sides",
-    "Proof shipped a committed conformance vector (Node/TS canonicalizer + 4 signed cases) = the verifier acceptance test",
-    "Proof corrections: verify-then-parse ordering; 3-step gate (verify→term→entitlement), not is_active()",
-    "Website confirmed product:orionfold-relay branch feasible; same prod key signs Relay",
-    "Pushed strategy repo 633dd70 (relays + finalize ainative→relay rename) — operator OK'd one-off"
+    "MERGED feat/licensing-verifier -> main + PUSHED (144211db..6d7cb351); origin/main has verifier + real-license test + dark screengrabs",
+    "Shipped 8 dark-theme Relay-branded /relay/ screengrabs (72d09016); all 8 README raw URLs now HTTP 200 (customers-* were 404ing)",
+    "Removed README About-author section (stale AWS-employer disclaimer; operator left AWS) per Website later 15; answered later 14+15 -> later 16",
+    "REAL website-signed license OF-RELAY-VERIFY-20260701 VERIFIED green under shipped verifier; 36/36 tests, fixture pinned",
+    "Fixed customers-detail honesty gap: seeded demo + linked projects -> real $0.05/6-run attribution, not $0.00"
   ],
   "metrics": {}
 }
