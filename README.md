@@ -194,20 +194,6 @@ See `features/roadmap.md` for the full inventory and `features/stats/snapshot.js
 
 ---
 
-## About the author
-
-### Manav Sehgal
-
-Solutions Leader, AWS Frontier AI. Author, *AI Native Business* open book. 2M+ Kaggle views. Ex Amazon AGI.
-
-Orionfold Relay is a personal research project exploring what an AI-native operating system looks like — built over weekends, on a personal laptop, with capped AI plans. The *AI Native Business* open book is its 14-chapter playbook for building autonomous business systems with AI agents.
-
-Manav is a solutions leader at AWS Frontier AI, collaborating with Anthropic, NVIDIA, and Disney on production AI and agentic systems. His 25-year arc spans Xerox PARC (1996), HCL's digital practice, Daily Mail, Amazon AGI, and AWS, where he has delivered scale AI programs for Amazon Retail and Alexa. He led the AWS pandemic response honored by a President of India award for the customer. He holds credentials from Harvard (Disruptive Strategy), MIT Sloan (Design Thinking), and Berkeley Haas (Leading Innovative Change).
-
-> Orionfold Relay and *AI Native Business* are personal works created on Manav's own time and resources. While they may refer to AWS technologies, the opinions expressed are the author's personal opinions and not those of the employer.
-
----
-
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE).
