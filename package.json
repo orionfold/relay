@@ -52,12 +52,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/manavsehgal/ainative.git"
+    "url": "https://github.com/orionfold/relay.git"
   },
   "bugs": {
-    "url": "https://github.com/manavsehgal/ainative/issues"
+    "url": "https://github.com/orionfold/relay/issues"
   },
-  "homepage": "https://ainative.business",
+  "homepage": "https://orionfold.com/relay/",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
