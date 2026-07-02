@@ -4,7 +4,7 @@
 
 This project was formerly published as `stagent` on npm and hosted at `github.com/manavsehgal/stagent`. As of 2026-04-17 it is `ainative`. The old GitHub URL redirects permanently; `stagent` on npm is deprecated with an upgrade pointer to `ainative`.
 
-## [Unreleased]
+## [0.23.0] — 2026-07-02
 
 ### Added
 
