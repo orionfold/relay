@@ -23,7 +23,8 @@ issued to you at purchase and attached to your fulfilment email. Relay
 verifies it **entirely offline** with an Ed25519 signature check against
 public keys embedded in the open-source verifier
 ([`src/lib/licensing/verify.ts`](../../src/lib/licensing/verify.ts)). There
-is no activation server, no phone-home, no periodic re-validation. Keep the
+is no activation server, no periodic re-validation — Relay never sends your
+data to Orionfold. Keep the
 file; it is the durable proof of purchase — the download link in the email
 expires, the file never does.
 

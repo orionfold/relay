@@ -102,7 +102,7 @@ Full detail: [supply-chain.md](./supply-chain.md).
 License verification is an offline Ed25519 signature check against public
 keys embedded in the open-source verifier
 ([`src/lib/licensing/verify.ts`](../../src/lib/licensing/verify.ts)). No
-activation, no re-validation, no phone-home, works air-gapped. Expiry never
+activation, no re-validation, no data ever sent to Orionfold; works air-gapped. Expiry never
 disables installed content ([license terms](./license-terms.md)).
 
 ## 7. Vulnerability disclosure

@@ -104,7 +104,7 @@ The governance is *in* the workflow, not bolted on. A blueprint is a fixed step 
 ## Why it stays trustworthy
 
 - **Local-first** — SQLite database, no cloud dependency, `npx orionfold-relay` and go
-- **Never phones home** — no telemetry, no update checks, no license server; the complete outbound-network inventory is documented and code-linked in [docs/trust/data-flow.md](docs/trust/data-flow.md)
+- **Relay never sends your data to Orionfold** — no telemetry, no update checks, no license server; the complete outbound-network inventory is documented and code-linked in [docs/trust/data-flow.md](docs/trust/data-flow.md)
 - **Your rules, enforced** — tool permissions, inbox approvals, and audit trails for every agent action
 - **Your AI team** — 21 specialist profiles ready to deploy, each with instructions, tool policies, and runtime tuning
 - **Know what you spend** — usage metering, budgets, and per-provider/per-model spend visibility on governed runs
@@ -134,8 +134,8 @@ relay license remove <license-id>                            # forget a license 
 
 - **Verification is 100% offline** — an Ed25519 signature check against keys embedded in
   this repo ([`src/lib/licensing/verify.ts`](src/lib/licensing/verify.ts)). Relay never
-  phones home: no activation server, no telemetry, no network call of any kind. Works
-  air-gapped.
+  sends your data to Orionfold: no activation server, no telemetry, no network call of
+  any kind. Works air-gapped.
 - **Your packs are yours forever. Renewal gets you the year's new and updated packs +
   priority support.** An expired or removed license never re-locks content you already
   installed — it only gates new premium installs and updates.

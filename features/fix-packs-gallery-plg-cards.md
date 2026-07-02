@@ -26,7 +26,7 @@ agency founder) and code-verified:
   (`relay-agency` free, `relay-agency-pro` premium) most of the page is dead space.
 - **The sales copy is clamped away.** Agency Pro's 6-chapter description
   (`src/lib/packs/templates/relay-agency-pro/pack.yaml:7-20`, explicitly authored as "sales copy,
-  not an internal summary" — it ends on the "never phones home" trust line) is truncated behind
+  not an internal summary" — it ends on the trust line, now phrased "Relay never sends your data to Orionfold") is truncated behind
   `line-clamp-2` at `page.tsx:98`. The value story a buyer needs is invisible.
 - **No per-pack visual identity.** Cards differ only by a lock-vs-package glyph and text.
 - **The product can't express the live founding price (#20).** The card badge renders
@@ -64,8 +64,8 @@ the buy decision in-app without discovering a different price at checkout.
   currently has exactly one consumer (`page.tsx:92`) — keep it that way: card and any future recap
   surface read the normalizer.
 - Update `relay-agency-pro/pack.yaml` to the object shape with the founding price, copy matched to
-  the website. **Stays offline and hand-maintained** — no live price fetch; the "never phones
-  home" promise stands. When the founding window closes, the Website channel flags it and the
+  the website. **Stays offline and hand-maintained** — no live price fetch in this slice; the promise ("Relay never sends your data
+  to Orionfold") stands. When the founding window closes, the Website channel flags it and the
   `intro` field is removed in a normal release.
 - No pack `version` bump required: the locked-card price renders from the **bundled template**
   (`listPackTemplates` reads the templates dir), which ships in lockstep with the npm package —
@@ -130,7 +130,7 @@ Information architecture the design must satisfy (creative execution belongs to 
       orionfold.com/relay/ ($349 founding → $499 list), fed by a single normalizer — no
       site-local shape branching. Closes #20.
 - [x] The locked premium card surfaces the full `pack.yaml` sales description — the 6-chapter
-      copy and its closing "never phones home" line are readable without truncation.
+      copy and its closing "Relay never sends your data to Orionfold" line are readable without truncation.
 - [x] Each pack card has a distinct visual identity (icon/accent), and free-vs-premium is legible
       at a glance.
 - [x] The layout uses the canvas at N=2 (no sparse dead-space row) AND degrades gracefully at
@@ -147,8 +147,10 @@ Information architecture the design must satisfy (creative execution belongs to 
 - `/packs` card and layout redesign; optional `icon:` display field; free/premium filter chips.
 
 **Excluded:**
-- Any live price fetch or phone-home mechanism (promise stands; founding window stays
-  hand-maintained).
+- Any send of user data to Orionfold (the promise). Post-ship refinement (operator,
+  2026-07-02): the promise forbids SENDING user data, not READING canonical Orionfold
+  sources — a read-only canonical price pull is sanctioned future work (see memory
+  `phone-home-definition`); this shipped slice stays hand-maintained.
 - A real marketplace (feature-cut fence at `page.tsx:16`), pack publishing, reviews.
 - `category:` taxonomy + search (future browse axis — premature at N=2).
 - Cover-image asset pipeline (identity via icon token/accent only, this slice).

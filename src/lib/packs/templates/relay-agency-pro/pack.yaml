@@ -17,12 +17,14 @@ description: >
   included update) — a grant pipeline that takes every opportunity from
   fit-scored go/no-go through LOI, full application, and post-award
   restricted-funds compliance with a reporting calendar. Everything installs
-  offline; your license never phones home.
+  offline; Relay never sends your data to Orionfold.
 relayCore: ">=0.18.0"
 entitlement: product:orionfold-relay
-# Two-phase offer, hand-maintained to match orionfold.com/relay/ (never
-# fetched — the license never phones home). When the founding window closes
-# on the Website, delete `intro` + `note` here in a normal release.
+# Two-phase offer, hand-maintained to match orionfold.com/relay/ in this
+# release. Reading the canonical Orionfold source to stay current is fine
+# (the promise forbids SENDING user data, not reading public data — operator
+# ruling 2026-07-02); until such a read ships, when the founding window
+# closes on the Website, delete `intro` + `note` here in a normal release.
 price:
   intro: "$349/year"
   list: "$499/year"

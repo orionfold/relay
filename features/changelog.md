@@ -106,7 +106,7 @@ v0.2.0 is a real paid update to recap). Groomed `_SPECS/plg-refine.md` §5 PLG-4
 per-version "what's new" source), ONE recap helper reusing `packUpdateAvailability` (D7), three
 explicit-invocation surfaces (`license status`, the 402 update refusal, the /packs one-liner),
 and a Website relay for the T-30 renewal email (release-history recap only — Website cannot see
-installs; no phone-home). Startup banner explicitly untouched (§7 terminal-ads fence).
+installs; no data sent to Orionfold). Startup banner explicitly untouched (§7 terminal-ads fence).
 
 ### Deferred (permanently)
 - **Reverse trial — KILLED by operator ruling**: the 14-day re-lock is a literal instance of the

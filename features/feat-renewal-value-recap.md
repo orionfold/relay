@@ -119,7 +119,7 @@ commit/push that repo; memory `strategy-repo-readwrite-only`) asking Website
 to add a renewal-reminder email (suggest T-30) built on:
 
 - **What they know:** issuance data (issuedAt/expiresAt/entitlements) and the
-  public release history. They can NOT see customer installs — no phone-home
+  public release history. They can NOT see customer installs — no data is ever sent to Orionfold
   is the wedge — so the email recaps *what the term shipped* ("your license
   year included Agency Pro v0.2.0 — …"), never "you haven't installed X".
 - **Canonical copy we provide:** recap lines from the pack changelog + the D4
@@ -135,7 +135,7 @@ to add a renewal-reminder email (suggest T-30) built on:
   text, no upsell in default CLI output — the npm terminal-ads rule.
 - **No every-launch nags.** Recap appears only on explicit `license status`,
   at the 402 refusal, and on the /packs card the user opened.
-- **No online re-validation, no phone-home.** Recap is computed entirely from
+- **No online re-validation; no data sent to Orionfold.** Recap is computed entirely from
   the local store + bundled templates.
 - **D4 language discipline.** No recap sentence may imply installed content
   is at risk. Renewal buys the *next* year's flow; it never protects what's
@@ -185,7 +185,7 @@ to add a renewal-reminder email (suggest T-30) built on:
 **Excluded:**
 - Any email sending from this repo (Website owns the mechanics)
 - Startup banner changes of any kind
-- Telemetry, install reporting, or any outbound call (no-phone-home wedge)
+- Telemetry, install reporting, or any outbound call (the never-sends-your-data wedge)
 - Reverse trial, countdowns, temporary unlocks (KILLED — plg-refine §4)
 - Seat enforcement; the remaining PLG-4 loops (free registration key tier,
   founding-supporter identity) — each still operator-gated separately

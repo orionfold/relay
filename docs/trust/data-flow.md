@@ -103,7 +103,7 @@ Your levers, all first-class in the product:
   Analytics pages read your local SQLite only.
 - No update checks or self-updating — versions change only when you install
   a new one.
-- No license phone-home — verification is an offline Ed25519 check against
+- No license data ever sent to Orionfold — verification is an offline Ed25519 check against
   keys embedded in [open-source code](../../src/lib/licensing/verify.ts);
   works air-gapped, forever.
 - No calls to orionfold.com, ever, for any reason.

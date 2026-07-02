@@ -129,7 +129,7 @@ sets it explicitly. Pass `RELAY_STAGING` through the CLI's spawned-server env
 
 - README: "Free vs Paid" section (D5 slice) — free engine boundary, premium
   packs, license lifecycle (`license add|status|remove`), the D4 wording
-  verbatim, no-phone-home one-liner with verifier source pointer.
+  verbatim, "never sends your data to Orionfold" one-liner with verifier source pointer.
 - CHANGELOG 0.17.0 customer-voice entry (CI auto-creates the GitHub Release
   from it on tag; memory `release-and-issue-conventions`). Public `feature`
   issue as the customer-facing record.

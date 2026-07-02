@@ -14,7 +14,7 @@ import type { SignedLicense } from "@/lib/licensing/verify";
  * paste/upload activation path for UI-first users: the browser reads the
  * fulfilment file client-side and ships the `{ payload, signature }` envelope
  * as JSON. Verification is offline Ed25519 inside saveLicense; nothing here
- * phones home.
+ * sends user data to Orionfold.
  */
 
 const BodySchema = z.object({

@@ -33,8 +33,8 @@ content with it.
    [License terms](./license-terms.md).
 
 4. **Installed versions keep working.** Nothing in Relay checks for
-   updates, phones home, or depends on an Orionfold-operated service at
-   runtime. A version you have installed and run today runs the same on
+   updates, sends your data to Orionfold, or depends on an Orionfold-operated
+   service at runtime. A version you have installed and run today runs the same on
    the day our domain lapses.
 
 ## The honest edge cases

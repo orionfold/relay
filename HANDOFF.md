@@ -31,7 +31,7 @@ render the **#20** two-phase founding→normal price. Sequence the rest against 
 - **`file://` mirror is per-version** — build `dist-artifacts/relay-next-build-<v>.tgz` once per bump
   (`npm run build && node scripts/build-prebuilt-artifact.mjs`); 0.22.1 built.
 - Constraints: work on `main`; `_SPECS`/`_IDEAS` edit-only (strategy repo, its owner commits);
-  paid-frontier OK'd this session for agent steps; harness-side instrumentation only (no phone-home).
+  paid-frontier OK'd this session for agent steps; harness-side instrumentation only (nothing sends user data to Orionfold).
 
 **PLG-4 has no live growth-loop candidate queued** (all three ruled out 2026-07-02, stays reactive):
 - **Free registration key tier is DEFERRED** — still a strong recommendation (plg-refine §4),
@@ -46,11 +46,13 @@ render the **#20** two-phase founding→normal price. Sequence the rest against 
   disables installed content" vs the public promise. Do not resurface in any form that
   writes premium content to the pack store.
 - **Relay channel: later-9/later-10 OPEN (reactive)** — Website owes the T-30 renewal email
-  (canonical copy posted on _RELAY, incl. the no-phone-home honesty constraint). Standing:
+  (canonical copy posted on _RELAY, incl. the never-sends-your-data honesty constraint). Standing:
   flag each new pack `changelog:` line on _RELAY per release; flag if any `docs/trust/*`
   URL moves.
 - **Anti-patterns stay fenced (plg-refine §7):** no DB licensing, no CLI upsell banners, no
-  online re-validation, no expiry that disables installed packs (D4 = shipped behavior AND
+  online re-validation, no expiry that disables installed packs. **Promise phrasing + definition
+  refined 2026-07-02:** canonical copy is "Relay never sends your data to Orionfold" (SENDS —
+  read-only pulls FROM canonical Orionfold sources are OK; memory `phone-home-definition`) (D4 = shipped behavior AND
   public promise — README, issues #14–#19, orionfold.com/promise/; enforced at the UPDATE
   gate, proven by agency-pro-update.test.ts).
 
