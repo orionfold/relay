@@ -1,5 +1,20 @@
 # Feature Changelog
 
+## 2026-07-02 — GitHub issue grooming pass (held bugs labeled; shipped records reviewed)
+
+Groomed the open-issue list (operator request, S8 open). Findings:
+
+- **Held bugs #5/#6/#11/#12 (haruny)** — no customer reply yet to the 0.16.0 retest asks
+  (posted 2026-07-02T02:34Z, all four). Stay held/reactive per HANDOFF; the prod-build class
+  fix (0.16.0) likely moots them. **No fix-* spec created on purpose** — spec work waits on
+  retest evidence (memory: verify field reports before fixing). Labeled all four `bug` +
+  new `awaiting-retest` label ("Fix likely shipped; waiting on reporter to retest on the
+  latest release") so the pending state is visible on the repo.
+- **Shipped announcement issues #14–#19** — CLOSED as completed (operator-approved via
+  AskUserQuestion), matching the #2/#3/#10 convention. GitHub Releases remain the
+  announcement surface; closed issues stay linkable as the customer-facing record.
+- No other open issues; nothing new to extract into `features/`.
+
 ## 2026-07-02 — groomed feat-renewal-value-recap (PLG-4a) for S7; reverse trial KILLED
 
 S7 operator gate ran (AskUserQuestion, 2026-07-02): of the four PLG-4 loop candidates, the
