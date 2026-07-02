@@ -78,6 +78,62 @@ export async function withAnthropicDirectMcpServers(
   };
 }
 
+/**
+ * Anthropic Messages API `mcp_servers` connector entry.
+ * The API accepts ONLY remote URL connectors (`type: "url"`) — not
+ * in-process server instances or local stdio (`command`) servers.
+ */
+export type AnthropicMcpConnector = {
+  type: "url";
+  url: string;
+  name: string;
+} & Record<string, string>;
+
+/**
+ * Project the five-source MCP merge down to the Anthropic Messages API
+ * `mcp_servers` shape (remote URL connectors only).
+ *
+ * The API's `mcp_servers` field is for REMOTE MCP connectors reached over
+ * HTTP; the SDK JSON-serializes the request body. The in-process `relay`
+ * server (an SDK MCP server object with a circular `root` transport
+ * back-reference) and local stdio (`command`) plugin servers CANNOT go here:
+ *   - `relay` is not serializable → the SDK's `JSON.stringify(body)` throws
+ *     "Converting circular structure to JSON … property 'root' closes the
+ *     circle" and every anthropic-direct task fails before the model call.
+ *   - stdio (`command`) servers are local subprocesses the remote API cannot
+ *     reach; passing them is meaningless.
+ *
+ * Both are already available to the model as local function tools via
+ * `forProvider("anthropic")` + `executeHandler`, so dropping them here loses
+ * no capability. Only genuinely remote (URL-bearing) connectors are emitted;
+ * any remaining scalar config fields (e.g. a per-connector bearer token) are
+ * carried through opaquely. Mirrors openai-direct's `mcpServersToOpenAiTools`
+ * (which likewise skips `relay`).
+ */
+export function mcpServersToAnthropicConnectors(
+  mergedServers: Record<string, unknown>,
+): AnthropicMcpConnector[] {
+  const connectors: AnthropicMcpConnector[] = [];
+  for (const [name, config] of Object.entries(mergedServers)) {
+    if (name === "relay") continue; // in-process tools handled via function-calling, not the remote MCP path
+    const cfg = config as Record<string, unknown>;
+    const url = cfg.url ?? cfg.server_url;
+    if (typeof url !== "string" || url.length === 0) {
+      // stdio/command server or unserializable object — not a remote connector.
+      continue;
+    }
+    const connector = { type: "url", url, name } as AnthropicMcpConnector;
+    // Carry through any remaining scalar config fields opaquely (e.g. the
+    // API's per-connector auth field, if a plugin config supplied one).
+    for (const [key, value] of Object.entries(cfg)) {
+      if (["url", "server_url", "command", "args", "env"].includes(key)) continue;
+      if (typeof value === "string") connector[key] = value;
+    }
+    connectors.push(connector);
+  }
+  return connectors;
+}
+
 // ── SDK lazy import ──────────────────────────────────────────────────
 
 type AnthropicSDK = typeof import("@anthropic-ai/sdk");
@@ -128,13 +184,13 @@ interface AnthropicCallOptions {
   /** Extended thinking config (Anthropic only). */
   extendedThinking?: { enabled: boolean; budgetTokens?: number };
   /**
-   * Five-source merged MCP servers (TDR-035 §1).
-   * Passed as `mcp_servers` in the Anthropic Messages API request body.
-   * The Anthropic SDK mcp_servers field is in beta; typed as unknown to
-   * avoid SDK version skew. The `params` object is already typed as `any`
-   * so no ts-expect-error is needed.
+   * Remote MCP connectors (TDR-035 §1), projected to the Anthropic Messages
+   * API `mcp_servers` shape by `mcpServersToAnthropicConnectors`. ONLY
+   * URL-based remote connectors — the in-process `relay` server and local
+   * stdio plugin servers are excluded upstream (they're served as local
+   * function tools instead), so this is always JSON-serializable.
    */
-  mcpServers?: Record<string, unknown>;
+  mcpServers?: AnthropicMcpConnector[];
 }
 
 /**
@@ -214,10 +270,13 @@ async function callAnthropicModel(
     };
   }
 
-  // Inject five-source merged MCP servers (TDR-035 §1).
+  // Inject remote MCP connectors (TDR-035 §1). Already projected to the
+  // serializable URL-connector shape by mcpServersToAnthropicConnectors —
+  // the in-process `relay` server and local stdio plugins are excluded
+  // upstream, so this can no longer make the request body circular.
   // mcp_servers is a beta Anthropic Messages API field; params is typed as
   // any above so no extra assertion is needed here.
-  if (options.mcpServers && Object.keys(options.mcpServers).length > 0) {
+  if (options.mcpServers && options.mcpServers.length > 0) {
     params.mcp_servers = options.mcpServers;
   }
 
@@ -366,6 +425,10 @@ async function executeAnthropicDirectTask(taskId: string, isResume = false): Pro
       pluginServers,
       task.projectId,
     );
+    // Project to the serializable remote-connector shape BEFORE it reaches the
+    // request body — the raw merge holds the in-process `relay` server (a
+    // circular SDK object) that would crash JSON.stringify (see the helper).
+    const mcpConnectors = mcpServersToAnthropicConnectors(mergedMcpServers);
 
     // Build initial messages or restore from snapshot
     let initialMessages: LoopMessage[];
@@ -429,7 +492,7 @@ async function executeAnthropicDirectTask(taskId: string, isResume = false): Pro
             enableCaching: true,
             profileInstructions: profile?.skillMd,
             extendedThinking: capOverrides?.extendedThinking,
-            mcpServers: mergedMcpServers,
+            mcpServers: mcpConnectors,
           },
         );
 
