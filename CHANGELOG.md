@@ -9,6 +9,7 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 ### Fixed
 
 - **Your first-launch model choice can no longer be lost to a fast click.** Picking a model in the "Pick your default chat model" dialog and immediately navigating to another page could silently drop your preference — the save was cancelled mid-flight and the dialog re-appeared later as if you'd never answered. The save now survives navigation, and if it genuinely fails the dialog says so and lets you retry instead of closing as if it had worked.
+- **A fresh install no longer greets you with red errors.** First boot on an empty data dir printed several `ALTER TABLE failed: no such table` errors before "Database ready." — harmless setup ordering, but it read as a broken install. The first thing a new install prints is now simply "Database ready."
 
 ## [0.23.0] — 2026-07-02
 

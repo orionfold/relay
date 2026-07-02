@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Database from "better-sqlite3";
 import { join } from "path";
 import { mkdtempSync, rmSync } from "fs";
@@ -52,6 +52,26 @@ describe("database bootstrap recovery", () => {
       .get() as { count: number };
     expect(migrationCount.count).toBe(12);
     migratedDb.close();
+  });
+
+  // #23: on a fresh DB some ALTERs legitimately run before their CREATE
+  // ("no such table" — the later CREATE includes the column). That transient
+  // must not print scary errors: it's the first console output a new
+  // customer sees, and it reads as a broken install.
+  it("fresh-DB bootstrap prints no ALTER TABLE failures (#23)", () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const bootstrapDb = new Database(dbPath);
+      bootstrapAinativeDatabase(bootstrapDb);
+      bootstrapDb.close();
+
+      const alterFailures = errorSpy.mock.calls.filter((args) =>
+        String(args[0]).includes("ALTER TABLE failed")
+      );
+      expect(alterFailures).toEqual([]);
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   // chat-conversation-branches v1: schema + bootstrap regression.

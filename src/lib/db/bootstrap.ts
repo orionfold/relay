@@ -314,7 +314,11 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
       sqlite.exec(ddl);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      if (!msg.includes("duplicate column")) {
+      // Two expected outcomes, both fine: "duplicate column" (the column is
+      // already there) and "no such table" (fresh DB — some ALTERs run before
+      // their CREATE, which includes the column; see the branching-columns
+      // comment below). Anything else is a real failure and must stay loud.
+      if (!msg.includes("duplicate column") && !msg.includes("no such table")) {
         console.error("[bootstrap] ALTER TABLE failed:", msg);
       }
     }
