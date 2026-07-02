@@ -16,10 +16,14 @@ export interface TelemetrySnapshot {
   activeWorkflows: number;
   /** Unread `permission_required` notifications awaiting a human decision. */
   reviewPending: number;
-  /** Overall daily spend in micros (USD * 1e6). */
+  /** Real metered spend today in micros (usage_ledger sum, USD * 1e6) — never a budget/plan figure. */
   costTodayMicros: number;
-  /** Overall monthly (to-date) spend in micros (USD * 1e6). */
+  /** Real metered spend this month in micros (usage_ledger sum, USD * 1e6) — never a budget/plan figure. */
   costToDateMicros: number;
+  /** Overall monthly budget cap in micros, or null when unlimited. */
+  budgetMonthlyCapMicros: number | null;
+  /** Flat subscription plan price in micros when billing is subscription (not metered spend), else null. */
+  planPricedMonthlyMicros: number | null;
   /** Display label of the active runtime (e.g. "Claude Code"), or null if none configured. */
   runtimeLabel: string | null;
   /** Provider behind the active runtime ("anthropic" | "openai" | "ollama"), or null. */

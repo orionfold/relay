@@ -175,9 +175,6 @@ export async function GET() {
       getFailuresByDay(7),
     ]);
 
-    const overallDaily = budget.statuses.find(
-      (s) => s.scopeId === "overall" && s.window === "daily",
-    );
     const overallMonthly = budget.statuses.find(
       (s) => s.scopeId === "overall" && s.window === "monthly",
     );
@@ -196,8 +193,12 @@ export async function GET() {
       activeProjects: activeProjects?.count ?? 0,
       activeWorkflows: activeWorkflows?.count ?? 0,
       reviewPending,
-      costTodayMicros: overallDaily?.currentValue ?? 0,
-      costToDateMicros: overallMonthly?.currentValue ?? 0,
+      // Metered ledger sums only — the guardrail statuses' plan-priced budget
+      // basis must never render as "cost" (fix-dashboard-budget-vs-cost-labeling).
+      costTodayMicros: budget.meteredSpend.dailyMicros,
+      costToDateMicros: budget.meteredSpend.monthlyMicros,
+      budgetMonthlyCapMicros: overallMonthly?.limitValue ?? null,
+      planPricedMonthlyMicros: budget.planPricedMonthlyMicros,
       runtimeLabel,
       providerId,
       runtimeSdkVersion,

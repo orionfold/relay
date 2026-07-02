@@ -242,6 +242,63 @@ describe("budget guardrails", () => {
     expect(openAIMonthly).toBe(0);
   });
 
+  it("exposes metered spend separately from the plan-priced budget basis under subscription billing", async () => {
+    // Default auth is oauth → claude-code bills as a flat subscription. The
+    // guardrail statuses may use the plan price as the budget basis, but the
+    // snapshot must also expose REAL metered spend (usage_ledger sums) so
+    // display surfaces never present the plan price as cost.
+    const { getBudgetGuardrailSnapshot, setAuthSettings } = await loadModules();
+    await setAuthSettings({ method: "oauth" });
+
+    const snapshot = await getBudgetGuardrailSnapshot();
+
+    // Fresh instance: zero ledger rows → metered spend is exactly 0.
+    expect(snapshot.meteredSpend.dailyMicros).toBe(0);
+    expect(snapshot.meteredSpend.monthlyMicros).toBe(0);
+    // The flat plan price is surfaced under its own name, not as spend.
+    expect(snapshot.planPricedMonthlyMicros).toBe(20_000_000);
+    // Guardrail statuses keep the plan-priced budget basis (unchanged behavior).
+    const overallMonthly = snapshot.statuses.find(
+      (status) => status.scopeId === "overall" && status.window === "monthly"
+    );
+    expect(overallMonthly?.currentValue).toBe(20_000_000);
+  });
+
+  it("reports metered spend from ledger rows and no plan price under usage billing", async () => {
+    const {
+      db,
+      usageLedger,
+      recordUsageLedgerEntry,
+      getBudgetGuardrailSnapshot,
+      setAuthSettings,
+    } = await loadModules();
+
+    vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant-test-key");
+    await setAuthSettings({ method: "api_key" });
+
+    const now = new Date();
+    await recordUsageLedgerEntry({
+      activityType: "task_run",
+      runtimeId: "claude-code",
+      providerId: "anthropic",
+      modelId: "claude-sonnet-4-20250514",
+      inputTokens: 1_000,
+      outputTokens: 500,
+      totalTokens: 1_500,
+      status: "completed",
+      startedAt: new Date(now.getTime() - 60_000),
+      finishedAt: now,
+    });
+
+    const [row] = await db.select().from(usageLedger);
+    expect(row?.costMicros ?? 0).toBeGreaterThan(0);
+
+    const snapshot = await getBudgetGuardrailSnapshot();
+    expect(snapshot.meteredSpend.dailyMicros).toBe(row?.costMicros ?? -1);
+    expect(snapshot.meteredSpend.monthlyMicros).toBe(row?.costMicros ?? -1);
+    expect(snapshot.planPricedMonthlyMicros).toBeNull();
+  });
+
   it("splits configured provider caps from the overall budget when both runtimes are configured", async () => {
     vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant-test-key");
     vi.stubEnv("OPENAI_API_KEY", "sk-test-openai");

@@ -20,16 +20,19 @@ import {
 } from "lucide-react";
 import { RailCell, formatMicros } from "./rail-cell";
 import { useTelemetry } from "./use-telemetry";
+import type { TelemetrySnapshot } from "./telemetry-types";
 
 // The standing instrument cluster: a single dense horizontal row beneath the app
 // bar (mirrors `.hp-rail`). A cockpit for a multi-agent harness — eight real
 // cells: HOST (folder · cpu/mem) · RUNTIME (label · sdk version) · TASKS
 // (running + 24h activity spark) · THROUGHPUT (completed today + 7d spark) ·
-// FAILURES (failed + 7d spark, red) · REVIEW (pending) · COST TODAY · COST TO
+// FAILURES (failed + 7d spark, red) · REVIEW (pending) · SPEND TODAY · SPEND TO
 // DATE — plus a live/error status foot. No fabricated data: while loading, cells
 // show "—"; on a poll error the last good snapshot stays visible and the foot
 // flips to an explicit error pip. Static identity (cwd/runtime) is compressed
-// into sub-lines so the live throughput signal owns the foreground.
+// into sub-lines so the live throughput signal owns the foreground. The SPEND
+// cells render real metered ledger sums; the budget cap and any flat plan price
+// live in the sub-line, named as what they are — never presented as spend.
 
 // Compose the HOST sub-line from whatever live metrics the platform reports;
 // falls back to git branch so the cell is never empty.
@@ -43,6 +46,20 @@ function hostSub(
   if (memUsedPct != null) parts.push(`mem ${memUsedPct}%`);
   if (parts.length > 0) return parts.join(" · ");
   return branch ? `git:${branch}` : "no git";
+}
+
+// Sub-line for SPEND TO DATE: name the flat plan price when billing is
+// subscription (it sits on top of metered spend, it is not spend), else show
+// the monthly budget cap as "budget", else the plain window label.
+function spendToDateSub(data: TelemetrySnapshot | null): string {
+  if (!data) return "—";
+  if (data.planPricedMonthlyMicros != null) {
+    return `+ plan ${formatMicros(data.planPricedMonthlyMicros)}/mo`;
+  }
+  if (data.budgetMonthlyCapMicros != null) {
+    return `of ${formatMicros(data.budgetMonthlyCapMicros)} budget`;
+  }
+  return "monthly";
 }
 
 export function TelemetryRail() {
@@ -71,9 +88,13 @@ export function TelemetryRail() {
         loading={loading}
         value={data?.runtimeLabel ?? "—"}
         sub={
-          data?.runtimeSdkVersion
-            ? `sdk ${data.runtimeSdkVersion}`
-            : data?.providerId ?? "not configured"
+          // Never fabricate "not configured" while the snapshot is still
+          // loading — only claim it once data has actually said so.
+          data
+            ? data.runtimeSdkVersion
+              ? `sdk ${data.runtimeSdkVersion}`
+              : data.providerId ?? "not configured"
+            : "—"
         }
       />
       <RailCell
@@ -129,18 +150,18 @@ export function TelemetryRail() {
         sub="active"
       />
       <RailCell
-        label="Cost Today"
+        label="Spend Today"
         icon={<Coins aria-hidden />}
         loading={loading}
         value={data ? formatMicros(data.costTodayMicros) : "—"}
-        sub="daily"
+        sub="metered"
       />
       <RailCell
-        label="Cost To Date"
+        label="Spend To Date"
         icon={<Wallet aria-hidden />}
         loading={loading}
         value={data ? formatMicros(data.costToDateMicros) : "—"}
-        sub="monthly"
+        sub={spendToDateSub(data)}
       />
       <div className="ml-auto flex items-center gap-2 px-4 font-mono text-xs text-muted-foreground/60">
         {errored ? (

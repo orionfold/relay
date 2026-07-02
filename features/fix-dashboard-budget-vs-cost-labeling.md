@@ -1,6 +1,6 @@
 ---
 title: Fix dashboard KPI strip — budget mislabeled as cost
-status: planned
+status: completed
 priority: P1
 milestone: mvp
 source: _IDEAS/backlog.md
@@ -44,11 +44,11 @@ that the first number I see is trustworthy and matches "know what you spend."
 
 ## Acceptance Criteria
 
-- [ ] On a fresh instance (0 usage_ledger rows), the strip's COST tiles show $0.00, not $20.00/$0.6452.
-- [ ] Budget cap is labeled as **Budget**; actual spend is labeled as **Spend/Cost** and equals the
+- [x] On a fresh instance (0 usage_ledger rows), the strip's COST tiles show $0.00, not $20.00/$0.6452.
+- [x] Budget cap is labeled as **Budget**; actual spend is labeled as **Spend/Cost** and equals the
       `usage_ledger` sum for the period.
-- [ ] Plan-priced subscription spend is visually distinguished from metered API spend.
-- [ ] No transient "not configured"/"—" flash on first `/` paint (skeleton or SSR).
+- [x] Plan-priced subscription spend is visually distinguished from metered API spend.
+- [x] No transient "not configured"/"—" flash on first `/` paint (skeleton or SSR).
 
 ## Scope Boundaries
 
@@ -59,6 +59,22 @@ that the first number I see is trustworthy and matches "know what you spend."
 - The per-customer/per-project cost table on `/costs` (opportunity — separate).
 - Chat-metering diagnosis (`fix-chat-spend-metering-diagnose`) — separate; this unit assumes the
   ledger sum is the source of truth for spend.
+
+## Verification run — 2026-07-02
+
+Root cause (sharper than spec'd): `getUsageAggregates` (budget-guardrails.ts) REPLACES
+claude-code's metered cost with the flat plan price under subscription billing — $20/mo Pro
+→ monthly $20.00, daily 20/31 = $0.6452, the exact field numbers. That substitution is
+correct for guardrail budgeting and unchanged; the fix is additive: the snapshot now also
+exposes `meteredSpend` (pure ledger sums) + `planPricedMonthlyMicros`, and the telemetry
+rail reads those. Rail tiles relabeled SPEND TODAY ("metered") / SPEND TO DATE (sub names
+the plan "+ plan $20.00/mo", or "of $X budget" under usage billing). Loading state no
+longer fabricates "not configured" in the Runtime sub-line.
+
+**Verified live** (dev server, fresh scratch DB): fresh instance rail shows $0.00/$0.00
+(previously $0.6452/$20.00); after real runs it showed $0.0001 = the exact ledger sum
+(93µ). Screenshot `output/fix-dashboard-spend-rail-verify.png`. Unit:
+`budget-guardrails.test.ts` (+2), `telemetry-rail.test.tsx` (3).
 
 ## References
 

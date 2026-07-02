@@ -68,6 +68,10 @@ export interface BudgetSnapshot {
   monthlyResetAtIso: string;
   runtimeStates: Record<AgentRuntimeId, RuntimeSetupState>;
   pricing: PricingRegistrySnapshot;
+  /** Real metered spend (usage_ledger sums) — never the plan-priced budget basis. */
+  meteredSpend: { dailyMicros: number; monthlyMicros: number };
+  /** Flat subscription price counted as the budget basis, when billing is subscription. */
+  planPricedMonthlyMicros: number | null;
 }
 
 interface BudgetGuardInput {
@@ -358,6 +362,23 @@ async function getUsageAggregates(
     }
   });
 
+  // Real metered spend: the plain usage_ledger sums across every runtime,
+  // captured BEFORE the subscription plan-price substitution below. Guardrail
+  // statuses budget against the plan price (a flat subscription is the real
+  // monthly outlay), but display surfaces must never present that basis as
+  // spend — they read this instead.
+  const metered = {
+    daily: { costMicros: 0, totalTokens: 0 },
+    monthly: { costMicros: 0, totalTokens: 0 },
+  };
+  for (const runtimeId of SUPPORTED_AGENT_RUNTIMES) {
+    metered.daily.costMicros += runtimes[runtimeId].daily.costMicros;
+    metered.daily.totalTokens += runtimes[runtimeId].daily.totalTokens;
+    metered.monthly.costMicros += runtimes[runtimeId].monthly.costMicros;
+    metered.monthly.totalTokens += runtimes[runtimeId].monthly.totalTokens;
+  }
+
+  let planPricedMonthlyMicros: number | null = null;
   if (runtimeStates["claude-code"].billingMode === "subscription") {
     const planPriceUsd = await getClaudeOAuthPlanPrice(
       policy.runtimes["claude-code"].claudeOAuthPlan
@@ -366,6 +387,7 @@ async function getUsageAggregates(
     const dailyMicros = Math.round(monthlyMicros / daysInMonth(now));
     runtimes["claude-code"].monthly.costMicros = monthlyMicros;
     runtimes["claude-code"].daily.costMicros = dailyMicros;
+    planPricedMonthlyMicros = monthlyMicros;
   }
 
   const overall = {
@@ -387,6 +409,8 @@ async function getUsageAggregates(
   return {
     overall,
     runtimes,
+    metered,
+    planPricedMonthlyMicros,
     ...getBudgetWindowBounds(now),
   };
 }
@@ -714,5 +738,10 @@ export async function getBudgetGuardrailSnapshot(): Promise<BudgetSnapshot> {
     monthlyResetAtIso: aggregates.monthlyEnd.toISOString(),
     runtimeStates,
     pricing,
+    meteredSpend: {
+      dailyMicros: aggregates.metered.daily.costMicros,
+      monthlyMicros: aggregates.metered.monthly.costMicros,
+    },
+    planPricedMonthlyMicros: aggregates.planPricedMonthlyMicros,
   };
 }
