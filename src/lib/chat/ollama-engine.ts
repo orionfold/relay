@@ -18,6 +18,7 @@ import {
 } from "@/lib/data/chat";
 import { buildChatContext } from "./context-builder";
 import { getWorkspaceContext } from "@/lib/environment/workspace-context";
+import { recordUsageLedgerEntry } from "@/lib/usage/ledger";
 import type { ChatStreamEvent } from "./types";
 
 /**
@@ -109,6 +110,47 @@ export async function* sendOllamaMessage(
 
   // Stream from Ollama
   let accumulated = "";
+
+  // Meter the turn like every other chat path (main engine writes a
+  // chat_turn row on success, degrade, and error). Ollama's final chunk
+  // reports prompt_eval_count / eval_count; local runs are recorded at $0 —
+  // those rows are what proves blended-cost savings on /costs.
+  const startedAt = new Date();
+  let inputTokens: number | null = null;
+  let outputTokens: number | null = null;
+  let ledgerRecorded = false;
+  const recordTurn = async (status: "completed" | "failed" | "cancelled") => {
+    if (ledgerRecorded) return;
+    ledgerRecorded = true;
+    await recordUsageLedgerEntry({
+      projectId: conversation.projectId ?? null,
+      activityType: "chat_turn",
+      runtimeId: "ollama",
+      providerId: "ollama",
+      modelId,
+      inputTokens,
+      outputTokens,
+      totalTokens:
+        inputTokens != null && outputTokens != null
+          ? inputTokens + outputTokens
+          : null,
+      status,
+      startedAt,
+      finishedAt: new Date(),
+    });
+  };
+  const captureTokenCounts = (parsed: {
+    prompt_eval_count?: unknown;
+    eval_count?: unknown;
+  }) => {
+    if (typeof parsed.prompt_eval_count === "number") {
+      inputTokens = parsed.prompt_eval_count;
+    }
+    if (typeof parsed.eval_count === "number") {
+      outputTokens = parsed.eval_count;
+    }
+  };
+
   try {
     const response = await fetch(`${baseUrl}/api/chat`, {
       method: "POST",
@@ -125,6 +167,7 @@ export async function* sendOllamaMessage(
       const errorText = await response.text().catch(() => "Unknown error");
       yield { type: "error", message: `Ollama error (${response.status}): ${errorText}` };
       await updateMessageStatus(assistantMsg.id, "complete");
+      await recordTurn("failed");
       return;
     }
 
@@ -132,6 +175,7 @@ export async function* sendOllamaMessage(
     if (!reader) {
       yield { type: "error", message: "No response stream from Ollama" };
       await updateMessageStatus(assistantMsg.id, "complete");
+      await recordTurn("failed");
       return;
     }
 
@@ -157,7 +201,10 @@ export async function* sendOllamaMessage(
             accumulated += delta;
             yield { type: "delta", content: delta };
           }
-          if (parsed.done) break;
+          if (parsed.done) {
+            captureTokenCounts(parsed);
+            break;
+          }
         } catch {
           // Skip malformed lines
         }
@@ -173,6 +220,7 @@ export async function* sendOllamaMessage(
           accumulated += delta;
           yield { type: "delta", content: delta };
         }
+        if (parsed.done) captureTokenCounts(parsed);
       } catch {
         // ignore
       }
@@ -181,6 +229,7 @@ export async function* sendOllamaMessage(
     // Persist the complete response
     await updateMessageContent(assistantMsg.id, accumulated);
     await updateMessageStatus(assistantMsg.id, "complete");
+    await recordTurn("completed");
 
     yield { type: "done", messageId: assistantMsg.id, quickAccess: [] };
   } catch (err) {
@@ -194,5 +243,6 @@ export async function* sendOllamaMessage(
       await updateMessageContent(assistantMsg.id, accumulated);
     }
     await updateMessageStatus(assistantMsg.id, "complete");
+    await recordTurn(signal?.aborted ? "cancelled" : "failed");
   }
 }

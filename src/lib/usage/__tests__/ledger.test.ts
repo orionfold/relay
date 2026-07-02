@@ -100,6 +100,31 @@ describe("usage ledger", () => {
     expect(unknown?.pricingVersion).toBeNull();
   });
 
+  it("records local Ollama usage as an explicit $0 row, not unknown pricing", async () => {
+    // Local inference is known-free — a $0 row is the evidence for the
+    // "prove the savings" blended-cost story (fix-chat-spend-metering-diagnose).
+    // unknown_pricing would hide exactly the runs that demonstrate savings.
+    const { db, usageLedger, recordUsageLedgerEntry } = await loadUsageModules();
+
+    await recordUsageLedgerEntry({
+      activityType: "chat_turn",
+      runtimeId: "ollama",
+      providerId: "ollama",
+      modelId: "llama3.2",
+      inputTokens: 900,
+      outputTokens: 400,
+      totalTokens: 1_300,
+      status: "completed",
+      startedAt: new Date("2026-03-10T08:00:00.000Z"),
+      finishedAt: new Date("2026-03-10T08:01:00.000Z"),
+    });
+
+    const [row] = await db.select().from(usageLedger);
+    expect(row?.status).toBe("completed");
+    expect(row?.costMicros).toBe(0);
+    expect(row?.pricingVersion).toBe("local-free");
+  });
+
   it("aggregates daily totals, provider breakdowns, and audit entries with joins", async () => {
     const {
       db,
