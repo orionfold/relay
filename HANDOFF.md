@@ -1,20 +1,22 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-01 (pt: S5 — 0.20.0 SHIPPED to npm: the enterprise trust pack (PLG-3);
-docs/trust/ ×5 + SECURITY.md + CycloneDX SBOM per release; issue #17; Website later-3 landed
-D2/D4/D5 (promise page LIVE, linked from README); later-4 posted with the 2 remaining Website
-asks. Prior tail: S1–S4 = 0.16.0→0.19.0 — see git log + beacon recent.)_
+_Last updated: 2026-07-02 (pt: S6-leg-1 — relay channel checked, NO Website replies to
+later-4/later-5 yet; operator gated S6 focus = Agency Pro v0.2.0 + pack-update workflow;
+spec WRITTEN: features/feat-pack-update-workflow.md, both decisions resolved
+(backup-then-overwrite; /clear → implement fresh). Prior tail: S1–S5 = 0.16.0→0.20.0 —
+see git log + beacon recent.)_
 
-## ▶️ NEXT SESSION (S6) — PLG-4 growth loops (each operator-gated: AskUserQuestion BEFORE build)
-Per `_SPECS/plg-refine.md` PLG-4: free registration key tier · pack-scoped reverse trial ·
-founding-supporter identity · renewal value-recap. Each needs its own groomed spec + gate.
-- **Agency Pro v0.2.0 = nonprofit deep chapter** — deliberately the first PAID update; must
-  exercise the pack-UPDATE workflow the D4 "renewal buys updates" pitch depends on. The
-  `overrides/` layer exists; the update *workflow* is the open design work.
-- **Check the relay channel** for Website replies to later-4/later-5: (1) license-terms link
-  on /relay/ (canonical text = `docs/trust/license-terms.md`), (2) MSA lane — operator
-  confirmed `manav@orionfold.com` (relayed in later-5). Both operator gates from S5 are
-  CLEARED (private vuln reporting enabled + verified). These two finish PLG-3's Website side.
+## ▶️ NEXT SESSION (S6 leg 2) — IMPLEMENT features/feat-pack-update-workflow.md
+Spec is self-contained (machinery map + resolved decisions inline). Slices: install-state
+sidecar → `pack update` verb + gate + backup-then-overwrite → list//packs/API surfaces →
+Agency Pro v0.2.0 nonprofit deep chapter → D4 never-re-lock proof + real-launch smoke
+(schedules-installer chain is runtime-adjacent, CLAUDE.md budget). Release = 0.21.0 minor
+→ apiVersion window bump IN the version commit (memory).
+- **Relay channel: WAITING on Website** for later-4/later-5 (license-terms link on /relay/,
+  MSA lane w/ manav@orionfold.com) — checked 2026-07-01, no reply; re-check at start.
+- **PLG-4 loops queued behind this, each still operator-gated** (reverse trial has open
+  tension with the public never-re-lock promise; renewal value-recap becomes honest only
+  once v0.2.0 exists — which this work creates).
 - ICP P1s interleave as capacity allows (below).
 - **Anti-patterns stay fenced (spec §7):** no DB licensing, no CLI upsell banners, no online
   re-validation, no expiry that disables installed packs (D4 = shipped behavior AND public
