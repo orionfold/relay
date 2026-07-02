@@ -1,21 +1,28 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-01 (pt: S3 DONE — 0.18.0 SHIPPED: PLG-2a graduation surface
-(`91cce9bf`), public record issue #15, publish CI green, npm latest=0.18.0; apiVersion window
-bumped 0.18/0.17 post-release (`a02ae772` — see caveat below). Prior tail: S1/S2 = 0.16.0
-prod-build + 0.17.0 license lifecycle — see git log + beacon recent.)_
+_Last updated: 2026-07-01 (pt: S3.5 — PLG-2b GROOMED: `features/feat-agency-pro-pack.md`
+committed+pushed (`b4f4fb57`); all 4 open questions RESOLVED (standalone · $499/year +
+orionfold.com/relay · agent-level batch · CRE-first) and 2 latent installer gaps folded in
+as free D5 scope. Prior tail: S1–S3 = 0.16.0→0.18.0 ships — see git log + beacon recent.)_
 
-## ▶️ NEXT SESSION (S4, 0.19.x) — PLG-2b: first premium pack (`_SPECS/plg-refine.md` §5)
-- **Author the FIRST real premium pack** (critical path — nothing to sell today): pick the
-  highest-demand vertical, declare `entitlement: product:orionfold-relay` + the new
-  `price`/`purchaseUrl` manifest fields (shipped 0.18.0), ship in-tree like relay-agency.
-- **Full Naya-path Mode C staging run**: packed tarball → installed bin → community first-run →
-  premium visible-locked in /packs → license add (real fixture) → ceremony → licensed banner →
-  no-flag install → D4 proof. BOTH loopback and `--hostname 0.0.0.0` LAN topology.
+## ▶️ NEXT SESSION (S4, 0.19.0) — BUILD `features/feat-agency-pro-pack.md` (PLG-2b)
+- **Commit 1 — engine fixes 0a/0b** (free D5, own bisectable commit, smoke budget):
+  (0a) `rewriteTableRefs` must also rewrite `blueprints[].trigger.table` (`install.ts:354`;
+  dispatch matches the real UUID, `manifest-trigger-dispatch.ts:153`); (0b) `installPack`
+  must register `manifest.schedules` as real schedule rows (`scheduleNextFire` reads the
+  schedules DB).
+- **Commit 2 — author `relay-agency-pro`** (standalone; chapters 1–4 + CRE deep; nonprofit =
+  v0.2.0 first paid update): entitlement `product:orionfold-relay`, `price: "$499/year"`,
+  `purchaseUrl: https://orionfold.com/relay/`. Month-end close = agent-level table iteration.
+  Retire the temp premium-fixture protocol.
+- **Full Naya-path Mode C staging run**: packed tarball → community first-run → Pro
+  visible-locked → license add (real fixture) → ceremony → no-flag install → D4 proof.
+  BOTH loopback and `--hostname 0.0.0.0` LAN.
 - **Website relay** via `strategy/relay/_RELAY.md` (read/write only, never commit there):
-  pricing-page perpetual-fallback copy (D4 wording approved, see 0.17 grooming), fulfilment
-  email rewrite (ONE command + "keep this file"), gating-philosophy page (D5).
-- ICP P1s interleave from S4 as capacity allows (see below).
+  pricing perpetual-fallback copy, fulfilment email rewrite (ONE command + "keep this file"),
+  gating-philosophy page (D5).
+- **At `npm version 0.19.0`: bump the apiVersion window IN that commit** (standing caveat below).
+- ICP P1s interleave as capacity allows (see below).
 
 ## Then (S5+) — PLG program queue (`_SPECS/plg-refine.md` = decision record D1–D7)
 - **S5:** PLG-3 enterprise trust pack (no-phone-home one-liner, data-flow diagram, SBOM +

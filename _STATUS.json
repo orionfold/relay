@@ -1,18 +1,18 @@
 {
-  "focus": "0.18.0 SHIPPED: PLG-2a graduation surface — /packs gallery (premium visible-but-locked, D6), Settings→License (paste/upload activation + ceremony, D7 one store), name-based install (pack add relay-agency), install/license APIs. Next: S4 = PLG-2b first premium pack + full Naya Mode C + Website relay per _SPECS/plg-refine.md.",
+  "focus": "PLG-2b GROOMED (b4f4fb57): feat-agency-pro-pack spec complete, all decisions resolved (standalone, $499/year + orionfold.com/relay, agent-level batch, CRE-first). S4 = build it: engine fixes 0a/0b → relay-agency-pro content (chapters 1–4 + CRE deep) → full Naya Mode C run + Website relay.",
   "blockers": [],
   "next": [
-    "S4 (0.19.x): author FIRST real premium pack (entitlement + new price/purchaseUrl fields, in-tree like relay-agency) — critical path, nothing to sell today",
-    "S4: full Naya-path Mode C staging run from packed tarball (loopback + --hostname LAN topology); Website relay via strategy/relay/_RELAY.md (pricing copy, fulfilment email rewrite, gating-philosophy page)",
+    "S4 (0.19.0) commit 1: engine fixes 0a/0b — rewrite blueprints[].trigger.table at install + register manifest schedules as real schedule rows (free D5, own bisectable commit, smoke budget)",
+    "S4 commit 2: author relay-agency-pro (standalone; finance cockpit, intake pipelines, new-business, governance, CRE deep; nonprofit = v0.2.0 first paid update); retire temp premium-fixture protocol",
+    "S4: full Naya-path Mode C staging run from packed tarball (loopback + --hostname LAN); Website relay via strategy/relay/_RELAY.md (pricing copy, fulfilment email rewrite, gating-philosophy page)",
     "S5: PLG-3 enterprise trust pack (no-phone-home one-liner, data-flow diagram, SBOM/provenance surfacing, security packet)",
-    "Held #5/#6/#11/#12 reactive — retest asks live; prod build likely moots; replicate via Mode D if they persist",
-    "ICP P1s interleave from S4 (workflow-model-preference, budget-vs-cost labeling, chat-spend-metering diagnose)"
+    "Held #5/#6/#11/#12 reactive (retest asks live; prod build likely moots) + ICP P1s interleave (workflow-model-preference, budget-vs-cost labeling, chat-spend-metering diagnose)"
   ],
   "recent": [
+    "feat-agency-pro-pack groomed + committed/pushed (b4f4fb57): 5 chapters all pure composition, 4 open questions resolved (standalone by code evidence; $499/year Stripe LIVE + orionfold.com/relay; agent-level batch iteration; CRE-first, operator)",
+    "installPack semantics check found 2 latent engine gaps, folded into S4 as free D5 scope: rewriteTableRefs skips blueprints[].trigger.table (pack-authored triggers never fire); manifest schedules never registered as DB rows (scheduleNextFire reads null)",
     "0.18.0 shipped: /packs gallery + Settings→License + name-based install + install/license APIs (91cce9bf); 24 unit tests TDD; publish CI green incl. npx prod smoke; issue #15; npm latest=0.18.0",
     "Mode B capture (PLG-S S3 slice) in output/staging/2026-07-01/: 7 screens + console + network walking 402 → real-license paste ceremony → store-consult premium install → D4 proof; D7 parity CLI↔UI verified",
-    "Grooming decisions: 0.18.0 minor; Settings License = section component; install API takes bundled ids only (LAN-exposure fence); Packs = 5th compose nav slot beside Apps (tested cap exception)",
-    "apiVersion window bumped 0.18/0.17 POST-release (a02ae772) — second near-miss; moved to version-bump step in HANDOFF caveats",
     "Prior: 0.17.0 license lifecycle PLG-1 (#14); 0.16.0 prod build for npx (#10)"
   ],
   "metrics": {
