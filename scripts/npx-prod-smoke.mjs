@@ -265,6 +265,16 @@ async function main() {
     const licensePath = path.join(workDir, "my.license.json");
     writeFileSync(licensePath, readFileSync(licenseSrc));
 
+    // 0. Unlicensed refusal: the REAL premium pack (relay-agency-pro, bundled
+    //    in the tarball) must refuse by name with the license-required path
+    //    BEFORE any license exists — the 402 soft-gate's CLI face.
+    const refused = await runCliCommand({ installDir, dataDir, args: ["pack", "add", "relay-agency-pro"] });
+    assert(refused.code !== 0, `unlicensed premium install must refuse (exit ${refused.code}):\n${refused.output}`);
+    assert(
+      /license/i.test(refused.output),
+      `refusal must name the license path, not fail generically:\n${refused.output}`,
+    );
+
     // 1. Redeem: verify + persist + activation ceremony.
     const add = await runCliCommand({ installDir, dataDir, args: ["license", "add", licensePath] });
     assert(add.code === 0, `license add should succeed (exit ${add.code}):\n${add.output}`);
@@ -280,41 +290,20 @@ async function main() {
     const status = await runCliCommand({ installDir, dataDir, args: ["license", "status"] });
     assert(status.code === 0 && /valid/.test(status.output), `license status should be valid:\n${status.output}`);
 
-    // 3. A premium pack installs with NO --license-url (store consult).
-    const packDir = path.join(workDir, "premium-pack");
-    mkdirSync(path.join(packDir, "base"), { recursive: true });
-    writeFileSync(
-      path.join(packDir, "pack.yaml"),
-      [
-        "id: smoke-premium",
-        "version: 0.1.0",
-        "name: Smoke Premium Pack",
-        'relayCore: ">=0.15.0"',
-        "entitlement: product:orionfold-relay",
-        "customers: []",
-        "",
-      ].join("\n"),
-    );
-    writeFileSync(
-      path.join(packDir, "base", "manifest.yaml"),
-      [
-        "id: smoke-premium",
-        "version: 0.1.0",
-        "name: Smoke Premium Pack",
-        "profiles: []",
-        "blueprints: []",
-        "tables: []",
-        "schedules: []",
-        "",
-      ].join("\n"),
-    );
-    const packAdd = await runCliCommand({ installDir, dataDir, args: ["pack", "add", packDir] });
+    // 3. The REAL premium pack installs by bare name with NO --license-url
+    //    (store consult), materializing every primitive class it declares —
+    //    including the month-end schedule row (engine fix 0b).
+    const packAdd = await runCliCommand({ installDir, dataDir, args: ["pack", "add", "relay-agency-pro"] });
     assert(
-      packAdd.code === 0 && /Installed smoke-premium/.test(packAdd.output),
+      packAdd.code === 0 && /Installed relay-agency-pro@/.test(packAdd.output),
       `premium pack should install with no --license-url (exit ${packAdd.code}):\n${packAdd.output}`,
     );
+    assert(/2 table\(s\)/.test(packAdd.output), `install should create both tables:\n${packAdd.output}`);
+    assert(/7 profile\(s\)/.test(packAdd.output), `install should drop all 7 profiles:\n${packAdd.output}`);
+    assert(/5 blueprint\(s\)/.test(packAdd.output), `install should drop all 5 blueprints:\n${packAdd.output}`);
+    assert(/1 schedule\(s\)/.test(packAdd.output), `install should register the month-end schedule:\n${packAdd.output}`);
     const packList = await runCliCommand({ installDir, dataDir, args: ["pack", "list"] });
-    assert(/smoke-premium.*\[premium\]/.test(packList.output), `pack list should mark [premium]:\n${packList.output}`);
+    assert(/relay-agency-pro.*\[premium\]/.test(packList.output), `pack list should mark [premium]:\n${packList.output}`);
 
     // 4. Launch: licensed banner (D3) + seed/clear 404 without RELAY_STAGING.
     {
@@ -355,11 +344,11 @@ async function main() {
       }
     }
     assert(
-      existsSync(path.join(dataDir, "apps", "smoke-premium", "manifest.yaml")),
+      existsSync(path.join(dataDir, "apps", "relay-agency-pro", "manifest.yaml")),
       "installed premium pack must SURVIVE license removal (D4)",
     );
     const listAfter = await runCliCommand({ installDir, dataDir, args: ["pack", "list"] });
-    assert(/smoke-premium/.test(listAfter.output), "pack list still shows the pack after license removal (D4)");
+    assert(/relay-agency-pro/.test(listAfter.output), "pack list still shows the pack after license removal (D4)");
   }
 
   // ---- Case C: broken artifact URL — loud warning, dev-mode fallback boots ----

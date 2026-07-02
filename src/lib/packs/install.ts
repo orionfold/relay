@@ -334,6 +334,17 @@ export async function installPack(
       blueprintsDir
     );
 
+    // The blueprint registry caches its directory scan per process. Without
+    // an invalidation here, a pack installed through the running server is
+    // half-dead until restart: its row-insert triggers dispatch by
+    // getBlueprint(), which would still see the pre-install scan.
+    if (blueprintsDropped > 0) {
+      const { reloadBlueprints } = await import(
+        "@/lib/workflows/blueprints/registry"
+      );
+      reloadBlueprints();
+    }
+
     // 6. Report — zero silent steps.
     return {
       packId: pack.meta.id,

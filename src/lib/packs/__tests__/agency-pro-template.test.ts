@@ -135,15 +135,22 @@ describe("relay-agency-pro bundled template", () => {
     const { installPack } = await import("../install");
     await installPack("relay-agency-pro", installOpts());
 
+    const { ProfileConfigSchema } = await import("@/lib/validators/profile");
     const profileDirs = fs
       .readdirSync(profilesDir)
       .filter((d) => d.startsWith("relay-agency-pro--"));
     expect(profileDirs.length).toBeGreaterThanOrEqual(6);
 
     for (const dir of profileDirs) {
-      const profile = yaml.load(
+      const raw = yaml.load(
         fs.readFileSync(path.join(profilesDir, dir, "profile.yaml"), "utf-8")
-      ) as {
+      );
+      const parsed = ProfileConfigSchema.safeParse(raw);
+      expect(
+        parsed.success,
+        `${dir}/profile.yaml: ${parsed.success ? "" : parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`
+      ).toBe(true);
+      const profile = raw as {
         allowedTools?: string[];
         canUseToolPolicy?: { autoDeny?: string[] };
         maxTurns?: number;
@@ -187,6 +194,28 @@ describe("relay-agency-pro bundled template", () => {
         ).toMatch(/^relay-agency-pro--/);
         expect(shippedProfiles.has(step.profileId)).toBe(true);
       }
+    }
+  });
+
+  it("ships only schema-valid blueprints — an invalid one silently never fires", async () => {
+    // The blueprint registry (workflows/blueprints/registry.ts) skips any
+    // file that fails BlueprintSchema with only a console.warn, so a schema
+    // slip in shipped content would surface as "Blueprint not found" at the
+    // customer's first trigger. Caught live in the 2026-07-01 smoke
+    // (pattern: pipeline is not a valid enum value).
+    const { BlueprintSchema } = await import("@/lib/validators/blueprint");
+    const { listPackTemplates } = await import("../catalog");
+    const tpl = listPackTemplates().find((t) => t.id === "relay-agency-pro")!;
+    const bpDir = path.join(tpl.dir, "base", "blueprints");
+    const files = fs.readdirSync(bpDir).filter((f) => f.endsWith(".yaml"));
+    expect(files.length).toBeGreaterThanOrEqual(5);
+    for (const file of files) {
+      const parsed = yaml.load(fs.readFileSync(path.join(bpDir, file), "utf-8"));
+      const result = BlueprintSchema.safeParse(parsed);
+      expect(
+        result.success,
+        `${file}: ${result.success ? "" : result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`
+      ).toBe(true);
     }
   });
 

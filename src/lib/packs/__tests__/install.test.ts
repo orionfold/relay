@@ -101,11 +101,29 @@ function buildFixturePack(
   fs.writeFileSync(path.join(profDir, "profile.yaml"), "id: test-agency--manager\n");
   fs.writeFileSync(path.join(profDir, "SKILL.md"), "# Manager\n");
 
-  // Blueprint artifact (a namespaced .yaml file).
+  // Blueprint artifact (a namespaced .yaml file, valid per BlueprintSchema
+  // so the blueprint registry actually loads it after install).
   fs.mkdirSync(path.join(baseDir, "blueprints"), { recursive: true });
   fs.writeFileSync(
     path.join(baseDir, "blueprints", "test-agency--weekly.yaml"),
-    "id: test-agency--weekly\n"
+    yaml.dump({
+      id: "test-agency--weekly",
+      name: "Weekly Review",
+      description: "Fixture blueprint.",
+      version: "1.0.0",
+      domain: "work",
+      tags: ["fixture"],
+      pattern: "sequence",
+      variables: [],
+      steps: [
+        {
+          name: "Review",
+          profileId: "test-agency--manager",
+          requiresApproval: false,
+          promptTemplate: "Review the week.",
+        },
+      ],
+    })
   );
 
   // Customer seed.
@@ -281,6 +299,23 @@ describe("installPack", () => {
     expect(view.bindings?.kpis?.[0]?.source?.schedule).toBe(
       "app:test-agency:month-end"
     );
+  });
+
+  it("makes newly dropped blueprints visible to an already-warm blueprint registry", async () => {
+    // The blueprint registry caches its scan per process. A pack installed
+    // through the running server (install API / chat tool) must be runnable
+    // immediately — its triggers dispatch by getBlueprint() — not after a
+    // restart. Surfaced by the 2026-07-01 engine smoke.
+    buildFixturePack();
+    const { installPack } = await loadModules();
+    const bpRegistry = await import("@/lib/workflows/blueprints/registry");
+
+    bpRegistry.listBlueprints(); // warm the cache BEFORE install
+    expect(bpRegistry.getBlueprint("test-agency--weekly")).toBeUndefined();
+
+    await installPack(packDir, installOpts());
+
+    expect(bpRegistry.getBlueprint("test-agency--weekly")).toBeDefined();
   });
 
   it("preserves scheduler runtime state on re-install (upsert discipline)", async () => {
