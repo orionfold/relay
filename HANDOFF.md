@@ -5,22 +5,16 @@ docs/trust/ ×5 + SECURITY.md + CycloneDX SBOM per release; issue #17; Website l
 D2/D4/D5 (promise page LIVE, linked from README); later-4 posted with the 2 remaining Website
 asks. Prior tail: S1–S4 = 0.16.0→0.19.0 — see git log + beacon recent.)_
 
-## ⚠️ OPERATOR ACTIONS (blocking small pieces of PLG-3)
-1. **Enable private vulnerability reporting** on github.com/orionfold/relay (Settings →
-   Advanced Security). SECURITY.md's "report privately" link 404s until this is on; the API
-   PUT was refused (token lacks admin scope) — it's a one-click UI toggle.
-2. **Confirm the sales-contact address** for the invoice/PO + MSA lane on orionfold.com/relay/
-   pricing — Website ask (2) in later-4 is gated on it (don't invent an unmonitored mailbox).
-
 ## ▶️ NEXT SESSION (S6) — PLG-4 growth loops (each operator-gated: AskUserQuestion BEFORE build)
 Per `_SPECS/plg-refine.md` PLG-4: free registration key tier · pack-scoped reverse trial ·
 founding-supporter identity · renewal value-recap. Each needs its own groomed spec + gate.
 - **Agency Pro v0.2.0 = nonprofit deep chapter** — deliberately the first PAID update; must
   exercise the pack-UPDATE workflow the D4 "renewal buys updates" pitch depends on. The
   `overrides/` layer exists; the update *workflow* is the open design work.
-- **Check the relay channel** for Website replies to later-4: (1) license-terms link on
-  /relay/ (canonical text = `docs/trust/license-terms.md`), (2) MSA lane (needs operator
-  contact, above). PLG-3 acceptance is met repo-side; these two finish the Website side.
+- **Check the relay channel** for Website replies to later-4/later-5: (1) license-terms link
+  on /relay/ (canonical text = `docs/trust/license-terms.md`), (2) MSA lane — operator
+  confirmed `manav@orionfold.com` (relayed in later-5). Both operator gates from S5 are
+  CLEARED (private vuln reporting enabled + verified). These two finish PLG-3's Website side.
 - ICP P1s interleave as capacity allows (below).
 - **Anti-patterns stay fenced (spec §7):** no DB licensing, no CLI upsell banners, no online
   re-validation, no expiry that disables installed packs (D4 = shipped behavior AND public

@@ -60,7 +60,8 @@ and without Relay telling us.
 The license file is portable. Redeem it on a new machine any time
 (`relay license add <file>`); moving between machines, reinstalling, or
 running air-gapped are all fine within your seat count. Transferring a
-license to a different organization requires reissue — contact us.
+license to a different organization requires reissue — email
+[manav@orionfold.com](mailto:manav@orionfold.com).
 
 ## The boundary won't move under you
 

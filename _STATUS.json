@@ -1,9 +1,6 @@
 {
   "focus": "0.20.0 SHIPPED (77613a6c, npm latest, first SBOM on the release): PLG-3 enterprise trust pack — every spec-§1 evaluator question now has a linkable, code-linked artifact (docs/trust/ ×5 + SECURITY.md). Website later-3 landed D2/D4/D5 (promise page live, README linked). S6 = PLG-4 growth loops, operator-gated each.",
-  "blockers": [
-    "OPERATOR: enable private vulnerability reporting on orionfold/relay (SECURITY.md advisory link 404s until the one-click toggle; API PUT refused — token lacks admin scope)",
-    "OPERATOR: confirm sales-contact address for the invoice/PO+MSA lane — Website later-4 ask (2) is gated on it"
-  ],
+  "blockers": [],
   "next": [
     "S6: PLG-4 growth loops per _SPECS/plg-refine.md — free registration key tier, pack-scoped reverse trial, founding-supporter identity, renewal value-recap; EACH operator-gated (AskUserQuestion before build)",
     "Agency Pro v0.2.0 nonprofit deep chapter — the first PAID update; must exercise the pack-UPDATE workflow (open design work; D4 renewal pitch depends on it)",
@@ -16,7 +13,7 @@
     "CycloneDX SBOM per release: publish.yml generates + attaches orionfold-relay-<v>.sbom.cdx.json (verified on the v0.20.0 release: CycloneDX 1.5, 491 prod components); npm provenance verified live against the registry attestation (SLSA v1, npm audit signatures)",
     "Website later-3 landed ALL later-2 asks: fulfilment email rewritten + DEPLOYED (one hero command, keep-this-file, D4 verbatim), D4 pricing copy verbatim on /relay/, gating-philosophy page LIVE at orionfold.com/promise/ — both URLs now linked from README Free-vs-Paid (4b121617)",
     "later-4 posted on the relay channel: keeps the $149 renewal price line (factual catalog line, not promise text); 2 remaining asks = license-terms link on /relay/ + invoice/PO+MSA lane (operator contact needed)",
-    "Release-mechanics gotcha memorized: manual git tag is lightweight and --follow-tags skips it — push the tag explicitly or tag -a (hit on 0.20.0, tag pushed explicitly, CI fired)"
+    "Both S5 operator gates CLEARED same evening: private vulnerability reporting enabled + API-verified (SECURITY.md advisory link live); sales contact confirmed manav@orionfold.com — relayed to Website (later-5) for the MSA lane, and added to license-terms.md transfer section"
   ],
   "metrics": {
     "released": "0.20.0",
