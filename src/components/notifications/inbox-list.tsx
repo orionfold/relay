@@ -40,10 +40,50 @@ export function InboxList({
     }
   }, []);
 
-  // Poll every 10 seconds (consolidated from 3s inbox + 5s badge)
+  // Poll every 10 seconds (consolidated from 3s inbox + 5s badge). This is the
+  // safety net for non-time-critical notification types (task_completed,
+  // agent_message, …) that the approvals stream below does not carry.
   useEffect(() => {
     const interval = setInterval(refresh, 10_000);
     return () => clearInterval(interval);
+  }, [refresh]);
+
+  // Real-time surfacing for workflow-blocking checkpoints
+  // (fix-inbox-checkpoint-realtime). A workflow stuck at a HITL checkpoint
+  // shouldn't wait on the 10s poll — the user must act, and the UI going quiet
+  // for ~15s undercuts the "governed, unattended" promise. We subscribe to the
+  // existing pending-approvals SSE (~750ms server-side tail, already includes
+  // WorkflowCheckpoint rows) and use each snapshot purely as an invalidation
+  // signal: re-pull the authoritative /api/notifications list so a new
+  // checkpoint (and the badge) surfaces within ~1-2s. On SSE failure we fall
+  // back to the 10s poll already running above. Mirrors PendingApprovalHost.
+  useEffect(() => {
+    let cancelled = false;
+    let eventSource: EventSource | null = null;
+
+    try {
+      eventSource = new EventSource("/api/notifications/pending-approvals/stream");
+      eventSource.onmessage = () => {
+        // The snapshot content is not rendered here — its arrival means the
+        // pending-approval set changed, so re-fetch the full list immediately.
+        if (cancelled) return;
+        refresh().catch(() => {
+          // Trigger-driven refresh should fail quietly; the poll will retry.
+        });
+      };
+      eventSource.onerror = () => {
+        // Fall back to the 10s poll (still active) until the stream recovers.
+        eventSource?.close();
+        eventSource = null;
+      };
+    } catch {
+      // EventSource unavailable — the 10s poll remains the delivery path.
+    }
+
+    return () => {
+      cancelled = true;
+      eventSource?.close();
+    };
   }, [refresh]);
 
   async function markAllRead() {

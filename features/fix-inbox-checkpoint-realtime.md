@@ -1,11 +1,42 @@
 ---
 title: Inbox checkpoint approvals appear in real time (no manual refresh)
-status: planned
+status: done
 priority: P2
 milestone: mvp
 source: _IDEAS/backlog.md
 dependencies: []
 ---
+
+## Verification run — 2026-07-02
+
+**Root cause:** `InboxList` and `UnreadBadge` each polled `/api/notifications`
+on a 10s `setInterval` and never subscribed to any stream, so a
+workflow-blocking checkpoint (`type=permission_required` / `WorkflowCheckpoint`)
+surfaced only on the next poll (~10-15s). The Monitor, by contrast, streams over
+SSE. Crucially, a purpose-built SSE for exactly these rows already existed
+(`/api/notifications/pending-approvals/stream`, ~750ms server-side tail, already
+includes checkpoint rows via `listPendingApprovalPayloads`) — it just wasn't
+consumed by the Inbox (only the ambient toast host used it).
+
+**Fix (SSE-as-invalidation-signal):** both components now subscribe to that
+existing stream and treat each snapshot's *arrival* as a "re-pull the
+authoritative list" trigger — `InboxList` calls `refresh()`, `UnreadBadge` calls
+`fetchCount()` — rather than rendering the approval-only payload directly. This
+avoids merging two divergent data shapes: `/api/notifications` stays the single
+source of truth for what renders (all types, read/unread). The 10s poll is kept
+as the fallback for non-approval notification types and on SSE failure. Mirrors
+`PendingApprovalHost`'s SSE lifecycle (close + poll-fallback on error).
+
+**Verified:**
+- Real dev-server smoke: subscribed to the SSE stream, inserted a
+  `permission_required` / `WorkflowCheckpoint` row into the live `~/.relay`
+  DB, measured **741ms** from insert to stream emit (< 2s acceptance).
+  Since both components refresh on `onmessage`, the checkpoint + badge surface
+  in ~1s vs the prior ~10-15s. Smoke row cleaned up.
+- Touched files typecheck clean; notifications suite passes.
+
+**Follow-up (unchanged scope):** the deliverable-preview-in-approval-card
+enhancement remains split out (see Scope Boundaries → Excluded).
 
 # Inbox checkpoint approvals appear in real time (no manual refresh)
 
