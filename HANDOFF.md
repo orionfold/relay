@@ -1,20 +1,13 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-02 (pt: S8 — issue grooming (4 held bugs labeled awaiting-retest,
-shipped records #14–#19 closed) + the cost-trust P1 bundle SHIPPED unreleased: dashboard
-SPEND tiles off metered ledger sums, model preference propagated to task/workflow/direct
-runtimes, Ollama chat turns metered at $0 local-free. Found + spec'd:
-fix-anthropic-direct-task-serialization (P2). 4 commits LOCAL (4e9c2569..bad7ede2), NOT
-pushed; grooming commit ec0e0050 pushed. Prior tail: S1–S7 = 0.16.0→0.22.0 — see git log
-+ beacon recent.)_
+_Last updated: 2026-07-02 (pt: S9 — SHIPPED 0.22.1 (cost-trust P1 bundle: spend labeling,
+model preference, Ollama metering) via OIDC + SBOM; pushed all S8 local commits. Then a
+stagent→ainative→relay legacy-symbol sweep: fixed 3 live divergence bugs where
+tooling/boot-migration read the orphaned ~/.ainative DB instead of live ~/.relay (chained
+migrator + drizzle.config + backfill), plus stale governance docs; commit d6693d55,
+boot-smoked HTTP 200. Prior tail: S1–S8 = 0.16.0→0.22.1 — see git log + beacon recent.)_
 
-## ⚠️ IMMINENT — unreleased fixes await a release
-Three customer-voice entries sit in CHANGELOG `[Unreleased]` (spend labeling, model
-preference, Ollama metering). Next release ships them — patch 0.22.1 unless bundled with a
-feature. Push the 4 local commits with it. Release recipe caveats below apply; a PATCH bump
-does NOT move the apiVersion window (that's minor-only, memory `apiversion-window-bump`).
-
-## ▶️ NEXT SESSION (S9) — remaining PLG-4 loops, each OPERATOR-GATED; P2 fixes interleave
+## ▶️ NEXT SESSION (S10) — remaining PLG-4 loops, each OPERATOR-GATED; P2 fixes interleave
 Two loop candidates left, one per session, AskUserQuestion gate before any spec work:
 - **Free registration key tier** (n8n-style email → key → community niceties) — plg-refine §4
   calls it a strong recommendation but brand-timing is the operator's call; needs Website
@@ -91,6 +84,11 @@ cross-machine (NOT localhost) via Mode D. Triage: `bf204c24`.
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped (durable in git + memory)
+- **S9 — 0.22.1 SHIPPED** (`2e0ab3bd`, Release `v0.22.1`): cost-trust P1 bundle published
+  via OIDC + SBOM. Then a `stagent→ainative→relay` legacy-symbol sweep (`d6693d55`) — fixed
+  3 live divergence bugs (boot migrator + `drizzle.config` + backfill read orphaned
+  `~/.ainative` vs live `~/.relay`); chained the migrator; corrected stale governance docs.
+  Load-bearing legacy strings kept (memory `legacy-rebrand-divergence-bugs`).
 - **S8 unreleased fix bundle**: `4e9c2569` spend tiles · `fbc9f482` model preference ·
   `c85dadc0` Ollama metering · `bad7ede2` docs — specs completed with verification runs.
 - Prior: **0.22.0** renewal value-recap (#19) · **0.21.0** pack updates + Agency Pro v0.2.0
