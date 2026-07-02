@@ -21,8 +21,8 @@ import { join } from "path";
 const dryRun = process.argv.includes("--dry-run");
 
 const dataDir =
-  process.env.AINATIVE_DATA_DIR ?? join(homedir(), ".ainative");
-const dbPath = join(dataDir, "ainative.db");
+  process.env.RELAY_DATA_DIR ?? join(homedir(), ".relay");
+const dbPath = join(dataDir, "relay.db");
 
 interface ColumnRow {
   name: string;

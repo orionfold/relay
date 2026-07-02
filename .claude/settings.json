@@ -1,5 +1,5 @@
 {
-  "//": "Harness-enforced behavior for ainative (Next.js 16 / React 19 / Drizzle / better-sqlite3). Allow-rules widen what runs without prompting — keep them tight to the dev loop; ask-rules gate outward-facing or stateful actions; deny blocks reading secrets. The PreToolUse hook enforces the no-secrets prime directive (see .claude/hooks/secrets-guard.py and the sdk-subprocess-env-isolation lesson). Rationale + the Opus-4.8 standard: _REFER/cc-self-improve-all-projects.md and _REFER/claude-code-opus-4.8-best-practices-2026.md (gitignored, local).",
+  "//": "Harness-enforced behavior for Relay (Next.js 16 / React 19 / Drizzle / better-sqlite3). Allow-rules widen what runs without prompting — keep them tight to the dev loop; ask-rules gate outward-facing or stateful actions; deny blocks reading secrets. The PreToolUse hook enforces the no-secrets prime directive (see .claude/hooks/secrets-guard.py and the sdk-subprocess-env-isolation lesson). Rationale + the Opus-4.8 standard: _REFER/cc-self-improve-all-projects.md and _REFER/claude-code-opus-4.8-best-practices-2026.md (gitignored, local).",
   "model": "claude-opus-4-8",
   "permissions": {
     "allow": [

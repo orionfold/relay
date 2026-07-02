@@ -37,7 +37,36 @@ function hasSqliteHeader(path: string): boolean {
 }
 
 /**
- * Idempotent migration from ~/.stagent/ to ~/.ainative/. Safe to call on every boot.
+ * A single directory-rename hop in the brand-migration chain (`from` -> `to`),
+ * together with the db-file basename rename that lives inside that dir.
+ * `stagent` -> `ainative` -> `relay`.
+ */
+interface MigrationHop {
+  /** Legacy home-relative dir name, e.g. ".stagent". */
+  fromDir: string;
+  /** Next-brand home-relative dir name, e.g. ".ainative". */
+  toDir: string;
+  /** Legacy db basename (no suffix), e.g. "stagent.db". */
+  fromDb: string;
+  /** Next-brand db basename (no suffix), e.g. "ainative.db". */
+  toDb: string;
+}
+
+// Ordered chain: an install may sit at ANY legacy brand. Running the hops in
+// order converges `~/.stagent` (two behind) OR `~/.ainative` (one behind) onto
+// the live `~/.relay` / relay.db that @/lib/config/env resolves. The SQL
+// mcp__stagent__ -> mcp__ainative__ rewrite happens here (Step 3); the
+// subsequent mcp__ainative__ -> mcp__relay__ rewrite runs against the live DB
+// in instrumentation-node.ts via migrate-mcp-namespace.ts.
+const MIGRATION_CHAIN: MigrationHop[] = [
+  { fromDir: ".stagent", toDir: ".ainative", fromDb: "stagent.db", toDb: "ainative.db" },
+  { fromDir: ".ainative", toDir: ".relay", fromDb: "ainative.db", toDb: "relay.db" },
+];
+
+/**
+ * Idempotent migration of legacy data dirs onto the live `~/.relay`. Walks the
+ * `~/.stagent` -> `~/.ainative` -> `~/.relay` chain so an install at any prior
+ * brand converges on the current one. Safe to call on every boot.
  * Never throws — errors are collected in report.errors.
  */
 export async function migrateLegacyData(
@@ -55,57 +84,69 @@ export async function migrateLegacyData(
     errors: [],
   };
 
-  const oldDir = join(home, ".stagent");
-  const newDir = join(home, ".ainative");
+  // The terminus of the chain — where the live app reads from.
+  const finalDir = join(home, MIGRATION_CHAIN[MIGRATION_CHAIN.length - 1].toDir);
+  const finalDbName = MIGRATION_CHAIN[MIGRATION_CHAIN.length - 1].toDb;
 
-  // Step 1: rename directory if needed
-  if (existsSync(oldDir) && !existsSync(newDir)) {
-    try {
-      renameSync(oldDir, newDir);
-      report.dirMigrated = true;
-      log(`renamed ${oldDir} -> ${newDir}`);
-    } catch (err) {
-      const e = err as NodeJS.ErrnoException;
-      if (e.code === "EXDEV") {
-        try {
-          cpSync(oldDir, newDir, { recursive: true });
-          rmSync(oldDir, { recursive: true, force: true });
-          report.dirMigrated = true;
-          log(`copied ${oldDir} -> ${newDir} (cross-device fallback)`);
-        } catch (copyErr) {
-          report.errors.push(`dir copy failed: ${String(copyErr)}`);
+  // Steps 1+2: walk each hop's dir rename + db-file rename. A `return` here on
+  // an unrecoverable dir error aborts the whole chain (matches prior behavior:
+  // the data is in an unknown state, so downstream steps must not run).
+  for (const hop of MIGRATION_CHAIN) {
+    const oldDir = join(home, hop.fromDir);
+    const newDir = join(home, hop.toDir);
+
+    // Step 1: rename directory if needed
+    if (existsSync(oldDir) && !existsSync(newDir)) {
+      try {
+        renameSync(oldDir, newDir);
+        report.dirMigrated = true;
+        log(`renamed ${oldDir} -> ${newDir}`);
+      } catch (err) {
+        const e = err as NodeJS.ErrnoException;
+        if (e.code === "EXDEV") {
+          try {
+            cpSync(oldDir, newDir, { recursive: true });
+            rmSync(oldDir, { recursive: true, force: true });
+            report.dirMigrated = true;
+            log(`copied ${oldDir} -> ${newDir} (cross-device fallback)`);
+          } catch (copyErr) {
+            report.errors.push(`dir copy failed: ${String(copyErr)}`);
+            return report;
+          }
+        } else {
+          report.errors.push(`dir rename failed: ${String(err)}`);
           return report;
         }
-      } else {
-        report.errors.push(`dir rename failed: ${String(err)}`);
-        return report;
       }
     }
-  }
 
-  // Step 2: rename DB files inside the new dir. If newDir exists from a
-  // partial prior run (e.g., failed cpSync cross-device), iteration here is
-  // safe — neither old nor new DB files may exist and the step becomes a no-op.
-  if (existsSync(newDir)) {
-    for (const suffix of ["", "-shm", "-wal"]) {
-      const oldName = join(newDir, `stagent.db${suffix}`);
-      const newName = join(newDir, `ainative.db${suffix}`);
-      if (existsSync(oldName) && !existsSync(newName)) {
-        try {
-          renameSync(oldName, newName);
-          report.dbFilesRenamed++;
-        } catch (err) {
-          report.errors.push(`db file rename failed (${suffix}): ${String(err)}`);
+    // Step 2: rename DB files inside the (now-current) dir. If newDir exists
+    // from a partial prior run (e.g., failed cpSync cross-device), iteration
+    // here is safe — neither old nor new DB files may exist and the step
+    // becomes a no-op.
+    if (existsSync(newDir)) {
+      for (const suffix of ["", "-shm", "-wal"]) {
+        const oldName = join(newDir, `${hop.fromDb}${suffix}`);
+        const newName = join(newDir, `${hop.toDb}${suffix}`);
+        if (existsSync(oldName) && !existsSync(newName)) {
+          try {
+            renameSync(oldName, newName);
+            report.dbFilesRenamed++;
+          } catch (err) {
+            report.errors.push(`db file rename failed (${suffix}): ${String(err)}`);
+          }
         }
       }
     }
   }
 
-  // Step 3: SQL row migration. Only open the DB if it begins with the
-  // SQLite magic header. Opening a non-SQLite file (e.g., a test fixture
-  // placeholder) would succeed initially, then fail on the first prepare(),
-  // and the close() in finally would silently delete co-located -shm/-wal.
-  const dbPath = join(newDir, "ainative.db");
+  // Step 3: SQL row migration on the FINAL db. Only open the DB if it begins
+  // with the SQLite magic header. Opening a non-SQLite file (e.g., a test
+  // fixture placeholder) would succeed initially, then fail on the first
+  // prepare(), and the close() in finally would silently delete co-located
+  // -shm/-wal. This rewrites the stagent-era mcp prefix / sourceFormat; the
+  // ainative->relay mcp rewrite runs later against the live DB.
+  const dbPath = join(finalDir, finalDbName);
   if (existsSync(dbPath) && !hasSqliteHeader(dbPath)) {
     log(`skipping SQL migration — ${dbPath} exists but lacks SQLite header`);
   }

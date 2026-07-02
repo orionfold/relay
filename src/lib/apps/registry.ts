@@ -537,7 +537,7 @@ function sweepNamespacedBlueprints(blueprintsDir: string, appId: string): number
  * Cascade-delete an app: removes its DB project (and all FK-dependent rows)
  * via deleteProjectCascade, removes the manifest dir on disk, then sweeps
  * `<appId>--*` profile dirs and `<appId>--*.yaml` blueprint files from the
- * shared `~/.ainative/profiles/` and `~/.ainative/blueprints/` directories.
+ * shared `~/.relay/profiles/` and `~/.relay/blueprints/` directories.
  *
  * All four halves are independent — a missing piece is not an error. The
  * result reports which halves removed something.

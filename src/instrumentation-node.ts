@@ -41,7 +41,7 @@ export async function registerNodeInstrumentation() {
     await runPendingMigrations();
 
     // Plugin loader (Kind 5 only). Seeds dogfood examples on first boot,
-    // scans ~/.ainative/plugins/, registers profiles + blueprints + tables + schedules.
+    // scans ~/.relay/plugins/, registers profiles + blueprints + tables + schedules.
     // Failures are isolated per-plugin; boot continues regardless.
     //
     // ORDERING INVARIANTS (do not move this block without re-checking):
