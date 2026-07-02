@@ -1,5 +1,30 @@
 # Feature Changelog
 
+## 2026-07-02 — S8: the cost-trust P1 bundle SHIPPED (all three ICP P1 fixes)
+
+### Completed
+- `fix-dashboard-budget-vs-cost-labeling` — root cause was the plan-price substitution in
+  `getUsageAggregates` (correct for guardrails, wrong as display). Additive fix: snapshot
+  exposes `meteredSpend` + `planPricedMonthlyMicros`; rail relabeled SPEND TODAY/TO DATE
+  off pure ledger sums; loading no longer fabricates "not configured". Verified live.
+- `fix-workflow-model-preference-propagation` — new `resolvePreferredModel` (pin >
+  preference tier > quality default) wired into claude-code task execute/resume (which
+  passed NO model to the SDK — the actual Opus mechanism), the claude-code aux calls, and
+  both direct runtimes. Smoked per CLAUDE.md budget: balanced → `claude-sonnet-4-6` in
+  effectiveModelId + ledger + monitor, on claude-code AND anthropic-direct.
+- `fix-chat-spend-metering-diagnose` — root cause (a): `sendOllamaMessage` is a separate
+  engine with zero ledger writes; (b) version-skew ruled out via git ancestry vs v0.15.1.
+  Fixed the Ollama chat path (+ `local-free` $0 pricing for provider ollama — was
+  `unknown_pricing`). Verified with a REAL local Ollama turn (2.2K tokens, $0) + cloud turn.
+
+### Groomed (found during smoke)
+- `fix-anthropic-direct-task-serialization` (NEW, P2) — every anthropic-direct task run
+  fails with "Converting circular structure to JSON" (pre-existing; reproduced on a
+  trivial no-profile task). Model resolution works on that path; execution doesn't.
+
+### Re-statused (roadmap sync)
+- `feat-renewal-value-recap` — planned → done (0.22.0; row was stale).
+
 ## 2026-07-02 — GitHub issue grooming pass (held bugs labeled; shipped records reviewed)
 
 Groomed the open-issue list (operator request, S8 open). Findings:

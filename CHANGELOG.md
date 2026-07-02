@@ -4,6 +4,14 @@
 
 This project was formerly published as `stagent` on npm and hosted at `github.com/manavsehgal/stagent`. As of 2026-04-17 it is `ainative`. The old GitHub URL redirects permanently; `stagent` on npm is deprecated with an upgrade pointer to `ainative`.
 
+## [Unreleased]
+
+### Fixed
+
+- **The first number you see is now your real spend.** On a fresh install, the dashboard's cost tiles read "COST TO DATE $20.00" before you had spent a cent — that was your Claude subscription's monthly price wearing a cost label. The tiles are now **SPEND TODAY / SPEND TO DATE** and show only metered usage summed from your local ledger ($0.00 until you actually run something). Your plan price and budget cap still appear, labeled as what they are: "+ plan $20.00/mo" or "of $20.00 budget".
+- **Your model choice now applies everywhere, not just chat.** If you picked "Balanced" at onboarding, workflow and task runs were still silently executing on the premium Opus tier — billing quality-tier prices for work you asked to run on Sonnet. Task, workflow, and AI-assist execution now honor your preference on every runtime (Claude Code, Anthropic Direct, OpenAI Direct); an explicit per-profile or per-runtime model pin still wins, and the model each run actually used is visible on the task card and monitor feed.
+- **$0 local runs now count.** Chat turns on a local Ollama model were never recorded in the usage ledger, so Cost & Usage couldn't show the savings your local runs earn. Every Ollama chat turn now lands in the ledger with its real token counts at $0.00 ("local-free") — the blended paid-vs-free picture on /costs finally proves what running local saves you.
+
 ## [0.22.0] — 2026-07-02
 
 ### Added

@@ -492,15 +492,16 @@ into customer-link.
 | [fix-compose-approval-orchestration](fix-compose-approval-orchestration.md) | P0 | planned | fix-chat-mcp-namespace-relay |
 | [fix-project-customer-link-ui](fix-project-customer-link-ui.md) | P0 | done | — |
 | [fix-pack-core-version-resolution](fix-pack-core-version-resolution.md) | P0 | done | — |
-| [fix-workflow-model-preference-propagation](fix-workflow-model-preference-propagation.md) | P1 | planned | — |
-| [fix-dashboard-budget-vs-cost-labeling](fix-dashboard-budget-vs-cost-labeling.md) | P1 | planned | — |
+| [fix-workflow-model-preference-propagation](fix-workflow-model-preference-propagation.md) | P1 | completed | — |
+| [fix-dashboard-budget-vs-cost-labeling](fix-dashboard-budget-vs-cost-labeling.md) | P1 | completed | — |
 | [fix-pack-install-discoverability](fix-pack-install-discoverability.md) | P1 | absorbed → [feat-graduation-surface](feat-graduation-surface.md) | fix-pack-core-version-resolution |
 | [feat-graduation-surface](feat-graduation-surface.md) | P1 | done | feat-license-lifecycle |
 | [feat-agency-pro-pack](feat-agency-pro-pack.md) | P0 | done (0.19.0) | feat-graduation-surface, feat-license-lifecycle |
 | [feat-pack-update-workflow](feat-pack-update-workflow.md) | P0 | done (0.21.0) | feat-agency-pro-pack |
-| [feat-renewal-value-recap](feat-renewal-value-recap.md) | P1 | planned | feat-pack-update-workflow, feat-license-lifecycle |
-| [fix-chat-spend-metering-diagnose](fix-chat-spend-metering-diagnose.md) | P1 | planned | — |
+| [feat-renewal-value-recap](feat-renewal-value-recap.md) | P1 | done (0.22.0) | feat-pack-update-workflow, feat-license-lifecycle |
+| [fix-chat-spend-metering-diagnose](fix-chat-spend-metering-diagnose.md) | P1 | completed | — |
 | [fix-inbox-checkpoint-realtime](fix-inbox-checkpoint-realtime.md) | P2 | planned | — |
+| [fix-anthropic-direct-task-serialization](fix-anthropic-direct-task-serialization.md) | P2 | planned | — |
 
 ## Dependency Graph
 
