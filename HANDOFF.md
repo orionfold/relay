@@ -1,42 +1,47 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-02 (pt: S11-S1 SHIPPED (`e8c18f4a`) — BUILT the PLG-S staging harness env +
-driver + `relay-staging` skill. `scripts/lib/harness.mjs` extracts the launch/CLI primitives shared
-by `npx-prod-smoke.mjs` (still green A/B/L/C) + `scripts/staging.mjs` (setup/launch-hold-open/status/
-teardown). R4 isolation check hardened to CONTENT sha256 after verification caught an mtime
-false-positive (boot-time legacy migration + concurrent dev server touch `~/.relay` mtime benignly;
-lsof proves the server holds only `~/.relay-staging`). E2e verified end to end. Prior tail: S11-plan =
-spec + workbreak; S10 = 2 P2 fixes; S1–S9 = 0.16.0→0.22.1 — see git log + beacon.)_
+_Last updated: 2026-07-02 (pt: S11-S2-smoke — ran the PLG-refine persona smoke (Naya, agency
+founder) end-to-end on 0.22.1 staging: CLI first-run + `/packs` graduation + Mode C D4 fulfilment
+(offline dev-key signer). **D4 PASSED** (add→ceremony→`pack add` no-flag→remove→pack-stays). Found +
+code-verified 4 gaps, filed **#20–#23**. F3 REFRAMED by operator: the website's $349 is a CORRECT
+founding discount (first N buyers → $499 normal); the product has NO intro-price mechanic
+(`pack.yaml` `price` is a flat string) — #20. Bundle: `output/staging/2026-07-02/`. Prior tail:
+S11-S1 = harness env+driver (`e8c18f4a`); S11-plan = spec+workbreak; S10 = 2 P2 fixes; S1–S9 =
+0.16.0→0.22.1 — see git log + beacon.)_
 
-## ▶️ NEXT SESSION (S11 cont.) — S2: `staging-cli-run` skill (Mode A + C, VHS GIF)
-**S1 SHIPPED** (`e8c18f4a`): `scripts/lib/harness.mjs` + `scripts/staging.mjs` (setup/launch/status/
-teardown) + `relay-staging` skill (the S2–S4 substrate). Spec: `_SPECS/relay-staging-harness.md` §8.
-- **S2 (NEXT)** · `staging-cli-run` skill — install/wire **VHS** (local dev dep; skill checks +
-  instructs install if missing). Author the CLI first-run `.tape` (Mode A: banner · env writes ·
-  artifact download line · port/bind · Community banner → `output/staging/<date>/cli-first-run.gif`
-  + tee log). Then the **Mode C** dev-key-signer fulfilment script (mint `of-license-dev-2026-06`
-  license via `sign-helper.ts` → `relay license add` → relaunch "Licensed to" → `relay pack add
-  relay-agency-pro` no-flag → `relay license status` → `rm` store → banner reverts, pack stays =
-  **D4 proof**), folded into the same GIF. Rides `relay-staging`; scenario-mode license verbs use
-  `runCliCommand({extraEnv})` — the `extraEnv` param is already in `harness.mjs`.
-- **S3** · `staging-browser-smoke` skill — J0–J6 via Claude-in-Chrome (operator watches), screens
-  + console + network → `output/staging/<date>/` bundle.
-- **S4** · `staging-evaluate` skill — verify-before-groom findings → `features/fix-*.md` +
-  `_IDEAS/backlog.md`; DRAFT gh issues to `output/` (never auto-file).
-- Decisions locked: vhs · offline dev-key signer · `file://` mirror · Chrome-primary · both
-  fulfilment surfaces · drafted issues. Plan: `~/.claude/plans/read-handoff-…-dongarra.md`.
-- **`file://` mirror is per-version** — build `dist-artifacts/relay-next-build-<v>.tgz` once per
-  version bump (`npm run build && node scripts/build-prebuilt-artifact.mjs`); 0.22.1 built this session.
+## ▶️ NEXT SESSION — groom + prioritize: 4 smoke-found issues (#20–#23) vs S2 harness build
+The 2026-07-02 persona smoke filed 4 issues. Operator OK'd grooming the **#21 pack-cards** spec as a
+frontend-design spec — **DO THAT FIRST** (`features/fix-packs-gallery-plg-cards.md`), and it must
+render the **#20** two-phase founding→normal price. Sequence the rest against S2 per operator.
+- **#20** (P1, bug+plg) · product can't express founding intro price ($349 first N → $499). Needs a
+  pack `price` schema change (`format.ts:51` flat string → intro/list shape) + card render. **Website is CORRECT.**
+- **#21** (P1, enhancement+plg+design) · pack gallery → PLG-marketing-grade cards. **GROOM NEXT** (operator-directed):
+  more visual · surface full sales copy (not clamped) · use real-estate · future-proof for N packs (browse/filter).
+- **#22** (P2, bug) · onboarding pref dropped on fast-navigate (modal `PUT` not awaited before `onClose`;
+  guard at `runtime-preference-bootstrapper.tsx:36` is correct — it's a write-then-navigate race).
+- **#23** (P3, bug+polish) · fresh-boot `ALTER TABLE` noise (`bootstrap.ts:318` doesn't suppress "no such table").
+
+### S2–S4 harness build (still queued, sequence against the issues above)
+- **S2** · `staging-cli-run` skill — install/wire **VHS** (local dev dep; skill checks + instructs if
+  missing). CLI first-run `.tape` (Mode A) + the Mode C dev-key-signer fulfilment script → same GIF.
+  (The smoke this session already PROVED the Mode C sequence manually — S2 just scripts it into VHS.)
+- **S3** · `staging-browser-smoke` (J0–J6 via Claude-in-Chrome) · **S4** · `staging-evaluate`
+  (verify-before-groom → `features/fix-*.md` + `_IDEAS/backlog.md`; DRAFT gh issues to `output/`).
+- Decisions locked: vhs · offline dev-key signer · `file://` mirror · Chrome-primary. Spec: `_SPECS/relay-staging-harness.md` §8.
+- **`file://` mirror is per-version** — build `dist-artifacts/relay-next-build-<v>.tgz` once per bump
+  (`npm run build && node scripts/build-prebuilt-artifact.mjs`); 0.22.1 built.
 - Constraints: work on `main`; `_SPECS`/`_IDEAS` edit-only (strategy repo, its owner commits);
-  Ollama-preferred for agent steps (R5); harness-side instrumentation only (no phone-home).
+  paid-frontier OK'd this session for agent steps; harness-side instrumentation only (no phone-home).
 
 **PLG-4 has no live growth-loop candidate queued** (all three ruled out 2026-07-02, stays reactive):
 - **Free registration key tier is DEFERRED** — still a strong recommendation (plg-refine §4),
   but brand-timing isn't right and it depends on Website issuer participation + a decision on
   which 2–3 niceties gate. Held for a future session; re-open only when the operator resurfaces
   it AND the Website issuer can participate. (NOT killed — distinct from reverse trial.)
-- **Founding-supporter identity is DROPPED**: $349 founding tier felt identical to $499 and was
-  mostly Website/community surface with thin product code. Do not resurface as a product loop.
+- **Founding-supporter *product-loop* is DROPPED** (as a growth loop) — but NOTE (corrected
+  2026-07-02): the website's **$349 founding discount → $499 normal is REAL and live**, not dropped.
+  #20 tracks giving the product a way to *express* that two-phase price. Don't conflate the dropped
+  loop with the live founding price.
 - **Reverse trial is DEAD** (ruled 2026-07-02): re-lock = the §7 anti-pattern "expiry that
   disables installed content" vs the public promise. Do not resurface in any form that
   writes premium content to the pack store.
@@ -99,16 +104,8 @@ cross-machine (NOT localhost) via Mode D. Triage: `bf204c24`.
 - **gh issue/label writes are ALLOWLISTED** (memory `autonomous-session-permission-gates`).
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
-## Recently shipped (durable in git + memory + beacon recent[])
-- **S11-S1** (`e8c18f4a`): PLG-S staging harness env + driver + `relay-staging` skill.
-  `scripts/lib/harness.mjs` (shared launch/CLI primitives) + `scripts/staging.mjs`
-  (setup/launch-hold-open/status/teardown, `:3199`, `~/.relay-staging`, `RELAY_STAGING=true`,
-  `file://` mirror). R4 = **content sha256** not mtime (memory `staging-isolation-check-content-not-mtime`).
-  Smoke green post-extraction.
-- **S9** (`2e0ab3bd`/`d6693d55`): 0.22.1 SHIPPED (cost-trust P1, OIDC+SBOM) + legacy-symbol sweep
-  (3 live `~/.ainative`-vs-`~/.relay` divergence bugs; memory `legacy-rebrand-divergence-bugs`).
-- **S8** (`4e9c2569`/`fbc9f482`/`c85dadc0`/`bad7ede2`): spend tiles · model preference · Ollama
-  metering · docs (unreleased at S8, published in the 0.22.1 train).
-- Version history: **0.22.0** renewal recap (#19) · **0.21.0** pack updates + Agency Pro v0.2.0
-  (#18) · **0.20.0** trust pack (#17) · **0.19.0** first premium pack (#16) · **0.18.0**
-  graduation (#15) · **0.17.0** license lifecycle (#14) · **0.16.0** prod build (#10) — see git log.
+## Recently shipped (per-session detail in git + beacon recent[]; this is just the version index)
+Version history: **0.22.1** cost-trust P1 + OIDC/SBOM + legacy-symbol sweep · **0.22.0** renewal
+recap (#19) · **0.21.0** pack updates + Agency Pro v0.2.0 (#18) · **0.20.0** trust pack (#17) ·
+**0.19.0** first premium pack (#16) · **0.18.0** graduation (#15) · **0.17.0** license lifecycle
+(#14) · **0.16.0** prod build (#10). S11-S1 staging harness = `e8c18f4a`. — full detail: `git log` + beacon.
