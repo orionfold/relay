@@ -5,10 +5,12 @@ v0.2.0 nonprofit chapter, the first paid update (issue #18); Website later-6/lat
 later-4/later-5 (license-terms link + MSA lane + Security & trust row live on /relay/).
 Prior tail: S1–S5 = 0.16.0→0.20.0 — see git log + beacon recent.)_
 
-## ▶️ NEXT SESSION (S7) — PLG-4 growth loops, still OPERATOR-GATED
-v0.2.0 now exists, so the renewal value-recap loop is honest to build; the reverse-trial
-idea still tensions with the public never-re-lock promise — get an operator ruling before
-speccing either. ICP P1s interleave as capacity allows (below).
+## ▶️ NEXT SESSION (S7) — PLG-4: renewal value-recap (RULED 2026-07-02, unblocked)
+Operator gate passed: **build the renewal value-recap loop** (`license status` local reminder +
+Website email relay; honest now that v0.2.0 exists). **Reverse trial KILLED** — re-lock = D4
+violation, recorded in plg-refine §4/§5; do not resurface. Spec GROOMED:
+`features/feat-renewal-value-recap.md` (2026-07-02) — next step: implement it.
+ICP P1s interleave as capacity allows (below).
 - **Relay channel: CLEAR** — Website later-6/later-7 landed EVERYTHING (license-terms link,
   PO/MSA lane w/ manav@orionfold.com, plus the Security & trust row on /relay/); checked
   2026-07-02, nothing owed back. Standing obligation: flag on _RELAY if any `docs/trust/*`

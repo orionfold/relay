@@ -1,5 +1,27 @@
 # Feature Changelog
 
+## 2026-07-02 — groomed feat-renewal-value-recap (PLG-4a) for S7; reverse trial KILLED
+
+S7 operator gate ran (AskUserQuestion, 2026-07-02): of the four PLG-4 loop candidates, the
+**renewal value-recap** was chosen — the only one that became honest with 0.21.0 (Agency Pro
+v0.2.0 is a real paid update to recap). Groomed `_SPECS/plg-refine.md` §5 PLG-4 into
+`features/feat-renewal-value-recap.md`: an optional `changelog:` field in pack.yaml (the missing
+per-version "what's new" source), ONE recap helper reusing `packUpdateAvailability` (D7), three
+explicit-invocation surfaces (`license status`, the 402 update refusal, the /packs one-liner),
+and a Website relay for the T-30 renewal email (release-history recap only — Website cannot see
+installs; no phone-home). Startup banner explicitly untouched (§7 terminal-ads fence).
+
+### Deferred (permanently)
+- **Reverse trial — KILLED by operator ruling**: the 14-day re-lock is a literal instance of the
+  §7 anti-pattern "any expiry that disables installed content" (D4 violation) against a promise
+  that is now public (README, issues #14–#18, orionfold.com/promise/) and enforced at the update
+  gate. Recorded in plg-refine §4/§5 so it cannot resurface; any future trial concept must never
+  write premium content to the pack store.
+
+### Re-statused (roadmap sync)
+- `feat-agency-pro-pack` — planned → done (shipped 0.19.0; roadmap row was stale)
+- `feat-pack-update-workflow` — added to roadmap as done (shipped 0.21.0; row was missing)
+
 ## 2026-07-01 — feat-agency-pro-pack open questions resolved (installer-semantics check)
 
 Ran the installPack semantics check the spec called for; all four open questions are now
