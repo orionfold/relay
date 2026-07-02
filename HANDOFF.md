@@ -1,13 +1,15 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-02 (pt: S9 — SHIPPED 0.22.1 (cost-trust P1 bundle: spend labeling,
-model preference, Ollama metering) via OIDC + SBOM; pushed all S8 local commits. Then a
-stagent→ainative→relay legacy-symbol sweep: fixed 3 live divergence bugs where
-tooling/boot-migration read the orphaned ~/.ainative DB instead of live ~/.relay (chained
-migrator + drizzle.config + backfill), plus stale governance docs; commit d6693d55,
-boot-smoked HTTP 200. Prior tail: S1–S8 = 0.16.0→0.22.1 — see git log + beacon recent.)_
+_Last updated: 2026-07-02 (pt: S10 — shipped both P2 fixes to origin/main:
+`fix-anthropic-direct-task-serialization` (in-process `relay` MCP server was passed to the
+Messages API `mcp_servers` → circular-JSON crash on every anthropic-direct task; added
+`mcpServersToAnthropicConnectors` projection, real-task smoke → "ok") + `fix-inbox-
+checkpoint-realtime` (Inbox list + badge now subscribe to the pending-approvals SSE as an
+invalidation trigger; 741ms insert→emit smoke). PLG-4 groomed: free-key tier DEFERRED,
+founding-supporter DROPPED → no live growth loop queued. Commits 705d095a/1b10404e/891e759b.
+Prior tail: S1–S9 = 0.16.0→0.22.1 — see git log + beacon recent.)_
 
-## ▶️ NEXT SESSION (S10) — no live PLG-4 loop; P2 fixes are the work
+## ▶️ NEXT SESSION (S11) — no live PLG-4 loop; work is reactive + backlog
 **PLG-4 has no live growth-loop candidate queued** (all three ruled out 2026-07-02):
 - **Free registration key tier is DEFERRED** — still a strong recommendation (plg-refine §4),
   but brand-timing isn't right and it depends on Website issuer participation + a decision on
@@ -31,13 +33,6 @@ boot-smoked HTTP 200. Prior tail: S1–S8 = 0.16.0→0.22.1 — see git log + be
 Now labeled `bug` + `awaiting-retest` (label created S8); retest asks posted on 0.16.0
 (2026-07-01), no reply yet. Prod build likely moots the class. If they persist: repro
 cross-machine (NOT localhost) via Mode D. Triage: `bf204c24`.
-
-## P2 fixes (interleave)
-- **`fix-anthropic-direct-task-serialization`** (NEW S8) — every anthropic-direct task run
-  fails "Converting circular structure to JSON" (pre-existing; found during the model-pref
-  smoke; model resolution works on that path). Spec has repro + candidate sites.
-- **`fix-inbox-checkpoint-realtime`** — checkpoint approvals need a guess-refresh (~15s);
-  tighten Inbox SSE/poll to match Monitor.
 
 ## Known caveats
 - **apiVersion window**: bump `CURRENT_PLUGIN_API_VERSION` (sdk/types.ts) + previous-MINOR
