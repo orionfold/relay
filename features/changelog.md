@@ -25,6 +25,12 @@
 ### Re-statused (roadmap sync)
 - `feat-renewal-value-recap` — planned → done (0.22.0; row was stale).
 
+### Closed without build
+- `feat-prepublish-tarball-smoke` — CLOSED as a phantom: no spec file ever existed (only
+  cross-references in `fix-pack-core-version-resolution.md` and
+  `feat-ship-production-build-for-npx.md`), and `publish.yml` already packs + installs +
+  smokes the tarball pre-publish. Dropped from the HANDOFF backlog; nothing to narrow.
+
 ## 2026-07-02 — GitHub issue grooming pass (held bugs labeled; shipped records reviewed)
 
 Groomed the open-issue list (operator request, S8 open). Findings:
