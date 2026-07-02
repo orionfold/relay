@@ -143,7 +143,10 @@ relay license remove <license-id>                            # forget a license 
   pack. Paid packs are new content, not repossessed features.
 
 The full terms in plain language — seats, transfer, what expiry does and doesn't do —
-are in [docs/trust/license-terms.md](docs/trust/license-terms.md).
+are in [docs/trust/license-terms.md](docs/trust/license-terms.md). The gating
+philosophy behind the boundary — and the never-regress promise that binds us to it —
+is published at [orionfold.com/promise](https://orionfold.com/promise/). Browse and
+buy premium packs at [orionfold.com/relay](https://orionfold.com/relay/).
 
 ---
 
