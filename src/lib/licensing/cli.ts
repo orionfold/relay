@@ -14,6 +14,9 @@ export interface LicenseCommandIo {
   dir?: string;
   /** Injected clock (tests). */
   now?: Date;
+  /** Override the recap surface's pack dirs (tests). */
+  appsDir?: string;
+  templatesDir?: string;
   log: (message: string) => void;
   error: (message: string) => void;
 }
@@ -115,6 +118,25 @@ async function runAdd(
   }
 }
 
+/**
+ * Fail-open recap lookup — the value-recap is decoration on this surface,
+ * never a gate; any fault degrades to "no recap", not an error.
+ */
+async function pendingRecaps(
+  entitlements: string[],
+  io: LicenseCommandIo
+): Promise<import("./recap").PackRecap[]> {
+  try {
+    const { entitledPackRecaps } = await import("./recap");
+    return entitledPackRecaps(entitlements, {
+      appsDir: io.appsDir,
+      templatesDir: io.templatesDir,
+    }).filter((r) => r.pending.length > 0);
+  } catch {
+    return [];
+  }
+}
+
 async function runStatus(io: LicenseCommandIo): Promise<number> {
   try {
     const { listLicenses } = await import("./store");
@@ -141,6 +163,20 @@ async function runStatus(io: LicenseCommandIo): Promise<number> {
         `  Status:       ${lic.valid ? "valid" : `invalid — ${lic.reason ?? "corrupt entry"}`}`
       );
 
+      const recaps = await pendingRecaps(lic.entitlements, io);
+
+      // Value recap (PLG-4a): entitled updates this license already paid for,
+      // sitting uninstalled. Explicit invocation ⇒ informational, not a nag.
+      if (lic.valid && recaps.length > 0) {
+        io.log(`  Included in your term, waiting to install:`);
+        for (const r of recaps) {
+          for (const p of r.pending) {
+            io.log(`    ${r.packName} v${p.version} — ${p.note}`);
+          }
+          io.log(`    → relay pack update ${r.packId}`);
+        }
+      }
+
       // D4: expiry warns about FUTURE premium installs/updates only — it
       // never gates anything already installed, so this is a nudge, not a block.
       if (lic.valid && lic.expiresAt) {
@@ -153,6 +189,29 @@ async function runStatus(io: LicenseCommandIo): Promise<number> {
               `Your installed packs are yours forever; renewing keeps new premium ` +
               `packs and updates flowing.`
           );
+          // The generic promise gains this year's specific evidence.
+          const latest = recaps
+            .map((r) => ({ r, p: r.pending[r.pending.length - 1] }))
+            .filter((x) => x.p);
+          for (const { r, p } of latest) {
+            io.log(
+              `                This license year delivered ${r.packName} v${p.version} — ${p.note}`
+            );
+          }
+        }
+      }
+
+      // Expired license, renewal-voiced (same voice as the update gate): what
+      // renewal unlocks, never a threat to installed content.
+      if (!lic.valid && /expired/i.test(lic.reason ?? "") && recaps.length > 0) {
+        io.log(
+          `  Your installed packs keep working — nothing is locked. Renewing unlocks:`
+        );
+        for (const r of recaps) {
+          for (const p of r.pending) {
+            io.log(`    ${r.packName} v${p.version} — ${p.note}`);
+          }
+          if (r.purchaseUrl) io.log(`    → renew at ${r.purchaseUrl}`);
         }
       }
       io.log("");

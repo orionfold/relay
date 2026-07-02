@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import yaml from "js-yaml";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { runLicenseCommand } from "../cli";
 import { signEnvelope } from "./sign-helper";
@@ -27,12 +28,18 @@ function makePayload(
 
 let dir: string;
 let scratch: string;
+let appsDir: string;
+let templatesDir: string;
 let logs: string[];
 let errs: string[];
 
 beforeEach(() => {
   dir = fs.mkdtempSync(path.join(os.tmpdir(), "relay-license-cli-"));
   scratch = fs.mkdtempSync(path.join(os.tmpdir(), "relay-license-cli-src-"));
+  appsDir = path.join(scratch, "apps");
+  templatesDir = path.join(scratch, "templates");
+  fs.mkdirSync(appsDir, { recursive: true });
+  fs.mkdirSync(templatesDir, { recursive: true });
   logs = [];
   errs = [];
 });
@@ -46,9 +53,45 @@ function io() {
   return {
     dir,
     now: NOW,
+    appsDir,
+    templatesDir,
     log: (m: string) => logs.push(m),
     error: (m: string) => errs.push(m),
   };
+}
+
+/** Bundled-template + installed-pack fixture for the recap surface. */
+function installEntitledPack(opts: { installed: string; available: string }) {
+  const id = "pro-pack";
+  const tplDir = path.join(templatesDir, id);
+  fs.mkdirSync(path.join(tplDir, "base"), { recursive: true });
+  fs.writeFileSync(
+    path.join(tplDir, "pack.yaml"),
+    yaml.dump({
+      id,
+      version: opts.available,
+      name: "Pro Pack",
+      entitlement: "product:orionfold-relay",
+      purchaseUrl: "https://example.com/buy",
+      changelog: {
+        "0.1.0": "The first six chapters.",
+        "0.2.0": "The nonprofit deep chapter.",
+      },
+    })
+  );
+  fs.writeFileSync(
+    path.join(tplDir, "base", "manifest.yaml"),
+    yaml.dump({ id, name: "Pro Pack" })
+  );
+  fs.mkdirSync(path.join(appsDir, id), { recursive: true });
+  fs.writeFileSync(
+    path.join(appsDir, id, "install-state.json"),
+    JSON.stringify({
+      packVersion: opts.installed,
+      installedAt: "2026-07-01T00:00:00Z",
+      files: {},
+    })
+  );
 }
 
 function writeLicenseFile(
@@ -138,6 +181,74 @@ describe("license status", () => {
     const out = logs.join("\n");
     expect(out).toMatch(/expires in 10 days/i);
     expect(out).toMatch(/installed packs (are yours|stay)/i);
+  });
+
+  it("recaps pending value with the one-command cure when an entitled pack has an update", async () => {
+    installEntitledPack({ installed: "0.1.0", available: "0.2.0" });
+    await runLicenseCommand(["add", writeLicenseFile(makePayload())], io());
+    logs = [];
+
+    const code = await runLicenseCommand(["status"], io());
+
+    expect(code).toBe(0);
+    const out = logs.join("\n");
+    expect(out).toMatch(/included in your term/i);
+    expect(out).toContain("v0.2.0 — The nonprofit deep chapter.");
+    expect(out).toContain("relay pack update pro-pack");
+  });
+
+  it("prints no recap when the entitled pack is current (empty diff = silence)", async () => {
+    installEntitledPack({ installed: "0.2.0", available: "0.2.0" });
+    await runLicenseCommand(["add", writeLicenseFile(makePayload())], io());
+    logs = [];
+
+    const code = await runLicenseCommand(["status"], io());
+
+    expect(code).toBe(0);
+    const out = logs.join("\n");
+    expect(out).not.toMatch(/included in your term/i);
+    expect(out).not.toContain("pack update");
+  });
+
+  it("names the year's delivered value inside the ≤30-day renewal warning", async () => {
+    installEntitledPack({ installed: "0.1.0", available: "0.2.0" });
+    await runLicenseCommand(
+      ["add", writeLicenseFile(makePayload({ expires_at: "2026-08-11T00:00:00Z" }))],
+      io()
+    );
+    logs = [];
+
+    const code = await runLicenseCommand(["status"], io());
+
+    expect(code).toBe(0);
+    const out = logs.join("\n");
+    expect(out).toMatch(/expires in 10 days/i);
+    // The generic D4 sentence gains specific evidence.
+    expect(out).toMatch(/this (license )?year delivered/i);
+    expect(out).toContain("v0.2.0 — The nonprofit deep chapter.");
+  });
+
+  it("recaps an EXPIRED license renewal-voiced: packs keep working, renewal unlocks the named update", async () => {
+    installEntitledPack({ installed: "0.1.0", available: "0.2.0" });
+    // Expired a month before the injected clock; add with a pre-expiry clock.
+    const file = writeLicenseFile(
+      makePayload({ expires_at: "2026-07-15T00:00:00Z" })
+    );
+    await runLicenseCommand(["add", file], {
+      ...io(),
+      now: new Date("2026-07-02T00:00:00Z"),
+    });
+    logs = [];
+
+    const code = await runLicenseCommand(["status"], io());
+
+    expect(code).toBe(0);
+    const out = logs.join("\n");
+    expect(out).toMatch(/expired/i);
+    // D4 voice: never a threat, always what renewal buys.
+    expect(out).toMatch(/keeps? working|yours forever/i);
+    expect(out).toContain("v0.2.0 — The nonprofit deep chapter.");
+    expect(out).toMatch(/renew/i);
   });
 
   it("names an invalid store entry instead of crashing (exit 0)", async () => {

@@ -37,6 +37,8 @@ interface FixtureOptions {
   /** Cron for the month-end schedule (config change across versions). */
   cron?: string;
   purchaseUrl?: string;
+  /** Per-version customer-voice recap lines (renewal value-recap surface). */
+  changelog?: Record<string, string>;
 }
 
 /** Same shape as the install-test fixture, parameterized by version. */
@@ -52,6 +54,7 @@ function buildPack(dir: string, opts: FixtureOptions = {}): void {
       relayCore: ">=0.15.0",
       ...(opts.entitlement ? { entitlement: opts.entitlement } : {}),
       ...(opts.purchaseUrl ? { purchaseUrl: opts.purchaseUrl } : {}),
+      ...(opts.changelog ? { changelog: opts.changelog } : {}),
       customers: [],
     })
   );
@@ -522,6 +525,35 @@ describe("updatePack", () => {
     expect(fs.existsSync(path.join(appsDir, "test-agency", "backup"))).toBe(
       false
     );
+  });
+
+  it("names the withheld value in the refusal — version AND its changelog line (value-recap voice)", async () => {
+    buildPack(packDirV1, {
+      version: "0.1.0",
+      entitlement: "product:orionfold-relay",
+    });
+    buildPack(packDirV2, {
+      version: "0.2.0",
+      entitlement: "product:orionfold-relay",
+      changelog: {
+        "0.1.0": "The first six chapters.",
+        "0.2.0": "The nonprofit deep chapter.",
+      },
+    });
+    const { installPack } = await import("../install");
+    const { updatePack } = await import("../update");
+
+    const licPath = path.join(packDirV1, "real.license.json");
+    fs.writeFileSync(
+      licPath,
+      JSON.stringify(await signedLicense("product:orionfold-relay"))
+    );
+    await installPack(packDirV1, { ...dirs(), licenseUrl: licPath });
+    fs.rmSync(path.join(dataDir, "licenses"), { recursive: true, force: true });
+
+    await expect(
+      updatePack("test-agency", { ...dirs(), source: packDirV2 })
+    ).rejects.toThrow(/v0\.2\.0 — The nonprofit deep chapter\./);
   });
 
   it("updates an entitled pack via the persisted license store (no flag)", async () => {

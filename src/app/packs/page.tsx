@@ -6,6 +6,7 @@ import { Boxes, Check, Lock, Package, TriangleAlert } from "lucide-react";
 import { listApps } from "@/lib/apps/registry";
 import { listPackTemplates, type PackTemplate } from "@/lib/packs/catalog";
 import { packUpdateAvailability } from "@/lib/packs/update";
+import { changelogWindow } from "@/lib/licensing/recap";
 import { PackInstallButton } from "@/components/packs/pack-install-button";
 import { PackUpdateButton } from "@/components/packs/pack-update-button";
 
@@ -150,11 +151,24 @@ function InstalledActions({ template }: { template: PackTemplate }) {
         </Link>
       </div>
       {avail.updateAvailable && avail.availableVersion && (
-        <PackUpdateButton
-          packId={template.id}
-          packName={template.meta!.name}
-          newVersion={avail.availableVersion}
-        />
+        <>
+          <PackUpdateButton
+            packId={template.id}
+            packName={template.meta!.name}
+            newVersion={avail.availableVersion}
+          />
+          {/* Value-recap one-liner: what the pending update contains, from the
+              pack's own changelog — same source as license status + the 402. */}
+          {changelogWindow(
+            template.meta!.changelog,
+            avail.installedVersion,
+            avail.availableVersion
+          ).map((p) => (
+            <p key={p.version} className="text-xs text-muted-foreground">
+              v{p.version} — {p.note}
+            </p>
+          ))}
+        </>
       )}
     </div>
   );

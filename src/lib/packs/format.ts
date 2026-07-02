@@ -51,6 +51,13 @@ export const PackManifestSchema = z
     price: z.string().min(1).optional(),
     /** Get-license CTA target on the locked card. */
     purchaseUrl: z.url().optional(),
+    /**
+     * Per-version customer-voice recap, version → one line. The single source
+     * for every renewal value-recap surface (`license status`, the 402 update
+     * refusal, the /packs update card, the Website renewal email). Optional —
+     * but paid packs should carry it, or their renewal case argues generically.
+     */
+    changelog: z.record(z.string(), z.string().min(1)).optional(),
     /** Customer slugs seeded via ensureCustomer at install. */
     customers: z.array(z.string()).default([]),
   })

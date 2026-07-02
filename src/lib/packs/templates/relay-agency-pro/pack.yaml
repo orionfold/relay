@@ -22,5 +22,18 @@ relayCore: ">=0.18.0"
 entitlement: product:orionfold-relay
 price: "$499/year"
 purchaseUrl: https://orionfold.com/relay/
-# Pro seeds no demo customers — it operates your real ones.
+# Per-version customer-voice recap — the single source every renewal surface
+# reads (license status, the update refusal, the /packs card, the renewal
+# email). Add a line here with EVERY version bump; the template test suite
+# requires an entry for the current version.
+changelog:
+  "0.1.0": >-
+    Six chapters of agency operating system — the Finance Cockpit that closes
+    your month by itself, Intake Pipelines, the New-Business Machine,
+    client-safe Governance profiles, and the Commercial Real Estate renewal
+    engine.
+  "0.2.0": >-
+    The Nonprofit deep chapter — a grant pipeline that takes every opportunity
+    from fit-scored go/no-go through LOI, full application, and post-award
+    restricted-funds compliance with a reporting calendar.
 customers: []

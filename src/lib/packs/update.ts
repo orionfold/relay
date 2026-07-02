@@ -179,9 +179,29 @@ export async function updatePack(
           const renew = pack.meta.purchaseUrl
             ? `renew at ${pack.meta.purchaseUrl}`
             : `redeem one with: relay license add <path-or-url to your .license.json>`;
+          // Value-recap voice: name what the withheld update contains, from
+          // the pack's own changelog (fail-open — silence if it has none).
+          let withheld = "";
+          try {
+            const { changelogWindow } = await import("@/lib/licensing/recap");
+            const pending = changelogWindow(
+              pack.meta.changelog,
+              previousVersion,
+              newVersion
+            );
+            if (pending.length > 0) {
+              withheld =
+                `This update includes: ` +
+                pending.map((p) => `v${p.version} — ${p.note}`).join("; ") +
+                ` `;
+            }
+          } catch {
+            // recap is decoration on the refusal, never a second failure.
+          }
           throw new PackLicenseError(
             `Your installed ${id} keeps working — nothing is locked. ` +
               `Updating to v${newVersion} needs an active license: ${renew}. ` +
+              withheld +
               `(${err.message})`,
             err.reason
           );

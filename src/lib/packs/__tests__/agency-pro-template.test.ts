@@ -66,6 +66,28 @@ describe("relay-agency-pro bundled template", () => {
     expect(tpl!.meta!.description!.length).toBeGreaterThan(100);
   });
 
+  it("carries a changelog line for every released version — paid packs must argue renewal with evidence", async () => {
+    const semver = (await import("semver")).default;
+    const { findPackTemplate } = await import("../catalog");
+    const tpl = findPackTemplate("relay-agency-pro");
+    const meta = tpl!.meta!;
+
+    // The recap surfaces (license status, 402 refusal, /packs card, renewal
+    // email) all read this map; a paid pack without it argues generically.
+    expect(meta.changelog).toBeDefined();
+    const versions = Object.keys(meta.changelog!);
+    expect(versions).toContain("0.1.0");
+    expect(versions).toContain(meta.version);
+    for (const v of versions) {
+      expect(semver.valid(v), `changelog key "${v}" must be semver`).toBeTruthy();
+      expect(
+        semver.compare(v, meta.version),
+        `changelog key "${v}" must not exceed pack version ${meta.version}`
+      ).toBeLessThanOrEqual(0);
+      expect(meta.changelog![v].length).toBeGreaterThan(20);
+    }
+  });
+
   it("refuses install by bare name without a license, before any write", async () => {
     const { installPack } = await import("../install");
     const { PackLicenseError } = await import("@/lib/licensing/gate");
