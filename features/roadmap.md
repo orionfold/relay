@@ -513,7 +513,7 @@ PUT race) and #23 (fresh-boot ALTER TABLE noise) are small fixes tracked on thei
 
 | Feature | Priority | Status | Dependencies |
 |---------|----------|--------|--------------|
-| [fix-packs-gallery-plg-cards](fix-packs-gallery-plg-cards.md) | P1 | planned | — |
+| [fix-packs-gallery-plg-cards](fix-packs-gallery-plg-cards.md) | P1 | completed | — |
 
 ## Dependency Graph
 

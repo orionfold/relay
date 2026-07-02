@@ -6,6 +6,11 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+### Added
+
+- **The Packs page now makes the case before asking for the card.** The premium pack's full pitch — all six chapters of what Agency Pro actually does — is readable right on the page instead of truncated to two lines, laid out as a proper feature panel with the offer beside it. Each pack gets its own icon, and Free/Premium filter chips keep the gallery browsable as the catalog grows.
+- **The price you see in-app is the price you pay.** Packs can now carry a founding/introductory price alongside the list price, so Agency Pro shows the real offer — **$349/year founding, $499/year after** — exactly matching [orionfold.com/relay](https://orionfold.com/relay/). Previously the app showed a flat $499 and the checkout page said $349; that contradiction is gone. Still computed entirely from files on your disk — no price fetch, nothing phones home.
+
 ## [0.22.1] — 2026-07-02
 
 ### Fixed

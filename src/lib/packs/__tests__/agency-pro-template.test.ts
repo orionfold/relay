@@ -59,7 +59,14 @@ describe("relay-agency-pro bundled template", () => {
     expect(tpl).toBeDefined();
     expect(tpl!.error).toBeUndefined();
     expect(tpl!.meta!.entitlement).toBe("product:orionfold-relay");
-    expect(tpl!.meta!.price).toBe("$499/year");
+    // Two-phase offer: founding intro alongside the list anchor, matched by
+    // hand to orionfold.com/relay/ (the card renders packPrice(), offline).
+    const { packPrice } = await import("../format");
+    expect(packPrice(tpl!.meta!)).toMatchObject({
+      intro: "$349/year",
+      list: "$499/year",
+    });
+    expect(packPrice(tpl!.meta!)!.note).toBeTruthy();
     expect(tpl!.meta!.purchaseUrl).toBe("https://orionfold.com/relay/");
     expect(tpl!.meta!.relayCore).toBe(">=0.18.0");
     // The description IS the what-you-get preview on the locked card (D6).

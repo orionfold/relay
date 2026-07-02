@@ -1,6 +1,6 @@
 ---
 title: Pack gallery PLG-marketing-grade cards (visual, full copy, two-phase price, scales to N packs)
-status: planned
+status: completed
 priority: P1
 milestone: mvp
 source: output/staging/2026-07-02/EVALUATION.md
@@ -124,21 +124,21 @@ Information architecture the design must satisfy (creative execution belongs to 
 
 ## Acceptance Criteria
 
-- [ ] `price` accepts both the flat string and `{ list, intro?, note? }`; every existing
+- [x] `price` accepts both the flat string and `{ list, intro?, note? }`; every existing
       flat-string pack parses byte-identical behavior (back-compat test).
-- [ ] The Agency Pro locked card renders the two-phase founding→normal price matching
+- [x] The Agency Pro locked card renders the two-phase founding→normal price matching
       orionfold.com/relay/ ($349 founding → $499 list), fed by a single normalizer — no
       site-local shape branching. Closes #20.
-- [ ] The locked premium card surfaces the full `pack.yaml` sales description — the 6-chapter
+- [x] The locked premium card surfaces the full `pack.yaml` sales description — the 6-chapter
       copy and its closing "never phones home" line are readable without truncation.
-- [ ] Each pack card has a distinct visual identity (icon/accent), and free-vs-premium is legible
+- [x] Each pack card has a distinct visual identity (icon/accent), and free-vs-premium is legible
       at a glance.
-- [ ] The layout uses the canvas at N=2 (no sparse dead-space row) AND degrades gracefully at
+- [x] The layout uses the canvas at N=2 (no sparse dead-space row) AND degrades gracefully at
       N≥6 with a browse/filter affordance (at minimum All/Free/Premium).
-- [ ] Preserved behaviors verified: corrupt-template card, installed state (version, Open app,
+- [x] Preserved behaviors verified: corrupt-template card, installed state (version, Open app,
       update + changelog recap), install button gating, Get-license CTA.
-- [ ] No network fetch introduced anywhere on the surface — price and copy stay offline.
-- [ ] Browser-verified on the staging harness with screenshots in `output/`. Closes #21.
+- [x] No network fetch introduced anywhere on the surface — price and copy stay offline.
+- [x] Browser-verified on the staging harness with screenshots in `output/`. Closes #21.
 
 ## Scope Boundaries
 

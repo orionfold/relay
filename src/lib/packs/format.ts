@@ -46,9 +46,29 @@ export const PackManifestSchema = z
     /**
      * Premium display copy (D6). Offline strings rendered on the locked
      * gallery card — the Website still owns actual pricing. Meaningful only
-     * alongside `entitlement`; harmless on a free pack.
+     * alongside `entitlement`; harmless on a free pack. Either a flat string
+     * ("$499/year") or a two-phase offer ({ list, intro?, note? }) so a
+     * founding/introductory price can render alongside the list price.
+     * Render sites consume `packPrice()` — never branch on the raw shape.
      */
-    price: z.string().min(1).optional(),
+    price: z
+      .union([
+        z.string().min(1),
+        z
+          .object({
+            list: z.string().min(1),
+            intro: z.string().min(1).optional(),
+            note: z.string().min(1).optional(),
+          })
+          .strict(),
+      ])
+      .optional(),
+    /**
+     * Card identity token — a lucide icon name rendered on the gallery card
+     * (e.g. "briefcase"). Unknown tokens fall back to the default glyph;
+     * never a remote asset.
+     */
+    icon: z.string().min(1).optional(),
     /** Get-license CTA target on the locked card. */
     purchaseUrl: z.url().optional(),
     /**
@@ -64,6 +84,22 @@ export const PackManifestSchema = z
   .strict();
 
 export type PackMeta = z.infer<typeof PackManifestSchema>;
+
+/** Normalized two-phase offer; `list` is always present. */
+export interface PackPrice {
+  list: string;
+  intro?: string;
+  note?: string;
+}
+
+/**
+ * The single price shape every render site consumes (card, any future recap
+ * surface). Flat-string packs normalize to `{ list }`; free packs → null.
+ */
+export function packPrice(meta: PackMeta): PackPrice | null {
+  if (!meta.price) return null;
+  return typeof meta.price === "string" ? { list: meta.price } : meta.price;
+}
 
 // ── Pack + resolved-layer types ──────────────────────────────────────
 

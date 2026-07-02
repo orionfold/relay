@@ -20,8 +20,15 @@ description: >
   offline; your license never phones home.
 relayCore: ">=0.18.0"
 entitlement: product:orionfold-relay
-price: "$499/year"
+# Two-phase offer, hand-maintained to match orionfold.com/relay/ (never
+# fetched — the license never phones home). When the founding window closes
+# on the Website, delete `intro` + `note` here in a normal release.
+price:
+  intro: "$349/year"
+  list: "$499/year"
+  note: "Founding price for early buyers — locks in before it returns to list."
 purchaseUrl: https://orionfold.com/relay/
+icon: briefcase
 # Per-version customer-voice recap — the single source every renewal surface
 # reads (license status, the update refusal, the /packs card, the renewal
 # email). Add a line here with EVERY version bump; the template test suite

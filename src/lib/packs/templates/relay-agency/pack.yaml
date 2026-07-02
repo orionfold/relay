@@ -4,6 +4,7 @@ name: Relay Agency
 author: Orionfold
 description: Agency operating layer — CRE + nonprofit verticals.
 relayCore: ">=0.15.0"
+icon: building-2
 # Declarative metadata. The installer seeds customers from base/seed/customers.yaml
 # (objects), not from this list — these slugs mirror that seed for at-a-glance review.
 customers:

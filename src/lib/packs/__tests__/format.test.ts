@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import yaml from "js-yaml";
-import { parsePack, PackValidationError } from "../format";
+import { packPrice, parsePack, PackValidationError } from "../format";
 
 let packDir: string;
 
@@ -60,5 +60,119 @@ describe("pack.yaml changelog field", () => {
     });
 
     expect(() => parsePack(packDir)).toThrow(PackValidationError);
+  });
+});
+
+describe("pack.yaml price field (flat string | {list, intro?, note?})", () => {
+  it("still accepts the flat price string (back-compat, every shipped pack)", () => {
+    writePack({
+      id: "test-pack",
+      version: "0.1.0",
+      name: "Test Pack",
+      price: "$499/year",
+    });
+
+    const pack = parsePack(packDir);
+    expect(pack.meta.price).toBe("$499/year");
+  });
+
+  it("accepts the two-phase object shape with founding intro + list + note", () => {
+    writePack({
+      id: "test-pack",
+      version: "0.1.0",
+      name: "Test Pack",
+      price: {
+        list: "$499/year",
+        intro: "$349/year",
+        note: "Founding price for early buyers",
+      },
+    });
+
+    const pack = parsePack(packDir);
+    expect(pack.meta.price).toEqual({
+      list: "$499/year",
+      intro: "$349/year",
+      note: "Founding price for early buyers",
+    });
+  });
+
+  it("accepts the object shape with list only (intro and note optional)", () => {
+    writePack({
+      id: "test-pack",
+      version: "0.1.0",
+      name: "Test Pack",
+      price: { list: "$499/year" },
+    });
+
+    const pack = parsePack(packDir);
+    expect(pack.meta.price).toEqual({ list: "$499/year" });
+  });
+
+  it("rejects an object price missing list (intro alone is not an offer)", () => {
+    writePack({
+      id: "test-pack",
+      version: "0.1.0",
+      name: "Test Pack",
+      price: { intro: "$349/year" },
+    });
+
+    expect(() => parsePack(packDir)).toThrow(PackValidationError);
+  });
+
+  it("rejects unknown keys inside the object price (strict, like the wrapper)", () => {
+    writePack({
+      id: "test-pack",
+      version: "0.1.0",
+      name: "Test Pack",
+      price: { list: "$499/year", forever: "$999" },
+    });
+
+    expect(() => parsePack(packDir)).toThrow(PackValidationError);
+  });
+});
+
+describe("packPrice normalizer (single shape for every render site)", () => {
+  it("normalizes a flat string to { list }", () => {
+    writePack({
+      id: "test-pack",
+      version: "0.1.0",
+      name: "Test Pack",
+      price: "$499/year",
+    });
+
+    expect(packPrice(parsePack(packDir).meta)).toEqual({ list: "$499/year" });
+  });
+
+  it("passes the object shape through unchanged", () => {
+    writePack({
+      id: "test-pack",
+      version: "0.1.0",
+      name: "Test Pack",
+      price: { list: "$499/year", intro: "$349/year" },
+    });
+
+    expect(packPrice(parsePack(packDir).meta)).toEqual({
+      list: "$499/year",
+      intro: "$349/year",
+    });
+  });
+
+  it("returns null when the pack has no price (free pack)", () => {
+    writePack({ id: "test-pack", version: "0.1.0", name: "Test Pack" });
+
+    expect(packPrice(parsePack(packDir).meta)).toBeNull();
+  });
+});
+
+describe("pack.yaml icon field", () => {
+  it("accepts an optional icon token for per-pack card identity", () => {
+    writePack({
+      id: "test-pack",
+      version: "0.1.0",
+      name: "Test Pack",
+      icon: "briefcase",
+    });
+
+    expect(parsePack(packDir).meta.icon).toBe("briefcase");
   });
 });

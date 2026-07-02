@@ -1,5 +1,25 @@
 # Feature Changelog
 
+## 2026-07-02 — S11: fix-packs-gallery-plg-cards SHIPPED (closes #21 + #20 on main)
+
+### Completed
+- `fix-packs-gallery-plg-cards` — the /packs graduation surface is now PLG-marketing-grade.
+  Slice 1 (#20): `price` widened to `string | { list, intro?, note? }` (back-compat union,
+  TDD'd) behind a single `packPrice()` normalizer; Agency Pro's pack.yaml now expresses the
+  LIVE founding offer ($349/year intro, $499/year list) — offline, hand-maintained, matching
+  the website. New optional `icon:` field (lucide token, never remote). Slice 2 (#21): locked
+  premium packs render as a full-width feature panel — full 6-chapter sales copy unclamped at
+  a 70ch measure, compact offer rail (founding price + struck list anchor + note + install/
+  Get-license CTAs), per-pack icon tiles, and server-rendered All/Free/Premium filter chips
+  via `?filter=` (zero client JS; corrupt templates ignore the filter so packaging bugs stay
+  visible). Verified: 99/99 pack + 90/90 API/licensing tests, tsc clean, design-token
+  validator clean, dev-server browser pass (desktop/mobile/filters), AND a full staging-
+  harness fresh-install pass (customer-identical npx artifact) with R4 isolation clean.
+  Staging also proved the spec's compat note live: a stale prebuilt artifact (old compiled
+  schema) rejects the new pack.yaml with `Unrecognized key "icon"` — core + templates must
+  ship together, which a release tarball guarantees. Screenshots:
+  `output/packs-gallery-2026-07-02/`.
+
 ## 2026-07-02 — S11 grooming: persona-smoke findings #20–#23
 
 ### Groomed
