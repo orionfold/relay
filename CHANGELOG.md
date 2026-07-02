@@ -6,6 +6,8 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.22.1] — 2026-07-02
+
 ### Fixed
 
 - **The first number you see is now your real spend.** On a fresh install, the dashboard's cost tiles read "COST TO DATE $20.00" before you had spent a cent — that was your Claude subscription's monthly price wearing a cost label. The tiles are now **SPEND TODAY / SPEND TO DATE** and show only metered usage summed from your local ledger ($0.00 until you actually run something). Your plan price and budget cap still appear, labeled as what they are: "+ plan $20.00/mo" or "of $20.00 budget".
