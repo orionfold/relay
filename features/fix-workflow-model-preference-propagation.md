@@ -1,6 +1,6 @@
 ---
 title: Propagate model preference to workflow/task execution
-status: planned
+status: completed
 priority: P1
 milestone: mvp
 source: _IDEAS/backlog.md
@@ -47,10 +47,10 @@ so that I'm not silently billed for Opus on work I intended to run on Sonnet.
 
 ## Acceptance Criteria
 
-- [ ] With "Balanced" selected, a workflow step runs on the Sonnet-tier model (DB: `usage_ledger.model_id`
+- [x] With "Balanced" selected, a workflow step runs on the Sonnet-tier model (DB: `usage_ledger.model_id`
       is the balanced model, not Opus) unless a profile/step explicitly pins otherwise.
-- [ ] The effective model per step is visible in the UI (task/workflow detail or monitor).
-- [ ] An explicit per-profile/per-step model pin still overrides the preference (documented behavior).
+- [x] The effective model per step is visible in the UI (task/workflow detail or monitor).
+- [x] An explicit per-profile/per-step model pin still overrides the preference (documented behavior).
 
 ## Scope Boundaries
 
@@ -61,6 +61,28 @@ so that I'm not silently billed for Opus on work I intended to run on Sonnet.
 - Runtime (provider) routing changes — `resolveStepRuntime`/`default_runtime` already works; only the
   *model within the runtime* is unrouted.
 - A full per-step model-picker UI (enhancement).
+
+## Verification run — 2026-07-02
+
+Shipped as `src/lib/agents/runtime/model-preference.ts` (`resolvePreferredModel`: profile
+pin > preference tier > quality default; "privacy" = runtime-level, no within-runtime
+opinion). Wired into: `claude-agent.ts` (task execute + resume now pass `model:` explicitly
+— the SDK was silently choosing Opus when no model was passed), `runtime/claude.ts` aux
+calls (task-assist/profile-assist/meta — previously hardcoded quality tier), and both
+direct runtimes' task paths (`anthropic-direct.ts`, `openai-direct.ts` — explicit
+`*_direct_model` setting still wins). Note: the spec's `catalog.ts:217/221` cite was
+anthropic-direct's entry; claude-code uses bare family aliases (haiku/sonnet/opus).
+
+**Smoke (mandatory per CLAUDE.md, real `npm run dev` + fresh scratch DB):** preference set
+to "balanced" via PUT /api/settings/chat → claude-code task completed on
+`claude-sonnet-4-6` (task.effectiveModelId + ledger row + monitor feed all show it; 69µ
+metered); anthropic-direct task also resolved `claude-sonnet-4-6` (previously
+`claude-opus-4-8`). Aux `pattern_extraction` ran Sonnet. Unit:
+`model-preference.test.ts` (6).
+
+**Found during smoke (separate defect, spec'd):** anthropic-direct task execution fails
+with "Converting circular structure to JSON" — pre-existing, unrelated to model
+resolution; see `fix-anthropic-direct-task-serialization.md`.
 
 ## References
 

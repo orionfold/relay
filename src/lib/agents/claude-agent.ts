@@ -13,6 +13,7 @@ import {
   scanTaskOutputDocuments,
 } from "@/lib/documents/output-scanner";
 import { getProfile } from "./profiles/registry";
+import { resolvePreferredModel } from "./runtime/model-preference";
 import { resolveProfileRuntimePayload, type ResolvedProfileRuntimePayload } from "./profiles/compatibility";
 import type { CanUseToolPolicy } from "./profiles/types";
 import {
@@ -483,6 +484,13 @@ export interface TaskQueryContext {
   maxTurns: number;
   /** Profile's canUseToolPolicy */
   canUseToolPolicy?: CanUseToolPolicy;
+  /**
+   * Concrete model to pass to `query()`: profile pin > onboarding model
+   * preference tier > quality default. Without an explicit model the SDK
+   * silently falls back to ITS default — which billed Opus to users who chose
+   * "Balanced" (fix-workflow-model-preference-propagation).
+   */
+  modelId: string;
 }
 
 export async function buildTaskQueryContext(
@@ -533,6 +541,10 @@ export async function buildTaskQueryContext(
   // F9: Use profile maxTurns or fall back to default
   const maxTurns = profile?.maxTurns ?? DEFAULT_MAX_TURNS;
 
+  const { modelId } = await resolvePreferredModel("claude-code", {
+    pinnedModelId: profile?.capabilityOverrides?.["claude-code"]?.modelId,
+  });
+
   return {
     userPrompt: basePrompt,
     systemInstructions,
@@ -540,6 +552,7 @@ export async function buildTaskQueryContext(
     payload,
     maxTurns,
     canUseToolPolicy: payload?.canUseToolPolicy,
+    modelId,
   };
 }
 
@@ -612,6 +625,10 @@ export async function executeClaudeTask(taskId: string): Promise<void> {
       prompt: ctx.userPrompt,
       options: {
         abortController,
+        // Explicit model: profile pin > onboarding preference > quality
+        // default. Omitting this let the SDK pick ITS default (Opus) and
+        // silently bill the wrong tier.
+        model: ctx.modelId,
         includePartialMessages: true,
         cwd: ctx.cwd,
         env: buildClaudeSdkEnv(authEnv),
@@ -771,6 +788,9 @@ export async function resumeClaudeTask(taskId: string): Promise<void> {
       options: {
         resume: task.sessionId,
         abortController,
+        // Same model resolution as the original run — a resume must not
+        // silently hop tiers (profile pin > preference > quality default).
+        model: ctx.modelId,
         includePartialMessages: true,
         cwd: ctx.cwd,
         env: buildClaudeSdkEnv(authEnv),

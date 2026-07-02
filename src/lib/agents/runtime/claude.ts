@@ -8,6 +8,7 @@ import { getProfile, listProfiles } from "@/lib/agents/profiles/registry";
 import { resolveProfileRuntimePayload } from "@/lib/agents/profiles/compatibility";
 import { executeClaudeTask, resumeClaudeTask } from "@/lib/agents/claude-agent";
 import { getRuntimeCapabilities, getRuntimeCatalogEntry } from "./catalog";
+import { resolvePreferredModel } from "./model-preference";
 import { buildClaudeSdkEnv } from "./claude-sdk";
 import { getLaunchCwd } from "@/lib/environment/workspace-context";
 import { getSetting } from "@/lib/settings/helpers";
@@ -34,10 +35,13 @@ import {
  * model in that family instead of pinning to a string that silently ages out.
  * Without this, `query()` omits `model` entirely and the SDK falls back to its
  * own default — which is not necessarily the family the chat picker selected.
+ *
+ * Honors the user's onboarding model preference ("Balanced" means Sonnet
+ * everywhere, not just chat); falls back to the quality tier when no
+ * preference is recorded.
  */
-function claudeCodeModelAlias(): string {
-  const models = getRuntimeCatalogEntry("claude-code").models;
-  return models.tiers?.quality ?? models.default;
+async function claudeCodeModelAlias(): Promise<string> {
+  return (await resolvePreferredModel("claude-code")).modelId;
 }
 
 function buildTaskAssistSystemPrompt(profileIds: string[]): string {
@@ -148,7 +152,7 @@ export async function runSingleProfileTest(
       prompt,
       options: {
         abortController,
-        model: claudeCodeModelAlias(),
+        model: await claudeCodeModelAlias(),
         includePartialMessages: true,
         env: buildClaudeSdkEnv(authEnv),
         allowedTools: [],
@@ -306,7 +310,7 @@ export async function runMetaCompletion(input: {
       prompt: input.prompt,
       options: {
         abortController,
-        model: claudeCodeModelAlias(),
+        model: await claudeCodeModelAlias(),
         includePartialMessages: true,
         cwd: getLaunchCwd(),
         env: buildClaudeSdkEnv(authEnv),
@@ -497,7 +501,7 @@ async function runClaudeProfileAssist(
       prompt,
       options: {
         abortController,
-        model: claudeCodeModelAlias(),
+        model: await claudeCodeModelAlias(),
         includePartialMessages: true,
         cwd: getLaunchCwd(),
         env: buildClaudeSdkEnv(authEnv),
@@ -584,7 +588,7 @@ async function runClaudeTaskAssist(
       prompt,
       options: {
         abortController,
-        model: claudeCodeModelAlias(),
+        model: await claudeCodeModelAlias(),
         includePartialMessages: true,
         cwd: getLaunchCwd(),
         env: buildClaudeSdkEnv(authEnv),
@@ -655,7 +659,7 @@ async function testClaudeConnection(): Promise<RuntimeConnectionResult> {
       prompt: "Reply with exactly: OK",
       options: {
         abortController,
-        model: claudeCodeModelAlias(),
+        model: await claudeCodeModelAlias(),
         maxTurns: 1,
         includePartialMessages: false,
         cwd: getLaunchCwd(),

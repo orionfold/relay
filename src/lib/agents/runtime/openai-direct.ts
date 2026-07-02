@@ -319,9 +319,14 @@ async function executeOpenAIDirectTask(taskId: string, isResume = false): Promis
     );
     const pluginMcpTools = mcpServersToOpenAiTools(mergedMcpServers);
 
-    // Resolve model
+    // Resolve model: explicit runtime setting > onboarding model preference
+    // tier > catalog default ("Balanced" means the balanced tier on every
+    // runtime, not just chat — fix-workflow-model-preference-propagation).
     const { getSetting } = await import("@/lib/settings/helpers");
-    const modelId = (await getSetting("openai_direct_model")) ?? getRuntimeCatalogEntry("openai-direct").models.default;
+    const { resolvePreferredModel } = await import("./model-preference");
+    const modelId =
+      (await getSetting("openai_direct_model")) ??
+      (await resolvePreferredModel("openai-direct")).modelId;
     const maxTurns = ctx.maxTurns ?? DEFAULT_MAX_TURNS;
 
     // For resume: load previous response ID

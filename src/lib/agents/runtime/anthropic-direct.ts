@@ -376,9 +376,14 @@ async function executeAnthropicDirectTask(taskId: string, isResume = false): Pro
       initialMessages = [{ role: "user", content: ctx.userPrompt }];
     }
 
-    // Resolve model from settings
+    // Resolve model: explicit runtime setting > onboarding model preference
+    // tier > catalog default ("Balanced" means Sonnet on every runtime, not
+    // just chat — fix-workflow-model-preference-propagation).
     const { getSetting } = await import("@/lib/settings/helpers");
-    const modelId = (await getSetting("anthropic_direct_model")) ?? getRuntimeCatalogEntry("anthropic-direct").models.default;
+    const { resolvePreferredModel } = await import("./model-preference");
+    const modelId =
+      (await getSetting("anthropic_direct_model")) ??
+      (await resolvePreferredModel("anthropic-direct")).modelId;
 
     const maxTurns = ctx.maxTurns ?? DEFAULT_MAX_TURNS;
 
