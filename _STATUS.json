@@ -1,22 +1,22 @@
 {
-  "focus": "S7 opened with the PLG-4 ruling (2026-07-02): build the renewal value-recap loop; reverse trial KILLED (re-lock = D4 violation, recorded in plg-refine §4/§5). Next: groom the feat spec, then implement.",
+  "focus": "S7 wrap: 0.22.0 SHIPPED — renewal value-recap loop (PLG-4a): pack.yaml changelog map + one fail-open recap helper + three surfaces (license status, 402 refusal, /packs card). Ruling → groom → build → ship in one session; reverse trial KILLED (D4). S8 = remaining PLG-4 loops, each operator-gated.",
   "blockers": [],
   "next": [
-    "S7 = renewal value-recap loop (operator-ruled 2026-07-02): groom feature spec → `license status` local renewal reminder + Website email relay; remaining PLG-4 candidates (free registration key tier, founding-supporter identity) each still gated for later sessions; reverse trial is DEAD",
+    "Remaining PLG-4 loops, one per session, each operator-gated (AskUserQuestion before spec): free registration key tier (brand-timing = operator's call, needs Website issuer), founding-supporter identity ($349 tier must stop feeling identical to $499); reverse trial is DEAD",
     "ICP P1s interleave: fix-workflow-model-preference-propagation (smoke budget), fix-dashboard-budget-vs-cost-labeling, fix-chat-spend-metering-diagnose",
-    "Held #5/#6/#11/#12 reactive — retest asks live; 0.16–0.21 all shipped since",
-    "Standing: flag on strategy/relay/_RELAY.md if any docs/trust/* URL moves (the /relay/ storefront links them as canonical)",
-    "Backlog: chore-deprecated-transitive-deps (P3) · review/close feat-prepublish-tarball-smoke (superseded) · npm 2FA-hardening now OIDC proven · stale pdfjs-dist in serverExternalPackages"
+    "Reactive: Website owes the T-30 renewal email (later-9/later-10 open, canonical copy posted); NEW standing obligation — flag each new pack changelog: line on _RELAY per release",
+    "Held #5/#6/#11/#12 reactive — retest asks live; 0.16–0.22 all shipped since",
+    "Standing: flag on strategy/relay/_RELAY.md if any docs/trust/* URL moves · Backlog: chore-deprecated-transitive-deps (P3) · review/close feat-prepublish-tarball-smoke · npm 2FA-hardening · stale pdfjs-dist"
   ],
   "recent": [
-    "S6 leg 2 (2026-07-02): 0.21.0 shipped + published (OIDC, smoke green, SBOM attached): install-state sidecar (dest-file sha256s, fail-open) → `pack update` verb (semver compare, offline gate BEFORE any write, renewal-voiced refusal, backup-then-overwrite to apps/<id>/backup/<oldVersion>/) → surfaces off one packUpdateAvailability helper (pack list, /packs Update button, POST /api/packs/update w/ 402) → Agency Pro v0.2.0 nonprofit chapter (grants-analyst profile, grant-pipeline-deep row-triggered blueprint, grants table); issue #18",
-    "D4 proven end-to-end vs the REAL prod license fixture: entitled 0.1.0 install updates store-consult and the grants row-trigger fires on update-delivered content; without a license the update refuses 402 renewal-voiced with the installed pack byte-identical (agency-pro-update.test.ts + live dev-server smoke)",
-    "Publish gate WORKED: first v0.21.0 push failed Case L on stale template counts (2 tables/7 profiles/5 blueprints = the 0.1.0 shape); literals bumped + commented bump-on-chapter-growth, tag moved, second run green",
-    "Website later-6/later-7 closed later-4/later-5: license-terms link (link-not-mirror) + PO/MSA lane (manav@orionfold.com) + Security & trust row all LIVE on /relay/ — every Website-side trust-pack piece done; nothing owed back on the channel",
-    "S6 leg 1 (2026-07-01→02): spec groomed off a full machinery map — NO installed-version record existed, `pack update` was a stub, D4 held only by accident; spec made it a commitment (backup-then-overwrite decided)"
+    "S7 ship (2026-07-02): 0.22.0 shipped + published (OIDC, publish smoke green FIRST try, SBOM attached): pack.yaml changelog: map (template test REQUIRES it for Agency Pro) → fail-open entitledPackRecaps/changelogWindow reusing packUpdateAvailability (D7, never a second comparison) → license status 'Included in your term' recap + enriched ≤30-day warning + expired renewal-voice; 402 refusal names the withheld chapter (CLI + API body verbatim); /packs pending one-liner. TDD throughout; smoked vs the REAL prod license fixture on the built CLI + live dev server. Issue #19",
+    "S7 gate (2026-07-02): renewal value-recap RULED IN (the only loop v0.2.0 made honest); reverse trial KILLED — re-lock = §7 anti-pattern 'expiry that disables installed content' vs the public never-re-lock promise; recorded plg-refine §4/§5; spec groomed at features/feat-renewal-value-recap.md; release recipe hardened (npm version --no-git-tag-version + one release commit + git tag -a + explicit tag push)",
+    "S6 leg 2 (2026-07-02): 0.21.0 shipped + published: install-state sidecar → `pack update` verb (semver compare, offline gate BEFORE any write, renewal-voiced refusal, backup-then-overwrite) → surfaces off one packUpdateAvailability helper → Agency Pro v0.2.0 nonprofit chapter; D4 proven vs the real prod license end-to-end; issue #18",
+    "Publish gate WORKED on 0.21.0: first push failed Case L on stale template counts (by design); literals bumped + commented bump-on-chapter-growth, tag moved, second run green",
+    "Website later-6/later-7 closed later-4/later-5: license-terms link + PO/MSA lane (manav@orionfold.com) + Security & trust row all LIVE on /relay/"
   ],
   "metrics": {
-    "released": "0.21.0",
+    "released": "0.22.0",
     "premium_packs": 1,
     "paid_updates_delivered": 1,
     "sbom_components": "491 prod deps (CycloneDX 1.5, measured 2026-07-01)",

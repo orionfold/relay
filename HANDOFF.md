@@ -1,27 +1,31 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-02 (pt: S6 wrap — 0.21.0 SHIPPED: pack-update workflow + Agency Pro
-v0.2.0 nonprofit chapter, the first paid update (issue #18); Website later-6/later-7 closed
-later-4/later-5 (license-terms link + MSA lane + Security & trust row live on /relay/).
-Prior tail: S1–S5 = 0.16.0→0.20.0 — see git log + beacon recent.)_
+_Last updated: 2026-07-02 (pt: S7 wrap — 0.22.0 SHIPPED: renewal value-recap loop (PLG-4a) —
+ruling + groom + build + ship in one session (issue #19); reverse trial KILLED (D4, recorded
+plg-refine §4/§5); relay later-9/later-10 posted (Website owes the T-30 renewal email).
+Prior tail: S1–S6 = 0.16.0→0.21.0 — see git log + beacon recent.)_
 
-## ▶️ NEXT SESSION (S7) — PLG-4: renewal value-recap (RULED 2026-07-02, unblocked)
-Operator gate passed: **build the renewal value-recap loop** (`license status` local reminder +
-Website email relay; honest now that v0.2.0 exists). **Reverse trial KILLED** — re-lock = D4
-violation, recorded in plg-refine §4/§5; do not resurface. Spec GROOMED:
-`features/feat-renewal-value-recap.md` (2026-07-02) — next step: implement it.
-ICP P1s interleave as capacity allows (below).
-- **Relay channel: CLEAR** — Website later-6/later-7 landed EVERYTHING (license-terms link,
-  PO/MSA lane w/ manav@orionfold.com, plus the Security & trust row on /relay/); checked
-  2026-07-02, nothing owed back. Standing obligation: flag on _RELAY if any `docs/trust/*`
-  URL ever moves (storefront links them as canonical).
+## ▶️ NEXT SESSION (S8) — remaining PLG-4 loops, each OPERATOR-GATED; ICP P1s interleave
+Two loop candidates left, one per session, AskUserQuestion gate before any spec work:
+- **Free registration key tier** (n8n-style email → key → community niceties) — plg-refine §4
+  calls it a strong recommendation but brand-timing is the operator's call; needs Website
+  issuer participation + a decision on which niceties gate.
+- **Founding-supporter identity** — the $349 founding tier feels identical to $499; mostly
+  Website/community surface, thin product code.
+- **Reverse trial is DEAD** (ruled 2026-07-02): re-lock = the §7 anti-pattern "expiry that
+  disables installed content" vs the public promise. Do not resurface in any form that
+  writes premium content to the pack store.
+- **Relay channel: later-9/later-10 OPEN (reactive)** — Website owes the T-30 renewal email
+  (canonical copy posted on _RELAY, incl. the no-phone-home honesty constraint: recap release
+  history, never installs). NEW standing obligation: flag each new pack `changelog:` line on
+  _RELAY per release. Old standing obligation holds: flag if any `docs/trust/*` URL moves.
 - **Anti-patterns stay fenced (plg-refine §7):** no DB licensing, no CLI upsell banners, no
   online re-validation, no expiry that disables installed packs (D4 = shipped behavior AND
-  public promise — README, issues #14–#18, orionfold.com/promise/; now enforced at the
-  UPDATE gate too, proven by agency-pro-update.test.ts).
+  public promise — README, issues #14–#19, orionfold.com/promise/; enforced at the UPDATE
+  gate, proven by agency-pro-update.test.ts).
 
 ## Held issues #5/#6/#11/#12 — WAITING on customer retest (reactive)
-Retest asks POSTED on 0.16.0 (2026-07-01); 0.17–0.20 also live. Prod build likely moots the
+Retest asks POSTED on 0.16.0 (2026-07-01); 0.17–0.22 also live. Prod build likely moots the
 class. If they persist: repro cross-machine (NOT localhost) via Mode D. Triage: `bf204c24`.
 
 ## ICP smoke fixes (remaining; interleave)
@@ -30,11 +34,16 @@ class. If they persist: repro cross-machine (NOT localhost) via Mode D. Triage: 
 - **P2:** `fix-inbox-checkpoint-realtime`.
 
 ## Known caveats
-- **apiVersion window**: bumped IN the release commit again (0.20 window in `77613a6c`);
-  tests derive from `CURRENT_PLUGIN_API_VERSION`; the one manual site = `examples/*/plugin.yaml`
-  (under `src/lib/plugins/examples/`), and the plugin suite fails loudly if missed.
-- **Manual `git tag` is LIGHTWEIGHT and `--follow-tags` skips it** → CI never fires. Push the
-  tag explicitly or use `git tag -a` (memory `release-and-issue-conventions`; hit on 0.20.0).
+- **apiVersion window**: bump `CURRENT_PLUGIN_API_VERSION` (sdk/types.ts) + previous-MINOR
+  literal (registry.ts) + `examples/*/plugin.yaml` IN the release commit (0.22 window in
+  `d1f16046`); the window test fails loudly until package.json bumps — that's its design.
+- **Release recipe (proven 0.22.0):** `npm version minor` REFUSES a staged tree → use
+  `npm version minor --no-git-tag-version`, one manual release commit (window + CHANGELOG +
+  bump together), `git tag -a`, push the tag explicitly (memory `release-and-issue-conventions`;
+  lightweight-tag CI miss hit on 0.20.0).
+- **Pack `changelog:` map feeds every recap surface** (license status, 402 refusal, /packs
+  card, renewal email copy) — add a line with EVERY pack version bump; the template test
+  REQUIRES it for Agency Pro. Case L smoke counts are a SEPARATE bump-on-chapter-growth site.
 - **docs/index.md + docs/features|journeys|use-cases are GITIGNORED** (generated corpus,
   local-only). Public docs = README + SECURITY.md + docs/trust/ + docs/RELEASING.md +
   docs/plugin-security.md. Trust-doc claims must stay code-true — data-flow.md documents the
@@ -47,7 +56,7 @@ class. If they persist: repro cross-machine (NOT localhost) via Mode D. Triage: 
   (junction on win32). See #10 spec.
 - **Profiles are file-based, no `agent_profiles` table** (memory `profiles-are-file-based-not-db`).
 - **CLI startup robustness** (memory `cli-startup-robustness`): startup writes non-fatal;
-  licensed-banner read fail-open by the same rule.
+  licensed-banner + recap surfaces fail-open by the same rule (recap is decoration, never a gate).
 - **Nav width cap:** groups cap at 4 children; Packs is the one tested exception.
 - **Blueprint/profile content must pass its Zod schema** — the registry skips invalid files
   with only a console.warn (→ "Blueprint not found" at first trigger). The agency-pro test
@@ -65,17 +74,19 @@ class. If they persist: repro cross-machine (NOT localhost) via Mode D. Triage: 
 - **Work directly on `main`** — no worktrees/branches unless operator asks (memory `work-on-main-no-worktrees`).
 - **npm publishing via OIDC** (`.github/workflows/publish.yml` on `vX.Y.Z` tag; `docs/RELEASING.md`).
   Publish GATED by the npx prod smoke (Case L exercises the REAL relay-agency-pro). Every
-  release now also attaches a **CycloneDX SBOM** to the GitHub Release.
+  release attaches a **CycloneDX SBOM** to the GitHub Release.
 - **Smoke-test budget** (CLAUDE.md): runtime-registry-adjacent changes need a real launch smoke.
 - **gh issue/label writes are ALLOWLISTED** (memory `autonomous-session-permission-gates`).
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped (durable in git + memory)
-- **0.21.0** (this session): pack-update workflow (install-state sidecar, `pack update` verb,
-  backup-then-overwrite, list//packs/API surfaces) + Agency Pro v0.2.0 nonprofit deep chapter
-  — the first paid update; D4 enforced at the update gate, proven vs the real prod license
-  fixture; issue #18. NOTE: publish gate caught the stale Case L counts (by design) — the
-  smoke's template literals are now commented as bump-on-chapter-growth.
-- Prior: **0.20.0** enterprise trust pack (#17) · **0.19.0** relay-agency-pro first premium
-  pack (#16) · **0.18.0** graduation surface (#15) · **0.17.0** license lifecycle (#14) ·
-  **0.16.0** prod build for npx (#10) — see `git log` + beacon `recent[]`.
+- **0.22.0** (this session): renewal value-recap loop — pack.yaml `changelog:` map (single
+  recap source), fail-open `entitledPackRecaps`/`changelogWindow` reusing
+  `packUpdateAvailability` (D7), three explicit-invocation surfaces (`license status` recap +
+  enriched 30-day warning + expired renewal-voice; 402 refusal names the withheld chapter;
+  /packs one-liner); TDD; smoked vs the REAL prod license on the built CLI + live dev server;
+  publish smoke green first try; issue #19.
+- Prior: **0.21.0** pack-update workflow + Agency Pro v0.2.0 first paid update (#18) ·
+  **0.20.0** enterprise trust pack (#17) · **0.19.0** first premium pack (#16) · **0.18.0**
+  graduation surface (#15) · **0.17.0** license lifecycle (#14) · **0.16.0** prod build (#10)
+  — see `git log` + beacon `recent[]`.
