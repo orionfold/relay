@@ -1,16 +1,36 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-02 (pt: S10 — shipped both P2 fixes to origin/main:
-`fix-anthropic-direct-task-serialization` (in-process `relay` MCP server was passed to the
-Messages API `mcp_servers` → circular-JSON crash on every anthropic-direct task; added
-`mcpServersToAnthropicConnectors` projection, real-task smoke → "ok") + `fix-inbox-
-checkpoint-realtime` (Inbox list + badge now subscribe to the pending-approvals SSE as an
-invalidation trigger; 741ms insert→emit smoke). PLG-4 groomed: free-key tier DEFERRED,
-founding-supporter DROPPED → no live growth loop queued. Commits 705d095a/1b10404e/891e759b.
-Prior tail: S1–S9 = 0.16.0→0.22.1 — see git log + beacon recent.)_
+_Last updated: 2026-07-02 (pt: S11-S1 SHIPPED (`e8c18f4a`) — BUILT the PLG-S staging harness env +
+driver + `relay-staging` skill. `scripts/lib/harness.mjs` extracts the launch/CLI primitives shared
+by `npx-prod-smoke.mjs` (still green A/B/L/C) + `scripts/staging.mjs` (setup/launch-hold-open/status/
+teardown). R4 isolation check hardened to CONTENT sha256 after verification caught an mtime
+false-positive (boot-time legacy migration + concurrent dev server touch `~/.relay` mtime benignly;
+lsof proves the server holds only `~/.relay-staging`). E2e verified end to end. Prior tail: S11-plan =
+spec + workbreak; S10 = 2 P2 fixes; S1–S9 = 0.16.0→0.22.1 — see git log + beacon.)_
 
-## ▶️ NEXT SESSION (S11) — no live PLG-4 loop; work is reactive + backlog
-**PLG-4 has no live growth-loop candidate queued** (all three ruled out 2026-07-02):
+## ▶️ NEXT SESSION (S11 cont.) — S2: `staging-cli-run` skill (Mode A + C, VHS GIF)
+**S1 SHIPPED** (`e8c18f4a`): `scripts/lib/harness.mjs` + `scripts/staging.mjs` (setup/launch/status/
+teardown) + `relay-staging` skill (the S2–S4 substrate). Spec: `_SPECS/relay-staging-harness.md` §8.
+- **S2 (NEXT)** · `staging-cli-run` skill — install/wire **VHS** (local dev dep; skill checks +
+  instructs install if missing). Author the CLI first-run `.tape` (Mode A: banner · env writes ·
+  artifact download line · port/bind · Community banner → `output/staging/<date>/cli-first-run.gif`
+  + tee log). Then the **Mode C** dev-key-signer fulfilment script (mint `of-license-dev-2026-06`
+  license via `sign-helper.ts` → `relay license add` → relaunch "Licensed to" → `relay pack add
+  relay-agency-pro` no-flag → `relay license status` → `rm` store → banner reverts, pack stays =
+  **D4 proof**), folded into the same GIF. Rides `relay-staging`; scenario-mode license verbs use
+  `runCliCommand({extraEnv})` — the `extraEnv` param is already in `harness.mjs`.
+- **S3** · `staging-browser-smoke` skill — J0–J6 via Claude-in-Chrome (operator watches), screens
+  + console + network → `output/staging/<date>/` bundle.
+- **S4** · `staging-evaluate` skill — verify-before-groom findings → `features/fix-*.md` +
+  `_IDEAS/backlog.md`; DRAFT gh issues to `output/` (never auto-file).
+- Decisions locked: vhs · offline dev-key signer · `file://` mirror · Chrome-primary · both
+  fulfilment surfaces · drafted issues. Plan: `~/.claude/plans/read-handoff-…-dongarra.md`.
+- **`file://` mirror is per-version** — build `dist-artifacts/relay-next-build-<v>.tgz` once per
+  version bump (`npm run build && node scripts/build-prebuilt-artifact.mjs`); 0.22.1 built this session.
+- Constraints: work on `main`; `_SPECS`/`_IDEAS` edit-only (strategy repo, its owner commits);
+  Ollama-preferred for agent steps (R5); harness-side instrumentation only (no phone-home).
+
+**PLG-4 has no live growth-loop candidate queued** (all three ruled out 2026-07-02, stays reactive):
 - **Free registration key tier is DEFERRED** — still a strong recommendation (plg-refine §4),
   but brand-timing isn't right and it depends on Website issuer participation + a decision on
   which 2–3 niceties gate. Held for a future session; re-open only when the operator resurfaces
@@ -79,15 +99,16 @@ cross-machine (NOT localhost) via Mode D. Triage: `bf204c24`.
 - **gh issue/label writes are ALLOWLISTED** (memory `autonomous-session-permission-gates`).
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
-## Recently shipped (durable in git + memory)
-- **S9 — 0.22.1 SHIPPED** (`2e0ab3bd`, Release `v0.22.1`): cost-trust P1 bundle published
-  via OIDC + SBOM. Then a `stagent→ainative→relay` legacy-symbol sweep (`d6693d55`) — fixed
-  3 live divergence bugs (boot migrator + `drizzle.config` + backfill read orphaned
-  `~/.ainative` vs live `~/.relay`); chained the migrator; corrected stale governance docs.
-  Load-bearing legacy strings kept (memory `legacy-rebrand-divergence-bugs`).
-- **S8 unreleased fix bundle**: `4e9c2569` spend tiles · `fbc9f482` model preference ·
-  `c85dadc0` Ollama metering · `bad7ede2` docs — specs completed with verification runs.
-- Prior: **0.22.0** renewal value-recap (#19) · **0.21.0** pack updates + Agency Pro v0.2.0
+## Recently shipped (durable in git + memory + beacon recent[])
+- **S11-S1** (`e8c18f4a`): PLG-S staging harness env + driver + `relay-staging` skill.
+  `scripts/lib/harness.mjs` (shared launch/CLI primitives) + `scripts/staging.mjs`
+  (setup/launch-hold-open/status/teardown, `:3199`, `~/.relay-staging`, `RELAY_STAGING=true`,
+  `file://` mirror). R4 = **content sha256** not mtime (memory `staging-isolation-check-content-not-mtime`).
+  Smoke green post-extraction.
+- **S9** (`2e0ab3bd`/`d6693d55`): 0.22.1 SHIPPED (cost-trust P1, OIDC+SBOM) + legacy-symbol sweep
+  (3 live `~/.ainative`-vs-`~/.relay` divergence bugs; memory `legacy-rebrand-divergence-bugs`).
+- **S8** (`4e9c2569`/`fbc9f482`/`c85dadc0`/`bad7ede2`): spend tiles · model preference · Ollama
+  metering · docs (unreleased at S8, published in the 0.22.1 train).
+- Version history: **0.22.0** renewal recap (#19) · **0.21.0** pack updates + Agency Pro v0.2.0
   (#18) · **0.20.0** trust pack (#17) · **0.19.0** first premium pack (#16) · **0.18.0**
-  graduation surface (#15) · **0.17.0** license lifecycle (#14) · **0.16.0** prod build
-  (#10) — see `git log` + beacon `recent[]`.
+  graduation (#15) · **0.17.0** license lifecycle (#14) · **0.16.0** prod build (#10) — see git log.
