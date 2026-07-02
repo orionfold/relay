@@ -1,10 +1,11 @@
 id: relay-agency-pro
-version: "0.1.0"
+version: "0.2.0"
 name: Relay Agency Pro
 description: >
   The agency operating system on top of the free Relay Agency verbs: a
   scheduled finance cockpit, row-triggered intake pipelines, a new-business
-  machine, client-safe governance, and a deep CRE renewal engine.
+  machine, client-safe governance, a deep CRE renewal engine, and a deep
+  nonprofit grant pipeline (added in v0.2.0).
 persona: >
   An agency operator whose client book should process itself: intake that
   triggers work, month-end that closes itself, margin visible per client, and
@@ -26,6 +27,8 @@ profiles:
     source: $AINATIVE_DATA_DIR/profiles/relay-agency-pro--sensitive-client-analyst/
   - id: relay-agency-pro--cre-renewal-analyst
     source: $AINATIVE_DATA_DIR/profiles/relay-agency-pro--cre-renewal-analyst/
+  - id: relay-agency-pro--nonprofit-grants-analyst
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency-pro--nonprofit-grants-analyst/
 
 blueprints:
   - id: relay-agency-pro--month-end-close
@@ -41,6 +44,11 @@ blueprints:
     source: $AINATIVE_DATA_DIR/blueprints/relay-agency-pro--client-audit-export.yaml
   - id: relay-agency-pro--cre-renewal-engine
     source: $AINATIVE_DATA_DIR/blueprints/relay-agency-pro--cre-renewal-engine.yaml
+  - id: relay-agency-pro--grant-pipeline-deep
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency-pro--grant-pipeline-deep.yaml
+    trigger:
+      kind: row-insert
+      table: grants
 
 tables:
   # The engagements ledger: one row per billing/cost line, signed amount
@@ -52,6 +60,11 @@ tables:
   # trigger) and routes by `kind` under the named client.
   - id: intake
     columns: [client, kind, source, status, notes]
+  # The grant pipeline: drop an opportunity row, the deep grant pipeline
+  # fires (row-insert trigger) — fit-scored go/no-go, LOI, application
+  # assembly, and the post-award compliance calendar, per client.
+  - id: grants
+    columns: [client, funder, program, amount, deadline, stage, notes]
 
 schedules:
   # Fires the month-end close on the 1st at 06:00 for the month just ended.

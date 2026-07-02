@@ -1,20 +1,23 @@
 id: relay-agency-pro
-version: "0.1.0"
+version: "0.2.0"
 name: Relay Agency Pro
 author: Orionfold
 # This description renders as the what-you-get preview on the locked /packs
 # card (D6) — it is sales copy, not an internal summary.
 description: >
-  Relay Agency runs a workflow. Agency Pro runs your agency. Five chapters of
+  Relay Agency runs a workflow. Agency Pro runs your agency. Six chapters of
   agency operating system: a Finance Cockpit that closes your month by itself
   (per-client rollups, margin on one screen, a scheduled month-end close);
   Intake Pipelines that turn a dropped row into the right client workflow
   automatically; a New-Business Machine that takes a prospect from research to
   signed engagement letter; client-safe Governance profiles with hard tool
-  policies and a per-client audit export; and a deep Commercial Real Estate
+  policies and a per-client audit export; a deep Commercial Real Estate
   renewal engine — critical dates, escalations, comps, LOI drafts, portfolio
-  rent roll. Nonprofit deep chapter arrives in v0.2.0 as your first included
-  update. Everything installs offline; your license never phones home.
+  rent roll; and the Nonprofit deep chapter (added in v0.2.0, your first
+  included update) — a grant pipeline that takes every opportunity from
+  fit-scored go/no-go through LOI, full application, and post-award
+  restricted-funds compliance with a reporting calendar. Everything installs
+  offline; your license never phones home.
 relayCore: ">=0.18.0"
 entitlement: product:orionfold-relay
 price: "$499/year"

@@ -83,9 +83,9 @@ describe("relay-agency-pro bundled template", () => {
     const report = await installPack("relay-agency-pro", installOpts());
 
     expect(report.packId).toBe("relay-agency-pro");
-    expect(report.profilesDropped).toBeGreaterThanOrEqual(6);
-    expect(report.blueprintsDropped).toBeGreaterThanOrEqual(5);
-    expect(report.tablesCreated).toBe(2);
+    expect(report.profilesDropped).toBeGreaterThanOrEqual(7);
+    expect(report.blueprintsDropped).toBeGreaterThanOrEqual(6);
+    expect(report.tablesCreated).toBe(3);
     expect(report.schedulesRegistered).toBe(1);
     expect(report.customersSeeded).toBe(0); // Pro operates real clients
 
@@ -128,6 +128,48 @@ describe("relay-agency-pro bundled template", () => {
     expect((nextClose!.source as { schedule?: string }).schedule).toBe(
       compositeId
     );
+  });
+
+  it("v0.2.0 ships the nonprofit deep chapter — the first paid update (D4 pitch made real)", async () => {
+    const { listPackTemplates } = await import("../catalog");
+    const tpl = listPackTemplates().find((t) => t.id === "relay-agency-pro")!;
+    expect(tpl.meta!.version).toBe("0.2.0");
+    // The locked-card description now sells the chapter as INCLUDED, not
+    // promised ("arrives in v0.2.0" was the 0.1.0 copy).
+    expect(tpl.meta!.description).toMatch(/nonprofit/i);
+    expect(tpl.meta!.description).not.toMatch(/arrives in v0\.2\.0/i);
+
+    await saveEntitledLicense();
+    const { installPack } = await import("../install");
+    const registry = await import("@/lib/apps/registry");
+    await installPack("relay-agency-pro", installOpts());
+
+    // The chapter's three primitives land: deep profile, row-triggered deep
+    // blueprint bound to the grants table (rewritten to the real UUID), and
+    // the grants table itself.
+    expect(
+      fs.existsSync(
+        path.join(
+          profilesDir,
+          "relay-agency-pro--nonprofit-grants-analyst",
+          "SKILL.md"
+        )
+      )
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(blueprintsDir, "relay-agency-pro--grant-pipeline-deep.yaml")
+      )
+    ).toBe(true);
+
+    const app = registry.getApp("relay-agency-pro", appsDir)!;
+    const grantBp = app.manifest.blueprints.find(
+      (bp) => bp.id === "relay-agency-pro--grant-pipeline-deep"
+    );
+    expect(grantBp?.trigger?.kind).toBe("row-insert");
+    const tableIds = new Set(app.manifest.tables.map((t) => t.id));
+    expect(tableIds.has(grantBp!.trigger!.table)).toBe(true);
+    expect(grantBp!.trigger!.table).not.toBe("grants"); // rewritten to real id
   });
 
   it("ships hardened profiles — governance as content, verifiable on disk", async () => {

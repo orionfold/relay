@@ -1,6 +1,6 @@
 ---
 title: Pack update workflow + Agency Pro v0.2.0 (nonprofit deep chapter)
-status: planned
+status: shipped
 priority: P0
 milestone: mvp
 source: _SPECS/plg-refine.md §4 D4 + feat-agency-pro-pack.md (excluded scope: "the update *workflow* is future work tied to the first paid update") + S6 operator gate (2026-07-01)
