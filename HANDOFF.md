@@ -1,23 +1,21 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-02 (pt: S11-S3-ship — groomed + SHIPPED fix-packs-gallery-plg-cards
-(#20+#21 CLOSED, `d755b98f`): price schema union {list,intro?,note?} + `packPrice()` normalizer +
-`icon:` field; /packs redesign — locked-premium hero card w/ FULL sales copy, two-phase founding
-price ($349 intro · struck $499 list), All/Free/Premium chips. TDD + staging-harness verified
-(fresh npx install, R4 clean). THEN operator ruling: promise re-phrased **"Relay never sends your
-data to Orionfold"** — repo-wide sweep (`f5f85b8e`), issues #17/#19/#20 edited, _RELAY later-12
-posted. Prior tail: S11-S2 smoke = #20–#23 filed; S11-S1 harness = `e8c18f4a`; S1–S10 =
-0.16.0→0.22.1 — see git log + beacon.)_
+_Last updated: 2026-07-02 (pt: S11-S4-release — **0.23.0 RELEASED to npm** (`c6800c5d`, tag
+`v0.23.0`): gallery + founding price live; OIDC publish green (smoke-gated), GH Release +
+artifact/sha256/SBOM verified; apiVersion window → {0.23, 0.22}. THEN **#22 SHIPPED**
+(`55b3ae7d`): onboarding pref survives fast-navigate — real cause was the browser aborting the
+in-flight PUT on hard nav, NOT a missing await → `keepalive: true` + `res.ok` check + retryable
+inline error. **#23 SHIPPED** (`70db6926`): fresh-boot "no such table" ALTER noise suppressed —
+server.log now opens "Database ready.". Both staging-verified (fresh npx install, R4 clean),
+closed + shipped-labeled, `[Unreleased]` entries written. Prior tail: S11-S1..S3
+harness/smoke/gallery+promise = `e8c18f4a`/`d755b98f`/`f5f85b8e` — see git log + beacon.)_
 
-## ▶️ NEXT SESSION — pick: release · small fixes · S2 harness
-- **Cut the next release (minor).** Two `[Unreleased]` CHANGELOG entries ready (gallery + founding
-  price). Release recipe + apiVersion-window caveats below apply.
-- **#22** (P2, bug) · onboarding pref dropped on fast-navigate — await the modal `PUT` before
-  `onClose` (guard at `runtime-preference-bootstrapper.tsx:36` is correct). Issue-tracked, no spec.
-- **#23** (P3, bug+polish) · fresh-boot `ALTER TABLE` noise (`bootstrap.ts:318` doesn't suppress
-  "no such table"). Issue-tracked, no spec.
-- **Publish-gate price-drift check** — once Website answers later-12 (pricing.json or canonical
-  location), add the drift diff to the npx prod smoke / publish gate.
+## ▶️ NEXT SESSION — S2 harness build
+- **S2** · `staging-cli-run` skill (primary) — see the S2–S4 block below.
+- **Next release is a PATCH (0.23.1)** unless features land first — two `[Unreleased]` fix
+  entries ready (#22/#23); patch = NO apiVersion-window bump.
+- **Publish-gate price-drift check** — still blocked on Website later-12 (pricing.json or
+  canonical location); when answered, add the drift diff to the npx prod smoke / publish gate.
 
 ### S2–S4 harness build (still queued)
 - **S2** · `staging-cli-run` skill — install/wire **VHS** (local dev dep; skill checks + instructs if
@@ -56,9 +54,8 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **apiVersion window**: bump `CURRENT_PLUGIN_API_VERSION` (sdk/types.ts) + previous-MINOR
   literal (registry.ts) + `examples/*/plugin.yaml` IN the release commit ONLY on a MINOR
   bump (0.22 window in `d1f16046`); the window test fails loudly until package.json bumps.
-- **Release recipe (proven 0.22.0):** `npm version` REFUSES a staged tree → use
-  `--no-git-tag-version`, one manual release commit (window + CHANGELOG + bump together),
-  `git tag -a`, push the tag explicitly (memory `release-and-issue-conventions`).
+- **Release recipe:** proven twice (0.22.0, 0.23.0) — full sequence + watcher gotcha in
+  memory `release-and-issue-conventions`.
 - **Pack `changelog:` map feeds every recap surface** (license status, 402 refusal, /packs
   card, renewal email copy) — add a line with EVERY pack version bump; the template test
   REQUIRES it for Agency Pro. Case L smoke counts are a SEPARATE bump-on-chapter-growth site.
@@ -97,8 +94,9 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped (per-session detail in git + beacon recent[]; this is just the version index)
-**main (unreleased):** #20/#21 gallery + founding price (`d755b98f`) + promise-phrase sweep
-(`f5f85b8e`). Version history: **0.22.1** cost-trust P1 + OIDC/SBOM · **0.22.0** renewal recap
-(#19) · **0.21.0** pack updates + Agency Pro v0.2.0 (#18) · **0.20.0** trust pack (#17) ·
-**0.19.0** first premium pack (#16) · **0.18.0** graduation (#15) · **0.17.0** license lifecycle
-(#14) · **0.16.0** prod build (#10). — full detail: `git log` + beacon.
+**main (unreleased):** #22 onboarding-pref keepalive (`55b3ae7d`) + #23 fresh-boot noise
+(`70db6926`). Version history: **0.23.0** packs gallery + founding price (#20/#21) · **0.22.1**
+cost-trust P1 + OIDC/SBOM · **0.22.0** renewal recap (#19) · **0.21.0** pack updates + Agency Pro
+v0.2.0 (#18) · **0.20.0** trust pack (#17) · **0.19.0** first premium pack (#16) · **0.18.0**
+graduation (#15) · **0.17.0** license lifecycle (#14) · **0.16.0** prod build (#10). — full
+detail: `git log` + beacon.
