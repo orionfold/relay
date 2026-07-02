@@ -503,6 +503,18 @@ into customer-link.
 | [fix-inbox-checkpoint-realtime](fix-inbox-checkpoint-realtime.md) | P2 | planned | — |
 | [fix-anthropic-direct-task-serialization](fix-anthropic-direct-task-serialization.md) | P2 | planned | — |
 
+### Staging Persona Smoke Fixes (2026-07-02)
+
+Groomed from the PLG-refine persona smoke on `orionfold-relay@0.22.1` staging (Naya, agency
+founder — `output/staging/2026-07-02/EVALUATION.md`), findings code-verified before grooming.
+Filed as GitHub #20–#23; the spec below closes **#21 + #20** together (the founding-price render
+contract lives inside the card design, and `meta.price` has exactly one consumer). #22 (onboarding
+PUT race) and #23 (fresh-boot ALTER TABLE noise) are small fixes tracked on their issues, no spec.
+
+| Feature | Priority | Status | Dependencies |
+|---------|----------|--------|--------------|
+| [fix-packs-gallery-plg-cards](fix-packs-gallery-plg-cards.md) | P1 | planned | — |
+
 ## Dependency Graph
 
 Critical path through the MVP:

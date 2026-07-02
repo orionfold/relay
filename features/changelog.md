@@ -1,5 +1,21 @@
 # Feature Changelog
 
+## 2026-07-02 — S11 grooming: persona-smoke findings #20–#23
+
+### Groomed
+- `fix-packs-gallery-plg-cards` (P1) — new spec, closes GitHub **#21** (pack gallery →
+  PLG-marketing-grade cards: full sales copy unclamped, per-pack visual identity, use the
+  canvas, scale to N packs w/ free/premium filter) **and folds in #20** (price schema union
+  `string | {list, intro?, note?}` + normalizer so the card can express the LIVE founding
+  price: $349 first N buyers → $499 normal — the website is CORRECT, the product lacked the
+  mechanic). One spec because `meta.price` has exactly one consumer (the gallery card) and
+  the render contract belongs to the card design. Groomed as a frontend-design spec per
+  operator direction; implementation invokes `frontend-design` + `taste`, verifies on the
+  `relay-staging` harness.
+- **#22** (P2, onboarding PUT-before-onClose race) and **#23** (P3, fresh-boot ALTER TABLE
+  noise) stay issue-tracked, no spec — both are single-site fixes with the root cause already
+  code-verified in `output/staging/2026-07-02/EVALUATION.md`.
+
 ## 2026-07-02 — S10 grooming: PLG-4 growth-loop candidates cleared
 
 Operator ruled on the two remaining PLG-4 loop candidates (AskUserQuestion gate, per §4/§5):
