@@ -4,6 +4,16 @@
 
 This project was formerly published as `stagent` on npm and hosted at `github.com/manavsehgal/stagent`. As of 2026-04-17 it is `ainative`. The old GitHub URL redirects permanently; `stagent` on npm is deprecated with an upgrade pointer to `ainative`.
 
+## [0.21.0] — 2026-07-02
+
+### Added
+
+- **`relay pack update` is real — and Agency Pro v0.2.0 is the first paid update it delivers.** When we sold Agency Pro we made a promise on the locked card: "Nonprofit deep chapter arrives in v0.2.0 as your first included update." Both halves of that sentence now exist:
+  - **The update workflow (free, for every pack).** `relay pack update <id>` brings an installed pack to the newer bundled version — or from a folder/git source with `relay pack update <id> <source>`. `relay pack list` now shows each pack's installed version and flags `[update available → vX.Y.Z]`, and the Packs page grows an "Update to vX.Y.Z" button that does the same in one click. Updates are additive by design: your tables are reused (never re-seeded), your schedule state (pause, run counts) survives, and nothing you have is ever deleted.
+  - **Your edits are backed up, never lost.** If you've customized a file a pack installed (a profile's SKILL.md, a blueprint), the update copies your version to `apps/<pack>/backup/<old-version>/` before laying down the new content, and tells you exactly what it backed up. Installs made before 0.21.0 have no edit-tracking record, so updating one backs up everything first — cautious by default.
+  - **Agency Pro v0.2.0: the nonprofit deep chapter.** A grants pipeline that runs the full lifecycle: drop a grant opportunity into the new `grants` table and the deep blueprint fires by itself — absolute-dated deadline chain, a weighted go/no-go fit score with the pursuit-plus-compliance economics stated, an LOI/application draft where every claim is cited or flagged for client data, and a post-award restricted-funds compliance calendar so awarded money never becomes unmanaged risk. If you bought Agency Pro on 0.1.0: `relay pack update relay-agency-pro` and the chapter lands.
+- **The never-re-lock promise, now enforced at the update gate.** Updating a premium pack re-checks your license the same way installing does — offline, against the license file on your disk, never a server. If the license is missing or expired, the update refuses with the honest message: your installed pack keeps working, nothing is locked, renewing gets you the new version. No online re-validation, no phone-home, and expiry never touches what you already installed — same terms as [docs/trust/license-terms.md](docs/trust/license-terms.md) and [orionfold.com/promise](https://orionfold.com/promise/).
+
 ## [0.20.0] — 2026-07-01
 
 ### Added
