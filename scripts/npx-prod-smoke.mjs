@@ -29,11 +29,21 @@
 // (CI runs both). The script runs `npm run build:cli` + `npm pack` itself.
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import fs from "node:fs/promises";
-import net from "node:net";
 import os from "node:os";
 import path from "node:path";
-import { spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
+// Shared launch/CLI helpers — the SAME module the operator staging driver
+// (scripts/staging.mjs) imports, so the two harnesses never drift (PLG-S / S1).
+import {
+  assert,
+  launchCli,
+  reserveLoopbackPort,
+  run,
+  runCliCommand,
+  stopChild,
+  waitForHttpOk,
+  waitForOutput,
+} from "./lib/harness.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = JSON.parse(readFileSync(path.join(repoRoot, "package.json"), "utf-8"));
@@ -46,120 +56,6 @@ const artifactPath =
   artifactArgIndex !== -1
     ? path.resolve(process.argv[artifactArgIndex + 1])
     : path.join(repoRoot, "dist-artifacts", `relay-next-build-${pkg.version}.tgz`);
-
-function run(command, args, options = {}) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { stdio: "inherit", ...options });
-    child.on("error", reject);
-    child.on("exit", (code) => {
-      if (code === 0) resolve();
-      else reject(new Error(`${command} ${args.join(" ")} exited with code ${code}`));
-    });
-  });
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function reserveLoopbackPort() {
-  return new Promise((resolve, reject) => {
-    const server = net.createServer();
-    server.once("error", reject);
-    server.listen({ host: "127.0.0.1", port: 0 }, () => {
-      const address = server.address();
-      server.close((err) => (err ? reject(err) : resolve(address.port)));
-    });
-  });
-}
-
-async function waitForHttpOk(url, timeoutMs) {
-  const deadline = Date.now() + timeoutMs;
-  let lastError = "no response yet";
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetch(url, { redirect: "follow" });
-      if (response.status === 200) return await response.text();
-      lastError = `HTTP ${response.status}`;
-    } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
-    }
-    await sleep(500);
-  }
-  throw new Error(`Timed out waiting for ${url} to return HTTP 200 (last: ${lastError})`);
-}
-
-async function waitForOutput(getOutput, pattern, timeoutMs, label) {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    if (pattern.test(getOutput())) return;
-    await sleep(250);
-  }
-  throw new Error(`Timed out waiting for ${label} (${pattern}) in CLI output.`);
-}
-
-async function stopChild(child) {
-  if (child.exitCode !== null) return;
-  child.kill("SIGTERM");
-  await Promise.race([
-    new Promise((resolve) => child.once("exit", resolve)),
-    sleep(5_000).then(() => {
-      if (child.exitCode === null) child.kill("SIGKILL");
-    }),
-  ]);
-}
-
-function launchCli({ installDir, dataDir, port, artifactUrl, hostname, extraEnv }) {
-  const cliPath = path.join(installDir, "node_modules", "orionfold-relay", "dist", "cli.js");
-  const args = [cliPath, "--no-open", "--port", String(port)];
-  if (hostname) args.push("--hostname", hostname);
-  const child = spawn(process.execPath, args, {
-    cwd: installDir,
-    env: {
-      ...process.env,
-      RELAY_DATA_DIR: dataDir,
-      RELAY_BUILD_ARTIFACT_URL: artifactUrl,
-      // Never inherit the repo's dev-mode gate; this simulates a customer.
-      RELAY_DEV_MODE: "",
-      RELAY_INSTANCE_MODE: "",
-      ...(extraEnv ?? {}),
-    },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  let output = "";
-  child.stdout.on("data", (chunk) => {
-    output += chunk.toString();
-  });
-  child.stderr.on("data", (chunk) => {
-    output += chunk.toString();
-  });
-  return { child, getOutput: () => output };
-}
-
-function assert(condition, message) {
-  if (!condition) throw new Error(`ASSERTION FAILED: ${message}`);
-}
-
-/** Run an installed-CLI subcommand (license/pack verbs) and capture output. */
-function runCliCommand({ installDir, dataDir, args }) {
-  const cliPath = path.join(installDir, "node_modules", "orionfold-relay", "dist", "cli.js");
-  return new Promise((resolve) => {
-    const child = spawn(process.execPath, [cliPath, ...args], {
-      cwd: installDir,
-      env: {
-        ...process.env,
-        RELAY_DATA_DIR: dataDir,
-        RELAY_DEV_MODE: "",
-        RELAY_INSTANCE_MODE: "",
-      },
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    let output = "";
-    child.stdout.on("data", (chunk) => (output += chunk.toString()));
-    child.stderr.on("data", (chunk) => (output += chunk.toString()));
-    child.on("exit", (code) => resolve({ code, output }));
-  });
-}
 
 async function main() {
   assert(existsSync(artifactPath), `artifact missing at ${artifactPath} — run npm run build && node scripts/build-prebuilt-artifact.mjs`);
