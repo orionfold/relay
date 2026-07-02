@@ -1,20 +1,26 @@
 {
-  "focus": "PLG refinement program specced (_SPECS/plg-refine.md): persist-license lifecycle, graduation surface, enterprise trust, growth loops — prioritized first over next releases per operator. #10 packaging still implements first (S1); PLG-1 rides the same train (S2).",
-  "blockers": [],
+  "focus": "0.16.0 SHIPPED: npx installs now run a real production build (#10 — download CI-built .next from GitHub Release on first run, next start, loud dev fallback). PLG program is next: S2 = feat-license-lifecycle (PLG-1) per _SPECS/plg-refine.md.",
+  "blockers": [
+    "Operator: post drafted v0.16.0 issue updates (output/issue-comments-0.16.0.md — close #7/#8/#10, retest asks #5/#6/#11/#12); external writes were permission-blocked",
+    "Operator: rm -rf ~/.relay-isolated (delete was permission-blocked)"
+  ],
   "next": [
-    "S1: commit pending specs, implement feat-ship-production-build-for-npx (#10); build its e2e smoke AS the PLG-S staging recipe v1 (tarball → isolated data-dir → prod launch → capture)",
-    "S2 (0.16.x): groom+implement feat-license-lifecycle per _SPECS/plg-refine.md PLG-1 (persist license, relay license verb, banner identity, ceremony) + re-gate seed/clear on RELAY_STAGING=true; acceptance = staged fulfilment sim; gate D4 wording + banner wording with operator",
-    "S3 (0.17): PLG-2a /packs gallery + Settings License page (absorbs fix-pack-install-discoverability)",
-    "S4: author FIRST premium pack + Naya-path e2e; Website relay (pricing copy, email, gating philosophy)",
-    "Held #5/#6/#11/#12 reactive (customer retest); ICP P1s interleave from S4"
+    "S2 (0.17.x): groom+implement feat-license-lifecycle per PLG-1 (persist license, relay license verb, banner identity at bin/cli.ts ~384, ceremony) + re-gate seed/clear on RELAY_STAGING=true; extend scripts/npx-prod-smoke.mjs as the staging recipe; gate D4 wording + banner wording with operator",
+    "S3: PLG-2a /packs gallery + Settings License page (absorbs fix-pack-install-discoverability)",
+    "S4: author FIRST premium pack + Naya-path e2e; Website relay (pricing, email, gating philosophy)",
+    "Held #5/#6/#11/#12 reactive — retest asked on 0.16.0 (prod build removes the dev-origin gate)",
+    "Review feat-prepublish-tarball-smoke spec — largely superseded by the publish.yml smoke gate"
   ],
   "recent": [
-    "PLG program spec written to _SPECS/plg-refine.md from 4 parallel web-research streams (activation-UX teardowns, PLG conversion literature, enterprise/regulated-buyer expectations, feel-paid moments); decisions D1-D7 locked",
-    "Key research verdicts: offline Ed25519 license file = documented enterprise best practice (wedge, keep); zero surveyed products discard the license after verify (Relay does — root gap); invisible premium = conversion floor (soft-gate visibility converts 3-5x); never claw back installed content (perpetual fallback)",
-    "Verified in code: banner hardcoded bin/cli.ts:352; license verified-then-discarded install.ts:127-139; no premium pack exists; no UI license surface; npm provenance already emitted (publish.yml OIDC)",
-    "PLG-S staging harness added to spec (operator ask): isolated tarball-install staging + 4 capture modes (CLI first-run, browser walkthrough, free→paid fulfilment sim, issue replication) + harness-side instrumentation; found seed/clear are NODE_ENV-gated (would 404 in prod builds) — re-gate on RELAY_STAGING=true",
-    "fix-pack-install-discoverability absorbed into PLG-2a (spec annotated)",
-    "#10 groomed prior: download-prebuilt-on-first-run; spec uncommitted"
+    "0.16.0 shipped: prebuilt-download module (21 unit tests TDD) + bin/cli.ts step 6.5 + build-prebuilt-artifact.mjs + npx-prod-smoke.mjs (3 cases, gates publish) + tarball<10MB guard + release asset upload; verified from real npm install (Mode: production, / and /chat 200)",
+    "Discovery: Next 16 emits .next/node_modules symlinks required at runtime by hashed name; artifact ships manifest + CLI relinks (junction on win32) — raw symlinks would silently break Windows",
+    "next pinned exactly 16.2.4 (was ^16) so artifact build == customer runtime",
+    "Full suite: only the 10 known pre-existing failures (+ environmental blueprint e2e) — no regressions",
+    "Specs committed (68c2f52c): groomed #10 decision record + 5 ICP fix specs + PLG-first plan"
   ],
-  "metrics": {}
+  "metrics": {
+    "released": "0.16.0",
+    "npm_tarball": "1.4 MB",
+    "prod_artifact": "35.5 MB gz"
+  }
 }
