@@ -4,6 +4,17 @@
 
 This project was formerly published as `stagent` on npm and hosted at `github.com/manavsehgal/stagent`. As of 2026-04-17 it is `ainative`. The old GitHub URL redirects permanently; `stagent` on npm is deprecated with an upgrade pointer to `ainative`.
 
+## [0.22.0] — 2026-07-02
+
+### Added
+
+- **Renewal, argued with evidence.** When your license approaches renewal, Relay now shows you exactly what the year delivered instead of a generic reminder:
+  - **`relay license status` recaps your term.** If an update you already paid for is sitting uninstalled, status names it — "Included in your term, waiting to install: Relay Agency Pro v0.2.0 — the Nonprofit deep chapter…" — with the one command that installs it. Inside 30 days of expiry, the renewal warning cites the year's specific deliveries alongside the standing promise that your installed packs are yours forever. An expired license gets the same honest voice: nothing is locked, and here — by name — is what renewing unlocks.
+  - **The update refusal names what it's withholding.** If your license has lapsed and you run `relay pack update`, the refusal now states not just that a license is needed but what the update contains, pulled from the pack's own changelog. Same message in the CLI and the Packs page API.
+  - **The Packs page says what an update is.** The "Update to vX.Y.Z" button now carries the version's one-line description, so you know what you're getting before you click.
+  - **Packs carry their own history.** Pack authors can add a `changelog:` map to `pack.yaml` (version → one line, in the customer's language). Agency Pro ships with entries for 0.1.0 and 0.2.0, and every future paid pack update will add its line. This one map is the single source for every recap surface above — and for the renewal reminder email.
+  - What this feature deliberately is NOT: no startup-banner upsell (that space stays yours), no launch nags, no phone-home — the recap is computed entirely from files on your disk. And per [orionfold.com/promise](https://orionfold.com/promise/), nothing here can ever touch content you already installed.
+
 ## [0.21.0] — 2026-07-02
 
 ### Added
