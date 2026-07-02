@@ -1,5 +1,33 @@
 # Feature Changelog
 
+## 2026-07-01 — shipped feat-graduation-surface (PLG-2a) as 0.18.0
+
+Implemented same-session after grooming (below): bundled-pack catalog + `price`/`purchaseUrl`
+manifest fields + name-based install (`pack add relay-agency`) + `/packs` gallery (nav Compose
+slot beside Apps — the one tested exception to the 4-child cap) + `POST /api/packs/install`
+(bundled ids only) + `GET/POST /api/license` + `DELETE /api/license/[id]` + Settings → License
+section + Apps empty-state nudge. 24 new unit tests (TDD throughout); full suite green except
+the 8 known pre-existing failures. Acceptance = Mode B browser capture in
+`output/staging/2026-07-01/` (7 screens + console + network) walking the full journey with the
+REAL prod-signed license: premium locked card → 402 soft-gate → paste-activation ceremony →
+store-consult premium install → D4 proof (license removed in UI, packs stay). Cross-surface D7
+parity verified: `pack list` shows the UI-installed `[premium]` pack; `license status` reads the
+UI-activated license. Premium card states exercised via a temporary uncommitted fixture template;
+the first REAL premium pack is S4 (PLG-2b).
+
+## 2026-07-01 — groomed feat-graduation-surface (PLG-2a) for 0.18.0
+
+Groomed `_SPECS/plg-refine.md` §5 PLG-2 UI slice into `features/feat-graduation-surface.md`,
+absorbing `fix-pack-install-discoverability` (status → absorbed; its ACs carry forward as the
+free-pack slice). Scope: bundled-pack catalog (`listPackTemplates`), optional `price`/`purchaseUrl`
+manifest fields, name-based install (`pack add relay-agency`, path-precedence rule), `/packs`
+gallery (installed / free / premium-locked card states, D6), install API (bundled ids only —
+no browser-supplied paths/git URLs), license API + Settings → License section reading the D7
+store, Mode B browser capture as the acceptance run. Grooming decisions: ships as **0.18.0**;
+Settings surface is a section component per the single-page convention; nav placement (Compose
+at its 4-child cap) + locked-card/ceremony UI flagged to `/frontend-designer`. Premium pack
+authoring + Website relay stay in S4 (PLG-2b).
+
 ## 2026-07-01 — shipped feat-license-lifecycle (PLG-1) as 0.17.0
 
 Implemented same-session after grooming (below): license store + `relay license add|status|remove`

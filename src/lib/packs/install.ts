@@ -65,6 +65,8 @@ export interface InstallPackOptions {
    * free pack. Sourced from the buyer's fulfilment email (`--license-url`).
    */
   licenseUrl?: string;
+  /** Override the bundled-templates dir for bare-name resolution (tests). */
+  templatesDir?: string;
 }
 
 export interface InstallReport {
@@ -107,8 +109,14 @@ export async function installPack(
   const blueprintsDir = options.blueprintsDir ?? getAinativeBlueprintsDir();
   const coreVersion = options.coreVersion ?? relayCoreVersion();
 
-  // 1. Acquire — clone a git URL into a temp dir, or read a folder in place.
-  const { dir: packDir, cleanup } = acquirePack(source);
+  // 1. Acquire — a bare name resolves to its bundled template dir first
+  // (existing local paths win; see resolvePackSource), then clone a git URL
+  // into a temp dir, or read a folder in place.
+  const { resolvePackSource } = await import("./catalog");
+  const resolvedSource = resolvePackSource(source, {
+    templatesDir: options.templatesDir,
+  });
+  const { dir: packDir, cleanup } = acquirePack(resolvedSource);
 
   try {
     // 2. Validate — strict schema gate (throws PackValidationError) ...

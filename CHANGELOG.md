@@ -4,6 +4,19 @@
 
 This project was formerly published as `stagent` on npm and hosted at `github.com/manavsehgal/stagent`. As of 2026-04-17 it is `ainative`. The old GitHub URL redirects permanently; `stagent` on npm is deprecated with an upgrade pointer to `ainative`.
 
+## [0.18.0] — 2026-07-01
+
+### Added
+
+- **A Packs page in the app** — packs were previously CLI-only, installable only by a filesystem path buried in `node_modules` that no one would guess. **Compose → Packs** now shows every pack bundled with your install: what it contains (profiles, blueprints, tables), what it seeds, and a one-click **Install** that materializes the same app/customers/tables the CLI path does. Premium packs are visible there too — locked, with what-you-get, the price, and a **Get license** link — so you can see what a license unlocks before you buy. Nothing is hidden, and nothing installs without entitlement.
+- **Install packs by name** — `relay pack add relay-agency` now works. A bare name resolves to the bundled pack of that id; folder paths and git URLs still work exactly as before (an existing local folder always wins over a bundled name). Unknown names list the packs your install actually bundles.
+- **Settings → License** — activate and inspect licenses without a terminal. Paste (or upload) the `.license.json` from your fulfilment email; Relay verifies it offline and shows the same activation summary the CLI gives: who it's licensed to, what it unlocked, where it's stored. The page reads the exact same license store as the CLI banner and `relay license status` — one identity, no drift. Removing a license from here carries the standing promise in writing: installed packs stay installed.
+- **Premium installs from the UI use your saved license automatically** — if a pack needs a license you've already redeemed (CLI or web, either), the gallery installs it with no proof re-supplied. If not, the card points you to Settings → License instead of dead-ending.
+
+### Changed
+
+- The Apps page's empty state now offers "Install a pack" alongside starting in chat, so a fresh install can find the vertical content that makes Relay useful.
+
 ## [0.17.0] — 2026-07-01
 
 ### Added

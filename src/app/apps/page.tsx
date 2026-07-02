@@ -117,6 +117,12 @@ function EmptyHero({ starters }: { starters: ReturnType<typeof listStarters> }) 
                 Browse starters
               </a>
             )}
+            <Link
+              href="/packs"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              Install a pack
+            </Link>
           </div>
         </CardContent>
       </Card>

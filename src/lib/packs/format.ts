@@ -43,6 +43,14 @@ export const PackManifestSchema = z
      * The string is the unit of entitlement, version- and pack-id-agnostic.
      */
     entitlement: z.string().min(1).optional(),
+    /**
+     * Premium display copy (D6). Offline strings rendered on the locked
+     * gallery card — the Website still owns actual pricing. Meaningful only
+     * alongside `entitlement`; harmless on a free pack.
+     */
+    price: z.string().min(1).optional(),
+    /** Get-license CTA target on the locked card. */
+    purchaseUrl: z.url().optional(),
     /** Customer slugs seeded via ensureCustomer at install. */
     customers: z.array(z.string()).default([]),
   })

@@ -12,6 +12,7 @@ import { LearningContextSection } from "@/components/settings/learning-context-s
 import { OllamaSection } from "@/components/settings/ollama-section";
 import { ChannelsSection } from "@/components/settings/channels-section";
 import { InstanceSection } from "@/components/instance/instance-section";
+import { LicenseSection } from "@/components/settings/license-section";
 import { PageShell } from "@/components/shared/page-shell";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,7 @@ export default function SettingsPage() {
     >
       <div className="space-y-6">
         <InstanceSection />
+        <LicenseSection />
         <ProvidersAndRuntimesSection />
         <OllamaSection />
         <ChatSettingsSection />

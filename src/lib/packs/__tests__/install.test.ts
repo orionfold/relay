@@ -423,3 +423,43 @@ describe("installPack", () => {
     ).toBe(true);
   });
 });
+
+describe("installPack by bundled name", () => {
+  it("installs a bundled template by bare name (no filesystem path)", async () => {
+    buildFixturePack();
+    // Stage the fixture as a bundled template named after its pack id.
+    const templatesDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), "ainative-pack-templates-")
+    );
+    fs.cpSync(packDir, path.join(templatesDir, "test-agency"), {
+      recursive: true,
+    });
+    try {
+      const { installPack } = await loadModules();
+      const report = await installPack("test-agency", {
+        ...installOpts(),
+        templatesDir,
+      });
+      expect(report.packId).toBe("test-agency");
+      expect(
+        fs.existsSync(path.join(appsDir, "test-agency", "manifest.yaml"))
+      ).toBe(true);
+    } finally {
+      fs.rmSync(templatesDir, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses an unknown bare name, naming the available bundled packs", async () => {
+    const templatesDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), "ainative-pack-templates-")
+    );
+    try {
+      const { installPack } = await loadModules();
+      await expect(
+        installPack("not-a-pack", { ...installOpts(), templatesDir })
+      ).rejects.toThrow(/Unknown pack "not-a-pack"/);
+    } finally {
+      fs.rmSync(templatesDir, { recursive: true, force: true });
+    }
+  });
+});

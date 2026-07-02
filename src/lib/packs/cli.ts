@@ -26,7 +26,7 @@ export interface PackCommandIo {
 
 const USAGE = [
   "Usage: relay pack <action>",
-  "  add <path|git-url> [--license-url=<path|url>]   install a pack",
+  "  add <name|path|git-url> [--license-url=<path|url>]   install a pack",
   "  list                 list installed packs",
   "  remove <id>          uninstall a pack",
   "  update <id>          (v1 stub — editable-seed; edit in place)",
@@ -87,7 +87,7 @@ async function runAdd(
   io: PackCommandIo
 ): Promise<number> {
   if (!source) {
-    io.error("Missing pack path. Usage: relay pack add <path|git-url>");
+    io.error("Missing pack source. Usage: relay pack add <name|path|git-url>");
     return 1;
   }
   try {

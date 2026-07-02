@@ -14,12 +14,14 @@ import {
   Table2,
   Sparkles,
   Users,
+  Boxes,
 } from "lucide-react";
 
 // Single source of truth for the navigation IA, consumed by the in-bar
 // horizontal accordion (app-bar.tsx). The bar shows the group buttons; clicking
 // one expands its children inline. Compose was split into Compose + Data so no
-// group exceeds 4 children (caps the expanded row's width). Route set is
+// group exceeds 4 children (caps the expanded row's width) — Packs is the one
+// tested exception (5th compose slot, beside Apps for discovery). Route set is
 // otherwise byte-identical to the former sidebar IA.
 
 export interface NavItem {
@@ -56,6 +58,9 @@ const homeItems: NavItem[] = [
 
 const composeItems: NavItem[] = [
   { title: "Apps", href: "/apps", icon: Sparkles, description: "Composed apps — the entry point", alsoMatches: ["/apps/"] },
+  // Packs sits beside Apps deliberately (soft-gate discovery, PLG D6) and is
+  // the one exception to the 4-children-per-group width cap below.
+  { title: "Packs", href: "/packs", icon: Boxes, description: "Install vertical content bundles", alsoMatches: ["/packs/"] },
   { title: "Projects", href: "/projects", icon: FolderKanban, description: "Group work by project" },
   { title: "Workflows", href: "/workflows", icon: Workflow, description: "Multi-step agent pipelines" },
   { title: "Profiles", href: "/profiles", icon: Bot, description: "Tune agent behavior" },

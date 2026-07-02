@@ -8,9 +8,10 @@ import {
 } from "../nav-items";
 
 describe("nav-items", () => {
-  it("exposes the four IA groups with 14 routes total", () => {
+  it("exposes the four IA groups with 15 routes total", () => {
     // The `configure` group was dissolved per _SPECS/feature-cut-freeze.md:
     // Environment deferred, Analytics deprecated, Settings moved to the app-bar.
+    // /packs joined compose in the PLG-2a graduation surface (0.18.0).
     expect(NAV_GROUPS.map((g) => g.id)).toEqual([
       "home",
       "compose",
@@ -18,7 +19,7 @@ describe("nav-items", () => {
       "observe",
     ]);
     const total = NAV_GROUPS.reduce((n, g) => n + g.items.length, 0);
-    expect(total).toBe(14);
+    expect(total).toBe(15);
   });
 
   it("keeps the cut routes out of every nav group", () => {
@@ -28,9 +29,14 @@ describe("nav-items", () => {
     expect(allHrefs).not.toContain("/settings");
   });
 
-  it("caps every group at 4 children (keeps the expanded row narrow)", () => {
+  it("caps groups at 4 children, with compose's Packs slot the one exception", () => {
+    // The width cap keeps the expanded accordion row narrow. Packs sits
+    // beside Apps for soft-gate discovery (PLG D6) — a deliberate 5th slot,
+    // not license to grow every group.
     for (const group of NAV_GROUPS) {
-      expect(group.items.length).toBeLessThanOrEqual(4);
+      expect(group.items.length).toBeLessThanOrEqual(
+        group.id === "compose" ? 5 : 4
+      );
     }
   });
 

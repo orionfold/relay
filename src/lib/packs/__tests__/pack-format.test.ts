@@ -129,6 +129,37 @@ describe("PackManifestSchema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("accepts optional price + purchaseUrl (premium display copy, D6)", () => {
+    const result = PackManifestSchema.safeParse({
+      ...VALID_PACK_YAML,
+      entitlement: "product:orionfold-relay",
+      price: "$499/year",
+      purchaseUrl: "https://orionfold.com/relay/pricing",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.price).toBe("$499/year");
+      expect(result.data.purchaseUrl).toBe("https://orionfold.com/relay/pricing");
+    }
+  });
+
+  it("leaves price and purchaseUrl undefined when omitted", () => {
+    const result = PackManifestSchema.safeParse(VALID_PACK_YAML);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.price).toBeUndefined();
+      expect(result.data.purchaseUrl).toBeUndefined();
+    }
+  });
+
+  it("rejects a purchaseUrl that is not a valid URL", () => {
+    const result = PackManifestSchema.safeParse({
+      ...VALID_PACK_YAML,
+      purchaseUrl: "not a url",
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 // ── parsePack ────────────────────────────────────────────────────────

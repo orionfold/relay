@@ -1,6 +1,6 @@
 ---
 title: Pack install discoverability (UI/registry, not just CLI path)
-status: planned
+status: absorbed
 priority: P1
 milestone: mvp
 source: _IDEAS/backlog.md

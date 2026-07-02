@@ -494,7 +494,8 @@ into customer-link.
 | [fix-pack-core-version-resolution](fix-pack-core-version-resolution.md) | P0 | done | — |
 | [fix-workflow-model-preference-propagation](fix-workflow-model-preference-propagation.md) | P1 | planned | — |
 | [fix-dashboard-budget-vs-cost-labeling](fix-dashboard-budget-vs-cost-labeling.md) | P1 | planned | — |
-| [fix-pack-install-discoverability](fix-pack-install-discoverability.md) | P1 | planned | fix-pack-core-version-resolution |
+| [fix-pack-install-discoverability](fix-pack-install-discoverability.md) | P1 | absorbed → [feat-graduation-surface](feat-graduation-surface.md) | fix-pack-core-version-resolution |
+| [feat-graduation-surface](feat-graduation-surface.md) | P1 | done | feat-license-lifecycle |
 | [fix-chat-spend-metering-diagnose](fix-chat-spend-metering-diagnose.md) | P1 | planned | — |
 | [fix-inbox-checkpoint-realtime](fix-inbox-checkpoint-realtime.md) | P2 | planned | — |
 
