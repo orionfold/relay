@@ -1,5 +1,20 @@
 # Feature Changelog
 
+## 2026-07-02 — S10 grooming: PLG-4 growth-loop candidates cleared
+
+Operator ruled on the two remaining PLG-4 loop candidates (AskUserQuestion gate, per §4/§5):
+- **Free registration key tier — DEFERRED** (not killed): still a strong recommendation, but
+  brand-timing isn't right and it depends on Website issuer participation + a decision on which
+  2–3 community niceties gate behind the key. Held for a future session. Recorded in
+  `_SPECS/plg-refine.md` §4/§5 so the door stays ajar (distinct from KILLED reverse trial).
+- **Founding-supporter identity — DROPPED**: $349 tier felt identical to $499 and the work is
+  mostly Website/community surface with thin product code — not worth a product loop. Recorded
+  as dropped in §4/§5; any differentiation is a Website/community decision, out of scope here.
+
+Net: PLG-4 has no live growth-loop candidate queued. S10 work reduces to the two P2 fixes
+(`fix-anthropic-direct-task-serialization`, `fix-inbox-checkpoint-realtime`) + reactive
+Relay-channel obligations, until the operator re-opens the free-key tier.
+
 ## 2026-07-02 — S8: the cost-trust P1 bundle SHIPPED (all three ICP P1 fixes)
 
 ### Completed

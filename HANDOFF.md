@@ -7,13 +7,14 @@ tooling/boot-migration read the orphaned ~/.ainative DB instead of live ~/.relay
 migrator + drizzle.config + backfill), plus stale governance docs; commit d6693d55,
 boot-smoked HTTP 200. Prior tail: S1–S8 = 0.16.0→0.22.1 — see git log + beacon recent.)_
 
-## ▶️ NEXT SESSION (S10) — remaining PLG-4 loops, each OPERATOR-GATED; P2 fixes interleave
-Two loop candidates left, one per session, AskUserQuestion gate before any spec work:
-- **Free registration key tier** (n8n-style email → key → community niceties) — plg-refine §4
-  calls it a strong recommendation but brand-timing is the operator's call; needs Website
-  issuer participation + a decision on which niceties gate.
-- **Founding-supporter identity** — the $349 founding tier feels identical to $499; mostly
-  Website/community surface, thin product code.
+## ▶️ NEXT SESSION (S10) — no live PLG-4 loop; P2 fixes are the work
+**PLG-4 has no live growth-loop candidate queued** (all three ruled out 2026-07-02):
+- **Free registration key tier is DEFERRED** — still a strong recommendation (plg-refine §4),
+  but brand-timing isn't right and it depends on Website issuer participation + a decision on
+  which 2–3 niceties gate. Held for a future session; re-open only when the operator resurfaces
+  it AND the Website issuer can participate. (NOT killed — distinct from reverse trial.)
+- **Founding-supporter identity is DROPPED**: $349 founding tier felt identical to $499 and was
+  mostly Website/community surface with thin product code. Do not resurface as a product loop.
 - **Reverse trial is DEAD** (ruled 2026-07-02): re-lock = the §7 anti-pattern "expiry that
   disables installed content" vs the public promise. Do not resurface in any form that
   writes premium content to the pack store.
