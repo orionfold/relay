@@ -1,23 +1,23 @@
 {
-  "focus": "0.17.0 SHIPPED: license lifecycle core (PLG-1) — persist on redemption (~/.relay/licenses/), relay license add|status|remove, licensed banner (name→email), activation ceremony, [premium] pack-list marks, RELAY_STAGING staging gate. Next: S3 = PLG-2a graduation surface (/packs gallery + Settings→License) per _SPECS/plg-refine.md.",
+  "focus": "0.18.0 SHIPPED: PLG-2a graduation surface — /packs gallery (premium visible-but-locked, D6), Settings→License (paste/upload activation + ceremony, D7 one store), name-based install (pack add relay-agency), install/license APIs. Next: S4 = PLG-2b first premium pack + full Naya Mode C + Website relay per _SPECS/plg-refine.md.",
   "blockers": [],
   "next": [
-    "S3 (0.18.x): groom+implement PLG-2a — /packs gallery (premium visible-but-locked, D6) + Settings→License page (D7 store read) + name-based install; absorbs fix-pack-install-discoverability; /frontend-designer flag; Mode B browser capture",
-    "S4: author FIRST premium pack + full Naya-path Mode C staging run (loopback + LAN topology); Website relay (pricing copy, fulfilment email rewrite, gating-philosophy page)",
+    "S4 (0.19.x): author FIRST real premium pack (entitlement + new price/purchaseUrl fields, in-tree like relay-agency) — critical path, nothing to sell today",
+    "S4: full Naya-path Mode C staging run from packed tarball (loopback + --hostname LAN topology); Website relay via strategy/relay/_RELAY.md (pricing copy, fulfilment email rewrite, gating-philosophy page)",
     "S5: PLG-3 enterprise trust pack (no-phone-home one-liner, data-flow diagram, SBOM/provenance surfacing, security packet)",
-    "Held #5/#6/#11/#12 reactive — retest asks live on 0.16.0; prod build likely moots; replicate via Mode D if they persist",
+    "Held #5/#6/#11/#12 reactive — retest asks live; prod build likely moots; replicate via Mode D if they persist",
     "ICP P1s interleave from S4 (workflow-model-preference, budget-vs-cost labeling, chat-spend-metering diagnose)"
   ],
   "recent": [
-    "0.17.0 shipped: license store + verb + banner + ceremony + premium marks + RELAY_STAGING re-gate (faad6b41+2eb35d86); 34 unit tests TDD; smoke Case L = Mode C buy-simulation with real prod license incl. D4 proof; public record issue #14",
-    "Operator gates resolved at grooming: banner = Licensed to <name→email>, D4 wording verbatim, version 0.17.0; Stripe fulfilment capture code-verified (email always, billing name usually, org never)",
-    "apiVersion window un-staled to 0.17/0.16 + real bug fixed: create_plugin_spec scaffold pinned 0.14 into generated manifests (580e553f); known test failures 10→8",
-    "gh issue/label Bash rules allowlisted in .claude/settings.local.json after auto-mode classifier investigation — issue posts no longer blocked",
-    "Prior session: 0.16.0 production build for npx (#10) — download CI-built .next on first run"
+    "0.18.0 shipped: /packs gallery + Settings→License + name-based install + install/license APIs (91cce9bf); 24 unit tests TDD; publish CI green incl. npx prod smoke; issue #15; npm latest=0.18.0",
+    "Mode B capture (PLG-S S3 slice) in output/staging/2026-07-01/: 7 screens + console + network walking 402 → real-license paste ceremony → store-consult premium install → D4 proof; D7 parity CLI↔UI verified",
+    "Grooming decisions: 0.18.0 minor; Settings License = section component; install API takes bundled ids only (LAN-exposure fence); Packs = 5th compose nav slot beside Apps (tested cap exception)",
+    "apiVersion window bumped 0.18/0.17 POST-release (a02ae772) — second near-miss; moved to version-bump step in HANDOFF caveats",
+    "Prior: 0.17.0 license lifecycle PLG-1 (#14); 0.16.0 prod build for npx (#10)"
   ],
   "metrics": {
-    "released": "0.17.0",
-    "npm_tarball": "1.4 MB",
+    "released": "0.18.0",
+    "npm_tarball": "1.4 MB (0.17.0 measurement; publish guard <10 MB passed for 0.18.0, not re-read)",
     "prod_artifact": "~35.5 MB gz (0.16.0 measurement, not re-read)"
   }
 }
