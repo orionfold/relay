@@ -122,6 +122,80 @@ describe("RuntimePreferenceModal", () => {
     });
   });
 
+  it("persist failure keeps the modal open, shows the error, and allows retry (#22)", async () => {
+    const persistChoice = vi
+      .fn<
+        (input: {
+          preference: "quality" | "cost" | "privacy" | "balanced" | null;
+          defaultModel: string;
+        }) => Promise<void>
+      >()
+      .mockRejectedValueOnce(new Error("HTTP 500"))
+      .mockResolvedValueOnce(undefined);
+    const onClose = vi.fn();
+    setup({ persistChoice, onClose });
+
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    // The failed save must be visible (zero silent failures) and must NOT
+    // close the modal as if it had succeeded.
+    expect(await screen.findByRole("alert")).toBeTruthy();
+    expect(onClose).not.toHaveBeenCalled();
+
+    // Retry succeeds and closes.
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+    expect(persistChoice).toHaveBeenCalledTimes(2);
+  });
+
+  it("Skip failure also surfaces the error instead of closing", async () => {
+    const persistChoice = vi.fn(async () => {
+      throw new Error("HTTP 500");
+    });
+    const onClose = vi.fn();
+    setup({ persistChoice, onClose });
+
+    fireEvent.click(screen.getByRole("button", { name: /skip/i }));
+
+    expect(await screen.findByRole("alert")).toBeTruthy();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("default persist PUTs with keepalive so navigation cannot abort the write (#22)", async () => {
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const onClose = vi.fn();
+    try {
+      render(<RuntimePreferenceModal open onClose={onClose} />);
+      fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+      await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledWith(
+          "/api/settings/chat",
+          expect.objectContaining({ method: "PUT", keepalive: true })
+        );
+      });
+      await waitFor(() => expect(onClose).toHaveBeenCalled());
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("default persist treats a non-ok response as a failure (no silent close)", async () => {
+    const fetchMock = vi.fn(async () => ({ ok: false, status: 500 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const onClose = vi.fn();
+    try {
+      render(<RuntimePreferenceModal open onClose={onClose} />);
+      fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+      expect(await screen.findByRole("alert")).toBeTruthy();
+      expect(onClose).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("privacy with empty ollama list shows fallback note + balanced default + does NOT close until dismissed", async () => {
     const persistChoice = vi.fn(async () => undefined);
     const fetchOllamaModels = vi.fn(async () => []);

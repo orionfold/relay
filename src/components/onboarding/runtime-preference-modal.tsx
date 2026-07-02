@@ -107,21 +107,35 @@ async function defaultFetchOllamaModels(): Promise<OllamaModelEntry[]> {
   }
 }
 
+/** The onboarding preference PUT failed — the choice was NOT saved. */
+export class PreferencePersistError extends Error {
+  constructor(status: number) {
+    super(`Saving your model choice failed (HTTP ${status}).`);
+    this.name = "PreferencePersistError";
+  }
+}
+
 async function defaultPersistChoice(input: {
   preference: RuntimePreference | null;
   defaultModel: string;
 }): Promise<void> {
-  await fetch("/api/settings/chat", {
+  // keepalive: a fast route change or page unload aborts ordinary in-flight
+  // fetches, silently dropping the preference (#22). With keepalive the
+  // browser completes the request even if the user navigates mid-save.
+  const res = await fetch("/api/settings/chat", {
     method: "PUT",
+    keepalive: true,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       defaultModel: input.defaultModel,
       modelPreference: input.preference,
     }),
   });
+  if (!res.ok) throw new PreferencePersistError(res.status);
   // Notify other surfaces (chat session provider, settings cascade) that the
   // default model has changed. Same event the providers-runtimes-section
-  // already uses.
+  // already uses. Only after a confirmed save — announcing a failed write
+  // would desync those surfaces from the DB.
   window.dispatchEvent(
     new CustomEvent("ainative.chat.default-model-changed", {
       detail: { modelId: input.defaultModel },
@@ -137,6 +151,7 @@ export function RuntimePreferenceModal({
 }: RuntimePreferenceModalProps) {
   const [selected, setSelected] = useState<RuntimePreference>("balanced");
   const [submitting, setSubmitting] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [privacyFallbackNote, setPrivacyFallbackNote] = useState<string | null>(
     null
   );
@@ -164,6 +179,7 @@ export function RuntimePreferenceModal({
 
   const handleConfirm = async () => {
     setSubmitting(true);
+    setSaveError(null);
     setPrivacyFallbackNote(null);
     try {
       const { modelId, fallbackNote } =
@@ -184,6 +200,10 @@ export function RuntimePreferenceModal({
         return;
       }
       onClose();
+    } catch {
+      // A failed save must stay visible and retryable — closing here would
+      // silently drop the user's choice (#22).
+      setSaveError("Couldn't save your choice — please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -191,12 +211,15 @@ export function RuntimePreferenceModal({
 
   const handleSkip = async () => {
     setSubmitting(true);
+    setSaveError(null);
     try {
       await persistChoice({
         preference: null,
         defaultModel: BALANCED_FALLBACK_MODEL,
       });
       onClose();
+    } catch {
+      setSaveError("Couldn't save your choice — please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -270,6 +293,12 @@ export function RuntimePreferenceModal({
               })}
             </RadioGroup>
           </div>
+        )}
+
+        {saveError && (
+          <p role="alert" className="px-6 text-sm text-destructive">
+            {saveError}
+          </p>
         )}
 
         <DialogFooter className="px-6">

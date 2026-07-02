@@ -4,6 +4,12 @@
 
 This project was formerly published as `stagent` on npm and hosted at `github.com/manavsehgal/stagent`. As of 2026-04-17 it is `ainative`. The old GitHub URL redirects permanently; `stagent` on npm is deprecated with an upgrade pointer to `ainative`.
 
+## [Unreleased]
+
+### Fixed
+
+- **Your first-launch model choice can no longer be lost to a fast click.** Picking a model in the "Pick your default chat model" dialog and immediately navigating to another page could silently drop your preference — the save was cancelled mid-flight and the dialog re-appeared later as if you'd never answered. The save now survives navigation, and if it genuinely fails the dialog says so and lets you retry instead of closing as if it had worked.
+
 ## [0.23.0] — 2026-07-02
 
 ### Added
