@@ -49,11 +49,6 @@ export function SkillRow({
   addButton,
   onDeactivate,
 }: SkillRowProps) {
-  const syncHref =
-    skill.syncStatus !== "synced"
-      ? `/environment?skill=${encodeURIComponent(skill.name)}`
-      : null;
-
   return (
     <CommandItem
       key={skill.id}
@@ -112,7 +107,7 @@ export function SkillRow({
           </Badge>
         </div>
       </div>
-      {/* Right-side slot: either the env link or the Add/Deactivate button. */}
+      {/* Right-side slot: the Add or Deactivate button. */}
       {isActive && onDeactivate ? (
         <button
           type="button"
@@ -132,15 +127,6 @@ export function SkillRow({
         </button>
       ) : addButton ? (
         addButton
-      ) : syncHref ? (
-        <a
-          href={syncHref}
-          aria-label={`Open ${skill.name} in environment dashboard`}
-          className="ml-auto shrink-0 text-muted-foreground hover:text-foreground"
-          onClick={(e) => e.stopPropagation()}
-        >
-          ↗
-        </a>
       ) : null}
     </CommandItem>
   );
