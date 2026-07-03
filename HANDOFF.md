@@ -1,29 +1,25 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S17-price-drift-gate — confirmed relay-channel later-12 ANSWERED
-(Website later-13, 2026-07-02: promise phrase live on /relay//promise//renewal-email + canon published at
-`orionfold.com/relay/pricing.json`), then BUILT the publish-gate drift check in `30266328`:
-`scripts/check-price-drift.mjs` (bare GET, no identifying payload, fail-OPEN offline) diffs the canon
-against `relay-agency-pro/pack.yaml` `price:`; new smoke Case P gates publish; 11 unit tests; `npm run
-check:price-drift`; customer-voice CHANGELOG entry. Verified e2e: live→OK, reachable-drift→exit 1,
-404/offline→skip. This closes the drift class STRUCTURALLY (the gate now reads the JSON — Website's
-"keep flagging until your gate reads it" condition is met). Prior tail: S16-copy-sweep — shipped the app-copy em-dash sweep + WRONG/STALE brand
-leaks in `ed7db940`. Prior tail: S14-staging-fixes — shipped BOTH Agency Pro staging blockers in
-`d5ecbf0a`, staging-verified e2e on the real 0.23.0 artifact. **P0 core-version** (Next.js server
-resolved relay-core to `0.0.0` → every `/packs` UI install 422'd) fixed via `compiler.defineServer`
-in `next.config.mjs` — RAW string not `JSON.stringify` (Next quotes it itself), phase-gated to kill a
-runtime config-validator warning. **P1 stale `blueprintCache`** after an out-of-process CLI install
-fixed via mtime self-heal + plugin-blueprint retention in `registry.ts` (+ `cache-self-heal.test.ts`,
-3 tests). Smoke: free install 200, premium 402 `license_required`, CLI install → 6 blueprints visible
-no-restart; R4 clean; suite = known-8 only. Found+specced a 3rd bug: `--data-dir` silently ignored by
-pack/license/plugin subcommands (`features/fix-cli-datadir-ignored-by-subcommands.md`, P2). Memory:
-`nextjs-compiler-define-gotchas`. Prior tail: S13 nav redesign (committed `119e6ba8`); S12 ICP
-walkthrough (0.23.0, R4 clean) → `output/staging/2026-07-02-full-suite/FINDINGS.md`; S11 — see git log.)_
+_Last updated: 2026-07-03 (pt: S18-route-census — ran the route-census audit vs the feature-cut freeze
+(`output/2026-07-03-route-census.md`): the "nav-hidden but live-by-URL" limbo class is otherwise CLOSED
+(every nav href resolves; all create/subroutes reachable; `/settings` = the intended gear; `/analytics`
++ `/environment` pages fully DELETED not dormant, S13). Found + FIXED two live leaks in `3c36fb98`: F1 a
+dead `↗` anchor to the deleted `/environment` page in `skill-row.tsx` (dropped, not repointed — the env
+dashboard feature is gone); F2 14 orphaned `/api/environment/**` route handlers (0 callers) deleted,
+KEEPING the 2 live ones (`skills`, `rescan-if-stale`) + `/api/settings/environment` and the whole
+`@/lib/environment/**` shared library (memory `environment-folder-is-two-things`). tsc clean; 92/92
+across chat+hooks+env-api+shell. Prior tail: S17-price-drift-gate — publish-gate price-drift check
+shipped (`30266328`, `scripts/check-price-drift.mjs` + smoke Case P), closing relay-channel later-12
+structurally; memory `nextjs-compiler-define-gotchas`. Prior tail: S16 copy-sweep (`ed7db940`), S14
+staging fixes (`d5ecbf0a`), S13 nav redesign (`119e6ba8`), S12 ICP walkthrough — full detail in git log
++ CHANGELOG.)_
 
 ## ▶️ NEXT SESSION — 0.23.1 patch + hygiene sweeps
-- **Route-census pattern still open** — the feature-cut freeze created a systematic "nav-hidden but
-  live-by-URL" limbo. Analytics + environment are now truly retired (S13); audit whether OTHER "cut"
-  features are still live-by-URL (verify vs `_SPECS/feature-cut-freeze.md`).
+- **Route-census — DONE (S18, `3c36fb98`).** Audited the "nav-hidden but live-by-URL" limbo vs the
+  feature-cut freeze (`output/2026-07-03-route-census.md`): class CLOSED. Fixed 2 leaks (dead
+  `/environment` link in `skill-row.tsx`; 14 orphaned `/api/environment/**` handlers). No other
+  undocumented orphans. If a future feature-cut hides more routes, re-run the 3-set diff (disk pages vs
+  nav hrefs vs spec dispositions) + reachability trace; watch for dead in-page links to deleted pages.
 - **App-copy sweep — em-dash pass DONE (S16, `ed7db940`).** Stripped prose em-dashes from ~50 user-facing
   copy sites + fixed the WRONG/STALE brand leaks (below). NOT yet done: the fuller **grade-3-5 rewrite +
   pyramid/progressive-disclosure** pass (higher-touch, changes meaning — deferred deliberately). Left
@@ -114,6 +110,7 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 **main (unreleased):** #22 onboarding-pref keepalive (`55b3ae7d`) + #23 fresh-boot noise
 (`70db6926`); nav redesign (`119e6ba8`, S13); both Agency Pro staging fixes (`d5ecbf0a`, S14);
 `--data-dir` honored by pack/license/plugin subcommands (`22b2d985`, S15); app-copy em-dash sweep +
-WRONG/STALE brand leaks (`ed7db940`, S16).
+WRONG/STALE brand leaks (`ed7db940`, S16); publish-gate price-drift check (`30266328`, S17);
+route-census fixes — dead env link + orphaned env APIs (`3c36fb98`, S18).
 **Latest release 0.23.0** (packs gallery + founding price). Full version history (0.16→0.23) +
 per-session detail: `git tag` + CHANGELOG + `git log`.
