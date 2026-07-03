@@ -1,40 +1,35 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S13-nav — **nav redesign SHIPPED to working tree** (uncommitted, 41
-files): wrote `features/nav-redesign-ia.md`, retired `/analytics` + `/environment*` (routes+dashboards
-DELETED; load-bearing `src/lib/environment` infra — `workspace-context` 23 importers, `data`,
-`auto-scan`, `skill-enrichment` — PRESERVED, memory `environment-folder-is-two-things`), built the
-permanent two-tier bar (Apps promoted top-level w/ live instances + "+N more"; tier-1 underline-TAB /
-tier-2 pill-SELECTION hierarchy). `tsc` clean, 14/14 nav tests, browser-verified: retired routes 404,
-Apps promotion + deep-route active-state correct. **NOT committed yet.** Also: rg-`-r` corruption bug
-root-caused (known bug #62016) → memory `rg-never-dash-r-flag`; reinstalled corrupt
-`@next/swc-darwin-arm64` binding (`--no-save`; CLAUDE.md Quick Start gotcha). Prior tail: S12 full ICP
-walkthrough (0.23.0, R4 clean) → 2 Agency Pro blockers + fix specs =
-`output/staging/2026-07-02-full-suite/FINDINGS.md`; S11-S1..S4 — see git log + beacon.)_
+_Last updated: 2026-07-03 (pt: S14-staging-fixes — shipped BOTH Agency Pro staging blockers in
+`d5ecbf0a`, staging-verified e2e on the real 0.23.0 artifact. **P0 core-version** (Next.js server
+resolved relay-core to `0.0.0` → every `/packs` UI install 422'd) fixed via `compiler.defineServer`
+in `next.config.mjs` — RAW string not `JSON.stringify` (Next quotes it itself), phase-gated to kill a
+runtime config-validator warning. **P1 stale `blueprintCache`** after an out-of-process CLI install
+fixed via mtime self-heal + plugin-blueprint retention in `registry.ts` (+ `cache-self-heal.test.ts`,
+3 tests). Smoke: free install 200, premium 402 `license_required`, CLI install → 6 blueprints visible
+no-restart; R4 clean; suite = known-8 only. Found+specced a 3rd bug: `--data-dir` silently ignored by
+pack/license/plugin subcommands (`features/fix-cli-datadir-ignored-by-subcommands.md`, P2). Memory:
+`nextjs-compiler-define-gotchas`. Prior tail: S13 nav redesign (committed `119e6ba8`); S12 ICP
+walkthrough (0.23.0, R4 clean) → `output/staging/2026-07-02-full-suite/FINDINGS.md`; S11 — see git log.)_
 
-## ▶️ NEXT SESSION — Agency Pro blockers + commit nav
-- **🔴 P0 · `features/fix-packs-ui-install-core-version.md`** — /packs UI Install DOA on npx:
-  relay-core resolves to `0.0.0` in the Next.js server (tsup version-define only in `dist/cli.js`,
-  never injected into the `.next` bundle) → every pack install rejected in UI; CLI works. Fix =
-  add the version define to the Next.js build. Verified at code + reproduced (HTTP 422). **Needs a
-  real launch smoke** (runtime-adjacent, CLAUDE.md budget).
-- **🔴 P1 · `features/fix-pack-install-blueprint-cache.md`** — installed pack blueprints invisible
-  to the running server: stale in-process `blueprintCache` (registry.ts:16) after an out-of-process
-  CLI install → all 6 Agency Pro chapters fail "Blueprint not found" at dispatch. **Largely
-  downstream of the P0** (a UI install reloads in-process). Fix = mtime self-heal or reload trigger.
-- **Commit the nav redesign** — S13 built + verified it but it is UNCOMMITTED (41 files;
-  `features/nav-redesign-ia.md` + shell rewrite + `/analytics`+`/environment*` retirement). Fold into
-  the 0.23.1 patch or its own commit. **Route-census pattern still open:** the freeze created a
-  systematic "nav-hidden but live" limbo — analytics + environment are now truly retired, but audit
-  whether OTHER "cut" features are also still live-by-URL (verify vs `_SPECS/feature-cut-freeze.md`).
+## ▶️ NEXT SESSION — 0.23.1 patch + hygiene sweeps
+- **P2 · `features/fix-cli-datadir-ignored-by-subcommands.md`** — `relay pack add|license add|plugin`
+  silently IGNORE `--data-dir`: the subcommands short-circuit in `bin/cli.ts` (~193-217) BEFORE
+  `program.parse()` applies the flag to `RELAY_DATA_DIR` (~224). Customer-facing wrong-location write
+  (found while verifying P1; the smoke targeted staging via the `RELAY_DATA_DIR` env var instead). Fix
+  = pre-scan argv for `--data-dir` before the short-circuit. Fold into 0.23.1 or next.
+- **Route-census pattern still open** — the feature-cut freeze created a systematic "nav-hidden but
+  live-by-URL" limbo. Analytics + environment are now truly retired (S13); audit whether OTHER "cut"
+  features are still live-by-URL (verify vs `_SPECS/feature-cut-freeze.md`).
 - **App-copy sweep (operator directive → memory `app-copy-standard`)** — scrub ALL user-facing copy
   of em-dashes + AI-slop tells, grade 3–5, pyramid principle, progressive disclosure. Sweep targets:
   runtime modal, welcome hero, Agency Pro pack `description`, empty-states, compose-agent narration.
 - **Legacy-brand leaks (3 layers, memory `legacy-rebrand-divergence-bugs`)** — "stagent" in built-in
   profile authors; "ainative" in the live compose-agent narration + `$AINATIVE_DATA_DIR` in installed
   manifests (deprecated-but-load-bearing alias). Classify each before editing.
-- **Next release is a PATCH (0.23.1)** unless features land first — two `[Unreleased]` fix entries
-  ready (#22/#23); patch = NO apiVersion-window bump. The 2 fix specs above would fold in here.
+- **Next release is a PATCH (0.23.1)** unless features land first — now FOUR `[Unreleased]` fix
+  entries (#22/#23 + the 2 staging fixes shipped this session); patch = NO apiVersion-window bump. The
+  P2 data-dir fix would fold in here.
 - **Publish-gate price-drift check** — still blocked on Website later-12; when answered, add the
   drift diff to the npx prod smoke / publish gate.
 
@@ -105,6 +100,6 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 
 ## Recently shipped
 **main (unreleased):** #22 onboarding-pref keepalive (`55b3ae7d`) + #23 fresh-boot noise
-(`70db6926`); nav redesign built-but-uncommitted (S13). **Latest release 0.23.0** (packs gallery +
-founding price). Full version history (0.16→0.23) + per-session detail: `git tag` + CHANGELOG + beacon
-`recent[]`.
+(`70db6926`); nav redesign (`119e6ba8`, S13); both Agency Pro staging fixes (`d5ecbf0a`, S14).
+**Latest release 0.23.0** (packs gallery + founding price). Full version history (0.16→0.23) +
+per-session detail: `git tag` + CHANGELOG + `git log`.
