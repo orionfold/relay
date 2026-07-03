@@ -5,21 +5,17 @@ Fixed the profile-card runtime-chip collapse (`fe4b9237`, #26 filed+committed): 
 `Record<AgentRuntimeId, string>` short-label map replaces the `label.includes("Codex")` ternary — Ollama
 now reads "Ollama (Local)", not "Claude"; new `profile-card.test.tsx` (2 tests) green, 56 profiles tests
 pass. CHANGELOG 0.24.1 entries for #24/#25/#26 (`662ce4e2`), `npm version patch` → tag `v0.24.1`
-(`d794a8ce`) pushed. **Publish CI in-flight at wrap (run 28685075885); npm still 0.24.0.** Prior tail: S26
+(`d794a8ce`) pushed → **PUBLISHED: npm `orionfold-relay@0.24.1` + Release + SBOM; #24/#25/#26 `shipped`+closed.** Prior tail: S26
 fixed both S25 P1s (`6f715fa4` #24, `e89ae622` #25) + GH auto-file automation; S25 live 6-run staging suite
 (bundle `output/staging/2026-07-03-suite/`); S19 0.24.0 (`58fc89ac`). Full detail: git log.)_
 
-## ▶️ NEXT SESSION — confirm 0.24.1 published, then flip issues to `shipped`
+## ▶️ NEXT SESSION — no forced action; 0.24.1 fully shipped
 
-### Confirm the 0.24.1 publish landed (in-flight at S27 wrap)
-- Tag `v0.24.1` pushed; **Publish to npm** CI was still `in_progress` at wrap (run `28685075885`, npm still
-  0.24.0). First: `gh run view 28685075885 --json status,conclusion` + `npm view orionfold-relay version`.
-- **If published (npm shows 0.24.1 + GitHub Release + SBOM exist):** flip #24, #25, #26 to `shipped` and
-  CLOSE them (`gh issue edit <n> --add-label shipped && gh issue close <n>`). NOT before — `shipped` lies
-  until the tag actually publishes (handoff rule).
-- **If CI FAILED:** it's gated by the Case L npx prod smoke — read the run log, fix, re-tag. Do not force.
+### 0.24.1 released + closed out (S27) — nothing pending
+- **Published**: npm `orionfold-relay@0.24.1` (CI run `28685075885` success) + GitHub Release + SBOM.
+  #24/#25/#26 flipped to `shipped` and closed. The 3-fix arc from the S25 staging suite is DONE.
 - P3 polish still in `_IDEAS/backlog.md` (blur-heavy jargon, AINATIVE_ doc-comment, $AINATIVE_DATA_DIR sed,
-  chat_turn cost deep-link) — reactive, not blocking.
+  chat_turn cost deep-link) — reactive, not blocking. Or run the next staging R-run (one per session).
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
 - `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
@@ -90,13 +86,12 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**0.24.1 (S25–S27, tag `v0.24.1` pushed — publish CI in-flight at S27 wrap):** three customer fixes —
+**0.24.1 (S25–S27, RELEASED — npm `latest` + Release + SBOM; #24/#25/#26 closed):** three customer fixes —
 `6f715fa4` snapshot-restore deadlock (#24, unlocked-core + `SnapshotBusyError`→409), `e89ae622` Ollama
 phantom-model (#25, import-free resolver + live-Ollama smoke), `fe4b9237` profile runtime-chip labels
 (#26, exhaustive `Record<AgentRuntimeId,string>` map + `profile-card.test.tsx`). Origin: S25 live 6-run
 staging suite (bundle `output/staging/2026-07-03-suite/`) → 3 fix specs → all fixed. GH issue mgmt fully
-automated (auto-file + env-prefixed `gh` rules) this arc. Flip #24/#25/#26 → `shipped`+close once npm
-confirms 0.24.1 (see NEXT).
+automated (auto-file + env-prefixed `gh` rules) this arc.
 **0.24.0 (S19, RELEASED):** legacy-brand leaks CLOSED (theme cookie + apps-changed `d9cf5712`; webhook
 `source` rename `f6639058`) + apiVersion window 0.23→0.24 (`58fc89ac`). npm `latest` + Release + SBOM.
 **Staging-harness arc (S20–S23, tooling, unreleased):** four skills — `staging-cli-run` `dd7cab0a`,
