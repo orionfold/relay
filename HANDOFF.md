@@ -34,19 +34,19 @@ staging fixes (`d5ecbf0a`), S13 nav redesign (`119e6ba8`), S12 ICP walkthrough �
   smoke proved both send+testConnection emit `"relay"`; CHANGELOG flags it as Changed with a
   point-your-filter note). KEEP untouched (by design): `$AINATIVE_DATA_DIR` alias resolver + manifest
   tokens, `ainative-paths.ts` symbols, the migration machinery, `sourceFormat:"ainative"` profile alias.
-- **Next release PREPPED + all gates GREEN — awaiting version ruling + your go to tag.** `[Unreleased]`
-  now has **3 Changed + 5 Fixed** (this session added the theme-survives-upgrade fix + the webhook
-  `source→"relay"` Changed). Gates dry-run clean locally: price-drift exit 0 (app price MATCHES live
-  `orionfold.com/relay/pricing.json` — S17 gate's first real rehearsal), `build:cli` exit 0, licensing
-  76/76, full suite = only the 8 documented pre-existing fails, ZERO new. **Version is a RULING, not
-  auto-patch:** the webhook `source` rename is an outbound WIRE-CONTRACT change (a receiver filtering on
-  the old value breaks) → arguably **0.24.0 minor**, not 0.23.1 patch. If minor: BUMP the apiVersion
-  window (`CURRENT_PLUGIN_API_VERSION` 0.23→0.24 in sdk/types.ts + registry previous-MINOR literal +
-  `examples/*/plugin.yaml`) IN the release commit (memory `apiversion-window-bump-at-version-bump`); if
-  patch: no window bump. To SHIP once ruled: date-stamp the `[Unreleased]`→`## [X.Y.Z] — <date>` block,
-  `npm version <patch|minor>`, `git push --follow-tags` (tag triggers OIDC publish, `docs/RELEASING.md`).
-  Shipping retires the standing "hand-flag pack prices on _RELAY" obligation (first release through the
-  S17 gate).
+- **0.24.0 release COMMITTED, ready to tag — ONE step left: `git push --follow-tags` (your go).**
+  Operator ruled **minor** (webhook `source` wire-contract change). Release commit made THIS session:
+  version 0.23.0→0.24.0 (package.json + lock), apiVersion window bumped IN the same commit
+  (`CURRENT_PLUGIN_API_VERSION` 0.23→0.24, registry previous-MINOR "0.22"→"0.23", 3 example
+  `plugin.yaml` manifests 0.23→0.24 — memory `apiversion-window-bump-at-version-bump`), CHANGELOG
+  `[Unreleased]`→`## [0.24.0] — 2026-07-03` (3 Changed + 5 Fixed) with a fresh empty `[Unreleased]`.
+  Gates ALL green: price-drift exit 0 (app price MATCHES live `orionfold.com/relay/pricing.json` — S17
+  gate's first real rehearsal), build:cli 0, plugins 248/248 incl. api-version-window, full suite = only
+  the 8 documented pre-existing fails (ZERO new). **NOT YET TAGGED/PUSHED** (outward-facing publish stays
+  gated). TO SHIP: `git tag v0.24.0 && git push --follow-tags` (or `npm version` re-run is NOT needed —
+  package.json already at 0.24.0; just tag the release commit). Tag triggers OIDC publish +
+  provenance + SBOM (`docs/RELEASING.md`). Shipping retires the standing "hand-flag pack prices on
+  _RELAY" obligation (first release through the S17 gate).
 - **Publish-gate price-drift check — DONE (S17, `30266328`).** later-12 was answered (Website
   later-13); the gate now reads `orionfold.com/relay/pricing.json` and fails a release on a reachable
   contradiction (`scripts/check-price-drift.mjs`, smoke Case P). Drift class structurally closed. Standing

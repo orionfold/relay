@@ -6,6 +6,8 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.24.0] — 2026-07-03
+
 ### Changed
 
 - **The price shown in the app can no longer disagree with the website.** Every release now checks the premium pack's listed price against the canonical price published on orionfold.com before it ships, so the founding and list prices you see on the packs gallery always match the store. If the check cannot reach the website, the release goes out anyway, so a network blip never blocks a good build.
