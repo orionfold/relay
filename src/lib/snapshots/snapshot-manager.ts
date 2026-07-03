@@ -48,6 +48,18 @@ export function isSnapshotLocked(): boolean {
   return snapshotLock;
 }
 
+/**
+ * Raised when a snapshot operation is requested while another one holds the
+ * mutex. Named so callers (the API route) can map lock-contention to 409
+ * instead of conflating it with a genuine 500 failure. See issue #24.
+ */
+export class SnapshotBusyError extends Error {
+  constructor() {
+    super("Another snapshot operation is already in progress");
+    this.name = "SnapshotBusyError";
+  }
+}
+
 interface SnapshotManifest {
   version: 1;
   timestamp: string;
@@ -103,16 +115,38 @@ function dirSize(dirPath: string): { fileCount: number; sizeBytes: number } {
 
 /**
  * Create a full-state snapshot (DB + files).
+ *
+ * Public entry point: acquires the mutex, then delegates to the unlocked core.
+ * Throws {@link SnapshotBusyError} if another operation holds the lock.
  */
 export async function createSnapshot(
   label: string,
   type: "manual" | "auto" = "manual"
 ): Promise<SnapshotRow> {
   if (snapshotLock) {
-    throw new Error("Another snapshot operation is already in progress");
+    throw new SnapshotBusyError();
   }
 
   snapshotLock = true;
+  try {
+    return await createSnapshotUnlocked(label, type);
+  } finally {
+    snapshotLock = false;
+  }
+}
+
+/**
+ * Create a snapshot WITHOUT touching the mutex.
+ *
+ * Callers are responsible for holding `snapshotLock` around this. It exists so
+ * an already-locked operation (e.g. restoreFromSnapshot's pre-restore safety
+ * snapshot) can create a snapshot without self-deadlocking against the public
+ * `createSnapshot` lock check (issue #24).
+ */
+async function createSnapshotUnlocked(
+  label: string,
+  type: "manual" | "auto" = "manual"
+): Promise<SnapshotRow> {
   const id = generateId();
   const now = new Date();
   const sanitizedLabel = label.replace(/[^a-zA-Z0-9-_ ]/g, "_").slice(0, 100);
@@ -246,8 +280,6 @@ export async function createSnapshot(
     }
 
     throw error;
-  } finally {
-    snapshotLock = false;
   }
 }
 
@@ -353,7 +385,7 @@ export async function restoreFromSnapshot(id: string): Promise<{
   preRestoreSnapshotId: string;
 }> {
   if (snapshotLock) {
-    throw new Error("Another snapshot operation is already in progress");
+    throw new SnapshotBusyError();
   }
 
   const snapshot = await getSnapshot(id);
@@ -373,8 +405,10 @@ export async function restoreFromSnapshot(id: string): Promise<{
   snapshotLock = true;
 
   try {
-    // 1. Create pre-restore safety snapshot
-    const preRestore = await createSnapshot(
+    // 1. Create pre-restore safety snapshot. Use the UNLOCKED core: we already
+    // hold snapshotLock, and the public createSnapshot would throw
+    // SnapshotBusyError against our own lock (the issue #24 deadlock).
+    const preRestore = await createSnapshotUnlocked(
       `pre-restore-${formatTimestamp(new Date())}`,
       "auto"
     );

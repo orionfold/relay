@@ -4,6 +4,7 @@ import {
   listSnapshots,
   getSnapshotsSize,
   isSnapshotLocked,
+  SnapshotBusyError,
 } from "@/lib/snapshots/snapshot-manager";
 
 /** GET /api/snapshots — list all snapshots with disk usage */
@@ -46,6 +47,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(snapshot, { status: 201 });
   } catch (error) {
+    // A lock grabbed between the isSnapshotLocked() check and createSnapshot is
+    // still contention, not a server error (issue #24).
+    if (error instanceof SnapshotBusyError) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to create snapshot" },
       { status: 500 }
