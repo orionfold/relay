@@ -1,6 +1,6 @@
 ---
 title: Fix — `--data-dir` is silently ignored by the pack / license / plugin subcommands
-status: planned
+status: shipped
 priority: P2
 milestone: mvp
 source: staging P1-verification run 2026-07-03 (found while reproducing fix-pack-install-blueprint-cache)
@@ -82,11 +82,33 @@ is present.
 
 ## Acceptance Criteria
 
-- [ ] `relay pack add <id> --data-dir X` installs into `X`, not the default dir.
-- [ ] `relay license add <file> --data-dir X` stores into `X/licenses/`.
-- [ ] Explicit `--data-dir` wins over an auto-written `.env.local` RELAY_DATA_DIR.
-- [ ] `RELAY_DATA_DIR` env var path unchanged when no flag passed.
-- [ ] Server-launch `--data-dir` path unchanged (no regression).
+- [x] `relay pack add <id> --data-dir X` installs into `X`, not the default dir.
+- [x] `relay license add <file> --data-dir X` stores into `X/licenses/`.
+- [x] Explicit `--data-dir` wins over an auto-written `.env.local` RELAY_DATA_DIR.
+- [x] `RELAY_DATA_DIR` env var path unchanged when no flag passed.
+- [x] Server-launch `--data-dir` path unchanged (no regression).
+
+## Verification run — 2026-07-03
+
+Fixed via a pre-parse `scanDataDirFlag(process.argv.slice(2))` in `bin/cli.ts`
+that sets `process.env.RELAY_DATA_DIR` AFTER the `.env.local` load (so an
+explicit flag wins) and BEFORE the pack/license/plugin short-circuits. Also
+added a `_hasDataDirFlag` guard so a flagged first-run install no longer writes
+a stray `.env.local`. The post-parse `opts.dataDir` application is kept as the
+canonical commander path for server launch.
+
+Real CLI smoke against isolated scratch dirs (approach (1) from the spec):
+
+- `pack add relay-agency --data-dir X` → 8 blueprints in `X/blueprints/`, no
+  `.env.local` auto-written, default dir untouched. ✓
+- `license add|status --data-dir=X` (both `--flag val` and `--flag=val` forms)
+  → store resolves to the flagged dir, empty (no crash reading default). ✓
+- Precedence: `.env.local` pinned `RELAY_DATA_DIR=A`, `--data-dir B` passed →
+  install landed in `B`, `A` never touched. ✓
+- Regression: `RELAY_DATA_DIR=X node cli.js pack add relay-agency` (no flag) →
+  installed into `X`. ✓
+
+Unit suite `src/lib/packs` + `src/lib/licensing`: 76/76 pass. `build:cli` clean.
 
 ## Scope Boundaries
 

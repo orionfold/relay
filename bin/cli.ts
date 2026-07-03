@@ -42,9 +42,18 @@ const launchCwd = process.cwd();
 // no manual Fix click. Skipped in the main dev repo (isDevMode) and skipped
 // when the user has already set RELAY_DATA_DIR in their shell.
 const _envLocalPath = join(launchCwd, ".env.local");
+// An explicit --data-dir flag means the user has already chosen where data
+// lives, so the per-folder isolation convenience-write would only add a
+// confusing, unused .env.local. Detect the flag from raw argv here (the flag is
+// applied to RELAY_DATA_DIR further down, after the .env.local load, so it wins
+// over any auto-written value).
+const _hasDataDirFlag = process.argv
+  .slice(2)
+  .some((a) => a === "--data-dir" || a.startsWith("--data-dir="));
 const _firstRunNeedsEnv =
   !existsSync(_envLocalPath) &&
   !process.env.RELAY_DATA_DIR &&
+  !_hasDataDirFlag &&
   !isDevMode(launchCwd);
 
 if (_firstRunNeedsEnv) {
@@ -105,6 +114,30 @@ if (existsSync(_envLocalPath)) {
       process.env[key] = val;
     }
   }
+}
+
+// Apply --data-dir to RELAY_DATA_DIR BEFORE the subcommand short-circuits
+// below. The pack/license/plugin verbs detect themselves from raw argv and
+// exit before program.parse() runs (which is where --data-dir is normally
+// mapped, at line ~224). Without this pre-scan those subcommands silently
+// ignore --data-dir and write to the default dir / the .env.local value — a
+// wrong-location write with no error. Running this AFTER the .env.local load
+// (above) makes an explicit flag win over an auto-written RELAY_DATA_DIR, which
+// is the documented precedence ("overrides RELAY_DATA_DIR"). Kept as a tiny
+// local scanner rather than importing packs/cli's extractFlag: that module
+// carries the DB/install dependency chain we must keep out of the default
+// startup graph (TDR-032).
+function scanDataDirFlag(argv: string[]): string | undefined {
+  for (let i = 0; i < argv.length; i++) {
+    const tok = argv[i];
+    if (tok === "--data-dir") return argv[i + 1];
+    if (tok.startsWith("--data-dir=")) return tok.slice("--data-dir=".length);
+  }
+  return undefined;
+}
+const _dataDirFlag = scanDataDirFlag(process.argv.slice(2));
+if (_dataDirFlag) {
+  process.env.RELAY_DATA_DIR = _dataDirFlag;
 }
 
 const pkg = JSON.parse(readFileSync(join(appDir, "package.json"), "utf-8"));
@@ -220,7 +253,9 @@ program.parse();
 
 const opts = program.opts();
 
-// Apply --data-dir before resolving paths
+// Apply --data-dir before resolving paths. Redundant with the pre-parse scan
+// above (which also covers the subcommand short-circuits), but kept as the
+// canonical commander-parsed application for the server-launch path.
 if (opts.dataDir) {
   process.env.RELAY_DATA_DIR = opts.dataDir;
 }
