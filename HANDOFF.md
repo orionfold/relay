@@ -25,13 +25,15 @@ staging fixes (`d5ecbf0a`), S13 nav redesign (`119e6ba8`), S12 ICP walkthrough �
   pyramid/progressive-disclosure** pass (higher-touch, changes meaning — deferred deliberately). Left
   by design: null-value `"—"` glyph, title separators (`Manifest — {app}`), API-route error JSON
   (developer-facing). Standard = memory `app-copy-standard`.
-- **Legacy-brand leaks — narration + seed DONE (S16); only LOAD-BEARING items remain (memory
-  `legacy-rebrand-divergence-bugs`).** Fixed: `ainative`→Relay in the chat system prompt / tool-catalog /
-  Codex error / Slack+Telegram test strings; `stagent`→relay in Environment seed data. STILL OPEN, each
-  needs a coordinated migration NOT a find-replace: `webhook-adapter.ts source:"ainative"` (outbound
-  wire field — customer filters may match it; **operator ruling needed**); `"ainative-theme"` cookie +
-  `"ainative-apps-changed"` event (rename only with read-both/dispatch-both fallback). KEEP untouched:
-  `$AINATIVE_DATA_DIR` alias resolver + manifest tokens, `ainative-paths.ts` symbols, the migration machinery.
+- **Legacy-brand leaks — LOAD-BEARING items now CLOSED (memory `legacy-rebrand-divergence-bugs`).**
+  Prior (S16): `ainative`→Relay in chat prompt / tool-catalog / Codex error / Slack+Telegram tests;
+  `stagent`→relay in Environment seed. This session: `"ainative-theme"` cookie + `"ainative-apps-changed"`
+  event migrated (`d9cf5712`) — theme with read-both/write-new fallback (no FOUC), event a clean rename
+  via a new zero-import leaf `apps-events.ts`; `webhook-adapter source:"ainative"`→`"relay"` (this session)
+  by **operator ruling = hard rename, no compat** (undocumented field, no customer filter assumed; wire
+  smoke proved both send+testConnection emit `"relay"`; CHANGELOG flags it as Changed with a
+  point-your-filter note). KEEP untouched (by design): `$AINATIVE_DATA_DIR` alias resolver + manifest
+  tokens, `ainative-paths.ts` symbols, the migration machinery, `sourceFormat:"ainative"` profile alias.
 - **Next release is a PATCH (0.23.1)** unless features land first — `[Unreleased]` now has 5 fix entries
   + 1 Changed (the copy sweep); patch = NO apiVersion-window bump.
 - **Publish-gate price-drift check — DONE (S17, `30266328`).** later-12 was answered (Website

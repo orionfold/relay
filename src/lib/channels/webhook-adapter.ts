@@ -24,7 +24,7 @@ export const webhookAdapter: ChannelAdapter = {
           format: message.format,
           metadata: message.metadata ?? {},
           timestamp: new Date().toISOString(),
-          source: "ainative",
+          source: "relay",
         }),
       });
 
@@ -56,7 +56,7 @@ export const webhookAdapter: ChannelAdapter = {
         },
         body: JSON.stringify({
           test: true,
-          source: "ainative",
+          source: "relay",
           timestamp: new Date().toISOString(),
         }),
       });
