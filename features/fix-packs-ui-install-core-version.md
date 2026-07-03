@@ -1,6 +1,6 @@
 ---
 title: Fix — /packs UI install rejects every pack (relay-core resolves to 0.0.0 in the Next.js server)
-status: planned
+status: done
 priority: P0
 milestone: mvp
 source: staging full-suite walkthrough 2026-07-02 finding [J7-4] (output/staging/2026-07-02-full-suite/FINDINGS.md)
@@ -101,9 +101,37 @@ the staging smoke.
 making UI install — a same-process reload — the normal path). No changes to the pack
 format, license verifier, or gallery UI.
 
+## Resolution (shipped 2026-07-03, staging-verified on 0.23.0)
+
+Fix landed in **`next.config.mjs`** (the spec said `next.config.ts` — the file
+is `.mjs`). Injected the version via **`compiler.defineServer`** — Next 16's
+bundler-agnostic SWC define, which covers both `next build` (webpack) and
+`next dev` (Turbopack) in one config, so the server substitutes
+`__RELAY_CORE_VERSION__` exactly as tsup does for the CLI.
+
+Two non-obvious gotchas, both caught in the staging smoke and documented in-file:
+
+1. **Pass the RAW version string, NOT `JSON.stringify(...)`.** Next's `define`
+   takes literal values and quotes them itself (opposite of tsup's JS-source
+   convention). Stringifying injected `'"0.23.0"'`, which fails `semver.valid()`
+   → silent fallback to `0.0.0`. First build reproduced this; the fix uses the
+   bare string.
+2. **Phase-gated the config** (`export default function config(phase)`), attaching
+   `defineServer` only in `PHASE_PRODUCTION_BUILD` / `PHASE_DEVELOPMENT_SERVER`.
+   At runtime `next start` the define is inert (already baked into `.next`) but
+   Next's config validator emitted a spurious `defineServer.__RELAY_CORE_VERSION__
+   is missing, expected boolean` warning into every customer's server log (a
+   false positive from its union-error flattener). Phase-gating keeps the shipped
+   `next start` path warning-free.
+
+**Staging smoke (real prebuilt artifact, per CLAUDE.md budget):** free
+`relay-agency` UI install → HTTP 200 (was `0.0.0` 422); premium `relay-agency-pro`
+unlicensed → HTTP 402 `license_required` (gate now reachable, was version 422);
+server log clean of `0.0.0` / version errors / config warnings; R4 isolation held.
+
 ## References
 
 - Finding: `output/staging/2026-07-02-full-suite/FINDINGS.md` [J7-4].
 - Prior CLI-only fix: `features/fix-pack-core-version-resolution.md`.
 - Code: `src/lib/packs/install.ts:31` (`relayCoreVersion`), `tsup.config.ts` (define),
-  `next.config.ts` (missing define).
+  `next.config.mjs` (define now injected via `compiler.defineServer`).

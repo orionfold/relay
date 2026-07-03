@@ -1,6 +1,6 @@
 ---
 title: Fix — installed-pack blueprints invisible to the server (stale in-process blueprint cache)
-status: planned
+status: done
 priority: P1
 milestone: mvp
 source: staging full-suite walkthrough 2026-07-02 finding [J7-11] (output/staging/2026-07-02-full-suite/FINDINGS.md)
@@ -98,9 +98,43 @@ blueprint registry, plus verifying the manifest-trigger-dispatch chapters run.
 this bug on the UI path). No change to blueprint schema, trigger dispatch logic, or
 the ledger view kit.
 
+## Resolution (shipped 2026-07-03, staging-verified on 0.23.0)
+
+Implemented the **mtime self-heal guard** (spec's preferred option) in
+`registry.ts`. `ensureLoaded()` now captures the user-blueprints-dir mtime when
+it builds the cache and, on each subsequent read, `statSync`s the dir; if the
+mtime moved (a file added/removed by any process), it drops and rebuilds the
+cache. One cheap stat per read, no cross-process coupling — self-heals CLI
+installs, manual file drops, and any future out-of-process writer.
+
+**Regression guard I had to add alongside it:** Kind-5 **plugin** blueprints live
+only in memory (injected by `mergePluginBlueprints`, sourced from plugin bundle
+dirs, never from the user dir). A naive cache rebuild from disk drops them. So
+`pluginBlueprints` now retains the full blueprint objects (was: ids only) and
+`ensureLoaded()` re-applies them after every disk rebuild. Covered by a new test
+`__tests__/cache-self-heal.test.ts` (self-heal on add/remove + plugin-blueprints
+survive a disk-triggered reload).
+
+**Staging smoke (real prebuilt artifact):** baseline `GET /api/blueprints` = 15
+builtins, 0 agency-pro; installed `relay-agency-pro` via **CLI (out-of-process)`;
+re-queried WITHOUT restart → 21 total, all 6 agency-pro blueprints visible;
+`relay-agency-pro--intake-pipeline` resolves by id (the exact dispatch lookup that
+threw "Blueprint not found"); server log clean of not-found/dispatch errors; R4
+isolation held.
+
+**NOTE — separate CLI bug surfaced during this verification** (worth its own
+spec): `relay pack add` / `license add` / `plugin` subcommands short-circuit in
+`bin/cli.ts` (lines ~193-217) BEFORE `program.parse()` applies `--data-dir` to
+`RELAY_DATA_DIR` (lines ~223-226), so **`--data-dir` is silently ignored by those
+verbs**. They honor the `RELAY_DATA_DIR` env var (that's how the smoke targeted
+the staging dir), but a customer running `relay pack add --data-dir X` after
+launching the server on a custom data-dir installs into the wrong place. Not in
+scope here; flagged for grooming.
+
 ## References
 
 - Finding: `output/staging/2026-07-02-full-suite/FINDINGS.md` [J7-11], [J7-9].
-- Code: `src/lib/workflows/blueprints/registry.ts:16` (cache), `:82`
-  (`reloadBlueprints`), `src/lib/packs/install.ts:107,122` (in-proc reload only).
+- Code: `src/lib/workflows/blueprints/registry.ts` (mtime self-heal +
+  plugin-blueprint retention), `src/lib/packs/install.ts:107,122` (in-proc reload).
+- Test: `src/lib/workflows/blueprints/__tests__/cache-self-heal.test.ts`.
 - Engine-fix-0a precedent (trigger rewrite, WORKS): `features/feat-agency-pro-pack.md`.

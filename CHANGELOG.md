@@ -8,6 +8,8 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ### Fixed
 
+- **Installing a pack from the Packs gallery now works.** Clicking "Install" on any pack — free or premium — used to fail with a confusing version error ("requires relay-core, but this install is 0.0.0"), so the only way to add a pack was the command line. The gallery button now installs correctly, and premium packs take you straight to the license step instead of dying on the version check.
+- **A pack you install from the command line shows up right away.** After adding a pack with `relay pack add` while the app was running, its workflows stayed invisible until you restarted the server. The running app now notices new packs on its own and picks them up without a restart.
 - **Your first-launch model choice can no longer be lost to a fast click.** Picking a model in the "Pick your default chat model" dialog and immediately navigating to another page could silently drop your preference — the save was cancelled mid-flight and the dialog re-appeared later as if you'd never answered. The save now survives navigation, and if it genuinely fails the dialog says so and lets you retry instead of closing as if it had worked.
 - **A fresh install no longer greets you with red errors.** First boot on an empty data dir printed several `ALTER TABLE failed: no such table` errors before "Database ready." — harmless setup ordering, but it read as a broken install. The first thing a new install prints is now simply "Database ready."
 

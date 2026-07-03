@@ -15,6 +15,26 @@ const USER_BLUEPRINTS_DIR = getAinativeBlueprintsDir();
 
 let blueprintCache: Map<string, WorkflowBlueprint> | null = null;
 
+// The user-blueprints dir mtime captured when the cache was last built. Lets a
+// long-lived server (the Next.js process) self-heal after an OUT-OF-PROCESS
+// install — a `relay pack add` from the CLI, or any external file drop —
+// writes new blueprint files that the in-process `reloadBlueprints()` never saw
+// (fix-pack-install-blueprint-cache). A directory's mtime bumps whenever an
+// entry is added or removed, so one cheap `statSync` per read detects the new
+// files and triggers a rebuild. null = cache built when the dir did not exist.
+let cachedDirMtimeMs: number | null = null;
+
+// Read the user-dir mtime, or null if the dir doesn't exist yet. A missing dir
+// is a valid state (no user blueprints installed) — we must still detect its
+// later CREATION, so null-vs-number transitions count as a change below.
+function userDirMtimeMs(): number | null {
+  try {
+    return fs.statSync(USER_BLUEPRINTS_DIR).mtimeMs;
+  } catch {
+    return null;
+  }
+}
+
 function scanDirectory(
   dir: string,
   isBuiltin: boolean
@@ -65,8 +85,23 @@ function loadAll(): Map<string, WorkflowBlueprint> {
 }
 
 function ensureLoaded(): Map<string, WorkflowBlueprint> {
+  // Self-heal: if the user-dir mtime moved since we built the cache (an
+  // out-of-process install added/removed files), drop the stale cache so it
+  // rebuilds below. `!==` covers both the number→number bump AND the
+  // null↔number transitions (dir created after an empty-dir cache build, or
+  // removed). Skipped on the very first build (cache still null).
+  if (blueprintCache && userDirMtimeMs() !== cachedDirMtimeMs) {
+    blueprintCache = null;
+  }
   if (!blueprintCache) {
+    // Snapshot the mtime BEFORE loadAll() so a write landing DURING the scan is
+    // caught on the next read rather than silently folded into this build with
+    // a newer mtime that would suppress the reload.
+    cachedDirMtimeMs = userDirMtimeMs();
     blueprintCache = loadAll();
+    // Re-apply in-memory plugin (Kind-5) blueprints — loadAll() only scans
+    // disk, so a rebuild would otherwise drop them.
+    applyPluginBlueprints(blueprintCache);
   }
   return blueprintCache;
 }
@@ -145,35 +180,49 @@ interface PluginBlueprintEntry {
   blueprint: WorkflowBlueprint;
 }
 
-const pluginBlueprintIndex: Map<string, Set<string>> = new Map();
+// Kind-5 plugin blueprints live ONLY in memory (sourced from plugin bundle
+// dirs, never from USER_BLUEPRINTS_DIR), so a disk rescan in loadAll() does not
+// see them. We retain the full blueprint objects here — not just ids — so they
+// can be re-applied after ANY cache rebuild, including the mtime self-heal in
+// ensureLoaded(). Without this, an out-of-process pack install would trigger a
+// reload that silently dropped every plugin blueprint until the next plugin
+// scan (fix-pack-install-blueprint-cache regression guard).
+const pluginBlueprints: Map<string, Map<string, WorkflowBlueprint>> = new Map();
+
+/** Re-apply retained plugin blueprints onto a freshly-built disk cache. */
+function applyPluginBlueprints(cache: Map<string, WorkflowBlueprint>): void {
+  for (const byId of pluginBlueprints.values()) {
+    for (const [id, bp] of byId) cache.set(id, bp);
+  }
+}
 
 export function mergePluginBlueprints(entries: PluginBlueprintEntry[]): void {
   const cache = ensureLoaded();
   for (const entry of entries) {
     cache.set(entry.blueprint.id, entry.blueprint);
-    if (!pluginBlueprintIndex.has(entry.pluginId)) {
-      pluginBlueprintIndex.set(entry.pluginId, new Set());
+    if (!pluginBlueprints.has(entry.pluginId)) {
+      pluginBlueprints.set(entry.pluginId, new Map());
     }
-    pluginBlueprintIndex.get(entry.pluginId)!.add(entry.blueprint.id);
+    pluginBlueprints.get(entry.pluginId)!.set(entry.blueprint.id, entry.blueprint);
   }
 }
 
 export function clearPluginBlueprints(pluginId: string): void {
   const cache = blueprintCache;
-  const ids = pluginBlueprintIndex.get(pluginId);
-  if (!ids) return;
-  if (cache) for (const id of ids) cache.delete(id);
-  pluginBlueprintIndex.delete(pluginId);
+  const byId = pluginBlueprints.get(pluginId);
+  if (!byId) return;
+  if (cache) for (const id of byId.keys()) cache.delete(id);
+  pluginBlueprints.delete(pluginId);
 }
 
 export function clearAllPluginBlueprints(): void {
-  for (const pluginId of Array.from(pluginBlueprintIndex.keys())) {
+  for (const pluginId of Array.from(pluginBlueprints.keys())) {
     clearPluginBlueprints(pluginId);
   }
 }
 
 export function listPluginBlueprintIds(pluginId: string): string[] {
-  return Array.from(pluginBlueprintIndex.get(pluginId) ?? []);
+  return Array.from(pluginBlueprints.get(pluginId)?.keys() ?? []);
 }
 
 export interface ValidateBlueprintRefsOptions {
