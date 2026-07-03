@@ -3,7 +3,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Download } from "lucide-react";
-import { listRuntimeCatalog } from "@/lib/agents/runtime/catalog";
+import type { AgentRuntimeId } from "@/lib/agents/runtime/catalog";
 import { getSupportedRuntimes } from "@/lib/agents/profiles/compatibility";
 import { IconCircle, getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
@@ -14,13 +14,23 @@ interface ProfileCardProps {
   onClick: () => void;
 }
 
+/**
+ * Short chip labels for the compact runtime-coverage row. Distinct from the
+ * catalog's full `label` (used in profile-detail-view) — a card needs one word.
+ * Keyed by runtime id, NOT provider: claude-code vs anthropic-direct share a
+ * provider, as do openai-codex vs openai-direct, so a provider-based (or the old
+ * `label.includes("Codex")`) heuristic collapses distinct runtimes — notably
+ * Ollama, the $0-local differentiator, which used to render as "Claude".
+ */
+const RUNTIME_SHORT_LABEL: Record<AgentRuntimeId, string> = {
+  "claude-code": "Claude",
+  "openai-codex-app-server": "Codex",
+  "anthropic-direct": "Anthropic",
+  "openai-direct": "OpenAI",
+  ollama: "Ollama (Local)",
+};
+
 export function ProfileCard({ profile, isBuiltin = false, onClick }: ProfileCardProps) {
-  const runtimeLabelMap = new Map(
-    listRuntimeCatalog().map((runtime) => [
-      runtime.id,
-      runtime.label.includes("Codex") ? "Codex" : "Claude",
-    ])
-  );
 
   return (
     <Card
@@ -67,7 +77,7 @@ export function ProfileCard({ profile, isBuiltin = false, onClick }: ProfileCard
         <div className="flex flex-wrap gap-1">
           {getSupportedRuntimes(profile).map((runtimeId) => (
             <Badge key={runtimeId} variant="secondary" className="text-xs">
-              {runtimeLabelMap.get(runtimeId) ?? runtimeId}
+              {RUNTIME_SHORT_LABEL[runtimeId] ?? runtimeId}
             </Badge>
           ))}
         </div>
