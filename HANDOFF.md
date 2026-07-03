@@ -1,44 +1,60 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-02 (pt: S11-S4-release — **0.23.0 RELEASED to npm** (`c6800c5d`, tag
-`v0.23.0`): gallery + founding price live; OIDC publish green (smoke-gated), GH Release +
-artifact/sha256/SBOM verified; apiVersion window → {0.23, 0.22}. THEN **#22 SHIPPED**
-(`55b3ae7d`): onboarding pref survives fast-navigate — real cause was the browser aborting the
-in-flight PUT on hard nav, NOT a missing await → `keepalive: true` + `res.ok` check + retryable
-inline error. **#23 SHIPPED** (`70db6926`): fresh-boot "no such table" ALTER noise suppressed —
-server.log now opens "Database ready.". Both staging-verified (fresh npx install, R4 clean),
-closed + shipped-labeled, `[Unreleased]` entries written. Prior tail: S11-S1..S3
-harness/smoke/gallery+promise = `e8c18f4a`/`d755b98f`/`f5f85b8e` — see git log + beacon.)_
+_Last updated: 2026-07-03 (pt: S12-walkthrough — ran the **full ICP staging walkthrough** (J0–J7 +
+JS1–JS6) on the customer-identical **0.23.0** npx tarball, real prod-signed license, isolated
+`~/.relay-staging` (R4 clean at teardown). Executed the S3 `staging-browser-smoke` scope MANUALLY,
+ahead of the harness. **Verdict: agency spine STRONG** (most 0.15.1 blockers fixed — Compose went from
+total failure to the best demo path, `$0.0005`/run, DB-verified) — **but Agency Pro is NOT sellable
+e2e behind 2 blockers.** Two fix specs written (root causes verified at code; first blueprint
+diagnosis was WRONG → corrected): `features/fix-packs-ui-install-core-version.md` (P0) +
+`features/fix-pack-install-blueprint-cache.md` (P1). Findings + screenshots:
+`output/staging/2026-07-02-full-suite/FINDINGS.md`. Prior tail: S11-S1..S4 =
+harness/smoke/gallery+promise/release+#22/#23 = `e8c18f4a`/`d755b98f`/`c6800c5d` — see git log + beacon.)_
 
-## ▶️ NEXT SESSION — S2 harness build
-- **S2** · `staging-cli-run` skill (primary) — see the S2–S4 block below.
-- **Next release is a PATCH (0.23.1)** unless features land first — two `[Unreleased]` fix
-  entries ready (#22/#23); patch = NO apiVersion-window bump.
-- **Publish-gate price-drift check** — still blocked on Website later-12 (pricing.json or
-  canonical location); when answered, add the drift diff to the npx prod smoke / publish gate.
+## ▶️ NEXT SESSION — Agency Pro blockers + nav spec
+- **🔴 P0 · `features/fix-packs-ui-install-core-version.md`** — /packs UI Install DOA on npx:
+  relay-core resolves to `0.0.0` in the Next.js server (tsup version-define only in `dist/cli.js`,
+  never injected into the `.next` bundle) → every pack install rejected in UI; CLI works. Fix =
+  add the version define to the Next.js build. Verified at code + reproduced (HTTP 422). **Needs a
+  real launch smoke** (runtime-adjacent, CLAUDE.md budget).
+- **🔴 P1 · `features/fix-pack-install-blueprint-cache.md`** — installed pack blueprints invisible
+  to the running server: stale in-process `blueprintCache` (registry.ts:16) after an out-of-process
+  CLI install → all 6 Agency Pro chapters fail "Blueprint not found" at dispatch. **Largely
+  downstream of the P0** (a UI install reloads in-process). Fix = mtime self-heal or reload trigger.
+- **Nav redesign SPEC (operator-requested, task queued)** — full IA rethink: permanent two-tier bar
+  (kill the sliding accordion), **promote Apps to top menu** with composed apps as sub-items, Apps
+  overflow = **"+N more"** primary (carousel + command-jump as documented alternatives). MUST include
+  a **route census**: `/analytics` + `/environment*` were cut from nav in the feature-freeze but are
+  **still fully LIVE by URL** (pattern — audit all "cut" features; verify intent vs
+  `_SPECS/feature-cut-freeze.md`). SPEC first (policy 3), build later. Nav findings NAV-1..6 in the
+  FINDINGS doc.
+- **App-copy sweep (operator directive → memory `app-copy-standard`)** — scrub ALL user-facing copy
+  of em-dashes + AI-slop tells, grade 3–5, pyramid principle, progressive disclosure. Sweep targets:
+  runtime modal, welcome hero, Agency Pro pack `description`, empty-states, compose-agent narration.
+- **Legacy-brand leaks (3 layers, memory `legacy-rebrand-divergence-bugs`)** — "stagent" in built-in
+  profile authors; "ainative" in the live compose-agent narration + `$AINATIVE_DATA_DIR` in installed
+  manifests (deprecated-but-load-bearing alias). Classify each before editing.
+- **Next release is a PATCH (0.23.1)** unless features land first — two `[Unreleased]` fix entries
+  ready (#22/#23); patch = NO apiVersion-window bump. The 2 fix specs above would fold in here.
+- **Publish-gate price-drift check** — still blocked on Website later-12; when answered, add the
+  drift diff to the npx prod smoke / publish gate.
 
-### S2–S4 harness build (still queued)
-- **S2** · `staging-cli-run` skill — install/wire **VHS** (local dev dep; skill checks + instructs if
-  missing). CLI first-run `.tape` (Mode A) + the Mode C dev-key-signer fulfilment script → same GIF
-  (the S11-S2 smoke PROVED the Mode C sequence manually — S2 just scripts it).
-- **S3** · `staging-browser-smoke` (J0–J6 via Claude-in-Chrome) · **S4** · `staging-evaluate`
-  (verify-before-groom → `features/fix-*.md` + `_IDEAS/backlog.md`; DRAFT gh issues to `output/`).
-- Decisions locked: vhs · offline dev-key signer · `file://` mirror · Chrome-primary. Spec: `_SPECS/relay-staging-harness.md` §8.
-- **`file://` mirror artifact is per-BUILD, not per-version** — after ANY src behavior/schema
-  change, `npm run build && node scripts/build-prebuilt-artifact.mjs` BEFORE staging verification,
-  or staging runs stale compiled code against new data (memory `staging-artifact-rebuild-before-verify`).
-- Constraints: work on `main`; `_SPECS`/`_IDEAS` edit-only (strategy repo, its owner commits);
-  paid-frontier OK'd for agent steps; harness-side instrumentation only (nothing sends user data to Orionfold).
+### Staging harness — S2/S4 still queued (S3 scope done manually this session)
+- **S3 `staging-browser-smoke`** (J0–J7 via Claude-in-Chrome) was **executed MANUALLY in S12** — the
+  enriched `_IDEAS/icp-agency-journeys.md` script is proven; automating it into a skill is still open.
+- **S2** · `staging-cli-run` skill — VHS (local dev dep) · CLI first-run `.tape` (Mode A) + Mode C
+  dev-key-signer fulfilment → same GIF. **S4** · `staging-evaluate` (verify-before-groom →
+  `features/fix-*.md` + `_IDEAS/backlog.md`; DRAFT gh issues to `output/`). Spec: `_SPECS/relay-staging-harness.md` §8.
+- **`file://` mirror is per-BUILD** — `npm run build && node scripts/build-prebuilt-artifact.mjs`
+  BEFORE any staging verify (memory `staging-artifact-rebuild-before-verify`).
+- Constraints: work on `main`; `_SPECS`/`_IDEAS` edit-only (strategy repo owner commits); paid-frontier
+  OK'd for agent steps; harness-side instrumentation only.
 
-**PLG-4 stays reactive — no live growth-loop candidate** (rulings recorded in plg-refine §4/§5 +
-features/changelog 2026-07-02): free-key tier **DEFERRED** (re-open only when operator resurfaces
-it AND Website issuer can participate) · founding-supporter product-loop **DROPPED** (the $349
-founding *price* is live and, since #20 shipped, the product expresses it) · reverse trial **DEAD**
-(re-lock violates the public promise — never resurface).
-- **Relay channel:** later-9/10 **ACTED** — the T-30 renewal email is LIVE (Website later-11;
-  nothing owed). **later-12 OPEN**: Website to adopt the explicit promise phrase on /relay/ +
-  /promise/ + email copy, and optionally publish machine-readable pricing (kills the drift class).
-  Standing: flag each new pack `changelog:` line on _RELAY per release; flag `docs/trust/*` URL moves.
+**PLG-4 stays reactive** (rulings in plg-refine §4/§5): free-key **DEFERRED**, founding-supporter loop
+**DROPPED** (price is live via #20), reverse trial **DEAD** (violates the promise). **Relay channel:**
+later-9/10/11 ACTED (T-30 renewal email LIVE); **later-12 OPEN** — Website to adopt the promise phrase
+on /relay/ + /promise/ + email + optional machine-readable pricing (kills the drift class). Standing:
+flag each new pack `changelog:` line + `docs/trust/*` URL moves on _RELAY.
 - **Anti-patterns stay fenced (plg-refine §7):** no DB licensing, no CLI upsell banners, no
   online re-validation, no expiry that disables installed packs (D4 = shipped behavior AND
   public promise; enforced at the UPDATE gate, proven by agency-pro-update.test.ts).
