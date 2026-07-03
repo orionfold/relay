@@ -15,14 +15,16 @@ import {
   Sparkles,
   Users,
   Boxes,
+  Package,
 } from "lucide-react";
 
-// Single source of truth for the navigation IA, consumed by the in-bar
-// horizontal accordion (app-bar.tsx). The bar shows the group buttons; clicking
-// one expands its children inline. Compose was split into Compose + Data so no
-// group exceeds 4 children (caps the expanded row's width) — Packs is the one
-// tested exception (5th compose slot, beside Apps for discovery). Route set is
-// otherwise byte-identical to the former sidebar IA.
+// Single source of truth for the navigation IA, consumed by the permanent
+// two-tier bar (app-bar.tsx). Tier 1 shows every top-level section; tier 2
+// shows the children of whichever section owns the current route — always
+// visible, no sliding, no accordion. Apps is a top-level section (promoted from
+// under Compose) whose tier-2 children are DYNAMIC app instances built at render
+// time from listAppsCached(); its static `items` list is therefore empty. There
+// is no per-group width cap anymore — each tier gets its own row.
 
 export interface NavItem {
   title: string;
@@ -37,6 +39,7 @@ export interface NavItem {
 
 export type NavGroupId =
   | "home"
+  | "apps"
   | "compose"
   | "data"
   | "observe";
@@ -44,9 +47,17 @@ export type NavGroupId =
 export interface NavGroup {
   id: NavGroupId;
   label: string;
-  /** Group-level glyph shown on the collapsed group button in the bar. */
+  /** Section glyph shown on the tier-1 button. */
   icon: typeof Home;
+  /** The section's landing route — tier-1 click navigates here. */
+  href: string;
+  /**
+   * Static tier-2 children. Empty for `apps`, whose tier-2 is built from live
+   * app instances (see appsNavItems) rather than a fixed list.
+   */
   items: NavItem[];
+  /** Path prefixes (beyond items' hrefs) that mark this section active. */
+  alsoMatches?: string[];
 }
 
 const homeItems: NavItem[] = [
@@ -56,20 +67,21 @@ const homeItems: NavItem[] = [
   { title: "Chat", href: "/chat", icon: MessageCircle, description: "Talk directly with agents" },
 ];
 
+// Apps is now a top-level section. Its tier-2 children are the composed app
+// instances (from listAppsCached), not a static list, so `items` is empty and
+// the bar builds the row via appsNavItems(). Packs stays under Compose as the
+// soft-gate discovery surface (PLG D6).
 const composeItems: NavItem[] = [
-  { title: "Apps", href: "/apps", icon: Sparkles, description: "Composed apps — the entry point", alsoMatches: ["/apps/"] },
-  // Packs sits beside Apps deliberately (soft-gate discovery, PLG D6) and is
-  // the one exception to the 4-children-per-group width cap below.
   { title: "Packs", href: "/packs", icon: Boxes, description: "Install vertical content bundles", alsoMatches: ["/packs/"] },
-  { title: "Projects", href: "/projects", icon: FolderKanban, description: "Group work by project" },
-  { title: "Workflows", href: "/workflows", icon: Workflow, description: "Multi-step agent pipelines" },
-  { title: "Profiles", href: "/profiles", icon: Bot, description: "Tune agent behavior" },
+  { title: "Projects", href: "/projects", icon: FolderKanban, description: "Group work by project", alsoMatches: ["/projects/"] },
+  { title: "Workflows", href: "/workflows", icon: Workflow, description: "Multi-step agent pipelines", alsoMatches: ["/workflows/"] },
+  { title: "Profiles", href: "/profiles", icon: Bot, description: "Tune agent behavior", alsoMatches: ["/profiles/"] },
 ];
 
 const dataItems: NavItem[] = [
   { title: "Customers", href: "/customers", icon: Users, description: "Accounts you run ops for", alsoMatches: ["/customers/"] },
-  { title: "Schedules", href: "/schedules", icon: Clock, description: "Recurring automated runs" },
-  { title: "Documents", href: "/documents", icon: FileText, description: "Shared context library" },
+  { title: "Schedules", href: "/schedules", icon: Clock, description: "Recurring automated runs", alsoMatches: ["/schedules/"] },
+  { title: "Documents", href: "/documents", icon: FileText, description: "Shared context library", alsoMatches: ["/documents/"] },
   { title: "Tables", href: "/tables", icon: Table2, description: "Structured data views", alsoMatches: ["/tables/"] },
 ];
 
@@ -78,17 +90,47 @@ const observeItems: NavItem[] = [
   { title: "Cost & Usage", href: "/costs", icon: Wallet, description: "Spend and model metering" },
 ];
 
-// NOTE: the former `configure` group (Environment + Settings) was dissolved per
-// _SPECS/feature-cut-freeze.md (Targets 3 + 3b). Environment is deferred (route
-// dormant on disk); Settings moved to the app-bar right utility cluster as an
-// icon-only gear. The bar is now 4 groups: Home · Compose · Data · Observe.
+// NOTE: Analytics + Environment were RETIRED (routes + dashboards deleted, not
+// just nav-hidden) per features/nav-redesign-ia.md — the load-bearing
+// src/lib/environment infra (workspace-context, scanner, skill-enrichment, ...)
+// stays; only the feature surface was cut. Settings lives in the app-bar right
+// utility cluster as an icon-only gear, not a section.
 
 export const NAV_GROUPS: NavGroup[] = [
-  { id: "home", label: "Home", icon: Home, items: homeItems },
-  { id: "compose", label: "Compose", icon: Sparkles, items: composeItems },
-  { id: "data", label: "Data", icon: FileText, items: dataItems },
-  { id: "observe", label: "Observe", icon: Activity, items: observeItems },
+  { id: "home", label: "Home", icon: Home, href: "/", items: homeItems },
+  { id: "apps", label: "Apps", icon: Sparkles, href: "/apps", items: [], alsoMatches: ["/apps", "/apps/"] },
+  { id: "compose", label: "Compose", icon: Package, href: "/packs", items: composeItems },
+  { id: "data", label: "Data", icon: FileText, href: "/customers", items: dataItems },
+  { id: "observe", label: "Observe", icon: Activity, href: "/monitor", items: observeItems },
 ];
+
+/** A composed app instance as the shell needs it for the Apps tier-2 row. */
+export interface AppInstance {
+  id: string;
+  name: string;
+}
+
+/**
+ * Build the Apps section's tier-2 children from live app instances. Leads with
+ * an "All apps" link to the /apps grid, then one item per instance (→
+ * /apps/[id]). The caller decides how many instances to show inline vs. fold
+ * into a "+N more" pill (see app-bar.tsx).
+ */
+export function appsNavItems(apps: AppInstance[]): NavItem[] {
+  const allApps: NavItem = {
+    title: "All apps",
+    href: "/apps",
+    icon: Sparkles,
+    description: "Every composed app",
+  };
+  const instances: NavItem[] = apps.map((app) => ({
+    title: app.name,
+    href: `/apps/${app.id}`,
+    icon: Package,
+    description: app.name,
+  }));
+  return [allApps, ...instances];
+}
 
 export function isItemActive(item: NavItem, pathname: string): boolean {
   if (item.href === "/") return pathname === "/";
@@ -99,15 +141,15 @@ export function isItemActive(item: NavItem, pathname: string): boolean {
   );
 }
 
-export function activeGroupId(pathname: string): NavGroupId {
-  for (const group of NAV_GROUPS) {
-    for (const item of group.items) {
-      if (isItemActive(item, pathname)) return group.id;
-    }
-  }
-  return "home";
+/** True when this section owns the current route (via items or alsoMatches). */
+export function groupHasActiveItem(group: NavGroup, pathname: string): boolean {
+  if (group.items.some((item) => isItemActive(item, pathname))) return true;
+  return group.alsoMatches?.some((p) => pathname === p || pathname.startsWith(p)) ?? false;
 }
 
-export function groupHasActiveItem(group: NavGroup, pathname: string): boolean {
-  return group.items.some((item) => isItemActive(item, pathname));
+export function activeGroupId(pathname: string): NavGroupId {
+  for (const group of NAV_GROUPS) {
+    if (groupHasActiveItem(group, pathname)) return group.id;
+  }
+  return "home";
 }

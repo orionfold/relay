@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Settings } from "lucide-react";
+import { Settings, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AinativeWordmark } from "@/components/shared/ainative-wordmark";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -11,20 +10,25 @@ import { AuthStatusDot } from "@/components/settings/auth-status-dot";
 import { UnreadBadge } from "@/components/notifications/unread-badge";
 import {
   NAV_GROUPS,
+  appsNavItems,
   isItemActive,
   activeGroupId,
-  type NavGroup,
-  type NavGroupId,
+  type AppInstance,
+  type NavItem,
 } from "./nav-items";
 
-// The Arena app bar with an IN-BAR horizontal accordion (operator's model). The
-// bar shows the 4 group buttons; clicking one slides its children open inline,
-// pushing siblings right, and slides any previously-open group closed — so at
-// most one group's children (≤4) plus the 4 group buttons are visible at once.
-// Each child shows a single-line label (icon + title); its tip survives only as
-// the native title tooltip, so children stay narrow on small viewports. Active
-// child = cyan fill (the one action color). No drawer, no separate primary tabs:
-// the whole IA lives in the bar.
+// The Arena app bar as a PERMANENT TWO-TIER bar (replaces the sliding
+// accordion). Tier 1 lists every top-level section; tier 2 shows the children
+// of whichever section owns the current route — always visible, no toggle, no
+// per-group width cap. Apps is a top-level section whose tier-2 row is built
+// from live composed-app instances (+ a leading "All apps" link); instances
+// beyond APPS_INLINE_MAX fold into a "+N more" pill that links to /apps. Active
+// = cyan fill, the bar's single action color.
+
+// Max app instances shown inline in the Apps tier-2 row before the rest fold
+// into "+N more". Keeps the row from overflowing on small viewports; the /apps
+// grid is the full list.
+const APPS_INLINE_MAX = 5;
 
 function openCommandPalette() {
   document.dispatchEvent(
@@ -32,181 +36,169 @@ function openCommandPalette() {
   );
 }
 
-function GroupAccordion({
-  group,
-  open,
-  onToggle,
-  pathname,
-}: {
-  group: NavGroup;
-  open: boolean;
-  onToggle: () => void;
-  pathname: string;
-}) {
-  const GroupIcon = group.icon;
-  const groupActive = group.items.some((item) => isItemActive(item, pathname));
-
+/** A tier-2 child pill (icon + label, optional badge). */
+function TierTwoLink({ item, pathname }: { item: NavItem; pathname: string }) {
+  const active = isItemActive(item, pathname);
+  const Icon = item.icon;
   return (
-    <div className="flex items-stretch">
-      {/* Group button — toggles its own children open/closed. */}
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
+    <li className="flex">
+      <Link
+        href={item.href}
+        aria-current={active ? "page" : undefined}
+        title={item.description}
         className={cn(
-          "flex h-9 items-center gap-1.5 self-center rounded-md px-2.5 text-sm font-medium transition-colors",
-          open || groupActive
-            ? "text-foreground"
+          "flex items-center gap-2 whitespace-nowrap rounded-md px-2.5 py-1.5 transition-colors",
+          active
+            ? "bg-primary text-primary-foreground shadow-[0_0_0_1px_var(--ring)]"
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >
-        <GroupIcon
+        <Icon
           className={cn(
             "h-4 w-4 shrink-0",
-            groupActive ? "text-primary" : "text-muted-foreground",
+            active ? "text-primary-foreground" : "text-muted-foreground",
           )}
           aria-hidden
         />
-        {group.label}
-        <ChevronDown
-          className={cn(
-            "h-3 w-3 shrink-0 text-muted-foreground/70 transition-transform duration-200",
-            open && "rotate-180",
+        <span className="flex items-center gap-1.5 text-[13px] font-medium leading-tight">
+          {item.title}
+          {item.badge && (
+            <span className={active ? "[&_*]:!text-primary-foreground" : ""}>
+              <UnreadBadge />
+            </span>
           )}
-          aria-hidden
-        />
-      </button>
-
-      {/* Children — horizontal slide via grid-cols 0fr→1fr (mirrors the old
-          sidebar's grid-rows accordion, but on the inline axis). */}
-      <div
-        className={cn(
-          "grid transition-[grid-template-columns] duration-200 ease-in-out",
-          open ? "grid-cols-[1fr]" : "grid-cols-[0fr]",
-        )}
-      >
-        <div className="overflow-hidden">
-          <ul className="flex h-full items-center gap-1 pr-1 pl-0.5">
-            {group.items.map((item) => {
-              const active = isItemActive(item, pathname);
-              const Icon = item.icon;
-              return (
-                <li key={item.href} className="flex">
-                  <Link
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    title={item.description}
-                    className={cn(
-                      "flex items-center gap-2 whitespace-nowrap rounded-md px-2.5 py-1.5 transition-colors",
-                      active
-                        ? "bg-primary text-primary-foreground shadow-[0_0_0_1px_var(--ring)]"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                    )}
-                  >
-                    <Icon
-                      className={cn(
-                        "h-4 w-4 shrink-0",
-                        active
-                          ? "text-primary-foreground"
-                          : "text-muted-foreground",
-                      )}
-                      aria-hidden
-                    />
-                    {/* Single-line label: the tip (item.description) is dropped
-                        from the bar to keep each child pill narrow on small
-                        viewports — it survives as the native title tooltip. */}
-                    <span className="flex items-center gap-1.5 text-[13px] font-medium leading-tight">
-                      {item.title}
-                      {item.badge && (
-                        <span
-                          className={
-                            active ? "[&_*]:!text-primary-foreground" : ""
-                          }
-                        >
-                          <UnreadBadge />
-                        </span>
-                      )}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </div>
-    </div>
+        </span>
+      </Link>
+    </li>
   );
 }
 
-export function AppBar() {
+export function AppBar({ apps }: { apps: AppInstance[] }) {
   const pathname = usePathname();
-  // Default the open group to whichever owns the current route; re-sync on
-  // navigation so deep links land with the right group already expanded.
-  const routeGroup = activeGroupId(pathname);
+  const activeId = activeGroupId(pathname);
+  const activeGroup = NAV_GROUPS.find((g) => g.id === activeId) ?? NAV_GROUPS[0];
   const settingsActive = pathname.startsWith("/settings");
-  const [openGroup, setOpenGroup] = useState<NavGroupId | null>(routeGroup);
 
-  useEffect(() => {
-    setOpenGroup(routeGroup);
-  }, [routeGroup]);
+  // Tier-2 children of the active section. Apps is dynamic (live instances);
+  // every other section uses its static items.
+  let tierTwo: NavItem[];
+  let overflowCount = 0;
+  if (activeGroup.id === "apps") {
+    const all = appsNavItems(apps); // [All apps, ...instances]
+    const instances = all.slice(1);
+    const shown = instances.slice(0, APPS_INLINE_MAX);
+    overflowCount = instances.length - shown.length;
+    tierTwo = [all[0], ...shown];
+  } else {
+    tierTwo = activeGroup.items;
+  }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 flex-none items-center gap-3 border-b border-border bg-[var(--surface-1)] px-4">
-      <Link
-        href="/"
-        aria-label="Orionfold Relay home"
-        className="flex shrink-0 items-center"
-      >
-        <AinativeWordmark />
-      </Link>
-
-      <nav
-        aria-label="Primary"
-        className="flex min-w-0 flex-1 items-stretch gap-0.5 overflow-x-auto"
-      >
-        {NAV_GROUPS.map((group) => (
-          <GroupAccordion
-            key={group.id}
-            group={group}
-            open={openGroup === group.id}
-            onToggle={() =>
-              setOpenGroup((prev) => (prev === group.id ? null : group.id))
-            }
-            pathname={pathname}
-          />
-        ))}
-      </nav>
-
-      <div className="ml-auto flex shrink-0 items-center gap-2">
-        {/* Settings — icon-only gear promoted here from the dissolved `configure`
-            nav group (_SPECS/feature-cut-freeze.md Target 3b). Active = cyan, the
-            bar's single action color. */}
+    <header className="sticky top-0 z-30 flex flex-col border-b border-border bg-[var(--surface-1)]">
+      {/* Tier 1 — top-level sections + utility cluster. */}
+      <div className="flex h-14 flex-none items-center gap-3 px-4">
         <Link
-          href="/settings"
-          aria-label="Settings"
-          title="Settings"
-          aria-current={settingsActive ? "page" : undefined}
-          className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
-            settingsActive
-              ? "text-primary"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground",
-          )}
+          href="/"
+          aria-label="Orionfold Relay home"
+          className="flex shrink-0 items-center"
         >
-          <Settings className="h-4 w-4 shrink-0" aria-hidden />
+          <AinativeWordmark />
         </Link>
-        <button
-          type="button"
-          onClick={openCommandPalette}
-          aria-label="Open command palette (⌘K)"
-          className="hidden h-8 items-center rounded-md border border-border/60 px-2 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
+
+        {/* Tier 1 = TAB idiom: the active section shows a cyan bottom-border
+            that sits on the header's own bottom edge (-mb-px), so the underline
+            visually connects the tab to the tier-2 row it controls. Distinct
+            from tier 2's pill/fill LINK-selection idiom below — different shapes
+            of emphasis, so the two tiers read as a hierarchy, not two rows of
+            the same control. */}
+        <nav
+          aria-label="Primary"
+          role="tablist"
+          className="-mb-px flex min-w-0 flex-1 items-stretch gap-1 self-stretch overflow-x-auto"
         >
-          <kbd className="font-mono">⌘K</kbd>
-        </button>
-        <ThemeToggle />
-        <span className="flex items-center gap-2 whitespace-nowrap text-xs text-muted-foreground">
-          <AuthStatusDot />
-        </span>
+          {NAV_GROUPS.map((group) => {
+            const GroupIcon = group.icon;
+            const sectionActive = group.id === activeId;
+            return (
+              <Link
+                key={group.id}
+                href={group.href}
+                role="tab"
+                aria-selected={sectionActive}
+                aria-current={sectionActive ? "page" : undefined}
+                className={cn(
+                  "flex items-center gap-1.5 whitespace-nowrap border-b-2 px-2.5 text-sm font-medium transition-colors",
+                  sectionActive
+                    ? "border-primary text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <GroupIcon
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    sectionActive ? "text-primary" : "text-muted-foreground",
+                  )}
+                  aria-hidden
+                />
+                {group.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          {/* Settings — icon-only gear in the utility cluster. Active = cyan. */}
+          <Link
+            href="/settings"
+            aria-label="Settings"
+            title="Settings"
+            aria-current={settingsActive ? "page" : undefined}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
+              settingsActive
+                ? "text-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            )}
+          >
+            <Settings className="h-4 w-4 shrink-0" aria-hidden />
+          </Link>
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Open command palette (⌘K)"
+            className="hidden h-8 items-center rounded-md border border-border/60 px-2 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
+          >
+            <kbd className="font-mono">⌘K</kbd>
+          </button>
+          <ThemeToggle />
+          <span className="flex items-center gap-2 whitespace-nowrap text-xs text-muted-foreground">
+            <AuthStatusDot />
+          </span>
+        </div>
+      </div>
+
+      {/* Tier 2 — children of the active section, always visible. */}
+      <div className="flex h-11 flex-none items-center border-t border-border/60 px-4">
+        <ul
+          aria-label={`${activeGroup.label} sections`}
+          className="flex min-w-0 items-center gap-1 overflow-x-auto"
+        >
+          {tierTwo.map((item) => (
+            <TierTwoLink key={item.href} item={item} pathname={pathname} />
+          ))}
+          {overflowCount > 0 && (
+            <li className="flex">
+              <Link
+                href="/apps"
+                title={`${overflowCount} more app${overflowCount === 1 ? "" : "s"}`}
+                className="flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <MoreHorizontal className="h-4 w-4 shrink-0" aria-hidden />
+                {`+${overflowCount} more`}
+              </Link>
+            </li>
+          )}
+        </ul>
       </div>
     </header>
   );
