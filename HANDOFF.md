@@ -1,29 +1,34 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S23 — wrote the last open staging-harness skill **S3
-`staging-browser-smoke`** (gitignored SKILL.md), **completing the S1-S4 arc — all four skills now
-exist**. Mode B = drive a running `:3199` instance through J0-J7 + JS1-JS6 (`_IDEAS/icp-agency-journeys.md`)
-via Claude-in-Chrome → Playwright MCP fallback (D6), autonomous-logging, capturing per-screen PNGs +
-console/network logs + a house-format README into the shared `output/staging/<date>/` bundle that
-`staging-evaluate` consumes. Skill-only (no `staging.mjs` verb — MCP browser work is judgment, like S4).
-All 6 referenced paths verified to exist; skill registered + correctly gitignored (clean `git status`).
-Not yet run live end-to-end (needs `relay-staging setup && launch` + spends real tokens on J4/J5/J7 live
-agents). Prior tail: S22 staging-evaluate (`0ce13c0d`), S21 app-copy (`2df172e3`), S20 staging-cli-run
-(`dd7cab0a`), S19 0.24.0 (`58fc89ac`) — full detail in git log + CHANGELOG.)_
+_Last updated: 2026-07-03 (pt: S27 — **P2 `fix-profile-runtime-chip-labels` SHIPPED + 0.24.1 release cut**.
+Fixed the profile-card runtime-chip collapse (`fe4b9237`, #26 filed+committed): exhaustive
+`Record<AgentRuntimeId, string>` short-label map replaces the `label.includes("Codex")` ternary — Ollama
+now reads "Ollama (Local)", not "Claude"; new `profile-card.test.tsx` (2 tests) green, 56 profiles tests
+pass. CHANGELOG 0.24.1 entries for #24/#25/#26 (`662ce4e2`), `npm version patch` → tag `v0.24.1`
+(`d794a8ce`) pushed. **Publish CI in-flight at wrap (run 28685075885); npm still 0.24.0.** Prior tail: S26
+fixed both S25 P1s (`6f715fa4` #24, `e89ae622` #25) + GH auto-file automation; S25 live 6-run staging suite
+(bundle `output/staging/2026-07-03-suite/`); S19 0.24.0 (`58fc89ac`). Full detail: git log.)_
 
-## ▶️ NEXT SESSION — staging harness arc DONE; only reactive/backlog remains
+## ▶️ NEXT SESSION — confirm 0.24.1 published, then flip issues to `shipped`
 
-### Staging harness — S1-S4 arc COMPLETE (all four skills exist)
-- `relay-staging` (substrate) · `staging-cli-run` (Mode A+C GIF) · `staging-browser-smoke` (Mode B
-  walkthrough, S23) · `staging-evaluate` (Mode D groom) — the full capture→eval loop is skill-driven.
-- **Open follow-up (optional):** run `staging-browser-smoke` **live end-to-end** to prove it and
-  produce the first real Mode B bundle — S23 wrote the skill but didn't exercise it (needs
-  `relay-staging setup && launch`, spends real tokens on the live-agent journeys; prefer Ollama $0 / R5).
-- **Staging skills are LOCAL tooling**: `scripts/staging/*` committed; SKILL.md files gitignored (memory
-  `skills-are-gitignored-secret-sauce`). VHS `Wait` is unreliable — headless is the correctness gate
-  (memory `vhs-capture-headless-is-the-gate`). Prereq: `brew install vhs`.
-- **`file://` mirror is per-BUILD** — `npm run build && node scripts/build-prebuilt-artifact.mjs`
-  BEFORE any staging verify (memory `staging-artifact-rebuild-before-verify`). 0.24.0 artifact built S20.
+### Confirm the 0.24.1 publish landed (in-flight at S27 wrap)
+- Tag `v0.24.1` pushed; **Publish to npm** CI was still `in_progress` at wrap (run `28685075885`, npm still
+  0.24.0). First: `gh run view 28685075885 --json status,conclusion` + `npm view orionfold-relay version`.
+- **If published (npm shows 0.24.1 + GitHub Release + SBOM exist):** flip #24, #25, #26 to `shipped` and
+  CLOSE them (`gh issue edit <n> --add-label shipped && gh issue close <n>`). NOT before — `shipped` lies
+  until the tag actually publishes (handoff rule).
+- **If CI FAILED:** it's gated by the Case L npx prod smoke — read the run log, fix, re-tag. Do not force.
+- P3 polish still in `_IDEAS/backlog.md` (blur-heavy jargon, AINATIVE_ doc-comment, $AINATIVE_DATA_DIR sed,
+  chat_turn cost deep-link) — reactive, not blocking.
+
+### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
+- `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
+  now proven end-to-end. Driver-mix + headed-browser default folded into `staging-browser-smoke` SKILL
+  (memories `staging-autonomous-run-playbook`, `staging-headed-browser-preference`).
+- **Re-run cadence:** one R-run per session (S24 rev); `scripts/staging/browser-capture.mjs` is the headed
+  PNG helper (needs `npx playwright@latest install chromium` once). `file://` mirror is per-BUILD —
+  `npm run build && node scripts/build-prebuilt-artifact.mjs` before any verify (memory
+  `staging-artifact-rebuild-before-verify`).
 - Constraints: work on `main`; `_SPECS`/`_IDEAS` edit-only (strategy repo owner commits); paid-frontier
   OK'd for agent steps; harness-side instrumentation only.
 
@@ -85,19 +90,16 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**S23 (unreleased tooling):** staging-harness **S3 `staging-browser-smoke`** — the last open skill in the
-arc; gitignored SKILL.md, Mode B J0-J7 + JS-series browser walkthrough → house-format bundle. **All four
-S1-S4 skills now exist.** Skill-only (no script verb); not committed (gitignored), so no git change. Not
-yet run live. No version bump.
-**S22 (unreleased tooling):** staging-harness **S4 `staging-evaluate`** (`0ce13c0d`) — verify-before-groom
-skill (gitignored) + first loop: 3/3 raw findings verified stale, 1 residual groomed to
-`fix-pack-price-runtime-canonical-read.md`. No version bump.
-**S21 (unreleased copy):** app-copy task #5 grade-3-5 rewrite — 5 surfaces (runtime-preference modal,
-welcome hero, chat empty-state, composer prompt, Agency Pro pack `description`) rewritten to the
-`app-copy-standard`; changelog map deliberately left as-is (renewal-email template source). No version
-bump (copy-only). **S20 (unreleased tooling):** staging-harness **S2 `staging-cli-run`** (`dd7cab0a`) — Mode A+C GIF +
-fulfilment capture; no version bump (harness tooling, not product). **Latest RELEASED — 0.24.0** (S19):
-legacy-brand leaks CLOSED (theme cookie + apps-changed event `d9cf5712`; webhook `source` rename
-`f6639058`) + apiVersion window 0.23→0.24 (`58fc89ac`). Published via `v0.24.0` tag — npm `latest`,
-GitHub Release + SBOM. Prior releases 0.23.0 (packs gallery + founding price) ← 0.16. Full version
-history + per-session detail: `git tag` + CHANGELOG + `git log`.
+**0.24.1 (S25–S27, tag `v0.24.1` pushed — publish CI in-flight at S27 wrap):** three customer fixes —
+`6f715fa4` snapshot-restore deadlock (#24, unlocked-core + `SnapshotBusyError`→409), `e89ae622` Ollama
+phantom-model (#25, import-free resolver + live-Ollama smoke), `fe4b9237` profile runtime-chip labels
+(#26, exhaustive `Record<AgentRuntimeId,string>` map + `profile-card.test.tsx`). Origin: S25 live 6-run
+staging suite (bundle `output/staging/2026-07-03-suite/`) → 3 fix specs → all fixed. GH issue mgmt fully
+automated (auto-file + env-prefixed `gh` rules) this arc. Flip #24/#25/#26 → `shipped`+close once npm
+confirms 0.24.1 (see NEXT).
+**0.24.0 (S19, RELEASED):** legacy-brand leaks CLOSED (theme cookie + apps-changed `d9cf5712`; webhook
+`source` rename `f6639058`) + apiVersion window 0.23→0.24 (`58fc89ac`). npm `latest` + Release + SBOM.
+**Staging-harness arc (S20–S23, tooling, unreleased):** four skills — `staging-cli-run` `dd7cab0a`,
+`staging-evaluate` `0ce13c0d`, `staging-browser-smoke`, substrate. Plus S21 app-copy grade-3-5 rewrite.
+Detail in `git log`. Prior releases 0.23.0 (packs gallery + founding price) ← 0.16. Full history:
+`git tag` + CHANGELOG + `git log`.
