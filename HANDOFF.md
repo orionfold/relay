@@ -13,11 +13,6 @@ pack/license/plugin subcommands (`features/fix-cli-datadir-ignored-by-subcommand
 walkthrough (0.23.0, R4 clean) → `output/staging/2026-07-02-full-suite/FINDINGS.md`; S11 — see git log.)_
 
 ## ▶️ NEXT SESSION — 0.23.1 patch + hygiene sweeps
-- **P2 · `features/fix-cli-datadir-ignored-by-subcommands.md`** — `relay pack add|license add|plugin`
-  silently IGNORE `--data-dir`: the subcommands short-circuit in `bin/cli.ts` (~193-217) BEFORE
-  `program.parse()` applies the flag to `RELAY_DATA_DIR` (~224). Customer-facing wrong-location write
-  (found while verifying P1; the smoke targeted staging via the `RELAY_DATA_DIR` env var instead). Fix
-  = pre-scan argv for `--data-dir` before the short-circuit. Fold into 0.23.1 or next.
 - **Route-census pattern still open** — the feature-cut freeze created a systematic "nav-hidden but
   live-by-URL" limbo. Analytics + environment are now truly retired (S13); audit whether OTHER "cut"
   features are still live-by-URL (verify vs `_SPECS/feature-cut-freeze.md`).
@@ -27,9 +22,9 @@ walkthrough (0.23.0, R4 clean) → `output/staging/2026-07-02-full-suite/FINDING
 - **Legacy-brand leaks (3 layers, memory `legacy-rebrand-divergence-bugs`)** — "stagent" in built-in
   profile authors; "ainative" in the live compose-agent narration + `$AINATIVE_DATA_DIR` in installed
   manifests (deprecated-but-load-bearing alias). Classify each before editing.
-- **Next release is a PATCH (0.23.1)** unless features land first — now FOUR `[Unreleased]` fix
-  entries (#22/#23 + the 2 staging fixes shipped this session); patch = NO apiVersion-window bump. The
-  P2 data-dir fix would fold in here.
+- **Next release is a PATCH (0.23.1)** unless features land first — now FIVE `[Unreleased]` fix
+  entries (#22/#23 + the 2 staging fixes + the `--data-dir` subcommand fix); patch = NO
+  apiVersion-window bump.
 - **Publish-gate price-drift check** — still blocked on Website later-12; when answered, add the
   drift diff to the npx prod smoke / publish gate.
 
@@ -100,6 +95,7 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 
 ## Recently shipped
 **main (unreleased):** #22 onboarding-pref keepalive (`55b3ae7d`) + #23 fresh-boot noise
-(`70db6926`); nav redesign (`119e6ba8`, S13); both Agency Pro staging fixes (`d5ecbf0a`, S14).
+(`70db6926`); nav redesign (`119e6ba8`, S13); both Agency Pro staging fixes (`d5ecbf0a`, S14);
+`--data-dir` honored by pack/license/plugin subcommands (`22b2d985`, S15).
 **Latest release 0.23.0** (packs gallery + founding price). Full version history (0.16→0.23) +
 per-session detail: `git tag` + CHANGELOG + `git log`.
