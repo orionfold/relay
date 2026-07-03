@@ -6,6 +6,14 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.24.1] — 2026-07-03
+
+### Fixed
+
+- **Restoring a snapshot no longer hangs the app.** Rolling back to an earlier snapshot could freeze — the restore waited on a lock it was itself holding, so it never finished and the request just spun. Restore now completes, and if a snapshot is genuinely busy you get a clear "snapshot is in use, try again" message instead of a silent hang.
+- **Local Ollama chat no longer fails on a model you never installed.** Picking Ollama could try to run a default model that was not actually pulled on your machine, so the chat errored out with a confusing model-not-found. Relay now runs the model you asked for, or falls back to your default or the first model you have actually pulled, and if you truly have none it says so plainly instead of failing on a phantom name.
+- **Profile cards now name every runtime a profile covers.** On the Profiles page, the runtime row on each card read "Claude Codex Claude Claude Claude" — four different runtimes all mislabeled "Claude", including local Ollama. Each chip now shows its real runtime: Claude, Codex, Anthropic, OpenAI, and Ollama (Local), so you can see at a glance that a profile runs free and local too.
+
 ## [0.24.0] — 2026-07-03
 
 ### Changed
