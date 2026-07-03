@@ -1,11 +1,14 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S16-copy-sweep — shipped the app-copy em-dash sweep + WRONG/STALE brand
-leaks in `ed7db940` (~50 user-facing copy sites de-em-dashed, `ainative`→Relay in chat system prompt /
-tool-catalog / Codex error / channel test strings, `stagent`→relay in Environment seed). Two parallel
-Explore agents classified each hit user-facing-vs-internal and load-bearing-vs-wrong first; caught one
-test regression (`app-view-editor-card.test.tsx` asserted the old `Cancelled —` string) and fixed it.
-tsc clean, suite back to known-8. `[Unreleased]` gained a Changed entry. Prior tail: S14-staging-fixes — shipped BOTH Agency Pro staging blockers in
+_Last updated: 2026-07-03 (pt: S17-price-drift-gate — confirmed relay-channel later-12 ANSWERED
+(Website later-13, 2026-07-02: promise phrase live on /relay//promise//renewal-email + canon published at
+`orionfold.com/relay/pricing.json`), then BUILT the publish-gate drift check in `30266328`:
+`scripts/check-price-drift.mjs` (bare GET, no identifying payload, fail-OPEN offline) diffs the canon
+against `relay-agency-pro/pack.yaml` `price:`; new smoke Case P gates publish; 11 unit tests; `npm run
+check:price-drift`; customer-voice CHANGELOG entry. Verified e2e: live→OK, reachable-drift→exit 1,
+404/offline→skip. This closes the drift class STRUCTURALLY (the gate now reads the JSON — Website's
+"keep flagging until your gate reads it" condition is met). Prior tail: S16-copy-sweep — shipped the app-copy em-dash sweep + WRONG/STALE brand
+leaks in `ed7db940`. Prior tail: S14-staging-fixes — shipped BOTH Agency Pro staging blockers in
 `d5ecbf0a`, staging-verified e2e on the real 0.23.0 artifact. **P0 core-version** (Next.js server
 resolved relay-core to `0.0.0` → every `/packs` UI install 422'd) fixed via `compiler.defineServer`
 in `next.config.mjs` — RAW string not `JSON.stringify` (Next quotes it itself), phase-gated to kill a
@@ -35,8 +38,12 @@ walkthrough (0.23.0, R4 clean) → `output/staging/2026-07-02-full-suite/FINDING
   `$AINATIVE_DATA_DIR` alias resolver + manifest tokens, `ainative-paths.ts` symbols, the migration machinery.
 - **Next release is a PATCH (0.23.1)** unless features land first — `[Unreleased]` now has 5 fix entries
   + 1 Changed (the copy sweep); patch = NO apiVersion-window bump.
-- **Publish-gate price-drift check** — still blocked on Website later-12; when answered, add the
-  drift diff to the npx prod smoke / publish gate.
+- **Publish-gate price-drift check — DONE (S17, `30266328`).** later-12 was answered (Website
+  later-13); the gate now reads `orionfold.com/relay/pricing.json` and fails a release on a reachable
+  contradiction (`scripts/check-price-drift.mjs`, smoke Case P). Drift class structurally closed. Standing
+  obligation to hand-flag pack price changes on _RELAY is now REDUNDANT for the pro pack (the gate
+  catches it) — but keep flagging until a release actually SHIPS through the new gate (first tag after
+  `30266328`). Only the pro pack's price is checked; if another pack gets a canon entry, extend the diff.
 
 ### Staging harness — S2/S4 still queued (S3 scope done manually in S12)
 - **S2** `staging-cli-run` + **S4** `staging-evaluate` skills still to build; S3 `staging-browser-smoke`
@@ -49,8 +56,8 @@ walkthrough (0.23.0, R4 clean) → `output/staging/2026-07-02-full-suite/FINDING
 
 **PLG-4 stays reactive** (rulings in plg-refine §4/§5): free-key **DEFERRED**, founding-supporter loop
 **DROPPED** (price is live via #20), reverse trial **DEAD** (violates the promise). **Relay channel:**
-later-9/10/11 ACTED (T-30 renewal email LIVE); **later-12 OPEN** — Website to adopt the promise phrase
-on /relay/ + /promise/ + email + optional machine-readable pricing (kills the drift class). Standing:
+later-9/10/11 ACTED (T-30 renewal email LIVE); **later-12 CLOSED** (Website later-13: promise phrase
+live on all 3 surfaces + `pricing.json` canon published; our publish gate now reads it, S17). Standing:
 flag each new pack `changelog:` line + `docs/trust/*` URL moves on _RELAY.
 - **Anti-patterns stay fenced (plg-refine §7):** no DB licensing, no CLI upsell banners, no
   online re-validation, no expiry that disables installed packs (D4 = shipped behavior AND
