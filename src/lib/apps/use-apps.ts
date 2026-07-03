@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { APPS_CHANGED_EVENT } from "./apps-events";
 import type { AppSummary } from "./registry";
 
 export interface UseAppsResult {
@@ -12,7 +13,7 @@ export interface UseAppsResult {
 /**
  * Client-side hook that polls /api/apps for the user's composed apps list
  * and fires its own refresh when the window receives the
- * `ainative-apps-changed` CustomEvent (dispatched on undo / materialize).
+ * `relay-apps-changed` CustomEvent (dispatched on undo / materialize).
  *
  * Per TDR-037 Phase 2 — polling is the MVP for dynamic sidebar rendering;
  * events can be promoted to SSE later if UX feels laggy.
@@ -39,11 +40,11 @@ export function useApps(pollIntervalMs = 5000): UseAppsResult {
     refresh();
     const timer = setInterval(refresh, pollIntervalMs);
     const onChanged = () => { refresh(); };
-    window.addEventListener("ainative-apps-changed", onChanged);
+    window.addEventListener(APPS_CHANGED_EVENT, onChanged);
     return () => {
       alive.current = false;
       clearInterval(timer);
-      window.removeEventListener("ainative-apps-changed", onChanged);
+      window.removeEventListener(APPS_CHANGED_EVENT, onChanged);
     };
   }, [refresh, pollIntervalMs]);
 

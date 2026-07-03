@@ -12,6 +12,7 @@ import { ChatSessionProvider } from "@/components/chat/chat-session-provider";
 import { RuntimePreferenceBootstrapper } from "@/components/onboarding/runtime-preference-bootstrapper";
 import {
   DEFAULT_THEME,
+  LEGACY_THEME_COOKIE,
   THEME_COOKIE,
   isResolvedTheme,
   type ResolvedTheme,
@@ -82,12 +83,16 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Resolve theme server-side from the ainative-theme cookie. Every client-side
+  // Resolve theme server-side from the relay-theme cookie. Every client-side
   // theme toggle writes this cookie (see src/lib/theme.ts), so SSR stays in
   // sync with the user's preference and there is no FOUC — and no pre-hydration
-  // <script> tag, which is what React 19 warns about.
+  // <script> tag, which is what React 19 warns about. Fall back to the legacy
+  // ainative-theme cookie so a returning pre-rebrand user does not flash the
+  // default theme before the client re-writes the new cookie.
   const cookieStore = await cookies();
-  const cookieValue = cookieStore.get(THEME_COOKIE)?.value;
+  const cookieValue =
+    cookieStore.get(THEME_COOKIE)?.value ??
+    cookieStore.get(LEGACY_THEME_COOKIE)?.value;
   const theme: ResolvedTheme = isResolvedTheme(cookieValue)
     ? cookieValue
     : DEFAULT_THEME;

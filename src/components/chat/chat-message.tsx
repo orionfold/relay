@@ -18,6 +18,7 @@ import {
 import { AlertCircle } from "lucide-react";
 import { resolveModelLabel, type ChatQuestion, type QuickAccessItem, type ScreenshotAttachment } from "@/lib/chat/types";
 import type { ComposedAppSummary } from "@/lib/apps/composition-detector";
+import { APPS_CHANGED_EVENT } from "@/lib/apps/apps-events";
 
 interface ExtensionFallbackSummary {
   plugin: CreatePluginSpecInputForCard;
@@ -56,7 +57,7 @@ function ComposedAppCard({ app }: { app: ComposedAppSummary }) {
     });
     if (res.ok) {
       setAppStatus("undone");
-      window.dispatchEvent(new CustomEvent("ainative-apps-changed"));
+      window.dispatchEvent(new CustomEvent(APPS_CHANGED_EVENT));
     }
   }, [app.appId]);
 

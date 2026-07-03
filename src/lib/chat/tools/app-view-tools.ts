@@ -1,4 +1,5 @@
 import { defineTool } from "../tool-registry";
+import { APPS_CHANGED_EVENT } from "@/lib/apps/apps-events";
 import { ok, err, type ToolContext } from "./helpers";
 import {
   KitIdSchema,
@@ -22,7 +23,7 @@ import { z } from "zod";
  *      ids, KPI source kinds, or binding shapes).
  *   3. Atomically write the manifest via `writeAppManifest` (temp-file +
  *      rename so a mid-write failure cannot corrupt the file).
- *   4. Fire `ainative-apps-changed` so `useApps()` and the dispatcher
+ *   4. Fire `relay-apps-changed` so `useApps()` and the dispatcher
  *      pick up the new layout immediately.
  *   5. Return the new effective view so the LLM can confirm to the user.
  *
@@ -43,7 +44,7 @@ function dispatchAppsChangedFromTool(): void {
   // best-effort dispatch here helps when the tool runs in a context that
   // does have window (e.g. integration tests under jsdom).
   if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("ainative-apps-changed"));
+    window.dispatchEvent(new CustomEvent(APPS_CHANGED_EVENT));
   }
 }
 
