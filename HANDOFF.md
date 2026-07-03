@@ -1,22 +1,24 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S22 — built staging-harness **S4 `staging-evaluate`** (`0ce13c0d`) + ran
-the first evaluation loop, completing the S1-S4 harness arc. New gitignored `staging-evaluate` SKILL.md
-= the verify-before-groom procedure (read bundle → raw findings → code-verify via read-only Explore
-agents → groom survivors → draft Mode D issues; NO script verb, it's judgment not determinism). First
-loop on `output/staging/2026-07-03/`: all 3 raw findings verified STALE (modal-drop + ALTER-TABLE noise
-NOT-REPRODUCED, "$499 vs $349" CORRECTED) — the verify gate caught every one. Lone survivor, surfaced by
-verifying F3: /packs renders hardcoded `pack.yaml` at runtime so price drift is release-time-only-caught
-→ groomed at VERIFIED P3 in `features/fix-pack-price-runtime-canonical-read.md`. Prior tail: S21 app-copy
-grade-3-5 (`2df172e3`), S20 staging-cli-run (`dd7cab0a`), S19 0.24.0 (`58fc89ac`), S17 price-drift gate
-(`30266328`) — full detail in git log + CHANGELOG.)_
+_Last updated: 2026-07-03 (pt: S23 — wrote the last open staging-harness skill **S3
+`staging-browser-smoke`** (gitignored SKILL.md), **completing the S1-S4 arc — all four skills now
+exist**. Mode B = drive a running `:3199` instance through J0-J7 + JS1-JS6 (`_IDEAS/icp-agency-journeys.md`)
+via Claude-in-Chrome → Playwright MCP fallback (D6), autonomous-logging, capturing per-screen PNGs +
+console/network logs + a house-format README into the shared `output/staging/<date>/` bundle that
+`staging-evaluate` consumes. Skill-only (no `staging.mjs` verb — MCP browser work is judgment, like S4).
+All 6 referenced paths verified to exist; skill registered + correctly gitignored (clean `git status`).
+Not yet run live end-to-end (needs `relay-staging setup && launch` + spends real tokens on J4/J5/J7 live
+agents). Prior tail: S22 staging-evaluate (`0ce13c0d`), S21 app-copy (`2df172e3`), S20 staging-cli-run
+(`dd7cab0a`), S19 0.24.0 (`58fc89ac`) — full detail in git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — staging harness S3 auto-skill + hygiene sweeps
+## ▶️ NEXT SESSION — staging harness arc DONE; only reactive/backlog remains
 
-### Staging harness — arc S1-S4 SHIPPED; S3 auto-skill is the one open item
-- **S3** `staging-browser-smoke` auto-skill still open — proven manually (enriched
-  `_IDEAS/icp-agency-journeys.md`), but not yet a written skill. Full scope: `_SPECS/relay-staging-harness.md` §8.
-  S4's `staging-evaluate` now consumes whatever bundle S3 produces.
+### Staging harness — S1-S4 arc COMPLETE (all four skills exist)
+- `relay-staging` (substrate) · `staging-cli-run` (Mode A+C GIF) · `staging-browser-smoke` (Mode B
+  walkthrough, S23) · `staging-evaluate` (Mode D groom) — the full capture→eval loop is skill-driven.
+- **Open follow-up (optional):** run `staging-browser-smoke` **live end-to-end** to prove it and
+  produce the first real Mode B bundle — S23 wrote the skill but didn't exercise it (needs
+  `relay-staging setup && launch`, spends real tokens on the live-agent journeys; prefer Ollama $0 / R5).
 - **Staging skills are LOCAL tooling**: `scripts/staging/*` committed; SKILL.md files gitignored (memory
   `skills-are-gitignored-secret-sauce`). VHS `Wait` is unreliable — headless is the correctness gate
   (memory `vhs-capture-headless-is-the-gate`). Prereq: `brew install vhs`.
@@ -83,9 +85,13 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**S23 (unreleased tooling):** staging-harness **S3 `staging-browser-smoke`** — the last open skill in the
+arc; gitignored SKILL.md, Mode B J0-J7 + JS-series browser walkthrough → house-format bundle. **All four
+S1-S4 skills now exist.** Skill-only (no script verb); not committed (gitignored), so no git change. Not
+yet run live. No version bump.
 **S22 (unreleased tooling):** staging-harness **S4 `staging-evaluate`** (`0ce13c0d`) — verify-before-groom
 skill (gitignored) + first loop: 3/3 raw findings verified stale, 1 residual groomed to
-`fix-pack-price-runtime-canonical-read.md`. Completes the S1-S4 arc. No version bump.
+`fix-pack-price-runtime-canonical-read.md`. No version bump.
 **S21 (unreleased copy):** app-copy task #5 grade-3-5 rewrite — 5 surfaces (runtime-preference modal,
 welcome hero, chat empty-state, composer prompt, Agency Pro pack `description`) rewritten to the
 `app-copy-standard`; changelog map deliberately left as-is (renewal-email template source). No version
