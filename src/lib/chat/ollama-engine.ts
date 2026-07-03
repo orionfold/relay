@@ -19,6 +19,7 @@ import {
 import { buildChatContext } from "./context-builder";
 import { getWorkspaceContext } from "@/lib/environment/workspace-context";
 import { recordUsageLedgerEntry } from "@/lib/usage/ledger";
+import { resolveOllamaModel } from "@/lib/agents/runtime/ollama-model-resolver";
 import type { ChatStreamEvent } from "./types";
 
 /**
@@ -40,10 +41,22 @@ export async function* sendOllamaMessage(
   // Resolve Ollama base URL and model
   const baseUrl =
     (await getSetting(SETTINGS_KEYS.OLLAMA_BASE_URL)) || "http://localhost:11434";
-  const modelId =
-    conversation.modelId?.replace(/^ollama:/, "") ||
-    (await getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL)) ||
-    "llama3.2";
+  // Resolve: conversation-pinned model → configured default → first pulled
+  // model → named error. Never the old hardcoded `llama3.2` phantom (#25).
+  const requestedModel = conversation.modelId?.replace(/^ollama:/, "");
+  const defaultModel = await getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL);
+  let modelId: string;
+  try {
+    modelId = await resolveOllamaModel(baseUrl, requestedModel, defaultModel);
+  } catch (err) {
+    // Surface the "no model configured" case as a visible chat error rather
+    // than an unhandled rejection that silently kills the stream (#25, CLAUDE.md #1).
+    yield {
+      type: "error",
+      message: err instanceof Error ? err.message : "No Ollama model configured",
+    };
+    return;
+  }
 
   // Build context
   let projectName: string | null = null;

@@ -12,6 +12,7 @@ import { eq } from "drizzle-orm";
 import { setExecution, removeExecution, getExecution } from "../execution-manager";
 import { buildTaskQueryContext, createTaskUsageState } from "../claude-agent";
 import { getRuntimeCatalogEntry } from "./catalog";
+import { resolveOllamaModel } from "./ollama-model-resolver";
 import type {
   AgentRuntimeAdapter,
   RuntimeConnectionResult,
@@ -24,7 +25,6 @@ import { recordUsageLedgerEntry, resolveUsageActivityType } from "@/lib/usage/le
 // ── Constants ───────────────────────────────────────────────────────
 
 const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
-const DEFAULT_OLLAMA_MODEL = "llama3.2";
 
 // ── Settings helpers ────────────────────────────────────────────────
 
@@ -35,11 +35,16 @@ async function getOllamaBaseUrl(): Promise<string> {
   return url || DEFAULT_OLLAMA_BASE_URL;
 }
 
-async function getOllamaModel(): Promise<string> {
+/**
+ * Resolve the effective Ollama model for a task. Uses the configured default,
+ * else the first actually-pulled model, else throws a named error — never the
+ * old hardcoded `llama3.2` phantom (issue #25).
+ */
+async function getOllamaModel(baseUrl: string): Promise<string> {
   const { getSetting } = await import("@/lib/settings/helpers");
   const { SETTINGS_KEYS } = await import("@/lib/constants/settings");
-  const model = await getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL);
-  return model || DEFAULT_OLLAMA_MODEL;
+  const defaultModel = await getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL);
+  return resolveOllamaModel(baseUrl, null, defaultModel);
 }
 
 // ── NDJSON streaming chat ───────────────────────────────────────────
@@ -186,7 +191,7 @@ async function executeOllamaTask(taskId: string): Promise<void> {
 
     const ctx = await buildTaskQueryContext(task, agentProfileId);
     const baseUrl = await getOllamaBaseUrl();
-    const modelId = await getOllamaModel();
+    const modelId = await getOllamaModel(baseUrl);
 
     // Build messages
     const messages: OllamaChatMessage[] = [];
@@ -300,7 +305,7 @@ async function executeOllamaTask(taskId: string): Promise<void> {
 
 async function runOllamaTaskAssist(input: TaskAssistInput): Promise<TaskAssistResponse> {
   const baseUrl = await getOllamaBaseUrl();
-  const modelId = await getOllamaModel();
+  const modelId = await getOllamaModel(baseUrl);
 
   const profileIds = listProfiles().map((p) => p.id);
   const profileList = profileIds.length > 0
