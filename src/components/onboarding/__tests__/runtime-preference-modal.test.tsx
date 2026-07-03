@@ -34,10 +34,10 @@ describe("RuntimePreferenceModal", () => {
     expect(screen.getByText("Lowest cost")).toBeTruthy();
     expect(screen.getByText("Best privacy (local only)")).toBeTruthy();
     expect(
-      screen.getByText(/Top-tier model \(Opus\)/i)
+      screen.getByText(/Our smartest model \(Opus\)/i)
     ).toBeTruthy();
     expect(
-      screen.getByText(/Runs entirely on your machine via Ollama/i)
+      screen.getByText(/Runs on your own computer with Ollama/i)
     ).toBeTruthy();
   });
 
@@ -216,7 +216,7 @@ describe("RuntimePreferenceModal", () => {
     });
 
     expect(
-      await screen.findByText(/No local models found/i)
+      await screen.findByText(/We could not find a local model/i)
     ).toBeTruthy();
     expect(onClose).not.toHaveBeenCalled();
 

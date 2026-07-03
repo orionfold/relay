@@ -42,7 +42,7 @@ const STATIC_OPTIONS: readonly PreferenceOption[] = [
     id: "quality",
     label: "Best quality",
     capabilityNote:
-      "Top-tier model (Opus). Full filesystem + tool access; highest cost.",
+      "Our smartest model (Opus). It can use every tool and read files. Costs the most.",
     recommendedModel: "opus",
     icon: Sparkles,
   },
@@ -50,7 +50,7 @@ const STATIC_OPTIONS: readonly PreferenceOption[] = [
     id: "balanced",
     label: "Balanced (recommended)",
     capabilityNote:
-      "Strong quality at a moderate price (Sonnet). Same capabilities as Opus.",
+      "Great quality for less (Sonnet). It can do everything Opus can.",
     recommendedModel: "sonnet",
     icon: Scale,
   },
@@ -58,7 +58,7 @@ const STATIC_OPTIONS: readonly PreferenceOption[] = [
     id: "cost",
     label: "Lowest cost",
     capabilityNote:
-      "Fastest, cheapest cloud model (Haiku). Same tool surface as Sonnet.",
+      "Our fastest, cheapest model (Haiku). It uses the same tools as Sonnet.",
     recommendedModel: "haiku",
     icon: DollarSign,
   },
@@ -66,7 +66,7 @@ const STATIC_OPTIONS: readonly PreferenceOption[] = [
     id: "privacy",
     label: "Best privacy (local only)",
     capabilityNote:
-      "Runs entirely on your machine via Ollama. No cloud calls; no MCP servers; smaller context window.",
+      "Runs on your own computer with Ollama. Nothing leaves your machine. It skips cloud tools and holds less at once.",
     recommendedModel: "", // resolved against the Ollama discovery list at submit time
     icon: Lock,
   },
@@ -168,7 +168,7 @@ export function RuntimePreferenceModal({
       return {
         modelId: BALANCED_FALLBACK_MODEL,
         fallbackNote:
-          "No local models found. Point Orionfold Relay at your Ollama install in Settings. Using balanced default for now.",
+          "We could not find a local model. We will use the balanced model for now. To use your own, point Relay at Ollama in Settings.",
       };
     }
     return {
@@ -248,8 +248,8 @@ export function RuntimePreferenceModal({
         <DialogHeader>
           <DialogTitle>Pick your default chat model</DialogTitle>
           <DialogDescription>
-            We&apos;ll set sensible defaults based on what matters most to you.
-            You can change this anytime in Settings.
+            Tell us what matters most and we will set a good default. You can
+            change it anytime in Settings.
           </DialogDescription>
         </DialogHeader>
 
@@ -311,7 +311,7 @@ export function RuntimePreferenceModal({
                 onClick={handleSkip}
                 disabled={submitting}
               >
-                Skip — use default
+                Skip, use default
               </Button>
               <Button onClick={handleConfirm} disabled={submitting}>
                 {submitting ? "Saving…" : "Continue"}

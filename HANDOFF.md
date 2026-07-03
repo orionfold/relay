@@ -1,37 +1,26 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S19-rebrand-hardening + 0.24.0 — closed the last LOAD-BEARING legacy-brand
-leaks: `ainative-theme` cookie + `ainative-apps-changed` event migrated (`d9cf5712`; theme reads
-new-then-legacy so no FOUC on upgrade, event a clean rename via new zero-import leaf `apps-events.ts`),
-and `webhook-adapter source:"ainative"`→`"relay"` (`f6639058`; operator ruled hard-rename, wire smoke
-proved it). **Shipped 0.24.0 to npm** (`v0.24.0`,
-`58fc89ac`; operator ruled MINOR for the webhook wire-contract change): version + apiVersion window bump
-+ CHANGELOG, all CI gates green incl. price-drift's first real release run. Also globalised the /handoff
-flex-ceiling mechanism (skill + CLAUDE.md + peer _RELAY notes) and memorised the _RELAY channel
-mechanism. Prior tail: S18 route-census (`3c36fb98`), S17
-price-drift gate (`30266328`), S16 copy-sweep (`ed7db940`), S13 nav (`119e6ba8`) — full detail in git log
-+ CHANGELOG.)_
+_Last updated: 2026-07-03 (pt: S21 — resolved app-copy task #5: **grade-3-5 + pyramid rewrite** of the 5
+known-violator surfaces (runtime-preference modal, welcome hero, chat empty-state, app-composer example
+prompt, Agency Pro pack `description`). Standard = memory `app-copy-standard`. Folded the pack description
+from a 200-word run-on into blank-line-separated feature paragraphs (`>` folded scalar; trust promise +
+price object intact). Left changelog map untouched (feeds renewal-email templates). 43/43 tests green
+(incl. agency-pro-update renewal surface); updated 3 modal test assertions to match new copy. Prior tail:
+S20 staging-cli-run (`dd7cab0a`), S19 rebrand-hardening + 0.24.0 (`58fc89ac`), S17 price-drift gate
+(`30266328`), S13 nav (`119e6ba8`) — full detail in git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — hygiene sweeps (0.24.0 SHIPPED)
-- **0.24.0 SHIPPED to npm (`v0.24.0`, run `28667305655`, all CI gates green incl. npx prod smoke +
-  price-drift).** `latest` = 0.24.0; GitHub Release created with SBOM + prebuilt `.next` artifact. The
-  S17 price-drift gate passed in CI on its FIRST real release run → the "hand-flag pack prices on _RELAY"
-  standing obligation is **DISCHARGED** (only the pro pack's price is gated; extend
-  `check-price-drift.mjs` if another pack gets a `pricing.json` canon entry). **Loose end:** post a
-  "0.24.0 shipped" note on `strategy/relay/_RELAY.md` (the flex-ceiling peer notes there are still
-  uncommitted working-tree changes awaiting the owning box; a shipped-release note can ride alongside) —
-  edit-only, never commit the strategy repo (memory `strategy-repo-readwrite-only`).
-- **App-copy grade-3-5 rewrite — DEFERRED (explicit HOLD, not stale).** Em-dash pass DONE (S16,
-  `ed7db940`); the fuller **grade-3-5 + pyramid/progressive-disclosure** rewrite is higher-touch (changes
-  meaning) and deliberately held. Left by design: null-value `"—"` glyph, title separators
-  (`Manifest — {app}`), API-route error JSON (developer-facing). Standard = memory `app-copy-standard`.
+## ▶️ NEXT SESSION — staging harness S4 + hygiene sweeps
 
-### Staging harness — S2/S4 still queued (S3 scope done manually in S12)
-- **S2** `staging-cli-run` + **S4** `staging-evaluate` skills still to build; S3 `staging-browser-smoke`
-  proven manually (enriched `_IDEAS/icp-agency-journeys.md`), auto-skill open. Full scope:
+### Staging harness — S4 queued (S2 SHIPPED S20; S3 scope done manually in S12)
+- **S4** `staging-evaluate` skill still to build (verify-before-groom captured bundles → `features/fix-*.md`
+  + drafted issues); it consumes bundles like the one S2 now produces. **S3** `staging-browser-smoke`
+  proven manually (enriched `_IDEAS/icp-agency-journeys.md`), auto-skill still open. Full scope:
   `_SPECS/relay-staging-harness.md` §8.
+- **S2 `staging-cli-run` is LOCAL tooling**: `scripts/staging/*` committed; SKILL.md gitignored (memory
+  `skills-are-gitignored-secret-sauce`). VHS `Wait` is unreliable — headless is the correctness gate
+  (memory `vhs-capture-headless-is-the-gate`). Prereq: `brew install vhs`.
 - **`file://` mirror is per-BUILD** — `npm run build && node scripts/build-prebuilt-artifact.mjs`
-  BEFORE any staging verify (memory `staging-artifact-rebuild-before-verify`).
+  BEFORE any staging verify (memory `staging-artifact-rebuild-before-verify`). 0.24.0 artifact built S20.
 - Constraints: work on `main`; `_SPECS`/`_IDEAS` edit-only (strategy repo owner commits); paid-frontier
   OK'd for agent steps; harness-side instrumentation only.
 
@@ -93,7 +82,12 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**Latest RELEASED — 0.24.0** (S19): legacy-brand leaks CLOSED (theme cookie + apps-changed event
-`d9cf5712`; webhook `source` rename `f6639058`) + apiVersion window 0.23→0.24 (`58fc89ac`). Published
-via `v0.24.0` tag — npm `latest`, GitHub Release + SBOM. Prior releases 0.23.0 (packs gallery + founding
-price) ← 0.16. Full version history + per-session detail: `git tag` + CHANGELOG + `git log`.
+**S21 (unreleased copy):** app-copy task #5 grade-3-5 rewrite — 5 surfaces (runtime-preference modal,
+welcome hero, chat empty-state, composer prompt, Agency Pro pack `description`) rewritten to the
+`app-copy-standard`; changelog map deliberately left as-is (renewal-email template source). No version
+bump (copy-only). **S20 (unreleased tooling):** staging-harness **S2 `staging-cli-run`** (`dd7cab0a`) — Mode A+C GIF +
+fulfilment capture; no version bump (harness tooling, not product). **Latest RELEASED — 0.24.0** (S19):
+legacy-brand leaks CLOSED (theme cookie + apps-changed event `d9cf5712`; webhook `source` rename
+`f6639058`) + apiVersion window 0.23→0.24 (`58fc89ac`). Published via `v0.24.0` tag — npm `latest`,
+GitHub Release + SBOM. Prior releases 0.23.0 (packs gallery + founding price) ← 0.16. Full version
+history + per-session detail: `git tag` + CHANGELOG + `git log`.

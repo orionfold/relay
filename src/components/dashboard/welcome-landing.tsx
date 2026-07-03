@@ -9,17 +9,17 @@ const pillars = [
   {
     icon: Sparkles,
     title: "Apps from a sentence",
-    description: "Describe what you do every week. Orionfold Relay composes the profile, blueprint, schedule, and tables into a running app. No code.",
+    description: "Tell Relay what you do each week. It builds a running app for you. No code needed.",
   },
   {
     icon: Shield,
     title: "Your rules, enforced",
-    description: "Every agent action respects your policies. Full audit trail for every decision.",
+    description: "Agents follow your rules on every task. You get a full record of what they did.",
   },
   {
     icon: Wallet,
     title: "Know what you spend",
-    description: "Track spend per task, per provider. Budget guardrails prevent surprise bills.",
+    description: "See the cost of each task. Set a budget so you never get a surprise bill.",
   },
 ];
 
@@ -44,7 +44,7 @@ export function WelcomeLanding({ starters = [] }: WelcomeLandingProps) {
         Welcome
       </h1>
       <p className="text-base text-muted-foreground mb-8 max-w-lg">
-        Your AI Business Operating System. Describe an app, Orionfold Relay builds it, and runs it on your rules, your budget, your data.
+        Relay is your AI business operating system. Describe an app. Relay builds it and runs it on your rules, your budget, and your data.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mb-8">

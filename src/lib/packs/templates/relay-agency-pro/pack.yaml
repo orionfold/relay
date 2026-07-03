@@ -5,19 +5,35 @@ author: Orionfold
 # This description renders as the what-you-get preview on the locked /packs
 # card (D6) — it is sales copy, not an internal summary.
 description: >
-  Relay Agency runs a workflow. Agency Pro runs your agency. Six chapters of
-  agency operating system: a Finance Cockpit that closes your month by itself
-  (per-client rollups, margin on one screen, a scheduled month-end close);
-  Intake Pipelines that turn a dropped row into the right client workflow
-  automatically; a New-Business Machine that takes a prospect from research to
-  signed engagement letter; client-safe Governance profiles with hard tool
-  policies and a per-client audit export; a deep Commercial Real Estate
-  renewal engine that covers critical dates, escalations, comps, LOI drafts,
-  and portfolio rent roll; and the Nonprofit deep chapter (added in v0.2.0,
-  your first included update), a grant pipeline that takes every opportunity from
-  fit-scored go/no-go through LOI, full application, and post-award
-  restricted-funds compliance with a reporting calendar. Everything installs
-  offline; Relay never sends your data to Orionfold.
+  Agency Pro runs your whole agency, not just one workflow. Six chapters of an
+  agency operating system:
+
+
+  Finance Cockpit closes your month for you. See margin on one screen, with
+  per-client rollups and a month-end close that runs on a schedule.
+
+
+  Intake Pipelines turn a new row into the right client workflow on their own.
+
+
+  New-Business Machine takes a prospect from first research to a signed
+  engagement letter.
+
+
+  Governance profiles keep each client safe with firm tool rules and an audit
+  export you can hand over.
+
+
+  Real Estate renewal engine tracks key dates, escalations, comps, LOI drafts,
+  and your full rent roll.
+
+
+  Nonprofit chapter (new in v0.2.0, your first free update) runs a grant
+  pipeline from a go or no-go call, through the full application, to
+  post-award reporting and fund rules.
+
+
+  Everything installs offline. Relay never sends your data to Orionfold.
 relayCore: ">=0.18.0"
 entitlement: product:orionfold-relay
 # Two-phase offer, hand-maintained to match orionfold.com/relay/ in this

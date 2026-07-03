@@ -16,7 +16,7 @@ const EXAMPLE_PROMPTS: { label: string; prompt: string }[] = [
   {
     label: "Build me a reading log…",
     prompt:
-      "Build me a reading log. Track each book with title, author, date finished, and a 1–5 rating. Every Friday at 5pm, summarize what I read this week.",
+      "Build me a reading log. Track each book with title, author, date finished, and a rating from 1 to 5. Every Friday at 5pm, summarize what I read this week.",
   },
   {
     label: "Build me an expense tracker for my contractors…",
