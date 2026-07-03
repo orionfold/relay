@@ -8,6 +8,7 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ### Changed
 
+- **The price shown in the app can no longer disagree with the website.** Every release now checks the premium pack's listed price against the canonical price published on orionfold.com before it ships, so the founding and list prices you see on the packs gallery always match the store. If the check cannot reach the website, the release goes out anyway, so a network blip never blocks a good build.
 - **The words in the app read cleaner.** A pass over every on-screen message, empty state, and button hint replaced the long dashes that made copy feel machine-written with plain, short sentences, and it fixed a few spots where an old product name still slipped through in the assistant's own voice and settings labels. Nothing moved or changed what it does; it just reads the way a person would say it.
 
 ### Fixed

@@ -44,6 +44,10 @@ import {
   waitForHttpOk,
   waitForOutput,
 } from "./lib/harness.mjs";
+// Publish-gate price-drift check (relay-channel later-12): the pack's
+// hand-maintained price must not contradict the Website's canonical
+// pricing.json. Fail-open offline; fail loud on a reachable contradiction.
+import { checkPriceDrift } from "./check-price-drift.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = JSON.parse(readFileSync(path.join(repoRoot, "package.json"), "utf-8"));
@@ -279,10 +283,26 @@ async function main() {
     }
   }
 
+  // ---- Case P: price drift — pack.yaml price vs the canonical pricing.json ----
+  // Fail-OPEN if the canon is unreachable (a network blip must never block a
+  // good release); fail LOUD only when a reachable canon contradicts the pack.
+  console.log("\n[smoke] Case P: price drift (pack.yaml vs canonical pricing.json)");
+  {
+    const drift = await checkPriceDrift();
+    if (drift.status === "skipped") {
+      console.log(`[smoke] Case P: SKIPPED — canonical pricing unreachable (${drift.reason}); fail-open per ruling.`);
+    } else if (drift.status === "drift") {
+      for (const f of drift.findings) console.error(`  - ${f}`);
+      assert(false, "Case P: pack.yaml price drifted from the canonical pricing.json (see findings above)");
+    } else {
+      console.log("[smoke] Case P: OK — pack.yaml price matches the canonical pricing.json.");
+    }
+  }
+
   await fs.rm(workDir, { recursive: true, force: true });
   rmSync(tarballPath, { force: true });
   console.log(
-    "\n[smoke] npx production smoke passed: A (prod first run), B (cached + LAN), L (license lifecycle + staging gate), C (loud fallback).",
+    "\n[smoke] npx production smoke passed: A (prod first run), B (cached + LAN), L (license lifecycle + staging gate), C (loud fallback), P (price drift).",
   );
 }
 
