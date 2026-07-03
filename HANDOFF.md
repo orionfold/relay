@@ -1,58 +1,33 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S18-route-census — ran the route-census audit vs the feature-cut freeze
-(`output/2026-07-03-route-census.md`): the "nav-hidden but live-by-URL" limbo class is otherwise CLOSED
-(every nav href resolves; all create/subroutes reachable; `/settings` = the intended gear; `/analytics`
-+ `/environment` pages fully DELETED not dormant, S13). Found + FIXED two live leaks in `3c36fb98`: F1 a
-dead `↗` anchor to the deleted `/environment` page in `skill-row.tsx` (dropped, not repointed — the env
-dashboard feature is gone); F2 14 orphaned `/api/environment/**` route handlers (0 callers) deleted,
-KEEPING the 2 live ones (`skills`, `rescan-if-stale`) + `/api/settings/environment` and the whole
-`@/lib/environment/**` shared library (memory `environment-folder-is-two-things`). tsc clean; 92/92
-across chat+hooks+env-api+shell. Prior tail: S17-price-drift-gate — publish-gate price-drift check
-shipped (`30266328`, `scripts/check-price-drift.mjs` + smoke Case P), closing relay-channel later-12
-structurally; memory `nextjs-compiler-define-gotchas`. Prior tail: S16 copy-sweep (`ed7db940`), S14
-staging fixes (`d5ecbf0a`), S13 nav redesign (`119e6ba8`), S12 ICP walkthrough — full detail in git log
+_Last updated: 2026-07-03 (pt: S19-rebrand-hardening + 0.24.0 — closed the last LOAD-BEARING legacy-brand
+leaks: `ainative-theme` cookie + `ainative-apps-changed` event migrated (`d9cf5712`; theme reads
+new-then-legacy so no FOUC on upgrade, event a clean rename via new zero-import leaf `apps-events.ts`),
+and `webhook-adapter source:"ainative"`→`"relay"` (`f6639058`; operator ruled hard-rename, wire smoke
+proved it). Cut the **0.24.0 release commit** (`58fc89ac`, operator ruled MINOR for the webhook
+wire-contract change): version + apiVersion window bump + CHANGELOG stamp, all gates green — READY TO TAG,
+not yet pushed. Also globalised the /handoff flex-ceiling mechanism (skill + CLAUDE.md + peer _RELAY
+notes) and memorised the _RELAY channel mechanism. Prior tail: S18 route-census (`3c36fb98`), S17
+price-drift gate (`30266328`), S16 copy-sweep (`ed7db940`), S13 nav (`119e6ba8`) — full detail in git log
 + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — 0.23.1 patch + hygiene sweeps
-- **Route-census — DONE (S18, `3c36fb98`).** Audited the "nav-hidden but live-by-URL" limbo vs the
-  feature-cut freeze (`output/2026-07-03-route-census.md`): class CLOSED. Fixed 2 leaks (dead
-  `/environment` link in `skill-row.tsx`; 14 orphaned `/api/environment/**` handlers). No other
-  undocumented orphans. If a future feature-cut hides more routes, re-run the 3-set diff (disk pages vs
-  nav hrefs vs spec dispositions) + reachability trace; watch for dead in-page links to deleted pages.
-- **App-copy sweep — em-dash pass DONE (S16, `ed7db940`).** Stripped prose em-dashes from ~50 user-facing
-  copy sites + fixed the WRONG/STALE brand leaks (below). NOT yet done: the fuller **grade-3-5 rewrite +
-  pyramid/progressive-disclosure** pass (higher-touch, changes meaning — deferred deliberately). Left
-  by design: null-value `"—"` glyph, title separators (`Manifest — {app}`), API-route error JSON
-  (developer-facing). Standard = memory `app-copy-standard`.
-- **Legacy-brand leaks — LOAD-BEARING items now CLOSED (memory `legacy-rebrand-divergence-bugs`).**
-  Prior (S16): `ainative`→Relay in chat prompt / tool-catalog / Codex error / Slack+Telegram tests;
-  `stagent`→relay in Environment seed. This session: `"ainative-theme"` cookie + `"ainative-apps-changed"`
-  event migrated (`d9cf5712`) — theme with read-both/write-new fallback (no FOUC), event a clean rename
-  via a new zero-import leaf `apps-events.ts`; `webhook-adapter source:"ainative"`→`"relay"` (this session)
-  by **operator ruling = hard rename, no compat** (undocumented field, no customer filter assumed; wire
-  smoke proved both send+testConnection emit `"relay"`; CHANGELOG flags it as Changed with a
-  point-your-filter note). KEEP untouched (by design): `$AINATIVE_DATA_DIR` alias resolver + manifest
-  tokens, `ainative-paths.ts` symbols, the migration machinery, `sourceFormat:"ainative"` profile alias.
-- **0.24.0 release COMMITTED, ready to tag — ONE step left: `git push --follow-tags` (your go).**
-  Operator ruled **minor** (webhook `source` wire-contract change). Release commit made THIS session:
-  version 0.23.0→0.24.0 (package.json + lock), apiVersion window bumped IN the same commit
-  (`CURRENT_PLUGIN_API_VERSION` 0.23→0.24, registry previous-MINOR "0.22"→"0.23", 3 example
-  `plugin.yaml` manifests 0.23→0.24 — memory `apiversion-window-bump-at-version-bump`), CHANGELOG
-  `[Unreleased]`→`## [0.24.0] — 2026-07-03` (3 Changed + 5 Fixed) with a fresh empty `[Unreleased]`.
-  Gates ALL green: price-drift exit 0 (app price MATCHES live `orionfold.com/relay/pricing.json` — S17
-  gate's first real rehearsal), build:cli 0, plugins 248/248 incl. api-version-window, full suite = only
-  the 8 documented pre-existing fails (ZERO new). **NOT YET TAGGED/PUSHED** (outward-facing publish stays
-  gated). TO SHIP: `git tag v0.24.0 && git push --follow-tags` (or `npm version` re-run is NOT needed —
-  package.json already at 0.24.0; just tag the release commit). Tag triggers OIDC publish +
-  provenance + SBOM (`docs/RELEASING.md`). Shipping retires the standing "hand-flag pack prices on
-  _RELAY" obligation (first release through the S17 gate).
-- **Publish-gate price-drift check — DONE (S17, `30266328`).** later-12 was answered (Website
-  later-13); the gate now reads `orionfold.com/relay/pricing.json` and fails a release on a reachable
-  contradiction (`scripts/check-price-drift.mjs`, smoke Case P). Drift class structurally closed. Standing
-  obligation to hand-flag pack price changes on _RELAY is now REDUNDANT for the pro pack (the gate
-  catches it) — but keep flagging until a release actually SHIPS through the new gate (first tag after
-  `30266328`). Only the pro pack's price is checked; if another pack gets a canon entry, extend the diff.
+## ▶️ NEXT SESSION — ship 0.24.0, then hygiene sweeps
+- **0.24.0 release COMMITTED (`58fc89ac`), ready to tag — ONE step left: `git tag v0.24.0 && git push
+  --follow-tags` (your go).** Operator ruled MINOR (webhook `source` wire-contract change). The commit
+  has it all: version 0.23.0→0.24.0 (package.json + lock), apiVersion window bump IN the same commit
+  (`CURRENT_PLUGIN_API_VERSION` 0.23→0.24, registry previous-MINOR "0.22"→"0.23", 3 example `plugin.yaml`
+  0.23→0.24 — memory `apiversion-window-bump-at-version-bump`), CHANGELOG `[0.24.0] — 2026-07-03` (3
+  Changed + 5 Fixed) + fresh `[Unreleased]`. Gates green: price-drift exit 0 (app price MATCHES live
+  `pricing.json` — S17 gate's FIRST real release rehearsal), build:cli 0, plugins 248/248, full suite =
+  only the 8 documented pre-existing fails (ZERO new). `package.json` is already 0.24.0 so DON'T re-run
+  `npm version` — just tag the existing commit. Tag → OIDC publish + provenance + SBOM
+  (`docs/RELEASING.md`). **This ships retires the "hand-flag pack prices on _RELAY" standing obligation**
+  (first release through the S17 gate; only the pro pack's price is gated — extend `check-price-drift.mjs`
+  if another pack gets a canon entry).
+- **App-copy grade-3-5 rewrite — DEFERRED (explicit HOLD, not stale).** Em-dash pass DONE (S16,
+  `ed7db940`); the fuller **grade-3-5 + pyramid/progressive-disclosure** rewrite is higher-touch (changes
+  meaning) and deliberately held. Left by design: null-value `"—"` glyph, title separators
+  (`Manifest — {app}`), API-route error JSON (developer-facing). Standard = memory `app-copy-standard`.
 
 ### Staging harness — S2/S4 still queued (S3 scope done manually in S12)
 - **S2** `staging-cli-run` + **S4** `staging-evaluate` skills still to build; S3 `staging-browser-smoke`
@@ -81,8 +56,9 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 
 ## Known caveats
 - **apiVersion window**: bump `CURRENT_PLUGIN_API_VERSION` (sdk/types.ts) + previous-MINOR
-  literal (registry.ts) + `examples/*/plugin.yaml` IN the release commit ONLY on a MINOR
-  bump (0.22 window in `d1f16046`); the window test fails loudly until package.json bumps.
+  literal (registry.ts) + the 3 `src/lib/plugins/examples/*/plugin.yaml` IN the release commit ONLY on a
+  MINOR bump (now `{0.24, 0.23}` set in `58fc89ac`); the window test derives its expected window from
+  package.json, so it fails loudly until every site bumps together.
 - **Pack `changelog:` map feeds every recap surface** (license status, 402 refusal, /packs
   card, renewal email copy) — add a line with EVERY pack version bump; the template test
   REQUIRES it for Agency Pro. Case L smoke counts are a SEPARATE bump-on-chapter-growth site.
@@ -120,10 +96,11 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**main (unreleased):** #22 onboarding-pref keepalive (`55b3ae7d`) + #23 fresh-boot noise
-(`70db6926`); nav redesign (`119e6ba8`, S13); both Agency Pro staging fixes (`d5ecbf0a`, S14);
-`--data-dir` honored by pack/license/plugin subcommands (`22b2d985`, S15); app-copy em-dash sweep +
-WRONG/STALE brand leaks (`ed7db940`, S16); publish-gate price-drift check (`30266328`, S17);
-route-census fixes — dead env link + orphaned env APIs (`3c36fb98`, S18).
-**Latest release 0.23.0** (packs gallery + founding price). Full version history (0.16→0.23) +
-per-session detail: `git tag` + CHANGELOG + `git log`.
+**main (committed, awaiting 0.24.0 tag):** legacy-brand leaks CLOSED — theme cookie + apps-changed
+event (`d9cf5712`) + webhook `source` rename (`f6639058`, S19); **0.24.0 release commit** (`58fc89ac`,
+version + apiVersion-window bump + CHANGELOG). Earlier unreleased: route-census fixes (`3c36fb98`, S18);
+price-drift gate (`30266328`, S17); app-copy em-dash sweep (`ed7db940`, S16); `--data-dir` on subcommands
+(`22b2d985`, S15); Agency Pro staging fixes (`d5ecbf0a`, S14); nav redesign (`119e6ba8`, S13); #22/#23
+(`55b3ae7d`/`70db6926`).
+**Latest RELEASED 0.23.0** (packs gallery + founding price); 0.24.0 committed but not yet tagged. Full
+version history (0.16→0.24) + per-session detail: `git tag` + CHANGELOG + `git log`.
