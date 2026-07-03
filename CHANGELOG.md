@@ -6,6 +6,10 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+### Changed
+
+- **The words in the app read cleaner.** A pass over every on-screen message, empty state, and button hint replaced the long dashes that made copy feel machine-written with plain, short sentences, and it fixed a few spots where an old product name still slipped through in the assistant's own voice and settings labels. Nothing moved or changed what it does; it just reads the way a person would say it.
+
 ### Fixed
 
 - **Installing a pack from the Packs gallery now works.** Clicking "Install" on any pack — free or premium — used to fail with a confusing version error ("requires relay-core, but this install is 0.0.0"), so the only way to add a pack was the command line. The gallery button now installs correctly, and premium packs take you straight to the license step instead of dying on the version check.

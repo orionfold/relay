@@ -1,6 +1,11 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S14-staging-fixes — shipped BOTH Agency Pro staging blockers in
+_Last updated: 2026-07-03 (pt: S16-copy-sweep — shipped the app-copy em-dash sweep + WRONG/STALE brand
+leaks in `ed7db940` (~50 user-facing copy sites de-em-dashed, `ainative`→Relay in chat system prompt /
+tool-catalog / Codex error / channel test strings, `stagent`→relay in Environment seed). Two parallel
+Explore agents classified each hit user-facing-vs-internal and load-bearing-vs-wrong first; caught one
+test regression (`app-view-editor-card.test.tsx` asserted the old `Cancelled —` string) and fixed it.
+tsc clean, suite back to known-8. `[Unreleased]` gained a Changed entry. Prior tail: S14-staging-fixes — shipped BOTH Agency Pro staging blockers in
 `d5ecbf0a`, staging-verified e2e on the real 0.23.0 artifact. **P0 core-version** (Next.js server
 resolved relay-core to `0.0.0` → every `/packs` UI install 422'd) fixed via `compiler.defineServer`
 in `next.config.mjs` — RAW string not `JSON.stringify` (Next quotes it itself), phase-gated to kill a
@@ -16,15 +21,20 @@ walkthrough (0.23.0, R4 clean) → `output/staging/2026-07-02-full-suite/FINDING
 - **Route-census pattern still open** — the feature-cut freeze created a systematic "nav-hidden but
   live-by-URL" limbo. Analytics + environment are now truly retired (S13); audit whether OTHER "cut"
   features are still live-by-URL (verify vs `_SPECS/feature-cut-freeze.md`).
-- **App-copy sweep (operator directive → memory `app-copy-standard`)** — scrub ALL user-facing copy
-  of em-dashes + AI-slop tells, grade 3–5, pyramid principle, progressive disclosure. Sweep targets:
-  runtime modal, welcome hero, Agency Pro pack `description`, empty-states, compose-agent narration.
-- **Legacy-brand leaks (3 layers, memory `legacy-rebrand-divergence-bugs`)** — "stagent" in built-in
-  profile authors; "ainative" in the live compose-agent narration + `$AINATIVE_DATA_DIR` in installed
-  manifests (deprecated-but-load-bearing alias). Classify each before editing.
-- **Next release is a PATCH (0.23.1)** unless features land first — now FIVE `[Unreleased]` fix
-  entries (#22/#23 + the 2 staging fixes + the `--data-dir` subcommand fix); patch = NO
-  apiVersion-window bump.
+- **App-copy sweep — em-dash pass DONE (S16, `ed7db940`).** Stripped prose em-dashes from ~50 user-facing
+  copy sites + fixed the WRONG/STALE brand leaks (below). NOT yet done: the fuller **grade-3-5 rewrite +
+  pyramid/progressive-disclosure** pass (higher-touch, changes meaning — deferred deliberately). Left
+  by design: null-value `"—"` glyph, title separators (`Manifest — {app}`), API-route error JSON
+  (developer-facing). Standard = memory `app-copy-standard`.
+- **Legacy-brand leaks — narration + seed DONE (S16); only LOAD-BEARING items remain (memory
+  `legacy-rebrand-divergence-bugs`).** Fixed: `ainative`→Relay in the chat system prompt / tool-catalog /
+  Codex error / Slack+Telegram test strings; `stagent`→relay in Environment seed data. STILL OPEN, each
+  needs a coordinated migration NOT a find-replace: `webhook-adapter.ts source:"ainative"` (outbound
+  wire field — customer filters may match it; **operator ruling needed**); `"ainative-theme"` cookie +
+  `"ainative-apps-changed"` event (rename only with read-both/dispatch-both fallback). KEEP untouched:
+  `$AINATIVE_DATA_DIR` alias resolver + manifest tokens, `ainative-paths.ts` symbols, the migration machinery.
+- **Next release is a PATCH (0.23.1)** unless features land first — `[Unreleased]` now has 5 fix entries
+  + 1 Changed (the copy sweep); patch = NO apiVersion-window bump.
 - **Publish-gate price-drift check** — still blocked on Website later-12; when answered, add the
   drift diff to the npx prod smoke / publish gate.
 
@@ -72,7 +82,7 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
   timing) — passes in isolation.
 - **`next` PINNED exactly (16.2.4)**; Next 16 emits `.next/node_modules` symlinks — the
   artifact ships a manifest + CLI relinks (junction on win32). See #10 spec.
-- **Nav IA (S13, uncommitted):** permanent two-tier bar — tier-1 underline-tab / tier-2
+- **Nav IA (S13, committed `119e6ba8`):** permanent two-tier bar — tier-1 underline-tab / tier-2
   pill-selection; the old 4-children-per-group width cap is GONE (each tier scrolls). Apps is
   top-level with live instances as tier-2 (`listAppsCached`). Spec: `features/nav-redesign-ia.md`.
 - **Blueprint/profile content must pass its Zod schema** — the registry skips invalid files
@@ -96,6 +106,7 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 ## Recently shipped
 **main (unreleased):** #22 onboarding-pref keepalive (`55b3ae7d`) + #23 fresh-boot noise
 (`70db6926`); nav redesign (`119e6ba8`, S13); both Agency Pro staging fixes (`d5ecbf0a`, S14);
-`--data-dir` honored by pack/license/plugin subcommands (`22b2d985`, S15).
+`--data-dir` honored by pack/license/plugin subcommands (`22b2d985`, S15); app-copy em-dash sweep +
+WRONG/STALE brand leaks (`ed7db940`, S16).
 **Latest release 0.23.0** (packs gallery + founding price). Full version history (0.16→0.23) +
 per-session detail: `git tag` + CHANGELOG + `git log`.
