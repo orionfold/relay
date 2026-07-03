@@ -348,7 +348,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
                   });
                   const data = await res.json();
                   if (data.hasUpdates) {
-                    toast.info("Updates available — check the repo import page to apply them.");
+                    toast.info("Updates available. Check the repo import page to apply them.");
                   } else {
                     toast.success("Profile is up to date");
                   }

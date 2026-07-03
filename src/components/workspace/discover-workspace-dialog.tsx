@@ -113,7 +113,7 @@ export function DiscoverWorkspaceDialog({
       setFilterQuery("");
       setStep("select");
     } catch {
-      setScanError("Network error — is the dev server running?");
+      setScanError("Network error. Is the dev server running?");
     } finally {
       setScanning(false);
     }

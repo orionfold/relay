@@ -191,7 +191,7 @@ export function CommandPalette() {
     window.dispatchEvent(
       new CustomEvent("ainative.chat.activate-skill", { detail: { id } })
     );
-    toast.info(`Skill "${name}" — activation coming soon`);
+    toast.info(`Skill "${name}" activation coming soon`);
   }
 
   function handleSelectFile(entityId: string, label: string) {
@@ -201,7 +201,7 @@ export function CommandPalette() {
         detail: { type: "file", path: entityId, label },
       })
     );
-    toast.info(`File "${label}" — mention insert coming soon`);
+    toast.info(`File "${label}" mention insert coming soon`);
   }
 
   async function markAllRead() {

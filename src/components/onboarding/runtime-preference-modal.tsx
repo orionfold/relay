@@ -168,7 +168,7 @@ export function RuntimePreferenceModal({
       return {
         modelId: BALANCED_FALLBACK_MODEL,
         fallbackNote:
-          "No local models found — point Orionfold Relay at your Ollama install in Settings. Using balanced default for now.",
+          "No local models found. Point Orionfold Relay at your Ollama install in Settings. Using balanced default for now.",
       };
     }
     return {
@@ -203,7 +203,7 @@ export function RuntimePreferenceModal({
     } catch {
       // A failed save must stay visible and retryable — closing here would
       // silently drop the user's choice (#22).
-      setSaveError("Couldn't save your choice — please try again.");
+      setSaveError("Couldn't save your choice. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -219,7 +219,7 @@ export function RuntimePreferenceModal({
       });
       onClose();
     } catch {
-      setSaveError("Couldn't save your choice — please try again.");
+      setSaveError("Couldn't save your choice. Please try again.");
     } finally {
       setSubmitting(false);
     }

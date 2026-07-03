@@ -99,7 +99,7 @@ export function ChatEmptyState({
         </div>
         <h2 className="text-lg font-semibold">Describe an app. Orionfold Relay builds it.</h2>
         <p className="text-sm text-muted-foreground text-center max-w-md">
-          Profiles, blueprints, tables, and schedules — composed from a single prompt.
+          Profiles, blueprints, tables, and schedules, composed from a single prompt.
           Or ask anything about your workspace.
         </p>
       </div>

@@ -267,10 +267,10 @@ export function createEnvironment(projectIds: string[]): {
       scope: "user",
       name: "MEMORY.md",
       relPath: ".claude/projects/.../memory/MEMORY.md",
-      absPath: join(claudeUserPath, "projects", "stagent", "memory", "MEMORY.md"),
+      absPath: join(claudeUserPath, "projects", "relay", "memory", "MEMORY.md"),
       contentHash: sampleHash("memory-md"),
       preview:
-        "# Stagent Project Memory — Project State, Environment, Design System, Key Architecture Decisions...",
+        "# Relay Project Memory: Project State, Environment, Design System, Key Architecture Decisions...",
       metadata: JSON.stringify({ lines: 180 }),
       sizeBytes: 12_400,
       modifiedAt: now - 1 * HOUR,

@@ -58,7 +58,7 @@ export function DelayStepBody({
   if (stepStatus === "completed") {
     return (
       <p className="text-xs text-muted-foreground mt-0.5">
-        Delayed {delayDuration} — completed
+        Delayed {delayDuration}, completed
       </p>
     );
   }

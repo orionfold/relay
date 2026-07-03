@@ -212,7 +212,7 @@ export function WorkflowConfirmationView({
       clearAssistState();
       router.push("/tasks");
     } catch {
-      toast.error("Network error — could not create workflow");
+      toast.error("Network error. Could not create workflow");
     } finally {
       setSubmitting(false);
     }

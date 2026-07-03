@@ -910,7 +910,7 @@ export function WorkflowFormView({
         );
       }
     } catch {
-      setError("Network error — could not reach server");
+      setError("Network error. Could not reach server");
     } finally {
       setLoading(false);
     }

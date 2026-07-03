@@ -269,7 +269,7 @@ export function InstanceSection() {
   const startUpgradeDisabled = busy !== null || !upgradeAvailable;
   const startUpgradeTitle = upgradeAvailable
     ? `Merge ${upgradeCount} upstream commit${upgradeCount === 1 ? "" : "s"} into ${config!.branchName}`
-    : "No upgrades available — click 'Check for upgrades' to refresh";
+    : "No upgrades available. Click 'Check for upgrades' to refresh";
   const statusMessage = pollFailing && upgrade?.lastPollError
     ? upgrade.lastPollError
     : message;

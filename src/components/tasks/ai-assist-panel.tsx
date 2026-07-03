@@ -239,7 +239,7 @@ export function AIAssistPanel({
                 </Badge>
               </div>
               <div className="text-[11px] text-muted-foreground font-normal mt-1">
-                Runs as {patternLabels[result.recommendedPattern]?.toLowerCase() ?? result.recommendedPattern} — each step receives prior output
+                Runs as {patternLabels[result.recommendedPattern]?.toLowerCase() ?? result.recommendedPattern}. Each step receives prior output
               </div>
             </div>
           </Button>
@@ -256,7 +256,7 @@ export function AIAssistPanel({
               <p>Branches run concurrently, then a synthesis step combines all results.</p>
             )}
             {result.recommendedPattern === "checkpoint" && (
-              <p>Steps run sequentially with approval gates — you review before each continues.</p>
+              <p>Steps run sequentially with approval gates. You review before each continues.</p>
             )}
             {result.complexity === "complex" && (
               <p>Each step has a $5.00 budget. Attached documents flow to all steps automatically.</p>

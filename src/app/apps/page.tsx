@@ -100,7 +100,7 @@ function EmptyHero({ starters }: { starters: ReturnType<typeof listStarters> }) 
           <Sparkles className="h-10 w-10 text-primary mb-4" aria-hidden="true" />
           <h2 className="text-lg font-semibold">Teach this instance a new job.</h2>
           <p className="mt-2 max-w-md text-sm text-muted-foreground">
-            Describe the thing you do every week. Orionfold Relay composes a profile, blueprint, schedule, and tables into a running app — no code, no deploys.
+            Describe the thing you do every week. Orionfold Relay composes a profile, blueprint, schedule, and tables into a running app. No code, no deploys.
           </p>
           <div className="mt-4 flex items-center gap-4">
             <Link

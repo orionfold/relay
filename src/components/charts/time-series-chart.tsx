@@ -39,7 +39,7 @@ export function TimeSeriesChart({
         style={{ height }}
         data-chart-height={String(height)}
       >
-        No data yet — runs will populate this chart
+        No data yet. Runs will populate this chart.
       </div>
     );
   }

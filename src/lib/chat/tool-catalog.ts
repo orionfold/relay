@@ -150,8 +150,8 @@ const AINATIVE_TOOLS: ToolCatalogEntry[] = [
   { name: "get_usage_summary", description: "Get spending and token usage stats", group: "Usage", paramHint: "days" },
 
   // ── Settings ──
-  { name: "get_settings", description: "Get current ainative settings", group: "Settings", paramHint: "key" },
-  { name: "set_settings", description: "Update a ainative setting (approval required)", group: "Settings", paramHint: "key, value" },
+  { name: "get_settings", description: "Get current Relay settings", group: "Settings", paramHint: "key" },
+  { name: "set_settings", description: "Update a Relay setting (approval required)", group: "Settings", paramHint: "key, value" },
 
   // ── Skills ──
   { name: "list_skills", description: "List all discoverable skills (user + project scopes)", group: "Skills" },
@@ -211,7 +211,7 @@ const SESSION_ENTRIES: ToolCatalogEntry[] = [
   { name: "compact", description: "Summarize and compact conversation history", group: "Session", behavior: "execute_immediately" },
   { name: "export", description: "Save current conversation as a document", group: "Session", behavior: "execute_immediately" },
   { name: "help", description: "Show chat shortcuts and commands", group: "Session", behavior: "execute_immediately" },
-  { name: "settings", description: "Open ainative settings", group: "Session", behavior: "execute_immediately" },
+  { name: "settings", description: "Open Relay settings", group: "Session", behavior: "execute_immediately" },
   { name: "new-task", description: "Create a new task", group: "Session", paramHint: "title" },
   { name: "new-workflow", description: "Create a new workflow", group: "Session", paramHint: "name" },
   { name: "new-schedule", description: "Create a new schedule", group: "Session", paramHint: "name, interval" },

@@ -586,7 +586,7 @@ async function handleServerRequest(
         contentItems: [
           {
             type: "inputText",
-            text: "Dynamic tool calls are not supported by ainative's Codex runtime yet.",
+            text: "Dynamic tool calls are not supported by Relay's Codex runtime yet.",
           },
         ],
       });

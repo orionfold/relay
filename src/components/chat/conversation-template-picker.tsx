@@ -325,7 +325,7 @@ function ParameterForm({
   if (blueprint.variables.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        This blueprint has no parameters — starting a conversation now.
+        This blueprint has no parameters. Starting a conversation now.
       </p>
     );
   }

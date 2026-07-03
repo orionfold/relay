@@ -121,7 +121,7 @@ export function BatchProposalReview({
       <CardHeader className="pb-3">
         <CardTitle className="text-sm flex items-center gap-2">
           <Brain className="h-4 w-4" />
-          Workflow Learning — {proposalIds.length} Proposals
+          Workflow Learning: {proposalIds.length} Proposals
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

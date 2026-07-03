@@ -54,7 +54,7 @@ export function BlueprintGallery() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Blueprints</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Pre-configured workflow templates — select one, fill in variables, and create a ready-to-run workflow.
+            Pre-configured workflow templates. Select one, fill in variables, and create a ready-to-run workflow.
           </p>
         </div>
         <Button onClick={() => router.push("/workflows/blueprints/new")}>

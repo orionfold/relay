@@ -131,7 +131,7 @@ export function UpgradeBadge() {
     ? "Check failing"
     : `${count} update${count === 1 ? "" : "s"}`;
   const tooltip = failing
-    ? "Upgrade check failing — click to retry"
+    ? "Upgrade check failing. Click to retry"
     : `${count} upstream update${count === 1 ? "" : "s"} ready to merge`;
   const buttonClass = failing
     ? "h-7 px-2 rounded-md border border-amber-500/40 bg-amber-500/10 text-[11px] font-medium text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 transition-colors cursor-pointer inline-flex items-center gap-1.5 group-data-[collapsible=icon]:hidden"

@@ -140,7 +140,7 @@ export function CustomerFormSheet({
                   id="customer-slug"
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  placeholder="meridian-cre — derived from name if blank"
+                  placeholder="meridian-cre (derived from name if blank)"
                 />
                 <p className="text-xs text-muted-foreground">
                   Lowercase letters, numbers, and hyphens. Immutable once set.

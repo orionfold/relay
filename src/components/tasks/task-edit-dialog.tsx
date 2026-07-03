@@ -158,7 +158,7 @@ export function TaskEditDialog({
         toast.error(data?.error ?? "Failed to update task");
       }
     } catch {
-      toast.error("Network error — could not reach server");
+      toast.error("Network error. Could not reach server");
     } finally {
       setLoading(false);
     }

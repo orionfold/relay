@@ -128,7 +128,7 @@ export function DatabaseSnapshotsSection() {
       const data = await res.json();
       if (res.ok) {
         toast.success(
-          `Snapshot created — ${formatBytes(data.sizeBytes)} (${data.fileCount} files)`
+          `Snapshot created. ${formatBytes(data.sizeBytes)} (${data.fileCount} files)`
         );
         setSnapshotLabel("");
         fetchSnapshots();
@@ -136,7 +136,7 @@ export function DatabaseSnapshotsSection() {
         toast.error(data.error || "Failed to create snapshot");
       }
     } catch {
-      toast.error("Failed to create snapshot — network error");
+      toast.error("Failed to create snapshot. Network error");
     } finally {
       setCreating(false);
     }
@@ -156,7 +156,7 @@ export function DatabaseSnapshotsSection() {
         toast.error(data.error || "Failed to delete snapshot");
       }
     } catch {
-      toast.error("Failed to delete — network error");
+      toast.error("Failed to delete. Network error");
     } finally {
       setDeleteId(null);
     }
@@ -172,12 +172,12 @@ export function DatabaseSnapshotsSection() {
       const data = await res.json();
       if (res.ok) {
         setRestoreComplete(true);
-        toast.success("Restore complete — please restart the server");
+        toast.success("Restore complete. Please restart the server");
       } else {
         toast.error(data.error || "Restore failed");
       }
     } catch {
-      toast.error("Restore failed — network error");
+      toast.error("Restore failed. Network error");
     } finally {
       setRestoring(false);
       setRestoreId(null);
@@ -204,7 +204,7 @@ export function DatabaseSnapshotsSection() {
         toast.error(data.error || "Failed to save settings");
       }
     } catch {
-      toast.error("Failed to save settings — network error");
+      toast.error("Failed to save settings. Network error");
     } finally {
       setSavingSettings(false);
     }

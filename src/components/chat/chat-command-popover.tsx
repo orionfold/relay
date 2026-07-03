@@ -176,7 +176,7 @@ export function ChatCommandPopover({
       const activeCount = Array.isArray(body.activeSkillIds)
         ? (body.activeSkillIds as string[]).length
         : 1;
-      toast.success(`Added ${skillName} — ${activeCount} skill${activeCount !== 1 ? "s" : ""} active`);
+      toast.success(`Added ${skillName}. ${activeCount} skill${activeCount !== 1 ? "s" : ""} active`);
     },
     [conversationId, refetchActive]
   );
@@ -494,7 +494,7 @@ function ToolCatalogItems({
           const showDisabled = !isActive && !canAdd && !!onAddSkill;
           const disabledReason = atCapacity
             ? `Max ${resolvedMax} skills active`
-            : "Single skill only on this runtime — switch runtime to compose";
+            : "Single skill only on this runtime. Switch runtime to compose";
 
           return (
             <SkillRow

@@ -35,7 +35,7 @@ export function SmartExtractedText({ text }: SmartExtractedTextProps) {
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground italic">
-        Extracted text — original formatting may differ
+        Extracted text. Original formatting may differ
       </p>
       <div className={PROSE_READER}>
         <ReactMarkdown remarkPlugins={[remarkGfm]}>

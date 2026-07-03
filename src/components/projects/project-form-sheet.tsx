@@ -178,7 +178,7 @@ export function ProjectFormSheet({
         }
       }
     } catch (err) {
-      setError("Network error — could not reach server");
+      setError("Network error. Could not reach server");
       console.error("Project save failed:", err);
     } finally {
       setLoading(false);
@@ -289,7 +289,7 @@ export function ProjectFormSheet({
                 </Select>
                 <p className="text-xs text-muted-foreground">
                   {customers.length === 0
-                    ? "No customers yet — create one to attribute this project's AI spend."
+                    ? "No customers yet. Create one to attribute this project's AI spend."
                     : "Link to a customer so this project's AI spend rolls up per customer."}
                 </p>
               </div>

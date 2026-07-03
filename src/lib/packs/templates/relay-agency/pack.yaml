@@ -2,7 +2,7 @@ id: relay-agency
 version: "0.1.0"
 name: Relay Agency
 author: Orionfold
-description: Agency operating layer — CRE + nonprofit verticals.
+description: Agency operating layer for CRE and nonprofit verticals.
 relayCore: ">=0.15.0"
 icon: building-2
 # Declarative metadata. The installer seeds customers from base/seed/customers.yaml

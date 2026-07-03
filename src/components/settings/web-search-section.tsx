@@ -73,7 +73,7 @@ export function WebSearchSection() {
         </CardTitle>
         <CardDescription>
           Enhanced web search capabilities for agents. These are free services
-          with no API keys required — they extend the built-in WebSearch and
+          with no API keys required. They extend the built-in WebSearch and
           WebFetch tools with better search quality and cleaner page reading.
         </CardDescription>
       </CardHeader>

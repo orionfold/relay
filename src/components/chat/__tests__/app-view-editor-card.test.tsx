@@ -102,7 +102,7 @@ describe("AppViewEditorCard", () => {
 
     expect(onCancel).toHaveBeenCalledTimes(1);
     expect(onConfirm).not.toHaveBeenCalled();
-    expect(screen.getByText(/Cancelled — no changes written/)).toBeTruthy();
+    expect(screen.getByText(/Cancelled\. No changes written/)).toBeTruthy();
   });
 
   it("shows inline error when onConfirm throws", async () => {

@@ -24,7 +24,7 @@ const TIERS: TierInfo[] = [
   {
     id: "observer",
     label: "Observer",
-    description: "Read-only — agent can read but not modify",
+    description: "Read-only. Agent can read but not modify",
     icon: Eye,
     variant: "outline",
     presetId: "read-only",
@@ -32,7 +32,7 @@ const TIERS: TierInfo[] = [
   {
     id: "collaborator",
     label: "Collaborator",
-    description: "Git-safe — agent can edit files and use git",
+    description: "Git-safe. Agent can edit files and use git",
     icon: GitBranch,
     variant: "secondary",
     presetId: "git-safe",
@@ -40,7 +40,7 @@ const TIERS: TierInfo[] = [
   {
     id: "autonomous",
     label: "Autonomous",
-    description: "Full auto — all tools approved automatically",
+    description: "Full auto. All tools approved automatically",
     icon: BotIcon,
     variant: "destructive",
     presetId: "full-auto",

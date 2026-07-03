@@ -34,7 +34,7 @@ export function DataManagementSection() {
         toast.error(`Clear failed: ${data.error}`);
       }
     } catch {
-      toast.error("Clear failed — network error");
+      toast.error("Clear failed. Network error");
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ export function DataManagementSection() {
         toast.error(`Seed failed: ${data.error}`);
       }
     } catch {
-      toast.error("Seed failed — network error");
+      toast.error("Seed failed. Network error");
     } finally {
       setLoading(false);
     }

@@ -72,7 +72,7 @@ export const telegramAdapter: ChannelAdapter = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: chatId,
-          text: "ainative channel test \\- connection OK",
+          text: "Relay channel test \\- connection OK",
           parse_mode: "MarkdownV2",
         }),
       });

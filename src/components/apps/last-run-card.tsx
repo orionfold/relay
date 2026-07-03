@@ -100,7 +100,7 @@ function HeroVariant({ task, previousRuns }: HeroProps) {
   if (!task) {
     return (
       <div className="surface-card rounded-xl p-6 text-center text-muted-foreground border">
-        No digest yet — click <strong>Run now</strong> to generate the first one.
+        No digest yet. Click <strong>Run now</strong> to generate the first one.
       </div>
     );
   }

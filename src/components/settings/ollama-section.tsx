@@ -155,7 +155,7 @@ export function OllamaSection() {
           Ollama (Local Models)
         </CardTitle>
         <CardDescription>
-          Run models locally with Ollama — free, private, no API key required.
+          Run models locally with Ollama. Free, private, no API key required.
         </CardDescription>
       </CardHeader>
 
@@ -199,7 +199,7 @@ export function OllamaSection() {
           <div className="flex items-center gap-2">
             <div className={`h-2.5 w-2.5 rounded-full ${statusDot}`} />
             <span className="text-sm text-muted-foreground">
-              {connectionStatus === "connected" && `Connected — ${models.length} model${models.length !== 1 ? "s" : ""} available`}
+              {connectionStatus === "connected" && `Connected. ${models.length} model${models.length !== 1 ? "s" : ""} available`}
               {connectionStatus === "failed" && (connectionError ?? "Not connected")}
               {connectionStatus === "testing" && "Testing..."}
               {connectionStatus === "idle" && "Not tested"}

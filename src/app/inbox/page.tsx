@@ -69,7 +69,7 @@ export default async function InboxPage() {
   return (
     <PageShell
       title="Inbox"
-      description="Governance command center — review approvals, questions, and agent activity."
+      description="Governance command center. Review approvals, questions, and agent activity."
     >
       <GovernanceStats
         pending={pendingCount}

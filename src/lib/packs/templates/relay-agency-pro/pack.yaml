@@ -12,9 +12,9 @@ description: >
   automatically; a New-Business Machine that takes a prospect from research to
   signed engagement letter; client-safe Governance profiles with hard tool
   policies and a per-client audit export; a deep Commercial Real Estate
-  renewal engine — critical dates, escalations, comps, LOI drafts, portfolio
-  rent roll; and the Nonprofit deep chapter (added in v0.2.0, your first
-  included update) — a grant pipeline that takes every opportunity from
+  renewal engine that covers critical dates, escalations, comps, LOI drafts,
+  and portfolio rent roll; and the Nonprofit deep chapter (added in v0.2.0,
+  your first included update), a grant pipeline that takes every opportunity from
   fit-scored go/no-go through LOI, full application, and post-award
   restricted-funds compliance with a reporting calendar. Everything installs
   offline; Relay never sends your data to Orionfold.
@@ -28,7 +28,7 @@ entitlement: product:orionfold-relay
 price:
   intro: "$349/year"
   list: "$499/year"
-  note: "Founding price for early buyers — locks in before it returns to list."
+  note: "Founding price for early buyers. Locks in before it returns to list."
 purchaseUrl: https://orionfold.com/relay/
 icon: briefcase
 # Per-version customer-voice recap — the single source every renewal surface
@@ -37,12 +37,12 @@ icon: briefcase
 # requires an entry for the current version.
 changelog:
   "0.1.0": >-
-    Six chapters of agency operating system — the Finance Cockpit that closes
+    Six chapters of agency operating system: the Finance Cockpit that closes
     your month by itself, Intake Pipelines, the New-Business Machine,
     client-safe Governance profiles, and the Commercial Real Estate renewal
     engine.
   "0.2.0": >-
-    The Nonprofit deep chapter — a grant pipeline that takes every opportunity
+    The Nonprofit deep chapter, a grant pipeline that takes every opportunity
     from fit-scored go/no-go through LOI, full application, and post-award
     restricted-funds compliance with a reporting calendar.
 customers: []

@@ -504,7 +504,7 @@ export function ProvidersAndRuntimesSection() {
     });
 
     if (!rec) {
-      toast.success("Manual routing — provider configuration unchanged");
+      toast.success("Manual routing. Provider configuration unchanged");
       return;
     }
 
@@ -588,7 +588,7 @@ export function ProvidersAndRuntimesSection() {
     }
 
     if (tasks.length === 0) {
-      toast.success(`Routing set to ${value} — already matches the recommendation`);
+      toast.success(`Routing set to ${value}. Already matches the recommendation`);
       fetchData();
       return;
     }
@@ -615,11 +615,11 @@ export function ProvidersAndRuntimesSection() {
     }
 
     if (failed.length === 0) {
-      toast.success(`Routing set to ${value} — updated ${tasks.map((t) => t.label).join(", ")}`);
+      toast.success(`Routing set to ${value}. Updated ${tasks.map((t) => t.label).join(", ")}`);
     } else if (failed.length === tasks.length) {
       toast.error(`Could not update provider configuration (${failed.join(", ")})`);
     } else {
-      toast.warning(`Updated with errors — failed: ${failed.join(", ")}`);
+      toast.warning(`Updated with errors. Failed: ${failed.join(", ")}`);
     }
 
     fetchData();
@@ -716,7 +716,7 @@ export function ProvidersAndRuntimesSection() {
         <CardDescription>
           {noneConfigured
             ? "Get started by connecting at least one AI provider."
-            : `${configuredProviderCount} provider${configuredProviderCount > 1 ? "s" : ""} connected — ${
+            : `${configuredProviderCount} provider${configuredProviderCount > 1 ? "s" : ""} connected. ${
                 Object.values(providers)
                   .flatMap((p) => p.runtimes)
                   .filter((r) => r.configured).length
@@ -949,7 +949,7 @@ function RecommendationBanner({
     return (
       <div className="h-full rounded-xl border border-primary/20 bg-primary/5 px-3 py-3">
         <p className="text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">Manual routing —</span>{" "}
+          <span className="font-medium text-foreground">Manual routing.</span>{" "}
           provider configuration stays as is. Pick a preference to get per-provider recommendations.
         </p>
       </div>

@@ -15,7 +15,7 @@ export function LedgerHeroPanel({ series, categories, period }: LedgerHeroPanelP
   if (series.length === 0 && categories.length === 0) {
     return (
       <div className="surface-card rounded-xl p-12 text-center text-muted-foreground border">
-        No data yet — add transactions or click <strong>Run now</strong> to ingest a CSV.
+        No data yet. Add transactions or click <strong>Run now</strong> to ingest a CSV.
       </div>
     );
   }

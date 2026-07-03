@@ -331,7 +331,7 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
       void createConversation();
     };
     const handleCompact = () => {
-      toast.info("Compact is not wired yet — coming soon.");
+      toast.info("Compact is not wired yet. Coming soon.");
     };
     const handleExport = async () => {
       const activeConversationId = activeIdRef.current;
@@ -339,7 +339,7 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
         ? messagesByConversationRef.current[activeConversationId]
         : undefined;
       if (!msgs || msgs.length === 0) {
-        toast.error("Nothing to export — this conversation is empty.");
+        toast.error("Nothing to export. This conversation is empty.");
         return;
       }
       const title = `Chat — ${new Date().toISOString().slice(0, 10)}`;

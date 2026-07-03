@@ -9,7 +9,7 @@ const pillars = [
   {
     icon: Sparkles,
     title: "Apps from a sentence",
-    description: "Describe what you do every week. Orionfold Relay composes the profile, blueprint, schedule, and tables into a running app — no code.",
+    description: "Describe what you do every week. Orionfold Relay composes the profile, blueprint, schedule, and tables into a running app. No code.",
   },
   {
     icon: Shield,
@@ -44,7 +44,7 @@ export function WelcomeLanding({ starters = [] }: WelcomeLandingProps) {
         Welcome
       </h1>
       <p className="text-base text-muted-foreground mb-8 max-w-lg">
-        Your AI Business Operating System. Describe an app, Orionfold Relay builds it — and runs it on your rules, your budget, your data.
+        Your AI Business Operating System. Describe an app, Orionfold Relay builds it, and runs it on your rules, your budget, your data.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mb-8">

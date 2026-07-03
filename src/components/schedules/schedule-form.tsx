@@ -554,7 +554,7 @@ export function ScheduleForm({
             {nlResult.confidence < 1.0 && (
               <p className="text-xs text-amber-600">
                 Confidence: {Math.round(nlResult.confidence * 100)}%
-                {nlResult.confidence < 0.8 && " — not auto-filled, verify below"}
+                {nlResult.confidence < 0.8 && ". Not auto-filled, verify below."}
               </p>
             )}
           </div>

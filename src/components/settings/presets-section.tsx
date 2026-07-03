@@ -85,8 +85,8 @@ export function PresetsSection({ onPresetChange }: { onPresetChange?: () => void
           Permission Presets
         </CardTitle>
         <CardDescription>
-          One-click permission bundles for common use cases. Presets are additive
-          — enabling a higher-risk preset includes all lower-risk permissions.
+          One-click permission bundles for common use cases. Presets are additive.
+          Enabling a higher-risk preset includes all lower-risk permissions.
         </CardDescription>
       </CardHeader>
       <CardContent>

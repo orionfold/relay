@@ -137,7 +137,7 @@ export function AppMaterializedCard({
             ))}
           </ul>
           <p className="text-[11px] text-muted-foreground/60 pt-1">
-            Informational — these files are written under your control. No approval required.
+            Informational. These files are written under your control. No approval required.
           </p>
         </div>
       )}

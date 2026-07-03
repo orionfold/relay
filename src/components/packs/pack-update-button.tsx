@@ -87,7 +87,7 @@ export function PackUpdateButton({
       </Button>
       {licenseNeeded && (
         <p className="text-xs text-muted-foreground">
-          Your installed pack keeps working. Updating needs an active license —{" "}
+          Your installed pack keeps working. Updating needs an active license.{" "}
           <Link
             href="/settings#license"
             className="font-medium text-foreground underline underline-offset-2 hover:text-primary"

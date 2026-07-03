@@ -21,7 +21,7 @@ export function Greeting({ runningCount, awaitingCount, failedCount, activeWorkf
 
   const summary = parts.length > 0
     ? `You have ${parts.join(", ")}.`
-    : "All clear — no tasks need your attention.";
+    : "All clear. No tasks need your attention.";
 
   return (
     <div className="surface-card rounded-lg p-5 mb-6">

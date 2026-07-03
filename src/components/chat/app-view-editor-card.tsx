@@ -193,7 +193,7 @@ export function AppViewEditorCard({
         </p>
       )}
       {status === "cancelled" && (
-        <p className="text-xs text-muted-foreground">Cancelled — no changes written.</p>
+        <p className="text-xs text-muted-foreground">Cancelled. No changes written.</p>
       )}
       {status === "failed" && errorMessage && (
         <p className="text-xs text-destructive">Failed: {errorMessage}</p>

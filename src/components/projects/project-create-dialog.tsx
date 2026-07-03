@@ -56,7 +56,7 @@ export function ProjectCreateDialog({ onCreated }: ProjectCreateDialogProps) {
         setError(data?.error ?? `Failed to create project (${res.status})`);
       }
     } catch (err) {
-      setError("Network error — could not reach server");
+      setError("Network error. Could not reach server");
       console.error("Project creation failed:", err);
     } finally {
       setLoading(false);
