@@ -1,22 +1,23 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S21 — resolved app-copy task #5: **grade-3-5 + pyramid rewrite** of the 5
-known-violator surfaces (runtime-preference modal, welcome hero, chat empty-state, app-composer example
-prompt, Agency Pro pack `description`). Standard = memory `app-copy-standard`. Folded the pack description
-from a 200-word run-on into blank-line-separated feature paragraphs (`>` folded scalar; trust promise +
-price object intact). Left changelog map untouched (feeds renewal-email templates). 43/43 tests green
-(incl. agency-pro-update renewal surface); updated 3 modal test assertions to match new copy. Prior tail:
-S20 staging-cli-run (`dd7cab0a`), S19 rebrand-hardening + 0.24.0 (`58fc89ac`), S17 price-drift gate
-(`30266328`), S13 nav (`119e6ba8`) — full detail in git log + CHANGELOG.)_
+_Last updated: 2026-07-03 (pt: S22 — built staging-harness **S4 `staging-evaluate`** (`0ce13c0d`) + ran
+the first evaluation loop, completing the S1-S4 harness arc. New gitignored `staging-evaluate` SKILL.md
+= the verify-before-groom procedure (read bundle → raw findings → code-verify via read-only Explore
+agents → groom survivors → draft Mode D issues; NO script verb, it's judgment not determinism). First
+loop on `output/staging/2026-07-03/`: all 3 raw findings verified STALE (modal-drop + ALTER-TABLE noise
+NOT-REPRODUCED, "$499 vs $349" CORRECTED) — the verify gate caught every one. Lone survivor, surfaced by
+verifying F3: /packs renders hardcoded `pack.yaml` at runtime so price drift is release-time-only-caught
+→ groomed at VERIFIED P3 in `features/fix-pack-price-runtime-canonical-read.md`. Prior tail: S21 app-copy
+grade-3-5 (`2df172e3`), S20 staging-cli-run (`dd7cab0a`), S19 0.24.0 (`58fc89ac`), S17 price-drift gate
+(`30266328`) — full detail in git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — staging harness S4 + hygiene sweeps
+## ▶️ NEXT SESSION — staging harness S3 auto-skill + hygiene sweeps
 
-### Staging harness — S4 queued (S2 SHIPPED S20; S3 scope done manually in S12)
-- **S4** `staging-evaluate` skill still to build (verify-before-groom captured bundles → `features/fix-*.md`
-  + drafted issues); it consumes bundles like the one S2 now produces. **S3** `staging-browser-smoke`
-  proven manually (enriched `_IDEAS/icp-agency-journeys.md`), auto-skill still open. Full scope:
-  `_SPECS/relay-staging-harness.md` §8.
-- **S2 `staging-cli-run` is LOCAL tooling**: `scripts/staging/*` committed; SKILL.md gitignored (memory
+### Staging harness — arc S1-S4 SHIPPED; S3 auto-skill is the one open item
+- **S3** `staging-browser-smoke` auto-skill still open — proven manually (enriched
+  `_IDEAS/icp-agency-journeys.md`), but not yet a written skill. Full scope: `_SPECS/relay-staging-harness.md` §8.
+  S4's `staging-evaluate` now consumes whatever bundle S3 produces.
+- **Staging skills are LOCAL tooling**: `scripts/staging/*` committed; SKILL.md files gitignored (memory
   `skills-are-gitignored-secret-sauce`). VHS `Wait` is unreliable — headless is the correctness gate
   (memory `vhs-capture-headless-is-the-gate`). Prereq: `brew install vhs`.
 - **`file://` mirror is per-BUILD** — `npm run build && node scripts/build-prebuilt-artifact.mjs`
@@ -82,6 +83,9 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**S22 (unreleased tooling):** staging-harness **S4 `staging-evaluate`** (`0ce13c0d`) — verify-before-groom
+skill (gitignored) + first loop: 3/3 raw findings verified stale, 1 residual groomed to
+`fix-pack-price-runtime-canonical-read.md`. Completes the S1-S4 arc. No version bump.
 **S21 (unreleased copy):** app-copy task #5 grade-3-5 rewrite — 5 surfaces (runtime-preference modal,
 welcome hero, chat empty-state, composer prompt, Agency Pro pack `description`) rewritten to the
 `app-copy-standard`; changelog map deliberately left as-is (renewal-email template source). No version
