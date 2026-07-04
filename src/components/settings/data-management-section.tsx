@@ -15,7 +15,35 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { toast } from "sonner";
 import { Loader2, Trash2, Database } from "lucide-react";
 
-export function DataManagementSection() {
+/**
+ * Reads a JSON body defensively. A gated route returns an explanatory
+ * `{success:false,error}` body with a non-2xx status; a genuine network/parse
+ * failure has no parseable body. Distinguishing the two is what stops a
+ * deliberate gate (403) from being disguised as "Network error" (BUG-5).
+ */
+async function readResult(
+  res: Response
+): Promise<{ ok: boolean; body: Record<string, unknown> | null }> {
+  let body: Record<string, unknown> | null = null;
+  try {
+    body = (await res.json()) as Record<string, unknown> | null;
+  } catch {
+    body = null;
+  }
+  return { ok: res.ok, body };
+}
+
+/** Prefer the route's explanatory reason; fall back to the HTTP status. */
+function failureMessage(
+  res: Response,
+  body: Record<string, unknown> | null,
+  fallback: string
+): string {
+  if (body && typeof body.error === "string") return body.error;
+  return `${fallback} (HTTP ${res.status})`;
+}
+
+export function DataManagementSection({ allowed = true }: { allowed?: boolean }) {
   const [clearOpen, setClearOpen] = useState(false);
   const [seedOpen, setSeedOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,14 +52,14 @@ export function DataManagementSection() {
     setLoading(true);
     try {
       const res = await fetch("/api/data/clear", { method: "POST" });
-      const data = await res.json();
-      if (data.success) {
-        const d = data.deleted;
+      const { ok, body } = await readResult(res);
+      if (ok && body?.success) {
+        const d = body.deleted as Record<string, number>;
         toast.success(
           `Cleared ${d.projects} projects, ${d.tasks} tasks, ${d.workflows} workflows, ${d.schedules} schedules, ${d.documents} documents, ${d.conversations} conversations, ${d.chatMessages} messages, ${d.learnedContext} learned context, ${d.views} views, ${d.usageLedger} usage entries, ${d.agentLogs} logs, ${d.notifications} notifications, ${d.sampleProfiles} sample profiles, ${d.files} files`
         );
       } else {
-        toast.error(`Clear failed: ${data.error}`);
+        toast.error(failureMessage(res, body, "Clear failed"));
       }
     } catch {
       toast.error("Clear failed. Network error");
@@ -44,20 +72,39 @@ export function DataManagementSection() {
     setLoading(true);
     try {
       const res = await fetch("/api/data/seed", { method: "POST" });
-      const data = await res.json();
-      if (data.success) {
-        const s = data.seeded;
+      const { ok, body } = await readResult(res);
+      if (ok && body?.success) {
+        const s = body.seeded as Record<string, number>;
         toast.success(
           `Seeded ${s.profiles} profiles, ${s.projects} projects, ${s.tasks} tasks, ${s.workflows} workflows, ${s.schedules} schedules, ${s.documents} documents, ${s.userTables} tables (${s.userTableRows} rows, ${s.tableViews} views, ${s.tableTriggers} triggers, ${s.tableRelationships} links), ${s.conversations} conversations, ${s.chatMessages} messages, ${s.agentMemory} memories, ${s.agentMessages} handoffs, ${s.channelConfigs} channels (${s.channelBindings} bindings), ${s.environmentScans} scans (${s.environmentArtifacts} artifacts, ${s.environmentCheckpoints} checkpoints, ${s.environmentTemplates} templates), ${s.workflowExecutionStats} workflow-stats, ${s.scheduleFiringMetrics} firing-metrics, ${s.usageLedger} usage entries, ${s.learnedContext} learned context, ${s.views} views, ${s.profileTestResults} test results, ${s.repoImports} repo imports, ${s.agentLogs} logs, ${s.notifications} notifications`
         );
       } else {
-        toast.error(`Seed failed: ${data.error}`);
+        toast.error(failureMessage(res, body, "Seed failed"));
       }
     } catch {
       toast.error("Seed failed. Network error");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (!allowed) {
+    return (
+      <Card className="surface-card">
+        <CardHeader>
+          <CardTitle>Data Management</CardTitle>
+          <CardDescription>
+            Reset or populate your Orionfold Relay instance
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Seeding and clearing sample data are staging-only tools. They are
+            turned off on this build so your real data stays safe.
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

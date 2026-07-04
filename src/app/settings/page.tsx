@@ -14,10 +14,12 @@ import { ChannelsSection } from "@/components/settings/channels-section";
 import { InstanceSection } from "@/components/instance/instance-section";
 import { LicenseSection } from "@/components/settings/license-section";
 import { PageShell } from "@/components/shared/page-shell";
+import { isDataOpsAllowed } from "@/lib/data/staging-gate";
 
 export const dynamic = "force-dynamic";
 
 export default function SettingsPage() {
+  const dataOpsAllowed = isDataOpsAllowed();
   return (
     <PageShell
       title="Settings"
@@ -38,7 +40,7 @@ export default function SettingsPage() {
         <BudgetGuardrailsSection />
         <PermissionsSections />
         <DatabaseSnapshotsSection />
-        <DataManagementSection />
+        <DataManagementSection allowed={dataOpsAllowed} />
       </div>
     </PageShell>
   );

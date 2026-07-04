@@ -4,7 +4,14 @@ import { isDataOpsAllowed } from "@/lib/data/staging-gate";
 
 export async function POST() {
   if (!isDataOpsAllowed()) {
-    return NextResponse.json(null, { status: 404 });
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          "Sample data seeding is a staging-only tool and is disabled on this build.",
+      },
+      { status: 403 }
+    );
   }
 
   try {
