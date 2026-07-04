@@ -25,7 +25,7 @@ export default async function BlueprintDetailPage({ params }: Props) {
     .orderBy(projects.name);
 
   return (
-    <PageShell backHref="/workflows/blueprints" backLabel="Back to Blueprints">
+    <PageShell backHref="/blueprints" backLabel="Back to Blueprints">
       <BlueprintPreview blueprint={blueprint} projects={allProjects} />
     </PageShell>
   );

@@ -112,6 +112,32 @@ describe("nav-items", () => {
     });
   });
 
+  describe("elevated Blueprints route", () => {
+    const compose = NAV_GROUPS.find((g) => g.id === "compose")!;
+    const blueprints = compose.items.find((i) => i.href === "/blueprints")!;
+    const workflows = compose.items.find((i) => i.href === "/workflows")!;
+
+    it("exposes Blueprints as a top-level Compose child", () => {
+      expect(blueprints).toBeDefined();
+      expect(blueprints.title).toBe("Blueprints");
+    });
+
+    it("lights up Blueprints (and NOT Workflows) on /blueprints and its children", () => {
+      expect(isItemActive(blueprints, "/blueprints")).toBe(true);
+      expect(isItemActive(blueprints, "/blueprints/new")).toBe(true);
+      expect(isItemActive(blueprints, "/blueprints/some-id")).toBe(true);
+      // Elevation out of /workflows/* is what makes the disambiguation clean:
+      // Workflows no longer owns the blueprints path.
+      expect(isItemActive(workflows, "/blueprints")).toBe(false);
+    });
+
+    it("keeps Workflows active on its own routes", () => {
+      expect(isItemActive(workflows, "/workflows")).toBe(true);
+      expect(isItemActive(workflows, "/workflows/abc")).toBe(true);
+      expect(isItemActive(blueprints, "/workflows")).toBe(false);
+    });
+  });
+
   describe("groupHasActiveItem", () => {
     it("is true only for the section owning the route", () => {
       const compose = NAV_GROUPS.find((g) => g.id === "compose")!;

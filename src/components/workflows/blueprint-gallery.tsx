@@ -95,7 +95,7 @@ export function BlueprintGallery() {
             Pre-configured workflow templates. Select one, fill in variables, and create a ready-to-run workflow.
           </p>
         </div>
-        <Button onClick={() => router.push("/workflows/blueprints/new")}>
+        <Button onClick={() => router.push("/blueprints/new")}>
           <Plus className="h-4 w-4 mr-2" />
           Create Custom
         </Button>
@@ -161,11 +161,11 @@ export function BlueprintGallery() {
               key={bp.id}
               tabIndex={0}
               className="cursor-pointer transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
-              onClick={() => router.push(`/workflows/blueprints/${bp.id}`)}
+              onClick={() => router.push(`/blueprints/${bp.id}`)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  router.push(`/workflows/blueprints/${bp.id}`);
+                  router.push(`/blueprints/${bp.id}`);
                 }
               }}
             >

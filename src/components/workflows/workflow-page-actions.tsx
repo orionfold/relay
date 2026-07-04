@@ -9,7 +9,7 @@ export function WorkflowPageActions() {
 
   return (
     <>
-      <Button variant="outline" onClick={() => router.push("/workflows/blueprints")}>
+      <Button variant="outline" onClick={() => router.push("/blueprints")}>
         <Layers className="h-4 w-4 mr-2" />
         From Blueprint
       </Button>
