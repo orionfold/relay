@@ -1,15 +1,31 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S27 — **P2 `fix-profile-runtime-chip-labels` SHIPPED + 0.24.1 release cut**.
-Fixed the profile-card runtime-chip collapse (`fe4b9237`, #26 filed+committed): exhaustive
-`Record<AgentRuntimeId, string>` short-label map replaces the `label.includes("Codex")` ternary — Ollama
-now reads "Ollama (Local)", not "Claude"; new `profile-card.test.tsx` (2 tests) green, 56 profiles tests
-pass. CHANGELOG 0.24.1 entries for #24/#25/#26 (`662ce4e2`), `npm version patch` → tag `v0.24.1`
-(`d794a8ce`) pushed → **PUBLISHED: npm `orionfold-relay@0.24.1` + Release + SBOM; #24/#25/#26 `shipped`+closed.** Prior tail: S26
-fixed both S25 P1s (`6f715fa4` #24, `e89ae622` #25) + GH auto-file automation; S25 live 6-run staging suite
-(bundle `output/staging/2026-07-03-suite/`); S19 0.24.0 (`58fc89ac`). Full detail: git log.)_
+_Last updated: 2026-07-03 (pt: S30 — **BUG-3 GROOMED into a code-true spec; the 5 S29 patch findings COMMITTED**.
+The five self-contained S28-walkthrough fixes (BUG-1/2 + FEAT-1/3/4) are now landed as 4 bisectable commits
+(`5ca08b0d`..`b81a20ca`) + the staging PNG helper (`cb2a901c`); 169/169 tests green, tsc clean, no version
+bump (UI/copy polish). BUG-3 (HIGH, workflow HITL) groomed → `features/fix-workflow-hitl-ask-user.md` (committed
+`d…`): grooming found the ask-user answer loop ALREADY EXISTS for chat tasks — the workflow engine just discards
+the answer + deny-on-timeouts, so the fix is REUSE not invent-new-type (memory `workflow-ask-user-channel-exists`).
+Prior tail: S28 operator walkthrough → 10 findings + `staging-operator-run` skill; S27 PUBLISHED 0.24.1. Full
+detail: git log + `output/staging/2026-07-03-operator-walkthrough/FINDINGS-live.md`.)_
 
-## ▶️ NEXT SESSION — no forced action; 0.24.1 fully shipped
+## ▶️ NEXT SESSION — implement BUG-3 (spec ready); then groom FEAT-5/6/7/8
+
+### BUG-3 (HIGH) — spec written, implementation NOT started
+- Spec: `features/fix-workflow-hitl-ask-user.md` (code-true, names files/interfaces, fences scope,
+  mandates an end-to-end HITL smoke — `engine.ts` is on the flagship path per CLAUDE.md smoke-budget).
+- Author IN-SESSION on Opus (policy 2), `/clear` + implement fresh (policy 3). Reuse the existing
+  `AskUserQuestion` primitives; do NOT invent `input_required`.
+- **One operator decision open before/during impl:** pause semantics — indefinite `paused` (recommended,
+  honest default) vs. long configurable deadline ending in `needs_input`. Never silent deny-on-timeout.
+
+### FEAT-5/6/7/8 — STILL OPEN, needs operator design direction (not yet groomed)
+- One app-shell/run-model activation redesign (blank-slate guide, surface app's own blueprints as runnable
+  cards, unify Run/Create/Execute verbs, signpost Monitor/Inbox). Route to product-manager/frontend-designer.
+- Held un-groomed deliberately: the redesign shape (verb unification, guided-flow layout) needs operator
+  input first — grooming blind risks wasted effort. Bundle:
+  `output/staging/2026-07-03-operator-walkthrough/FINDINGS-live.md`.
+- New skill `staging-operator-run` is registered for the next operator run.
 
 ### 0.24.1 released + closed out (S27) — nothing pending
 - **Published**: npm `orionfold-relay@0.24.1` (CI run `28685075885` success) + GitHub Release + SBOM.
@@ -86,6 +102,11 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**S29–S30 walkthrough patch arc (committed, unreleased):** the 5 self-contained S28-walkthrough findings —
+`5ca08b0d` BUG-1 (git `fatal:` stderr → `+stdio` in `workspace-context.ts`), `65477e61` FEAT-1 (license
+`formatDate` `timeZone:"UTC"`), `4fb20448` BUG-2 (empty-state copy code-true, no CSV claim), `b81a20ca`
+FEAT-3+FEAT-4 (app-detail single-row toolbar + direct Delete button + manifest chevron Down→Right, test
+inverted) — 169/169 green, no version bump. Plus `cb2a901c` staging PNG helper + BUG-3 spec commit.
 **0.24.1 (S25–S27, RELEASED — npm `latest` + Release + SBOM; #24/#25/#26 closed):** three customer fixes —
 `6f715fa4` snapshot-restore deadlock (#24, unlocked-core + `SnapshotBusyError`→409), `e89ae622` Ollama
 phantom-model (#25, import-free resolver + live-Ollama smoke), `fe4b9237` profile runtime-chip labels
