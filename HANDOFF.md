@@ -1,20 +1,19 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S33 — **FEAT-5/6/7/8 SHIPPED + verified e2e** (`121f5268` slice 1,
-`d76359e7` steps 2-5), UNRELEASED. Agency Pro app-activation redesign: `view.kit` ledger→`workflow-hub`
-(Option A, operator-chosen) → all 6 blueprints render as runnable cards with a "Start here" flag,
-row-insert cards gated + named by table, per-card Run helper, FEAT-7 blueprint-vs-workflow lead +
-draft Execute nudge, FEAT-8 `computeSignpost` (draft/active/paused → Inbox for HITL). Pack bumped
-0.2.0→0.3.0 (changelog + Case L smoke moved). Caught the `active`-not-`running` status-vocab trap in
-the e2e smoke (memory written). 437 affected tests green; 8 documented baseline failures only. No open
-next-action carried — next session picks from staging cadence / held issues / backlog. Prior tail: S32
-groomed the spec `0413f2b8`; S31 BUG-3 HITL `4c0bae6c`; S27 published 0.24.1. Full detail: git log.)_
+_Last updated: 2026-07-04 (pt: S33 — **0.25.0 RELEASED** (`2a50f91a`, npm `latest` + GitHub Release +
+SBOM; publish CI green). Bundles the FEAT-5/6/7/8 Agency Pro app-activation redesign (`view.kit`
+ledger→`workflow-hub`, Option A → 6 runnable cards + "Start here" + row-insert gating + FEAT-7 lead/Execute
+nudge + FEAT-8 `computeSignpost` → Inbox for HITL; pack 0.2.0→0.3.0), BUG-3 workflow HITL, and the S29–S30
+walkthrough patch arc. apiVersion window bumped 0.24→0.25 IN the release commit (window test derives from
+package.json, green at bump). Public issues #27 (redesign) + #28 (HITL) filed `feature`+`shipped`. Caught
+the `active`-not-`running` status-vocab trap in the e2e smoke (memory written). No open next-action carried.
+Prior tail: S32 groomed the spec `0413f2b8`; S31 BUG-3 HITL `4c0bae6c`; S27 published 0.24.1. Full detail:
+git log + CHANGELOG.)_
 
 ## ▶️ NEXT SESSION — no committed workstream
 
-FEAT-5/6/7/8 is done and unreleased (ships with the next release cut). No task is pre-committed for the
-next session; pick from the live workstreams below (staging re-run cadence, held-issue retests, or the
-not-started backlog) or a fresh operator ask.
+0.25.0 is out. No task is pre-committed for the next session; pick from the live workstreams below (staging
+re-run cadence, held-issue retests, or the not-started backlog) or a fresh operator ask.
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
 - `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
@@ -46,7 +45,7 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 ## Known caveats
 - **apiVersion window**: bump `CURRENT_PLUGIN_API_VERSION` (sdk/types.ts) + previous-MINOR
   literal (registry.ts) + the 3 `src/lib/plugins/examples/*/plugin.yaml` IN the release commit ONLY on a
-  MINOR bump (now `{0.24, 0.23}` set in `58fc89ac`); the window test derives its expected window from
+  MINOR bump (now `{0.25, 0.24}` set in `2a50f91a`); the window test derives its expected window from
   package.json, so it fails loudly until every site bumps together.
 - **Pack `changelog:` map feeds every recap surface** (license status, 402 refusal, /packs
   card, renewal email copy) — add a line with EVERY pack version bump; the template test
@@ -85,27 +84,18 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**FEAT-5/6/7/8 app-activation redesign (S33, `121f5268` + `d76359e7`, UNRELEASED):** Agency Pro's app
-home was a single-hero ledger view hiding 5/6 workflows (root cause: manifest `view.kit: ledger`). Flipped
-to `workflow-hub` (Option A) → all 6 blueprints render as runnable cards. `RunnableBlueprintCard` composes
-`RunNowButton`; "Start here" heuristic picks the manual+unscheduled blueprint (New-Business, not the
-schedule-driven month-end-close); row-insert cards gate the manual Run + name the table (not UUID) via a
-dynamic-import resolver in `data.ts` (smoke-budget). FEAT-7: `ViewModel.secondaryLead` blueprint-vs-workflow
-line + draft Execute nudge. FEAT-8: pure `computeSignpost` in `workflow-header.tsx` — draft→Execute,
-active→"watch below", paused splits delay (`resumeAt`) vs HITL (→ /inbox, reuses BUG-3 channel). Pack
-0.2.0→0.3.0 (changelog line + Case L smoke + template/update tests moved). Verified e2e under `npm run dev`.
-Spec: `features/redesign-app-activation-run-model.md` (SHIPPED). Memory: `workflow-status-vocab-active-not-running`.
-**BUG-3 workflow HITL (S31, committed `4c0bae6c`, unreleased):** checkpoint steps can declare `requiresInput`
-to pause the run and ask the user for missing data — reusing the existing `AskUserQuestion` answer loop, not a
-new type. Indefinite `paused` (no deadline, no silent auto-fail); typed answer injected into the step prompt;
-halt-on-refusal (non-final empty output → loud `failed`, not false `completed`); `AskUserQuestion`+null-taskId
-notifications deep-link to the workflow. `types.ts` + `engine.ts` (`waitForInput`) + `actionable.ts` +
-`hitl-ask-user.test.ts`. Verified e2e under `npm run dev`. Spec: `features/fix-workflow-hitl-ask-user.md`.
-**S29–S30 walkthrough patch arc (committed, unreleased):** the 5 self-contained S28-walkthrough findings —
-`5ca08b0d` BUG-1 (git `fatal:` stderr → `+stdio` in `workspace-context.ts`), `65477e61` FEAT-1 (license
-`formatDate` `timeZone:"UTC"`), `4fb20448` BUG-2 (empty-state copy code-true, no CSV claim), `b81a20ca`
-FEAT-3+FEAT-4 (app-detail single-row toolbar + direct Delete button + manifest chevron Down→Right, test
-inverted) — 169/169 green, no version bump. Plus `cb2a901c` staging PNG helper + BUG-3 spec commit.
+**0.25.0 (S33, RELEASED — `2a50f91a`, npm `latest` + GitHub Release + SBOM; publish CI green):** bundles
+three arcs. **FEAT-5/6/7/8 app-activation redesign** (`121f5268` + `d76359e7`): Agency Pro's home flipped
+`view.kit` ledger→`workflow-hub` (Option A) → all 6 blueprints render as runnable cards; `RunnableBlueprintCard`
+composes `RunNowButton`; "Start here" = manual+unscheduled blueprint (New-Business); row-insert cards gate the
+Run + name the table (not UUID) via a dynamic-import resolver in `data.ts`; FEAT-7 `ViewModel.secondaryLead` +
+draft Execute nudge; FEAT-8 pure `computeSignpost` (draft→Execute, active→watch, paused splits delay-`resumeAt`
+vs HITL→`/inbox`); pack 0.2.0→0.3.0. Spec `features/redesign-app-activation-run-model.md`; public issue #27.
+**BUG-3 workflow HITL** (`4c0bae6c`): checkpoint steps declare `requiresInput` → pause + ask via the existing
+`AskUserQuestion` loop; indefinite `paused`, halt-on-refusal, deep-linked notifications. Spec
+`features/fix-workflow-hitl-ask-user.md`; public issue #28. **S29–S30 walkthrough patch arc**: BUG-1 git
+`fatal:` stderr silence, FEAT-1 license date UTC, BUG-2 empty-state copy, FEAT-3/4 app-detail toolbar. apiVersion
+window bumped 0.24→0.25 in the release commit. Memory: `workflow-status-vocab-active-not-running`.
 **0.24.1 (S25–S27, RELEASED — npm `latest` + Release + SBOM; #24/#25/#26 closed):** three customer fixes —
 `6f715fa4` snapshot-restore deadlock (#24, unlocked-core + `SnapshotBusyError`→409), `e89ae622` Ollama
 phantom-model (#25, import-free resolver + live-Ollama smoke), `fe4b9237` profile runtime-chip labels
