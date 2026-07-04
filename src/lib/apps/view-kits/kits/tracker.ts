@@ -11,6 +11,7 @@ import type {
   RuntimeState,
   ViewModel,
 } from "../types";
+import { headerStatus } from "../header-status";
 
 type KpiSpec = NonNullable<ViewConfig["bindings"]["kpis"]>[number];
 
@@ -103,7 +104,7 @@ export const trackerKit: KitDefinition = {
       header: {
         title: app.name,
         description: app.description ?? undefined,
-        status: "running",
+        status: headerStatus(runtime),
         cadenceChip: runtime.cadence ?? undefined,
         runNowBlueprintId: projection.runsBlueprintId,
       },

@@ -41,12 +41,24 @@ export interface StatusDefinition {
   live?: boolean;
 }
 
+// Neutral, non-pulsing surface token (used by planned/ready idle states).
+const MUTED = "muted-foreground";
+
 // ── Lifecycle statuses ───────────────────────────────────────────
 export const lifecycleStatuses: Record<string, StatusDefinition> = {
   planned: {
     label: "Planned",
     icon: Circle,
-    colorToken: "muted-foreground",
+    colorToken: MUTED,
+    badgeVariant: "outline",
+  },
+  // BUG-2: installed & healthy with nothing in flight. Calm, NON-pulsing —
+  // an idle app must not show the green "Running" ping. Neutral (muted) reads
+  // as "steady/ready", not a success/completion state.
+  ready: {
+    label: "Ready",
+    icon: CheckCircle2,
+    colorToken: MUTED,
     badgeVariant: "outline",
   },
   queued: {

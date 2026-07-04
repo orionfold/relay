@@ -13,6 +13,7 @@ import type {
   RuntimeState,
   ViewModel,
 } from "../types";
+import { headerStatus } from "../header-status";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
 
 type KpiSpec = NonNullable<ViewConfig["bindings"]["kpis"]>[number];
@@ -134,7 +135,7 @@ export const ledgerKit: KitDefinition = {
       header: {
         title: app.name,
         description: app.description ?? undefined,
-        status: "running",
+        status: headerStatus(runtime),
         runNowBlueprintId: projection.runsBlueprintId,
         runNowVariables: projection.runsBlueprintVars,
         periodChip: { current: projection.period },

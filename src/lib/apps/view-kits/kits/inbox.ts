@@ -12,6 +12,7 @@ import type {
   TriggerSource,
   ViewModel,
 } from "../types";
+import { headerStatus } from "../header-status";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
 
 interface InboxProjection extends KitProjection {
@@ -113,7 +114,7 @@ export const inboxKit: KitDefinition = {
       header: {
         title: app.name,
         description: app.description ?? undefined,
-        status: "running",
+        status: headerStatus(runtime),
         runNowBlueprintId: isRowInsert ? undefined : projection.draftBlueprintId,
         runNowVariables: projection.draftBlueprintVars,
         triggerSourceChip: projection.triggerSource,

@@ -22,8 +22,8 @@ interface HeaderSlotProps {
 export function HeaderSlotView({ slot, manifestPane }: HeaderSlotProps) {
   const { title, description, status, actions, cadenceChip, runNowBlueprintId, runNowVariables, periodChip, triggerSourceChip } = slot;
   return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-      <div className="min-w-0 flex-1">
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2">
+      <div className="min-w-0 flex-1 sm:min-w-[16rem]">
         <h1 className="text-xl font-semibold tracking-tight line-clamp-2" title={title}>
           {title}
         </h1>
@@ -33,7 +33,13 @@ export function HeaderSlotView({ slot, manifestPane }: HeaderSlotProps) {
           </p>
         )}
       </div>
-      <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0 sm:flex-nowrap sm:shrink-0">
+      {/*
+       * Action group stays a single non-wrapping row (chips + Run + manifest
+       * never split across lines). When the title can't yield enough inline
+       * space, the PARENT's flex-wrap drops this whole group to its own row —
+       * an intentional stack, not an accidental two-line break (FEAT-4).
+       */}
+      <div className="flex flex-nowrap items-center gap-2 sm:shrink-0">
         {status && <StatusChip status={status} size="md" />}
         {cadenceChip && (
           <ScheduleCadenceChip

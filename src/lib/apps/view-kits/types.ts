@@ -65,6 +65,12 @@ export interface TimelineRun {
 export interface RuntimeState {
   app: AppDetail;
   recentTaskCount?: number;
+  /**
+   * BUG-2: number of tasks currently in flight (status = "running") for this
+   * app. Drives the header status chip — Ready (idle) vs Running — so an idle
+   * app never pulses a fake "Running" literal.
+   */
+  activeRunCount?: number;
   scheduleCadence?: string | null;
   /** Phase 2: hero table content for Tracker kit (columns + last-N rows). */
   heroTable?: HeroTableData | null;
@@ -176,7 +182,7 @@ export type TriggerSource =
 export interface HeaderSlot {
   title: string;
   description?: string;
-  status?: "running" | "queued" | "completed" | "failed" | "planned";
+  status?: "ready" | "running" | "queued" | "completed" | "failed" | "planned";
   /** Right-aligned actions; rendered as ReactNode so kits can compose. */
   actions?: ReactNode;
   /** Phase 2: render a ScheduleCadenceChip when present. */

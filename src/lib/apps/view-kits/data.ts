@@ -162,6 +162,7 @@ async function loadRuntimeStateUncached(
 
 async function loadBaseline(app: AppDetail): Promise<RuntimeState> {
   let recentTaskCount: number | undefined;
+  let activeRunCount = 0;
   try {
     const rows = db
       .select({ value: count() })
@@ -169,12 +170,22 @@ async function loadBaseline(app: AppDetail): Promise<RuntimeState> {
       .where(eq(tasks.projectId, app.id))
       .all();
     recentTaskCount = rows[0]?.value ?? 0;
+    // BUG-2: the header status must reflect whether the app is ACTUALLY
+    // running something, not a hardcoded literal. Count in-flight tasks
+    // (status = "running") for this app so kits can render Ready vs Running.
+    const running = db
+      .select({ value: count() })
+      .from(tasks)
+      .where(and(eq(tasks.projectId, app.id), eq(tasks.status, "running")))
+      .all();
+    activeRunCount = running[0]?.value ?? 0;
   } catch {
     recentTaskCount = undefined;
+    activeRunCount = 0;
   }
   const firstCron = app.manifest.schedules[0]?.cron;
   const scheduleCadence = firstCron ? humanizeCron(firstCron) : null;
-  return { app, recentTaskCount, scheduleCadence };
+  return { app, recentTaskCount, scheduleCadence, activeRunCount };
 }
 
 async function loadCadence(

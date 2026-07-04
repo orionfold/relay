@@ -11,6 +11,7 @@ import type {
   RuntimeState,
   ViewModel,
 } from "../types";
+import { headerStatus } from "../header-status";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
 
 interface ResearchProjection extends KitProjection {
@@ -106,7 +107,7 @@ export const researchKit: KitDefinition = {
       header: {
         title: app.name,
         description: app.description ?? undefined,
-        status: "running",
+        status: headerStatus(runtime),
         cadenceChip: runtime.cadence ?? undefined,
         runNowBlueprintId: projection.synthesisBlueprintId,
         runNowVariables: projection.synthesisBlueprintVars,

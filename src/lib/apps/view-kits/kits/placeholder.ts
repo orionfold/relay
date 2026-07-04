@@ -8,6 +8,7 @@ import type {
   RuntimeState,
   ViewModel,
 } from "../types";
+import { headerStatus } from "../header-status";
 
 /**
  * Phase 1.1 placeholder kit. Lands the seam: every app dispatches through
@@ -41,7 +42,7 @@ export const placeholderKit: KitDefinition = {
       header: {
         title: app.name,
         description: app.description ?? "Composed app",
-        status: "running",
+        status: headerStatus(runtime),
       },
       footer: {
         appId: app.id,
