@@ -1,21 +1,22 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: **0.28.0 RELEASED** (`v0.28.0`→`7e97669a`; npm `latest` + GitHub Release +
-SBOM + prebuilt artifact; OIDC publish CI green incl. npx prod smoke Case L). Bundled the S43 nav/naming pass
-(`bc2c5a94`→`5e6cbc45`): **FEAT-5** Blueprints→`/blueprints` + table-templates→`/schemas` (top-level Compose
-nav, "template" word removed); **Profiles→Agents** full user-facing rename (`agent.yaml` via constant + dual-
-read + boot migration; routes+API `/agents`; lib paths + `~/.relay/profiles` data dir KEPT); **FEAT-6** two-
-button Run/Create-workflow. MINOR → apiVersion window 0.27→0.28 (5 sites). Suite 2611 pass, 8 known pre-
-existing fails only, zero regressions. npx smoke "8 profile(s)" literal unchanged (CLI layer kept "profiles"
-wording). **Gotcha:** `git tag v0.28.0` was LIGHTWEIGHT → `--follow-tags` skipped it → tag needed a separate
-`git push origin v0.28.0` to fire CI; use `git tag -a` next time. Full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-04 (pt: **S44 — CF-FEAT-5/6/7/8 app-shell copy pass committed to main, UNRELEASED**
+(`b4616d2c`). Copy+layout on the runnable-blueprint app shell (`/apps/<pack>` Workflow-Hub kit), no engine
+touch → not smoke-gated; browser-verified on `/apps/relay-agency`. **CF-FEAT-5**: Run/Create explainer now on
+EVERY runnable card (primary keeps fuller hint). **CF-FEAT-6**: new `secondarySteps` on ViewModel → quiet
+numbered 1→2→3 strip (pick→run→watch in Monitor) above the card grid. **CF-FEAT-7 REJECTED** (operator call):
+kept single "Start here" over hero-elevating all 6; per-card explainer lifts non-primary affordance instead.
+**CF-FEAT-8**: Run toast now names Monitor ("Run started. Watch it live in Monitor.") + "Open run" deep-links
+the run detail (carries existing `computeSignpost` Inbox banner). 333 app-shell+view-kits tests pass, zero
+regressions; spec `fix-app-shell-activation-redesign.md` now fully resolved. **Gotcha this session:**
+post-S43-rename `tsc` throws phantom `.next/types/validator.ts` "Cannot find module .../route.js" + LSP
+`@/lib/...` glitches — build-cache staleness, NOT breakage; vitest is truth, `next build` clears (memory
+`next-types-validator-stale-after-rename`). Prior: 0.28.0 RELEASED (`v0.28.0`→`7e97669a`) — full detail: git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — remaining design cluster (no unreleased work on main)
+## ▶️ NEXT SESSION — remaining design cluster (no unreleased-release work; CF-FEAT foldable)
 
-`main` is clean and released at 0.28.0. Remaining work is all design-shaped, no acute defect:
-- **CF-FEAT-5/6/7/8** (`fix-app-shell-activation-redesign.md`, still backlog): per-button explainer text,
-  1-2-3 step flow, hero-elevate all 6 blueprints, post-Execute Monitor/Inbox signposting. Route to
-  frontend-design/taste. (FEAT-5/6/7/8 now ALL shipped — S40 packOf+pills, S43 nav+two-button.)
+`main` carries the unreleased CF-FEAT copy pass (`b4616d2c`); fold it into the next release (MINOR → apiVersion
+window bump). Remaining work is design-shaped, no acute defect:
 - **Broader Profile→Agent sweep (DEFERRED, S43):** chat `tool-catalog` "Profiles" group key (typed union +
   `command-tabs.test.ts`-asserted), `composition-detector` primitive label, `chat-command-popover` entity
   label. Riskier — not folded in; needs its own pass.
@@ -102,6 +103,13 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**CF-FEAT-5/6/7/8 (S44, UNRELEASED on main — `b4616d2c`):** app-shell activation copy pass on the
+runnable-blueprint Workflow-Hub kit (`/apps/<pack>`). CF-FEAT-5 per-card Run/Create explainer on every card;
+CF-FEAT-6 `secondarySteps` 1→2→3 strip (`view-kits/types.ts` + `workflow-hub.ts` + `kit-view.tsx`); CF-FEAT-7
+REJECTED (kept single "Start here"); CF-FEAT-8 Run toast → Monitor. No engine touch, not smoke-gated,
+browser-verified. Foldable into the next MINOR (needs the apiVersion-window bump then). Spec
+`fix-app-shell-activation-redesign.md` fully resolved. Detail: git + spec Resolution section.
+
 **0.28.0 (S43 RELEASED — `v0.28.0`→`7e97669a`; npm `latest` + GitHub Release + SBOM + prebuilt artifact;
 OIDC publish CI green incl. npx prod smoke):** bundled the S43 nav/naming pass (`bc2c5a94`→`5e6cbc45`).
 **FEAT-5** Blueprints→`/blueprints`, table-templates→`/schemas` (top-level Compose nav; `agent-file.ts` leaf
