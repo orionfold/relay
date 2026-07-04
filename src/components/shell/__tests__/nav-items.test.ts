@@ -138,6 +138,26 @@ describe("nav-items", () => {
     });
   });
 
+  describe("elevated Schemas route", () => {
+    const compose = NAV_GROUPS.find((g) => g.id === "compose")!;
+    const schemas = compose.items.find((i) => i.href === "/schemas")!;
+    const data = NAV_GROUPS.find((g) => g.id === "data")!;
+    const tables = data.items.find((i) => i.href === "/tables")!;
+
+    it("exposes Schemas as a top-level Compose child (renamed from table templates)", () => {
+      expect(schemas).toBeDefined();
+      expect(schemas.title).toBe("Schemas");
+    });
+
+    it("lights up Schemas (and NOT Tables) on /schemas; Tables stays on /tables", () => {
+      expect(isItemActive(schemas, "/schemas")).toBe(true);
+      expect(activeGroupId("/schemas")).toBe("compose");
+      expect(isItemActive(tables, "/schemas")).toBe(false);
+      expect(isItemActive(tables, "/tables")).toBe(true);
+      expect(isItemActive(schemas, "/tables")).toBe(false);
+    });
+  });
+
   describe("groupHasActiveItem", () => {
     it("is true only for the section owning the route", () => {
       const compose = NAV_GROUPS.find((g) => g.id === "compose")!;

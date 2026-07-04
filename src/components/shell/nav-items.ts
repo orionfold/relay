@@ -17,6 +17,7 @@ import {
   Boxes,
   Package,
   Layers,
+  LayoutTemplate,
 } from "lucide-react";
 
 // Single source of truth for the navigation IA, consumed by the permanent
@@ -77,6 +78,7 @@ const composeItems: NavItem[] = [
   { title: "Projects", href: "/projects", icon: FolderKanban, description: "Group work by project", alsoMatches: ["/projects/"] },
   { title: "Workflows", href: "/workflows", icon: Workflow, description: "Multi-step agent pipelines", alsoMatches: ["/workflows/"] },
   { title: "Blueprints", href: "/blueprints", icon: Layers, description: "Reusable workflow templates", alsoMatches: ["/blueprints/"] },
+  { title: "Schemas", href: "/schemas", icon: LayoutTemplate, description: "Reusable table structures", alsoMatches: ["/schemas/"] },
   { title: "Profiles", href: "/profiles", icon: Bot, description: "Tune agent behavior", alsoMatches: ["/profiles/"] },
 ];
 

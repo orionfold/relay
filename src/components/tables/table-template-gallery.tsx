@@ -70,7 +70,7 @@ export function TableTemplateGallery({ templates }: TableTemplateGalleryProps) {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search templates..."
+            placeholder="Search schemas..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -92,8 +92,8 @@ export function TableTemplateGallery({ templates }: TableTemplateGalleryProps) {
       {filtered.length === 0 ? (
         <EmptyState
           icon={Table2}
-          heading="No templates found"
-          description={search ? "Try a different search term." : "No templates in this category."}
+          heading="No schemas found"
+          description={search ? "Try a different search term." : "No schemas in this category."}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

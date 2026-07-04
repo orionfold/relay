@@ -4,12 +4,12 @@ import { TableTemplateGallery } from "@/components/tables/table-template-gallery
 
 export const dynamic = "force-dynamic";
 
-export default async function TableTemplatesPage() {
+export default async function SchemasPage() {
   const templates = await listTemplates();
 
   return (
     <PageShell
-      title="Table Templates"
+      title="Schemas"
       backHref="/tables"
       backLabel="Tables"
     >
