@@ -13,10 +13,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ChevronDown, AlertCircle } from "lucide-react";
+import { ChevronDown, AlertCircle, Sparkles, RefreshCw } from "lucide-react";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
+import { RunNowButton } from "@/components/apps/run-now-button";
 import type { TaskStatus } from "@/lib/constants/task-status";
-import type { RuntimeTaskSummary } from "@/lib/apps/view-kits/types";
+import type { BlueprintCard, RuntimeTaskSummary } from "@/lib/apps/view-kits/types";
 
 interface LastRunSummary {
   id: string;
@@ -89,6 +90,82 @@ function CompactVariant({ blueprintLabel, lastRun, runCount30d }: CompactProps) 
         <p className="text-xs text-muted-foreground">
           {runCount30d} {runCount30d === 1 ? "run" : "runs"} · last 30d
         </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface RunnableBlueprintCardProps {
+  card: BlueprintCard;
+  lastRun: LastRunSummary | null;
+  runCount30d: number;
+}
+
+/**
+ * FEAT-5/6: the runnable blueprint card on the app home. Renders the
+ * blueprint's name + one-line description + last-run status + a Run action.
+ * The "Start here" card is highlighted. Row-insert blueprints label their
+ * automatic trigger instead of offering a manual Run that fights the contract.
+ */
+export function RunnableBlueprintCard({
+  card,
+  lastRun,
+  runCount30d,
+}: RunnableBlueprintCardProps) {
+  const isRowInsert = card.trigger?.kind === "row-insert";
+  return (
+    <Card
+      className={
+        card.isPrimary
+          ? "surface-card border-primary ring-1 ring-primary/30"
+          : "surface-card"
+      }
+    >
+      <CardHeader className="pb-2 space-y-1.5">
+        {card.isPrimary && (
+          <Badge className="w-fit gap-1">
+            <Sparkles className="h-3 w-3" />
+            Start here
+          </Badge>
+        )}
+        <CardTitle className="text-sm font-medium">{card.name}</CardTitle>
+        {card.description && (
+          <p className="text-xs text-muted-foreground line-clamp-2">
+            {card.description}
+          </p>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          {lastRun ? (
+            <>
+              <Badge variant={statusVariant[lastRun.status]}>
+                {lastRun.status}
+              </Badge>
+              <span className="text-xs text-muted-foreground">
+                {formatAgo(lastRun.createdAt)}
+              </span>
+            </>
+          ) : (
+            <span className="text-xs text-muted-foreground">never run</span>
+          )}
+          <span className="text-xs text-muted-foreground">
+            · {runCount30d} {runCount30d === 1 ? "run" : "runs"} · 30d
+          </span>
+        </div>
+        {isRowInsert ? (
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <RefreshCw className="h-3.5 w-3.5" />
+            Runs on its own when a new {card.trigger?.table ?? "row"} row is
+            added
+          </p>
+        ) : (
+          <RunNowButton
+            blueprintId={card.id}
+            variables={card.variables}
+            label="Run"
+          />
+        )}
       </CardContent>
     </Card>
   );

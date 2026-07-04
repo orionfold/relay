@@ -99,6 +99,43 @@ describe("workflowHubKit.resolve", () => {
     }) as Record<string, unknown>;
     expect(proj.kpiSpecs).toEqual([]);
   });
+
+  // FEAT-5/6: "Start here" must skip row-insert (fires on its own) and
+  // schedule-driven (runs itself, poor first click) blueprints. For Agency
+  // Pro's shape this lands on new-business, not month-end-close.
+  it("picks a manual, unscheduled blueprint as primaryBlueprintId", () => {
+    const app = makeApp({
+      blueprints: [
+        { id: "month-end-close" },
+        { id: "intake", trigger: { kind: "row-insert", table: "intake" } },
+        { id: "new-business" },
+      ],
+      schedules: [{ id: "s1", cron: "0 6 1 * *", runs: "month-end-close" }],
+    });
+    const proj = workflowHubKit.resolve({
+      manifest: app.manifest,
+      columns: [],
+    }) as Record<string, unknown>;
+    // month-end-close is the schedule's target; intake is row-insert; the
+    // first blueprint clearing both filters is new-business.
+    expect(proj.primaryBlueprintId).toBe("new-business");
+  });
+
+  it("falls back to a manual blueprint when all manual ones are scheduled", () => {
+    const app = makeApp({
+      blueprints: [
+        { id: "only-scheduled" },
+        { id: "row", trigger: { kind: "row-insert", table: "t" } },
+      ],
+      schedules: [{ id: "s1", cron: "0 6 * * *", runs: "only-scheduled" }],
+    });
+    const proj = workflowHubKit.resolve({
+      manifest: app.manifest,
+      columns: [],
+    }) as Record<string, unknown>;
+    // No unscheduled-manual candidate → fall back to the first manual one.
+    expect(proj.primaryBlueprintId).toBe("only-scheduled");
+  });
 });
 
 describe("workflowHubKit.buildModel", () => {
@@ -127,13 +164,17 @@ describe("workflowHubKit.buildModel", () => {
     expect(model.kpis?.[0].label).toBe("Run rate");
   });
 
-  it("populates secondary cards for each blueprint's last run", () => {
+  it("renders one runnable card per blueprint card, from runtime.blueprintCards", () => {
     const app = makeApp({
       blueprints: [{ id: "bp-1" }, { id: "bp-2" }],
     });
     const proj = workflowHubKit.resolve({ manifest: app.manifest, columns: [] });
     const runtime: RuntimeState = {
       app,
+      blueprintCards: [
+        { id: "bp-1", name: "One", description: null, variables: [], trigger: null, isPrimary: false },
+        { id: "bp-2", name: "Two", description: null, variables: [], trigger: null, isPrimary: false },
+      ],
       blueprintLastRuns: {
         "bp-1": {
           id: "t1",
@@ -150,6 +191,29 @@ describe("workflowHubKit.buildModel", () => {
     expect(model.secondary).toHaveLength(2);
     expect(model.secondary?.[0].id).toBe("blueprint-bp-1");
     expect(model.secondary?.[1].id).toBe("blueprint-bp-2");
+  });
+
+  it("sorts the 'Start here' primary card first regardless of manifest order", () => {
+    const app = makeApp({ blueprints: [{ id: "bp-1" }, { id: "bp-2" }] });
+    const proj = workflowHubKit.resolve({ manifest: app.manifest, columns: [] });
+    const runtime: RuntimeState = {
+      app,
+      blueprintCards: [
+        { id: "bp-1", name: "One", description: null, variables: [], trigger: null, isPrimary: false },
+        { id: "bp-2", name: "Two", description: null, variables: [], trigger: null, isPrimary: true },
+      ],
+    };
+    const model = workflowHubKit.buildModel(proj, runtime);
+    // bp-2 is primary → it leads even though bp-1 is first in the manifest.
+    expect(model.secondary?.[0].id).toBe("blueprint-bp-2");
+    expect(model.secondary?.[1].id).toBe("blueprint-bp-1");
+  });
+
+  it("renders no cards when blueprintCards is absent (enrichment failed)", () => {
+    const app = makeApp({ blueprints: [{ id: "bp-1" }] });
+    const proj = workflowHubKit.resolve({ manifest: app.manifest, columns: [] });
+    const model = workflowHubKit.buildModel(proj, { app });
+    expect(model.secondary ?? []).toEqual([]);
   });
 
   it("populates activity slot when failed tasks exist", () => {

@@ -118,7 +118,7 @@ async function saveRealLicense() {
   saveLicense(realLicense);
 }
 
-describe("Agency Pro 0.1.0 → 0.2.0 (the first paid update)", () => {
+describe("Agency Pro 0.1.0 → current (the paid update path)", () => {
   it("updates store-consult and lands the nonprofit chapter; the grants row-trigger fires after update", async () => {
     await saveRealLicense();
     const staged = await stageV1Template();
@@ -135,10 +135,13 @@ describe("Agency Pro 0.1.0 → 0.2.0 (the first paid update)", () => {
     // The paid update — store-consult, no flag (the real prod fixture).
     const report = await updatePack("relay-agency-pro", installOpts());
     expect(report.previousVersion).toBe("0.1.0");
-    expect(report.newVersion).toBe("0.2.0");
+    // The update lands the CURRENT template version. The nonprofit chapter
+    // (added in 0.2.0) still arrives; 0.3.0 additionally reshapes the app home
+    // (FEAT-5/6, no new primitives) so the grants trigger contract is unchanged.
+    expect(report.newVersion).toBe("0.3.0");
     expect(report.install!.tablesCreated).toBe(1); // grants; the other two reused
     expect(readInstallState(appsDir, "relay-agency-pro")?.packVersion).toBe(
-      "0.2.0"
+      "0.3.0"
     );
 
     // Chapter artifacts on disk.

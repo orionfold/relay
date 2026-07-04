@@ -34,6 +34,11 @@ describe("Workflow Hub kit — KitView integration", () => {
           { id: "k1", label: "Runs (7d)", value: "12" },
           { id: "k2", label: "Failures", value: "1" },
         ],
+        blueprintCards: [
+          { id: "ingest", name: "Ingest", description: null, variables: [], trigger: null, isPrimary: true },
+          { id: "transform", name: "Transform", description: null, variables: [], trigger: null, isPrimary: false },
+          { id: "publish", name: "Publish", description: null, variables: [], trigger: null, isPrimary: false },
+        ],
         blueprintLastRuns: {
           ingest: { id: "t1", title: "Ingest run", status: "completed", createdAt: 0, result: null },
           transform: { id: "t2", title: "Transform run", status: "failed", createdAt: 0, result: null },

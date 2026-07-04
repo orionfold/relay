@@ -78,6 +78,14 @@ export interface RuntimeState {
   blueprintRunCounts?: Record<string, number>;
   /** Phase 2: recent failed tasks for Workflow Hub `error-timeline`. */
   failedTasks?: RuntimeTaskSummary[];
+  /**
+   * FEAT-5/6: per-blueprint card metadata for the runnable-cards home. Name +
+   * one-line description + input variables (for the Run sheet) + trigger (for
+   * row-insert gating) + `isPrimary` ("Start here" flag). Resolved from the
+   * blueprint registry via a dynamic import so `data.ts` stays off the
+   * runtime-catalog module-load cycle (see CLAUDE.md smoke-budget note).
+   */
+  blueprintCards?: BlueprintCard[];
 
   /** Phase 3: Coach kit fields. */
   coachLatestTask?: RuntimeTaskSummary | null;
@@ -122,6 +130,28 @@ export interface HeroTableData {
   tableId: string;
   columns: ColumnDef[];
   rows: UserTableRowRow[];
+}
+
+/**
+ * FEAT-5/6: metadata for one runnable blueprint card on the app home. Combines
+ * the manifest stub (id + trigger) with the registered blueprint definition
+ * (name + description + variables). `isPrimary` flags the "Start here" card.
+ */
+export interface BlueprintCard {
+  id: string;
+  /** Human name from the blueprint definition; falls back to the id. */
+  name: string;
+  /** One-line "what it does" from the blueprint definition, if any. */
+  description: string | null;
+  /** Input variables for the Run sheet; empty array = direct-POST run. */
+  variables: import("@/lib/workflows/blueprints/types").BlueprintVariable[];
+  /**
+   * How the blueprint fires. `row-insert` blueprints run automatically on new
+   * rows — the card labels that instead of offering a fighting manual Run.
+   */
+  trigger: { kind: "row-insert"; table: string } | null;
+  /** The recommended first workflow, rendered with a "Start here" flag. */
+  isPrimary: boolean;
 }
 
 /** Phase 2: minimal task summary used by Workflow Hub's secondary + activity. */

@@ -1,6 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { LastRunCard } from "../last-run-card";
+import { LastRunCard, RunnableBlueprintCard } from "../last-run-card";
+import type { BlueprintCard } from "@/lib/apps/view-kits/types";
+
+function makeCard(overrides: Partial<BlueprintCard> = {}): BlueprintCard {
+  return {
+    id: "bp-1",
+    name: "New-Business Machine",
+    description: "Research a prospect, then draft a proposal.",
+    variables: [],
+    trigger: null,
+    isPrimary: false,
+    ...overrides,
+  };
+}
 
 describe("LastRunCard", () => {
   it("renders blueprint label and 'never run' when lastRun is null", () => {
@@ -47,6 +60,68 @@ describe("LastRunCard", () => {
       />
     );
     expect(screen.getByText(/failed/i)).toBeInTheDocument();
+  });
+});
+
+describe("RunnableBlueprintCard (FEAT-5/6)", () => {
+  it("renders the blueprint name, description, and a Run action", () => {
+    render(
+      <RunnableBlueprintCard card={makeCard()} lastRun={null} runCount30d={0} />
+    );
+    expect(screen.getByText(/New-Business Machine/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Research a prospect, then draft a proposal/i)
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /run/i })).toBeInTheDocument();
+    expect(screen.getByText(/never run/i)).toBeInTheDocument();
+  });
+
+  it("flags the primary card 'Start here'", () => {
+    render(
+      <RunnableBlueprintCard
+        card={makeCard({ isPrimary: true })}
+        lastRun={null}
+        runCount30d={0}
+      />
+    );
+    expect(screen.getByText(/start here/i)).toBeInTheDocument();
+  });
+
+  it("does not flag 'Start here' on a non-primary card", () => {
+    render(
+      <RunnableBlueprintCard card={makeCard()} lastRun={null} runCount30d={0} />
+    );
+    expect(screen.queryByText(/start here/i)).not.toBeInTheDocument();
+  });
+
+  it("labels row-insert blueprints as automatic instead of offering a manual Run", () => {
+    render(
+      <RunnableBlueprintCard
+        card={makeCard({
+          id: "intake",
+          name: "Intake Pipeline",
+          trigger: { kind: "row-insert", table: "intake" },
+        })}
+        lastRun={null}
+        runCount30d={0}
+      />
+    );
+    // No fighting manual Run button; a "runs on its own" note names the table.
+    expect(screen.queryByRole("button", { name: /^run$/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/runs on its own/i)).toBeInTheDocument();
+    expect(screen.getByText(/intake row/i)).toBeInTheDocument();
+  });
+
+  it("shows last-run status + run count when a run exists", () => {
+    render(
+      <RunnableBlueprintCard
+        card={makeCard()}
+        lastRun={{ id: "t1", status: "completed", createdAt: Date.now() }}
+        runCount30d={3}
+      />
+    );
+    expect(screen.getByText(/completed/i)).toBeInTheDocument();
+    expect(screen.getByText(/3 runs/)).toBeInTheDocument();
   });
 });
 

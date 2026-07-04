@@ -149,7 +149,10 @@ describe("relay-agency-pro bundled template", () => {
       kit?: string;
       bindings?: { kpis?: { id: string; source?: Record<string, unknown> }[] };
     };
-    expect(view.kit).toBe("ledger");
+    // FEAT-5/6 (2026-07-04): Agency Pro now routes to the multi-blueprint
+    // Workflow Hub home so all six chapters surface as runnable cards. The
+    // ledger single-hero kit hid 5 of 6 on the app's own home.
+    expect(view.kit).toBe("workflow-hub");
     const nextClose = view.bindings!.kpis!.find(
       (k) => (k.source as { kind?: string }).kind === "scheduleNextFire"
     );
@@ -159,10 +162,12 @@ describe("relay-agency-pro bundled template", () => {
     );
   });
 
-  it("v0.2.0 ships the nonprofit deep chapter — the first paid update (D4 pitch made real)", async () => {
+  it("current version ships the nonprofit deep chapter — the first paid update (D4 pitch made real)", async () => {
     const { listPackTemplates } = await import("../catalog");
     const tpl = listPackTemplates().find((t) => t.id === "relay-agency-pro")!;
-    expect(tpl.meta!.version).toBe("0.2.0");
+    // Bumped 0.2.0 → 0.3.0 with the runnable-cards home redesign (FEAT-5/6).
+    // The nonprofit chapter shipped in 0.2.0 and remains included.
+    expect(tpl.meta!.version).toBe("0.3.0");
     // The locked-card description now sells the chapter as INCLUDED, not
     // promised ("arrives in v0.2.0" was the 0.1.0 copy).
     expect(tpl.meta!.description).toMatch(/nonprofit/i);

@@ -198,10 +198,11 @@ async function main() {
       packAdd.code === 0 && /Installed relay-agency-pro@/.test(packAdd.output),
       `premium pack should install with no --license-url (exit ${packAdd.code}):\n${packAdd.output}`,
     );
-    // Counts pinned to the CURRENT Agency Pro template (v0.2.0: +grants table,
-    // +nonprofit profile, +grant-pipeline-deep blueprint). Bump these literals
-    // whenever the template grows a chapter — this gate failing on a stale
-    // count is by design (it caught the v0.2.0 bump on the 0.21.0 release).
+    // Counts pinned to the CURRENT Agency Pro template. The counts are stable
+    // across v0.2.0 (+grants table, +nonprofit profile, +grant-pipeline-deep
+    // blueprint) and v0.3.0 (app-home redesign, no new primitives). Bump these
+    // literals whenever the template grows a chapter — this gate failing on a
+    // stale count is by design (it caught the v0.2.0 bump on the 0.21.0 release).
     assert(/3 table\(s\)/.test(packAdd.output), `install should create all 3 tables:\n${packAdd.output}`);
     assert(/8 profile\(s\)/.test(packAdd.output), `install should drop all 8 profiles:\n${packAdd.output}`);
     assert(/6 blueprint\(s\)/.test(packAdd.output), `install should drop all 6 blueprints:\n${packAdd.output}`);
@@ -209,7 +210,7 @@ async function main() {
     const packList = await runCliCommand({ installDir, dataDir, args: ["pack", "list"] });
     assert(/relay-agency-pro.*\[premium\]/.test(packList.output), `pack list should mark [premium]:\n${packList.output}`);
     // The 0.21.0 update surface: list shows the sidecar-recorded version.
-    assert(/relay-agency-pro.*installed v0\.2\.0/.test(packList.output), `pack list should show the installed version:\n${packList.output}`);
+    assert(/relay-agency-pro.*installed v0\.3\.0/.test(packList.output), `pack list should show the installed version:\n${packList.output}`);
 
     // 4. Launch: licensed banner (D3) + seed/clear 404 without RELAY_STAGING.
     {

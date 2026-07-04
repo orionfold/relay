@@ -1,5 +1,5 @@
 id: relay-agency-pro
-version: "0.2.0"
+version: "0.3.0"
 name: Relay Agency Pro
 author: Orionfold
 # This description renders as the what-you-get preview on the locked /packs
@@ -61,4 +61,8 @@ changelog:
     The Nonprofit deep chapter, a grant pipeline that takes every opportunity
     from fit-scored go/no-go through LOI, full application, and post-award
     restricted-funds compliance with a reporting calendar.
+  "0.3.0": >-
+    A new home screen that shows all six workflows as cards you can run with
+    one click. It tells you where to start, and each card shows its last run.
+    No more hunting through menus to find what your app can do.
 customers: []

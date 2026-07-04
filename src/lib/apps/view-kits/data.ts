@@ -7,6 +7,7 @@ import { humanizeCron } from "@/lib/apps/registry";
 import type { AppDetail, AppManifest, ViewConfig } from "@/lib/apps/registry";
 import type { ResolvedBindings } from "./resolve";
 import type {
+  BlueprintCard,
   CadenceChipData,
   HeroTableData,
   KitId,
@@ -34,6 +35,8 @@ export interface KitProjectionShape {
   kpiSpecs?: KpiSpec[];
   blueprintIds?: string[];
   scheduleIds?: string[];
+  /** FEAT-5/6: Workflow Hub — blueprint flagged "Start here" on the card home. */
+  primaryBlueprintId?: string;
   /** Phase 3: Ledger period; threaded into windowed KPI specs. */
   period?: "mtd" | "qtd" | "ytd";
   /** Phase 3: Ledger column inference for data-layer queries. */
@@ -85,6 +88,7 @@ async function loadRuntimeStateUncached(
       cadence: await loadCadence(app.manifest, undefined),
       blueprintLastRuns: await loadBlueprintLastRuns(bindings.blueprintIds),
       blueprintRunCounts: await loadBlueprintRunCounts(bindings.blueprintIds),
+      blueprintCards: await loadBlueprintCards(app.manifest, projection.primaryBlueprintId),
       failedTasks: await loadFailedTasks(app.id, 10),
       evaluatedKpis: await loadEvaluatedKpis(projection.kpiSpecs ?? []),
     };
@@ -615,6 +619,51 @@ export async function loadBlueprintVariables(
   } catch {
     return null;
   }
+}
+
+/**
+ * FEAT-5/6: builds the runnable-card metadata for the Workflow Hub home — one
+ * card per manifest blueprint, in manifest order. Combines each manifest stub
+ * (id + trigger) with its registered definition (name + description +
+ * variables) so the card can render a name, one-line "what it does", a Run
+ * action, and honor row-insert gating.
+ *
+ * The blueprint registry is loaded via dynamic `import()` to keep this module
+ * off the runtime-catalog module-load cycle (see CLAUDE.md smoke-budget note).
+ * A blueprint whose definition is missing (not yet materialized / invalid) still
+ * gets a card — it falls back to its id for the name and offers a direct Run.
+ *
+ * `primaryBlueprintId` flags which card reads "Start here." When it doesn't
+ * match any blueprint, no card is flagged (rather than defaulting to the first,
+ * which for Agency Pro is the schedule-driven month-end-close — the wrong first
+ * click per the walkthrough).
+ */
+async function loadBlueprintCards(
+  manifest: AppManifest,
+  primaryBlueprintId: string | undefined
+): Promise<BlueprintCard[]> {
+  let getBlueprint: ((id: string) => { name?: string; description?: string; variables?: BlueprintVariable[] } | undefined) | null = null;
+  try {
+    const mod = await import("@/lib/workflows/blueprints/registry");
+    getBlueprint = mod.getBlueprint;
+  } catch {
+    getBlueprint = null;
+  }
+  return manifest.blueprints.map((stub) => {
+    const def = getBlueprint?.(stub.id);
+    const trigger =
+      stub.trigger?.kind === "row-insert"
+        ? { kind: "row-insert" as const, table: stub.trigger.table }
+        : null;
+    return {
+      id: stub.id,
+      name: def?.name ?? stub.id,
+      description: def?.description ?? null,
+      variables: def?.variables ?? [],
+      trigger,
+      isPrimary: stub.id === primaryBlueprintId,
+    };
+  });
 }
 
 // --- Phase 4: helpers ---------------------------------------------------------

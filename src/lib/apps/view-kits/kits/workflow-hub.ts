@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import yaml from "js-yaml";
 import { ManifestPaneBody } from "@/components/apps/kit-view/manifest-pane-body";
-import { LastRunCard } from "@/components/apps/last-run-card";
+import { RunnableBlueprintCard } from "@/components/apps/last-run-card";
 import { ErrorTimeline } from "@/components/workflows/error-timeline";
 import type { ViewConfig } from "@/lib/apps/registry";
 import type {
@@ -18,7 +18,33 @@ interface WorkflowHubProjection extends KitProjection {
   blueprintIds: string[];
   scheduleIds: string[];
   kpiSpecs: KpiSpec[];
+  primaryBlueprintId?: string;
   manifestYaml: string;
+}
+
+/**
+ * FEAT-5/6: pick the "Start here" blueprint for the card home. The recommended
+ * first click is the most rewarding manually-runnable workflow. We rank by:
+ *   1. NOT row-insert-triggered — those fire on their own, so a manual Run
+ *      fights the contract.
+ *   2. NOT the target of a schedule — a schedule-driven job (e.g. month-end
+ *      close) runs itself on cadence and is a poor, often empty, first click
+ *      (the walkthrough's BUG-2 dead end).
+ * First blueprint clearing both filters wins; then any manual blueprint; then
+ * the first blueprint. `manifest` is read directly here because `resolve()` has
+ * no registry access (that lives on the server-only data layer) — trigger +
+ * schedule shape from the manifest is enough to choose.
+ */
+function pickPrimaryBlueprintId(input: ResolveInput): string | undefined {
+  const bps = input.manifest.blueprints;
+  const scheduled = new Set(
+    input.manifest.schedules
+      .map((s) => s.runs)
+      .filter((r): r is string => typeof r === "string")
+  );
+  const manual = bps.filter((b) => b.trigger?.kind !== "row-insert");
+  const unscheduledManual = manual.filter((b) => !scheduled.has(b.id));
+  return unscheduledManual[0]?.id ?? manual[0]?.id ?? bps[0]?.id;
 }
 
 /**
@@ -45,6 +71,7 @@ export const workflowHubKit: KitDefinition = {
       blueprintIds: input.manifest.blueprints.map((b) => b.id),
       scheduleIds: input.manifest.schedules.map((s) => s.id),
       kpiSpecs: input.manifest.view?.bindings?.kpis ?? [],
+      primaryBlueprintId: pickPrimaryBlueprintId(input),
       manifestYaml: yaml.dump(input.manifest, { lineWidth: 100 }),
     };
     return projection;
@@ -53,18 +80,24 @@ export const workflowHubKit: KitDefinition = {
   buildModel(proj: KitProjection, runtime: RuntimeState): ViewModel {
     const projection = proj as WorkflowHubProjection;
     const { app } = runtime;
-    const blueprintIds = projection.blueprintIds;
 
     const lastRuns = runtime.blueprintLastRuns ?? {};
     const counts = runtime.blueprintRunCounts ?? {};
 
-    const secondary = blueprintIds.map((bpId) => ({
-      id: `blueprint-${bpId}`,
-      content: createElement(LastRunCard, {
-        blueprintId: bpId,
-        blueprintLabel: bpId,
-        lastRun: lastRuns[bpId] ?? null,
-        runCount30d: counts[bpId] ?? 0,
+    // FEAT-5/6: runnable blueprint cards. Prefer the enriched cards (name +
+    // description + variables + trigger) resolved by the data layer; fall back
+    // to bare ids so the home never renders empty if enrichment failed. The
+    // "Start here" card sorts first.
+    const cards = runtime.blueprintCards ?? [];
+    const ordered = [...cards].sort(
+      (a, b) => Number(b.isPrimary) - Number(a.isPrimary)
+    );
+    const secondary = ordered.map((card) => ({
+      id: `blueprint-${card.id}`,
+      content: createElement(RunnableBlueprintCard, {
+        card,
+        lastRun: lastRuns[card.id] ?? null,
+        runCount30d: counts[card.id] ?? 0,
       }),
     }));
 

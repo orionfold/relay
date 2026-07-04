@@ -1,6 +1,8 @@
 # redesign: app-shell activation + run-model (FEAT-5/6/7/8)
 
-**Status:** GROOMED, un-started. Needs implementation.
+**Status:** IN PROGRESS. Slice 1 (FEAT-5/6 runnable-cards home) SHIPPED + verified e2e
+(2026-07-04, Option A routing). Remaining: guided helper text (2), FEAT-7 vocabulary (3),
+FEAT-8 signposting (4), copy pass (5).
 **Origin:** 2026-07-03 operator walkthrough — `output/staging/2026-07-03-operator-walkthrough/FINDINGS-live.md`
 (FEAT-5/6/7/8). Sibling patch-tier findings from the same run already shipped (BUG-1/2, FEAT-1/3/4)
 and BUG-3 (workflow HITL) shipped separately (`features/fix-workflow-hitl-ask-user.md`, `4c0bae6c`).

@@ -1,5 +1,5 @@
 id: relay-agency-pro
-version: "0.2.0"
+version: "0.3.0"
 name: Relay Agency Pro
 description: >
   The agency operating system on top of the free Relay Agency verbs: a
@@ -74,7 +74,13 @@ schedules:
     runs: relay-agency-pro--month-end-close
 
 view:
-  kit: ledger
+  # Agency Pro is a six-workflow operating system, so the app home is the
+  # multi-blueprint Workflow Hub: one runnable card per chapter with a Run
+  # action, the recommended first workflow flagged "Start here." (The finance
+  # KPI tiles below still render — the `kpis` binding is kit-agnostic.) The
+  # single-hero ledger kit hid 5 of the 6 chapters on the app's own home
+  # (FEAT-5/6, redesign 2026-07-04).
+  kit: workflow-hub
   bindings:
     hero:
       table: engagements
