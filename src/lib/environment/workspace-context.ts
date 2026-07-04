@@ -38,6 +38,12 @@ export function getWorkspaceContext(): WorkspaceContext {
         cwd,
         encoding: "utf-8",
         timeout: 3000,
+        // Route git's stderr to a pipe (captured on the thrown error, then
+        // discarded) instead of inheriting the console. Without this, a
+        // non-git cwd leaks a raw `fatal: not a git repository` to a
+        // customer's first-run log before the catch swallows the exit code.
+        // Mirrors src/lib/instance/git-ops.ts run().
+        stdio: ["ignore", "pipe", "pipe"],
       }).trim() || null;
   } catch {
     // not a git repo or git not available
