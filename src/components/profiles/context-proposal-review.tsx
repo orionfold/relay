@@ -32,7 +32,7 @@ export function ContextProposalReview({
   async function handleAction(action: "approve" | "reject") {
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/profiles/${profileId}/context`, {
+      const res = await fetch(`/api/agents/${profileId}/context`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -184,7 +184,7 @@ export async function instantiateBlueprint(
 // ---------------------------------------------------------------------------
 
 export async function listProfiles() {
-  return api<unknown[]>("/api/profiles");
+  return api<unknown[]>("/api/agents");
 }
 
 // ---------------------------------------------------------------------------

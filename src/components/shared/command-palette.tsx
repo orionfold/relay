@@ -40,7 +40,7 @@ const SURFACE_ROUTE: Record<SavedSearchSurface, string> = {
   workflow: "/workflows",
   document: "/documents",
   skill: "/skills",
-  profile: "/profiles",
+  profile: "/agents",
 };
 
 interface RecentProject {

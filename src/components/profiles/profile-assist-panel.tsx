@@ -137,7 +137,7 @@ export function ProfileAssistPanel({
     setAllApplied(false);
 
     try {
-      const res = await fetch("/api/profiles/assist", {
+      const res = await fetch("/api/agents/assist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

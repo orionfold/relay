@@ -109,7 +109,7 @@ export function TableEnrichmentSheet({
 
   useEffect(() => {
     if (!open) return;
-    fetch("/api/profiles")
+    fetch("/api/agents")
       .then((res) => (res.ok ? res.json() : []))
       .then((data: Array<{ id: string; name: string }>) => {
         setProfiles(data.map((profile) => ({ id: profile.id, name: profile.name })));

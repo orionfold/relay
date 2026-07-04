@@ -90,7 +90,7 @@ export function ProfileFormView({
   useEffect(() => {
     if (!profileId) return;
 
-    fetch(`/api/profiles/${profileId}`)
+    fetch(`/api/agents/${profileId}`)
       .then((r) => r.json())
       .then((profile: AgentProfile) => {
         setName(duplicate ? `${profile.name} (Copy)` : profile.name);
@@ -250,7 +250,7 @@ export function ProfileFormView({
     };
 
     try {
-      const url = isEdit ? `/api/profiles/${profileId}` : "/api/profiles";
+      const url = isEdit ? `/api/agents/${profileId}` : "/api/agents";
       const method = isEdit ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
@@ -266,9 +266,9 @@ export function ProfileFormView({
       toast.success(isEdit ? "Profile updated" : "Profile created");
 
       if (isEdit) {
-        router.push(`/profiles/${profileId}`);
+        router.push(`/agents/${profileId}`);
       } else {
-        router.push(`/profiles/${id}`);
+        router.push(`/agents/${id}`);
       }
     } catch (err) {
       toast.error(

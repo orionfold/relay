@@ -75,7 +75,7 @@ export function ScheduleCreateDialog({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/profiles")
+    fetch("/api/agents")
       .then((r) => r.json())
       .then((data: ProfileOption[]) => setProfiles(data))
       .catch(() => {});

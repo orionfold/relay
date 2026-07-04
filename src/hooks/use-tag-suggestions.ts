@@ -12,7 +12,7 @@ export function useTagSuggestions() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/profiles")
+    fetch("/api/agents")
       .then((r) => (r.ok ? r.json() : []))
       .then((profiles: AgentProfile[]) => {
         const allTags = new Set<string>();

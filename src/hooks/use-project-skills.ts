@@ -33,7 +33,7 @@ export function useProjectSkills(projectId?: string | null): {
 
     setLoading(true);
     fetch(
-      `/api/profiles?scope=project&projectId=${encodeURIComponent(projectId)}`,
+      `/api/agents?scope=project&projectId=${encodeURIComponent(projectId)}`,
       { signal: controller.signal }
     )
       .then((res) => res.json())

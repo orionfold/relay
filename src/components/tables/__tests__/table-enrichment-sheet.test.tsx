@@ -64,7 +64,7 @@ describe("TableEnrichmentSheet", () => {
       "fetch",
       vi.fn((input: RequestInfo | URL) => {
         const url = String(input);
-        if (url === "/api/profiles") {
+        if (url === "/api/agents") {
           return Promise.resolve({
             ok: true,
             json: vi.fn().mockResolvedValue([{ id: "general", name: "General" }]),

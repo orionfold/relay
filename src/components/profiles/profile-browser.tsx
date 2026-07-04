@@ -76,7 +76,7 @@ export function ProfileBrowser({
 
   const refreshProfiles = useCallback(async () => {
     try {
-      const res = await fetch("/api/profiles");
+      const res = await fetch("/api/agents");
       if (res.ok) {
         const data = await res.json();
         setProfiles(data);
@@ -136,7 +136,7 @@ export function ProfileBrowser({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button onClick={() => router.push("/profiles/new")}>
+        <Button onClick={() => router.push("/agents/new")}>
           <Plus className="mr-2 h-4 w-4" />
           Create Profile
         </Button>
@@ -159,7 +159,7 @@ export function ProfileBrowser({
                 className="bg-muted text-left rounded-lg border border-border/60 p-3 cursor-pointer hover:border-primary/40 hover:bg-accent transition-colors"
                 onClick={() => {
                   setShowTemplates(false);
-                  router.push(`/profiles/${p.id}/edit?duplicate=true`);
+                  router.push(`/agents/${p.id}/edit?duplicate=true`);
                 }}
               >
                 <p className="text-sm font-medium truncate">{p.name}</p>
@@ -236,7 +236,7 @@ export function ProfileBrowser({
               profile={profile}
               isBuiltin={profile.isBuiltin}
               packName={packNameFor(profile)}
-              onClick={() => router.push(`/profiles/${profile.id}`)}
+              onClick={() => router.push(`/agents/${profile.id}`)}
             />
           ))}
         </div>

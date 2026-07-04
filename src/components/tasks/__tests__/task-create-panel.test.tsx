@@ -19,7 +19,7 @@ const projects = [
 
 describe("TaskCreatePanel defaultProjectId", () => {
   beforeEach(() => {
-    // Mock the /api/profiles fetch
+    // Mock the /api/agents fetch
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve([]),

@@ -79,7 +79,7 @@ const composeItems: NavItem[] = [
   { title: "Workflows", href: "/workflows", icon: Workflow, description: "Multi-step agent pipelines", alsoMatches: ["/workflows/"] },
   { title: "Blueprints", href: "/blueprints", icon: Layers, description: "Reusable workflow templates", alsoMatches: ["/blueprints/"] },
   { title: "Schemas", href: "/schemas", icon: LayoutTemplate, description: "Reusable table structures", alsoMatches: ["/schemas/"] },
-  { title: "Profiles", href: "/profiles", icon: Bot, description: "Tune agent behavior", alsoMatches: ["/profiles/"] },
+  { title: "Agents", href: "/agents", icon: Bot, description: "Configure your agents", alsoMatches: ["/agents/"] },
 ];
 
 const dataItems: NavItem[] = [

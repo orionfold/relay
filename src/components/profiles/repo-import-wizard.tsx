@@ -138,7 +138,7 @@ export function RepoImportWizard({
     setError(null);
 
     try {
-      const res = await fetch("/api/profiles/import-repo/scan", {
+      const res = await fetch("/api/agents/import-repo/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: url.trim() }),
@@ -172,7 +172,7 @@ export function RepoImportWizard({
         selectedPaths.has(s.path)
       );
 
-      const res = await fetch("/api/profiles/import-repo/preview", {
+      const res = await fetch("/api/agents/import-repo/preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -241,7 +241,7 @@ export function RepoImportWizard({
           };
         });
 
-      const res = await fetch("/api/profiles/import-repo/confirm", {
+      const res = await fetch("/api/agents/import-repo/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

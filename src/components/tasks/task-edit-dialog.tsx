@@ -78,7 +78,7 @@ export function TaskEditDialog({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch("/api/profiles")
+    fetch("/api/agents")
       .then((r) => r.json())
       .then((data: ProfileOption[]) => setProfiles(data))
       .catch(() => {});

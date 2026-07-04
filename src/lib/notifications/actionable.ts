@@ -130,7 +130,7 @@ export async function listPendingApprovalPayloads(
       deepLink: isBatchProposal
         ? "/inbox"
         : isContextProposal
-          ? `/profiles/${row.toolName}`
+          ? `/agents/${row.toolName}`
           : buildDeepLink(row.taskId, effectiveWorkflowId),
       supportedActionIds: (isContextProposal || isBatchProposal)
         ? (["allow_once", "deny"] as ApprovalActionId[])

@@ -99,7 +99,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch(`/api/profiles/${profileId}`);
+      const res = await fetch(`/api/agents/${profileId}`);
       if (res.ok) {
         setProfile(await res.json());
       }
@@ -120,7 +120,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
     async function loadPersistedResults() {
       try {
         const res = await fetch(
-          `/api/profiles/${profileId}/test-results?runtimeId=${selectedTestRuntime}`
+          `/api/agents/${profileId}/test-results?runtimeId=${selectedTestRuntime}`
         );
         if (res.ok && !cancelled) {
           const report: TestReport = await res.json();
@@ -137,12 +137,12 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
   async function handleDelete() {
     setConfirmDelete(false);
     try {
-      const res = await fetch(`/api/profiles/${profileId}`, {
+      const res = await fetch(`/api/agents/${profileId}`, {
         method: "DELETE",
       });
       if (res.ok) {
         toast.success("Profile deleted");
-        router.push("/profiles");
+        router.push("/agents");
       } else {
         const data = await res.json().catch(() => null);
         toast.error(data?.error ?? "Failed to delete profile");
@@ -172,7 +172,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
           results: [...collectedResults],
         });
 
-        const res = await fetch(`/api/profiles/${profileId}/test-single`, {
+        const res = await fetch(`/api/agents/${profileId}/test-single`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ runtimeId: selectedTestRuntime, testIndex: i }),
@@ -264,7 +264,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.push(`/profiles/${profileId}/edit`)}
+              onClick={() => router.push(`/agents/${profileId}/edit`)}
             >
               <Pencil className="h-3.5 w-3.5 mr-1" />
               Edit
@@ -273,7 +273,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
           <Button
             variant="outline"
             size="sm"
-            onClick={() => router.push(`/profiles/${profileId}/edit?duplicate=true`)}
+            onClick={() => router.push(`/agents/${profileId}/edit?duplicate=true`)}
           >
             <Copy className="h-3.5 w-3.5 mr-1" />
             Duplicate
@@ -341,7 +341,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
               size="sm"
               onClick={async () => {
                 try {
-                  const res = await fetch("/api/profiles/import-repo/check-updates", {
+                  const res = await fetch("/api/agents/import-repo/check-updates", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ profileId }),

@@ -36,7 +36,7 @@ export function ProfileImportDialog({
     setError(null);
 
     try {
-      const res = await fetch("/api/profiles/import", {
+      const res = await fetch("/api/agents/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: url.trim() }),
