@@ -6,7 +6,19 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
-## [0.24.1] — 2026-07-03
+## [0.25.0] — 2026-07-04
+
+### Added
+
+- **Your app's home now shows every workflow it can run, as a card you can start with one click.** Relay Agency Pro used to open on a single finance screen that hid five of its six workflows — the only way to find them was a buried menu. The home page now lays out all six as cards, each with a plain-language line about what it does, its last run, and a Run button. The best one to try first is flagged "Start here," and workflows that run on their own when you add a row say so instead of showing a button that would fight them. A short line up top explains the difference between a workflow (the template) and a run (one time it goes).
+- **Workflows can now pause to ask you a question, then keep going.** A workflow step can stop mid-run to ask for something it needs from you — an approval, a missing detail — and wait for your answer in your Inbox instead of guessing or failing. It holds for as long as it takes, with no silent timeout, and once running or waiting, the workflow header points you to exactly where to go next: watch the steps below, or answer in your Inbox.
+
+### Fixed
+
+- **The date on your license now reads correctly everywhere.** The renewal date could show a day early depending on your time zone. It now reads the same true date for everyone.
+- **A first run in a folder that isn't a code project no longer prints a scary error.** Starting Relay somewhere without a git repo printed a raw `fatal:` line that looked like a crash. That noise is gone; nothing was ever actually wrong.
+- **The empty app screen no longer promises something it can't do.** An empty-state hint suggested importing a CSV in a spot where that never actually ran. The copy now matches what the app really does.
+- **The app-detail page is cleaner and easier to act on.** The toolbar collapsed to a single row, a direct Delete button replaced a hidden menu step, and the manifest section's arrow now points the right way when collapsed.
 
 ### Fixed
 
