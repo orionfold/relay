@@ -100,16 +100,17 @@ describe("RunnableBlueprintCard (FEAT-5/6)", () => {
         card={makeCard({
           id: "intake",
           name: "Intake Pipeline",
-          trigger: { kind: "row-insert", table: "intake" },
+          trigger: { kind: "row-insert", table: "tbl-uuid", tableName: "Intake" },
         })}
         lastRun={null}
         runCount30d={0}
       />
     );
-    // No fighting manual Run button; a "runs on its own" note names the table.
+    // No fighting manual Run button; a "runs on its own" note names the table
+    // by its human name (not the raw UUID).
     expect(screen.queryByRole("button", { name: /^run$/i })).not.toBeInTheDocument();
     expect(screen.getByText(/runs on its own/i)).toBeInTheDocument();
-    expect(screen.getByText(/intake row/i)).toBeInTheDocument();
+    expect(screen.getByText(/Intake table/i)).toBeInTheDocument();
   });
 
   it("shows last-run status + run count when a run exists", () => {

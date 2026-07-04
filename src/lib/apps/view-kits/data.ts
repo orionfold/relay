@@ -649,11 +649,20 @@ async function loadBlueprintCards(
   } catch {
     getBlueprint = null;
   }
+  // Resolve human table names for row-insert copy. Install rewrites the
+  // manifest's `intake`/`grants` ids to real UUIDs, so the raw trigger.table
+  // is unreadable ("a new 583aa0c2-… row"). The table store's `name` column
+  // carries the label. Loaded via dynamic import (same module-cycle guard).
+  const tableName = await loadTableNameResolver();
   return manifest.blueprints.map((stub) => {
     const def = getBlueprint?.(stub.id);
     const trigger =
       stub.trigger?.kind === "row-insert"
-        ? { kind: "row-insert" as const, table: stub.trigger.table }
+        ? {
+            kind: "row-insert" as const,
+            table: stub.trigger.table,
+            tableName: tableName(stub.trigger.table),
+          }
         : null;
     return {
       id: stub.id,
@@ -664,6 +673,27 @@ async function loadBlueprintCards(
       isPrimary: stub.id === primaryBlueprintId,
     };
   });
+}
+
+/**
+ * Returns a synchronous `id → human name` lookup for user-tables, so
+ * `loadBlueprintCards` can label row-insert triggers without an await per
+ * blueprint. Falls back to the id itself when a table isn't found (or the
+ * store is unavailable). Dynamic import keeps `data.ts` off the runtime-catalog
+ * module-load cycle (smoke-budget rule).
+ */
+async function loadTableNameResolver(): Promise<(id: string) => string> {
+  try {
+    const mod = await import("@/lib/data/tables");
+    const tables = await mod.listTables();
+    const byId = new Map<string, string>();
+    for (const t of tables) {
+      if (t.id && t.name) byId.set(t.id, t.name);
+    }
+    return (id: string) => byId.get(id) ?? id;
+  } catch {
+    return (id: string) => id;
+  }
 }
 
 // --- Phase 4: helpers ---------------------------------------------------------

@@ -148,8 +148,10 @@ export interface BlueprintCard {
   /**
    * How the blueprint fires. `row-insert` blueprints run automatically on new
    * rows — the card labels that instead of offering a fighting manual Run.
+   * `table` is the raw (post-install often a UUID) table id; `tableName` is the
+   * human-readable table name for copy, resolved from the table store.
    */
-  trigger: { kind: "row-insert"; table: string } | null;
+  trigger: { kind: "row-insert"; table: string; tableName: string } | null;
   /** The recommended first workflow, rendered with a "Start here" flag. */
   isPrimary: boolean;
 }
@@ -245,6 +247,12 @@ export interface ViewModel {
   kpis?: KpiTile[];
   hero?: HeroSlot;
   secondary?: SecondarySlot[];
+  /**
+   * FEAT-7: an optional one-line lead rendered above the secondary grid. The
+   * Workflow Hub uses it for the blueprint-vs-workflow explainer ("each card is
+   * a workflow you can run"). Plain text so it can't become a styling hatch.
+   */
+  secondaryLead?: string;
   activity?: ActivityFeedSlot;
   footer?: ManifestPaneSlot;
 }

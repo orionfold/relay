@@ -124,6 +124,12 @@ export const workflowHubKit: KitDefinition = {
         cadenceChip: runtime.cadence ?? undefined,
       },
       kpis: runtime.evaluatedKpis ?? [],
+      // FEAT-7: the blueprint-vs-workflow one-liner. Only render it when there
+      // are cards to explain, so an empty hub doesn't show a dangling lead.
+      secondaryLead:
+        secondary.length > 0
+          ? "Each card below is a workflow this app can run. Pick one and click Run to start it."
+          : undefined,
       secondary,
       activity,
       footer: {

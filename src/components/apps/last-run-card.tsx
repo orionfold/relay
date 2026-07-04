@@ -156,15 +156,27 @@ export function RunnableBlueprintCard({
         {isRowInsert ? (
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <RefreshCw className="h-3.5 w-3.5" />
-            Runs on its own when a new {card.trigger?.table ?? "row"} row is
-            added
+            Runs on its own when you add a row to the{" "}
+            {card.trigger?.tableName ?? "linked"} table
           </p>
         ) : (
-          <RunNowButton
-            blueprintId={card.id}
-            variables={card.variables}
-            label="Run"
-          />
+          <div className="space-y-1.5">
+            <RunNowButton
+              blueprintId={card.id}
+              variables={card.variables}
+              label="Run"
+            />
+            {/* FEAT-5.2: on the "Start here" card, tell a first-time user what
+                Run does. Only the primary card carries this hint, so the grid
+                stays scannable (progressive disclosure). */}
+            {card.isPrimary && (
+              <p className="text-xs text-muted-foreground">
+                {card.variables.length > 0
+                  ? "Run asks a few questions, then starts a workflow you can watch."
+                  : "Run starts a workflow you can watch as it works."}
+              </p>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>

@@ -25,7 +25,14 @@ export function KitView({ model }: KitViewProps) {
       {model.kpis && <KpisSlotView tiles={model.kpis} />}
       {model.hero && <HeroSlotView slot={model.hero} />}
       {model.secondary && model.secondary.length > 0 && (
-        <SecondarySlotView slots={model.secondary} />
+        <div className="space-y-3">
+          {model.secondaryLead && (
+            <p className="text-sm text-muted-foreground">
+              {model.secondaryLead}
+            </p>
+          )}
+          <SecondarySlotView slots={model.secondary} />
+        </div>
       )}
       {model.activity && <ActivitySlotView slot={model.activity} />}
       {model.footer && <FooterSlotView slot={model.footer} />}

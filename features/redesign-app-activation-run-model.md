@@ -1,8 +1,9 @@
 # redesign: app-shell activation + run-model (FEAT-5/6/7/8)
 
-**Status:** IN PROGRESS. Slice 1 (FEAT-5/6 runnable-cards home) SHIPPED + verified e2e
-(2026-07-04, Option A routing). Remaining: guided helper text (2), FEAT-7 vocabulary (3),
-FEAT-8 signposting (4), copy pass (5).
+**Status:** SHIPPED + verified e2e (2026-07-04, Option A routing). All five build-sequence
+steps done: (1) runnable-cards home, (2) guided helper text, (3) FEAT-7 blueprint-vs-workflow
+lead + Execute nudge, (4) FEAT-8 draft/active/paused signposting (paused HITL → Inbox), (5)
+copy pass (row-insert cards name the table, not the UUID). FEAT-5/6/7/8 all resolved.
 **Origin:** 2026-07-03 operator walkthrough — `output/staging/2026-07-03-operator-walkthrough/FINDINGS-live.md`
 (FEAT-5/6/7/8). Sibling patch-tier findings from the same run already shipped (BUG-1/2, FEAT-1/3/4)
 and BUG-3 (workflow HITL) shipped separately (`features/fix-workflow-hitl-ask-user.md`, `4c0bae6c`).

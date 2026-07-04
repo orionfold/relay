@@ -11,10 +11,73 @@ import {
   RotateCcw,
   Trash2,
   FolderKanban,
+  ArrowRight,
+  Inbox as InboxIcon,
+  Clock3,
+  Loader2,
 } from "lucide-react";
 import { workflowStatusVariant, patternLabels } from "@/lib/constants/status-colors";
 import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import type { WorkflowStatusResponse } from "@/lib/workflows/types";
+
+/**
+ * FEAT-7/8: a status-aware signpost telling the user what to do next. After a
+ * blueprint instantiates a draft, "Execute" is not obvious — so `draft` gets a
+ * "click Execute to start" nudge. Once running/paused, activity lives on other
+ * surfaces (Inbox for approvals, the steps below for progress) — so those
+ * statuses point there. A paused HITL run must read as "waiting for you", not
+ * "stuck".
+ *
+ * Distinguishing the two kinds of `paused`: a delay pause carries `resumeAt`
+ * (it resumes on its own); a HITL pause (BUG-3) sets a step to
+ * `waiting_approval` and has no resumeAt (it waits for your answer → Inbox).
+ */
+export type Signpost = {
+  tone: "info" | "wait";
+  icon: "arrow" | "inbox" | "clock" | "spinner";
+  href?: string;
+  text: string;
+} | null;
+
+export function computeSignpost(data: WorkflowStatusResponse): Signpost {
+  const status = data.status;
+  if (status === "draft") {
+    return {
+      tone: "info",
+      icon: "arrow",
+      text: "Ready to go. Click Execute to start this workflow.",
+    };
+  }
+  // A live workflow is `active` at the top level (`running` is a step/run-state
+  // value; the loop arm may report it too — accept both).
+  if (status === "active" || status === "running") {
+    return {
+      tone: "info",
+      icon: "spinner",
+      text: "Working now. Watch the steps below as it goes.",
+    };
+  }
+  if (status === "paused") {
+    // A delay pause resumes on its own; the non-loop arm carries resumeAt.
+    const resumeAt =
+      "resumeAt" in data ? (data.resumeAt as number | null) : null;
+    if (resumeAt != null) {
+      return {
+        tone: "wait",
+        icon: "clock",
+        text: "Paused for a scheduled step. It resumes on its own.",
+      };
+    }
+    // Otherwise it is waiting for your answer (HITL checkpoint → Inbox).
+    return {
+      tone: "wait",
+      icon: "inbox",
+      href: "/inbox",
+      text: "Waiting for your approval. Answer it in your Inbox.",
+    };
+  }
+  return null;
+}
 
 /**
  * Pattern-agnostic header card for the workflow detail page. Renders the
@@ -136,6 +199,57 @@ export function WorkflowHeader({
           )}
         </div>
       </div>
+      <SignpostBanner signpost={computeSignpost(data)} />
     </CardHeader>
   );
+}
+
+/**
+ * FEAT-7/8: renders the status-aware "what to do next" banner. `wait` tone
+ * (waiting on the user) is emphasized; `info` tone is quiet. When a signpost
+ * has an href, the whole banner is a link (e.g. paused HITL → /inbox).
+ */
+function SignpostBanner({ signpost }: { signpost: Signpost }) {
+  const router = useRouter();
+  if (!signpost) return null;
+
+  const Icon =
+    signpost.icon === "inbox"
+      ? InboxIcon
+      : signpost.icon === "clock"
+        ? Clock3
+        : signpost.icon === "spinner"
+          ? Loader2
+          : ArrowRight;
+
+  const tone =
+    signpost.tone === "wait"
+      ? "border-status-warning/40 bg-status-warning/10 text-foreground"
+      : "border-border bg-muted/40 text-muted-foreground";
+
+  const body = (
+    <div
+      className={`mt-3 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${tone} ${
+        signpost.href ? "cursor-pointer hover:bg-accent transition-colors" : ""
+      }`}
+    >
+      <Icon
+        className={`h-4 w-4 shrink-0 ${
+          signpost.icon === "spinner" ? "animate-spin" : ""
+        }`}
+      />
+      <span>{signpost.text}</span>
+      {signpost.href && <ArrowRight className="h-3.5 w-3.5 ml-auto shrink-0" />}
+    </div>
+  );
+
+  if (signpost.href) {
+    const href = signpost.href;
+    return (
+      <div role="link" tabIndex={0} onClick={() => router.push(href)}>
+        {body}
+      </div>
+    );
+  }
+  return body;
 }
