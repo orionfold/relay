@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table2 } from "lucide-react";
 import { tableSourceVariant } from "@/lib/constants/table-status";
+import { PackPill } from "@/components/shared/pack-pill";
 import { formatRowCount, formatColumnCount } from "./utils";
 import type { TableWithRelations } from "./types";
 
@@ -11,9 +12,16 @@ interface TableGridProps {
   tables: TableWithRelations[];
   onSelect: (id: string) => void;
   onOpen: (id: string) => void;
+  /** Resolves a projectId to its pack display name, or null (FEAT-8). */
+  packNameForProject?: (projectId: string | null | undefined) => string | null;
 }
 
-export function TableGrid({ tables, onSelect, onOpen }: TableGridProps) {
+export function TableGrid({
+  tables,
+  onSelect,
+  onOpen,
+  packNameForProject,
+}: TableGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {tables.map((t) => (
@@ -49,9 +57,13 @@ export function TableGrid({ tables, onSelect, onOpen }: TableGridProps) {
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span>{formatColumnCount(t.columnCount)}</span>
               <span>{formatRowCount(t.rowCount)}</span>
-              {t.projectName && (
-                <span className="truncate">{t.projectName}</span>
-              )}
+              {(() => {
+                const packName = packNameForProject?.(t.projectId);
+                if (packName) return <PackPill packName={packName} />;
+                return t.projectName ? (
+                  <span className="truncate">{t.projectName}</span>
+                ) : null;
+              })()}
             </div>
           </CardContent>
         </Card>

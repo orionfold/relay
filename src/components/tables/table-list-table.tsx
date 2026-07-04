@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { tableSourceVariant } from "@/lib/constants/table-status";
+import { PackPill } from "@/components/shared/pack-pill";
 import { formatRowCount } from "./utils";
 import type { TableWithRelations } from "./types";
 
@@ -21,6 +22,8 @@ interface TableListTableProps {
   onToggleSelectAll: () => void;
   onSelect: (id: string) => void;
   onOpen: (id: string) => void;
+  /** Resolves a projectId to its pack display name, or null (FEAT-8). */
+  packNameForProject?: (projectId: string | null | undefined) => string | null;
 }
 
 export function TableListTable({
@@ -30,6 +33,7 @@ export function TableListTable({
   onToggleSelectAll,
   onSelect,
   onOpen,
+  packNameForProject,
 }: TableListTableProps) {
   return (
     <div className="rounded-lg border">
@@ -68,7 +72,14 @@ export function TableListTable({
               </TableCell>
               <TableCell className="font-medium">{t.name}</TableCell>
               <TableCell className="text-muted-foreground">
-                {t.projectName ?? "—"}
+                {(() => {
+                  const packName = packNameForProject?.(t.projectId);
+                  return packName ? (
+                    <PackPill packName={packName} />
+                  ) : (
+                    (t.projectName ?? "—")
+                  );
+                })()}
               </TableCell>
               <TableCell className="text-right text-muted-foreground">
                 {t.columnCount}

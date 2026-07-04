@@ -19,15 +19,37 @@ import { TableCreateSheet } from "./table-create-sheet";
 import { FilterBar } from "@/components/shared/filter-bar";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Table2 } from "lucide-react";
+import { packOf } from "@/lib/apps/pack-of";
 import type { TableWithRelations } from "./types";
 
 interface TableBrowserProps {
   initialTables: TableWithRelations[];
   projects: { id: string; name: string }[];
+  /** Installed packs — marks tables whose project is a pack (FEAT-8). */
+  installedPacks?: { id: string; name: string }[];
 }
 
-export function TableBrowser({ initialTables, projects }: TableBrowserProps) {
+export function TableBrowser({
+  initialTables,
+  projects,
+  installedPacks = [],
+}: TableBrowserProps) {
   const [tables, setTables] = useState(initialTables);
+  // {projectId → pack name} for pack-installed projects, via the shared
+  // resolver (tables associate to a pack by projectId === packId).
+  const installedPackIds = new Set(installedPacks.map((p) => p.id));
+  const packNameById = new Map(installedPacks.map((p) => [p.id, p.name]));
+  const packNameForProject = useCallback(
+    (projectId: string | null | undefined): string | null => {
+      const packId = packOf(
+        { kind: "table", id: "", projectId: projectId ?? undefined },
+        installedPackIds
+      );
+      return packId ? packNameById.get(packId) ?? null : null;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [installedPacks]
+  );
   const [view, setView] = useState<"table" | "grid">("table");
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
@@ -214,12 +236,14 @@ export function TableBrowser({ initialTables, projects }: TableBrowserProps) {
           onToggleSelectAll={toggleSelectAll}
           onSelect={navigate}
           onOpen={navigate}
+          packNameForProject={packNameForProject}
         />
       ) : (
         <TableGrid
           tables={filtered}
           onSelect={navigate}
           onOpen={navigate}
+          packNameForProject={packNameForProject}
         />
       )}
 

@@ -11,6 +11,8 @@ import { ScheduleStatusBadge } from "./schedule-status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { describeCron } from "@/lib/schedules/interval-parser";
+import { PackPill } from "@/components/shared/pack-pill";
+import { packOf } from "@/lib/apps/pack-of";
 import { Clock, Heart, Pause, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -39,6 +41,9 @@ interface ScheduleListProps {
 
 export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps) {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [installedPacks, setInstalledPacks] = useState<
+    { id: string; name: string }[]
+  >([]);
   const [loaded, setLoaded] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(
@@ -56,6 +61,24 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Installed packs — a pack schedule's id is `app:<packId>:<sid>`, so packOf
+  // resolves provenance from the id alone (FEAT-8).
+  useEffect(() => {
+    fetch("/api/apps")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((apps: Array<{ id: string; name: string }>) =>
+        setInstalledPacks(apps.map((a) => ({ id: a.id, name: a.name })))
+      )
+      .catch(() => {});
+  }, []);
+
+  const installedPackIds = new Set(installedPacks.map((p) => p.id));
+  const packNameById = new Map(installedPacks.map((p) => [p.id, p.name]));
+  const packNameForSchedule = (id: string): string | null => {
+    const packId = packOf({ kind: "schedule", id }, installedPackIds);
+    return packId ? packNameById.get(packId) ?? null : null;
+  };
 
   async function handlePauseResume(id: string, currentStatus: string) {
     const newStatus = currentStatus === "active" ? "paused" : "active";
@@ -163,7 +186,13 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
                     )}
                     {sched.name}
                   </CardTitle>
-                  <ScheduleStatusBadge status={sched.status} />
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    {(() => {
+                      const packName = packNameForSchedule(sched.id);
+                      return packName ? <PackPill packName={packName} /> : null;
+                    })()}
+                    <ScheduleStatusBadge status={sched.status} />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
