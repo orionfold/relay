@@ -1,23 +1,31 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S31 — **BUG-3 (workflow HITL) IMPLEMENTED + verified e2e + committed `4c0bae6c`**,
-UNRELEASED. Operator chose indefinite `paused` (no deadline, no silent auto-fail). Reused the existing
-`AskUserQuestion` answer loop (not a new type): `waitForInput()` in `engine.ts` + `requiresInput?`/`inputPrompt?`
-on `WorkflowStep` + `executeCheckpoint` pause/inject + halt-on-refusal (non-final empty output → loud `failed`) +
-`actionable.ts` deep-link for `AskUserQuestion`+null-taskId. Verified under `npm run dev` against real API+SQLite+
-`/respond`: pause → Inbox deep-link → 12s hold not auto-denied → answer → resume → injection. Unit
-`hitl-ask-user.test.ts` (3); tsc clean; full suite = 8 documented baseline failures, no regressions (memory
-`workflow-ask-user-channel-exists` updated to SHIPPED). Prior tail: S29–S30 5-fix walkthrough patch arc
-(`5ca08b0d`..`b81a20ca`) + BUG-3 groom; S27 published 0.24.1. Full detail: git log + walkthrough FINDINGS.)_
+_Last updated: 2026-07-04 (pt: S32 — **FEAT-5/6/7/8 GROOMED into ONE unified spec, committed `0413f2b8`**,
+un-started. `features/redesign-app-activation-run-model.md` — operator-gated: runnable-blueprint-cards +
+guided first-run. Root cause verified: Agency Pro's manifest hard-declares `view.kit: ledger` (single-hero
+kit hides 5/6 workflows); most plumbing exists (`workflow-hub` kit enumerates all blueprints, `RunNowButton`
+is a drop-in per-card run action). Fix routes Agency Pro to the multi-blueprint home + makes cards runnable +
+honors row-insert gating + FEAT-8 signpost reuses BUG-3's shipped `paused`+Inbox channel; does NOT retune
+`pickKit`. Vertical-slice-first build sequence + smoke-budget verification in the spec. Prior tail: S31 BUG-3
+(workflow HITL) shipped `4c0bae6c`; S29–S30 5-fix walkthrough patch arc; S27 published 0.24.1. Full detail:
+git log + walkthrough FINDINGS.)_
 
-## ▶️ NEXT SESSION — groom FEAT-5/6/7/8 (needs operator design direction first)
+## ▶️ NEXT SESSION — IMPLEMENT FEAT-5/6/7/8 (spec ready, operator-gated)
 
-### FEAT-5/6/7/8 — STILL OPEN, needs operator design direction (not yet groomed)
-- One app-shell/run-model activation redesign (blank-slate guide, surface app's own blueprints as runnable
-  cards, unify Run/Create/Execute verbs, signpost Monitor/Inbox). Route to product-manager/frontend-designer.
-- Held un-groomed deliberately: the redesign shape (verb unification, guided-flow layout) needs operator
-  input first — grooming blind risks wasted effort. Bundle:
-  `output/staging/2026-07-03-operator-walkthrough/FINDINGS-live.md`.
+### FEAT-5/6/7/8 — GROOMED (S32, `0413f2b8`), un-started
+- Spec: **`features/redesign-app-activation-run-model.md`** — ONE unified app-activation + run-model
+  redesign. Operator chose **runnable-blueprint-cards + guided first-run** ("Start here ▸" + a card
+  per blueprint with a Run action). Lightweight ceremony (operator drafted in-session).
+- **Root cause (verified):** Agency Pro's manifest hard-declares `view.kit: ledger`
+  (`manifest.yaml:77`) → the single-hero ledger kit hides 5/6 workflows on the app's own home.
+- **Most plumbing already exists** — `workflow-hub` kit already enumerates all blueprints + renders
+  one `LastRunCard` each; `RunNowButton` is a drop-in per-card run action. Fix = route Agency Pro to
+  the multi-blueprint home (flip `view.kit` to `workflow-hub`, or a ledger-hybrid — Open Q #1) + make
+  cards runnable + **honor row-insert gating** (intake-pipeline/grant-pipeline-deep) + FEAT-8 signpost
+  reuses BUG-3's shipped `paused`+Inbox channel. Do NOT retune `pickKit` rules.
+- **Build sequence + verification (smoke-budget applies to `data.ts`) in the spec.** Vertical slice
+  first: one runnable card on the home → prove the redesign, then surface the A-vs-hybrid routing
+  tradeoff to the operator with the working slice.
 - New skill `staging-operator-run` is registered for the next operator run.
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
