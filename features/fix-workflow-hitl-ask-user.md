@@ -1,8 +1,36 @@
 # fix: workflow HITL ask-user channel + no silent auto-fail (BUG-3)
 
-**Status:** spec (not started) · **Severity:** HIGH · **Origin:** S28 operator
+**Status:** IMPLEMENTED (S31, 2026-07-03) · **Severity:** HIGH · **Origin:** S28 operator
 walkthrough → `output/staging/2026-07-03-operator-walkthrough/FINDINGS-live.md` BUG-3
 · **Groomed:** S30 (2026-07-03), verified against live engine code first.
+
+## Implementation (S31, 2026-07-03)
+
+Operator decision B resolved: **indefinite `paused`** (no deadline, no auto-fail).
+
+- `types.ts`: added additive `requiresInput?: boolean` + `inputPrompt?: string` to `WorkflowStep`.
+- `engine.ts`: new `waitForInput()` mirrors `waitForApproval` but writes
+  `toolName:"AskUserQuestion"` with `{question, options?, workflowId, stepName}`, polls with
+  NO deadline, returns `response.updatedInput.answer`. `executeCheckpoint` marks the run
+  `paused`, calls `waitForInput` before running a `requiresInput` step, injects the answer
+  into the step's context prompt, then flips back to `active`. Halt-on-refusal added: a
+  non-final step producing empty/whitespace output throws → loud `failed` (no false
+  `completed`); a final empty step is allowed (nothing downstream). `waitForApproval`'s
+  5-min deny-on-timeout is untouched (HITL uses the new no-deadline path).
+- `notifications/actionable.ts`: workflowId extraction extended to also match
+  `toolName === "AskUserQuestion"` with null taskId → deep-links to `/workflows/<id>`.
+
+### Verification run — 2026-07-03 (end-to-end, per CLAUDE.md smoke-budget)
+
+`engine.ts` is on the flagship runtime path, so unit tests alone are insufficient.
+- Unit: `src/lib/workflows/__tests__/hitl-ask-user.test.ts` (3 tests) — answer injection,
+  halt-on-refusal (non-final empty → failed), final-empty allowed. 169+3 workflow/notif tests
+  green; tsc clean; full suite 8 failures = documented pre-existing baseline (no regressions).
+- E2E smoke under `npm run dev` (real API + real SQLite + real `/respond` route): created a
+  1-step `requiresInput` checkpoint workflow → executed → AskUserQuestion notification surfaced,
+  run held `paused` (12s hold, notification NOT auto-denied), Inbox pending-approvals deep-linked
+  to `/workflows/<id>`, answering via the real `/respond` route resumed the run and injected the
+  typed answer into the step task's `description`. Smoke script archived in session scratchpad.
 
 ---
 

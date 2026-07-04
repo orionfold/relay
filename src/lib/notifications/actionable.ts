@@ -93,9 +93,18 @@ export async function listPendingApprovalPayloads(
     const isBatchProposal = row.type === "context_proposal_batch";
     const parsedInput = parseNotificationToolInput(row.toolInput);
 
-    // For checkpoint notifications (taskId is null), extract workflowId from toolInput
+    // For workflow-posted notifications with no taskId, extract workflowId from
+    // toolInput so the item deep-links to the workflow page. Both the checkpoint
+    // approval (WorkflowCheckpoint) and the HITL ask-user (AskUserQuestion, posted
+    // by the workflow engine — see BUG-3) carry `workflowId` in toolInput. A chat
+    // task's AskUserQuestion has a taskId and flows through row.workflowId instead,
+    // so this branch only fires for the engine-posted, taskId-null case.
     let effectiveWorkflowId = row.workflowId;
-    if (!row.taskId && row.toolName === "WorkflowCheckpoint" && row.toolInput) {
+    if (
+      !row.taskId &&
+      (row.toolName === "WorkflowCheckpoint" || row.toolName === "AskUserQuestion") &&
+      row.toolInput
+    ) {
       try {
         const parsed = typeof row.toolInput === "string" ? JSON.parse(row.toolInput) : row.toolInput;
         effectiveWorkflowId = parsed.workflowId ?? null;

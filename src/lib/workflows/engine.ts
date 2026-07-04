@@ -347,6 +347,7 @@ async function executeCheckpoint(
   workflowRuntimeId?: string
 ): Promise<void> {
   let previousOutput = "";
+  let userAnswer = "";
 
   for (let i = 0; i < definition.steps.length; i++) {
     const step = definition.steps[i];
@@ -365,9 +366,35 @@ async function executeCheckpoint(
       }
     }
 
-    const contextPrompt = previousOutput
-      ? `Previous step output:\n${previousOutput}\n\n---\n\n${step.prompt}`
-      : step.prompt;
+    // If step declares it needs data from the user, ask BEFORE running the agent
+    // and BLOCK (indefinitely) until answered. The run holds in `paused`; the
+    // typed answer is injected into this step's context. (BUG-3.)
+    userAnswer = "";
+    if (step.requiresInput) {
+      state.stepStates[i].status = "waiting_approval";
+      state.status = "paused";
+      await updateWorkflowState(workflowId, state, "paused");
+
+      const question = step.inputPrompt ?? step.prompt;
+      userAnswer = await waitForInput(workflowId, step.name, question);
+
+      // Answered — clear the pause and resume execution of this step.
+      state.status = "running";
+      state.stepStates[i].status = "running";
+      await updateWorkflowState(workflowId, state, "active");
+    }
+
+    const contextParts: string[] = [];
+    if (previousOutput) {
+      contextParts.push(`Previous step output:\n${previousOutput}`);
+    }
+    if (userAnswer.trim()) {
+      contextParts.push(`User-provided input:\n${userAnswer}`);
+    }
+    const contextPrompt =
+      contextParts.length > 0
+        ? `${contextParts.join("\n\n---\n\n")}\n\n---\n\n${step.prompt}`
+        : step.prompt;
 
     const result = await executeStep(
       workflowId,
@@ -388,6 +415,24 @@ async function executeCheckpoint(
     }
 
     previousOutput = result.result ?? "";
+
+    // Halt-on-refusal: an agent can "complete" while producing no usable
+    // artifact (e.g. it refused to fabricate and asked for missing data in
+    // prose). Running dependent steps on top of that empty output cascades
+    // refusals into a false `completed` with nothing on disk (the BUG-3
+    // failure mode). If this step yielded no usable output and later steps
+    // depend on it, stop loudly instead. We key on empty output — not brittle
+    // prose matching — which is exactly the "no artifact" symptom observed.
+    const hasDependents = i < definition.steps.length - 1;
+    if (hasDependents && previousOutput.trim().length === 0) {
+      state.stepStates[i].status = "failed";
+      state.stepStates[i].error =
+        "Step produced no usable output; halting dependent steps to avoid a false completion. " +
+        "The agent may have refused for missing context — check its output and re-run with the needed input.";
+      throw new Error(
+        `Step "${step.name}" produced no usable output — halting workflow to avoid cascading refusals`
+      );
+    }
   }
 }
 
@@ -1155,6 +1200,64 @@ async function waitForApproval(
     .where(eq(notifications.id, notificationId));
 
   return false; // Timeout — treat as denied
+}
+
+/**
+ * Ask the user a question mid-workflow and BLOCK until they answer.
+ *
+ * Reuses the existing `AskUserQuestion` answer-carrying loop that already backs
+ * chat tasks: it writes a `permission_required` notification with
+ * `toolName:"AskUserQuestion"`, which `PermissionResponseActions` renders as a
+ * free-text/options prompt and `/api/tasks/[id]/respond` answers by writing
+ * `response.updatedInput.answer`. The Inbox surfaces it (via
+ * listPendingApprovalPayloads) deep-linked to the workflow page.
+ *
+ * Unlike waitForApproval this has NO deadline — the workflow row is marked
+ * `paused` by the caller and this poll holds until a response appears. No silent
+ * deny-on-timeout (BUG-3, operator decision: indefinite pause is the honest
+ * default). Returns the typed answer string, or "" if the response carried none.
+ */
+async function waitForInput(
+  workflowId: string,
+  stepName: string,
+  question: string,
+  options?: string[]
+): Promise<string> {
+  const notificationId = crypto.randomUUID();
+
+  await db.insert(notifications).values({
+    id: notificationId,
+    taskId: null,
+    type: "permission_required",
+    title: `Workflow needs input: ${stepName}`,
+    body: question.slice(0, 500),
+    toolName: "AskUserQuestion",
+    toolInput: JSON.stringify({ question, options, workflowId, stepName }),
+    createdAt: new Date(),
+  });
+
+  // Poll indefinitely — no deadline. The workflow is already marked `paused`, so
+  // a restart won't leave it falsely `active`; the operator answers whenever.
+  const pollInterval = 2000;
+
+  for (;;) {
+    const [notification] = await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.id, notificationId));
+
+    if (notification?.response) {
+      try {
+        const parsed = JSON.parse(notification.response);
+        const answer = parsed?.updatedInput?.answer;
+        return typeof answer === "string" ? answer : "";
+      } catch {
+        return "";
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, pollInterval));
+  }
 }
 
 

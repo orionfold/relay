@@ -29,6 +29,19 @@ export interface WorkflowStep {
    */
   delayDuration?: string;
   /**
+   * If set, the checkpoint engine pauses BEFORE running this step's agent and
+   * asks the user a question (via the existing `AskUserQuestion` notification +
+   * `/api/tasks/[id]/respond` answer loop). The typed answer is injected into
+   * the step's context prompt so the agent has the missing data. The run holds
+   * in workflow status `paused` indefinitely — no deadline, no auto-fail — until
+   * the user responds from the Inbox. Use `inputPrompt` to override the question
+   * text; when omitted, the step's own `prompt` is used as the question.
+   * See features/fix-workflow-hitl-ask-user.md (BUG-3).
+   */
+  requiresInput?: boolean;
+  /** Question text shown to the user when `requiresInput` is set. Falls back to `prompt`. */
+  inputPrompt?: string;
+  /**
    * Optional declarative side-effect to apply after the step's task completes
    * successfully. Used by bulk row enrichment to write the agent's result back
    * into a user table cell. Discriminated union — `type` selects the variant.
