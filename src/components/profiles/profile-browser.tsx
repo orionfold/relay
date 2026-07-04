@@ -17,18 +17,52 @@ import { ProfileCard } from "@/components/profiles/profile-card";
 import { ProfileImportDialog } from "@/components/profiles/profile-import-dialog";
 import { RepoImportWizard } from "@/components/profiles/repo-import-wizard";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
+import { packOf } from "@/lib/apps/pack-of";
 
 interface ProfileWithBuiltin extends AgentProfile {
   isBuiltin?: boolean;
 }
 
-interface ProfileBrowserProps {
-  initialProfiles: AgentProfile[];
+/** The installed-pack identity a profile carries (FEAT-8). {id, name} only. */
+export interface InstalledPackRef {
+  id: string;
+  name: string;
 }
 
-export function ProfileBrowser({ initialProfiles }: ProfileBrowserProps) {
+interface ProfileBrowserProps {
+  initialProfiles: AgentProfile[];
+  /** Installed packs — resolves each profile's pack provenance (FEAT-8). */
+  installedPacks?: InstalledPackRef[];
+}
+
+export function ProfileBrowser({
+  initialProfiles,
+  installedPacks = [],
+}: ProfileBrowserProps) {
   const router = useRouter();
   const [profiles, setProfiles] = useState<ProfileWithBuiltin[]>(initialProfiles);
+
+  // Stable {id → display name} lookup + the gated id-set for packOf. Rebuilt
+  // only when the installed packs change (never on a profile refresh), so the
+  // pill survives refreshProfiles — which recomputes from the refreshed id.
+  const packNameById = useMemo(
+    () => new Map(installedPacks.map((p) => [p.id, p.name])),
+    [installedPacks]
+  );
+  const installedPackIds = useMemo(
+    () => new Set(installedPacks.map((p) => p.id)),
+    [installedPacks]
+  );
+  const packNameFor = useCallback(
+    (profile: AgentProfile): string | null => {
+      const packId = packOf(
+        { kind: "profile", id: profile.id },
+        installedPackIds
+      );
+      return packId ? packNameById.get(packId) ?? null : null;
+    },
+    [installedPackIds, packNameById]
+  );
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState<
     "all" | "work" | "personal"
@@ -201,6 +235,7 @@ export function ProfileBrowser({ initialProfiles }: ProfileBrowserProps) {
               key={profile.id}
               profile={profile}
               isBuiltin={profile.isBuiltin}
+              packName={packNameFor(profile)}
               onClick={() => router.push(`/profiles/${profile.id}`)}
             />
           ))}

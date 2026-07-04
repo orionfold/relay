@@ -50,3 +50,42 @@ describe("ProfileCard runtime-coverage chips", () => {
     expect(screen.queryByText("Claude")).not.toBeInTheDocument();
   });
 });
+
+describe("ProfileCard pack provenance (FEAT-8)", () => {
+  it("renders the PackPill when the profile belongs to an installed pack", () => {
+    render(
+      <ProfileCard
+        profile={makeProfile({ id: "relay-agency--cre-analyst" })}
+        packName="Relay Agency"
+        onClick={() => {}}
+      />
+    );
+    expect(screen.getByTestId("pack-pill")).toHaveTextContent("Relay Agency");
+  });
+
+  it("pack provenance OUTRANKS the Custom/origin fallback (never both)", () => {
+    // A manual-origin profile that is pack-installed must read as its pack,
+    // not "Custom" — the pill replaces the origin badge, doesn't stack with it.
+    render(
+      <ProfileCard
+        profile={makeProfile({ id: "relay-agency--x", origin: "manual" })}
+        packName="Relay Agency"
+        onClick={() => {}}
+      />
+    );
+    expect(screen.getByTestId("pack-pill")).toBeInTheDocument();
+    expect(screen.queryByText("Custom")).not.toBeInTheDocument();
+  });
+
+  it("falls back to the origin chain when there is no pack (null packName)", () => {
+    render(
+      <ProfileCard
+        profile={makeProfile({ id: "my-notes", origin: "manual" })}
+        packName={null}
+        onClick={() => {}}
+      />
+    );
+    expect(screen.queryByTestId("pack-pill")).not.toBeInTheDocument();
+    expect(screen.getByText("Custom")).toBeInTheDocument();
+  });
+});

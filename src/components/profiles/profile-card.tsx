@@ -6,11 +6,14 @@ import { Download } from "lucide-react";
 import type { AgentRuntimeId } from "@/lib/agents/runtime/catalog";
 import { getSupportedRuntimes } from "@/lib/agents/profiles/compatibility";
 import { IconCircle, getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
+import { PackPill } from "@/components/shared/pack-pill";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
 interface ProfileCardProps {
   profile: AgentProfile;
   isBuiltin?: boolean;
+  /** Display name of the pack that installed this profile, or null (FEAT-8). */
+  packName?: string | null;
   onClick: () => void;
 }
 
@@ -30,7 +33,7 @@ const RUNTIME_SHORT_LABEL: Record<AgentRuntimeId, string> = {
   ollama: "Ollama (Local)",
 };
 
-export function ProfileCard({ profile, isBuiltin = false, onClick }: ProfileCardProps) {
+export function ProfileCard({ profile, isBuiltin = false, packName = null, onClick }: ProfileCardProps) {
 
   return (
     <Card
@@ -83,7 +86,11 @@ export function ProfileCard({ profile, isBuiltin = false, onClick }: ProfileCard
         </div>
 
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          {profile.importMeta ? (
+          {/* Pack provenance outranks every other origin: a pack-installed
+              profile is never "Custom"/"Discovered" — it belongs to its pack. */}
+          {packName ? (
+            <PackPill packName={packName} />
+          ) : profile.importMeta ? (
             <span className="flex items-center gap-1.5">
               <Badge variant="outline" className="border-purple-200 text-purple-600 dark:border-purple-800 dark:text-purple-400">
                 <Download className="mr-1 h-3 w-3" />
