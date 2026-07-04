@@ -200,7 +200,8 @@ async function main() {
     );
     // Counts pinned to the CURRENT Agency Pro template. The counts are stable
     // across v0.2.0 (+grants table, +nonprofit profile, +grant-pipeline-deep
-    // blueprint) and v0.3.0 (app-home redesign, no new primitives). Bump these
+    // blueprint), v0.3.0 (app-home redesign, no new primitives) and v0.4.0
+    // (sample engagements ledger seed — adds rows, not tables). Bump these
     // literals whenever the template grows a chapter — this gate failing on a
     // stale count is by design (it caught the v0.2.0 bump on the 0.21.0 release).
     assert(/3 table\(s\)/.test(packAdd.output), `install should create all 3 tables:\n${packAdd.output}`);
@@ -210,7 +211,7 @@ async function main() {
     const packList = await runCliCommand({ installDir, dataDir, args: ["pack", "list"] });
     assert(/relay-agency-pro.*\[premium\]/.test(packList.output), `pack list should mark [premium]:\n${packList.output}`);
     // The 0.21.0 update surface: list shows the sidecar-recorded version.
-    assert(/relay-agency-pro.*installed v0\.3\.0/.test(packList.output), `pack list should show the installed version:\n${packList.output}`);
+    assert(/relay-agency-pro.*installed v0\.4\.0/.test(packList.output), `pack list should show the installed version:\n${packList.output}`);
 
     // 4. Launch: licensed banner (D3) + seed gate returns an explanatory 403
     //    without RELAY_STAGING. BUG-5 (#34, 0.26.0) replaced the old bare-null

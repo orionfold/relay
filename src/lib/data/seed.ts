@@ -373,10 +373,34 @@ export async function seedSampleData() {
     tableIds: tableIdList,
   });
 
+  // 25. Pack-aware seed — repopulate every installed pack's tables (BUG-6).
+  // clearAllData() wiped the pack tables the customer just installed; re-apply
+  // each pack's bundled seed data via the idempotent install path so e.g. the
+  // Agency Pro ledger cockpit reads non-zero instead of "No transactions yet".
+  const { reseedInstalledPacks } = await import(
+    "./seed-data/installed-packs"
+  );
+  const packReseeds = await reseedInstalledPacks();
+  const packTablesSeeded = packReseeds.reduce(
+    (sum, p) => sum + p.tablesCreated,
+    0
+  );
+  const packRowsSeeded = packReseeds.reduce((sum, p) => sum + p.rowsSeeded, 0);
+  const packReseedErrors = packReseeds.filter((p) => p.error);
+
   // Quiet the unused-`now` flag; the helpers above reuse Date.now() inline.
   void now;
 
   return {
+    packsReseeded: packReseeds.length,
+    packTablesSeeded,
+    packRowsSeeded,
+    // Surface any per-pack failures (unlicensed premium pack, bad manifest)
+    // rather than swallowing them — the route/UI can show what didn't seed.
+    packReseedErrors: packReseedErrors.map((p) => ({
+      packId: p.packId,
+      error: p.error as string,
+    })),
     profiles: profileCount,
     projects: projectSeeds.length,
     tasks: taskSeeds.length,

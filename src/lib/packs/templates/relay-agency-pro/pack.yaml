@@ -1,5 +1,5 @@
 id: relay-agency-pro
-version: "0.3.0"
+version: "0.4.0"
 name: Relay Agency Pro
 author: Orionfold
 # This description renders as the what-you-get preview on the locked /packs
@@ -65,4 +65,8 @@ changelog:
     A new home screen that shows all six workflows as cards you can run with
     one click. It tells you where to start, and each card shows its last run.
     No more hunting through menus to find what your app can do.
+  "0.4.0": >-
+    Your finance cockpit now arrives with a month of sample billing and cost
+    entries, so you see real numbers the moment you install. Billed, costs, and
+    margin light up right away instead of a blank ledger.
 customers: []

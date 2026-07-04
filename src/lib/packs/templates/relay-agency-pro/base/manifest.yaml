@@ -1,5 +1,5 @@
 id: relay-agency-pro
-version: "0.3.0"
+version: "0.4.0"
 name: Relay Agency Pro
 description: >
   The agency operating system on top of the free Relay Agency verbs: a
@@ -54,10 +54,16 @@ tables:
   # The engagements ledger: one row per billing/cost line, signed amount
   # (+billing, -cost), so the ledger kit's inflow/outflow/margin math works
   # without configuration. The month-end close writes draft invoice lines here.
+  # SEEDED: seed/tables/engagements.json ships a current-month sample ledger so
+  # the finance cockpit's MTD KPIs (billed/costs/margin) read non-zero the moment
+  # the pack installs. Only THIS table is seeded — intake/grants below carry
+  # row-insert triggers, and seeding them would dispatch their pipeline
+  # blueprints on install/seed (see src/lib/data/tables.ts addRows). Work queues
+  # are meant to be filled by the operator to TRIGGER work, so they ship empty.
   - id: engagements
     columns: [client, date, category, description, amount, status]
   # The intake work queue: drop a row, the intake pipeline fires (row-insert
-  # trigger) and routes by `kind` under the named client.
+  # trigger) and routes by `kind` under the named client. Ships empty by design.
   - id: intake
     columns: [client, kind, source, status, notes]
   # The grant pipeline: drop an opportunity row, the deep grant pipeline
