@@ -127,3 +127,36 @@ change; no `next` pin or apiVersion-window impact (no pack-format change).
 suffice for the resolver. The listing-view + pill wiring needs a real `npm run dev` browser check
 that a pack-installed primitive shows the pill and the filter narrows to it, per the smoke budget
 (the seed-gate BUG-6 rewire touches `install`-adjacent code → smoke it).
+
+## Resolution (2026-07-04, S40) — FEAT-7/8 SHIPPED (steps 1-3); BUG-6 (step 4) still open
+
+Model A landed as 4 bisectable commits (`d66836d1`→`3fa28b41`), each browser-verified against the
+operator's real `~/.relay` (3 installed packs: relay-agency, relay-agency-pro, contractor-invoices).
+
+- **Step 1 — resolver (`d66836d1`).** `src/lib/apps/pack-of.ts` — pure `packOf(primitive, installedSet)`
+  composing `extractAppIdFromArtifactId` (profiles/blueprints `--`), `parseAppScheduleId` (schedules
+  `app:<id>:`), and `projectId` (tables/schedules), gated on the installed-pack set. 13 unit tests pin the
+  gating invariant (a hand-authored `foo--bar` is NOT mis-attributed). NO schema change, NO migration.
+- **Step 2 — FEAT-8 pill on Profiles (`187b5c06`).** New `src/components/shared/pack-pill.tsx` (amber
+  provenance Badge, deliberately NOT a StatusChip family). Resolved client-side from profile id + a stable
+  server-passed installed-pack list, so it survives `refreshProfiles()`. Outranks the Custom/origin chain.
+- **Step 3a — Blueprints (`f9aeea57`).** Gallery fetches `/api/apps` alongside `/api/blueprints`; renders
+  the pill + a new **FEAT-7 filter-by-pack** dropdown (shown only when a pack is installed). Verified:
+  filtering to "Relay Agency" narrows to its 6 blueprints, each pilled.
+- **Step 3b — Tables + Schedules (`3fa28b41`).** Tables: pill in the Project column via `packOf` on
+  `projectId` (FEAT-7 filter already satisfied by the existing `projectFilter`). Schedules: pill resolved
+  from the `app:<packId>:` composite id — correctly distinguishes a pack-installed schedule from one that
+  merely references a pack's profile (no false-positive on Acme/finance-pack schedules).
+
+**BUG-6 (#35) still OPEN — reclassified, NOT unblocked by the resolver.** On implementation it became clear
+BUG-6 is a *write* feature (generate ledger transactions / row-insert-table rows into an installed pack's
+tables), not a *read/classify* one — `packOf` doesn't directly unblock it. What it needs: (1) `listApps()`
+to enumerate installed packs, (2) `listTables({projectId: packId})` per pack (both exist), (3) generate
+plausible domain rows the pack's cockpit reads — the real work, best done with the running Pro ledger open
+to see which columns `/apps/relay-agency-pro` reads. Still `install`-adjacent → smoke budget applies. Next
+session's clean task.
+
+**Deviation from the spec letter, with rationale:** the spec said "distinct color family in the StatusChip
+system"; the code showed StatusChip is a *fixed-status-key* renderer, wrong for open-set pack identity. Built
+a purpose-named `PackPill` on the shared `Badge` primitive instead — one concept, one name, reusing the
+established provenance-badge pattern already on the profile card.
