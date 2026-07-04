@@ -13,6 +13,12 @@ import { environmentArtifacts } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getAinativeProfilesDir, getAinativeAppsDir } from "@/lib/utils/ainative-paths";
 import { loadAppManifestProfiles } from "./app-manifest-source";
+import {
+  AGENT_FILENAME,
+  LEGACY_PROFILE_FILENAME,
+  resolveAgentFile,
+  hasAgentFile,
+} from "./agent-file";
 
 /**
  * Builtins ship inside the repo at src/lib/agents/profiles/builtins/.
@@ -63,12 +69,12 @@ function getDirectorySignatureParts(baseDir: string): string[] {
 
   for (const entry of entries) {
     const dir = path.join(baseDir, entry.name);
-    const yamlPath = path.join(dir, "profile.yaml");
+    const yamlPath = resolveAgentFile(dir);
     const skillPath = path.join(dir, "SKILL.md");
 
     parts.push(entry.name);
 
-    if (fs.existsSync(yamlPath)) {
+    if (yamlPath) {
       const stats = fs.statSync(yamlPath);
       parts.push(`yaml:${stats.mtimeMs}:${stats.size}`);
     }
@@ -135,15 +141,23 @@ function ensureBuiltins(): void {
     if (!entry.isDirectory()) continue;
 
     const targetDir = path.join(SKILLS_DIR, entry.name);
-    const targetYaml = path.join(targetDir, "profile.yaml");
-    const srcYaml = path.join(builtinsDir, entry.name, "profile.yaml");
+    // Reads resolve either filename so an already-installed profile.yaml is
+    // still found; the fresh-copy path below copies whatever name the builtin
+    // ships (agent.yaml after the rename).
+    const existingTargetYaml = resolveAgentFile(targetDir);
+    const srcYaml = resolveAgentFile(path.join(builtinsDir, entry.name));
 
-    // Never overwrite user edits — only copy if profile.yaml is missing
-    if (fs.existsSync(targetYaml)) {
+    // A malformed builtin dir with neither manifest is not copyable — skip it
+    // rather than crash the whole boot-time ensure pass (principle #1).
+    if (!srcYaml) continue;
+
+    // Never overwrite user edits — only copy if the manifest is missing
+    if (existingTargetYaml) {
+      const targetYamlForMerge = existingTargetYaml;
       try {
         const source = (yaml.load(fs.readFileSync(srcYaml, "utf-8")) ??
           {}) as Record<string, unknown>;
-        const target = (yaml.load(fs.readFileSync(targetYaml, "utf-8")) ??
+        const target = (yaml.load(fs.readFileSync(targetYamlForMerge, "utf-8")) ??
           {}) as Record<string, unknown>;
         let changed = false;
 
@@ -180,7 +194,10 @@ function ensureBuiltins(): void {
         }
 
         if (changed) {
-          fs.writeFileSync(targetYaml, yaml.dump(target));
+          // Write back to the SAME file we read (which may still be the legacy
+          // profile.yaml) so we never leave two manifests in one dir. The boot
+          // migration renames it to agent.yaml later.
+          fs.writeFileSync(targetYamlForMerge, yaml.dump(target));
         }
       } catch {
         // If a user has customized or broken the YAML, leave it untouched.
@@ -212,10 +229,10 @@ function scanProfilesFromDir(
     if (!entry.isDirectory()) continue;
 
     const dir = path.join(baseDir, entry.name);
-    const yamlPath = path.join(dir, "profile.yaml");
+    const yamlPath = resolveAgentFile(dir);
     const skillPath = path.join(dir, "SKILL.md");
 
-    if (!fs.existsSync(yamlPath)) continue;
+    if (!yamlPath) continue;
 
     try {
       const rawYaml = fs.readFileSync(yamlPath, "utf-8");
@@ -224,7 +241,7 @@ function scanProfilesFromDir(
 
       if (!result.success) {
         console.warn(
-          `[profiles] Invalid profile.yaml in ${entry.name}:`,
+          `[profiles] Invalid agent manifest in ${entry.name}:`,
           result.error.issues.map((i) => i.message).join(", ")
         );
         continue;
@@ -382,7 +399,7 @@ export function reloadProfiles(): void {
 
 /** Check if a profile ID is a built-in (exists in builtins/ source directory) */
 export function isBuiltin(id: string): boolean {
-  return fs.existsSync(path.join(getBuiltinsDir(), id, "profile.yaml"));
+  return hasAgentFile(path.join(getBuiltinsDir(), id));
 }
 
 /** Create a new custom profile in ~/.claude/skills/ */
@@ -393,12 +410,12 @@ export function createProfile(config: ProfileConfig, skillMd: string): void {
   }
 
   const dir = path.join(SKILLS_DIR, config.id);
-  if (fs.existsSync(path.join(dir, "profile.yaml"))) {
+  if (hasAgentFile(dir)) {
     throw new Error(`Profile "${config.id}" already exists`);
   }
 
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, "profile.yaml"), yaml.dump(config));
+  fs.writeFileSync(path.join(dir, AGENT_FILENAME), yaml.dump(config));
   fs.writeFileSync(path.join(dir, "SKILL.md"), skillMd);
   reloadProfiles();
   invalidateLatestScan();
@@ -415,12 +432,12 @@ export function createPromotedProfile(config: ProfileConfig, skillMd: string): v
   }
 
   const dir = path.join(PROMOTED_PROFILES_DIR, config.id);
-  if (fs.existsSync(path.join(dir, "profile.yaml"))) {
+  if (hasAgentFile(dir)) {
     throw new Error(`Profile "${config.id}" already exists`);
   }
 
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, "profile.yaml"), yaml.dump(config));
+  fs.writeFileSync(path.join(dir, AGENT_FILENAME), yaml.dump(config));
   fs.writeFileSync(path.join(dir, "SKILL.md"), skillMd);
   reloadProfiles();
   invalidateLatestScan();
@@ -449,7 +466,11 @@ export function updateProfile(id: string, config: ProfileConfig, skillMd: string
     throw new Error(`Profile "${id}" not found`);
   }
 
-  fs.writeFileSync(path.join(dir, "profile.yaml"), yaml.dump(config));
+  fs.writeFileSync(path.join(dir, AGENT_FILENAME), yaml.dump(config));
+  // Remove a lingering legacy manifest so the dir never holds both files
+  // (the dual-read prefers agent.yaml, so the stale one would just be dead).
+  const legacyPath = path.join(dir, LEGACY_PROFILE_FILENAME);
+  if (fs.existsSync(legacyPath)) fs.rmSync(legacyPath);
   fs.writeFileSync(path.join(dir, "SKILL.md"), skillMd);
   reloadProfiles();
   invalidateLatestScan();

@@ -10,6 +10,7 @@ import yaml from "js-yaml";
 import { ProfileConfigSchema } from "@/lib/validators/profile";
 import { getSupportedRuntimes } from "./compatibility";
 import type { AgentProfile } from "./types";
+import { resolveAgentFile } from "./agent-file";
 
 // ---------------------------------------------------------------------------
 // Cache — keyed by projectDir, invalidated on mtime changes
@@ -33,8 +34,8 @@ function getProjectSkillsSignature(skillsDir: string): string {
     const dir = path.join(skillsDir, entry.name);
     parts.push(entry.name);
 
-    const yamlPath = path.join(dir, "profile.yaml");
-    if (fs.existsSync(yamlPath)) {
+    const yamlPath = resolveAgentFile(dir);
+    if (yamlPath) {
       const s = fs.statSync(yamlPath);
       parts.push(`yaml:${s.mtimeMs}:${s.size}`);
     }
@@ -112,11 +113,11 @@ export function scanProjectProfiles(projectDir: string): AgentProfile[] {
     if (!entry.isDirectory()) continue;
 
     const dir = path.join(skillsDir, entry.name);
-    const yamlPath = path.join(dir, "profile.yaml");
+    const yamlPath = resolveAgentFile(dir);
     const skillPath = path.join(dir, "SKILL.md");
 
-    if (fs.existsSync(yamlPath) && fs.existsSync(skillPath)) {
-      // Full profile: profile.yaml + SKILL.md
+    if (yamlPath && fs.existsSync(skillPath)) {
+      // Full agent: agent.yaml (or legacy profile.yaml) + SKILL.md
       try {
         const rawYaml = fs.readFileSync(yamlPath, "utf-8");
         const parsed = yaml.load(rawYaml);
@@ -124,7 +125,7 @@ export function scanProjectProfiles(projectDir: string): AgentProfile[] {
 
         if (!result.success) {
           console.warn(
-            `[project-profiles] Invalid profile.yaml in ${entry.name}:`,
+            `[project-profiles] Invalid agent manifest in ${entry.name}:`,
             result.error.issues.map((i) => i.message).join(", ")
           );
           continue;

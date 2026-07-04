@@ -4,6 +4,7 @@ import yaml from "js-yaml";
 import { SUPPORTED_AGENT_RUNTIMES } from "@/lib/agents/runtime/catalog";
 import { AppManifestSchema } from "@/lib/apps/registry";
 import type { AgentProfile } from "./types";
+import { hasAgentFile } from "./agent-file";
 
 function titleCase(slug: string): string {
   return slug
@@ -45,10 +46,13 @@ export function loadAppManifestProfiles(
     for (const profileRef of manifest.data.profiles ?? []) {
       const profileId = profileRef.id;
 
-      // Shadow check: skip if a profile.yaml exists for this id, or a builtin
-      const userYaml = path.join(profilesDir, profileId, "profile.yaml");
-      const builtinYaml = path.join(builtinsDir, profileId, "profile.yaml");
-      if (fs.existsSync(userYaml) || fs.existsSync(builtinYaml)) continue;
+      // Shadow check: skip if a real agent manifest (agent.yaml or legacy
+      // profile.yaml) exists for this id as a user file or a builtin.
+      if (
+        hasAgentFile(path.join(profilesDir, profileId)) ||
+        hasAgentFile(path.join(builtinsDir, profileId))
+      )
+        continue;
 
       // Collision: keep first synthesis, append app id to tags
       const existing = synthesized.get(profileId);
