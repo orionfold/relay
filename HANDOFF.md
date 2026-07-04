@@ -1,26 +1,37 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S35 — **0.25.1 RELEASED: both fresh-install blockers #29 + #30 shipped
-e2e.** Published to npm `latest` via OIDC (all gates green incl. npx prod smoke + SBOM), GitHub Release
-`v0.25.1` live, issues #29 + #30 CLOSED + `shipped`-labeled with customer-voice fix notes. #29 = non-3000
-self-call fix (zero-import leaf `getSelfBaseUrl()`, all sites delegate, CLI threads `RELAY_SELF_BASE_URL`;
-+ un-masked `create_task` `projectId:null` 400) verified on `:3210`; #30 = `"ollama"` added to
-`conversations/route.ts` validRuntimes + non-2xx toast, verified on `:3211` vs local Ollama. Prior tail:
-S34 ran staging R2 → filed #29/#30; S33 released 0.25.0. Full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-04 (pt: S38 — **implemented the groomed 2026-07-04 fix specs; 4 commits on `main`
+(`a463cc3f`→`6006d4e3`), all 7 issues #31-#37 commented with outcomes.** Live-repro via staging drove two
+reversals: **BUG-4 (#32) CONFIRMED** (instantiate → `draft`, 0 tasks, toast lied "Run started") → fixed
+with honest "Draft created" toast + deep-link; **BUG-3 (#31) NOT-REPRODUCED** (cards render fully enriched
+w/ 8 Run buttons even under a 40-poll install race; `unstable_cache` can't fire — registry singleton
+populates before first render) → reclassified, kept only the cheap `revalidateTag('app-runtime:<id>',{expire:0})`
+defense on install. SHIPPED to `main` (0.26.0-bound): **BUG-1** (#36, git-stderr hardening + artifact proven
+NOT stale), **BUG-2** (#33, data-driven `headerStatus`→"ready", no fake pulse), **BUG-5** (#34, seed gate 403
++ explanatory body). Smoke-verified all on a rebuilt 0.25.1 artifact (real staging launch, BUG-3 registry-adjacent).
+Prior tail: S37 groomed the bundle (4 specs + #31-#37); S35 released 0.25.1. Full detail: git log + specs' Resolution sections.)_
 
-## ▶️ NEXT SESSION — no committed workstream; pick from backlog OR fresh ask
+## ▶️ NEXT SESSION — finish the app-shell cluster + FEAT-4 browser gate; then release 0.26.0
 
-0.25.1 is out and clean; nothing is blocking. Open threads, all LOW/optional:
+The acute defects are fixed on `main`. Remaining from the 2026-07-04 bundle:
 
-- **Not-filed backlog (LOW):** `features/fix-pricing-bundled-stale-coldstart.md` (J6-1 frozen bundle date →
-  fresh install always "Stale"; `pricing-registry.ts:170`) + R2-4 compose→/apps trigger-visibility gap
-  (`create_trigger` has no `appId`). See `_IDEAS/backlog.md` Mode B 2026-07-03 R2 section.
-- **Optional #29 follow-up (deferred, in spec):** retry-with-backoff on the compose `create_trigger`
-  internal call. Base-URL root cause is fixed; hardening only.
-- **Standing options:** held-issue retests (#5/#6/#11/#12, below), next staging R-run on 0.25.1
-  (R1/R3–R6), or `chore-deprecated-transitive-deps`.
+- **FEAT-4 (#37) browser retest — the one PENDING verify gate.** Source fix landed (parent-wrap flip in
+  `kit-view/slots/header.tsx`) + header units pass, but the spec's explicit gate (1920px on BOTH
+  `/apps/relay-agency` and `-pro`) was NOT run at a real viewport this session. `npm run dev` (or relaunch
+  staging) → assert one horizontal action row, no wrap. Low-risk CSS, but confirm before marking shipped.
+- **BUG-6 (#35) pack-aware seed — deferred into the app-shell cluster.** Needs the SAME primitive→pack
+  source-of-truth FEAT-7/8 are blocked on (no `packId` today, only the `relay-agency--` id-prefix). Best
+  written with the running Pro ledger in front of us. Not a clean standalone fix.
+- **App-shell redesign** (`fix-app-shell-activation-redesign.md`): FEAT-5/6/7/8 + CF-FEAT-5/6/7/8 still
+  backlog — the one primitive→pack decision unblocks FEAT-6 (two-button Run/Create) + FEAT-7/8. Route to
+  frontend-design/taste; BUG-3/4 acute parts are already done.
+- **Top-chrome design initiative** (FEAT-9/10/11/11b/12/14/15/16, backlog): ONE design spec decides
+  tokens/z-layers/offsets once — no acute defect.
+- **Release 0.26.0** once FEAT-4 is browser-confirmed: PATCH→MINOR (new `ready` status + `activeRunCount`
+  are additive; no apiVersion-window bump needed — all changes are within the current 0.25 window).
 
-Staging bundle for the shipped #29/#30 arc: `output/staging/2026-07-03/R2/`.
+Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
+`create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests; other staging R-runs.
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
 - `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
@@ -91,6 +102,18 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**0.26.0-bound (S38, on `main`, NOT yet released):** the groomed 2026-07-04 fix specs. **BUG-1** (#36,
+`a463cc3f`): `stdio:["ignore","pipe","pipe"]` on the 2 latent git sites (`git-manager.ts`, `chat/files/search.ts`);
+proved the 0.25.1 `.next` artifact is NOT stale (built from the tag containing `5ca08b0d`; `publish.yml` builds
+from the tag by construction). **BUG-5** (#34, `a4e9ec6c`): seed/clear gate returns explanatory `{error}`+403
+(was bare-null 404 → null-deref → fake "Network error"); server page hides controls when `!isDataOpsAllowed`.
+**BUG-2** (#33, `208991ed`): all 7 kits use `headerStatus(runtime)` → non-pulsing "ready" unless `activeRunCount>0`
+(counted in `loadBaseline`); **FEAT-4** (#37, same commit): header action group parent-wrap flip (part B — direct
+Delete button — was already shipped). **BUG-4** (#32, `6006d4e3`): honest `toastDraftCreated()` "Draft created →
+Open workflow" deep-link, both run-now paths (was lying "Run started" on a `draft`+0-tasks). **BUG-3** (#31, same):
+NOT-REPRODUCED; kept only `revalidateTag('app-runtime:<id>',{expire:0})` on install. All smoke-verified on a
+rebuilt 0.25.1 artifact via real staging launch. DEFERRED: BUG-6 (#35 pack-aware seed) + FEAT-4 browser retest.
+
 **0.25.1 (S35, RELEASED — npm `latest` + GitHub Release `v0.25.1` + SBOM; OIDC publish CI green):** two
 fresh-install blockers from staging R2. **#29** — internal loopback self-calls (trigger dispatch, compose
 table tools) now derive origin via the zero-import leaf `getSelfBaseUrl()` (`RELAY_SELF_BASE_URL` →
