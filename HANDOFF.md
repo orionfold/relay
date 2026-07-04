@@ -1,26 +1,18 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S43 — **nav/naming pass IMPLEMENTED on `main`, UNRELEASED** (7 bisectable
-commits `bc2c5a94`→`5e6cbc45`). Three initiatives: **FEAT-5** elevated Blueprints→`/blueprints` + table-
-templates→`/schemas` (top-level Compose nav; "template" word removed → Presets/Blueprints/Schemas, no
-collision). **Profiles→Agents full rename** — `profile.yaml`→`agent.yaml` via constant + dual-read leaf
-(`agent-file.ts`) + idempotent boot migration in `migrate-to-ainative.ts` (ran live: renamed 42 real files in
-`~/.relay/profiles`+`~/.claude/skills`); routes+API `/agents`+`/api/agents`; copy Profile→Agent + picker
-"Start from a preset". Lib `@/lib/agents/profiles/*` module paths + `~/.relay/profiles` DATA DIR KEPT (not
-URLs). **FEAT-6** two-button Run(instantiate→execute, fixes BUG-4)/Create-workflow via shared
-`run-now-actions.ts`. Smoke: real `npm run dev` + browser Run click → live `active` workflow + running task;
-suite 2611 pass, only the 8 known pre-existing fails, zero regressions. NOT released. Prior tail: S42 released
-0.27.0 (`f29f0098`). Full detail: git log + memory `profiles-are-file-based-not-db`.)_
+_Last updated: 2026-07-04 (pt: **0.28.0 RELEASED** (`v0.28.0`→`7e97669a`; npm `latest` + GitHub Release +
+SBOM + prebuilt artifact; OIDC publish CI green incl. npx prod smoke Case L). Bundled the S43 nav/naming pass
+(`bc2c5a94`→`5e6cbc45`): **FEAT-5** Blueprints→`/blueprints` + table-templates→`/schemas` (top-level Compose
+nav, "template" word removed); **Profiles→Agents** full user-facing rename (`agent.yaml` via constant + dual-
+read + boot migration; routes+API `/agents`; lib paths + `~/.relay/profiles` data dir KEPT); **FEAT-6** two-
+button Run/Create-workflow. MINOR → apiVersion window 0.27→0.28 (5 sites). Suite 2611 pass, 8 known pre-
+existing fails only, zero regressions. npx smoke "8 profile(s)" literal unchanged (CLI layer kept "profiles"
+wording). **Gotcha:** `git tag v0.28.0` was LIGHTWEIGHT → `--follow-tags` skipped it → tag needed a separate
+`git push origin v0.28.0` to fire CI; use `git tag -a` next time. Full detail: git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — release the nav/naming pass, then remaining design cluster
+## ▶️ NEXT SESSION — remaining design cluster (no unreleased work on main)
 
-**FIRST DECISION: release S43?** 7 commits sit on `main` unreleased. Profiles→Agents is a user-visible
-rename touching a file-layer migration — worth a MINOR (`0.28.0`). If released: apiVersion window bump
-0.27→0.28 across all 5 sites (memory `apiversion-window-bump-at-version-bump`); grep the npx prod smoke for
-any `/api/agents` (was `/api/profiles`) endpoint it asserts (memory `prod-smoke-encodes-contracts`); the boot
-migration is `install`-adjacent → real launch already done this session. Operator holds the release gate.
-
-Remaining design cluster (all design-shaped, no acute defect):
+`main` is clean and released at 0.28.0. Remaining work is all design-shaped, no acute defect:
 - **CF-FEAT-5/6/7/8** (`fix-app-shell-activation-redesign.md`, still backlog): per-button explainer text,
   1-2-3 step flow, hero-elevate all 6 blueprints, post-Execute Monitor/Inbox signposting. Route to
   frontend-design/taste. (FEAT-5/6/7/8 now ALL shipped — S40 packOf+pills, S43 nav+two-button.)
@@ -110,13 +102,16 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**S43 nav/naming pass (IMPLEMENTED on `main`, UNRELEASED — `bc2c5a94`→`5e6cbc45`):** **FEAT-5** Blueprints
-→`/blueprints`, table-templates→`/schemas` (top-level Compose nav; new `agent-file.ts` leaf pattern).
-**Profiles→Agents** full rename: `profile.yaml`→`agent.yaml` (constant + dual-read + boot migration renamed
-42 real files live), routes+API `/agents`+`/api/agents`, copy Profile→Agent, picker "Start from a preset";
-lib module paths + `~/.relay/profiles` data dir KEPT. **FEAT-6** two-button Run(instantiate→execute, fixes
-BUG-4)/Create-workflow via shared `run-now-actions.ts`. Browser-smoke: Run click → live `active` workflow +
-running task. Memory `profiles-are-file-based-not-db` updated. NOT released. Detail: git log.
+**0.28.0 (S43 RELEASED — `v0.28.0`→`7e97669a`; npm `latest` + GitHub Release + SBOM + prebuilt artifact;
+OIDC publish CI green incl. npx prod smoke):** bundled the S43 nav/naming pass (`bc2c5a94`→`5e6cbc45`).
+**FEAT-5** Blueprints→`/blueprints`, table-templates→`/schemas` (top-level Compose nav; `agent-file.ts` leaf
+pattern; "template" word removed). **Profiles→Agents** full user-facing rename: `profile.yaml`→`agent.yaml`
+(constant + dual-read + boot migration; renamed 42 real files live S43), routes+API `/agents`+`/api/agents`,
+copy Profile→Agent, picker "Start from a preset"; lib module paths (`@/lib/agents/profiles/*`) + `~/.relay/
+profiles` data dir KEPT. **FEAT-6** two-button Run(instantiate→execute, fixes BUG-4)/Create-workflow via
+shared `run-now-actions.ts`. MINOR → apiVersion window 0.27→0.28 (5 sites). npx smoke "8 profile(s)" literal
+unchanged (CLI/lib/data-dir layer kept "profiles"). Memory `profiles-are-file-based-not-db`. Detail: git +
+CHANGELOG.
 
 **0.27.0 (S42 RELEASED — `v0.27.0`→`f29f0098`; npm `latest` + GitHub Release + SBOM + prebuilt artifact;
 OIDC publish CI green incl. npx prod smoke):** bundled the two arcs that had been unreleased on `main`.
