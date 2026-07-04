@@ -29,7 +29,7 @@ describe("StarterTemplateCard", () => {
     render(<StarterTemplateCard starter={STARTER} />);
     expect(screen.getByText("Weekly portfolio check-in")).toBeInTheDocument();
     expect(screen.getByText(/Summarize portfolio performance/i)).toBeInTheDocument();
-    expect(screen.getByText("Profile")).toBeInTheDocument();
+    expect(screen.getByText("Agent")).toBeInTheDocument();
     expect(screen.getByText("Blueprint")).toBeInTheDocument();
     expect(screen.getByText("1 table")).toBeInTheDocument();
     expect(screen.getByText("Schedule")).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe("StarterTemplateCard", () => {
   it("pluralizes preview counts correctly", () => {
     const multi: StarterTemplate = { ...STARTER, preview: { profiles: 2, blueprints: 3, tables: 4, schedules: 0 } };
     render(<StarterTemplateCard starter={multi} />);
-    expect(screen.getByText("2 profiles")).toBeInTheDocument();
+    expect(screen.getByText("2 agents")).toBeInTheDocument();
     expect(screen.getByText("3 blueprints")).toBeInTheDocument();
     expect(screen.getByText("4 tables")).toBeInTheDocument();
     expect(screen.queryByText(/schedule/i)).toBeNull();

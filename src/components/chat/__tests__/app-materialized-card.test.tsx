@@ -6,7 +6,7 @@ describe("AppMaterializedCard", () => {
   const baseProps = {
     appId: "wealth-tracker",
     name: "Wealth Tracker",
-    primitives: ["Profile", "Blueprint", "2 tables", "Monday 8am schedule"],
+    primitives: ["Agent", "Blueprint", "2 tables", "Monday 8am schedule"],
   };
 
   it("renders name with 'is live' copy and Running chip", () => {
@@ -19,7 +19,7 @@ describe("AppMaterializedCard", () => {
   it("renders primitives summary joined with middle-dots", () => {
     render(<AppMaterializedCard {...baseProps} />);
     expect(
-      screen.getByText(/Profile · Blueprint · 2 tables · Monday 8am schedule/)
+      screen.getByText(/Agent · Blueprint · 2 tables · Monday 8am schedule/)
     ).toBeInTheDocument();
   });
 

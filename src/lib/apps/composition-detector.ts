@@ -106,7 +106,7 @@ export function detectComposedApp(
     titleCase(appId);
 
   const primitives: string[] = [];
-  if (group.profileName) primitives.push("Profile");
+  if (group.profileName) primitives.push("Agent");
   if (group.blueprintName) primitives.push("Blueprint");
   if (group.tables > 0) primitives.push(group.tables === 1 ? "1 table" : `${group.tables} tables`);
   if (group.schedules > 0) primitives.push(group.schedules === 1 ? "Schedule" : `${group.schedules} schedules`);

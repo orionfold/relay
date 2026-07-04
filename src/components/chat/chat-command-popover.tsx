@@ -90,7 +90,7 @@ const ENTITY_LABELS: Record<string, string> = {
   task: "Tasks",
   workflow: "Workflows",
   document: "Documents",
-  profile: "Profiles",
+  profile: "Agents",
   schedule: "Schedules",
   file: "Files",
 };
@@ -511,7 +511,7 @@ function ToolCatalogItems({
                   type: "slash",
                   id: skill.name,
                   label: skill.name,
-                  text: `Use the ${skill.name} profile: `,
+                  text: `Use the ${skill.name} skill: `,
                 })
               }
               isActive={isActive}
@@ -588,7 +588,7 @@ function ToolCatalogItems({
                     text: entry.behavior === "execute_immediately"
                       ? entry.name
                       : entry.group === "Skills"
-                          ? `Use the ${entry.name} profile: `
+                          ? `Use the ${entry.name} skill: `
                           : `Use ${entry.name} to `,
                   })
                 }

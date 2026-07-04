@@ -28,7 +28,7 @@ export const GROUP_TO_TAB = {
   Documents: "actions",
   Tables: "actions",
   Notifications: "actions",
-  Profiles: "actions",
+  Agents: "actions",
   Usage: "actions",
   Settings: "actions",
   Chat: "actions",

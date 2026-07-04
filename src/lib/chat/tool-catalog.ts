@@ -27,7 +27,7 @@ export type ToolGroup =
   | "Documents"
   | "Tables"
   | "Notifications"
-  | "Profiles"
+  | "Agents"
   | "Skills"
   | "Usage"
   | "Settings"
@@ -60,7 +60,7 @@ export const TOOL_GROUP_ICONS: Record<ToolGroup, LucideIcon> = {
   Documents: FileText,
   Tables: Table2,
   Notifications: Bell,
-  Profiles: Bot,
+  Agents: Bot,
   Skills: Sparkles,
   Usage: Wallet,
   Settings: Settings,
@@ -78,7 +78,7 @@ export const TOOL_GROUP_ORDER: ToolGroup[] = [
   "Documents",
   "Tables",
   "Schedules",
-  "Profiles",
+  "Agents",
   "Skills",
   "Browser",
   "Notifications",
@@ -139,12 +139,12 @@ const AINATIVE_TOOLS: ToolCatalogEntry[] = [
   { name: "respond_notification", description: "Approve or deny a pending request", group: "Notifications", paramHint: "notificationId, behavior" },
   { name: "mark_notifications_read", description: "Mark all notifications as read", group: "Notifications" },
 
-  // ── Profiles ──
-  { name: "list_profiles", description: "List available agent profiles", group: "Profiles" },
-  { name: "get_profile", description: "Get agent profile configuration", group: "Profiles", paramHint: "profileId" },
-  { name: "create_profile", description: "Create a new agent profile", group: "Profiles", paramHint: "config, skillMd" },
-  { name: "update_profile", description: "Update a custom agent profile", group: "Profiles", paramHint: "profileId, config, skillMd" },
-  { name: "delete_profile", description: "Delete a custom agent profile", group: "Profiles", paramHint: "profileId" },
+  // ── Agents ──
+  { name: "list_profiles", description: "List available agents", group: "Agents" },
+  { name: "get_profile", description: "Get agent configuration", group: "Agents", paramHint: "profileId" },
+  { name: "create_profile", description: "Create a new agent", group: "Agents", paramHint: "config, skillMd" },
+  { name: "update_profile", description: "Update a custom agent", group: "Agents", paramHint: "profileId, config, skillMd" },
+  { name: "delete_profile", description: "Delete a custom agent", group: "Agents", paramHint: "profileId" },
 
   // ── Usage ──
   { name: "get_usage_summary", description: "Get spending and token usage stats", group: "Usage", paramHint: "days" },

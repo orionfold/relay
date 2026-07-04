@@ -114,7 +114,7 @@ export function StarterTemplateCard({ starter, className, onClick }: Props) {
 
 function PreviewRow({ preview }: { preview: StarterTemplate["preview"] }) {
   const pills: { icon: React.ComponentType<{ className?: string }>; label: string }[] = [];
-  if (preview.profiles > 0) pills.push({ icon: Bot, label: preview.profiles === 1 ? "Profile" : `${preview.profiles} profiles` });
+  if (preview.profiles > 0) pills.push({ icon: Bot, label: preview.profiles === 1 ? "Agent" : `${preview.profiles} agents` });
   if (preview.blueprints > 0) pills.push({ icon: Workflow, label: preview.blueprints === 1 ? "Blueprint" : `${preview.blueprints} blueprints` });
   if (preview.tables > 0) pills.push({ icon: Table2, label: preview.tables === 1 ? "1 table" : `${preview.tables} tables` });
   if (preview.schedules > 0) pills.push({ icon: Clock, label: preview.schedules === 1 ? "Schedule" : `${preview.schedules} schedules` });

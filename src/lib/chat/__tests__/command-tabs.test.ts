@@ -27,7 +27,7 @@ describe("command-tabs", () => {
   it("maps every ToolGroup to exactly one tab", () => {
     const groups: ToolGroup[] = [
       "Session", "Tasks", "Projects", "Workflows", "Schedules", "Documents", "Tables",
-      "Notifications", "Profiles", "Skills", "Usage", "Settings", "Chat",
+      "Notifications", "Agents", "Skills", "Usage", "Settings", "Chat",
       "Browser", "Utility",
     ];
     for (const g of groups) {

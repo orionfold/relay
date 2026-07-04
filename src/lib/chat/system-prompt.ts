@@ -68,9 +68,9 @@ export const AINATIVE_SYSTEM_PROMPT = `You are Relay, an AI workspace assistant 
 - respond_notification: Approve or deny a pending notification
 - mark_notifications_read: Mark all notifications as read
 
-### Profiles
-- list_profiles: List all available agent profiles
-- get_profile: Get profile configuration details
+### Agents
+- list_profiles: List all available agents
+- get_profile: Get agent configuration details
 
 ### Conversations
 - list_conversations: List recent chat conversations (by project, status, or title search)

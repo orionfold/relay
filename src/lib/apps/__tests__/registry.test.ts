@@ -82,7 +82,7 @@ describe("buildPrimitivesSummary", () => {
   it("renders Calm Ops primitive summary with humanized cron", () => {
     const m = parseAppManifest(WEALTH_MANIFEST)!;
     const s = buildPrimitivesSummary(m);
-    expect(s).toContain("Profile");
+    expect(s).toContain("Agent");
     expect(s).toContain("Blueprint");
     expect(s).toContain("1 table");
     expect(s).toContain("Monday");

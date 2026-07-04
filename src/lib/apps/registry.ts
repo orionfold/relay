@@ -236,7 +236,7 @@ export function buildPrimitivesSummary(manifest: AppManifest): string {
   const scheduleCount = manifest.schedules.length;
 
   if (profileCount > 0) {
-    parts.push(pluralize(profileCount, "Profile", "profiles"));
+    parts.push(pluralize(profileCount, "Agent", "agents"));
   }
   if (blueprintCount > 0) {
     parts.push(pluralize(blueprintCount, "Blueprint", "blueprints"));

@@ -69,7 +69,7 @@ describe("listPackTemplates", () => {
     expect(out[0].meta?.name).toBe("Sample Pack");
     expect(out[0].error).toBeUndefined();
     // buildPrimitivesSummary derives from the manifest's primitives
-    expect(out[0].primitivesSummary?.toLowerCase()).toContain("profile");
+    expect(out[0].primitivesSummary?.toLowerCase()).toContain("agent");
     expect(out[0].primitivesSummary?.toLowerCase()).toContain("table");
   });
 
