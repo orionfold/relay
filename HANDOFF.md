@@ -1,38 +1,26 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S35 — **0.25.1 STAGED: both fresh-install blockers #29 + #30 FIXED +
-real-launch VERIFIED, on `origin/main`; annotated tag `v0.25.1` created LOCAL-ONLY (NOT pushed → NOT
-published).** #29: zero-import leaf `getSelfBaseUrl()`, all 3 self-call sites delegate, CLI threads
-`RELAY_SELF_BASE_URL`; un-masked + fixed a co-located `create_task` `projectId:null` 400; verified on
-`:3210` (task actually dispatched). #30: added `"ollama"` to `conversations/route.ts` validRuntimes + toast
-the swallowed non-2xx in `chat-session-provider.tsx`; verified on `:3211` vs local Ollama (conversation 201
-+ qwen2.5 streamed "PONG"). Commits `982a1ed9`→`ab1bbcfe` on `origin/main`. Prior tail: S34 ran staging R2
-→ filed #29/#30; S33 released 0.25.0. Full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-04 (pt: S35 — **0.25.1 RELEASED: both fresh-install blockers #29 + #30 shipped
+e2e.** Published to npm `latest` via OIDC (all gates green incl. npx prod smoke + SBOM), GitHub Release
+`v0.25.1` live, issues #29 + #30 CLOSED + `shipped`-labeled with customer-voice fix notes. #29 = non-3000
+self-call fix (zero-import leaf `getSelfBaseUrl()`, all sites delegate, CLI threads `RELAY_SELF_BASE_URL`;
++ un-masked `create_task` `projectId:null` 400) verified on `:3210`; #30 = `"ollama"` added to
+`conversations/route.ts` validRuntimes + non-2xx toast, verified on `:3211` vs local Ollama. Prior tail:
+S34 ran staging R2 → filed #29/#30; S33 released 0.25.0. Full detail: git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — publish 0.25.1 (one command) OR fresh ask
+## ▶️ NEXT SESSION — no committed workstream; pick from backlog OR fresh ask
 
-**0.25.1 is fully staged; the ONLY remaining step is pushing the tag to trigger publish.** Both blockers
-fixed, verified, committed, on `origin/main`. Annotated tag `v0.25.1` exists LOCALLY but was deliberately
-held (operator away when the publish-confirm fired — publish is irreversible: npm `latest` + public GitHub
-Release, gated by the npx prod smoke). To ship:
+0.25.1 is out and clean; nothing is blocking. Open threads, all LOW/optional:
 
-```
-git push origin v0.25.1        # fires OIDC publish CI; verify it landed: git ls-remote origin refs/tags/v0.25.1
-```
-Then watch (`gh run view <id> --json status,conclusion` — a watcher clean-exit is NOT proof, memory
-`release-and-issue-conventions`) and flip issues #29 + #30 to `shipped` once the tag publishes.
-**If abandoning:** `git tag -d v0.25.1` (nothing has shipped; tag is local-only).
+- **Not-filed backlog (LOW):** `features/fix-pricing-bundled-stale-coldstart.md` (J6-1 frozen bundle date →
+  fresh install always "Stale"; `pricing-registry.ts:170`) + R2-4 compose→/apps trigger-visibility gap
+  (`create_trigger` has no `appId`). See `_IDEAS/backlog.md` Mode B 2026-07-03 R2 section.
+- **Optional #29 follow-up (deferred, in spec):** retry-with-backoff on the compose `create_trigger`
+  internal call. Base-URL root cause is fixed; hardening only.
+- **Standing options:** held-issue retests (#5/#6/#11/#12, below), next staging R-run on 0.25.1
+  (R1/R3–R6), or `chore-deprecated-transitive-deps`.
 
-Remaining backlog (LOW, not blocking 0.25.1):
-- `features/fix-pricing-bundled-stale-coldstart.md` (J6-1 frozen bundle date → fresh install always
-  "Stale"; `pricing-registry.ts:170`) + R2-4 compose→/apps trigger-visibility gap (`create_trigger` has no
-  `appId`). See `_IDEAS/backlog.md` Mode B 2026-07-03 R2 section.
-- Optional #29 follow-up (deferred, in spec): retry-with-backoff on the compose `create_trigger` internal
-  call. Base-URL root cause is fixed; hardening only.
-
-Staging bundle for the #29/#30 arc: `output/staging/2026-07-03/R2/`.
-
-Other options: held-issue retests, staging re-run cadence (R1/R3-R6 on 0.25.0), or not-started backlog.
+Staging bundle for the shipped #29/#30 arc: `output/staging/2026-07-03/R2/`.
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
 - `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
@@ -103,11 +91,15 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**#29 non-3000 self-call fix (S35, UNCOMMITTED on `main`):** all internal loopback self-calls (trigger
-dispatch, compose table tools) now derive origin via the zero-import leaf `getSelfBaseUrl()`
-(`RELAY_SELF_BASE_URL` → `NEXTAUTH_URL` → `NEXT_PUBLIC_APP_URL` → `127.0.0.1:${PORT}`), never a bare
-`:3000`; CLI threads `RELAY_SELF_BASE_URL`. Also fixed a co-located `create_task` `projectId:null` 400
-the port bug had masked. Verified on `:3210` (task actually dispatched). Memory `self-http-calls-hardcode-3000`.
+**0.25.1 (S35, RELEASED — npm `latest` + GitHub Release `v0.25.1` + SBOM; OIDC publish CI green):** two
+fresh-install blockers from staging R2. **#29** — internal loopback self-calls (trigger dispatch, compose
+table tools) now derive origin via the zero-import leaf `getSelfBaseUrl()` (`RELAY_SELF_BASE_URL` →
+`NEXTAUTH_URL` → `NEXT_PUBLIC_APP_URL` → `127.0.0.1:${PORT}`), never a bare `:3000`; CLI threads
+`RELAY_SELF_BASE_URL`; also fixed a co-located `create_task` `projectId:null` 400 the port bug had masked.
+**#30** — `conversations/route.ts` validRuntimes now includes `"ollama"` (Best-privacy tier could not
+chat/compose), + `chat-session-provider.tsx` toasts a swallowed non-2xx create. Both verified with real
+non-3000 launches (`:3210` task dispatched; `:3211` Ollama streamed). PATCH → no apiVersion-window bump.
+Memory `self-http-calls-hardcode-3000`. Commits `982a1ed9`→`ab1bbcfe`.
 
 **0.25.0 (S33, RELEASED — `2a50f91a`, npm `latest` + GitHub Release + SBOM; publish CI green):** bundles
 three arcs. **FEAT-5/6/7/8 app-activation redesign** (`121f5268` + `d76359e7`): Agency Pro's home flipped
