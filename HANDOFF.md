@@ -1,24 +1,28 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S38 — **implemented the groomed 2026-07-04 fix specs; 4 commits on `main`
-(`a463cc3f`→`6006d4e3`), all 7 issues #31-#37 commented with outcomes.** Live-repro via staging drove two
-reversals: **BUG-4 (#32) CONFIRMED** (instantiate → `draft`, 0 tasks, toast lied "Run started") → fixed
-with honest "Draft created" toast + deep-link; **BUG-3 (#31) NOT-REPRODUCED** (cards render fully enriched
-w/ 8 Run buttons even under a 40-poll install race; `unstable_cache` can't fire — registry singleton
-populates before first render) → reclassified, kept only the cheap `revalidateTag('app-runtime:<id>',{expire:0})`
-defense on install. SHIPPED to `main` (0.26.0-bound): **BUG-1** (#36, git-stderr hardening + artifact proven
-NOT stale), **BUG-2** (#33, data-driven `headerStatus`→"ready", no fake pulse), **BUG-5** (#34, seed gate 403
-+ explanatory body). Smoke-verified all on a rebuilt 0.25.1 artifact (real staging launch, BUG-3 registry-adjacent).
-Prior tail: S37 groomed the bundle (4 specs + #31-#37); S35 released 0.25.1. Full detail: git log + specs' Resolution sections.)_
+_Last updated: 2026-07-04 (pt: S39 — **FEAT-4 (#37) browser gate PASSED → RELEASED 0.26.0.** Ran the
+explicit viewport gate against a live `npm run dev` at 1920px on BOTH `/apps/relay-agency` and `-pro`:
+action group renders as one horizontal row inline (wide) and drops as one intact row below the title
+(narrow) — `visualRowCount:1` in all four cases via DOM row-geometry (more reliable than the screenshot
+pipeline, whose capture viewport ignores OS window resizes) + zoom screenshot. Spec Resolution flipped
+PENDING→SHIPPED, #37 commented. Then cut **0.26.0** (`3efa4722` + tag `v0.26.0`, pushed → publish CI
+in_progress): bundles the S38 fixes (#32/#33/#34/#36/#37) with a customer-voice CHANGELOG. **Caught the
+S38 handoff's error:** it claimed "no apiVersion-window bump needed" — WRONG, the window test derives its
+expected window from package.json minor, so a MINOR bump forces the 5-site window bump (types.ts +
+registry.ts + 3 example plugin.yaml) or CI fails; done in-commit (0.25→0.26), 40 window/registry/integration
+tests pass at 0.26.0. Full suite baseline unchanged (known 8 pre-existing). Prior tail: S38 implemented the
+groomed 2026-07-04 fix specs (4 commits `a463cc3f`→`6006d4e3`, BUG-3 not-repro, BUG-4 confirmed); S35 released
+0.25.1. Full detail: git log + specs' Resolution sections.)_
 
-## ▶️ NEXT SESSION — finish the app-shell cluster + FEAT-4 browser gate; then release 0.26.0
+## ▶️ NEXT SESSION — verify 0.26.0 publish landed; then app-shell cluster
 
-The acute defects are fixed on `main`. Remaining from the 2026-07-04 bundle:
+**FIRST: confirm the 0.26.0 publish CI succeeded** (was in_progress at S39 handoff). Check
+`gh run list --workflow=publish.yml` + `npm view orionfold-relay version` == `0.26.0` + GitHub Release
+`v0.26.0` created with SBOM. If the npx prod smoke (Case L) failed the publish, triage from the run log —
+the tag is already pushed, so a re-run after a fix, not a re-tag.
 
-- **FEAT-4 (#37) browser retest — the one PENDING verify gate.** Source fix landed (parent-wrap flip in
-  `kit-view/slots/header.tsx`) + header units pass, but the spec's explicit gate (1920px on BOTH
-  `/apps/relay-agency` and `-pro`) was NOT run at a real viewport this session. `npm run dev` (or relaunch
-  staging) → assert one horizontal action row, no wrap. Low-risk CSS, but confirm before marking shipped.
+Then the remaining 2026-07-04 app-shell cluster (all backlog, no acute defect left):
+
 - **BUG-6 (#35) pack-aware seed — deferred into the app-shell cluster.** Needs the SAME primitive→pack
   source-of-truth FEAT-7/8 are blocked on (no `packId` today, only the `relay-agency--` id-prefix). Best
   written with the running Pro ledger in front of us. Not a clean standalone fix.
@@ -27,8 +31,6 @@ The acute defects are fixed on `main`. Remaining from the 2026-07-04 bundle:
   frontend-design/taste; BUG-3/4 acute parts are already done.
 - **Top-chrome design initiative** (FEAT-9/10/11/11b/12/14/15/16, backlog): ONE design spec decides
   tokens/z-layers/offsets once — no acute defect.
-- **Release 0.26.0** once FEAT-4 is browser-confirmed: PATCH→MINOR (new `ready` status + `activeRunCount`
-  are additive; no apiVersion-window bump needed — all changes are within the current 0.25 window).
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
 `create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests; other staging R-runs.
@@ -63,8 +65,9 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 ## Known caveats
 - **apiVersion window**: bump `CURRENT_PLUGIN_API_VERSION` (sdk/types.ts) + previous-MINOR
   literal (registry.ts) + the 3 `src/lib/plugins/examples/*/plugin.yaml` IN the release commit ONLY on a
-  MINOR bump (now `{0.25, 0.24}` set in `2a50f91a`); the window test derives its expected window from
-  package.json, so it fails loudly until every site bumps together.
+  MINOR bump (now `{0.26, 0.25}` set in `3efa4722`); the window test derives its expected window from
+  package.json, so it fails loudly until every site bumps together. **S38→S39 near-miss:** the S38 handoff
+  wrongly said "no window bump needed" for 0.26.0 — it IS needed on every MINOR; caught before the release commit.
 - **Pack `changelog:` map feeds every recap surface** (license status, 402 refusal, /packs
   card, renewal email copy) — add a line with EVERY pack version bump; the template test
   REQUIRES it for Agency Pro. Case L smoke counts are a SEPARATE bump-on-chapter-growth site.
@@ -102,17 +105,20 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**0.26.0-bound (S38, on `main`, NOT yet released):** the groomed 2026-07-04 fix specs. **BUG-1** (#36,
-`a463cc3f`): `stdio:["ignore","pipe","pipe"]` on the 2 latent git sites (`git-manager.ts`, `chat/files/search.ts`);
-proved the 0.25.1 `.next` artifact is NOT stale (built from the tag containing `5ca08b0d`; `publish.yml` builds
-from the tag by construction). **BUG-5** (#34, `a4e9ec6c`): seed/clear gate returns explanatory `{error}`+403
-(was bare-null 404 → null-deref → fake "Network error"); server page hides controls when `!isDataOpsAllowed`.
-**BUG-2** (#33, `208991ed`): all 7 kits use `headerStatus(runtime)` → non-pulsing "ready" unless `activeRunCount>0`
-(counted in `loadBaseline`); **FEAT-4** (#37, same commit): header action group parent-wrap flip (part B — direct
-Delete button — was already shipped). **BUG-4** (#32, `6006d4e3`): honest `toastDraftCreated()` "Draft created →
-Open workflow" deep-link, both run-now paths (was lying "Run started" on a `draft`+0-tasks). **BUG-3** (#31, same):
-NOT-REPRODUCED; kept only `revalidateTag('app-runtime:<id>',{expire:0})` on install. All smoke-verified on a
-rebuilt 0.25.1 artifact via real staging launch. DEFERRED: BUG-6 (#35 pack-aware seed) + FEAT-4 browser retest.
+**0.26.0 (S38 implemented + S39 released — `3efa4722` + tag `v0.26.0`; publish CI in_progress at handoff,
+verify it landed):** the groomed 2026-07-04 fix specs. **FEAT-4** (#37) browser gate PASSED at S39
+(1920px both apps, `visualRowCount:1` wide+narrow via DOM row-geometry) — spec flipped PENDING→SHIPPED;
+the header parent-wrap flip + direct-Delete button ship together. **BUG-1** (#36, `a463cc3f`):
+`stdio:["ignore","pipe","pipe"]` on the 2 latent git sites (`git-manager.ts`, `chat/files/search.ts`);
+proved the 0.25.1 `.next` artifact is NOT stale. **BUG-5** (#34, `a4e9ec6c`): seed/clear gate returns
+explanatory `{error}`+403 (was bare-null 404 → null-deref → fake "Network error"); server page hides
+controls when `!isDataOpsAllowed`. **BUG-2** (#33, `208991ed`): all 7 kits use `headerStatus(runtime)` →
+non-pulsing "ready" unless `activeRunCount>0` (counted in `loadBaseline`). **BUG-4** (#32, `6006d4e3`):
+honest `toastDraftCreated()` "Draft created → Open workflow" deep-link, both run-now paths (was lying
+"Run started" on a `draft`+0-tasks). **BUG-3** (#31, same): NOT-REPRODUCED; kept only
+`revalidateTag('app-runtime:<id>',{expire:0})` on install. S39 release commit bumped the apiVersion window
+0.25→0.26 (5 sites — the S38 handoff wrongly said this wasn't needed) + customer-voice CHANGELOG. DEFERRED:
+BUG-6 (#35 pack-aware seed) into the app-shell cluster.
 
 **0.25.1 (S35, RELEASED — npm `latest` + GitHub Release `v0.25.1` + SBOM; OIDC publish CI green):** two
 fresh-install blockers from staging R2. **#29** — internal loopback self-calls (trigger dispatch, compose
