@@ -1,19 +1,37 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S33 — **0.25.0 RELEASED** (`2a50f91a`, npm `latest` + GitHub Release +
-SBOM; publish CI green). Bundles the FEAT-5/6/7/8 Agency Pro app-activation redesign (`view.kit`
-ledger→`workflow-hub`, Option A → 6 runnable cards + "Start here" + row-insert gating + FEAT-7 lead/Execute
-nudge + FEAT-8 `computeSignpost` → Inbox for HITL; pack 0.2.0→0.3.0), BUG-3 workflow HITL, and the S29–S30
-walkthrough patch arc. apiVersion window bumped 0.24→0.25 IN the release commit (window test derives from
-package.json, green at bump). Public issues #27 (redesign) + #28 (HITL) filed `feature`+`shipped`. Caught
-the `active`-not-`running` status-vocab trap in the e2e smoke (memory written). No open next-action carried.
-Prior tail: S32 groomed the spec `0413f2b8`; S31 BUG-3 HITL `4c0bae6c`; S27 published 0.24.1. Full detail:
-git log + CHANGELOG.)_
+_Last updated: 2026-07-04 (pt: S35 — **#29 non-3000 port bug FIXED + real-launch VERIFIED** (uncommitted
+on `main`). New zero-import leaf `src/lib/http/self-base-url.ts` → `getSelfBaseUrl()`; all 3 self-call
+sites delegate (`trigger-evaluator.ts` ×2, `table-tools.ts:602` + shared `getBaseUrl` = 11 sites);
+`bin/cli.ts` threads `RELAY_SELF_BASE_URL`. Fixing the socket un-masked a SECOND latent bug on the same
+`create_task` path — `projectId: null` 400'd `createTaskSchema` (wants `string|undefined`) on every port,
+swallowed; fixed by omitting when absent. Verified via `next dev --port 3210`: trigger `fireCount→1` +
+task "Follow up on high-risk lead #29" actually created (`POST /api/tasks 201`, was `400`). Tests 104+331
+green; new precedence test `self-base-url.test.ts`. Spec + memory `self-http-calls-hardcode-3000` updated.
+Prior tail: S34 ran staging R2 → filed #29/#30; S33 released 0.25.0 (`2a50f91a`). Full detail: git log +
+CHANGELOG.)_
 
-## ▶️ NEXT SESSION — no committed workstream
+## ▶️ NEXT SESSION — commit #29, then fix #30 OR fresh ask
 
-0.25.0 is out. No task is pre-committed for the next session; pick from the live workstreams below (staging
-re-run cadence, held-issue retests, or the not-started backlog) or a fresh operator ask.
+**#29 is FIXED + verified but UNCOMMITTED** — working tree on `main` carries the fix (5 files:
+`src/lib/http/self-base-url.ts` new, `trigger-evaluator.ts`, `table-tools.ts`, `bin/cli.ts`,
+`src/lib/http/__tests__/self-base-url.test.ts` new). First action next session: commit it (customer-voice
+CHANGELOG line + close #29). The remaining 0.25.0 blocker + LOW backlog:
+
+- **#30 [R2-1] · P1 · `features/fix-ollama-conversation-runtime-allowlist.md`** — fresh-install
+  "Best privacy (local only)" tier can't chat/compose: `conversations/route.ts:54` allow-list excludes
+  `"ollama"` (that `getRuntimeForModel` returns), 400 swallowed silently at `chat-session-provider.tsx:300`.
+  Fix: add `"ollama"` + thread `ollama-engine` + toast on non-2xx. Runtime-registry-adjacent → real launch smoke.
+- Backlog (LOW, not filed): `features/fix-pricing-bundled-stale-coldstart.md` (J6-1 frozen bundle date →
+  fresh install always "Stale"; `pricing-registry.ts:170`) + R2-4 compose→/apps trigger-visibility gap
+  (CORRECTED from "never shows" — manifests DO write when `appId` threaded; gap is `create_trigger` has no
+  `appId`). See `_IDEAS/backlog.md` Mode B 2026-07-03 R2 section.
+- Optional #29 follow-up (deferred, in spec): retry-with-backoff on the compose `create_trigger` internal
+  call + surface the swallowed non-2xx. Base-URL root cause is fixed; this is hardening only.
+
+Staging bundle for the #29/#30 arc: `output/staging/2026-07-03/R2/`.
+
+Other options: held-issue retests, staging re-run cadence (R1/R3-R6 on 0.25.0), or not-started backlog.
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
 - `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
@@ -84,6 +102,12 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**#29 non-3000 self-call fix (S35, UNCOMMITTED on `main`):** all internal loopback self-calls (trigger
+dispatch, compose table tools) now derive origin via the zero-import leaf `getSelfBaseUrl()`
+(`RELAY_SELF_BASE_URL` → `NEXTAUTH_URL` → `NEXT_PUBLIC_APP_URL` → `127.0.0.1:${PORT}`), never a bare
+`:3000`; CLI threads `RELAY_SELF_BASE_URL`. Also fixed a co-located `create_task` `projectId:null` 400
+the port bug had masked. Verified on `:3210` (task actually dispatched). Memory `self-http-calls-hardcode-3000`.
+
 **0.25.0 (S33, RELEASED — `2a50f91a`, npm `latest` + GitHub Release + SBOM; publish CI green):** bundles
 three arcs. **FEAT-5/6/7/8 app-activation redesign** (`121f5268` + `d76359e7`): Agency Pro's home flipped
 `view.kit` ledger→`workflow-hub` (Option A) → all 6 blueprints render as runnable cards; `RunnableBlueprintCard`
@@ -96,12 +120,7 @@ vs HITL→`/inbox`); pack 0.2.0→0.3.0. Spec `features/redesign-app-activation-
 `features/fix-workflow-hitl-ask-user.md`; public issue #28. **S29–S30 walkthrough patch arc**: BUG-1 git
 `fatal:` stderr silence, FEAT-1 license date UTC, BUG-2 empty-state copy, FEAT-3/4 app-detail toolbar. apiVersion
 window bumped 0.24→0.25 in the release commit. Memory: `workflow-status-vocab-active-not-running`.
-**0.24.1 (S25–S27, RELEASED — npm `latest` + Release + SBOM; #24/#25/#26 closed):** three customer fixes —
-`6f715fa4` snapshot-restore deadlock (#24, unlocked-core + `SnapshotBusyError`→409), `e89ae622` Ollama
-phantom-model (#25, import-free resolver + live-Ollama smoke), `fe4b9237` profile runtime-chip labels
-(#26, exhaustive `Record<AgentRuntimeId,string>` map + `profile-card.test.tsx`). Origin: S25 live 6-run
-staging suite (bundle `output/staging/2026-07-03-suite/`) → 3 fix specs → all fixed. GH issue mgmt fully
-automated (auto-file + env-prefixed `gh` rules) this arc.
-**Older (in git):** 0.24.0 (S19, legacy-brand leaks + apiVersion 0.23→0.24); Staging-harness skill arc
-(S20–S23, four skills + app-copy grade-3-5 rewrite); 0.23.0 (packs gallery + founding price) ← 0.16.
+**Older (in git + CHANGELOG + closed issues):** 0.24.1 (S25–S27, 3 customer fixes #24/#25/#26 from the
+S25 6-run staging suite); 0.24.0 (S19, legacy-brand leaks + apiVersion 0.23→0.24); Staging-harness skill
+arc (S20–S23, four skills + app-copy grade-3-5 rewrite); 0.23.0 (packs gallery + founding price) ← 0.16.
 Full history: `git tag` + CHANGELOG + `git log`.

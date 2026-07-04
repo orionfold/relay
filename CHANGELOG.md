@@ -6,6 +6,10 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+### Fixed
+
+- **Automations now work when you run Relay on any port, not just the default one.** If you started Relay on a custom port, behind a proxy, or reachable from other machines, a table automation ("when a high-risk lead is added, create a follow-up task") would quietly do nothing — the trigger showed as active and fired, but the follow-up never appeared, with no error anywhere you could see. The automation now reaches the app at its real address, so the task or workflow it promises actually runs. Fixing that also surfaced a second quiet failure on the same path: a triggered task with no project attached was being rejected and silently dropped; it now gets created.
+
 ## [0.25.0] — 2026-07-04
 
 ### Added

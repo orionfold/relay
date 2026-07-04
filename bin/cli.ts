@@ -457,6 +457,11 @@ async function main() {
       RELAY_DATA_DIR: DATA_DIR,
       RELAY_LAUNCH_CWD: launchCwd,
       PORT: String(actualPort),
+      // Origin for Relay's internal loopback self-calls (trigger dispatch,
+      // compose table tools). The server always listens on loopback even when
+      // bound to a non-loopback host, so self-calls target 127.0.0.1 + the real
+      // port — never :3000, never the LAN IP. Fixes issue #29.
+      RELAY_SELF_BASE_URL: buildSidecarUrl(actualPort, "127.0.0.1"),
       ...(opts.safeMode ? { RELAY_SAFE_MODE: "true" } : {}),
       // In dev mode, Next blocks cross-origin /_next/* dev-asset requests from
       // the LAN client's IP, breaking the app over the network (issue #13).

@@ -6,6 +6,7 @@
 import { db } from "@/lib/db";
 import { userTableTriggers } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+import { getSelfBaseUrl } from "@/lib/http/self-base-url";
 import type { FilterSpec } from "./types";
 
 type TriggerEvent = "row_added" | "row_updated" | "row_deleted";
@@ -147,13 +148,15 @@ async function fireAction(
       ? `${config.description}\n\nTrigger data: ${JSON.stringify(rowData, null, 2)}`
       : `Triggered by table row change.\n\nData: ${JSON.stringify(rowData, null, 2)}`;
 
-    await fetch(`${getBaseUrl()}/api/tasks`, {
+    await fetch(`${getSelfBaseUrl()}/api/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: config.title ?? "Triggered Task",
         description,
-        projectId: config.projectId ?? null,
+        // createTaskSchema wants `string | undefined`, not null — sending null
+        // 400s the self-call and the task is never created. Omit when absent.
+        ...(config.projectId ? { projectId: config.projectId } : {}),
       }),
     });
     return;
@@ -187,7 +190,7 @@ async function fireAction(
   }
 
   if (actionType === "run_workflow" && config.workflowId) {
-    await fetch(`${getBaseUrl()}/api/workflows/${config.workflowId}/execute`, {
+    await fetch(`${getSelfBaseUrl()}/api/workflows/${config.workflowId}/execute`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -212,6 +215,3 @@ function deriveAppIdFromBlueprintId(blueprintId: string): string | null {
   return blueprintId.slice(0, idx);
 }
 
-function getBaseUrl(): string {
-  return process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-}

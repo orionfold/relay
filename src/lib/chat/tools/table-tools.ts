@@ -26,6 +26,7 @@ import {
   createImportRecord,
 } from "@/lib/tables/import";
 import { createEnrichmentWorkflow } from "@/lib/tables/enrichment";
+import { getSelfBaseUrl } from "@/lib/http/self-base-url";
 import type { ColumnDef } from "@/lib/tables/types";
 
 export function tableTools(ctx: ToolContext) {
@@ -599,7 +600,7 @@ Guidelines for schema inference:
         try {
           const table = await getTable(args.tableId);
           if (!table) return err("Table not found");
-          const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+          const baseUrl = getSelfBaseUrl();
           return ok({
             url: `${baseUrl}/api/tables/${args.tableId}/export?format=${args.format}`,
             table: table.name,
@@ -1067,5 +1068,7 @@ Guidelines for schema inference:
 }
 
 function getBaseUrl(): string {
-  return process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  // Loopback self-call origin — derived from the real bind port, not a bare
+  // :3000 literal (issue #29). See @/lib/http/self-base-url.
+  return getSelfBaseUrl();
 }
