@@ -141,11 +141,11 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
         method: "DELETE",
       });
       if (res.ok) {
-        toast.success("Profile deleted");
+        toast.success("Agent deleted");
         router.push("/agents");
       } else {
         const data = await res.json().catch(() => null);
-        toast.error(data?.error ?? "Failed to delete profile");
+        toast.error(data?.error ?? "Failed to delete agent");
       }
     } catch {
       toast.error("Network error");
@@ -230,7 +230,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
   }
 
   if (!profile) {
-    return <p className="text-muted-foreground">Profile not found.</p>;
+    return <p className="text-muted-foreground">Agent not found.</p>;
   }
 
   const DomainIcon = profile.domain === "work" ? Bot : Sparkles;
@@ -350,7 +350,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
                   if (data.hasUpdates) {
                     toast.info("Updates available. Check the repo import page to apply them.");
                   } else {
-                    toast.success("Profile is up to date");
+                    toast.success("Agent is up to date");
                   }
                 } catch {
                   toast.error("Failed to check for updates");
@@ -632,7 +632,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
               {testReport?.unsupported && (
                 <div className="surface-card-muted rounded-md border border-warning/30 bg-warning/10 p-2 text-xs text-warning">
                   {testReport.unsupportedReason ??
-                    `${runtimeLabelMap.get(selectedTestRuntime) ?? selectedTestRuntime} cannot test this profile yet`}
+                    `${runtimeLabelMap.get(selectedTestRuntime) ?? selectedTestRuntime} cannot test this agent yet`}
                 </div>
               )}
               {/* Progress Bar — visible during test execution */}
@@ -724,8 +724,8 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
       <ConfirmDialog
         open={confirmDelete}
         onOpenChange={setConfirmDelete}
-        title="Delete Profile"
-        description="This will permanently delete this custom profile."
+        title="Delete Agent"
+        description="This will permanently delete this custom agent."
         confirmLabel="Delete"
         onConfirm={handleDelete}
         destructive

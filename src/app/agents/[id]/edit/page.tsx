@@ -24,7 +24,7 @@ export default async function EditProfilePage({
   return (
     <PageShell
       backHref={duplicate === "true" ? "/agents" : `/agents/${id}`}
-      backLabel={duplicate === "true" ? "Back to Profiles" : "Back to Profile"}
+      backLabel={duplicate === "true" ? "Back to Agents" : "Back to Agent"}
     >
       <ProfileFormView profileId={id} duplicate={duplicate === "true"} />
     </PageShell>

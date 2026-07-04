@@ -115,7 +115,7 @@ export function ProfileBrowser({
       <div className="flex items-center justify-end gap-2">
         <Button variant="outline" onClick={() => setShowTemplates(!showTemplates)}>
           <Copy className="mr-2 h-4 w-4" />
-          Start from Template
+          Start from a preset
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -138,15 +138,15 @@ export function ProfileBrowser({
         </DropdownMenu>
         <Button onClick={() => router.push("/agents/new")}>
           <Plus className="mr-2 h-4 w-4" />
-          Create Profile
+          Create Agent
         </Button>
       </div>
 
-      {/* Template picker */}
+      {/* Preset picker */}
       {showTemplates && builtinProfiles.length > 0 && (
         <div className="surface-panel rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium">Use a built-in profile as a starting point</p>
+            <p className="text-sm font-medium">Use a preset agent as a starting point</p>
             <Button variant="ghost" size="sm" onClick={() => setShowTemplates(false)}>
               <span className="text-xs">Close</span>
             </Button>
@@ -177,7 +177,7 @@ export function ProfileBrowser({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search profiles..."
+            placeholder="Search agents..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="surface-control pl-9"

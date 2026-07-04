@@ -37,7 +37,7 @@ export function GlobalShortcuts() {
       { id: "nav-projects", keys: "g p", description: "Go to Projects", scope: "global", category: "Navigation", handler: () => router.push("/projects") },
       { id: "nav-workflows", keys: "g w", description: "Go to Workflows", scope: "global", category: "Navigation", handler: () => router.push("/workflows") },
       { id: "nav-documents", keys: "g o", description: "Go to Documents", scope: "global", category: "Navigation", handler: () => router.push("/documents") },
-      { id: "nav-profiles", keys: "g r", description: "Go to Profiles", scope: "global", category: "Navigation", handler: () => router.push("/agents") },
+      { id: "nav-profiles", keys: "g r", description: "Go to Agents", scope: "global", category: "Navigation", handler: () => router.push("/agents") },
       { id: "nav-schedules", keys: "g s", description: "Go to Schedules", scope: "global", category: "Navigation", handler: () => router.push("/schedules") },
       { id: "nav-costs", keys: "g c", description: "Go to Costs", scope: "global", category: "Navigation", handler: () => router.push("/costs") },
       { id: "nav-settings", keys: "g ,", description: "Go to Settings", scope: "global", category: "Navigation", handler: () => router.push("/settings") },

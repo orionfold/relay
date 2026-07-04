@@ -134,7 +134,7 @@ export function ProfileFormView({
         }
       })
       .catch(() => {
-        toast.error("Failed to load profile");
+        toast.error("Failed to load agent");
       })
       .finally(() => setFetching(false));
   }, [profileId, duplicate, isEdit]);
@@ -260,10 +260,10 @@ export function ProfileFormView({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Failed to save profile");
+        throw new Error(data.error ?? "Failed to save agent");
       }
 
-      toast.success(isEdit ? "Profile updated" : "Profile created");
+      toast.success(isEdit ? "Agent updated" : "Agent created");
 
       if (isEdit) {
         router.push(`/agents/${profileId}`);
@@ -272,7 +272,7 @@ export function ProfileFormView({
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to save profile"
+        err instanceof Error ? err.message : "Failed to save agent"
       );
     } finally {
       setSubmitting(false);
@@ -291,10 +291,10 @@ export function ProfileFormView({
   }
 
   const title = isEdit
-    ? "Edit Profile"
+    ? "Edit Agent"
     : duplicate
-      ? "Duplicate Profile"
-      : "Create Profile";
+      ? "Duplicate Agent"
+      : "Create Agent";
 
   const lineCount = skillMd.split("\n").length;
 
@@ -333,7 +333,7 @@ export function ProfileFormView({
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="My Custom Agent"
               />
-              <p className="text-xs text-muted-foreground">Display name shown in profile selector and task assignment dropdowns.</p>
+              <p className="text-xs text-muted-foreground">Display name shown in the agent selector and task assignment dropdowns.</p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="profile-id">ID</Label>
@@ -579,8 +579,8 @@ export function ProfileFormView({
             {submitting
               ? "Saving..."
               : isEdit
-                ? "Update Profile"
-                : "Create Profile"}
+                ? "Update Agent"
+                : "Create Agent"}
           </Button>
           <Button
             variant="outline"

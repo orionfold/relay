@@ -63,7 +63,7 @@ export function ProfileImportDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Import Profile from GitHub</DialogTitle>
+          <DialogTitle>Import Agent from GitHub</DialogTitle>
           <DialogDescription>
             Paste a GitHub URL to a profile directory containing profile.yaml
             and SKILL.md files.

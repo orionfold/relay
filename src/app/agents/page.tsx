@@ -21,8 +21,8 @@ export default async function ProfilesPage() {
 
   return (
     <PageShell
-      title="Profiles"
-      description="Browse and inspect agent profiles without blur-heavy detail surfaces."
+      title="Agents"
+      description="Browse and configure the agents that run your work."
     >
       <ProfileBrowser initialProfiles={profiles} installedPacks={installedPacks} />
     </PageShell>

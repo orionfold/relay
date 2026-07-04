@@ -14,7 +14,7 @@ export function QuickActions() {
     { label: "Monitor", icon: Activity, href: "/monitor" },
     { label: "Workflows", icon: Workflow, href: "/workflows" },
     { label: "Documents", icon: FileText, href: "/documents" },
-    { label: "Profiles", icon: Bot, href: "/agents" },
+    { label: "Agents", icon: Bot, href: "/agents" },
     { label: "Schedules", icon: Clock, href: "/schedules" },
   ];
 

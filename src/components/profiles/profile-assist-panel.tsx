@@ -141,7 +141,7 @@ export function ProfileAssistPanel({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          goal: goal.trim() || "Improve the existing profile",
+          goal: goal.trim() || "Improve the existing agent",
           domain: domain === "auto" ? undefined : domain,
           mode,
           existingSkillMd: mode !== "generate" ? existingSkillMd : undefined,
@@ -267,7 +267,7 @@ export function ProfileAssistPanel({
           disabled={loading || !goal.trim()}
         >
           <Sparkles className="h-3 w-3 mr-1" />
-          {result ? "Regenerate" : "Generate Profile"}
+          {result ? "Regenerate" : "Generate Agent"}
         </Button>
 
         {isEdit && (
@@ -301,7 +301,7 @@ export function ProfileAssistPanel({
       {result && (
         <>
           <div className="flex items-center justify-between border-t border-border/40 pt-3">
-            <span className="text-xs font-medium text-muted-foreground">Generated Profile</span>
+            <span className="text-xs font-medium text-muted-foreground">Generated Agent</span>
             <Button
               type="button"
               variant="ghost"
