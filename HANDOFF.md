@@ -1,36 +1,33 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S40 — **primitive→pack source-of-truth DECIDED + FEAT-7/8 SHIPPED.** Made the
-architecture call the app-shell cluster was gated on: **Model A — a pure `packOf()` resolver over existing
-signals** (`src/lib/apps/pack-of.ts`), NOT a new `packId` field. Rationale: pack id already exists
-(`prefix === manifest.id === pack.meta.id`); the `--` prefix is load-bearing for uninstall
-(`deleteAppCascade`), so a field forces an uninstall rewrite + backfill migration for zero gain. Resolver
-composes 3 tested seams (`extractAppIdFromArtifactId`, `parseAppScheduleId`, `projectId`), gated on the
-installed-pack set so a hand-authored `foo--bar` isn't mis-attributed. Then shipped **FEAT-8 pill + FEAT-7
-filter across ALL 4 primitive views** (5 commits `d66836d1`→`3fa28b41` + spec resolution), each browser-verified
-against real `~/.relay` (3 packs): new `PackPill` (amber Badge, NOT a StatusChip family — spec deviation w/
-rationale) on Profiles/Blueprints/Tables/Schedules; FEAT-7 filter-by-pack dropdown on Blueprints (the DB views'
-filter already exists via `projectFilter`/`selected`). 21 new unit tests + 383 passing in affected suites, no
-regressions. **BUG-6 reclassified:** it's a WRITE feature (generate ledger rows into a pack's tables), NOT
-unblocked by the read-resolver — next session's clean task with the Pro ledger open. Operator directive this
-session: DECIDE deep architecture calls with rationale, don't surface as AskUserQuestion forks (memory
-`decide-architecture-with-rationale`). Prior tail: S39 released 0.26.0 (npm+Release+SBOM); S38 implemented the
-groomed fixes. Full detail: git log + specs' Resolution sections.)_
+_Last updated: 2026-07-04 (pt: S41 — **BUG-6 pack-aware seed SHIPPED** (unreleased, `9e6cab00`+`d96dc7b1` on
+`main`). The seed cluster's clean task, done end-to-end. Two coordinated fixes, both reusing existing machinery:
+(1) authored `seed/tables/engagements.json` for Agency Pro — 26 current-month signed rows (+billing/−cost),
+$13,950 billed / 49% margin, so the finance cockpit reads non-zero on FIRST INSTALL (install already supported
+`seed/tables/*.json`, the file just didn't exist); LEDGER-ONLY because `intake`/`grants` carry row-insert
+triggers and seeding them would dispatch pipeline blueprints (memory
+`seed-clears-pack-tables-and-addrows-fires-triggers`). (2) New `reseedInstalledPacks()` (`seed-data/installed-packs.ts`)
+wired as `seed.ts` step 25: after `clearAllData()` wipes pack tables ENTIRELY (defs+cols+rows), re-apply every
+installed pack via the idempotent `installPack()` — so the Seed button FILLS the pack instead of emptying it.
+Design call (all-installed-packs, not hardcoded Agency-Pro; `decide-architecture-with-rationale`): packOf(S40)
+turned out NOT needed — installPack keys tables by `projectId=pack.meta.id`. Pack bump 0.3.0→0.4.0 + changelog +
+npx-smoke version literal (`prod-smoke-encodes-contracts` — would've failed at release on stale `v0.3.0`). 542
+pass/1 skip; live smoke (isolated dir, real Next.js reqs) + browser walk: install→rowsSeeded:26, Seed
+button→ledger survives at $13,950. Prior tail: S40 packOf + FEAT-7/8 pills; S39 released 0.26.0. Full detail:
+git log + specs' Resolution sections.)_
 
-## ▶️ NEXT SESSION — BUG-6 pack-aware seed, then rest of app-shell cluster
+## ▶️ NEXT SESSION — rest of app-shell cluster (no acute defect left)
 
-FEAT-7/8 shipped clean (0.26.0 released, nothing to verify). The remaining app-shell cluster, ranked:
+BUG-6 shipped clean (unreleased on `main`; ships next release, nothing to verify). Remaining cluster, ranked:
 
-- **BUG-6 (#35) pack-aware seed — THE clean next task.** NOT blocked anymore (packOf shipped). It's a WRITE
-  feature: enumerate installed packs (`listApps()`), find each pack's tables (`listTables({projectId: packId})`),
-  and **generate plausible domain rows** the pack's cockpit reads (Agency Pro ledger transactions). Best written
-  with `/apps/relay-agency-pro` open to see exactly which columns its ledger reads. `install`-adjacent → smoke
-  budget. Spec: `fix-seed-gate-and-pack-coverage.md` (BUG-5 already done) + `fix-app-shell-activation-redesign.md`.
 - **App-shell redesign remainder** (`fix-app-shell-activation-redesign.md`): FEAT-5 (blueprints submenu) +
   FEAT-6 (two-button Run/Create) + CF-FEAT-5/6/7/8 still backlog. FEAT-6 is a separate redesign concern, NOT
   gated on packOf. Route to frontend-design/taste; BUG-3/4 acute parts already done.
 - **Top-chrome design initiative** (FEAT-9/10/11/11b/12/14/15/16, backlog): ONE design spec decides
   tokens/z-layers/offsets once — no acute defect.
+- **Next release** bundles S40 (packOf + FEAT-7/8) + S41 (BUG-6) — both unreleased on `main`. MINOR bump →
+  apiVersion window bump required (5 sites, memory `apiversion-window-bump-at-version-bump`); pack 0.4.0 counts
+  already in the npx smoke.
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
 `create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests; other staging R-runs.
@@ -111,6 +108,13 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**S41 (unreleased, on `main` — `9e6cab00` fix + `d96dc7b1` spec):** BUG-6 (#35) pack-aware seed. Agency Pro
+`seed/tables/engagements.json` (26 signed current-month rows → $13,950 billed / 49% margin, ledger-only —
+intake/grants are trigger-bound) + `reseedInstalledPacks()` (`seed-data/installed-packs.ts`) as `seed.ts` step
+25 (rebuilds pack tables via idempotent `installPack` after clear wipes them). Pack 0.3.0→0.4.0 + changelog +
+npx-smoke literal. 542 pass; live + browser verified. Memory `seed-clears-pack-tables-and-addrows-fires-triggers`.
+Spec: `fix-seed-gate-and-pack-coverage.md` → "Resolution (S41)".
+
 **S40 (unreleased, on `main` — 5 commits `d66836d1`→`3fa28b41` + spec resolution):** primitive→pack
 source-of-truth + FEAT-7/8. `packOf()` resolver (`src/lib/apps/pack-of.ts`, 13 tests) + `PackPill`
 (`src/components/shared/pack-pill.tsx`) on all 4 primitive views + FEAT-7 filter-by-pack on Blueprints.
