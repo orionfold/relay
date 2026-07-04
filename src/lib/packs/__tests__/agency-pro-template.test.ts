@@ -220,12 +220,12 @@ describe("relay-agency-pro bundled template", () => {
 
     for (const dir of profileDirs) {
       const raw = yaml.load(
-        fs.readFileSync(path.join(profilesDir, dir, "profile.yaml"), "utf-8")
+        fs.readFileSync(path.join(profilesDir, dir, "agent.yaml"), "utf-8")
       );
       const parsed = ProfileConfigSchema.safeParse(raw);
       expect(
         parsed.success,
-        `${dir}/profile.yaml: ${parsed.success ? "" : parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`
+        `${dir}/agent.yaml: ${parsed.success ? "" : parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`
       ).toBe(true);
       const profile = raw as {
         allowedTools?: string[];

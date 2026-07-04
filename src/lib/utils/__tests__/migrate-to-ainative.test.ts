@@ -157,4 +157,49 @@ describe("migrateLegacyData", () => {
     expect(existsSync(join(midDir, "stale.txt"))).toBe(true);
     expect(report.dirMigrated).toBe(false);
   });
+
+  describe("Step 6 — Profiles -> Agents on-disk rename", () => {
+    it("renames profile.yaml -> agent.yaml in ~/.relay/profiles and ~/.claude/skills", async () => {
+      const relayProfiles = join(tempHome, ".relay", "profiles", "my-agent");
+      const skills = join(tempHome, ".claude", "skills", "code-reviewer");
+      mkdirSync(relayProfiles, { recursive: true });
+      mkdirSync(skills, { recursive: true });
+      writeFileSync(join(relayProfiles, "profile.yaml"), "id: my-agent");
+      writeFileSync(join(skills, "profile.yaml"), "id: code-reviewer");
+
+      const report = await migrateLegacyData({ home: tempHome });
+
+      expect(existsSync(join(relayProfiles, "agent.yaml"))).toBe(true);
+      expect(existsSync(join(relayProfiles, "profile.yaml"))).toBe(false);
+      expect(existsSync(join(skills, "agent.yaml"))).toBe(true);
+      expect(existsSync(join(skills, "profile.yaml"))).toBe(false);
+      expect(report.agentFilesRenamed).toBe(2);
+    });
+
+    it("is idempotent — a second run renames nothing", async () => {
+      const dir = join(tempHome, ".relay", "profiles", "a");
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, "profile.yaml"), "id: a");
+
+      await migrateLegacyData({ home: tempHome });
+      const second = await migrateLegacyData({ home: tempHome });
+
+      expect(existsSync(join(dir, "agent.yaml"))).toBe(true);
+      expect(second.agentFilesRenamed).toBe(0);
+    });
+
+    it("leaves a dir untouched when agent.yaml already exists (never clobbers)", async () => {
+      const dir = join(tempHome, ".relay", "profiles", "b");
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, "profile.yaml"), "id: legacy");
+      writeFileSync(join(dir, "agent.yaml"), "id: current");
+
+      const report = await migrateLegacyData({ home: tempHome });
+
+      expect(readFileSync(join(dir, "agent.yaml"), "utf8")).toBe("id: current");
+      // The legacy file is left in place (dual-read prefers agent.yaml anyway).
+      expect(existsSync(join(dir, "profile.yaml"))).toBe(true);
+      expect(report.agentFilesRenamed).toBe(0);
+    });
+  });
 });

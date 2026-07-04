@@ -1,4 +1,11 @@
-import { existsSync, renameSync, cpSync, rmSync, readFileSync } from "node:fs";
+import {
+  existsSync,
+  renameSync,
+  cpSync,
+  rmSync,
+  readFileSync,
+  readdirSync,
+} from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import Database from "better-sqlite3";
@@ -9,6 +16,8 @@ export interface MigrationReport {
   sqlRowsUpdated: number;
   sentinelRenamed: boolean;
   keychainMigrated: boolean;
+  /** Count of on-disk profile.yaml files renamed to agent.yaml (Profiles->Agents). */
+  agentFilesRenamed: number;
   errors: string[];
 }
 
@@ -64,6 +73,46 @@ const MIGRATION_CHAIN: MigrationHop[] = [
 ];
 
 /**
+ * Step 6 helper: rename any `profile.yaml` -> `agent.yaml` in the immediate
+ * child dirs of `root` (Profiles -> Agents primitive rename). Idempotent —
+ * skips a dir that already has `agent.yaml`. Never throws; a per-dir failure is
+ * recorded and the walk continues. Returns the count renamed.
+ */
+function renameProfileFilesInRoot(
+  root: string,
+  log: (msg: string) => void,
+  errors: string[],
+): number {
+  if (!existsSync(root)) return 0;
+  let renamed = 0;
+  let entries: import("node:fs").Dirent[];
+  try {
+    entries = readdirSync(root, { withFileTypes: true });
+  } catch (err) {
+    errors.push(`agent-file scan failed in ${root}: ${String(err)}`);
+    return 0;
+  }
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const dir = join(root, entry.name);
+    const legacy = join(dir, "profile.yaml");
+    const next = join(dir, "agent.yaml");
+    // Only rename when the legacy file is present AND the new name is free —
+    // the dual-read already prefers agent.yaml, so a dir with both is left as-is.
+    if (existsSync(legacy) && !existsSync(next)) {
+      try {
+        renameSync(legacy, next);
+        renamed++;
+      } catch (err) {
+        errors.push(`agent-file rename failed in ${dir}: ${String(err)}`);
+      }
+    }
+  }
+  if (renamed > 0) log(`renamed ${renamed} profile.yaml -> agent.yaml in ${root}`);
+  return renamed;
+}
+
+/**
  * Idempotent migration of legacy data dirs onto the live `~/.relay`. Walks the
  * `~/.stagent` -> `~/.ainative` -> `~/.relay` chain so an install at any prior
  * brand converges on the current one. Safe to call on every boot.
@@ -81,6 +130,7 @@ export async function migrateLegacyData(
     sqlRowsUpdated: 0,
     sentinelRenamed: false,
     keychainMigrated: false,
+    agentFilesRenamed: 0,
     errors: [],
   };
 
@@ -221,6 +271,18 @@ export async function migrateLegacyData(
     } catch (err) {
       report.errors.push(`keychain migration failed: ${String(err)}`);
     }
+  }
+
+  // Step 6: Profiles -> Agents on-disk manifest rename. Walk the two profile
+  // roots and rename profile.yaml -> agent.yaml. The registry dual-reads both
+  // names, so this is a cleanup that converges existing installs; it is safe to
+  // run every boot and independent of the brand-dir chain above.
+  const profileRoots = [
+    join(finalDir, "profiles"),
+    join(home, ".claude", "skills"),
+  ];
+  for (const root of profileRoots) {
+    report.agentFilesRenamed += renameProfileFilesInRoot(root, log, report.errors);
   }
 
   return report;
