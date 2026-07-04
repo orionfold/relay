@@ -1,25 +1,25 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: **S44 — CF-FEAT-5/6/7/8 app-shell copy pass committed to main, UNRELEASED**
-(`b4616d2c`). Copy+layout on the runnable-blueprint app shell (`/apps/<pack>` Workflow-Hub kit), no engine
-touch → not smoke-gated; browser-verified on `/apps/relay-agency`. **CF-FEAT-5**: Run/Create explainer now on
-EVERY runnable card (primary keeps fuller hint). **CF-FEAT-6**: new `secondarySteps` on ViewModel → quiet
-numbered 1→2→3 strip (pick→run→watch in Monitor) above the card grid. **CF-FEAT-7 REJECTED** (operator call):
-kept single "Start here" over hero-elevating all 6; per-card explainer lifts non-primary affordance instead.
-**CF-FEAT-8**: Run toast now names Monitor ("Run started. Watch it live in Monitor.") + "Open run" deep-links
-the run detail (carries existing `computeSignpost` Inbox banner). 333 app-shell+view-kits tests pass, zero
-regressions; spec `fix-app-shell-activation-redesign.md` now fully resolved. **Gotcha this session:**
-post-S43-rename `tsc` throws phantom `.next/types/validator.ts` "Cannot find module .../route.js" + LSP
-`@/lib/...` glitches — build-cache staleness, NOT breakage; vitest is truth, `next build` clears (memory
-`next-types-validator-stale-after-rename`). Prior: 0.28.0 RELEASED (`v0.28.0`→`7e97669a`) — full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-04 (pt: **S45 — Profile→Agent sweep (the S43-DEFERRED item) DONE on main, UNRELEASED,
+UNCOMMITTED**. 12 files, all label/copy, ZERO wire contracts touched — finishes the S43 rename's presentation
+layer. Renamed the `ToolGroup` union member + icon/order keys + 5 tool `group:`/descriptions (`tool-catalog.ts`),
+`GROUP_TO_TAB` key (`command-tabs.ts`, the `satisfies Record<ToolGroup,…>` forced it), popover entity label +
+system-prompt `### Agents` heading, and the user-facing **primitive-pill label** `Profile`→`Agent`/`agents`
+across its FOUR parallel paths (`composition-detector.ts`, `buildPrimitivesSummary` in `registry.ts`,
+`starter-template-card.tsx`, chat catalog) — the sweep grew 3→8 sites because a coherent rename covers the
+whole vocabulary surface, not one path. **KEPT (wire contracts):** tool names `list_profiles`/`create_profile`
+etc., `entityType:"profile"` key, `profileId`/`profileName`, manifest `profiles:` YAML key, `@/lib/agents/
+profiles/*`, `~/.relay/profiles`. 6 asserting tests updated; 974 pass / 1 skip / 0 fail across chat+apps+packs+
+components. Not runtime-registry-adjacent (pure strings) → no dev smoke needed. Same stale `.next/types` LSP
+phantoms as S44 (memory `next-types-validator-stale-after-rename`) — vitest is truth. **Uncommitted; folds into
+next MINOR alongside CF-FEAT.** Prior: S44 CF-FEAT-5/6/7/8 app-shell copy pass (`b4616d2c`, unreleased);
+0.28.0 RELEASED (`v0.28.0`→`7e97669a`) — full detail: git log + CHANGELOG.)_
 
 ## ▶️ NEXT SESSION — remaining design cluster (no unreleased-release work; CF-FEAT foldable)
 
-`main` carries the unreleased CF-FEAT copy pass (`b4616d2c`); fold it into the next release (MINOR → apiVersion
-window bump). Remaining work is design-shaped, no acute defect:
-- **Broader Profile→Agent sweep (DEFERRED, S43):** chat `tool-catalog` "Profiles" group key (typed union +
-  `command-tabs.test.ts`-asserted), `composition-detector` primitive label, `chat-command-popover` entity
-  label. Riskier — not folded in; needs its own pass.
+`main` carries the unreleased CF-FEAT copy pass (`b4616d2c`, committed) + the S45 Profile→Agent sweep
+(UNCOMMITTED — commit it first); fold BOTH into the next release (MINOR → apiVersion window bump). Remaining
+work is design-shaped, no acute defect:
 - **Top-chrome design initiative** (FEAT-9/10/11/11b/12/14/15/16, backlog): ONE design spec decides
   tokens/z-layers/offsets once — no acute defect.
 
@@ -103,6 +103,15 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**Profile→Agent sweep (S45, UNRELEASED + UNCOMMITTED on main):** finished the S43 rename's presentation layer
+— the deferred internal-facing "Profiles" vocabulary. 12 files, all label/copy, zero wire contracts. Renamed
+the `ToolGroup` union + icon/order keys + tool `group:`/descriptions (`tool-catalog.ts`), `GROUP_TO_TAB` key
+(`command-tabs.ts`), popover entity label + system-prompt heading, and the primitive-pill label
+`Profile`→`Agent`/`agents` across composition-detector + `buildPrimitivesSummary` (registry.ts) +
+starter-template-card + chat catalog. KEPT all wire contracts (tool names, `entityType:"profile"`,
+`profileId`, manifest `profiles:` key, lib paths, data dir). 6 tests updated; 974 pass / 1 skip / 0 fail.
+Memory `profiles-are-file-based-not-db` extended with the primitive-label-surface note. Detail: git.
+
 **CF-FEAT-5/6/7/8 (S44, UNRELEASED on main — `b4616d2c`):** app-shell activation copy pass on the
 runnable-blueprint Workflow-Hub kit (`/apps/<pack>`). CF-FEAT-5 per-card Run/Create explainer on every card;
 CF-FEAT-6 `secondarySteps` 1→2→3 strip (`view-kits/types.ts` + `workflow-hub.ts` + `kit-view.tsx`); CF-FEAT-7
