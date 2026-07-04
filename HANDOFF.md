@@ -1,34 +1,34 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S39 — **FEAT-4 (#37) browser gate PASSED → RELEASED 0.26.0.** Ran the
-explicit viewport gate against a live `npm run dev` at 1920px on BOTH `/apps/relay-agency` and `-pro`:
-action group renders as one horizontal row inline (wide) and drops as one intact row below the title
-(narrow) — `visualRowCount:1` in all four cases via DOM row-geometry (more reliable than the screenshot
-pipeline, whose capture viewport ignores OS window resizes) + zoom screenshot. Spec Resolution flipped
-PENDING→SHIPPED, #37 commented. Then **RELEASED 0.26.0** (final tag → `5db27412`; npm `latest`=0.26.0 +
-GitHub Release `v0.26.0` non-draft + SBOM VERIFIED): bundles the S38 fixes (#32/#33/#34/#36/#37) with a
-customer-voice CHANGELOG. **Caught 2 handoff/verification errors on the way:** (1) the S38 handoff claimed
-"no apiVersion-window bump needed" — WRONG, the window test derives its expected window from package.json
-minor, so a MINOR bump forces the 5-site window bump (types.ts + registry.ts + 3 example plugin.yaml) or CI
-fails; done in-commit 0.25→0.26. (2) First publish FAILED on the prod smoke — Case L still asserted the OLD
-bare-null 404 for the seed gate, but BUG-5 (in this very release) changed it to an explanatory 403; fixed the
-stale assertion (`npx-prod-smoke.mjs`, now asserts 403 + explanatory body), force-moved the tag, re-published
-green. LESSON: a release-gated smoke can encode the exact contract a bundled fix changes — grep the smoke for
-the endpoint any fix touches BEFORE tagging. Full suite baseline unchanged (known 8 pre-existing). Prior tail:
-S38 implemented the groomed 2026-07-04 fix specs (4 commits `a463cc3f`→`6006d4e3`, BUG-3 not-repro, BUG-4
-confirmed); S35 released 0.25.1. Full detail: git log + specs' Resolution sections.)_
+_Last updated: 2026-07-04 (pt: S40 — **primitive→pack source-of-truth DECIDED + FEAT-7/8 SHIPPED.** Made the
+architecture call the app-shell cluster was gated on: **Model A — a pure `packOf()` resolver over existing
+signals** (`src/lib/apps/pack-of.ts`), NOT a new `packId` field. Rationale: pack id already exists
+(`prefix === manifest.id === pack.meta.id`); the `--` prefix is load-bearing for uninstall
+(`deleteAppCascade`), so a field forces an uninstall rewrite + backfill migration for zero gain. Resolver
+composes 3 tested seams (`extractAppIdFromArtifactId`, `parseAppScheduleId`, `projectId`), gated on the
+installed-pack set so a hand-authored `foo--bar` isn't mis-attributed. Then shipped **FEAT-8 pill + FEAT-7
+filter across ALL 4 primitive views** (5 commits `d66836d1`→`3fa28b41` + spec resolution), each browser-verified
+against real `~/.relay` (3 packs): new `PackPill` (amber Badge, NOT a StatusChip family — spec deviation w/
+rationale) on Profiles/Blueprints/Tables/Schedules; FEAT-7 filter-by-pack dropdown on Blueprints (the DB views'
+filter already exists via `projectFilter`/`selected`). 21 new unit tests + 383 passing in affected suites, no
+regressions. **BUG-6 reclassified:** it's a WRITE feature (generate ledger rows into a pack's tables), NOT
+unblocked by the read-resolver — next session's clean task with the Pro ledger open. Operator directive this
+session: DECIDE deep architecture calls with rationale, don't surface as AskUserQuestion forks (memory
+`decide-architecture-with-rationale`). Prior tail: S39 released 0.26.0 (npm+Release+SBOM); S38 implemented the
+groomed fixes. Full detail: git log + specs' Resolution sections.)_
 
-## ▶️ NEXT SESSION — app-shell cluster (0.26.0 shipped, nothing to verify)
+## ▶️ NEXT SESSION — BUG-6 pack-aware seed, then rest of app-shell cluster
 
-0.26.0 is fully released and verified (npm + GitHub Release + SBOM). Remaining 2026-07-04 app-shell cluster
-(all backlog, no acute defect left):
+FEAT-7/8 shipped clean (0.26.0 released, nothing to verify). The remaining app-shell cluster, ranked:
 
-- **BUG-6 (#35) pack-aware seed — deferred into the app-shell cluster.** Needs the SAME primitive→pack
-  source-of-truth FEAT-7/8 are blocked on (no `packId` today, only the `relay-agency--` id-prefix). Best
-  written with the running Pro ledger in front of us. Not a clean standalone fix.
-- **App-shell redesign** (`fix-app-shell-activation-redesign.md`): FEAT-5/6/7/8 + CF-FEAT-5/6/7/8 still
-  backlog — the one primitive→pack decision unblocks FEAT-6 (two-button Run/Create) + FEAT-7/8. Route to
-  frontend-design/taste; BUG-3/4 acute parts are already done.
+- **BUG-6 (#35) pack-aware seed — THE clean next task.** NOT blocked anymore (packOf shipped). It's a WRITE
+  feature: enumerate installed packs (`listApps()`), find each pack's tables (`listTables({projectId: packId})`),
+  and **generate plausible domain rows** the pack's cockpit reads (Agency Pro ledger transactions). Best written
+  with `/apps/relay-agency-pro` open to see exactly which columns its ledger reads. `install`-adjacent → smoke
+  budget. Spec: `fix-seed-gate-and-pack-coverage.md` (BUG-5 already done) + `fix-app-shell-activation-redesign.md`.
+- **App-shell redesign remainder** (`fix-app-shell-activation-redesign.md`): FEAT-5 (blueprints submenu) +
+  FEAT-6 (two-button Run/Create) + CF-FEAT-5/6/7/8 still backlog. FEAT-6 is a separate redesign concern, NOT
+  gated on packOf. Route to frontend-design/taste; BUG-3/4 acute parts already done.
 - **Top-chrome design initiative** (FEAT-9/10/11/11b/12/14/15/16, backlog): ONE design spec decides
   tokens/z-layers/offsets once — no acute defect.
 
@@ -111,21 +111,17 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**0.26.0 (S38 implemented + S39 RELEASED — final tag `v0.26.0`→`5db27412`; npm `latest` + GitHub Release +
-SBOM VERIFIED; OIDC publish CI green on the 2nd attempt):** the groomed 2026-07-04 fix specs. **FEAT-4** (#37) browser gate PASSED at S39
-(1920px both apps, `visualRowCount:1` wide+narrow via DOM row-geometry) — spec flipped PENDING→SHIPPED;
-the header parent-wrap flip + direct-Delete button ship together. **BUG-1** (#36, `a463cc3f`):
-`stdio:["ignore","pipe","pipe"]` on the 2 latent git sites (`git-manager.ts`, `chat/files/search.ts`);
-proved the 0.25.1 `.next` artifact is NOT stale. **BUG-5** (#34, `a4e9ec6c`): seed/clear gate returns
-explanatory `{error}`+403 (was bare-null 404 → null-deref → fake "Network error"); server page hides
-controls when `!isDataOpsAllowed`. **BUG-2** (#33, `208991ed`): all 7 kits use `headerStatus(runtime)` →
-non-pulsing "ready" unless `activeRunCount>0` (counted in `loadBaseline`). **BUG-4** (#32, `6006d4e3`):
-honest `toastDraftCreated()` "Draft created → Open workflow" deep-link, both run-now paths (was lying
-"Run started" on a `draft`+0-tasks). **BUG-3** (#31, same): NOT-REPRODUCED; kept only
-`revalidateTag('app-runtime:<id>',{expire:0})` on install. S39 release commit bumped the apiVersion window
-0.25→0.26 (5 sites — the S38 handoff wrongly said this wasn't needed) + customer-voice CHANGELOG; a follow-up
-commit fixed a stale prod-smoke assertion (Case L asserted 404, BUG-5 changed it to 403) that failed the 1st
-publish. DEFERRED: BUG-6 (#35 pack-aware seed) into the app-shell cluster.
+**S40 (unreleased, on `main` — 5 commits `d66836d1`→`3fa28b41` + spec resolution):** primitive→pack
+source-of-truth + FEAT-7/8. `packOf()` resolver (`src/lib/apps/pack-of.ts`, 13 tests) + `PackPill`
+(`src/components/shared/pack-pill.tsx`) on all 4 primitive views + FEAT-7 filter-by-pack on Blueprints.
+Browser-verified against real `~/.relay`. Ships in the next release (no version bump yet; not pack-format,
+no apiVersion-window impact). Spec: `fix-app-shell-activation-redesign.md` → "Resolution (S40)".
+
+**0.26.0 (S38+S39 RELEASED — `v0.26.0`→`5db27412`; npm `latest` + GitHub Release + SBOM; OIDC CI green):**
+groomed 2026-07-04 fix specs — FEAT-4 header row-wrap (#37), BUG-1 git stdio (#36), BUG-5 seed gate 404→403
+(#34), BUG-2 data-driven header status (#33), BUG-4 honest run-now toast (#32), BUG-3 not-repro (#31). Two
+lessons captured in memory: `apiversion-window-bump-at-version-bump` (MINOR forces the 5-site window bump)
++ `prod-smoke-encodes-contracts` (Case L asserted the OLD contract a bundled fix changed). Detail: git + CHANGELOG.
 
 **0.25.1 (S35, RELEASED — npm `latest` + GitHub Release `v0.25.1` + SBOM; OIDC publish CI green):** two
 fresh-install blockers from staging R2. **#29** — internal loopback self-calls (trigger dispatch, compose
