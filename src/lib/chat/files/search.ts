@@ -41,6 +41,11 @@ export function searchFiles(
         encoding: "utf-8",
         maxBuffer: 10 * 1024 * 1024,
         timeout: 3000,
+        // Route git's stderr to a pipe (discarded via the catch) instead of
+        // inheriting the console, so a non-git cwd can't leak a raw
+        // `fatal: not a git repository` line to a customer's console. Mirrors
+        // src/lib/environment/workspace-context.ts / src/lib/instance/git-ops.ts.
+        stdio: ["ignore", "pipe", "pipe"],
       }
     );
   } catch {

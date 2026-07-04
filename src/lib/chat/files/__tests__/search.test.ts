@@ -40,6 +40,7 @@ vi.mock("node:fs", () => {
 });
 
 import { searchFiles } from "../search";
+import { execFileSync } from "node:child_process";
 
 // Helper: all test files live under this fake cwd
 const CWD = "/repo";
@@ -119,6 +120,17 @@ describe("searchFiles", () => {
 
     const hits = searchFiles(CWD, "", 10);
     expect(hits.map((h) => h.path)).toEqual(["src/exists.ts"]);
+  });
+
+  it("pipes git stderr instead of inheriting it (no first-run fatal leak)", () => {
+    // BUG-1 hardening: a non-git cwd must not leak `fatal: not a git
+    // repository` to the customer console. The fix routes stderr to a pipe.
+    mockState.stdout = "";
+    searchFiles(CWD, "", 10);
+    const opts = vi.mocked(execFileSync).mock.calls[0]?.[2] as
+      | { stdio?: unknown }
+      | undefined;
+    expect(opts?.stdio).toEqual(["ignore", "pipe", "pipe"]);
   });
 
   it("excludes files that would resolve outside cwd (defense-in-depth)", () => {

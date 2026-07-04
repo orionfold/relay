@@ -19,6 +19,11 @@ function git(args: string[], cwd: string): GitResult {
       cwd,
       encoding: "utf-8",
       timeout: 10000,
+      // Route git's stderr to a pipe (discarded here) instead of inheriting
+      // the console, so a non-git cwd can't leak a raw `fatal: not a git
+      // repository` line to a customer's first-run log. Mirrors
+      // src/lib/environment/workspace-context.ts / src/lib/instance/git-ops.ts.
+      stdio: ["ignore", "pipe", "pipe"],
     }).trim();
     return { success: true, output };
   } catch (e) {
