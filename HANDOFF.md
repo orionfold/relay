@@ -1,33 +1,34 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S35 — **#29 non-3000 port bug FIXED + real-launch VERIFIED** (uncommitted
-on `main`). New zero-import leaf `src/lib/http/self-base-url.ts` → `getSelfBaseUrl()`; all 3 self-call
-sites delegate (`trigger-evaluator.ts` ×2, `table-tools.ts:602` + shared `getBaseUrl` = 11 sites);
-`bin/cli.ts` threads `RELAY_SELF_BASE_URL`. Fixing the socket un-masked a SECOND latent bug on the same
-`create_task` path — `projectId: null` 400'd `createTaskSchema` (wants `string|undefined`) on every port,
-swallowed; fixed by omitting when absent. Verified via `next dev --port 3210`: trigger `fireCount→1` +
-task "Follow up on high-risk lead #29" actually created (`POST /api/tasks 201`, was `400`). Tests 104+331
-green; new precedence test `self-base-url.test.ts`. Spec + memory `self-http-calls-hardcode-3000` updated.
-Prior tail: S34 ran staging R2 → filed #29/#30; S33 released 0.25.0 (`2a50f91a`). Full detail: git log +
-CHANGELOG.)_
+_Last updated: 2026-07-04 (pt: S35 — **0.25.1 STAGED: both fresh-install blockers #29 + #30 FIXED +
+real-launch VERIFIED, on `origin/main`; annotated tag `v0.25.1` created LOCAL-ONLY (NOT pushed → NOT
+published).** #29: zero-import leaf `getSelfBaseUrl()`, all 3 self-call sites delegate, CLI threads
+`RELAY_SELF_BASE_URL`; un-masked + fixed a co-located `create_task` `projectId:null` 400; verified on
+`:3210` (task actually dispatched). #30: added `"ollama"` to `conversations/route.ts` validRuntimes + toast
+the swallowed non-2xx in `chat-session-provider.tsx`; verified on `:3211` vs local Ollama (conversation 201
++ qwen2.5 streamed "PONG"). Commits `982a1ed9`→`ab1bbcfe` on `origin/main`. Prior tail: S34 ran staging R2
+→ filed #29/#30; S33 released 0.25.0. Full detail: git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — commit #29, then fix #30 OR fresh ask
+## ▶️ NEXT SESSION — publish 0.25.1 (one command) OR fresh ask
 
-**#29 is FIXED + verified but UNCOMMITTED** — working tree on `main` carries the fix (5 files:
-`src/lib/http/self-base-url.ts` new, `trigger-evaluator.ts`, `table-tools.ts`, `bin/cli.ts`,
-`src/lib/http/__tests__/self-base-url.test.ts` new). First action next session: commit it (customer-voice
-CHANGELOG line + close #29). The remaining 0.25.0 blocker + LOW backlog:
+**0.25.1 is fully staged; the ONLY remaining step is pushing the tag to trigger publish.** Both blockers
+fixed, verified, committed, on `origin/main`. Annotated tag `v0.25.1` exists LOCALLY but was deliberately
+held (operator away when the publish-confirm fired — publish is irreversible: npm `latest` + public GitHub
+Release, gated by the npx prod smoke). To ship:
 
-- **#30 [R2-1] · P1 · `features/fix-ollama-conversation-runtime-allowlist.md`** — fresh-install
-  "Best privacy (local only)" tier can't chat/compose: `conversations/route.ts:54` allow-list excludes
-  `"ollama"` (that `getRuntimeForModel` returns), 400 swallowed silently at `chat-session-provider.tsx:300`.
-  Fix: add `"ollama"` + thread `ollama-engine` + toast on non-2xx. Runtime-registry-adjacent → real launch smoke.
-- Backlog (LOW, not filed): `features/fix-pricing-bundled-stale-coldstart.md` (J6-1 frozen bundle date →
-  fresh install always "Stale"; `pricing-registry.ts:170`) + R2-4 compose→/apps trigger-visibility gap
-  (CORRECTED from "never shows" — manifests DO write when `appId` threaded; gap is `create_trigger` has no
+```
+git push origin v0.25.1        # fires OIDC publish CI; verify it landed: git ls-remote origin refs/tags/v0.25.1
+```
+Then watch (`gh run view <id> --json status,conclusion` — a watcher clean-exit is NOT proof, memory
+`release-and-issue-conventions`) and flip issues #29 + #30 to `shipped` once the tag publishes.
+**If abandoning:** `git tag -d v0.25.1` (nothing has shipped; tag is local-only).
+
+Remaining backlog (LOW, not blocking 0.25.1):
+- `features/fix-pricing-bundled-stale-coldstart.md` (J6-1 frozen bundle date → fresh install always
+  "Stale"; `pricing-registry.ts:170`) + R2-4 compose→/apps trigger-visibility gap (`create_trigger` has no
   `appId`). See `_IDEAS/backlog.md` Mode B 2026-07-03 R2 section.
 - Optional #29 follow-up (deferred, in spec): retry-with-backoff on the compose `create_trigger` internal
-  call + surface the swallowed non-2xx. Base-URL root cause is fixed; this is hardening only.
+  call. Base-URL root cause is fixed; hardening only.
 
 Staging bundle for the #29/#30 arc: `output/staging/2026-07-03/R2/`.
 
