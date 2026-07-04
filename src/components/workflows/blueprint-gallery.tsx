@@ -12,7 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Search, Layers, Plus } from "lucide-react";
 import { patternLabels } from "@/lib/constants/status-colors";
 import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
+import { PackPill } from "@/components/shared/pack-pill";
+import { packOf } from "@/lib/apps/pack-of";
 import type { WorkflowBlueprint } from "@/lib/workflows/blueprints/types";
+
+/** {id, name} of an installed pack — fetched from /api/apps for provenance. */
+interface InstalledPack {
+  id: string;
+  name: string;
+}
 
 const difficultyColors: Record<string, string> = {
   beginner: "border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400",
@@ -23,21 +31,51 @@ const difficultyColors: Record<string, string> = {
 export function BlueprintGallery() {
   const router = useRouter();
   const [blueprints, setBlueprints] = useState<WorkflowBlueprint[]>([]);
+  const [installedPacks, setInstalledPacks] = useState<InstalledPack[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState<"all" | "work" | "personal">("all");
+  // FEAT-7 — "all" or a specific installed pack id.
+  const [packFilter, setPackFilter] = useState<string>("all");
 
   useEffect(() => {
-    fetch("/api/blueprints")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setBlueprints(data))
+    // Blueprints + installed packs in parallel; the pack list resolves each
+    // blueprint's provenance (packOf) for the pill (FEAT-8) and filter (FEAT-7).
+    Promise.all([
+      fetch("/api/blueprints").then((r) => (r.ok ? r.json() : [])),
+      fetch("/api/apps").then((r) => (r.ok ? r.json() : [])),
+    ])
+      .then(([bps, apps]) => {
+        setBlueprints(bps);
+        setInstalledPacks(
+          (apps as Array<{ id: string; name: string }>).map((a) => ({
+            id: a.id,
+            name: a.name,
+          }))
+        );
+      })
       .finally(() => setLoaded(true));
   }, []);
+
+  const packNameById = useMemo(
+    () => new Map(installedPacks.map((p) => [p.id, p.name])),
+    [installedPacks]
+  );
+  const installedPackIds = useMemo(
+    () => new Set(installedPacks.map((p) => p.id)),
+    [installedPacks]
+  );
+  const packIdFor = (bp: WorkflowBlueprint) =>
+    packOf({ kind: "blueprint", id: bp.id }, installedPackIds);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return blueprints.filter((bp) => {
       if (domainFilter !== "all" && bp.domain !== domainFilter) return false;
+      if (packFilter !== "all") {
+        if (packOf({ kind: "blueprint", id: bp.id }, installedPackIds) !== packFilter)
+          return false;
+      }
       if (!q) return true;
       return (
         bp.name.toLowerCase().includes(q) ||
@@ -45,7 +83,7 @@ export function BlueprintGallery() {
         bp.tags.some((t) => t.toLowerCase().includes(q))
       );
     });
-  }, [blueprints, search, domainFilter]);
+  }, [blueprints, search, domainFilter, packFilter, installedPackIds]);
 
   return (
     <div className="space-y-6">
@@ -84,6 +122,23 @@ export function BlueprintGallery() {
             <TabsTrigger value="personal">Personal</TabsTrigger>
           </TabsList>
         </Tabs>
+        {/* FEAT-7 — filter by installed pack. Only shown when a pack is
+            installed, so the control never appears empty on a fresh instance. */}
+        {installedPacks.length > 0 && (
+          <select
+            value={packFilter}
+            onChange={(e) => setPackFilter(e.target.value)}
+            aria-label="Filter by pack"
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="all">All packs</option>
+            {installedPacks.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Grid */}
@@ -141,6 +196,15 @@ export function BlueprintGallery() {
                 <p className="text-xs text-muted-foreground line-clamp-2">
                   {bp.description}
                 </p>
+                {(() => {
+                  const packId = packIdFor(bp);
+                  const packName = packId ? packNameById.get(packId) : null;
+                  return packName ? (
+                    <div className="mt-2">
+                      <PackPill packName={packName} />
+                    </div>
+                  ) : null;
+                })()}
                 <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
                   <span>{patternLabels[bp.pattern] ?? bp.pattern}</span>
                   <span>&middot;</span>
