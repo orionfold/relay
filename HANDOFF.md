@@ -1,23 +1,16 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-03 (pt: S30 — **BUG-3 GROOMED into a code-true spec; the 5 S29 patch findings COMMITTED**.
-The five self-contained S28-walkthrough fixes (BUG-1/2 + FEAT-1/3/4) are now landed as 4 bisectable commits
-(`5ca08b0d`..`b81a20ca`) + the staging PNG helper (`cb2a901c`); 169/169 tests green, tsc clean, no version
-bump (UI/copy polish). BUG-3 (HIGH, workflow HITL) groomed → `features/fix-workflow-hitl-ask-user.md` (committed
-`d…`): grooming found the ask-user answer loop ALREADY EXISTS for chat tasks — the workflow engine just discards
-the answer + deny-on-timeouts, so the fix is REUSE not invent-new-type (memory `workflow-ask-user-channel-exists`).
-Prior tail: S28 operator walkthrough → 10 findings + `staging-operator-run` skill; S27 PUBLISHED 0.24.1. Full
-detail: git log + `output/staging/2026-07-03-operator-walkthrough/FINDINGS-live.md`.)_
+_Last updated: 2026-07-03 (pt: S31 — **BUG-3 (workflow HITL) IMPLEMENTED + verified e2e + committed `4c0bae6c`**,
+UNRELEASED. Operator chose indefinite `paused` (no deadline, no silent auto-fail). Reused the existing
+`AskUserQuestion` answer loop (not a new type): `waitForInput()` in `engine.ts` + `requiresInput?`/`inputPrompt?`
+on `WorkflowStep` + `executeCheckpoint` pause/inject + halt-on-refusal (non-final empty output → loud `failed`) +
+`actionable.ts` deep-link for `AskUserQuestion`+null-taskId. Verified under `npm run dev` against real API+SQLite+
+`/respond`: pause → Inbox deep-link → 12s hold not auto-denied → answer → resume → injection. Unit
+`hitl-ask-user.test.ts` (3); tsc clean; full suite = 8 documented baseline failures, no regressions (memory
+`workflow-ask-user-channel-exists` updated to SHIPPED). Prior tail: S29–S30 5-fix walkthrough patch arc
+(`5ca08b0d`..`b81a20ca`) + BUG-3 groom; S27 published 0.24.1. Full detail: git log + walkthrough FINDINGS.)_
 
-## ▶️ NEXT SESSION — implement BUG-3 (spec ready); then groom FEAT-5/6/7/8
-
-### BUG-3 (HIGH) — spec written, implementation NOT started
-- Spec: `features/fix-workflow-hitl-ask-user.md` (code-true, names files/interfaces, fences scope,
-  mandates an end-to-end HITL smoke — `engine.ts` is on the flagship path per CLAUDE.md smoke-budget).
-- Author IN-SESSION on Opus (policy 2), `/clear` + implement fresh (policy 3). Reuse the existing
-  `AskUserQuestion` primitives; do NOT invent `input_required`.
-- **One operator decision open before/during impl:** pause semantics — indefinite `paused` (recommended,
-  honest default) vs. long configurable deadline ending in `needs_input`. Never silent deny-on-timeout.
+## ▶️ NEXT SESSION — groom FEAT-5/6/7/8 (needs operator design direction first)
 
 ### FEAT-5/6/7/8 — STILL OPEN, needs operator design direction (not yet groomed)
 - One app-shell/run-model activation redesign (blank-slate guide, surface app's own blueprints as runnable
@@ -26,12 +19,6 @@ detail: git log + `output/staging/2026-07-03-operator-walkthrough/FINDINGS-live.
   input first — grooming blind risks wasted effort. Bundle:
   `output/staging/2026-07-03-operator-walkthrough/FINDINGS-live.md`.
 - New skill `staging-operator-run` is registered for the next operator run.
-
-### 0.24.1 released + closed out (S27) — nothing pending
-- **Published**: npm `orionfold-relay@0.24.1` (CI run `28685075885` success) + GitHub Release + SBOM.
-  #24/#25/#26 flipped to `shipped` and closed. The 3-fix arc from the S25 staging suite is DONE.
-- P3 polish still in `_IDEAS/backlog.md` (blur-heavy jargon, AINATIVE_ doc-comment, $AINATIVE_DATA_DIR sed,
-  chat_turn cost deep-link) — reactive, not blocking. Or run the next staging R-run (one per session).
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
 - `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
@@ -102,6 +89,12 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**BUG-3 workflow HITL (S31, committed `4c0bae6c`, unreleased):** checkpoint steps can declare `requiresInput`
+to pause the run and ask the user for missing data — reusing the existing `AskUserQuestion` answer loop, not a
+new type. Indefinite `paused` (no deadline, no silent auto-fail); typed answer injected into the step prompt;
+halt-on-refusal (non-final empty output → loud `failed`, not false `completed`); `AskUserQuestion`+null-taskId
+notifications deep-link to the workflow. `types.ts` + `engine.ts` (`waitForInput`) + `actionable.ts` +
+`hitl-ask-user.test.ts`. Verified e2e under `npm run dev`. Spec: `features/fix-workflow-hitl-ask-user.md`.
 **S29–S30 walkthrough patch arc (committed, unreleased):** the 5 self-contained S28-walkthrough findings —
 `5ca08b0d` BUG-1 (git `fatal:` stderr → `+stdio` in `workspace-context.ts`), `65477e61` FEAT-1 (license
 `formatDate` `timeZone:"UTC"`), `4fb20448` BUG-2 (empty-state copy code-true, no CSV claim), `b81a20ca`
