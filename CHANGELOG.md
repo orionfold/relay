@@ -6,7 +6,15 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
-## [0.26.0] — 2026-07-04
+## [0.27.0] — 2026-07-04
+
+### Added
+
+- **Every profile, workflow, table, and schedule now shows which pack it came from.** When a pack like Relay Agency Pro sets up your app, it drops in a set of profiles, workflows, tables, and schedules. Those lists now tag each one with a small pack label, so you can tell at a glance what a pack gave you versus what you built yourself. On the Blueprints page you can also filter to just one pack's workflows.
+
+### Fixed
+
+- **Your finance app opens with real numbers on the very first run.** Relay Agency Pro's finance page used to open completely empty until you ran a workflow, so a fresh install looked broken. It now comes seeded with a month of sample billing, so you see a working ledger the moment you open it. Clicking "Seed sample data" refills that ledger instead of wiping it clean.
 
 ### Fixed
 
