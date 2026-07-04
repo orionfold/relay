@@ -297,7 +297,16 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
           ...(opts?.title ? { title: opts.title } : {}),
         }),
       });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        // Never swallow a create failure silently again (#30): a rejected
+        // runtime/model used to clear the composer with no signal at all.
+        const detail = await res
+          .json()
+          .then((b) => (b as { error?: string })?.error)
+          .catch(() => null);
+        toast.error(detail || "Couldn't start a chat with this model. Try another model.");
+        return null;
+      }
       const conversation = (await res.json()) as ConversationRow;
       setConversations((prev) => [conversation, ...prev]);
       // Set empty messages BEFORE activating so the conversation has an

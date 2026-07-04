@@ -1,6 +1,6 @@
 # fix: Ollama chat/compose silently 400s — conversations-create allow-list omits "ollama"
 
-**Status:** proposed · **Priority:** P1 (HIGH) · **Milestone:** next patch (0.25.x)
+**Status:** IMPLEMENTED + VERIFIED (2026-07-04, real Ollama send) · **Priority:** P1 (HIGH) · **Milestone:** 0.25.1
 **Source:** staging Mode B run 2026-07-03, bundle `output/staging/2026-07-03/R2/` (finding R2-1, verified against HEAD `3e0f438c`) · **Public issue:** #30
 **Dependencies:** none. Runtime-registry-adjacent? The `conversations` route + chat runtime resolution — verify with a real Ollama chat send, not just a unit test.
 
@@ -48,3 +48,20 @@ know it exists). The model selector even lists Ollama models under "Ollama (Loca
 With a local Ollama running, on a fresh instance: pick "Best privacy (local only)" → send a chat message →
 assert a conversation is created AND the message streams a response from the Ollama model (not a cleared
 input). A unit test on the route alone is necessary but not sufficient — verify the end-to-end send.
+
+## Implementation + verification — 2026-07-04
+
+**Fix shipped:**
+1. `conversations/route.ts:54` — added `"ollama"` to `validRuntimes` (kept the literal; no canonical
+   runtime-id constant exists and DRY doesn't warrant one for a 3-element list — Principle #6).
+2. Confirmed the message-send path already handles it: `engine.ts:249-251` routes
+   `effectiveRuntimeId === "ollama"` → `sendOllamaMessage`. No new threading needed.
+3. Defense-in-depth (Principle #1): `chat-session-provider.tsx:300` now toasts the server's error detail
+   on a non-2xx conversation-create instead of silently `return null`.
+4. Test `conversations/__tests__/runtime-allowlist.test.ts` — ollama→201, cloud runtimes→201,
+   unknown→400, missing→400.
+
+**Real-launch verify (runtime-registry-adjacent → smoke-budget rule):** `next dev --port 3211`, isolated
+data dir, against the local Ollama (`qwen2.5:latest`). `POST /api/chat/conversations {runtimeId:"ollama"}`
+→ **201** (was 400); `POST …/messages` → 200, streamed the assistant reply "PONG" from the local model in
+7.2s. Server log shows zero "Invalid runtimeId" 400s. 363 chat tests + typecheck green.

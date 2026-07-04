@@ -9,6 +9,7 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 ### Fixed
 
 - **Automations now work when you run Relay on any port, not just the default one.** If you started Relay on a custom port, behind a proxy, or reachable from other machines, a table automation ("when a high-risk lead is added, create a follow-up task") would quietly do nothing — the trigger showed as active and fired, but the follow-up never appeared, with no error anywhere you could see. The automation now reaches the app at its real address, so the task or workflow it promises actually runs. Fixing that also surfaced a second quiet failure on the same path: a triggered task with no project attached was being rejected and silently dropped; it now gets created.
+- **The "Best privacy (local only)" chat model now works on a fresh install.** If you picked the free, local Ollama option at first run, chat and compose did nothing — the box you typed in just cleared, with no message and no error. Local chat now starts correctly and streams a reply from your own machine. And if starting a chat ever does fail for another reason, you now get a clear message instead of a silent dead end.
 
 ## [0.25.0] — 2026-07-04
 
