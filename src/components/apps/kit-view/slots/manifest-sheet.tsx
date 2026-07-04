@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { ChevronDown, FileText } from "lucide-react";
+import { ChevronRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -36,7 +36,7 @@ export function ManifestSheet({ appName, body }: ManifestSheetProps) {
       >
         <FileText className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
         View manifest
-        <ChevronDown className="h-3.5 w-3.5 ml-1" aria-hidden="true" />
+        <ChevronRight className="h-3.5 w-3.5 ml-1" aria-hidden="true" />
       </Button>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="right" className="w-full sm:max-w-2xl overflow-hidden flex flex-col">

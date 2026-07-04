@@ -2,15 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 
 interface AppDetailActionsProps {
@@ -76,22 +70,15 @@ export function AppDetailActions({
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" aria-label="App actions">
-            <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={() => setConfirmOpen(true)}
-            className="text-destructive focus:text-destructive"
-          >
-            <Trash2 className="h-3.5 w-3.5 mr-2" aria-hidden="true" />
-            Delete app
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setConfirmOpen(true)}
+        className="text-destructive hover:text-destructive"
+      >
+        <Trash2 className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
+        Delete app
+      </Button>
 
       <ConfirmDialog
         open={confirmOpen}

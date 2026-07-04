@@ -42,20 +42,18 @@ const baseProps = {
 };
 
 async function openDeleteConfirm() {
-  // Radix DropdownMenu opens on pointerDown, not click. JSDOM doesn't
-  // synthesize pointerDown from click, so we fire it explicitly.
-  const trigger = screen.getByRole("button", { name: /App actions/i });
-  fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
+  // The toolbar renders "Delete app" as a direct button (no kebab menu).
+  // Clicking it opens the confirm dialog, which has its own "Delete app"
+  // confirm button — so before opening there is exactly one such button.
+  const trigger = screen.getByRole("button", { name: /^Delete app$/i });
   fireEvent.click(trigger);
-  const menuItem = await screen.findByRole("menuitem", { name: /Delete app/i });
-  fireEvent.click(menuItem);
 }
 
-describe("AppDetailActions — kebab menu (F12)", () => {
-  it("renders only a kebab trigger at rest, not a destructive button", () => {
+describe("AppDetailActions — delete button", () => {
+  it("renders the Delete app button directly, not behind a kebab menu", () => {
     render(<AppDetailActions {...baseProps} />);
-    expect(screen.getByRole("button", { name: /App actions/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /^Delete app$/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /^Delete app$/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /App actions/i })).toBeNull();
   });
 });
 
