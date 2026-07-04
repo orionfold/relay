@@ -41,4 +41,9 @@ Browser retest at 1920px AND narrower on BOTH `/apps/relay-agency` and `/apps/re
 
 **Part A — source fix landed, candidate (b).** `kit-view/slots/header.tsx`: moved `flex-wrap` from the action-group child to the parent row and made the action group `flex-nowrap`, so under width pressure the whole group drops to its own row as one atomic unit (intentional stack) instead of splitting chip/manifest across lines. Title keeps a `sm:min-w-[16rem]` floor. Header unit tests pass.
 
-**⚠️ PENDING — browser retest at 1920px** on both `/apps/relay-agency` and `-pro` is the spec's explicit gate and has NOT been run at a real viewport this session (staging was used for the HIGH/MED cluster repro; a dedicated viewport check is the one remaining step). The change is a low-risk deterministic CSS flip, but mark fully-shipped only after the visual confirmation. Next session: `npm run dev` (or relaunch staging) → both apps at 1920px + narrower → assert one horizontal action row, no wrap.
+**✅ SHIPPED — browser gate PASSED (2026-07-04, S39).** Ran the explicit viewport gate against a live `npm run dev` (:3000) at 1920px on BOTH `/apps/relay-agency` and `/apps/relay-agency-pro`:
+- **Wide (1920px):** action group renders as one horizontal row inline right of the title — free app = 3 children (`Ready · Delete app · View manifest`), Pro = 4 children (`Ready · 6am cadence chip · Delete app · View manifest`). Zoom screenshot + DOM geometry both confirm one row.
+- **Narrow (forced 380px card):** the whole action group drops below the title **as one intact row** (`groupStacksBelowTitle: true`, `visualRowCount: 1`) — the intended atomic stack, never an internal chip/manifest split.
+- **Verification method:** DOM row-clustering (`getBoundingClientRect().top` within a 12px tolerance) proved `visualRowCount: 1` in all four cases — more reliable than the screenshot pipeline, whose capture viewport doesn't track OS window resizes. Part B (direct **Delete app** button, no `⋯` kebab) confirmed visually in the same run.
+
+FEAT-4 is fully shipped. Unblocks the 0.26.0 release.

@@ -6,6 +6,16 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.26.0] — 2026-07-04
+
+### Fixed
+
+- **"Run now" now tells you the truth about what happened.** Clicking Run on a workflow card used to flash "Run started" even when it only created a draft with no steps to run. The button now says "Draft created" and links you straight to the workflow to finish and start it, so the message matches what really happened.
+- **Your app's header shows its real status instead of a fake "Running" pulse.** The header used to show a pulsing "Running" chip on every app, even ones that were idle. It now reads "Ready" when nothing is running, and only shows a live count when work is actually in progress.
+- **The app header stays on one clean line.** On wider screens the status chip, Delete button, and manifest link used to break into two ragged rows. They now sit on a single row, and drop together as one group when the screen is too narrow, instead of splitting apart.
+- **A failed data seed or clear now explains itself instead of faking a network error.** If seeding or clearing sample data was blocked, you got a misleading "Network error." You now get a clear message about why it was blocked, and the controls are hidden entirely when the action isn't allowed for your setup.
+- **First run in a plain folder no longer prints scary git errors.** Two more spots that could leak a raw `git` error line on a first run in a non-code folder are now silenced. Nothing was ever wrong; the noise is gone.
+
 ## [0.25.1] — 2026-07-04
 
 ### Fixed
