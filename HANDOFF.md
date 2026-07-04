@@ -1,21 +1,32 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S42 — **0.27.0 RELEASED** (`v0.27.0`→`f29f0098`; npm `latest` + GitHub Release
-+ SBOM + prebuilt artifact; OIDC publish CI fully green incl. npx prod smoke). Bundled the two arcs that were
-unreleased on `main`: S40 (packOf resolver + PackPill on all 4 primitive views + FEAT-7 filter-by-pack) and
-S41 BUG-6 (pack-aware seed). MINOR bump → apiVersion window 0.26→0.27 across all 5 sites (sdk/types.ts,
-registry.ts previous-minor literal 0.25→0.26, 3 example plugin.yaml) — window+registry tests pass, full suite
-8 pre-existing failures only, zero regressions. Pack stays 0.4.0 (no content change) so npx smoke literal
-`v0.4.0` unchanged. CHANGELOG customer-voice entries + #35 (BUG-6) closed `shipped`. Prior tail: S41 BUG-6
-seed; S40 packOf + FEAT-7/8; S39 released 0.26.0. Full detail: git log + CHANGELOG + specs' Resolution sections.)_
+_Last updated: 2026-07-04 (pt: S43 — **nav/naming pass IMPLEMENTED on `main`, UNRELEASED** (7 bisectable
+commits `bc2c5a94`→`5e6cbc45`). Three initiatives: **FEAT-5** elevated Blueprints→`/blueprints` + table-
+templates→`/schemas` (top-level Compose nav; "template" word removed → Presets/Blueprints/Schemas, no
+collision). **Profiles→Agents full rename** — `profile.yaml`→`agent.yaml` via constant + dual-read leaf
+(`agent-file.ts`) + idempotent boot migration in `migrate-to-ainative.ts` (ran live: renamed 42 real files in
+`~/.relay/profiles`+`~/.claude/skills`); routes+API `/agents`+`/api/agents`; copy Profile→Agent + picker
+"Start from a preset". Lib `@/lib/agents/profiles/*` module paths + `~/.relay/profiles` DATA DIR KEPT (not
+URLs). **FEAT-6** two-button Run(instantiate→execute, fixes BUG-4)/Create-workflow via shared
+`run-now-actions.ts`. Smoke: real `npm run dev` + browser Run click → live `active` workflow + running task;
+suite 2611 pass, only the 8 known pre-existing fails, zero regressions. NOT released. Prior tail: S42 released
+0.27.0 (`f29f0098`). Full detail: git log + memory `profiles-are-file-based-not-db`.)_
 
-## ▶️ NEXT SESSION — app-shell design cluster (no acute defect, no pending release)
+## ▶️ NEXT SESSION — release the nav/naming pass, then remaining design cluster
 
-0.27.0 is out; `main` is clean, nothing queued unreleased. Remaining cluster is all design-shaped, ranked:
+**FIRST DECISION: release S43?** 7 commits sit on `main` unreleased. Profiles→Agents is a user-visible
+rename touching a file-layer migration — worth a MINOR (`0.28.0`). If released: apiVersion window bump
+0.27→0.28 across all 5 sites (memory `apiversion-window-bump-at-version-bump`); grep the npx prod smoke for
+any `/api/agents` (was `/api/profiles`) endpoint it asserts (memory `prod-smoke-encodes-contracts`); the boot
+migration is `install`-adjacent → real launch already done this session. Operator holds the release gate.
 
-- **App-shell redesign remainder** (`fix-app-shell-activation-redesign.md`): FEAT-5 (blueprints submenu) +
-  FEAT-6 (two-button Run/Create) + CF-FEAT-5/6/7/8 still backlog. FEAT-6 is a separate redesign concern, NOT
-  gated on packOf. Route to frontend-design/taste; BUG-3/4 acute parts already done.
+Remaining design cluster (all design-shaped, no acute defect):
+- **CF-FEAT-5/6/7/8** (`fix-app-shell-activation-redesign.md`, still backlog): per-button explainer text,
+  1-2-3 step flow, hero-elevate all 6 blueprints, post-Execute Monitor/Inbox signposting. Route to
+  frontend-design/taste. (FEAT-5/6/7/8 now ALL shipped — S40 packOf+pills, S43 nav+two-button.)
+- **Broader Profile→Agent sweep (DEFERRED, S43):** chat `tool-catalog` "Profiles" group key (typed union +
+  `command-tabs.test.ts`-asserted), `composition-detector` primitive label, `chat-command-popover` entity
+  label. Riskier — not folded in; needs its own pass.
 - **Top-chrome design initiative** (FEAT-9/10/11/11b/12/14/15/16, backlog): ONE design spec decides
   tokens/z-layers/offsets once — no acute defect.
 
@@ -99,6 +110,14 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**S43 nav/naming pass (IMPLEMENTED on `main`, UNRELEASED — `bc2c5a94`→`5e6cbc45`):** **FEAT-5** Blueprints
+→`/blueprints`, table-templates→`/schemas` (top-level Compose nav; new `agent-file.ts` leaf pattern).
+**Profiles→Agents** full rename: `profile.yaml`→`agent.yaml` (constant + dual-read + boot migration renamed
+42 real files live), routes+API `/agents`+`/api/agents`, copy Profile→Agent, picker "Start from a preset";
+lib module paths + `~/.relay/profiles` data dir KEPT. **FEAT-6** two-button Run(instantiate→execute, fixes
+BUG-4)/Create-workflow via shared `run-now-actions.ts`. Browser-smoke: Run click → live `active` workflow +
+running task. Memory `profiles-are-file-based-not-db` updated. NOT released. Detail: git log.
+
 **0.27.0 (S42 RELEASED — `v0.27.0`→`f29f0098`; npm `latest` + GitHub Release + SBOM + prebuilt artifact;
 OIDC publish CI green incl. npx prod smoke):** bundled the two arcs that had been unreleased on `main`.
 **S40 primitive→pack source-of-truth + FEAT-7/8:** `packOf()` resolver (`src/lib/apps/pack-of.ts`, 13 tests)
@@ -125,19 +144,7 @@ chat/compose), + `chat-session-provider.tsx` toasts a swallowed non-2xx create. 
 non-3000 launches (`:3210` task dispatched; `:3211` Ollama streamed). PATCH → no apiVersion-window bump.
 Memory `self-http-calls-hardcode-3000`. Commits `982a1ed9`→`ab1bbcfe`.
 
-**0.25.0 (S33, RELEASED — `2a50f91a`, npm `latest` + GitHub Release + SBOM; publish CI green):** bundles
-three arcs. **FEAT-5/6/7/8 app-activation redesign** (`121f5268` + `d76359e7`): Agency Pro's home flipped
-`view.kit` ledger→`workflow-hub` (Option A) → all 6 blueprints render as runnable cards; `RunnableBlueprintCard`
-composes `RunNowButton`; "Start here" = manual+unscheduled blueprint (New-Business); row-insert cards gate the
-Run + name the table (not UUID) via a dynamic-import resolver in `data.ts`; FEAT-7 `ViewModel.secondaryLead` +
-draft Execute nudge; FEAT-8 pure `computeSignpost` (draft→Execute, active→watch, paused splits delay-`resumeAt`
-vs HITL→`/inbox`); pack 0.2.0→0.3.0. Spec `features/redesign-app-activation-run-model.md`; public issue #27.
-**BUG-3 workflow HITL** (`4c0bae6c`): checkpoint steps declare `requiresInput` → pause + ask via the existing
-`AskUserQuestion` loop; indefinite `paused`, halt-on-refusal, deep-linked notifications. Spec
-`features/fix-workflow-hitl-ask-user.md`; public issue #28. **S29–S30 walkthrough patch arc**: BUG-1 git
-`fatal:` stderr silence, FEAT-1 license date UTC, BUG-2 empty-state copy, FEAT-3/4 app-detail toolbar. apiVersion
-window bumped 0.24→0.25 in the release commit. Memory: `workflow-status-vocab-active-not-running`.
-**Older (in git + CHANGELOG + closed issues):** 0.24.1 (S25–S27, 3 customer fixes #24/#25/#26 from the
-S25 6-run staging suite); 0.24.0 (S19, legacy-brand leaks + apiVersion 0.23→0.24); Staging-harness skill
-arc (S20–S23, four skills + app-copy grade-3-5 rewrite); 0.23.0 (packs gallery + founding price) ← 0.16.
-Full history: `git tag` + CHANGELOG + `git log`.
+**Older (in git + CHANGELOG + closed issues):** 0.25.0 (S33, `2a50f91a`, FEAT-5/6/7/8 app-activation redesign
+#27 + BUG-3 workflow HITL #28, memory `workflow-status-vocab-active-not-running`); 0.24.1 (S25–S27, customer
+fixes #24/#25/#26); 0.24.0 (S19, legacy-brand + apiVersion 0.23→0.24); Staging-harness skill arc (S20–S23);
+0.23.0 (packs gallery + founding price) ← 0.16. Full history: `git tag` + CHANGELOG + `git log`.
