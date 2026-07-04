@@ -6,6 +6,17 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.28.0] — 2026-07-04
+
+### Changed
+
+- **"Profiles" are now called "Agents."** The building block that gives a workflow its instructions and personality is now named an Agent everywhere you see it, which matches how people already talk about it. Your existing profiles carry over automatically on first start; nothing to redo. The page moved from "Profiles" to "Agents," and starting a new one now reads "Start from a preset."
+- **Blueprints and Schemas now have their own spots in the top menu.** Workflow blueprints and table schemas used to be tucked away under other pages. Each now has its own top-level place, so you can jump straight to the workflows a pack gave you or the table shapes you can build from, without hunting. The word "template" is gone, which removes the old confusion between the two.
+
+### Added
+
+- **Runnable workflow cards now give you two clear buttons: Run and Create workflow.** On your app's home, a workflow card used to have one button that did something ambiguous. It now offers "Run" to start it right away and "Create workflow" to set one up first. Run does what it says: it builds the run and starts it in one click, so you land on a workflow that is actually going instead of an empty draft.
+
 ## [0.27.0] — 2026-07-04
 
 ### Added

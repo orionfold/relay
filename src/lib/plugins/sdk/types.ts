@@ -6,7 +6,7 @@ import { z } from "zod";
 // (a hardcoded copy there once drifted to "0.14" — scaffolded plugins would
 // have been disabled on load the moment the window tightened). Bump on every
 // MINOR release; api-version-window.test.ts fails if this goes stale.
-export const CURRENT_PLUGIN_API_VERSION = "0.27";
+export const CURRENT_PLUGIN_API_VERSION = "0.28";
 
 // Shared capability tuple — single source of truth used by Zod schema and
 // capability-check.ts hash derivation. Exported so consumers don't need a
