@@ -53,10 +53,15 @@ function daysUntil(iso: string): number {
 }
 
 function formatDate(iso: string): string {
+  // License dates are calendar dates stored as midnight-UTC instants
+  // (e.g. "2026-07-03T00:00:00Z"). Format in UTC so a customer in a
+  // behind-UTC timezone doesn't see the date shift one day earlier than
+  // the license file and their purchase email say.
   return new Date(iso).toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",
+    timeZone: "UTC",
   });
 }
 
