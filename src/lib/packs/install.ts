@@ -361,6 +361,25 @@ export async function installPack(
       reloadBlueprints();
     }
 
+    // Defense-in-depth for the app-detail Data Cache. `loadRuntimeState`
+    // (src/lib/apps/view-kits/data.ts) wraps its projection in
+    // unstable_cache({ revalidate:30, tags:['app-runtime:<id>'] }). Reloading
+    // the registry above fixes getBlueprint(), but a Data-Cache snapshot taken
+    // in the 30s window before enrichment populated could still serve husk
+    // cards (raw ids, no Run button). Invalidating the tag here guarantees the
+    // freshly-installed app's page reads a live projection, not a stale one.
+    // (Did not reproduce on a from-scratch install — the registry singleton is
+    // populated before first render — but this closes the latent race.)
+    try {
+      const { revalidateTag } = await import("next/cache");
+      // Next 16 requires a profile/expiry arg. expire:0 = purge the tagged
+      // entry immediately so the next render recomputes the projection.
+      revalidateTag(`app-runtime:${pack.meta.id}`, { expire: 0 });
+    } catch {
+      // revalidateTag is a no-op outside a Next request/render scope (e.g. the
+      // CLI install path). Never let cache housekeeping fail an install.
+    }
+
     // 6. Report — zero silent steps.
     return {
       packId: pack.meta.id,

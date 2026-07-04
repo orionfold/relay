@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { VariableInput } from "@/components/workflows/variable-input";
 import { validateVariables } from "@/lib/workflows/blueprints/validate-variables";
+import { toastDraftCreated } from "./run-now-toast";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
 
 interface RunNowSheetProps {
@@ -74,10 +75,13 @@ export function RunNowSheet({
         }
         return;
       }
-      toast.success("Run started");
+      const body = (await res.json().catch(() => ({}))) as {
+        workflowId?: string;
+      };
+      toastDraftCreated(body.workflowId);
       setOpen(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Run failed");
+      toast.error(err instanceof Error ? err.message : "Could not create draft");
     } finally {
       setPending(false);
     }

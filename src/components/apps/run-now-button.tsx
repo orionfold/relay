@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
 import { toast } from "sonner";
 import { RunNowSheet } from "./run-now-sheet";
+import { toastDraftCreated } from "./run-now-toast";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
 
 interface RunNowButtonProps {
@@ -63,12 +64,15 @@ export function RunNowButton({
       });
       if (!res.ok) {
         const err = (await res.json().catch(() => ({}))) as { error?: string };
-        toast.error(err.error ?? `Failed to start (${res.status})`);
+        toast.error(err.error ?? `Failed to create draft (${res.status})`);
         return;
       }
-      toast.success("Run started");
+      const body = (await res.json().catch(() => ({}))) as {
+        workflowId?: string;
+      };
+      toastDraftCreated(body.workflowId);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Run failed");
+      toast.error(err instanceof Error ? err.message : "Could not create draft");
     } finally {
       setPending(false);
     }
