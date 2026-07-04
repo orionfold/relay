@@ -5,7 +5,7 @@ vi.mock("sonner", () => ({
   toast: { success: (...a: unknown[]) => toastSuccess(...a) },
 }));
 
-import { toastDraftCreated } from "../run-now-toast";
+import { toastDraftCreated, toastRunStarted } from "../run-now-toast";
 
 beforeEach(() => vi.clearAllMocks());
 
@@ -46,6 +46,46 @@ describe("toastDraftCreated (BUG-4 — honest copy, no 'Run started' lie)", () =
     toastDraftCreated(undefined);
     const [message, opts] = toastSuccess.mock.calls[0];
     expect(message).toMatch(/draft created/i);
+    expect(opts).toBeUndefined();
+  });
+});
+
+describe("toastRunStarted (CF-FEAT-8 — signpost the live-watch surface)", () => {
+  it("names Monitor as where to watch the running workflow", () => {
+    toastRunStarted("wf-1");
+    const [message] = toastSuccess.mock.calls[0];
+    expect(message).toMatch(/run started/i);
+    expect(message).toMatch(/monitor/i);
+  });
+
+  it("opens this run's detail page from the action button", () => {
+    toastRunStarted("wf-7");
+    const opts = toastSuccess.mock.calls[0][1] as {
+      action?: { label: string; onClick: () => void };
+    };
+    expect(opts.action?.label).toMatch(/open run/i);
+    // jsdom's window.location.assign isn't spyable, so swap the whole object.
+    const assign = vi.fn();
+    const original = window.location;
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...original, assign },
+    });
+    try {
+      opts.action?.onClick();
+      expect(assign).toHaveBeenCalledWith("/workflows/wf-7");
+    } finally {
+      Object.defineProperty(window, "location", {
+        configurable: true,
+        value: original,
+      });
+    }
+  });
+
+  it("still signposts Monitor when no workflowId is returned", () => {
+    toastRunStarted(undefined);
+    const [message, opts] = toastSuccess.mock.calls[0];
+    expect(message).toMatch(/monitor/i);
     expect(opts).toBeUndefined();
   });
 });

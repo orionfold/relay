@@ -1,6 +1,6 @@
 # fix: Post-purchase app-shell activation redesign — dead cards, mislabeled "Run", fake "Running" chip
 
-**Status:** proposed · **Priority:** P1 (contains 2 HIGH) · **Milestone:** 0.26.0
+**Status:** BUG-2/3/4 + FEAT-5/6/7/8 + CF-FEAT-5/6/7/8 all resolved (see Resolution sections) · **Priority:** P1 (contains 2 HIGH) · **Milestone:** 0.26.0
 **Source:** staging Mode B run 2026-07-04, bundle `output/staging/2026-07-04-operator-walkthrough/` (findings BUG-2/BUG-3/BUG-4 + FEAT-5/6/7/8 + CF-FEAT-5/6/7/8, verified against HEAD `dd39bea7`; BUG-3 & BUG-1 root causes CORRECTED by the verify gate)
 **Dependencies:** BUG-3 is runtime-registry-adjacent → **CLAUDE.md smoke budget applies**. FEAT-7/8 need one primitive→pack source-of-truth decided before either can ship.
 
@@ -160,3 +160,47 @@ session's clean task.
 system"; the code showed StatusChip is a *fixed-status-key* renderer, wrong for open-set pack identity. Built
 a purpose-named `PackPill` on the shared `Badge` primitive instead — one concept, one name, reusing the
 established provenance-badge pattern already on the profile card.
+
+## Resolution (2026-07-04, S44) — CF-FEAT-5/6/7/8 activation-copy pass SHIPPED
+
+The carried CF-FEAT cluster (per-button explainer, step flow, hero elevation, post-run signposting)
+was a copy + layout pass, no engine touch (NOT smoke-budget-gated). Landed as one coherent change to
+the runnable-blueprint app shell (`/apps/<pack>` Workflow-Hub kit). All copy obeys the app-copy
+standard (no em-dashes, grade 3-5).
+
+- **CF-FEAT-5 — per-card explainer (SHIPPED).** The Run/Create explainer previously rendered only on
+  the "Start here" card (`last-run-card.tsx`); now EVERY runnable card carries it, so no card leaves
+  the two buttons unexplained. The primary keeps the fuller two-sentence hint (and the variable-prompt
+  variant); non-primary cards get a compact one-liner ("Run starts it now. Create workflow saves a
+  draft.") so the grid stays scannable (progressive disclosure).
+
+- **CF-FEAT-6 — 1-2-3 step flow (SHIPPED).** New optional `secondarySteps` on the `ViewModel`
+  (`view-kits/types.ts`), populated by the Workflow-Hub kit (`workflow-hub.ts`) as
+  "1 Pick a workflow below → 2 Click Run to start it → 3 Watch it finish in Monitor", rendered as a
+  quiet numbered `<ol>` strip above the card grid (`kit-view.tsx`). Semantic ordered list; the `→`
+  separators are `aria-hidden`. Only emitted when cards exist. The flat `secondaryLead` sentence was
+  trimmed (step 1 subsumed "pick one and click Run").
+
+- **CF-FEAT-7 — REJECTED as written; kept single "Start here" + lifted non-primary affordance
+  (operator decision, 2026-07-04).** The spec said "elevate all 6 blueprints into the shell (hero
+  slot)". The shell deliberately highlights ONE "Start here" primary and keeps the rest as equal plain
+  cards, which is what makes "pick one and start" legible for a first-time user. Hero-elevating all 6
+  would flatten that cue and give a new user six co-equal entry points with no "where do I begin".
+  **Decision: do NOT blanket-elevate.** Instead the CF-FEAT-5 per-card explainer lifts the non-primary
+  cards' affordance (they now read as clearly runnable) without competing with the primary. Principle
+  #5/#7: the lowest-blast-radius change that serves the actual user need (guided first run), not the
+  literal finding.
+
+- **CF-FEAT-8 — post-run signposting to Monitor (SHIPPED).** The post-Run toast (`run-now-toast.ts`)
+  previously said only "Watch it in Workflows". Now the Run verb's toast names Monitor as the
+  live-watch home ("Run started. Watch it live in Monitor.") while the action button ("Open run") still
+  deep-links to THIS run's detail page (which carries the step list + the `computeSignpost` next-step
+  banner, incl. the Inbox link on HITL pause). The signpost vocabulary that already existed on
+  `workflow-header.tsx` is now reachable from the moment of Run, one hop away, instead of stranded.
+  The "Create workflow" draft toast is unchanged (a draft is not running, so it correctly links to
+  Workflows, not Monitor).
+
+**Tests:** `run-now-toast.test.ts` gains `toastRunStarted` coverage (Monitor prose, Open-run deep-link,
+no-id fallback); `workflow-hub.test.ts` gains the step-strip present/absent cases. **Verification:**
+UI-only, browser-checked under `npm run dev` on `/apps/relay-agency` (step strip, per-card explainers,
+Monitor toast copy). Out of scope: the top-chrome initiative, the broader Profile→Agent sweep.

@@ -27,19 +27,22 @@ export function toastDraftCreated(workflowId: string | undefined): void {
 }
 
 /**
- * FEAT-6: the "Run" verb instantiates AND dispatches (POST .../execute), so
- * the workflow is genuinely running. Say so honestly and deep-link to where
- * the user watches it. Distinct from `toastDraftCreated` (the "Create
- * workflow" verb, which only drafts).
+ * FEAT-6 / CF-FEAT-8: the "Run" verb instantiates AND dispatches (POST
+ * .../execute), so the workflow is genuinely running. Say so honestly and
+ * point the user at where activity shows up. The prose names Monitor (the
+ * live agent-activity stream) as the home for watching progress; the action
+ * button opens THIS run's detail page, which carries the step list and the
+ * next-step signpost. Distinct from `toastDraftCreated` (the "Create
+ * workflow" verb, which only drafts and links to Workflows).
  */
 export function toastRunStarted(workflowId: string | undefined): void {
   if (!workflowId) {
-    toast.success("Run started. Watch it in Workflows.");
+    toast.success("Run started. Watch it live in Monitor.");
     return;
   }
-  toast.success("Run started. Watch it in Workflows.", {
+  toast.success("Run started. Watch it live in Monitor.", {
     action: {
-      label: "Watch run",
+      label: "Open run",
       onClick: () => {
         window.location.assign(`/workflows/${workflowId}`);
       },

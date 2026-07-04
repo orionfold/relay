@@ -129,7 +129,18 @@ export const workflowHubKit: KitDefinition = {
       // are cards to explain, so an empty hub doesn't show a dangling lead.
       secondaryLead:
         secondary.length > 0
-          ? "Each card below is a workflow this app can run. Pick one and click Run to start it."
+          ? "Each card below is a workflow this app can run."
+          : undefined,
+      // CF-FEAT-6: the 1-2-3 activation flow. Gives a first-time user the
+      // sequence from "installed" to "something ran" that flat prose can't.
+      // Step 3 signposts Monitor, matching the post-run toast (CF-FEAT-8).
+      secondarySteps:
+        secondary.length > 0
+          ? [
+              { n: 1, text: "Pick a workflow below." },
+              { n: 2, text: "Click Run to start it." },
+              { n: 3, text: "Watch it finish in Monitor." },
+            ]
           : undefined,
       secondary,
       activity,

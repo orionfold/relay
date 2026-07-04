@@ -259,6 +259,14 @@ export interface ViewModel {
    * a workflow you can run"). Plain text so it can't become a styling hatch.
    */
   secondaryLead?: string;
+  /**
+   * CF-FEAT-6: an optional 1-2-3 step flow rendered above the secondary grid
+   * to orient a first-time user (pick → run → watch). Plain `{ n, text }`
+   * pairs so the kit owns the wording and the slot view owns the numbering
+   * chrome. Rendered only when present, so kits that don't set it are
+   * unaffected.
+   */
+  secondarySteps?: { n: number; text: string }[];
   activity?: ActivityFeedSlot;
   footer?: ManifestPaneSlot;
 }

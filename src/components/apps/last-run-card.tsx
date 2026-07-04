@@ -166,16 +166,18 @@ export function RunnableBlueprintCard({
               variables={card.variables}
               label="Run"
             />
-            {/* FEAT-6: on the "Start here" card, name both verbs for a
-                first-time user. Only the primary card carries this hint, so the
-                grid stays scannable (progressive disclosure). */}
-            {card.isPrimary && (
-              <p className="text-xs text-muted-foreground">
-                {card.variables.length > 0
+            {/* CF-FEAT-5: name both verbs on EVERY card, not just the primary,
+                so no card leaves the two buttons unexplained. The "Start here"
+                card carries the fuller sentence (it may also mention the
+                variable prompt); the rest carry a compact one-liner so the grid
+                stays scannable (progressive disclosure). */}
+            <p className="text-xs text-muted-foreground">
+              {card.isPrimary
+                ? card.variables.length > 0
                   ? "Run asks a few questions, then starts a workflow you can watch. Create workflow saves a draft to run later."
-                  : "Run starts a workflow you can watch. Create workflow saves a draft to run later."}
-              </p>
-            )}
+                  : "Run starts a workflow you can watch. Create workflow saves a draft to run later."
+                : "Run starts it now. Create workflow saves a draft."}
+            </p>
           </div>
         )}
       </CardContent>

@@ -31,6 +31,25 @@ export function KitView({ model }: KitViewProps) {
               {model.secondaryLead}
             </p>
           )}
+          {model.secondarySteps && model.secondarySteps.length > 0 && (
+            <ol className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+              {model.secondarySteps.map((step, i) => (
+                <li key={step.n} className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+                    {step.n}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {step.text}
+                  </span>
+                  {i < model.secondarySteps!.length - 1 && (
+                    <span aria-hidden className="text-muted-foreground/40">
+                      →
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          )}
           <SecondarySlotView slots={model.secondary} />
         </div>
       )}

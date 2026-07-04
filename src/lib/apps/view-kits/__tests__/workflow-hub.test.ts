@@ -216,6 +216,29 @@ describe("workflowHubKit.buildModel", () => {
     expect(model.secondary ?? []).toEqual([]);
   });
 
+  it("emits the 1-2-3 activation steps when there are cards (CF-FEAT-6)", () => {
+    const app = makeApp({ blueprints: [{ id: "bp-1" }] });
+    const proj = workflowHubKit.resolve({ manifest: app.manifest, columns: [] });
+    const runtime: RuntimeState = {
+      app,
+      blueprintCards: [
+        { id: "bp-1", name: "One", description: null, variables: [], trigger: null, isPrimary: true },
+      ],
+    };
+    const model = workflowHubKit.buildModel(proj, runtime);
+    expect(model.secondarySteps).toHaveLength(3);
+    expect(model.secondarySteps?.map((s) => s.n)).toEqual([1, 2, 3]);
+    // Step 3 signposts Monitor, matching the post-run toast (CF-FEAT-8).
+    expect(model.secondarySteps?.[2].text).toMatch(/monitor/i);
+  });
+
+  it("omits the activation steps when there are no cards (CF-FEAT-6)", () => {
+    const app = makeApp({ blueprints: [{ id: "bp-1" }] });
+    const proj = workflowHubKit.resolve({ manifest: app.manifest, columns: [] });
+    const model = workflowHubKit.buildModel(proj, { app });
+    expect(model.secondarySteps).toBeUndefined();
+  });
+
   it("populates activity slot when failed tasks exist", () => {
     const app = makeApp({});
     const proj = workflowHubKit.resolve({ manifest: app.manifest, columns: [] });
