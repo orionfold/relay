@@ -19,7 +19,7 @@
 //      `relay license add` with the REAL prod-signed fixture → activation
 //      ceremony; `license status` valid; a premium pack installs with NO
 //      --license-url (store consult); the launch banner reads "Licensed to";
-//      seed/clear 404 without RELAY_STAGING; rm the license store → banner
+//      seed refuses with an explanatory 403 without RELAY_STAGING; rm the license store → banner
 //      reverts to Community Edition, the pack STAYS installed (D4), and
 //      RELAY_STAGING=true opens seed/clear on the prod build (PLG-S).
 //   C. Broken artifact URL: loud "Could not set up the production build"
@@ -212,7 +212,11 @@ async function main() {
     // The 0.21.0 update surface: list shows the sidecar-recorded version.
     assert(/relay-agency-pro.*installed v0\.3\.0/.test(packList.output), `pack list should show the installed version:\n${packList.output}`);
 
-    // 4. Launch: licensed banner (D3) + seed/clear 404 without RELAY_STAGING.
+    // 4. Launch: licensed banner (D3) + seed gate returns an explanatory 403
+    //    without RELAY_STAGING. BUG-5 (#34, 0.26.0) replaced the old bare-null
+    //    404 — which null-deref'd into a fake "Network error" in the UI — with
+    //    a 403 carrying a plain-language `error` body. Assert both: the status
+    //    AND that the refusal explains itself (the whole point of the fix).
     {
       const port = await reserveLoopbackPort();
       const { child, getOutput } = launchCli({ installDir, dataDir, port, artifactUrl });
@@ -221,7 +225,12 @@ async function main() {
         assert(!/Community Edition/.test(getOutput()), "a licensee is never greeted as Community Edition");
         await waitForHttpOk(`http://127.0.0.1:${port}/`, PROD_START_TIMEOUT_MS);
         const seed = await fetch(`http://127.0.0.1:${port}/api/data/seed`, { method: "POST" });
-        assert(seed.status === 404, `seed must 404 in a customer-shaped prod run (got ${seed.status})`);
+        assert(seed.status === 403, `seed must refuse with 403 in a customer-shaped prod run (got ${seed.status})`);
+        const seedBody = await seed.json().catch(() => ({}));
+        assert(
+          typeof seedBody?.error === "string" && seedBody.error.length > 0,
+          `seed refusal must carry an explanatory error body (got ${JSON.stringify(seedBody)})`
+        );
       } finally {
         await stopChild(child);
       }
