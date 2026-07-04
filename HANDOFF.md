@@ -1,36 +1,27 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S41 — **BUG-6 pack-aware seed SHIPPED** (unreleased, `9e6cab00`+`d96dc7b1` on
-`main`). The seed cluster's clean task, done end-to-end. Two coordinated fixes, both reusing existing machinery:
-(1) authored `seed/tables/engagements.json` for Agency Pro — 26 current-month signed rows (+billing/−cost),
-$13,950 billed / 49% margin, so the finance cockpit reads non-zero on FIRST INSTALL (install already supported
-`seed/tables/*.json`, the file just didn't exist); LEDGER-ONLY because `intake`/`grants` carry row-insert
-triggers and seeding them would dispatch pipeline blueprints (memory
-`seed-clears-pack-tables-and-addrows-fires-triggers`). (2) New `reseedInstalledPacks()` (`seed-data/installed-packs.ts`)
-wired as `seed.ts` step 25: after `clearAllData()` wipes pack tables ENTIRELY (defs+cols+rows), re-apply every
-installed pack via the idempotent `installPack()` — so the Seed button FILLS the pack instead of emptying it.
-Design call (all-installed-packs, not hardcoded Agency-Pro; `decide-architecture-with-rationale`): packOf(S40)
-turned out NOT needed — installPack keys tables by `projectId=pack.meta.id`. Pack bump 0.3.0→0.4.0 + changelog +
-npx-smoke version literal (`prod-smoke-encodes-contracts` — would've failed at release on stale `v0.3.0`). 542
-pass/1 skip; live smoke (isolated dir, real Next.js reqs) + browser walk: install→rowsSeeded:26, Seed
-button→ledger survives at $13,950. Prior tail: S40 packOf + FEAT-7/8 pills; S39 released 0.26.0. Full detail:
-git log + specs' Resolution sections.)_
+_Last updated: 2026-07-04 (pt: S42 — **0.27.0 RELEASED** (`v0.27.0`→`f29f0098`; npm `latest` + GitHub Release
++ SBOM + prebuilt artifact; OIDC publish CI fully green incl. npx prod smoke). Bundled the two arcs that were
+unreleased on `main`: S40 (packOf resolver + PackPill on all 4 primitive views + FEAT-7 filter-by-pack) and
+S41 BUG-6 (pack-aware seed). MINOR bump → apiVersion window 0.26→0.27 across all 5 sites (sdk/types.ts,
+registry.ts previous-minor literal 0.25→0.26, 3 example plugin.yaml) — window+registry tests pass, full suite
+8 pre-existing failures only, zero regressions. Pack stays 0.4.0 (no content change) so npx smoke literal
+`v0.4.0` unchanged. CHANGELOG customer-voice entries + #35 (BUG-6) closed `shipped`. Prior tail: S41 BUG-6
+seed; S40 packOf + FEAT-7/8; S39 released 0.26.0. Full detail: git log + CHANGELOG + specs' Resolution sections.)_
 
-## ▶️ NEXT SESSION — rest of app-shell cluster (no acute defect left)
+## ▶️ NEXT SESSION — app-shell design cluster (no acute defect, no pending release)
 
-BUG-6 shipped clean (unreleased on `main`; ships next release, nothing to verify). Remaining cluster, ranked:
+0.27.0 is out; `main` is clean, nothing queued unreleased. Remaining cluster is all design-shaped, ranked:
 
 - **App-shell redesign remainder** (`fix-app-shell-activation-redesign.md`): FEAT-5 (blueprints submenu) +
   FEAT-6 (two-button Run/Create) + CF-FEAT-5/6/7/8 still backlog. FEAT-6 is a separate redesign concern, NOT
   gated on packOf. Route to frontend-design/taste; BUG-3/4 acute parts already done.
 - **Top-chrome design initiative** (FEAT-9/10/11/11b/12/14/15/16, backlog): ONE design spec decides
   tokens/z-layers/offsets once — no acute defect.
-- **Next release** bundles S40 (packOf + FEAT-7/8) + S41 (BUG-6) — both unreleased on `main`. MINOR bump →
-  apiVersion window bump required (5 sites, memory `apiversion-window-bump-at-version-bump`); pack 0.4.0 counts
-  already in the npx smoke.
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
 `create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests; other staging R-runs.
+Stale-close review: #32/#33/#34/#36/#37 (the 0.26.0 fixes) are still OPEN — close as `shipped` when convenient.
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
 - `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
@@ -62,7 +53,7 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 ## Known caveats
 - **apiVersion window**: bump `CURRENT_PLUGIN_API_VERSION` (sdk/types.ts) + previous-MINOR
   literal (registry.ts) + the 3 `src/lib/plugins/examples/*/plugin.yaml` IN the release commit ONLY on a
-  MINOR bump (now `{0.26, 0.25}` set in `3efa4722`); the window test derives its expected window from
+  MINOR bump (now `{0.27, 0.26}` set in `f29f0098`); the window test derives its expected window from
   package.json, so it fails loudly until every site bumps together. **S38→S39 near-miss:** the S38 handoff
   wrongly said "no window bump needed" for 0.26.0 — it IS needed on every MINOR; caught before the release commit.
 - **The npx prod smoke (`scripts/npx-prod-smoke.mjs`) encodes API contracts that bundled fixes may change** —
@@ -108,18 +99,15 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**S41 (unreleased, on `main` — `9e6cab00` fix + `d96dc7b1` spec):** BUG-6 (#35) pack-aware seed. Agency Pro
-`seed/tables/engagements.json` (26 signed current-month rows → $13,950 billed / 49% margin, ledger-only —
-intake/grants are trigger-bound) + `reseedInstalledPacks()` (`seed-data/installed-packs.ts`) as `seed.ts` step
-25 (rebuilds pack tables via idempotent `installPack` after clear wipes them). Pack 0.3.0→0.4.0 + changelog +
-npx-smoke literal. 542 pass; live + browser verified. Memory `seed-clears-pack-tables-and-addrows-fires-triggers`.
-Spec: `fix-seed-gate-and-pack-coverage.md` → "Resolution (S41)".
-
-**S40 (unreleased, on `main` — 5 commits `d66836d1`→`3fa28b41` + spec resolution):** primitive→pack
-source-of-truth + FEAT-7/8. `packOf()` resolver (`src/lib/apps/pack-of.ts`, 13 tests) + `PackPill`
-(`src/components/shared/pack-pill.tsx`) on all 4 primitive views + FEAT-7 filter-by-pack on Blueprints.
-Browser-verified against real `~/.relay`. Ships in the next release (no version bump yet; not pack-format,
-no apiVersion-window impact). Spec: `fix-app-shell-activation-redesign.md` → "Resolution (S40)".
+**0.27.0 (S42 RELEASED — `v0.27.0`→`f29f0098`; npm `latest` + GitHub Release + SBOM + prebuilt artifact;
+OIDC publish CI green incl. npx prod smoke):** bundled the two arcs that had been unreleased on `main`.
+**S40 primitive→pack source-of-truth + FEAT-7/8:** `packOf()` resolver (`src/lib/apps/pack-of.ts`, 13 tests)
++ `PackPill` (`src/components/shared/pack-pill.tsx`) on all 4 primitive views + FEAT-7 filter-by-pack on
+Blueprints. Spec `fix-app-shell-activation-redesign.md` → "Resolution (S40)". **S41 BUG-6 (#35, closed
+`shipped`) pack-aware seed:** Agency Pro `seed/tables/engagements.json` (26 signed current-month rows →
+$13,950 billed / 49% margin, ledger-only — intake/grants trigger-bound) + `reseedInstalledPacks()`
+(`seed-data/installed-packs.ts`) as `seed.ts` step 25. Pack stays 0.4.0. MINOR bump → apiVersion window
+0.26→0.27 (5 sites). Memory `seed-clears-pack-tables-and-addrows-fires-triggers`.
 
 **0.26.0 (S38+S39 RELEASED — `v0.26.0`→`5db27412`; npm `latest` + GitHub Release + SBOM; OIDC CI green):**
 groomed 2026-07-04 fix specs — FEAT-4 header row-wrap (#37), BUG-1 git stdio (#36), BUG-5 seed gate 404→403
