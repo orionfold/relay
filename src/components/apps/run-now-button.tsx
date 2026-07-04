@@ -2,92 +2,108 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play } from "lucide-react";
+import { Play, FilePlus } from "lucide-react";
 import { toast } from "sonner";
 import { RunNowSheet } from "./run-now-sheet";
-import { toastDraftCreated } from "./run-now-toast";
+import { toastDraftCreated, toastRunStarted } from "./run-now-toast";
+import { instantiateAndMaybeExecute } from "./run-now-actions";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
 
 interface RunNowButtonProps {
   blueprintId: string | null | undefined;
   /**
-   * If the blueprint declares input variables, the button delegates to
+   * If the blueprint declares input variables, the buttons delegate to
    * `RunNowSheet` which collects values via an inline form before posting.
-   * When null/undefined/empty, the Phase 2 direct-POST behavior is used.
+   * When null/undefined/empty, the direct-POST path is used.
    */
   variables?: BlueprintVariable[] | null;
   /**
-   * Defaults to a label of "Run now". Tracker uses the default; future kits
-   * may pass a domain-specific label like "Synthesize now".
+   * Label for the primary Run button. Defaults to "Run". Kits may pass a
+   * domain-specific verb; the secondary "Create workflow" button is fixed.
    */
   label?: string;
 }
 
 /**
- * Posts to the blueprint instantiate endpoint with empty variables when the
- * blueprint declares no inputs. When `variables` is non-empty, delegates to
- * `RunNowSheet` so the user can fill in the inputs before the request.
+ * FEAT-6: two explicit verbs on a runnable blueprint card.
+ *  - **Run** — instantiate THEN execute, so the workflow genuinely dispatches
+ *    (resolves BUG-4's mislabeled draft-only button). Engine-adjacent.
+ *  - **Create workflow** — instantiate only, leaving a draft to review/Execute
+ *    later from /workflows.
  *
- * Phase 2 contract preserved: with no/empty `variables`, this behaves exactly
- * like the previous direct-POST button — clicking issues the instantiate POST
- * and toasts the result.
+ * When the blueprint declares variables, both verbs route through
+ * `RunNowSheet` (which collects inputs first) via its `mode`.
  */
 export function RunNowButton({
   blueprintId,
   variables,
-  label = "Run now",
+  label = "Run",
 }: RunNowButtonProps) {
-  const [pending, setPending] = useState(false);
+  const [pending, setPending] = useState<"run" | "create" | null>(null);
 
   if (!blueprintId) return null;
 
-  // Delegate to sheet when blueprint declares variables
+  // Delegate to the sheet when the blueprint declares variables — it collects
+  // inputs, then runs or creates per the button the user pressed.
   if (variables && variables.length > 0) {
     return (
-      <RunNowSheet
-        blueprintId={blueprintId}
-        variables={variables}
-        label={label}
-      />
+      <div className="flex flex-wrap items-center gap-2">
+        <RunNowSheet
+          blueprintId={blueprintId}
+          variables={variables}
+          label={label}
+          mode="run"
+        />
+        <RunNowSheet
+          blueprintId={blueprintId}
+          variables={variables}
+          label="Create workflow"
+          mode="create"
+          buttonVariant="outline"
+        />
+      </div>
     );
   }
 
-  // Fallback: direct POST (existing Phase 2 behavior)
-  async function handleClick() {
+  async function act(mode: "run" | "create") {
     if (!blueprintId) return;
-    setPending(true);
+    setPending(mode);
     try {
-      const res = await fetch(`/api/blueprints/${blueprintId}/instantiate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ variables: {} }),
-      });
-      if (!res.ok) {
-        const err = (await res.json().catch(() => ({}))) as { error?: string };
-        toast.error(err.error ?? `Failed to create draft (${res.status})`);
+      const result = await instantiateAndMaybeExecute(blueprintId, {}, mode);
+      if (!result.ok) {
+        toast.error(result.error);
         return;
       }
-      const body = (await res.json().catch(() => ({}))) as {
-        workflowId?: string;
-      };
-      toastDraftCreated(body.workflowId);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not create draft");
+      if (mode === "run") toastRunStarted(result.workflowId);
+      else toastDraftCreated(result.workflowId);
     } finally {
-      setPending(false);
+      setPending(null);
     }
   }
 
   return (
-    <Button
-      type="button"
-      size="sm"
-      onClick={handleClick}
-      disabled={pending}
-      className="gap-1.5"
-    >
-      <Play className="h-3.5 w-3.5" />
-      {label}
-    </Button>
+    <div className="flex flex-wrap items-center gap-2">
+      <Button
+        type="button"
+        size="sm"
+        onClick={() => act("run")}
+        disabled={pending !== null}
+        className="gap-1.5"
+      >
+        <Play className="h-3.5 w-3.5" />
+        {label}
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        onClick={() => act("create")}
+        disabled={pending !== null}
+        className="gap-1.5"
+      >
+        <FilePlus className="h-3.5 w-3.5" />
+        Create workflow
+      </Button>
+    </div>
   );
 }

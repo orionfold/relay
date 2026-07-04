@@ -166,14 +166,14 @@ export function RunnableBlueprintCard({
               variables={card.variables}
               label="Run"
             />
-            {/* FEAT-5.2: on the "Start here" card, tell a first-time user what
-                Run does. Only the primary card carries this hint, so the grid
-                stays scannable (progressive disclosure). */}
+            {/* FEAT-6: on the "Start here" card, name both verbs for a
+                first-time user. Only the primary card carries this hint, so the
+                grid stays scannable (progressive disclosure). */}
             {card.isPrimary && (
               <p className="text-xs text-muted-foreground">
                 {card.variables.length > 0
-                  ? "Run asks a few questions, then starts a workflow you can watch."
-                  : "Run starts a workflow you can watch as it works."}
+                  ? "Run asks a few questions, then starts a workflow you can watch. Create workflow saves a draft to run later."
+                  : "Run starts a workflow you can watch. Create workflow saves a draft to run later."}
               </p>
             )}
           </div>
@@ -189,7 +189,7 @@ function HeroVariant({ task, previousRuns }: HeroProps) {
   if (!task) {
     return (
       <div className="surface-card rounded-xl p-6 text-center text-muted-foreground border">
-        No digest yet. Click <strong>Run now</strong> to generate the first one.
+        No digest yet. Click <strong>Run</strong> to generate the first one.
       </div>
     );
   }

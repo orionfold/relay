@@ -25,3 +25,24 @@ export function toastDraftCreated(workflowId: string | undefined): void {
     },
   });
 }
+
+/**
+ * FEAT-6: the "Run" verb instantiates AND dispatches (POST .../execute), so
+ * the workflow is genuinely running. Say so honestly and deep-link to where
+ * the user watches it. Distinct from `toastDraftCreated` (the "Create
+ * workflow" verb, which only drafts).
+ */
+export function toastRunStarted(workflowId: string | undefined): void {
+  if (!workflowId) {
+    toast.success("Run started. Watch it in Workflows.");
+    return;
+  }
+  toast.success("Run started. Watch it in Workflows.", {
+    action: {
+      label: "Watch run",
+      onClick: () => {
+        window.location.assign(`/workflows/${workflowId}`);
+      },
+    },
+  });
+}

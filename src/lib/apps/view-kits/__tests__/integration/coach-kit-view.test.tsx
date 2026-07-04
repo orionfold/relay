@@ -38,7 +38,7 @@ describe("Coach kit — KitView integration", () => {
       },
     });
     expect(screen.getByText(/mondays at 8am/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /run now/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^run$/i })).toBeInTheDocument();
     expect(container.querySelector('[data-kit-slot="hero"]')).toBeInTheDocument();
     expect(screen.getByText(/portfolio update/i)).toBeInTheDocument();
   });

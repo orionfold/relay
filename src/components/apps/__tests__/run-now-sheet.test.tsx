@@ -27,14 +27,14 @@ const variables: BlueprintVariable[] = [
 describe("RunNowSheet", () => {
   it("opens via trigger and renders fields", () => {
     render(<RunNowSheet blueprintId="bp1" variables={variables} />);
-    fireEvent.click(screen.getByRole("button", { name: /run now/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^run$/i }));
     expect(screen.getByText(/asset/i)).toBeInTheDocument();
     expect(screen.getByText(/horizon/i)).toBeInTheDocument();
   });
 
   it("blocks submit when required field is empty", async () => {
     render(<RunNowSheet blueprintId="bp1" variables={variables} />);
-    fireEvent.click(screen.getByRole("button", { name: /run now/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^run$/i }));
     fireEvent.click(screen.getByRole("button", { name: /start run/i }));
     await waitFor(() => {
       expect(screen.getByText(/asset is required/i)).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe("RunNowSheet", () => {
   it("submits to /api/blueprints/{id}/instantiate on valid input", async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ taskId: "t1" }) });
     render(<RunNowSheet blueprintId="bp1" variables={variables} />);
-    fireEvent.click(screen.getByRole("button", { name: /run now/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^run$/i }));
     const assetInput = screen.getByRole("textbox");
     fireEvent.change(assetInput, { target: { value: "NVDA" } });
     fireEvent.click(screen.getByRole("button", { name: /start run/i }));
@@ -67,7 +67,7 @@ describe("RunNowSheet", () => {
       json: async () => ({ field: "asset", message: "Asset not recognized" }),
     });
     render(<RunNowSheet blueprintId="bp1" variables={variables} />);
-    fireEvent.click(screen.getByRole("button", { name: /run now/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^run$/i }));
     const assetInput = screen.getByRole("textbox");
     fireEvent.change(assetInput, { target: { value: "INVALID" } });
     fireEvent.click(screen.getByRole("button", { name: /start run/i }));
@@ -79,7 +79,7 @@ describe("RunNowSheet", () => {
   it("preserves input on network failure", async () => {
     fetchMock.mockRejectedValueOnce(new Error("offline"));
     render(<RunNowSheet blueprintId="bp1" variables={variables} />);
-    fireEvent.click(screen.getByRole("button", { name: /run now/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^run$/i }));
     const assetInput = screen.getByRole("textbox") as HTMLInputElement;
     fireEvent.change(assetInput, { target: { value: "NVDA" } });
     fireEvent.click(screen.getByRole("button", { name: /start run/i }));

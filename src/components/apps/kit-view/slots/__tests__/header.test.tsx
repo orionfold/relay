@@ -37,7 +37,7 @@ describe("HeaderSlotView triggerSourceChip", () => {
         manifestPane={undefined}
       />
     );
-    expect(screen.queryByRole("button", { name: /run now/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^run$/i })).not.toBeInTheDocument();
   });
 
   it("renders RunNowButton when triggerSourceChip.kind is schedule or manual", () => {
@@ -55,6 +55,6 @@ describe("HeaderSlotView triggerSourceChip", () => {
         manifestPane={undefined}
       />
     );
-    expect(screen.getByRole("button", { name: /run now/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^run$/i })).toBeInTheDocument();
   });
 });

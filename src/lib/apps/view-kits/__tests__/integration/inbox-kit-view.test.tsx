@@ -39,7 +39,7 @@ describe("Inbox kit — KitView integration", () => {
       runtime: { inboxQueueRows: [], inboxSelectedRowId: null, inboxDraftDocument: null },
     });
     expect(screen.getByText(/row insert in touchpoints/i)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /run now/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^run$/i })).not.toBeInTheDocument();
   });
 
   it("renders hero with inbox-split content", () => {
