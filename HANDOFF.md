@@ -1,32 +1,20 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: S32 — **FEAT-5/6/7/8 GROOMED into ONE unified spec, committed `0413f2b8`**,
-un-started. `features/redesign-app-activation-run-model.md` — operator-gated: runnable-blueprint-cards +
-guided first-run. Root cause verified: Agency Pro's manifest hard-declares `view.kit: ledger` (single-hero
-kit hides 5/6 workflows); most plumbing exists (`workflow-hub` kit enumerates all blueprints, `RunNowButton`
-is a drop-in per-card run action). Fix routes Agency Pro to the multi-blueprint home + makes cards runnable +
-honors row-insert gating + FEAT-8 signpost reuses BUG-3's shipped `paused`+Inbox channel; does NOT retune
-`pickKit`. Vertical-slice-first build sequence + smoke-budget verification in the spec. Prior tail: S31 BUG-3
-(workflow HITL) shipped `4c0bae6c`; S29–S30 5-fix walkthrough patch arc; S27 published 0.24.1. Full detail:
-git log + walkthrough FINDINGS.)_
+_Last updated: 2026-07-04 (pt: S33 — **FEAT-5/6/7/8 SHIPPED + verified e2e** (`121f5268` slice 1,
+`d76359e7` steps 2-5), UNRELEASED. Agency Pro app-activation redesign: `view.kit` ledger→`workflow-hub`
+(Option A, operator-chosen) → all 6 blueprints render as runnable cards with a "Start here" flag,
+row-insert cards gated + named by table, per-card Run helper, FEAT-7 blueprint-vs-workflow lead +
+draft Execute nudge, FEAT-8 `computeSignpost` (draft/active/paused → Inbox for HITL). Pack bumped
+0.2.0→0.3.0 (changelog + Case L smoke moved). Caught the `active`-not-`running` status-vocab trap in
+the e2e smoke (memory written). 437 affected tests green; 8 documented baseline failures only. No open
+next-action carried — next session picks from staging cadence / held issues / backlog. Prior tail: S32
+groomed the spec `0413f2b8`; S31 BUG-3 HITL `4c0bae6c`; S27 published 0.24.1. Full detail: git log.)_
 
-## ▶️ NEXT SESSION — IMPLEMENT FEAT-5/6/7/8 (spec ready, operator-gated)
+## ▶️ NEXT SESSION — no committed workstream
 
-### FEAT-5/6/7/8 — GROOMED (S32, `0413f2b8`), un-started
-- Spec: **`features/redesign-app-activation-run-model.md`** — ONE unified app-activation + run-model
-  redesign. Operator chose **runnable-blueprint-cards + guided first-run** ("Start here ▸" + a card
-  per blueprint with a Run action). Lightweight ceremony (operator drafted in-session).
-- **Root cause (verified):** Agency Pro's manifest hard-declares `view.kit: ledger`
-  (`manifest.yaml:77`) → the single-hero ledger kit hides 5/6 workflows on the app's own home.
-- **Most plumbing already exists** — `workflow-hub` kit already enumerates all blueprints + renders
-  one `LastRunCard` each; `RunNowButton` is a drop-in per-card run action. Fix = route Agency Pro to
-  the multi-blueprint home (flip `view.kit` to `workflow-hub`, or a ledger-hybrid — Open Q #1) + make
-  cards runnable + **honor row-insert gating** (intake-pipeline/grant-pipeline-deep) + FEAT-8 signpost
-  reuses BUG-3's shipped `paused`+Inbox channel. Do NOT retune `pickKit` rules.
-- **Build sequence + verification (smoke-budget applies to `data.ts`) in the spec.** Vertical slice
-  first: one runnable card on the home → prove the redesign, then surface the A-vs-hybrid routing
-  tradeoff to the operator with the working slice.
-- New skill `staging-operator-run` is registered for the next operator run.
+FEAT-5/6/7/8 is done and unreleased (ships with the next release cut). No task is pre-committed for the
+next session; pick from the live workstreams below (staging re-run cadence, held-issue retests, or the
+not-started backlog) or a fresh operator ask.
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
 - `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
@@ -97,6 +85,16 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**FEAT-5/6/7/8 app-activation redesign (S33, `121f5268` + `d76359e7`, UNRELEASED):** Agency Pro's app
+home was a single-hero ledger view hiding 5/6 workflows (root cause: manifest `view.kit: ledger`). Flipped
+to `workflow-hub` (Option A) → all 6 blueprints render as runnable cards. `RunnableBlueprintCard` composes
+`RunNowButton`; "Start here" heuristic picks the manual+unscheduled blueprint (New-Business, not the
+schedule-driven month-end-close); row-insert cards gate the manual Run + name the table (not UUID) via a
+dynamic-import resolver in `data.ts` (smoke-budget). FEAT-7: `ViewModel.secondaryLead` blueprint-vs-workflow
+line + draft Execute nudge. FEAT-8: pure `computeSignpost` in `workflow-header.tsx` — draft→Execute,
+active→"watch below", paused splits delay (`resumeAt`) vs HITL (→ /inbox, reuses BUG-3 channel). Pack
+0.2.0→0.3.0 (changelog line + Case L smoke + template/update tests moved). Verified e2e under `npm run dev`.
+Spec: `features/redesign-app-activation-run-model.md` (SHIPPED). Memory: `workflow-status-vocab-active-not-running`.
 **BUG-3 workflow HITL (S31, committed `4c0bae6c`, unreleased):** checkpoint steps can declare `requiresInput`
 to pause the run and ask the user for missing data — reusing the existing `AskUserQuestion` answer loop, not a
 new type. Indefinite `paused` (no deadline, no silent auto-fail); typed answer injected into the step prompt;
@@ -114,9 +112,6 @@ phantom-model (#25, import-free resolver + live-Ollama smoke), `fe4b9237` profil
 (#26, exhaustive `Record<AgentRuntimeId,string>` map + `profile-card.test.tsx`). Origin: S25 live 6-run
 staging suite (bundle `output/staging/2026-07-03-suite/`) → 3 fix specs → all fixed. GH issue mgmt fully
 automated (auto-file + env-prefixed `gh` rules) this arc.
-**0.24.0 (S19, RELEASED):** legacy-brand leaks CLOSED (theme cookie + apps-changed `d9cf5712`; webhook
-`source` rename `f6639058`) + apiVersion window 0.23→0.24 (`58fc89ac`). npm `latest` + Release + SBOM.
-**Staging-harness arc (S20–S23, tooling, unreleased):** four skills — `staging-cli-run` `dd7cab0a`,
-`staging-evaluate` `0ce13c0d`, `staging-browser-smoke`, substrate. Plus S21 app-copy grade-3-5 rewrite.
-Detail in `git log`. Prior releases 0.23.0 (packs gallery + founding price) ← 0.16. Full history:
-`git tag` + CHANGELOG + `git log`.
+**Older (in git):** 0.24.0 (S19, legacy-brand leaks + apiVersion 0.23→0.24); Staging-harness skill arc
+(S20–S23, four skills + app-copy grade-3-5 rewrite); 0.23.0 (packs gallery + founding price) ← 0.16.
+Full history: `git tag` + CHANGELOG + `git log`.
