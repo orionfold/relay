@@ -67,3 +67,63 @@ Staging harness, `orionfold-relay@0.25.1` prebuilt artifact, isolated data dir, 
 - **Runtime-registry-adjacent** (`install.ts`): re-verified with a real artifact rebuild + staging launch (smoke budget), not just units.
 
 **BUG-2 (MED)** confirmed pulsing on the unfixed artifact; fixed this session (data-driven `headerStatus`), re-verified after rebuild.
+
+## Grooming decision (2026-07-04, S40) — the primitive→pack source-of-truth (unblocks FEAT-7/8 + BUG-6)
+
+FEAT-7 (filter-by-pack) and FEAT-8 (pack-provenance pill) are two faces of ONE need: given an
+installed primitive, name the pack that installed it. That association was the cluster's blocker.
+Verified current state (code-true, S40) settles the design.
+
+**Current state — the association already exists, just non-uniformly:**
+- `pack.meta.id` (`format.ts:32`) IS the pack id. The `relay-agency--` prefix is authored INTO the
+  manifest by the pack author, so `prefix === manifest.id === pack.meta.id`; install copies it verbatim.
+- **Tables** — DB, UUID id, `projectId = pack.meta.id` (`install.ts:230`). Association = `projectId`.
+- **Schedules** — DB, id `app:<packId>:<sid>` (`install.ts:279`) + `projectId = pack.meta.id` (`:306`).
+- **Blueprints / Profiles** — file-dropped, id/dir carries the `<packId>--<name>` prefix only.
+- Authoritative per-pack artifact ledger already on disk: `install-state.json`
+  (`install-state.ts`), trusted by `update.ts`. Uninstall (`deleteAppCascade`, `registry.ts:545`)
+  enumerates profiles/blueprints/schedules **by the prefix** — so the prefix is load-bearing.
+- Existing seam: `extractAppIdFromArtifactId(id)` (`composition-detector.ts:20`) splits on the first
+  `--`; `appIdFromResult` already does "explicit appId field OR slug parse".
+
+**DECISION — Model A: a pure `packOf()` resolver over the existing signals. NO new schema field,
+NO migration.** Rejected Model B (write a first-class `packId` onto every installed record) because
+the prefix already encodes the answer AND is load-bearing for uninstall — Model B would force a
+rewrite of `deleteAppCascade`'s sweeps plus a backfill migration for already-installed packs, for
+zero functional gain. Model A is the lowest-blast-radius path (Principles #5/#7) and extends a
+tested seam rather than inventing one.
+
+**`packOf(kind, primitive) → packId | null`** (new leaf, `src/lib/apps/pack-of.ts`):
+- DB kinds (tables, schedules): return `projectId` when it is a member of the installed-pack set.
+- File kinds (blueprints, profiles): `extractAppIdFromArtifactId(id)`, then confirm the parsed
+  prefix is a member of the installed-pack set (`listApps().map(a => a.id)`) so a hand-authored
+  `foo--bar` is NOT mis-attributed to a pack that was never installed. Return `null` otherwise.
+- The installed-pack set is read once per request (server component) and passed in — the resolver
+  itself is pure (no I/O), so it is trivially unit-testable and reusable client-side with a prefetched set.
+
+**Consumers (all read `packOf`, none branch on raw id shape):**
+- FEAT-7 — a "filter by pack" control on Profiles / Blueprints / Tables / Schedules listing views.
+  Tables & Schedules pages already load the `projects` list (`tables/page.tsx`, `schedules/page.tsx`),
+  so their filter is a thin addition; Profiles/Blueprints gain the parsed-prefix grouping.
+- FEAT-8 — a pack-provenance pill (distinct `StatusChip` color family) on every primitive card/row,
+  rendered from `packOf`. The pack's display `name` comes from its manifest (`listAppsWithManifestsCached`).
+- BUG-6 (#35) — pack-aware seed reads `packOf` to scope the seed/clear gate to a pack's own primitives
+  instead of the current global `relay-agency--` id-prefix assumption.
+
+**Vertical slice (this decision → implementation, sequenced):**
+1. `src/lib/apps/pack-of.ts` — the pure resolver + `PackRef` type; unit tests (each kind, the
+   not-installed-prefix negative case, the composed-app `projectId` case).
+2. FEAT-8 pill on ONE view (Profiles) end-to-end as the proof slice — resolver → server component
+   passes the installed-pack set → `StatusChip` pack family. Verify in a real browser.
+3. Roll the pill to the other 3 views; add the FEAT-7 filter control (reuse the existing project
+   filter on the 2 DB views).
+4. BUG-6 — rewire the seed/clear gate onto `packOf`.
+
+**Out of scope for this decision:** FEAT-6 two-button Run/Create (separate redesign concern, not
+gated on the association), CF-FEAT items (copy/step-flow), the top-chrome initiative. Not a schema
+change; no `next` pin or apiVersion-window impact (no pack-format change).
+
+**Verification:** `packOf` is not runtime-registry-adjacent (pure, no chat-tools import) → unit tests
+suffice for the resolver. The listing-view + pill wiring needs a real `npm run dev` browser check
+that a pack-installed primitive shows the pill and the filter narrows to it, per the smoke budget
+(the seed-gate BUG-6 rewire touches `install`-adjacent code → smoke it).
