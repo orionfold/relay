@@ -20,20 +20,36 @@ profiles:
     source: $AINATIVE_DATA_DIR/profiles/relay-cre--cre-renewal-analyst/
 
 blueprints:
+  # Lease abstraction fires on a row-insert into the rent roll: drop a lease and
+  # the analyst abstracts its terms into the roll. This is the CRE pack's own
+  # trigger, bound to its own vertical table — after a bundle flatten it lives in
+  # the same app as the persona spine, so the binding spans the merge intra-app.
   - id: relay-cre--lease-abstraction
     source: $AINATIVE_DATA_DIR/blueprints/relay-cre--lease-abstraction.yaml
+    trigger:
+      kind: row-insert
+      table: rent_roll
   - id: relay-cre--cre-listing
     source: $AINATIVE_DATA_DIR/blueprints/relay-cre--cre-listing.yaml
   - id: relay-cre--cre-renewal-engine
     source: $AINATIVE_DATA_DIR/blueprints/relay-cre--cre-renewal-engine.yaml
 
 tables:
-  # The CRE client book fragment: this pack seeds its own vertical clients with
-  # the industry tagged. It coexists with the persona pack's clients table under
-  # the relay-cre-- namespace (two installed apps, isolated tables).
-  - id: clients
-    columns: [name, industry, retainer_tier, status]
-    seed: seed/tables/clients.json
+  # The rent roll: the CRE pack's DISTINCT vertical primitive (its whole pitch —
+  # "abstract leases into a clean rent roll"). The client book itself is NOT
+  # redeclared here: the free Relay Agency spine owns the `clients` table and the
+  # margin cockpit, and this pack's vertical clients flow into that shared book
+  # via seed/customers.yaml (the installer's customer-dimension seam, aggregated
+  # per-child at bundle install). That keeps ONE client book whether CRE installs
+  # side-by-side with Agency or flattened into an Agency (CRE) bundle — no second
+  # clients table, no logical-id collision on the flatten (pack-agency-bundle).
+  #
+  # Ships EMPTY by design: rent_roll carries the lease-abstraction row-insert
+  # trigger, and seeding a trigger-bound table would dispatch the pipeline on
+  # install (see src/lib/data/tables.ts addRows). It is a work queue — drop a
+  # lease, the analyst abstracts it.
+  - id: rent_roll
+    columns: [property, tenant, base_rent, expiry, escalation, option]
 
 schedules: []
 
@@ -41,7 +57,7 @@ view:
   kit: workflow-hub
   bindings:
     hero:
-      table: clients
+      table: rent_roll
     secondary:
       - blueprint: relay-cre--cre-renewal-engine
       - blueprint: relay-cre--lease-abstraction

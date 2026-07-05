@@ -1,6 +1,6 @@
 ---
 title: Agency bundle — the first bundle proof (relay-agency + relay-cre flattened)
-status: planned
+status: built
 priority: P1
 milestone: post-mvp
 source: _IDEAS/packs-evolution.md §4 + §8.3 + §10 Q1 (operator-resolved 2026-07-05)
@@ -57,14 +57,40 @@ merged app renders, intake triggers work end to end, and per-client margin reads
 
 ## Acceptance Criteria
 
-- [ ] A `relay-agency-cre` bundle pack flattens `relay-agency` + `relay-cre` into ONE installed
+- [x] A `relay-agency-cre` bundle pack flattens `relay-agency` + `relay-cre` into ONE installed
       app; `getApp`/`listApps` see a single app indistinguishable from a hand-composed one.
-- [ ] A cross-child binding resolves post-merge: a CRE row-insert fires a persona pipeline
+- [x] A cross-child binding resolves post-merge: a CRE row-insert fires a persona pipeline
       blueprint, and a persona margin KPI reads a CRE-seeded table with no silent 0-read.
-- [ ] The merged app's depth comes from the persona spine (thin-industry discipline demonstrated).
-- [ ] The `relay-agency` + `relay-nonprofit` bundle also installs cleanly (persona-neutrality gate).
-- [ ] The free/pro line survives if the premium tier bundles.
-- [ ] A dev-server smoke installs the Agency (CRE) bundle and runs it end to end.
+- [x] The merged app's depth comes from the persona spine (thin-industry discipline demonstrated).
+- [x] The `relay-agency` + `relay-nonprofit` bundle also installs cleanly (persona-neutrality gate).
+- [x] The free/pro line survives if the premium tier bundles.
+- [x] A dev-server smoke installs the Agency (CRE) bundle and runs it end to end.
+
+## Verification run — 2026-07-05
+
+Built + verified. Two bundle descriptors authored (`relay-agency-cre`,
+`relay-agency-nonprofit`), each a `pack.yaml` with `bundle: [relay-agency, <industry>]` and no
+`base/manifest.yaml` — they ride `pack-bundle-model`'s flatten path with zero merge-code changes.
+
+**The collision the split exposed.** `relay-cre` and `relay-nonprofit` each still declared their own
+`clients` table (a leftover from side-by-side install). A bundle flattens children into ONE app, so
+those `clients` ids collided with the persona spine's `clients` and the merge refused with
+`BundleCollisionError` (working as designed — no silent shadow). **Operator-resolved (recommended
+option):** the persona spine owns the ONE client book; the industry packs drop their `clients`
+redeclaration and contribute their DISTINCT vertical table instead — CRE gains a `rent_roll`
+(its actual pitch; `lease-abstraction` now row-triggers on it), nonprofit keeps `grants`. Each
+pack's vertical clients still flow into the shared book via `seed/customers.yaml` aggregation. This
+matches the split's own stated intent (`engagement_type replaces vertical; an industry pack tags its
+own clients`) and is the general discipline captured in the pack taxonomy (`_IDEAS/pack-taxonomy.md`).
+
+**Evidence.** `relay-agency-bundle-template.test.ts` (8 tests, real templates): catalog contract,
+one-app/one-project flatten, cross-child trigger→real-UUID + persona margin KPI non-zero, both-child
+customer aggregation (9 = 6+3), and the nonprofit neutrality gate. Full packs suite green (141).
+Module-graph smoke parses all 5 packs via the catalog. End-to-end install smoke (real `relay-agency-cre`
+against an isolated data dir, entitled license): 1 app, 5 tables (4 persona + rent_roll, no `clients`
+collision), 10 profiles / 10 blueprints, 35 seeded rows, CRE trigger rewritten to a real UUID; the
+persisted merged manifest re-validates through the strict `AppManifestSchema` render-ready
+(workflow-hub, hero bound, 4 secondary blueprints, 4 margin KPIs).
 
 ## Scope Boundaries
 

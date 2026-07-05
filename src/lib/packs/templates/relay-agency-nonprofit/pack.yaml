@@ -1,0 +1,40 @@
+id: relay-agency-nonprofit
+version: "0.1.0"
+name: Relay Agency for Nonprofits
+author: Orionfold
+# The persona-neutrality gate for pack-agency-bundle. Same shape as the CRE
+# bundle proof — the free, domain-neutral Relay Agency persona spine flattens
+# with a DIFFERENT thin industry pack (Relay Nonprofit: grants queue + grant
+# cycle + impact reporting + the deep grant pipeline). If this bundle installs
+# as cleanly as the CRE one, the persona spine is genuinely vertical-neutral:
+# the same operating system composes under any industry pack, not just CRE.
+description: >
+  The whole agency operating system, tuned for nonprofit and grant work. Run
+  your client book and see margin per client, route new work, and close your
+  month, with nonprofit delivery composed in: grant and donor research, a grant
+  cycle from go or no-go through the full application, impact and compliance
+  reporting, and a grant pipeline that fires when a new opportunity lands. One
+  install, one app. Everything installs offline. Relay never sends your data to
+  Orionfold.
+relayCore: ">=0.18.0"
+icon: heart-handshake
+entitlement: product:orionfold-relay
+# PLACEHOLDER pending operator + Website pricing coordination (see the CRE
+# bundle). Priced to match orionfold.com/relay/; hand-maintained.
+price:
+  list: "$199/year"
+  note: "One install of the whole agency operating system tuned for nonprofits. One license unlocks every paid Relay pack."
+purchaseUrl: https://orionfold.com/relay/
+related:
+  text: "Prefer to compose it yourself? Install the free Relay Agency pack and add the Relay Nonprofit industry pack on top — same result, layered by hand."
+  href: "/packs?filter=free"
+changelog:
+  "0.1.0": >-
+    The whole agency operating system and the nonprofit delivery pack, composed
+    into one installable app. Install once and get the client book, per-client
+    margin cockpit, intake router, new-business pipeline, and month-end close,
+    with the grants queue, grant-cycle workflow, impact and compliance
+    reporting, and the deep grant pipeline all in the same app.
+bundle:
+  - relay-agency
+  - relay-nonprofit

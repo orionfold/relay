@@ -1,0 +1,53 @@
+id: relay-agency-cre
+version: "0.1.0"
+name: Relay Agency for CRE
+author: Orionfold
+# The first bundle proof (pack-agency-bundle). A BUNDLE pack owns NO
+# base/manifest.yaml; it lists child pack ids that installPack flattens into ONE
+# installed app at install time (pack-bundle-model). Here the free, domain-
+# neutral Relay Agency persona spine (client book + margin cockpit + intake +
+# new-business + month-end close) flattens with the thin Relay CRE industry pack
+# (rent roll + lease abstraction + listing + renewal engine) into one
+# "Agency for CRE" app. The persona carries the operating-system weight; CRE
+# adds sharp vertical delivery. Buy and install once instead of layering a
+# persona pack and an industry pack by hand.
+description: >
+  The whole agency operating system, tuned for commercial real estate. Run your
+  client book and see margin per client, route new work, and close your month,
+  with CRE delivery composed in: a rent roll fed by lease abstraction, listing
+  and market analysis, and the renewal engine that tracks every key date. One
+  install, one app. Everything installs offline. Relay never sends your data to
+  Orionfold.
+relayCore: ">=0.18.0"
+icon: building
+# One license per bundle. The bundle's OWN entitlement gates install (not the
+# children's), so a buyer redeems one license and the whole Agency-for-CRE app
+# installs. Same product as every paid Relay pack — one license unlocks all.
+entitlement: product:orionfold-relay
+# Priced to match orionfold.com/relay/ in this release. Hand-maintained; when the
+# Website price changes, update this to match (reading the public Orionfold
+# source to stay current is allowed — the promise forbids SENDING user data, not
+# reading public data). PLACEHOLDER pending operator + Website pricing
+# coordination — a bundle price is a distinct SKU from the standalone CRE pack.
+price:
+  list: "$199/year"
+  note: "One install of the whole agency operating system tuned for CRE. One license unlocks every paid Relay pack."
+purchaseUrl: https://orionfold.com/relay/
+related:
+  text: "Prefer to compose it yourself? Install the free Relay Agency pack and add the Relay CRE industry pack on top — same result, layered by hand."
+  href: "/packs?filter=free"
+# Per-version customer-voice recap — read by the license status, the update
+# refusal, the /packs card, and the renewal email. Add a line every version bump.
+changelog:
+  "0.1.0": >-
+    The whole agency operating system and the commercial real estate delivery
+    pack, composed into one installable app. Install once and get the client
+    book, per-client margin cockpit, intake router, new-business pipeline, and
+    month-end close, with the CRE rent roll, lease-abstraction pipeline, listing
+    and market analysis, and renewal engine all in the same app.
+# The two children flattened at install (bundle order = merge order: the persona
+# spine first so it owns the client book and the merged app's hero, CRE second
+# to add its rent roll and vertical workflows).
+bundle:
+  - relay-agency
+  - relay-cre

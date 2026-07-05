@@ -34,15 +34,19 @@ blueprints:
       table: grants
 
 tables:
-  # The nonprofit client book fragment: seeds its own vertical clients. Coexists
-  # with the persona pack's clients table under the relay-nonprofit-- namespace.
-  - id: clients
-    columns: [name, industry, retainer_tier, status]
-    seed: seed/tables/clients.json
-  # The grant pipeline queue: drop an opportunity row and the deep grant pipeline
-  # fires (row-insert trigger) — fit-scored go/no-go, LOI, application assembly,
-  # and the post-award compliance calendar. Ships empty by design (seeding a
-  # trigger-bound table would dispatch its blueprint on install).
+  # The grants pipeline queue is the nonprofit pack's DISTINCT vertical primitive.
+  # The client book itself is NOT redeclared here: the free Relay Agency spine
+  # owns the `clients` table and the margin cockpit, and this pack's vertical
+  # clients flow into that shared book via seed/customers.yaml (the installer's
+  # customer-dimension seam, aggregated per-child at bundle install). That keeps
+  # ONE client book whether Nonprofit installs side-by-side with Agency or
+  # flattened into an Agency-for-Nonprofits bundle — no second clients table, no
+  # logical-id collision on the flatten (pack-agency-bundle neutrality gate).
+  #
+  # Drop an opportunity row and the deep grant pipeline fires (row-insert
+  # trigger) — fit-scored go/no-go, LOI, application assembly, and the post-award
+  # compliance calendar. Ships empty by design (seeding a trigger-bound table
+  # would dispatch its blueprint on install).
   - id: grants
     columns: [client, funder, program, amount, deadline, stage, notes]
 
@@ -52,7 +56,7 @@ view:
   kit: workflow-hub
   bindings:
     hero:
-      table: clients
+      table: grants
     secondary:
       - blueprint: relay-nonprofit--grant-cycle
       - blueprint: relay-nonprofit--impact-reporting
