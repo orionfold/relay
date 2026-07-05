@@ -158,6 +158,25 @@ describe("nav-items", () => {
     });
   });
 
+  describe("elevated Presets route", () => {
+    const compose = NAV_GROUPS.find((g) => g.id === "compose")!;
+    const presets = compose.items.find((i) => i.href === "/presets")!;
+    const agents = compose.items.find((i) => i.href === "/agents")!;
+
+    it("exposes Presets as a top-level Compose child, peer of Agents (FEAT-13)", () => {
+      expect(presets).toBeDefined();
+      expect(presets.title).toBe("Presets");
+    });
+
+    it("lights up Presets (and NOT Agents) on /presets; Agents stays on /agents", () => {
+      expect(isItemActive(presets, "/presets")).toBe(true);
+      expect(activeGroupId("/presets")).toBe("compose");
+      expect(isItemActive(agents, "/presets")).toBe(false);
+      expect(isItemActive(agents, "/agents")).toBe(true);
+      expect(isItemActive(presets, "/agents")).toBe(false);
+    });
+  });
+
   describe("groupHasActiveItem", () => {
     it("is true only for the section owning the route", () => {
       const compose = NAV_GROUPS.find((g) => g.id === "compose")!;

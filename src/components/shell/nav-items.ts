@@ -80,6 +80,7 @@ const composeItems: NavItem[] = [
   { title: "Blueprints", href: "/blueprints", icon: Layers, description: "Reusable workflow templates", alsoMatches: ["/blueprints/"] },
   { title: "Schemas", href: "/schemas", icon: LayoutTemplate, description: "Reusable table structures", alsoMatches: ["/schemas/"] },
   { title: "Agents", href: "/agents", icon: Bot, description: "Configure your agents", alsoMatches: ["/agents/"] },
+  { title: "Presets", href: "/presets", icon: Sparkles, description: "Start from a built-in agent preset", alsoMatches: ["/presets/"] },
 ];
 
 const dataItems: NavItem[] = [

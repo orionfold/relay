@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ProfileCard } from "@/components/profiles/profile-card";
+import { ProfilePresetGallery } from "@/components/profiles/profile-preset-gallery";
 import { ProfileImportDialog } from "@/components/profiles/profile-import-dialog";
 import { RepoImportWizard } from "@/components/profiles/repo-import-wizard";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
@@ -150,34 +151,13 @@ export function ProfileBrowser({
         </Button>
       </div>
 
-      {/* Preset picker */}
+      {/* Preset picker — the in-/agents toggle-reveal of the same gallery
+          rendered standalone at /presets (FEAT-13). */}
       {showTemplates && builtinProfiles.length > 0 && (
-        <div className="surface-panel rounded-2xl p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium">Use a preset agent as a starting point</p>
-            <Button variant="ghost" size="sm" onClick={() => setShowTemplates(false)}>
-              <span className="text-xs">Close</span>
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-            {builtinProfiles.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                className="bg-muted text-left rounded-lg border border-border/60 p-3 cursor-pointer hover:border-primary/40 hover:bg-accent transition-colors"
-                onClick={() => {
-                  setShowTemplates(false);
-                  router.push(`/agents/${p.id}/edit?duplicate=true`);
-                }}
-              >
-                <p className="text-sm font-medium truncate">{p.name}</p>
-                <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                  {p.description}
-                </p>
-              </button>
-            ))}
-          </div>
-        </div>
+        <ProfilePresetGallery
+          presets={builtinProfiles}
+          onClose={() => setShowTemplates(false)}
+        />
       )}
 
       {/* Search + Domain Filter */}
