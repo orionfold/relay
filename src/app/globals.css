@@ -270,8 +270,12 @@
   --wash-1: color-mix(in oklch, var(--primary) 4%, transparent);
   --wash-2: color-mix(in oklch, var(--primary) 6%, transparent);
   --wash-3: color-mix(in oklch, var(--primary) 10%, transparent);
-  /* Rail opacity raised ~50% per operator (was 82% → now 91% surface). */
-  --rail-surface: color-mix(in oklch, var(--surface-2) 91%, transparent);
+  /* Dark rail: base on --surface-1 (L0.185), NOT --surface-2 (L0.15). --surface-2
+     is only 0.01L above the canvas --background (0.14), so a translucent tint of
+     it merged into the background and read as fully see-through — the rail must
+     be a LIFTED chrome band above the canvas. --surface-1 (0.185) sits clearly
+     above 0.14 while 91% opacity still lets the grid read through subtly. */
+  --rail-surface: color-mix(in oklch, var(--surface-1) 91%, transparent);
   --rail-glow: color-mix(in oklch, var(--primary) 14%, transparent);
 
   /* Accent */
@@ -677,6 +681,14 @@
   position: sticky;
   background: var(--rail-surface);
   box-shadow: inset 0 1px 0 0 var(--rail-glow);
+}
+/* Telemetry-cell vertical dividers: --border (L0.26 dark) is too low-contrast
+   over the lifted rail band, so bump the rail's own cell dividers to
+   --border-strong (L0.32). Scoped to the rail (the [aria-label] attribute
+   selector out-specifies Tailwind's `.border-border`, so no source-order
+   reliance) — no other border-border consumer shifts. */
+[aria-label="Telemetry"] > * {
+  border-right-color: var(--border-strong);
 }
 .rail-instrument::before {
   content: "";
