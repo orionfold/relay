@@ -1,29 +1,25 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **operator design walkthrough — findings only, NO code committed.**
-Watched operator navigate app + orionfold.com in Claude-in-Chrome; logged F1–F6 to
-`output/staging/2026-07-05-operator-walkthrough/FINDINGS-live.md`. Headline: **F5 app-wide CARD
-DESIGN LIFT** to the orionfold.com "THE PROOF" North Star recipe (glass `rounded-2xl backdrop-blur`
-+ faint watermark glyph @0.09/0.14 + accent payoff variant) — cards are Relay's most-marketable
-primitive; base `ui/card.tsx` has NO variants (add tone/emphasis/watermark). **F6 nav move**: Schemas
-Compose→Data (after Tables), single-line `nav-items.ts` + test tail. F1/F2/F3/F4 roll up into F5. New
-memories: `cards-are-first-class-marketable-primitive`, `favor-visually-rich-ui`,
-`card-grid-first-card-anchor-explainer`, `dont-over-log-mid-conversation`. Prior committed: 0.30.0
-RELEASED (`v0.30.0`→`8519e9af`, final four operator requirements; tracker retired). Full detail:
+_Last updated: 2026-07-05 (pt: **F5 app-wide CARD DESIGN LIFT + F6 nav move — BUILT & SHIPPED**
+(8 commits `866a4823`→`86dc62a2`, on `main`, not yet pushed). F5: base `ui/card.tsx` gains
+`tone`/`emphasis`/`watermark`+`watermarkColor` props + `card-tones.ts`; swept LOW/MED/RICH surfaces +
+F2 masonry. Operator design laws (see memory `card-watermark-recipe`): watermark = the card's OWN type
+glyph moved from left chip to top-right, COLORED by type, uniform on ALL cards; featured cue = accent +
+"Start here" badge + height, NOT watermark. Skipped state/thumbnail cards (memory
+`card-watermark-taste-rule`). cost-dashboard + ledger-hero DEFERRED (operator-confirmed). F6: Schemas
+Compose→Data. Verified in browser both themes; full suite 0 regressions (8 pre-existing + 1 parallel
+flake); prod build green. New memories: `card-watermark-recipe`, `card-watermark-taste-rule`. Prior tail:
 git log + CHANGELOG + the findings bundle.)_
 
-## ▶️ NEXT SESSION — design-lift backlog groomed (F5/F6), no code committed yet
+## ▶️ NEXT SESSION — F5/F6 shipped; push + consider a release
 
-Operator design walkthrough (2026-07-05) produced a groomed, code-grounded backlog. Pick up here:
-- **F5 — App-wide card design lift (BIG, presentation-only).** Groomed spec in
-  `output/staging/2026-07-05-operator-walkthrough/FINDINGS-live.md` + memory
-  `cards-are-first-class-marketable-primitive`. North Star recipe extracted from orionfold.com CSS;
-  card-surface inventory (RICH/MED/LOW tiers) + shared helpers (`card-icons`/`PackPill`/`packOf`)
-  captured. Build shape: add `Card` tone(per-kind)/emphasis/watermark variants → per-kind tone map
-  (tone/glyph = the F1 primitive-type cue) → migrate LOW→MED→RICH, fold in F2 masonry/uniform-height.
-- **F6 — Relocate Schemas Compose→Data (after Tables).** Single-line `nav-items.ts` move (entry at
-  line ~81 → `dataItems` after Tables) + update `nav-items.test.ts` "elevated Schemas" assertion +
-  check `features/nav-redesign-ia.md`. No route change.
+Immediate:
+- **Push** the 8 F5/F6 commits to `origin/main` (currently ahead by 8, unpushed). Then decide whether the
+  card lift + nav move warrant a **release** (presentation-only + one nav move; customer-visible polish —
+  likely a MINOR bump; if so, follow the apiVersion-window + npx-prod-smoke caveats below).
+- **F5 follow-up (deferred, operator-confirmed):** lift the two dense analytics dashboards
+  `costs/cost-dashboard.tsx` + `apps/ledger-hero-panel.tsx` (hand-rolled `surface-card` chart panels) to
+  the card recipe — held out this session for chart-layout-regression risk. Reactive/optional.
 
 Standing candidates (unchanged, all LOW / reactive):
 - Not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4 `create_trigger` `appId` gap.
@@ -103,6 +99,14 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**F5 + F6 card/nav lift (BUILT on `main`, UNPUSHED, no version tag yet — 8 commits `866a4823`→`86dc62a2`):**
+app-wide card design lift to the orionfold.com North Star recipe. Base `ui/card.tsx` gains
+`tone`/`emphasis`/`watermark`+`watermarkColor` (`149c7122`); operator-refined to own-glyph colored-by-type
+uniform watermark (`4ab95caf`,`b8d7498e`); swept LOW (`89f657b0`) / MED (`1966d42b`) / RICH (`b8d7498e`)
+surfaces + F2 CSS-multicolumn masonry (`86dc62a2`). F6 Schemas Compose→Data (`866a4823`). Recipe + taste
+rule in memories `card-watermark-recipe` / `card-watermark-taste-rule`. Deferred: cost-dashboard +
+ledger-hero. Presentation-only (NOT runtime-registry-adjacent). 0 test regressions; prod build green.
+
 **0.30.0 (RELEASED — `v0.30.0`→`8519e9af`; npm `latest` + GitHub Release + SBOM + OIDC CI green incl. npx prod
 smoke Case L):** the final four operator-walkthrough requirements. FEAT-6 (`82861850`) two-verb `RunNowButton`
 on `/blueprints` gallery cards (blueprint-only; stopPropagation guard vs the clickable Card). FEAT-13
