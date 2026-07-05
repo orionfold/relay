@@ -10,10 +10,22 @@ operator halted this: iterating without studying the reference. **Operator direc
 (see NEXT).** Prior unreleased: S45 Profile→Agent (`1400bf56`), S44 CF-FEAT (`b4616d2c`); 0.28.0
 RELEASED (`v0.28.0`→`7e97669a`). Full detail: git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — chrome VISUAL redesign: study the relay website, then plan (explore-first)
+## ▶️ NEXT SESSION — implement the APPROVED chrome-instrument-palette spec
 
-**FRESH session. Explore + plan BEFORE any edit** (operator halted the reactive iteration). Five
-operator directives:
+**Spec APPROVED + ready:** `docs/superpowers/specs/2026-07-05-chrome-instrument-palette.md`
+(all 4 workstreams ONE pass; restrained glow). `/clear` first, then implement. Research done this
+session: website design system extracted (accent is teal `#14c8c0` = ALREADY Relay's `--primary`;
+look = 2-tier teal grid + glow + wash over NEUTRAL surfaces, technique-port not hue-change), current
+app chrome + token map done, FEAT-14 confirmed = the deferred settings-at-a-glance (a 2-level
+progressive-disclosure expand/collapse rail BELOW the telemetry rail). Four workstreams, all in scope:
+**WS1** surgical rollback (revert `700fd4bd` rail→`--background`; KEEP `e6ab5ea0` grid-on-rail + KEEP
+`34467e3a` critical-CSS fix); **WS2** translucent rail (grid shows through, sparklines pop — reverses
+S47's opaque-chrome rule per operator); **WS3** instrument palette (2-tier teal grid 24/120px + seam
+glow + `--wash-1/2/3` elevation, dark+light, surfaces stay neutral); **WS4** FEAT-14 settings-glance
+rail (new `/api/settings/glance` + `useSettingsGlance()`, collapsed chip row → expanded grouped panel,
+5 distinct zone backgrounds). Watch: critical-CSS drift (memory `critical-css-shadows-surface-tokens`),
+Turbopack won't HMR token edits (`rm -rf .next`), surface-2/3 blast radius (data-table/schedule-form),
+freeze still presentation-only. Original 5 operator directives that produced this spec:
 
 1. **Rollback the rail-away-from-menu move.** `700fd4bd` broke the rail off the tier-2 menu panel and
    stuck it to `--background` (overlapping the main container's plane). REVERT that specific behavior —
