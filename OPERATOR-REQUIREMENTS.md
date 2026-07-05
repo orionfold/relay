@@ -25,11 +25,13 @@ when its fix ships in a release. Note the release version + commit/issue. Keep t
 Verify status against issue state + git log, NOT spec self-claims (memory
 `verify-walkthrough-findings-before-grooming`).
 
-_Last updated: 2026-07-05 · built **CF-FEAT-2** (free↔paid Agency relationship copy + fixed the phantom
-"Update to v0.1.0" prompt, `0c3c0262`) and **FEAT-7** (filter-by-installed-pack on the 3 remaining primitive
-views, `c21441c1`) — both on `main`, live-verified, NOT yet in a cut release → **Done (unbuilt-release)**.
-Prior: 0.29.1 release + Deferred re-verify pass (CF-BUG-3 + CF-FEAT-8 Delivered; CF-FEAT-2 was reopened).
-**22 Delivered, 2 Done (unbuilt-release), 0 open bugs, 0 Deferred.** Remaining Pending: FEAT-6, FEAT-13._
+_Last updated: 2026-07-05 · ✅ **RETIRED — all operator requirements Delivered.** **0.30.0 RELEASED**
+(`v0.30.0`→`8519e9af`; npm `latest` + GitHub Release + SBOM + OIDC CI green incl. npx prod smoke Case L)
+shipped the final four: CF-FEAT-2 (free↔paid Agency relationship copy + phantom-update fix), FEAT-7
+(filter-by-installed-pack on agents/schedules/tables), FEAT-6 (one-click Run + Create workflow on blueprint
+gallery cards), FEAT-13 (Presets elevated to a Compose nav peer of Agents).
+**26 Delivered, 0 Pending, 0 Done (unbuilt-release), 0 open bugs, 0 Deferred, 2 Dropped.**
+This file is now historical; the durable record lives in git + CHANGELOG + closed issues._
 
 ---
 
@@ -69,15 +71,15 @@ Prior: 0.29.1 release + Deferred re-verify pass (CF-BUG-3 + CF-FEAT-8 Delivered;
 | FEAT-5 | Blueprints → top-level Compose submenu | **Delivered** | 0.28.0 (S43) shipped `/blueprints` top-level. |
 | CF-FEAT-5/6/7/8 | App-shell activation copy (explainers, 1-2-3 steps, verb clarity, signposting) | **Delivered** | RELEASED 0.29.0 (S44 activation-copy pass `b4616d2c`, bundled into the ship). |
 | FEAT-8 | Pack-provenance pill on every primitive card | **Delivered** | RELEASED 0.27.0 (S40 `PackPill` on all 4 primitive views `f29f0098`); operator's "distinct color per view" refinement → backlog. |
-| FEAT-6 | Card shows TWO buttons: Run + Create Workflow | **Pending** | Depends on one-click-run (BUG-4). Backlog. |
-| FEAT-7 | "Filter by installed pack" on all 4 primitive views | **Done (unbuilt-release)** | Blueprints filter shipped S40 (#27); ported to agents/schedules/tables via the shared `packOf` resolver (`c21441c1`). Live-verified: agents 42→7/8, schedules 12→1, tables 11→1. Delivered at next release. |
+| FEAT-6 | Card shows TWO buttons: Run + Create Workflow | **Delivered** | RELEASED 0.30.0 (`82861850`): two-verb `RunNowButton` (Run + Create workflow) mounted on `/blueprints` gallery cards (previously nav-only). Confirmed blueprint-only (only blueprints have the template→runnable-workflow instantiate shape; agents/schemas/schedules don't). Live-verified: Run opens the input sheet without navigating; propagation guard holds. |
+| FEAT-7 | "Filter by installed pack" on all 4 primitive views | **Delivered** | RELEASED 0.30.0 (`c21441c1`). Blueprints filter shipped S40 (#27); ported to agents/schedules/tables via the shared `packOf` resolver. Live-verified: agents 42→7/8, schedules 12→1, tables 11→1. |
 
 ## 4. Other operator asks
 
 | ID | Requirement | Status | Evidence / Next |
 |----|-------------|--------|-----------------|
 | TASK-1 | Brainstorm Profiles → "Agents" rename | **Delivered** | S43/S45 executed the rename (`profile.yaml`→`agent.yaml`, routes, copy). |
-| FEAT-13 | Profile Templates → Compose submenu | **Pending** | Caveat: no Profile Templates surface exists yet (Tables has one, Profiles doesn't); likely needs creating first. Scope UNCONFIRMED with operator. |
+| FEAT-13 | Profile Templates → Compose submenu (Presets, peer of Agents) | **Delivered** | RELEASED 0.30.0 (`cb97eb9e`). Scope confirmed with operator: this is submenu visibility/routing elevation (like Workflows→Blueprints, Tables→Schemas), NOT a new feature. The preset gallery already existed as a toggle inside /agents; extracted `ProfilePresetGallery`, added a `/presets` route + "Presets" Compose nav peer of Agents; kept the in-/agents entry. Live-verified: all 21 builtins render; nav routes + lights up; selecting a preset opens the duplicate form; /agents toggle unchanged. |
 | CF-BUG-3 | Workflow HITL (agents ask user mid-workflow) | **Delivered** | 2026-07-05 live re-verify: paused HITL workflow (HIPAA Content Review) holds honestly (not auto-failed); Inbox shows a completed checkpoint round-trip (Responded/Allowed); halt-on-refusal visible as honest nil reports in run output; `hitl-ask-user.test.ts` 3/3 pass. Shipped `4c0bae6c` (in 0.25.0+). |
 | CF-FEAT-2 | Free "Agency" vs paid "Agency Pro" relationship on Packs | **Done (unbuilt-release)** | Built `0c3c0262`: new `related` pack-manifest field renders ADDITIVE relationship copy on both cards (free → "Agency Pro adds six deeper workflows…"; Pro → "Builds alongside the free Agency pack. Nothing is replaced…"). Confirmed disjoint (zero shared primitives) → Pro installs alongside Free, never replaces it. Also fixed the phantom "Update to v0.1.0" on the installed free card (sidecar-less pre-0.21 install → manifest-version fallback in `packUpdateAvailability`). Live-verified. Delivered at next release. |
 | CF-FEAT-8 | Post-Execute signpost to Monitor/Inbox | **Delivered** | 2026-07-05 live re-verify: `draft` shows "Ready to go. Click Execute"; `paused` HITL shows "Waiting for your approval. Answer it in your Inbox." (inbox icon, warning tone); banner is a working link (clicking routed to /inbox). All `computeSignpost` branches render as specified. Shipped in 0.25.0+. |
@@ -90,9 +92,9 @@ Prior: 0.29.1 release + Deferred re-verify pass (CF-BUG-3 + CF-FEAT-8 Delivered;
 
 | Status | Count | Items |
 |--------|:---:|-------|
-| **Delivered** | 22 | BUG-6 (#35), FEAT-5, TASK-1, FEAT-9/10/11/11b/12, FEAT-14/15/16, CF-FEAT-5/6/7/8, FEAT-8, BUG-1/2/3/4/5 (#36/33/31/32/34), FEAT-4 (#37), CF-BUG-3, CF-FEAT-8 |
-| **Done (unbuilt-release)** | 2 | CF-FEAT-2 (`0c3c0262`), FEAT-7 (`c21441c1`) — Delivered at next release |
-| **Pending** | 2 | FEAT-6, FEAT-13 |
+| **Delivered** | 26 | BUG-6 (#35), FEAT-5, TASK-1, FEAT-9/10/11/11b/12, FEAT-14/15/16, CF-FEAT-5/6/7/8, FEAT-8, BUG-1/2/3/4/5 (#36/33/31/32/34), FEAT-4 (#37), CF-BUG-3, CF-FEAT-8, CF-FEAT-2, FEAT-7, FEAT-6, FEAT-13 |
+| **Done (unbuilt-release)** | 0 | — (CF-FEAT-2 + FEAT-7 shipped in 0.30.0) |
+| **Pending** | 0 | — (FEAT-6 + FEAT-13 shipped in 0.30.0) |
 | **Deferred** | 0 | — |
 | **Dropped** | 2 | CF-FEAT-1, Manifest chevron |
 
