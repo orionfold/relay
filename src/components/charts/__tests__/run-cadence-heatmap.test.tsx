@@ -20,7 +20,14 @@ describe("RunCadenceHeatmap", () => {
   });
 
   it("marks failed runs with status=fail", () => {
-    const cells = [{ date: "2026-04-01", runs: 1, status: "fail" as const }];
+    // The heatmap only renders the trailing 12-week window from today, so the
+    // fixture date must be inside that window (yesterday) rather than a fixed
+    // calendar date that eventually ages out of view.
+    const yesterday = new Date();
+    yesterday.setHours(0, 0, 0, 0);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const key = yesterday.toISOString().slice(0, 10);
+    const cells = [{ date: key, runs: 1, status: "fail" as const }];
     const { container } = render(<RunCadenceHeatmap cells={cells} />);
     const failed = container.querySelector('[data-heatmap-cell][data-status="fail"]');
     expect(failed).toBeInTheDocument();

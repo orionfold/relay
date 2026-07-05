@@ -104,4 +104,43 @@ describe("coachKit.buildModel", () => {
     expect(model.footer).toBeDefined();
     expect(model.footer?.appId).toBe("wp1");
   });
+
+  it("renders the run-cadence heatmap in a secondary slot fed by coachCadenceCells", () => {
+    const projection = coachKit.resolve({
+      manifest: baseManifest as any,
+      columns: [],
+    });
+    const cells = [
+      { date: "2026-07-01", runs: 2, status: "success" as const },
+      { date: "2026-07-03", runs: 1, status: "fail" as const },
+    ];
+    const runtime = {
+      ...baseRuntime,
+      coachLatestTask: null,
+      coachPreviousRuns: [],
+      coachCadenceCells: cells,
+    };
+    const model = coachKit.buildModel(projection, runtime as any);
+    const cadenceSlot = model.secondary?.find((s) => s.id === "cadence");
+    expect(cadenceSlot).toBeDefined();
+    // The heatmap element carries the runtime cells as its `cells` prop.
+    expect((cadenceSlot!.content as any).props.cells).toEqual(cells);
+  });
+
+  it("still renders the cadence slot with an empty grid when no cells", () => {
+    const projection = coachKit.resolve({
+      manifest: baseManifest as any,
+      columns: [],
+    });
+    const runtime = {
+      ...baseRuntime,
+      coachLatestTask: null,
+      coachPreviousRuns: [],
+      coachCadenceCells: [],
+    };
+    const model = coachKit.buildModel(projection, runtime as any);
+    const cadenceSlot = model.secondary?.find((s) => s.id === "cadence");
+    expect(cadenceSlot).toBeDefined();
+    expect((cadenceSlot!.content as any).props.cells).toEqual([]);
+  });
 });

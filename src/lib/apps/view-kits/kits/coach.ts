@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import yaml from "js-yaml";
 import { LastRunCard } from "@/components/apps/last-run-card";
+import { RunCadenceHeatmap } from "@/components/charts/run-cadence-heatmap";
 import { ManifestPaneBody } from "@/components/apps/kit-view/manifest-pane-body";
 import type {
   KitDefinition,
@@ -79,6 +80,20 @@ export const coachKit: KitDefinition = {
       }),
     };
 
+    // Wave-1 resurface: the coach runtime already loads `coachCadenceCells`
+    // (see view-kits/data.ts); render the tested RunCadenceHeatmap in a
+    // secondary slot instead of leaving the data dangling. Empty cells still
+    // render an empty grid, so the slot is always present for the coach kit.
+    const secondary = [
+      {
+        id: "cadence",
+        title: "Run cadence",
+        content: createElement(RunCadenceHeatmap, {
+          cells: runtime.coachCadenceCells ?? [],
+        }),
+      },
+    ];
+
     return {
       header: {
         title: app.name,
@@ -90,6 +105,7 @@ export const coachKit: KitDefinition = {
       },
       kpis: runtime.evaluatedKpis ?? [],
       hero,
+      secondary,
       footer: {
         appId: app.id,
         appName: app.name,
