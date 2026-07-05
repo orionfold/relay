@@ -65,8 +65,12 @@ const CRITICAL_THEME_CSS = `
     color-scheme: dark;
     --background: oklch(0.14 0.02 250);
     --foreground: oklch(0.92 0.01 250);
-    --surface-1: oklch(0.18 0.02 250);
-    --surface-2: oklch(0.16 0.02 250);
+    /* KEEP IN SYNC with globals.css .dark --surface-* (widened tier steps,
+       2026-07-04). This inline critical-CSS wins via html.dark specificity
+       during the anti-FOUC window; a stale copy here silently overrides the
+       real tokens. */
+    --surface-1: oklch(0.185 0.02 250);
+    --surface-2: oklch(0.15 0.02 250);
     --border: oklch(0.26 0.015 250);
   }
   /* Root rem base. Fixed 14px left the whole rem-based design tiny on high-res

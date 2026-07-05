@@ -178,8 +178,10 @@ export function AppBar({ apps }: { apps: AppInstance[] }) {
       </div>
 
       {/* Tier 2 — children of the active section, always visible. Steps back
-          one surface tier (s-2) so the chrome reads as descending elevation. */}
-      <div className="flex h-11 flex-none items-center border-t border-border/60 bg-[var(--surface-2)] px-4">
+          one surface tier (s-2) so the chrome reads as descending elevation.
+          Full-opacity divider (was border/60) — at 60% alpha the line all but
+          vanished against the dark tier grounds. */}
+      <div className="flex h-11 flex-none items-center border-t border-border bg-[var(--surface-2)] px-4">
         <ul
           aria-label={`${activeGroup.label} sections`}
           className="flex min-w-0 items-center gap-1 overflow-x-auto"

@@ -218,10 +218,14 @@
   --muted: oklch(0.20 0.02 250);             /* Derivation: matches secondary */
   --muted-foreground: oklch(0.66 0.02 250);  /* L0.66 on L0.14 bg ≈ 5.3:1 — clears WCAG AA 4.5:1 even un-diluted (was L0.58 ≈ 3.6:1, failed) */
 
-  /* Surfaces — 3-tier dark hierarchy */
-  --surface-1: oklch(0.18 0.02 250);         /* Derivation: base + 0.04 */
-  --surface-2: oklch(0.16 0.02 250);         /* Derivation: base + 0.02 */
-  --surface-3: oklch(0.14 0.02 250);         /* Derivation: equals base */
+  /* Surfaces — 3-tier dark hierarchy. Steps widened from 0.02L to ~0.035L:
+     near the dark end of oklch the eye reads a 0.02 lightness step as almost
+     flat (unlike light mode, where 0.025 near white reads clearly), so the
+     chrome tiers looked uniform. s-1 stays 0.18 (card/sidebar baseline — no
+     shift), s-2/s-3 recede further so the descending elevation is legible. */
+  --surface-1: oklch(0.185 0.02 250);        /* frontmost — card/sidebar baseline */
+  --surface-2: oklch(0.15 0.02 250);         /* steps back */
+  --surface-3: oklch(0.115 0.018 250);       /* deepest — the instrument rail */
   --surface-foreground: oklch(0.92 0.01 250);
 
   /* Accent */
