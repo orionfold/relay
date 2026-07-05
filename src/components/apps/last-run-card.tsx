@@ -68,8 +68,9 @@ export function LastRunCard(props: LastRunCardProps) {
 }
 
 function CompactVariant({ blueprintLabel, lastRun, runCount30d }: CompactProps) {
+  const wfIcon = getWorkflowIconFromName(blueprintLabel, "sequence");
   return (
-    <Card className="surface-card">
+    <Card tone="blueprint" watermark={wfIcon.icon}>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium truncate">
           {blueprintLabel}

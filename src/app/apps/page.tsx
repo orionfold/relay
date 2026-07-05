@@ -29,6 +29,8 @@ export default function AppsPage() {
               {apps.map((app) => (
                 <Card
                   key={app.id}
+                  tone="app"
+                  watermark={Package}
                   className="relative hover:border-primary/50 transition-colors h-full"
                 >
                   <Link
@@ -37,11 +39,8 @@ export default function AppsPage() {
                     className="absolute inset-0 z-0 rounded-[inherit] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   />
                   <CardContent className="pointer-events-none relative p-3 space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Package className="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
-                        <span className="text-sm font-medium truncate">{app.name}</span>
-                      </div>
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-sm font-medium truncate">{app.name}</span>
                       <div className="pointer-events-auto -my-1 -mr-1">
                         <AppCardDeleteButton
                           appId={app.id}
@@ -58,7 +57,7 @@ export default function AppsPage() {
                       </p>
                     )}
                     {app.primitivesSummary && (
-                      <p className="text-[11px] text-muted-foreground/70">
+                      <p className="text-[11px] text-muted-foreground/70 line-clamp-1">
                         {app.primitivesSummary}
                       </p>
                     )}

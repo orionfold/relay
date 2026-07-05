@@ -94,14 +94,18 @@ export function ThroughputStrip({
   sentimentBuckets,
 }: ThroughputStripProps) {
   return (
-    <div className="flex items-center gap-4 p-3 border rounded-lg">
+    <div className="flex items-center gap-4 rounded-xl border bg-card p-3 shadow-sm">
       <div className="flex flex-col gap-1">
-        <span className="text-xs text-muted-foreground">Drafts/day</span>
+        <span className="font-mono text-[0.65rem] uppercase tracking-wider text-muted-foreground">
+          Drafts/day
+        </span>
         <MiniBar values={dailyDrafts} />
       </div>
       {sentimentBuckets && (
         <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">Sentiment</span>
+          <span className="font-mono text-[0.65rem] uppercase tracking-wider text-muted-foreground">
+            Sentiment
+          </span>
           <DonutRing buckets={sentimentBuckets} />
         </div>
       )}

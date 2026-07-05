@@ -2,8 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Copy } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { cardVariants } from "@/components/ui/card";
+import { getProfileIcon } from "@/lib/constants/card-icons";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
 interface ProfilePresetGalleryProps {
@@ -54,22 +58,40 @@ export function ProfilePresetGallery({
         )}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-        {presets.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            className="bg-muted text-left rounded-lg border border-border/60 p-3 cursor-pointer hover:border-primary/40 hover:bg-accent transition-colors"
-            onClick={() => {
-              onClose?.();
-              router.push(`/agents/${p.id}/edit?duplicate=true`);
-            }}
-          >
-            <p className="text-sm font-medium truncate">{p.name}</p>
-            <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-              {p.description}
-            </p>
-          </button>
-        ))}
+        {presets.map((p) => {
+          const Glyph = getProfileIcon(p.id);
+          return (
+            <button
+              key={p.id}
+              type="button"
+              className={cn(
+                cardVariants({ tone: "preset" }),
+                "gap-1.5 overflow-hidden rounded-xl p-3 py-3 text-left cursor-pointer transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              )}
+              onClick={() => {
+                onClose?.();
+                router.push(`/agents/${p.id}/edit?duplicate=true`);
+              }}
+            >
+              <Glyph
+                aria-hidden
+                className="pointer-events-none absolute -right-3 -top-3 h-[9.6rem] w-[9.6rem] select-none text-foreground/[0.07]"
+              />
+              <p className="relative text-sm font-medium truncate">{p.name}</p>
+              <p className="relative text-xs text-muted-foreground line-clamp-2">
+                {p.description}
+              </p>
+              {p.domain && (
+                <Badge
+                  variant="secondary"
+                  className="relative w-fit text-[10px] font-normal capitalize"
+                >
+                  {p.domain}
+                </Badge>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
