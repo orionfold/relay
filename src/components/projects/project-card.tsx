@@ -25,6 +25,7 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
     <Link href={`/projects/${project.id}`} className="block">
       <Card
         tabIndex={0}
+        watermark={FolderKanban}
         className="surface-card cursor-pointer transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
       >
         <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">

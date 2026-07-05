@@ -108,7 +108,9 @@ export function TableTemplateGallery({ templates }: TableTemplateGalleryProps) {
             return (
               <Card
                 key={t.id}
-                className="cursor-pointer hover:border-primary/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
+                tone="schema"
+                watermark={Icon}
+                className="cursor-pointer hover:border-primary/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 tabIndex={0}
                 onClick={() => setPreviewTemplate(t)}
                 onKeyDown={(e) => {
@@ -117,12 +119,9 @@ export function TableTemplateGallery({ templates }: TableTemplateGalleryProps) {
               >
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <Icon className="h-4 w-4 text-muted-foreground" />
-                      <CardTitle className="text-sm font-medium">
-                        {t.name}
-                      </CardTitle>
-                    </div>
+                    <CardTitle className="text-sm font-medium">
+                      {t.name}
+                    </CardTitle>
                     <Badge variant="outline" className="text-xs">
                       {categoryLabels[catKey] ?? t.category}
                     </Badge>

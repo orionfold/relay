@@ -53,12 +53,11 @@ export async function MonitorOverview() {
       aria-label="Monitor overview metrics"
     >
       {/* Active Agents */}
-      <Card className="surface-card">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Active Agents</CardTitle>
-          <Activity className="h-4 w-4 text-status-running" />
+      <Card tone="metric" watermark={Activity} className="surface-card">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-mono text-[0.65rem] uppercase tracking-wider text-muted-foreground">Active Agents</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <div className="text-2xl font-bold">{activeResult.count}</div>
           <Sparkline
             data={hourlyActivity}
@@ -72,23 +71,21 @@ export async function MonitorOverview() {
       </Card>
 
       {/* Tasks Today */}
-      <Card className="surface-card">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Tasks Today</CardTitle>
-          <Zap className="h-4 w-4 text-status-warning" />
+      <Card tone="metric" watermark={Zap} className="surface-card">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-mono text-[0.65rem] uppercase tracking-wider text-muted-foreground">Tasks Today</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <div className="text-2xl font-bold">{todayResult.count}</div>
         </CardContent>
       </Card>
 
       {/* Success Rate */}
-      <Card className="surface-card">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Success Rate</CardTitle>
-          <CheckCircle className="h-4 w-4 text-status-completed" />
+      <Card tone="metric" watermark={CheckCircle} className="surface-card">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-mono text-[0.65rem] uppercase tracking-wider text-muted-foreground">Success Rate</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <div className="flex items-center gap-3">
             <DonutRing
               value={successRate}
@@ -103,12 +100,11 @@ export async function MonitorOverview() {
       </Card>
 
       {/* Last Activity */}
-      <Card className="surface-card">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Last Activity</CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
+      <Card tone="metric" watermark={Clock} className="surface-card">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-mono text-[0.65rem] uppercase tracking-wider text-muted-foreground">Last Activity</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <div className="text-2xl font-bold">
             {lastLog ? new Date(lastLog.timestamp).toLocaleTimeString() : "None"}
           </div>

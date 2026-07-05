@@ -27,7 +27,9 @@ export function TableGrid({
       {tables.map((t) => (
         <Card
           key={t.id}
-          className="cursor-pointer hover:border-primary/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
+          tone="schema"
+          watermark={Table2}
+          className="cursor-pointer hover:border-primary/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           tabIndex={0}
           onClick={() => onSelect(t.id)}
           onDoubleClick={() => onOpen(t.id)}
@@ -37,12 +39,9 @@ export function TableGrid({
         >
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <Table2 className="h-4 w-4 text-muted-foreground" />
-                <CardTitle className="text-sm font-medium">
-                  {t.name}
-                </CardTitle>
-              </div>
+              <CardTitle className="text-sm font-medium">
+                {t.name}
+              </CardTitle>
               <Badge variant={tableSourceVariant[t.source]} className="text-xs">
                 {t.source}
               </Badge>

@@ -13,12 +13,13 @@ import {
   Clock,
   Wallet,
   CheckCircle,
+  type LucideIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { StarterTemplate } from "@/lib/apps/starters";
 
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const ICONS: Record<string, LucideIcon> = {
   "trending-up": TrendingUp,
   "library": Library,
   "mail": Mail,
@@ -81,6 +82,8 @@ export function StarterTemplateCard({ starter, className, onClick }: Props) {
     <Card
       role="button"
       tabIndex={0}
+      tone="template"
+      watermark={Icon}
       onClick={onPick}
       onKeyDown={onKey}
       aria-label={`Start ${starter.name} in chat`}
@@ -88,23 +91,17 @@ export function StarterTemplateCard({ starter, className, onClick }: Props) {
       className={cn(
         "cursor-pointer transition-colors hover:border-primary/50",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        "rounded-lg",
         className
       )}
     >
-      <CardContent className="p-4 space-y-3">
-        <div className="flex items-start gap-3">
-          <div className="shrink-0 rounded-md bg-muted/50 p-2">
-            <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
-          </div>
-          <div className="min-w-0 flex-1 space-y-1">
-            <p className="text-sm font-medium leading-tight">{starter.name}</p>
-            {starter.description && (
-              <p className="text-xs text-muted-foreground line-clamp-2">
-                {starter.description}
-              </p>
-            )}
-          </div>
+      <CardContent className="relative p-4 space-y-3">
+        <div className="min-w-0 space-y-1">
+          <p className="text-sm font-medium leading-tight">{starter.name}</p>
+          {starter.description && (
+            <p className="text-xs text-muted-foreground line-clamp-2">
+              {starter.description}
+            </p>
+          )}
         </div>
         <PreviewRow preview={starter.preview} />
       </CardContent>

@@ -240,8 +240,13 @@ function FeaturedPackCard({ template }: { template: PackTemplate }) {
   const price = packPrice(meta);
 
   return (
-    <Card className="relative hover:border-primary/50 transition-colors">
-      <CardContent className="p-4 sm:p-5">
+    <Card
+      tone="pack"
+      emphasis="featured"
+      watermark={Icon}
+      className="relative transition-colors"
+    >
+      <CardContent className="relative p-4 sm:p-5">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
           <div className="min-w-0 space-y-3">
             <div className="flex items-center gap-3">
@@ -332,18 +337,14 @@ function PackCard({
   const price = packPrice(meta);
 
   return (
-    <Card className="relative h-full hover:border-primary/50 transition-colors">
-      <CardContent className="flex h-full flex-col gap-2 p-3">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-2">
-            <div className="surface-card-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-md border">
-              <Icon
-                className="h-5 w-5 text-muted-foreground"
-                aria-hidden="true"
-              />
-            </div>
-            <span className="text-sm font-medium truncate">{meta.name}</span>
-          </div>
+    <Card
+      tone="pack"
+      watermark={Icon}
+      className="relative h-full hover:border-primary/50 transition-colors"
+    >
+      <CardContent className="relative flex h-full flex-col gap-2 p-3">
+        <div className="flex items-start justify-between gap-2">
+          <span className="min-w-0 text-sm font-medium truncate">{meta.name}</span>
           {premium && !installed && (
             <Badge variant="outline" className="shrink-0">
               {price?.intro ?? price?.list ?? "Premium"}
