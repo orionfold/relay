@@ -1,33 +1,34 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **0.29.0 RELEASED (`v0.29.0`→`9b9ea0f2`; npm `latest` + GitHub Release +
-SBOM + prebuilt artifact; OIDC publish CI green incl. npx prod smoke Case L).** Bundled the four passes
-that had been unreleased on main: S48 chrome-instrument-palette + FEAT-14/15/16 (settings-glance rail +
-instrument-rail visual system), S47 top-chrome structure, S45 Profile→Agent, S44 CF-FEAT. S48 shipped in
-~10 operator-driven refinement commits after the operator reviewed it in-browser (opaque rail, dimmed
-full-bleed grid, page-shell margin fix, telemetry cell grammar, divider-flash fix — all live-verified
-both themes). MINOR → apiVersion window 0.28→0.29 (5 sites). Memory `chrome-sticky-stack-additive-offsets`
-added. NEXT = update OPERATOR-REQUIREMENTS rows to Delivered + operator fresh-install confirm. Prior:
-0.28.0 (`v0.28.0`→`7e97669a`). Full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-05 (pt: **Reconciled OPERATOR-REQUIREMENTS after 0.29.0, adopted the "shipped =
+delivered" acceptance policy, and FIXED the last open bug #31 on `main` (`cafc17b4`, dev-smoke-verified) —
+UNRELEASED.** Closed 5 already-shipped bug issues `shipped` (#32/#33/#34/#36/#37), filed #38 as the 0.29.0
+customer record. Operator policy (memory `shipped-equals-delivered`): a release / "ship it" IS signoff — no
+separate fresh-install-confirm gate; all released work → Delivered (19). #31 fix: `BlueprintCard.resolved`
+flag + honest "couldn't load" card (no fake Run) when a definition can't resolve — the cache half already
+shipped; this closed the silent-husk half (memory `blueprint-card-husk-root-cause`). NEXT = cut a release to
+ship #31 (flips it Delivered, closes the issue). Prior: 0.29.0 RELEASED (`v0.29.0`→`9b9ea0f2`). Full detail:
+git log + CHANGELOG.)_
 
 ## 📋 Operator requirements tracker — `OPERATOR-REQUIREMENTS.md` (LIVE until all Delivered)
 Durable roll-up of ALL ~24 findings/asks from the 2026-07-04 operator harness walkthrough (origin:
-`output/staging/2026-07-04-operator-walkthrough/`), tracked to operator satisfaction. **0.29.0 shipped the
-top-chrome cluster (FEAT-9/10/11/12/14/15/16) — flip those rows to Done-unconfirmed; Delivered awaits an
-operator fresh-install confirm.** Update that file's rows IN PLACE as work lands; retire it only when every
-row is Delivered + operator-confirmed. Its "Path to full delivery" section sequences the arc.
+`output/staging/2026-07-04-operator-walkthrough/`). **Policy: shipped = delivered** (memory
+`shipped-equals-delivered`) — a release is signoff, no fresh-install-confirm gate. State now: **19 Delivered,
+1 Done (unbuilt-release) = #31, 3 Pending (backlog FEAT-6/7/13), 3 Deferred, 2 Dropped.** Update rows IN
+PLACE as work lands; retire the file once every row is Delivered.
 
-## ▶️ NEXT SESSION — reconcile OPERATOR-REQUIREMENTS after the 0.29.0 ship
+## ▶️ NEXT SESSION — cut a release to ship #31 (then no open bugs remain)
 
-0.29.0 shipped FEAT-14/15/16 (settings-glance + chrome instrument system). Flip those rows in
-`OPERATOR-REQUIREMENTS.md` from Pending → **Done (unconfirmed)** — they reach **Delivered** only after an
-operator fresh-install confirm (npx `orionfold-relay@0.29.0`), same convention as FEAT-9/12. Also close the
-stale 0.26.0 fix issues as `shipped` (#32/#33/#34/#36/#37) if not done. Optional: file the public
-`shipped`-labeled issue for 0.29.0 per `release-and-issue-conventions` (CHANGELOG entry is the customer record).
+#31 (blueprint-card husk) is FIXED on `main` (`cafc17b4`) but UNRELEASED. Cutting the next release flips it
+Pending→Delivered and closes the issue (per `release-and-issue-conventions` + `shipped-equals-delivered`).
+Release checklist reminders live in "Known caveats" below (apiVersion window on MINOR; grep the npx prod
+smoke for any endpoint a bundled fix touches; annotated tag). #31 touches only view-kit render + a type —
+NOT the smoke's asserted contracts — so Case L is unaffected; a PATCH bump fits.
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
-`create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests; other staging R-runs.
-Stale-close review: #32/#33/#34/#36/#37 (the 0.26.0 fixes) are still OPEN — close as `shipped` when convenient.
+`create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests (#5/#6/#11/#12); other
+staging R-runs; backlog features FEAT-6/7/13 (FEAT-13 scope UNCONFIRMED with operator); 3 Deferred
+(CF-BUG-3, CF-FEAT-2, CF-FEAT-8) need a live re-verify.
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
 - `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
@@ -105,24 +106,20 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **gh issue/label writes are ALLOWLISTED** (memory `autonomous-session-permission-gates`).
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
+## On `main`, UNRELEASED
+- **#31 blueprint-card husk fix** (`cafc17b4`): `BlueprintCard.resolved` flag (`data.ts` `loadBlueprintCards`)
+  + honest "couldn't load — reinstall the pack" card with NO fake Run when a definition can't resolve
+  (`last-run-card.tsx`). Cache half already shipped (`install.ts` revalidateTag); this closed the silent-husk
+  half (principle #1). Dev-smoke-verified both states; regression tests at component + kit-view level. Ships
+  at the next release → then #31 closes. Root cause in memory `blueprint-card-husk-root-cause`.
+
 ## Recently shipped
-**0.29.0 (RELEASED — `v0.29.0`→`9b9ea0f2`; npm `latest` + GitHub Release + SBOM + prebuilt artifact; OIDC
-publish CI green incl. npx prod smoke Case L):** the relay-website dark-theme TECHNIQUE ported into the app
-chrome + FEAT-14/15/16. **Instrument system:** telemetry rail is a 100% OPAQUE chrome band (dark
-`--rail-surface`=`--surface-1` lifted 0.045L above the canvas so it doesn't merge; light `--surface-2`),
-NO grid through the rail (`.rail-instrument::before` removed — an opaque bg does NOT hide a `::before`),
-cell dividers bumped to `--border-strong` via scoped `[aria-label="Telemetry"] > *`. **Canvas grid:**
-two-tier teal (24/120px) `--grid-line/-major` derived from `--primary` (light+dark auto), FULL-BLEED (no
-radial mask — the mask's fade band read as a framing border), dark alpha halved (6/11%) per operator.
-**FEAT-14 settings-glance rail:** `GET /api/settings/glance` (aggregates ~11 lib sources server-side,
-per-source `.catch` shadow paths) + `useSettingsGlance()` (cloned from `useInstanceIdentity`) + `GlanceRail`
-using the telemetry RailCell grammar (collapsed left-aligned cell summary w/ dividers + single Open
-deep-link; expanded ONE horizontal row of labeled groups Runtime/Execution/Budget/Permissions/Integrations).
-**Dashboard:** dropped the `p-4 sm:p-6` page-shell margin (the real "dark border" — a page wrapper, not
-chrome/grid). Sticky stack composes additively (memory `chrome-sticky-stack-additive-offsets`). Also bundled
-S47 top-chrome structure (identity hook/endpoint, bar cluster, rem `--chrome-header` sticky-fix, `--z-*`
-scale), S45 Profile→Agent presentation rename, S44 CF-FEAT activation copy. MINOR → apiVersion window
-0.28→0.29 (5 sites). Detail: git + CHANGELOG + spec Resolution.
+**0.29.0 (RELEASED — `v0.29.0`→`9b9ea0f2`; npm `latest` + GitHub Release + SBOM + prebuilt; OIDC CI green
+incl. npx prod smoke Case L):** relay-website dark-theme technique ported into app chrome + FEAT-14/15/16 —
+opaque instrument telemetry rail, full-bleed two-tier teal canvas grid, `GET /api/settings/glance` +
+`GlanceRail` settings-at-a-glance, page-shell margin fix; bundled S47 top-chrome + S45 Profile→Agent + S44
+CF-FEAT copy. apiVersion 0.28→0.29. Memory `chrome-sticky-stack-additive-offsets`. Full detail: git +
+CHANGELOG + spec Resolution.
 
 **Older (RELEASED — full detail in git + CHANGELOG + closed issues):** 0.28.0 (S43, `v0.28.0`→`7e97669a`,
 nav/naming pass + Profiles→Agents user-facing rename + FEAT-5/6, apiVersion 0.27→0.28, memory
