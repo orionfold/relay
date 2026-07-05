@@ -6,6 +6,15 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.31.0] — 2026-07-05
+
+### Changed
+
+- **Every card in the app got a visual lift.** Cards across the app now carry a soft type-colored tint and a large faint background glyph that tells you at a glance what kind of thing each card is: a workflow, an agent, an app, a schedule, a data table, a pack. Featured cards (like the "Start here" workflow on an app's home) stand out with an accent surface and badge. It is the same polished look as the cards on the Orionfold website, applied everywhere.
+- **The workflow cards on an app's home page now pack together neatly.** They used to stretch to match the tallest card in each row, leaving empty gaps under the shorter ones. Now each card is only as tall as its own content, so the grid reads cleanly with no dead space.
+- **Preset agents and metric tiles are richer.** The built-in agent presets, which used to be plain name-and-description tiles, now show a colored type glyph and a Work/Personal tag. The at-a-glance number tiles on an app's home (billed, costs, margin, and so on) now use a cleaner label-over-number layout.
+- **"Schemas" moved from Compose to Data, next to Tables.** Reusable table structures now sit beside the tables they shape, under the Data menu. Nothing about how schemas work changed, only where the menu item lives.
+
 ## [0.30.0] — 2026-07-05
 
 ### Added

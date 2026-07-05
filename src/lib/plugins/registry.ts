@@ -53,7 +53,7 @@ import type { ScheduleSpec } from "@/lib/validators/schedule-spec";
 // unfixed from 0.15.0 through 0.16.0 — treat the window test's failure as
 // a release blocker, not noise). The 0.13→0.14 three-MINOR bridge is over;
 // this is the standard 2-MINOR window now.
-const SUPPORTED_API_VERSIONS = new Set([CURRENT_PLUGIN_API_VERSION, "0.29"]);
+const SUPPORTED_API_VERSIONS = new Set([CURRENT_PLUGIN_API_VERSION, "0.30"]);
 
 /** Test-helper export so the window-enforcement test can read state. */
 export function isSupportedApiVersion(apiVersion: string): boolean {
