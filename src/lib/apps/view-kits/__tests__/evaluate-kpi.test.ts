@@ -12,6 +12,7 @@ function makeCtx(over: Partial<KpiContext> = {}): KpiContext {
     blueprintRunCount: vi.fn(async () => 7),
     scheduleNextFire: vi.fn(async () => 1_700_000_000_000),
     tableSumWindowed: vi.fn(async () => 0),
+    tableSumWindowedSeries: vi.fn(async () => []),
     ...over,
   };
 }
@@ -122,6 +123,7 @@ describe("evaluateKpi — tableSumWindowed", () => {
         expect(w).toBe("mtd");
         return 1234.56;
       },
+      tableSumWindowedSeries: async () => [],
     };
     const tile = await evaluateKpi(spec, ctx);
     expect(tile.value).toBe("$1,234.56");
@@ -151,9 +153,111 @@ describe("evaluateKpi — tableSumWindowed", () => {
         captured = sign;
         return 100;
       },
+      tableSumWindowedSeries: async () => [],
     };
     await evaluateKpi(spec, ctx);
     expect(captured).toBe("positive");
+  });
+});
+
+describe("evaluateKpi — trend/spark (windowed series)", () => {
+  const windowedSpec: KpiSpec = {
+    id: "net",
+    label: "Net",
+    format: "currency",
+    source: {
+      kind: "tableSumWindowed",
+      table: "transactions",
+      column: "amount",
+      window: "mtd",
+    },
+  };
+
+  it("populates spark from the windowed series and trend=up when rising", async () => {
+    const tile = await evaluateKpi(
+      windowedSpec,
+      makeCtx({
+        tableSumWindowed: vi.fn(async () => 600),
+        tableSumWindowedSeries: vi.fn(async () => [100, 200, 300]),
+      })
+    );
+    expect(tile.spark).toEqual([100, 200, 300]);
+    expect(tile.trend).toBe("up");
+  });
+
+  it("derives trend=down when the series falls", async () => {
+    const tile = await evaluateKpi(
+      windowedSpec,
+      makeCtx({
+        tableSumWindowedSeries: vi.fn(async () => [300, 200, 50]),
+      })
+    );
+    expect(tile.trend).toBe("down");
+  });
+
+  it("derives trend=flat when first and last are equal", async () => {
+    const tile = await evaluateKpi(
+      windowedSpec,
+      makeCtx({
+        tableSumWindowedSeries: vi.fn(async () => [100, 250, 100]),
+      })
+    );
+    expect(tile.trend).toBe("flat");
+  });
+
+  it("omits spark/trend when the series has fewer than 2 points", async () => {
+    const tile = await evaluateKpi(
+      windowedSpec,
+      makeCtx({
+        tableSumWindowedSeries: vi.fn(async () => [42]),
+      })
+    );
+    expect(tile.spark).toBeUndefined();
+    expect(tile.trend).toBeUndefined();
+  });
+
+  it("caps spark at the most recent 30 points", async () => {
+    const series = Array.from({ length: 45 }, (_, i) => i + 1); // 1..45
+    const tile = await evaluateKpi(
+      windowedSpec,
+      makeCtx({
+        tableSumWindowedSeries: vi.fn(async () => series),
+      })
+    );
+    expect(tile.spark).toHaveLength(30);
+    // The most recent 30 points are kept (16..45).
+    expect(tile.spark?.[0]).toBe(16);
+    expect(tile.spark?.[29]).toBe(45);
+  });
+
+  it("does not fetch a series or set trend/spark when no window is set", async () => {
+    const spec: KpiSpec = {
+      id: "unwindowed",
+      label: "Unwindowed",
+      format: "currency",
+      source: {
+        kind: "tableSumWindowed",
+        table: "transactions",
+        column: "amount",
+      },
+    };
+    const tableSumWindowedSeries = vi.fn(async () => [1, 2, 3]);
+    const tile = await evaluateKpi(spec, makeCtx({ tableSumWindowedSeries }));
+    expect(tableSumWindowedSeries).not.toHaveBeenCalled();
+    expect(tile.spark).toBeUndefined();
+    expect(tile.trend).toBeUndefined();
+  });
+
+  it("leaves non-windowed KPI kinds as flat scalars (no trend/spark)", async () => {
+    const spec: KpiSpec = {
+      id: "count",
+      label: "Count",
+      source: { kind: "tableCount", table: "t" },
+      format: "int",
+    };
+    const tile = await evaluateKpi(spec, makeCtx({ tableCount: vi.fn(async () => 9) }));
+    expect(tile.spark).toBeUndefined();
+    expect(tile.trend).toBeUndefined();
   });
 });
 

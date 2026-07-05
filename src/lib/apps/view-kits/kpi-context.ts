@@ -116,6 +116,41 @@ export function createKpiContext(): KpiContext {
       }
     },
 
+    async tableSumWindowedSeries(tableId, column, sign, window) {
+      try {
+        const path = "$." + column;
+        const conditions = [eq(userTableRows.tableId, tableId)];
+
+        if (sign === "positive") {
+          conditions.push(
+            sql`CAST(json_extract(${userTableRows.data}, ${path}) AS REAL) > 0`
+          );
+        } else if (sign === "negative") {
+          conditions.push(
+            sql`CAST(json_extract(${userTableRows.data}, ${path}) AS REAL) < 0`
+          );
+        }
+
+        const since = windowStart(window);
+        conditions.push(gte(userTableRows.createdAt, since));
+
+        const bucket = sql<string>`date(${userTableRows.createdAt} / 1000, 'unixepoch')`;
+        const rows = db
+          .select({
+            date: bucket,
+            value: sql<number>`COALESCE(SUM(CAST(json_extract(${userTableRows.data}, ${path}) AS REAL)), 0)`,
+          })
+          .from(userTableRows)
+          .where(and(...conditions))
+          .groupBy(bucket)
+          .orderBy(sql`${bucket} ASC`)
+          .all();
+        return rows.map((r) => r.value ?? 0);
+      } catch {
+        return [];
+      }
+    },
+
     async tableLatest(tableId, column) {
       try {
         const path = "$." + column;

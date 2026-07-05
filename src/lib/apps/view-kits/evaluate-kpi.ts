@@ -27,6 +27,32 @@ export interface KpiContext {
     sign: "positive" | "negative" | undefined,
     window: "mtd" | "qtd" | "ytd" | undefined
   ): Promise<KpiPrimitive>;
+  /**
+   * Daily-bucketed running series for a windowed sum, ascending by date. Feeds
+   * the KPI tile's `spark`/`trend`. Same window + sign math as
+   * `tableSumWindowed`; returns per-day sums rather than one aggregate.
+   */
+  tableSumWindowedSeries(
+    table: string,
+    column: string,
+    sign: "positive" | "negative" | undefined,
+    window: "mtd" | "qtd" | "ytd"
+  ): Promise<number[]>;
+}
+
+/** KPI tiles cap the sparkline at 30 points (see KpiTile.spark). */
+const MAX_SPARK_POINTS = 30;
+
+/**
+ * Derive a coarse trend direction from a series' first vs. last value. Callers
+ * only invoke this with 2+ points; the tile renders the arrow/glyph.
+ */
+function trendOf(series: number[]): "up" | "down" | "flat" {
+  const first = series[0];
+  const last = series[series.length - 1];
+  if (last > first) return "up";
+  if (last < first) return "down";
+  return "flat";
 }
 
 /**
@@ -86,9 +112,31 @@ export async function evaluateKpi(spec: KpiSpec, ctx: KpiContext): Promise<KpiTi
   } else {
     raw = await evaluateLeaf(spec.source, ctx);
   }
-  return {
+
+  const tile: KpiTile = {
     id: spec.id,
     label: spec.label,
     value: formatKpi(raw, spec.format),
   };
+
+  // Wave-1 resurface: a windowed sum has a daily-bucketed history, so we can
+  // fill the tile's existing `trend`/`spark` fields instead of rendering a
+  // dead flat scalar. Only `tableSumWindowed` with an explicit window has a
+  // series to bucket — every other kind stays flat. A series of <2 points
+  // can't show direction, so we leave trend/spark unset (the tile renders the
+  // scalar alone, and Sparkline already no-ops below 2 points).
+  if (spec.source.kind === "tableSumWindowed" && spec.source.window) {
+    const series = await ctx.tableSumWindowedSeries(
+      spec.source.table,
+      spec.source.column,
+      spec.source.sign,
+      spec.source.window
+    );
+    if (series.length >= 2) {
+      tile.spark = series.slice(-MAX_SPARK_POINTS);
+      tile.trend = trendOf(series);
+    }
+  }
+
+  return tile;
 }

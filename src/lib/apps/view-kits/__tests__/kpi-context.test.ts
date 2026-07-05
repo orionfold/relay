@@ -123,6 +123,57 @@ describe("createKpiContext().tableSumWindowed", () => {
   });
 });
 
+describe("createKpiContext().tableSumWindowedSeries", () => {
+  it("buckets this-month rows into a single day (net) within MTD", async () => {
+    // r1 (+100) and r2 (-50) share `now`, so they collapse to one daily
+    // bucket summing to 50; r3 (+200) is last month → outside MTD.
+    const ctx = createKpiContext();
+    const series = await ctx.tableSumWindowedSeries(
+      TEST_TABLE,
+      "amount",
+      undefined,
+      "mtd"
+    );
+    expect(series).toEqual([50]);
+  });
+
+  it("applies sign=positive to the series (Inflow MTD)", async () => {
+    const ctx = createKpiContext();
+    const series = await ctx.tableSumWindowedSeries(
+      TEST_TABLE,
+      "amount",
+      "positive",
+      "mtd"
+    );
+    expect(series).toEqual([100]); // only +100 survives the positive filter
+  });
+
+  it("includes last-month rows under a YTD window", async () => {
+    // YTD spans both months; r3 (+200, last month) and the current-month
+    // net (50) are separate daily buckets, ascending by date.
+    const ctx = createKpiContext();
+    const series = await ctx.tableSumWindowedSeries(
+      TEST_TABLE,
+      "amount",
+      undefined,
+      "ytd"
+    );
+    expect(series.reduce((a, b) => a + b, 0)).toBe(250); // 200 + 50
+    expect(series.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("returns [] for a table with no rows in the window", async () => {
+    const ctx = createKpiContext();
+    const series = await ctx.tableSumWindowedSeries(
+      "does-not-exist",
+      "amount",
+      undefined,
+      "mtd"
+    );
+    expect(series).toEqual([]);
+  });
+});
+
 describe("windowStart helper", () => {
   it("returns first day of current month for mtd", () => {
     const start = windowStart("mtd");
