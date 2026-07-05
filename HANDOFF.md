@@ -1,18 +1,31 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **0.30.0 RELEASED — all operator requirements Delivered; zero open bugs,
-zero Pending.** `v0.30.0`→`8519e9af`; npm `latest` + GitHub Release + SBOM + OIDC CI green incl. npx prod
-smoke Case L. Shipped the final four: CF-FEAT-2 (free↔paid Agency relationship copy + phantom-update fix,
-`0c3c0262`), FEAT-7 (filter-by-installed-pack on agents/schedules/tables, `c21441c1`), FEAT-6 (one-click
-Run + Create-workflow on blueprint gallery cards, `82861850`), FEAT-13 (Presets elevated to a Compose nav
-peer of Agents, `cb97eb9e`). `OPERATOR-REQUIREMENTS.md` RETIRED (26 Delivered, 2 Dropped). apiVersion window
-→ {0.30, 0.29}. New memories `two-verb-run-is-blueprint-only`, `compose-submenu-elevation-pattern`. Prior:
-0.29.1 (#31 husk fix). Full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-05 (pt: **operator design walkthrough — findings only, NO code committed.**
+Watched operator navigate app + orionfold.com in Claude-in-Chrome; logged F1–F6 to
+`output/staging/2026-07-05-operator-walkthrough/FINDINGS-live.md`. Headline: **F5 app-wide CARD
+DESIGN LIFT** to the orionfold.com "THE PROOF" North Star recipe (glass `rounded-2xl backdrop-blur`
++ faint watermark glyph @0.09/0.14 + accent payoff variant) — cards are Relay's most-marketable
+primitive; base `ui/card.tsx` has NO variants (add tone/emphasis/watermark). **F6 nav move**: Schemas
+Compose→Data (after Tables), single-line `nav-items.ts` + test tail. F1/F2/F3/F4 roll up into F5. New
+memories: `cards-are-first-class-marketable-primitive`, `favor-visually-rich-ui`,
+`card-grid-first-card-anchor-explainer`, `dont-over-log-mid-conversation`. Prior committed: 0.30.0
+RELEASED (`v0.30.0`→`8519e9af`, final four operator requirements; tracker retired). Full detail:
+git log + CHANGELOG + the findings bundle.)_
 
-## ▶️ NEXT SESSION — no committed work outstanding; pick from standing backlog
+## ▶️ NEXT SESSION — design-lift backlog groomed (F5/F6), no code committed yet
 
-The operator-walkthrough arc is CLOSED (all 26 requirements Delivered, tracker retired). No release pending.
-Standing candidates, all LOW / reactive:
+Operator design walkthrough (2026-07-05) produced a groomed, code-grounded backlog. Pick up here:
+- **F5 — App-wide card design lift (BIG, presentation-only).** Groomed spec in
+  `output/staging/2026-07-05-operator-walkthrough/FINDINGS-live.md` + memory
+  `cards-are-first-class-marketable-primitive`. North Star recipe extracted from orionfold.com CSS;
+  card-surface inventory (RICH/MED/LOW tiers) + shared helpers (`card-icons`/`PackPill`/`packOf`)
+  captured. Build shape: add `Card` tone(per-kind)/emphasis/watermark variants → per-kind tone map
+  (tone/glyph = the F1 primitive-type cue) → migrate LOW→MED→RICH, fold in F2 masonry/uniform-height.
+- **F6 — Relocate Schemas Compose→Data (after Tables).** Single-line `nav-items.ts` move (entry at
+  line ~81 → `dataItems` after Tables) + update `nav-items.test.ts` "elevated Schemas" assertion +
+  check `features/nav-redesign-ia.md`. No route change.
+
+Standing candidates (unchanged, all LOW / reactive):
 - Not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4 `create_trigger` `appId` gap.
 - #29 retry-with-backoff hardening; held-issue retests (#5/#6/#11/#12, reactive — see below).
 - Other staging R-runs (one R-run per session; harness ready).
