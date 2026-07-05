@@ -260,12 +260,12 @@
   --surface-3: oklch(0.115 0.018 250);       /* deepest — the instrument rail */
   --surface-foreground: oklch(0.92 0.01 250);
 
-  /* Instrument palette (WS3) — dark. Same derivation from --primary (dark teal
-     oklch 0.78/.13/192), but the grid runs slightly hotter than light because
-     the bright teal reads faint over the charcoal ground, and the seam-glow is
-     a touch stronger. Washes track --primary; surfaces stay neutral charcoal. */
-  --grid-line: color-mix(in oklch, var(--primary) 12%, transparent);   /* fine 24px hairline */
-  --grid-major: color-mix(in oklch, var(--primary) 22%, transparent);  /* major 120px line */
+  /* Instrument palette (WS3) — dark. Derived from --primary (dark teal
+     oklch 0.78/.13/192). Grid alpha halved from 12/22% → 6/11% per operator
+     ("50% darker"): the teal recedes toward the charcoal ground so the grid
+     reads subtler/dimmer. Washes track --primary; surfaces stay neutral. */
+  --grid-line: color-mix(in oklch, var(--primary) 6%, transparent);    /* fine 24px hairline */
+  --grid-major: color-mix(in oklch, var(--primary) 11%, transparent);  /* major 120px line */
   --glow-accent: color-mix(in oklch, var(--primary) 26%, transparent); /* ambient accent (dark) */
   --wash-1: color-mix(in oklch, var(--primary) 4%, transparent);
   --wash-2: color-mix(in oklch, var(--primary) 6%, transparent);
