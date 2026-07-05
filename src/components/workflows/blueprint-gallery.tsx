@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Search, Layers, Plus } from "lucide-react";
 import { patternLabels } from "@/lib/constants/status-colors";
-import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
+import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import { PackPill } from "@/components/shared/pack-pill";
 import { RunNowButton } from "@/components/apps/run-now-button";
 import { packOf } from "@/lib/apps/pack-of";
@@ -161,6 +161,9 @@ export function BlueprintGallery() {
             <Card
               key={bp.id}
               tabIndex={0}
+              tone="blueprint"
+              watermark={getWorkflowIconFromName(bp.name, bp.pattern).icon}
+              watermarkColor={getWorkflowIconFromName(bp.name, bp.pattern).colors.icon}
               className="cursor-pointer transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
               onClick={() => router.push(`/blueprints/${bp.id}`)}
               onKeyDown={(e) => {
@@ -171,25 +174,19 @@ export function BlueprintGallery() {
               }}
             >
               <CardHeader className="pb-1">
-                <div className="flex items-center gap-3">
-                  <IconCircle
-                    icon={getWorkflowIconFromName(bp.name, bp.pattern).icon}
-                    colors={getWorkflowIconFromName(bp.name, bp.pattern).colors}
-                  />
-                  <div className="flex min-w-0 flex-1 items-center justify-between">
-                    <CardTitle className="truncate text-sm font-medium">
-                      {bp.name}
-                    </CardTitle>
-                    <div className="flex shrink-0 items-center gap-1.5">
-                      <Badge variant={bp.domain === "work" ? "default" : "secondary"}>
-                        {bp.domain}
+                <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
+                  <CardTitle className="min-w-0 truncate text-sm font-medium">
+                    {bp.name}
+                  </CardTitle>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    <Badge variant={bp.domain === "work" ? "default" : "secondary"}>
+                      {bp.domain}
+                    </Badge>
+                    {bp.difficulty && (
+                      <Badge variant="outline" className={`text-xs ${difficultyColors[bp.difficulty] ?? ""}`}>
+                        {bp.difficulty}
                       </Badge>
-                      {bp.difficulty && (
-                        <Badge variant="outline" className={`text-xs ${difficultyColors[bp.difficulty] ?? ""}`}>
-                          {bp.difficulty}
-                        </Badge>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
               </CardHeader>

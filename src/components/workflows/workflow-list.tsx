@@ -13,7 +13,7 @@ import { GitBranch, Pencil, Copy, RotateCcw, Trash2, FileCog, Play } from "lucid
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { workflowStatusVariant, patternLabels } from "@/lib/constants/status-colors";
-import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
+import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import { StatusChip } from "@/components/shared/status-chip";
 
 interface Workflow {
@@ -164,15 +164,15 @@ export function WorkflowList({ projects }: WorkflowListProps) {
               <Card
                 key={wf.id}
                 tabIndex={0}
+                tone="blueprint"
+                watermark={wfIcon.icon}
+                watermarkColor={wfIcon.colors.icon}
                 className="elevation-1 cursor-pointer transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
                 onClick={() => router.push(`/workflows/${wf.id}`)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/workflows/${wf.id}`); } }}
               >
                 <CardHeader className="pb-2">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <IconCircle icon={wfIcon.icon} colors={wfIcon.colors} />
-                    <CardTitle className="min-w-0 truncate text-base font-medium">{wf.name}</CardTitle>
-                  </div>
+                  <CardTitle className="min-w-0 truncate text-base font-medium">{wf.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">

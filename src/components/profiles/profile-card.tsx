@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Download } from "lucide-react";
 import type { AgentRuntimeId } from "@/lib/agents/runtime/catalog";
 import { getSupportedRuntimes } from "@/lib/agents/profiles/compatibility";
-import { IconCircle, getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
+import { getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
 import { PackPill } from "@/components/shared/pack-pill";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
@@ -39,6 +39,9 @@ export function ProfileCard({ profile, isBuiltin = false, packName = null, onCli
     <Card
       tabIndex={0}
       role="button"
+      tone="agent"
+      watermark={getProfileIcon(profile.id)}
+      watermarkColor={getDomainColors(profile.domain, isBuiltin).icon}
       className="surface-card cursor-pointer rounded-xl transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
       onClick={onClick}
       onKeyDown={(e) => {
@@ -48,13 +51,9 @@ export function ProfileCard({ profile, isBuiltin = false, packName = null, onCli
         }
       }}
     >
-      <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-        <IconCircle
-          icon={getProfileIcon(profile.id)}
-          colors={getDomainColors(profile.domain, isBuiltin)}
-        />
-        <div className="flex min-w-0 flex-1 items-center justify-between">
-          <CardTitle className="truncate text-base font-medium">{profile.name}</CardTitle>
+      <CardHeader className="pb-2">
+        <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
+          <CardTitle className="min-w-0 truncate text-base font-medium">{profile.name}</CardTitle>
           <Badge
             variant={profile.domain === "work" ? "default" : "secondary"}
           >

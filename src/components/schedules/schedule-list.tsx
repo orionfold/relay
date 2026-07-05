@@ -202,6 +202,8 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
             <Card
               key={sched.id}
               tabIndex={0}
+              tone="schedule"
+              watermark={sched.type === "heartbeat" ? Heart : Clock}
               className="elevation-1 cursor-pointer transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
               onClick={() => setSelectedScheduleId(sched.id)}
               onKeyDown={(e) => {

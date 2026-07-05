@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { cardVariants } from "@/components/ui/card";
-import { getProfileIcon } from "@/lib/constants/card-icons";
+import { getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
 interface ProfilePresetGalleryProps {
@@ -60,6 +60,7 @@ export function ProfilePresetGallery({
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
         {presets.map((p) => {
           const Glyph = getProfileIcon(p.id);
+          const glyphColor = getDomainColors(p.domain).icon;
           return (
             <button
               key={p.id}
@@ -75,7 +76,8 @@ export function ProfilePresetGallery({
             >
               <Glyph
                 aria-hidden
-                className="pointer-events-none absolute -right-3 -top-3 h-[9.6rem] w-[9.6rem] select-none text-foreground/[0.07]"
+                className="pointer-events-none absolute -right-3 -top-3 h-[9.6rem] w-[9.6rem] select-none"
+                style={{ color: glyphColor, opacity: 0.12 }}
               />
               <p className="relative text-sm font-medium truncate">{p.name}</p>
               <p className="relative text-xs text-muted-foreground line-clamp-2">
