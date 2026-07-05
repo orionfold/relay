@@ -16,6 +16,8 @@ import {
 import { ChevronDown, AlertCircle, Sparkles, RefreshCw } from "lucide-react";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { RunNowButton } from "@/components/apps/run-now-button";
+import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
+import { cardKindStyle } from "@/lib/constants/card-tones";
 import type { TaskStatus } from "@/lib/constants/task-status";
 import type { BlueprintCard, RuntimeTaskSummary } from "@/lib/apps/view-kits/types";
 
@@ -140,13 +142,14 @@ export function RunnableBlueprintCard({
     );
   }
 
+  const blueprintStyle = cardKindStyle("blueprint");
+  const wfIcon = getWorkflowIconFromName(card.name, "sequence");
+
   return (
     <Card
-      className={
-        card.isPrimary
-          ? "surface-card border-primary ring-1 ring-primary/30"
-          : "surface-card"
-      }
+      tone="blueprint"
+      emphasis={card.isPrimary ? "featured" : "none"}
+      watermark={blueprintStyle.glyph}
     >
       <CardHeader className="pb-2 space-y-1.5">
         {card.isPrimary && (
@@ -155,12 +158,17 @@ export function RunnableBlueprintCard({
             Start here
           </Badge>
         )}
-        <CardTitle className="text-sm font-medium">{card.name}</CardTitle>
-        {card.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2">
-            {card.description}
-          </p>
-        )}
+        <div className="flex items-start gap-3">
+          <IconCircle icon={wfIcon.icon} colors={wfIcon.colors} size="sm" />
+          <div className="min-w-0 flex-1 space-y-1">
+            <CardTitle className="text-sm font-medium">{card.name}</CardTitle>
+            {card.description && (
+              <p className="text-xs text-muted-foreground line-clamp-2">
+                {card.description}
+              </p>
+            )}
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2 flex-wrap">
