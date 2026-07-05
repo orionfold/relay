@@ -1,30 +1,31 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **8 PACK-CATALOG SPECS COMMITTED** — the 8 `features/pack-*.md` specs +
-roadmap + changelog are reviewed and committed (`42cf3c4a`); a subagent verified every code anchor across
-7 specs resolves, and the P0 `pack-generalize-agency.md` anchor was fixed to the real
-`src/lib/packs/templates/relay-agency/` path (was bare `templates/`). Stray `.gitignore` ainative→relay
-comment fix committed separately (`3070bcb7`). Nothing implemented yet — next is grooming/building the P0.
-Prior tail: strategy `_IDEAS/packs-evolution.md` written+approved+extracted (memory
-`packs-evolution-requirements-extracted`), then 0.31.0 F5 card lift + F6 nav move (`v0.31.0`→`a661054e`) —
-see git log + CHANGELOG + memories `card-watermark-recipe` / `card-watermark-taste-rule`.)_
+_Last updated: 2026-07-05 (pt: **`pack-generalize-agency` (P0) BUILT + committed** (`3797c839`) — the
+persona/industry split shipped to source: free `relay-agency` neutralized+fattened (7·7·4), two paid
+industry packs authored (`relay-cre` 3·3·1, `relay-nonprofit` 3·4·2), `relay-agency-pro` reshaped to
+vertical-neutral automation (6·4·2, v0.5.0). Operator locked the design from scratch (memory
+`persona-pack-manual-automated-split`): free=manual OS, Pro=automation, industry=thin delivery; ONLY
+relay-agency is free, everything else = one license `product:orionfold-relay`. All 4 packs parse+install
+(gate+coexist), tests+prod-smoke updated, full suite green (8 pre-existing fails only), `/packs` gallery
+verified live. NOT released (version bump+tag pending). Prior tail: 8 pack-catalog specs (`42cf3c4a`), 0.31.0
+F5/F6 (`v0.31.0`→`a661054e`).)_
 
-## ▶️ NEXT SESSION — groom + implement `pack-generalize-agency` (P0)
+## ▶️ NEXT SESSION — `pack-bundle-model` → `pack-agency-bundle` (the first bundle proof)
 
-- **Build `pack-generalize-agency` first** (the only P0 — no-new-architecture warm-up: split persona
-  `relay-agency` from thin industry packs `relay-cre`/`relay-nonprofit`, generalizing the persona spine
-  *additively*/deep). Multi-file cross-layer → fresh session, spec (`features/pack-generalize-agency.md`) as
-  anchor. Then `pack-bundle-model` → `pack-agency-bundle` (first bundle proof). Full order + rationale in the
-  specs' roadmap section + memory `packs-evolution-requirements-extracted`.
-- **P0 implementation gotchas** (from this session's anchor review): pack templates live at
-  `src/lib/packs/templates/relay-agency/` + `relay-agency-pro/`; on-disk profile ids are namespaced
-  (`relay-agency-pro--cre-renewal-analyst`, `--governance-auditor`), so the spec's "rename `cre-analyst`" is
-  shorthand for the `--cre-…` dirs under `.../base/profiles/`. `-pro` carries the heavy vertical content
-  (cre-renewal-engine / grant-pipeline-deep / month-end-close blueprints) → "Agency Pro parity" is the
-  heaviest AC. `relay-cre`/`relay-nonprofit` don't exist yet — spec says AUTHOR them.
+- **P0 `pack-generalize-agency` is DONE** (`3797c839`; spec status=built with a verification note). Next in
+  the §8.1 sequence: **`pack-bundle-model`** (the bundle format that lets persona+industry install as ONE app)
+  then **`pack-agency-bundle`** (Agency→CRE, the operator's locked first-bundle proof). Full order in the specs'
+  roadmap + memory `packs-evolution-requirements-extracted`.
+- **Before releasing the split**: cut a version bump + annotated tag (memory `release-tag-must-be-annotated`);
+  apiVersion window bump IF minor (memory `apiversion-window-bump-at-version-bump`); the industry-pack `price`
+  is a PLACEHOLDER ($199/year) — needs operator + Website `_RELAY.md` coordination before it ships (memory
+  `packs-evolution-requirements-extracted` bundle-pricing). Prod-smoke Case L already updated to the new counts.
+- **New durable facts this session**: memory `persona-pack-manual-automated-split` (repeatable free/pro design
+  for ALL persona packs) + `pack-install-drops-by-dir-scan` (installPack drops by walking base/, not the
+  manifest lists — remove a primitive = move/delete the FILE; install rewrites logical table ids→UUIDs).
 - `pack-primitive-resurface` (P1) runs on an **independent track** (resurface existing charts; lifts every
-  pack) — schedule whenever. `decisions_open` still needing operator+Website calls at grooming: when-dependsOn-
-  earns-weight (P3 trigger), bundle-pricing-mechanics (`pricing.json` + `_RELAY.md` coord before any price ships).
+  pack) — schedule whenever. `decisions_open` still needing operator+Website calls: when-dependsOn-earns-weight
+  (P3 trigger), bundle-pricing-mechanics (`pricing.json` + `_RELAY.md` coord before any price ships).
 
 - **0.31.0 shipped clean** (`v0.31.0`→`a661054e`; F5 card lift + F6 nav move; CI green, on npm). Nothing
   outstanding — full detail in "Recently shipped" + git.
