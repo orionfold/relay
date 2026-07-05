@@ -118,7 +118,9 @@
   --wash-3: color-mix(in oklch, var(--primary) 12%, transparent);      /* strongest teal wash */
   /* The translucent instrument rail: a tint of --surface-2 the grid reads
      through, + a faint teal seam-glow on the rail's top edge. */
-  --rail-surface: color-mix(in oklch, var(--surface-2) 84%, transparent);
+  /* Rail opacity raised ~50% per operator (was 84% surface / 16% transparent →
+     now 92% / 8%): the grid still reads through but the rail sits more solidly. */
+  --rail-surface: color-mix(in oklch, var(--surface-2) 92%, transparent);
   --rail-glow: color-mix(in oklch, var(--primary) 12%, transparent);
 
   /* Accent */
@@ -203,8 +205,13 @@
      tokenizing keeps that offset honest if the rail height ever changes. We do
      NOT fold these into --chrome-header — that token is the telemetry rail's own
      `top` and folding rail height in would shove the rail under the header. */
-  --chrome-rail: 88px;     /* telemetry rail height */
-  --chrome-glance-top: calc(var(--chrome-header) + var(--chrome-rail)); /* 188px — glance sticky top */
+  /* Telemetry rail height. The rail is now auto-height (content + symmetric
+     py-2.5), so this MUST equal that rendered height or the glance rail (which
+     parks at header + rail) leaves a gap / overlaps. Expressed in rem so it
+     tracks the root font like --chrome-header: the rail's 3-line cell +
+     2×0.625rem padding renders ~4.95rem (≈69px at the operator's 14px root). */
+  --chrome-rail: 4.95rem;
+  --chrome-glance-top: calc(var(--chrome-header) + var(--chrome-rail)); /* glance sticky top */
 
   /* Named z-scale — formalizes values previously scattered as magic numbers
      (z-20/z-30/100/9999). Header always wins over rail; grid sits below all
@@ -263,7 +270,8 @@
   --wash-1: color-mix(in oklch, var(--primary) 4%, transparent);
   --wash-2: color-mix(in oklch, var(--primary) 6%, transparent);
   --wash-3: color-mix(in oklch, var(--primary) 10%, transparent);
-  --rail-surface: color-mix(in oklch, var(--surface-2) 82%, transparent);
+  /* Rail opacity raised ~50% per operator (was 82% → now 91% surface). */
+  --rail-surface: color-mix(in oklch, var(--surface-2) 91%, transparent);
   --rail-glow: color-mix(in oklch, var(--primary) 14%, transparent);
 
   /* Accent */
@@ -710,20 +718,16 @@
      so panel + row read as one surface (not a lighter/darker band). */
   background: var(--rail-surface);
 }
-.glance-tile {
-  /* Group cluster — a faint teal wash + hairline. Subtle enough to
-     group without reading as a hard detached card. */
-  background: var(--wash-1);
-  border: 1px solid var(--grid-line);
+/* Compact cell — the SAME grammar as the telemetry RailCell (mono-uppercase
+   label over a value, left-aligned, a right-hairline vertical divider between
+   cells). Used for BOTH the collapsed summary chips and the expanded panel
+   cells, so the glance rail speaks one visual language with the telemetry rail
+   above it. The last cell in a row drops its divider. */
+.glance-cell {
+  border-right: 1px solid var(--grid-line);
 }
-.glance-pill {
-  /* Key/value line — NO solid background (that made lighter bands).
-     A hairline rule separates rows; the value reads directly on the
-     washed tile, so the tile stays one coherent surface. */
-  border-top: 1px solid var(--grid-line);
-}
-.glance-pill:first-child {
-  border-top: none;
+.glance-cell:last-child {
+  border-right: none;
 }
 
 /* =============================================================

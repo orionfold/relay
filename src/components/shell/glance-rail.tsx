@@ -1,19 +1,22 @@
 "use client";
 
 // FEAT-14 — Settings at a glance (WS4, 2026-07-05).
-// A two-level progressive-disclosure rail below the telemetry rail: a slim
-// collapsed chip row of the key settings, expanding to a grouped panel
-// (Runtime · Budget · Permissions · Integrations). Read-only summary — edits
-// stay on /settings; each group deep-links there. Data comes from one
-// consolidated read (useSettingsGlance → /api/settings/glance); shadow-path
-// discipline throughout — only resolved fields render, a failed read collapses
-// the rail to nothing.
+// A two-level progressive-disclosure rail below the telemetry rail, sharing its
+// compact RailCell grammar (mono label over value, left-aligned, vertical
+// dividers). Collapsed: a left-aligned summary row of cells + a single "Open"
+// deep-link on the bar. Expanded: ONE horizontal row of labeled groups
+// (Runtime · Execution · Budget · Permissions · Integrations), each a header +
+// sub-row of cells, non-wrapping (scrolls if narrow) like the telemetry strip.
+// Read-only — edits stay on /settings. Data comes from one consolidated read
+// (useSettingsGlance → /api/settings/glance); shadow-path discipline throughout
+// — only resolved fields render, a failed read collapses the rail to nothing.
 
 import { useState } from "react";
 import Link from "next/link";
 import {
   ChevronDown,
   Cpu,
+  Gauge,
   Wallet,
   ShieldCheck,
   Plug,
@@ -41,34 +44,15 @@ const ROUTING_LABEL: Record<string, string> = {
   manual: "Manual",
 };
 
-// A single value chip in the collapsed row: mono micro-label over a value,
-// matching the telemetry rail's density. Renders nothing when value is null so
-// the row only shows what resolved.
-function Chip({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | null;
-}) {
+// One compact cell — the SAME grammar as the telemetry RailCell: a mono
+// micro-label over a left-aligned value, with a right-hairline vertical divider
+// (.glance-cell). Used for both the collapsed summary and the expanded panel so
+// the glance rail matches the telemetry rail above it. Renders nothing when the
+// value is null, so a row only shows what resolved.
+function Cell({ label, value }: { label: string; value: string | null }) {
   if (value == null) return null;
   return (
-    <div className="flex flex-none items-baseline gap-1.5">
-      <span className="font-mono text-[0.55rem] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-        {label}
-      </span>
-      <span className="font-mono text-xs tabular-nums text-foreground">
-        {value}
-      </span>
-    </div>
-  );
-}
-
-// A read-only value pill inside an expanded group tile (zone 4).
-function Pill({ label, value }: { label: string; value: string | null }) {
-  if (value == null) return null;
-  return (
-    <div className="glance-pill flex items-baseline justify-between gap-3 px-0.5 py-1">
+    <div className="glance-cell flex min-w-[7rem] flex-none flex-col gap-0.5 px-3">
       <span className="font-mono text-[0.55rem] font-medium uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </span>
@@ -79,36 +63,35 @@ function Pill({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-// A labeled group tile (zone 3) with a "Settings" deep-link.
-function GroupTile({
+// A labeled section in the expanded panel: a mono section eyebrow above a
+// horizontal sub-row of compact cells (same left-aligned RailCell grammar).
+// Groups sit side by side in ONE row (like the telemetry cell strip), never
+// wrapping — a stronger right border separates one group from the next. The
+// per-cell "Settings" link is gone; a single deep-link lives on the collapse bar.
+function Group({
   icon,
   title,
-  href,
-  children,
+  cells,
 }: {
   icon: React.ReactNode;
   title: string;
-  href: string;
-  children: React.ReactNode;
+  cells: Array<{ label: string; value: string | null }>;
 }) {
+  // Hide a whole section if nothing in it resolved.
+  if (cells.every((c) => c.value == null)) return null;
   return (
-    <div className="glance-tile flex flex-col gap-1.5 rounded-md p-2.5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 font-mono text-[0.6rem] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-          <span className="flex h-3 w-3 items-center justify-center [&_svg]:h-3 [&_svg]:w-3">
-            {icon}
-          </span>
-          {title}
-        </div>
-        <Link
-          href={href}
-          className="flex items-center gap-0.5 text-[0.6rem] text-muted-foreground transition-colors hover:text-primary"
-        >
-          Settings
-          <ArrowUpRight aria-hidden className="h-2.5 w-2.5" />
-        </Link>
+    <div className="flex flex-none flex-col gap-1.5 border-r border-border pr-3 last:border-r-0">
+      <div className="flex items-center gap-1.5 px-3 font-mono text-[0.6rem] font-medium uppercase tracking-[0.08em] text-muted-foreground/80">
+        <span className="flex h-3 w-3 items-center justify-center [&_svg]:h-3 [&_svg]:w-3">
+          {icon}
+        </span>
+        {title}
       </div>
-      <div className="flex flex-col gap-1">{children}</div>
+      <div className="flex items-stretch">
+        {cells.map((c) => (
+          <Cell key={c.label} label={c.label} value={c.value} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -185,17 +168,17 @@ export function GlanceRail() {
       className="sticky top-[var(--chrome-glance-top)] z-[var(--z-rail)] flex-none border-b border-border"
       aria-label="Settings at a glance"
     >
-      {/* Collapsed row: the SETTINGS toggle + (only when collapsed) the dense
-          chip summary. When expanded the chips HIDE — the panel below carries
-          the detail, so no duplicate summaries (#6). The toggle stays as the
-          panel header. */}
-      <div className="glance-row flex h-8 items-center gap-3 px-4">
+      {/* Collapse bar: the SETTINGS toggle + a SINGLE "Settings" deep-link
+          (per-tile links removed), then — only when collapsed — the LEFT-ALIGNED
+          summary of compact cells with vertical dividers. When expanded the
+          summary HIDES; the panel below carries the detail (no duplicates). */}
+      <div className="glance-row flex h-8 items-stretch">
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
           aria-label={expanded ? "Collapse settings" : "Expand settings"}
-          className="flex flex-none items-center gap-1 rounded text-muted-foreground transition-colors hover:text-foreground"
+          className="glance-cell flex flex-none items-center gap-1 px-4 text-muted-foreground transition-colors hover:text-foreground"
         >
           <span className="font-mono text-[0.55rem] font-medium uppercase tracking-[0.1em]">
             Settings
@@ -208,79 +191,105 @@ export function GlanceRail() {
             )}
           />
         </button>
+        <Link
+          href="/settings"
+          className="glance-cell flex flex-none items-center gap-0.5 px-4 font-mono text-[0.55rem] uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-primary"
+        >
+          Open
+          <ArrowUpRight aria-hidden className="h-2.5 w-2.5" />
+        </Link>
         {!expanded &&
           (data == null ? (
-            <span className="font-mono text-xs text-muted-foreground/50">—</span>
+            <span className="flex items-center px-4 font-mono text-xs text-muted-foreground/50">
+              —
+            </span>
           ) : (
-            // flex-1 + justify-between spreads the chips across the full rail
-            // width instead of left-packing a few (#4).
-            <div className="flex flex-1 items-center justify-between gap-3 overflow-x-auto">
+            // Left-aligned row of compact cells; each Cell carries its own right
+            // divider (.glance-cell). overflow-x-auto so a narrow viewport
+            // scrolls rather than wraps.
+            <div className="flex flex-1 items-center overflow-x-auto">
               {chips.map((c) => (
-                <Chip key={c.label} label={c.label} value={c.value} />
+                <Cell key={c.label} label={c.label} value={c.value} />
               ))}
             </div>
           ))}
       </div>
 
-      {/* Expanded panel — four grouped tiles, each dense with every resolved
-          field for its cluster (#5). Same translucent chrome family as the row
-          so it reads as one surface. */}
+      {/* Expanded panel — ONE horizontal row of labeled groups (like the
+          telemetry cell strip), each group a header + a sub-row of compact
+          cells, separated by a divider. Does not wrap; scrolls on a narrow
+          viewport. Runtime is split into two groups (active runtime vs the SDK
+          execution limits). */}
       {expanded && data != null && (
-        <div className="glance-panel grid grid-cols-1 items-start gap-2 border-t border-border p-2.5 sm:grid-cols-2 lg:grid-cols-4">
-          <GroupTile icon={<Cpu aria-hidden />} title="Runtime" href="/settings">
-            <Pill label="Runtime" value={data.activeRuntimeLabel} />
-            <Pill label="Model" value={data.activeModel} />
-            <Pill label="Routing" value={routingLabel(data.routingPreference)} />
-            <Pill
-              label="Configured"
-              value={
-                data.configuredRuntimeCount != null
-                  ? `${data.configuredRuntimeCount} runtimes`
-                  : null
-              }
-            />
-            <Pill
-              label="Timeout"
-              value={
-                data.sdkTimeoutSeconds != null
-                  ? `${data.sdkTimeoutSeconds}s`
-                  : null
-              }
-            />
-            <Pill
-              label="Max turns"
-              value={data.maxTurns != null ? String(data.maxTurns) : null}
-            />
-          </GroupTile>
-          <GroupTile icon={<Wallet aria-hidden />} title="Budget" href="/settings">
-            <Pill label="License" value={licenseLabel(data)} />
-            <Pill label="Monthly cap" value={budgetCapLabel(data) ?? "None set"} />
-          </GroupTile>
-          <GroupTile
+        <div className="glance-panel flex items-start overflow-x-auto border-t border-border py-3">
+          <Group
+            icon={<Cpu aria-hidden />}
+            title="Runtime"
+            cells={[
+              { label: "Runtime", value: data.activeRuntimeLabel },
+              { label: "Model", value: data.activeModel },
+              { label: "Routing", value: routingLabel(data.routingPreference) },
+              {
+                label: "Configured",
+                value:
+                  data.configuredRuntimeCount != null
+                    ? `${data.configuredRuntimeCount} runtimes`
+                    : null,
+              },
+            ]}
+          />
+          <Group
+            icon={<Gauge aria-hidden />}
+            title="Execution"
+            cells={[
+              {
+                label: "Timeout",
+                value:
+                  data.sdkTimeoutSeconds != null
+                    ? `${data.sdkTimeoutSeconds}s`
+                    : null,
+              },
+              {
+                label: "Max turns",
+                value: data.maxTurns != null ? String(data.maxTurns) : null,
+              },
+            ]}
+          />
+          <Group
+            icon={<Wallet aria-hidden />}
+            title="Budget"
+            cells={[
+              { label: "License", value: licenseLabel(data) },
+              { label: "Monthly cap", value: budgetCapLabel(data) ?? "None set" },
+            ]}
+          />
+          <Group
             icon={<ShieldCheck aria-hidden />}
             title="Permissions"
-            href="/settings"
-          >
-            <Pill label="Preset" value={presetLabel(data.activePreset) ?? "Custom"} />
-            <Pill
-              label="Allowed"
-              value={
-                data.allowedPermissionCount != null
-                  ? `${data.allowedPermissionCount} rules`
-                  : null
-              }
-            />
-          </GroupTile>
-          <GroupTile icon={<Plug aria-hidden />} title="Integrations" href="/settings">
-            <Pill label="Web search" value={boolLabel(data.webSearchEnabled)} />
-            <Pill
-              label="Channels"
-              value={
-                data.channelCount != null ? String(data.channelCount) : null
-              }
-            />
-            <Pill label="Skill learning" value={boolLabel(data.autoPromoteSkills)} />
-          </GroupTile>
+            cells={[
+              { label: "Preset", value: presetLabel(data.activePreset) ?? "Custom" },
+              {
+                label: "Allowed",
+                value:
+                  data.allowedPermissionCount != null
+                    ? `${data.allowedPermissionCount} rules`
+                    : null,
+              },
+            ]}
+          />
+          <Group
+            icon={<Plug aria-hidden />}
+            title="Integrations"
+            cells={[
+              { label: "Web search", value: boolLabel(data.webSearchEnabled) },
+              {
+                label: "Channels",
+                value:
+                  data.channelCount != null ? String(data.channelCount) : null,
+              },
+              { label: "Skill learning", value: boolLabel(data.autoPromoteSkills) },
+            ]}
+          />
         </div>
       )}
     </div>
