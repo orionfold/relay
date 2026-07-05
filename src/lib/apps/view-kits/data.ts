@@ -9,6 +9,7 @@ import type { ResolvedBindings } from "./resolve";
 import type {
   BlueprintCard,
   CadenceChipData,
+  ChartData,
   HeroTableData,
   KitId,
   KpiTile,
@@ -22,6 +23,7 @@ import { evaluateKpi } from "./evaluate-kpi";
 import { createKpiContext, windowStart } from "./kpi-context";
 
 type KpiSpec = NonNullable<ViewConfig["bindings"]["kpis"]>[number];
+type ChartSpec = NonNullable<ViewConfig["bindings"]["charts"]>[number];
 
 /**
  * Subset of kit projection fields read by `loadRuntimeState`. Kits that need
@@ -33,6 +35,8 @@ export interface KitProjectionShape {
   cadenceScheduleId?: string;
   runsBlueprintId?: string;
   kpiSpecs?: KpiSpec[];
+  /** Wave-1 resurface: manifest-declared charts to load rows for (Tracker). */
+  chartSpecs?: ChartSpec[];
   blueprintIds?: string[];
   scheduleIds?: string[];
   /** FEAT-5/6: Workflow Hub — blueprint flagged "Start here" on the card home. */
@@ -79,6 +83,7 @@ async function loadRuntimeStateUncached(
       cadence: await loadCadence(app.manifest, projection.cadenceScheduleId),
       heroTable: await loadHeroTable(projection.heroTableId),
       evaluatedKpis: await loadEvaluatedKpis(projection.kpiSpecs ?? []),
+      chartData: await loadChartData(projection.chartSpecs ?? []),
     };
   }
 
@@ -241,6 +246,37 @@ async function loadHeroTable(
   } catch {
     return null;
   }
+}
+
+/**
+ * Wave-1 resurface: load source rows for each manifest-declared chart. Each
+ * chart's table rows are read and their JSON `data` column parsed into the
+ * shape `TableChartView` consumes. A chart whose table has no rows (or fails
+ * to load) resolves to an empty `rows` array so the chart renders its own
+ * "No data" empty state rather than the whole view erroring — principle #1,
+ * failures are visible-but-contained, not swallowed into a blank surface.
+ */
+async function loadChartData(specs: ChartSpec[]): Promise<ChartData[]> {
+  const out: ChartData[] = [];
+  for (const spec of specs) {
+    let rows: { data: Record<string, unknown> }[] = [];
+    try {
+      const raw = db
+        .select({ data: userTableRows.data })
+        .from(userTableRows)
+        .where(eq(userTableRows.tableId, spec.table))
+        .orderBy(desc(userTableRows.createdAt))
+        .limit(500)
+        .all();
+      rows = raw.map((r) => ({
+        data: JSON.parse(r.data) as Record<string, unknown>,
+      }));
+    } catch {
+      rows = [];
+    }
+    out.push({ spec, rows });
+  }
+  return out;
 }
 
 async function loadBlueprintLastRuns(

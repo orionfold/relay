@@ -1,20 +1,21 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **`pack-agency-bundle` (P1) BUILT + committed (`a03e53dd`)** — the first bundle
-proof. Two bundle descriptors: `relay-agency-cre` (`bundle: [relay-agency, relay-cre]`, operator's locked
-first-bundle) + `relay-agency-nonprofit` (neutrality gate), each a `pack.yaml` with no base/manifest.yaml —
-zero merge-code changes, rides `pack-bundle-model`. **Resolved a collision the split exposed:** CRE + nonprofit
-each still declared their own `clients` table (side-by-side leftover) → collided with the persona spine's
-`clients` under a flatten (`BundleCollisionError`, by design). Operator-picked fix (recommended): persona spine
-owns the ONE client book; industry packs DROP `clients` + add their DISTINCT table (CRE gains `rent_roll` w/
-lease-abstraction row-trigger; nonprofit keeps `grants`); vertical clients flow via `seed/customers.yaml`
-aggregation. `relay-agency-bundle-template.test.ts` (8, real templates) + full packs suite green (141) +
-module-graph parse + e2e install smoke (1 app, 5 tables no-collision, 35 rows, trigger→real UUID, merged
-manifest render-ready). Memory `pack-bundle-flatten-model`. **Then (`3ee81dd0`) `features/pack-taxonomy.md`** —
-operator-requested global registry so new packs build on peers not shadow them (one-owner-per-logical-id;
-6 tables + 1 schedule surveyed); referenced from the `ainative-app` skill + pack-bundle-model/generalize specs.
-Memory `pack-taxonomy-shared-registry`. Prior tail: `pack-bundle-model` P1 (`3bc9b05c`), `pack-generalize-agency`
-P0 (`3797c839`), 0.31.0 (`a661054e`).)_
+_Last updated: 2026-07-05 (pt: **`pack-primitive-resurface` wave 1 BUILT — uncommitted on `main`** (independent
+track, no release/pricing dependency). Three already-existing-but-unreachable capabilities made
+manifest-declarable, lifting EVERY pack with zero new chart components. (1) **Table charts** — new `.strict()`
+`ChartSpecSchema` + `view.bindings.charts` arm (enumerated type/aggregation, no component-ref/formula hatch);
+`loadChartData` (`data.ts`) resolves rows; the **Tracker kit** promotes each declared chart into a `secondary`
+slot via `TableChartView` (off the 3-clicks-deep Charts tab). (2) **`RunCadenceHeatmap` wired** — coach kit
+`buildModel` renders the tested-but-orphaned heatmap in a "Run cadence" slot fed by `coachCadenceCells` (shapes
+matched exactly, zero transform). (3) **KPI trend/spark** — `tableSumWindowedSeries` added to `KpiContext`;
+`evaluateKpi` fills the `trend`/`spark` fields `KpiTile` always accepted, but ONLY for `tableSumWindowed` w/ a
+window + ≥2 daily buckets; every other kind stays an honest flat scalar. **Half B DEFERRED** (operator-picked):
+auto-materialize a default chart for undeclared tables in the buried tab — recorded as an explicit AC deferral
++ un-defer trigger in the spec, not a silent drop. Verified: 397 tests green (touched areas), tsc clean, full
+browser smoke against live `~/.relay` (chart bars + $425 MTD sparkline + heatmap grid all mount) then torn down
+clean. Also fixed a latent date-window time-bomb in `run-cadence-heatmap.test.tsx` (pre-existing failure 8→7).
+Memory `resurface-before-build-primitive-pattern`. Prior tail: `pack-agency-bundle` (`a03e53dd`), pack-taxonomy
+(`3ee81dd0`), `pack-bundle-model` (`3bc9b05c`), 0.31.0 (`a661054e`) — full detail in git.)_
 
 ## ▶️ NEXT SESSION — release the packs-evolution arc, or `pack-primitive-resurface`
 
@@ -28,11 +29,13 @@ P0 (`3797c839`), 0.31.0 (`a661054e`).)_
 - **Prod-smoke Case L:** updated to the split's counts already, but a BUNDLE pack is NOT yet exercised in Case L.
   Before tagging, add a bundle-install case (or grep Case L for the seed 403/counts a bundle touches) — memory
   `prod-smoke-encodes-contracts`.
-- `pack-primitive-resurface` (P1) runs on an **independent track** (resurface existing charts; lifts every
-  pack) — schedule whenever, no release dependency. `decisions_open` still needing operator+Website calls:
-  when-dependsOn-earns-weight (P3 trigger), bundle-pricing-mechanics (`pricing.json` + `_RELAY.md` coord).
-- **New durable facts this session**: `pack-taxonomy-shared-registry` (read/update `features/pack-taxonomy.md`
-  before authoring ANY pack — one owner per logical id). The bundle flatten rules stay in `pack-bundle-flatten-model`.
+- **`pack-primitive-resurface` wave 1 is BUILT but UNCOMMITTED on `main`** (14 files, all TDD + browser-smoked).
+  Independent track, no release/pricing dependency — can commit anytime. Suggested split for bisectability:
+  one commit per item (heatmap-wire / kpi-trend-spark / chart-declarability) or one feature commit. Presentation +
+  engine-schema change; NOT release-gated. `pack-depth-next-wave` (build genuinely-NEW primitives) is the natural
+  follow-up now that wave-1 resurfacing is done. Half B (auto-default-chart-in-tab) deferred w/ trigger in the spec.
+- `decisions_open` still needing operator+Website calls: when-dependsOn-earns-weight (P3 trigger),
+  bundle-pricing-mechanics (`pricing.json` + `_RELAY.md` coord).
 
 - **0.31.0 shipped clean** (`v0.31.0`→`a661054e`; F5 card lift + F6 nav move; CI green, on npm). Nothing
   outstanding — full detail in "Recently shipped" + git.
@@ -118,12 +121,18 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**`pack-primitive-resurface` wave 1 (BUILT, UNCOMMITTED on `main`):** engine-side resurfacing shared by all
+packs — manifest-declarable table charts (`ChartSpecSchema` `.strict()` + `view.bindings.charts` → Tracker
+`secondary` slot), wired the orphaned `RunCadenceHeatmap` into the coach kit, and fed `trend`/`spark` into
+`evaluateKpi` (windowed KPIs only). Half B deferred w/ trigger. TDD + full browser smoke. Memory
+`resurface-before-build-primitive-pattern`. Follow-up: `pack-depth-next-wave` (NEW primitives).
+
 **Packs-evolution (BUILT, NOT released — on `main`, behind the next release cut):** `pack-generalize-agency`
 P0 (`3797c839`) — persona/industry split: free `relay-agency` neutralized+fattened (7·7·4), paid `relay-cre`
 (3·3·1) + `relay-nonprofit` (3·4·2), `relay-agency-pro` → vertical-neutral automation (6·4·2, v0.5.0); only
 relay-agency free, rest = one license `product:orionfold-relay` (memory `persona-pack-manual-automated-split`,
-`pack-install-drops-by-dir-scan`). Then `pack-bundle-model` P1 (`3bc9b05c`) — the flatten composition model
-(memory `pack-bundle-flatten-model`). Next consumer: `pack-agency-bundle`.
+`pack-install-drops-by-dir-scan`). Then `pack-bundle-model` P1 (`3bc9b05c`), `pack-agency-bundle` (`a03e53dd`),
+pack-taxonomy (`3ee81dd0`) (memories `pack-bundle-flatten-model`, `pack-taxonomy-shared-registry`).
 
 **0.31.0 (RELEASED — `v0.31.0`→`a661054e`; publish CI `28747032762`):** app-wide card design lift (F5) +
 Schemas Compose→Data nav move (F6). Base `ui/card.tsx` gains `tone`/`emphasis`/`watermark`+`watermarkColor`

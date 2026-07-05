@@ -1,6 +1,6 @@
 ---
 title: Resurface primitives (wave 1) — declarable table charts, wire the heatmap, feed KPI trend/spark
-status: planned
+status: in-progress
 priority: P1
 milestone: post-mvp
 source: _IDEAS/packs-evolution.md §6 + §8.2
@@ -67,25 +67,45 @@ each resurfaced primitive and renders it, not just unit tests.
 
 ## Acceptance Criteria
 
-- [ ] A pack manifest can declare a table chart; the chart renders on a default/promoted
-      surface (not only three clicks deep behind the "Charts" tab), and an undeclared table
-      still auto-materializes a sensible default chart.
-- [ ] `RunCadenceHeatmap` renders from a manifest-declarable view-kit slot fed by
-      `coachCadenceCells`; the previously-orphaned component is no longer wired to nothing.
-- [ ] `evaluateKpi` populates `trend` and `spark` for KPI sources with windowed history; a
+- [x] A pack manifest can declare a table chart; the chart renders on a default/promoted
+      surface (not only three clicks deep behind the "Charts" tab). **DELIVERED** via
+      `ChartSpecSchema` (`.strict()`) + `view.bindings.charts`, loaded by `loadChartData`
+      (`data.ts`) and rendered as promoted Tracker `secondary` slots (`TableChartView`).
+      **DEFER (Half B):** "an undeclared table still auto-materializes a sensible default chart"
+      in the buried Charts tab is deferred (operator-confirmed 2026-07-05) — separate concern,
+      touches the existing tab UX with regression risk, lower leverage than the manifest path.
+      **Trigger to un-defer:** the first pack that ships a data table with no declared chart AND
+      a field report that its Charts tab reads empty/confusing → auto-pick a default chart in the
+      tab empty-state (first categorical x + first numeric y).
+- [x] `RunCadenceHeatmap` renders from a view-kit slot fed by `coachCadenceCells`; the
+      previously-orphaned component is no longer wired to nothing. **DELIVERED** — Coach kit
+      `buildModel` renders it in a "Run cadence" secondary slot (always-on when the coach kit is
+      selected, matching the ledger hero-chart precedent).
+- [x] `evaluateKpi` populates `trend` and `spark` for KPI sources with windowed history; a
       manifest KPI renders as a trend tile with a sparkline instead of a flat scalar.
-- [ ] The manifest schema stays `.strict()` — no component refs, no formula strings; each new
-      capability is a typed Zod arm with an evaluator/kit binding.
+      **DELIVERED** — `tableSumWindowedSeries` added to `KpiContext`; `tableSumWindowed` (with a
+      window) fills `trend`/`spark`; every other kind stays a flat scalar.
+- [x] The manifest schema stays `.strict()` — no component refs, no formula strings; each new
+      capability is a typed Zod arm with an evaluator/kit binding. **DELIVERED** —
+      `ChartSpecSchema` is `.strict()` and enumerated; rejects an unknown `type` and a
+      `component:` escape-hatch field (view-schema tests).
 - [ ] An end-to-end dev-server smoke installs a pack exercising all three resurfaced primitives
-      and renders them correctly (per the runtime-registry smoke budget).
-- [ ] Every existing pack still installs and renders; no regression to current view kits.
+      and renders them correctly (per the runtime-registry smoke budget). **IN PROGRESS.**
+- [x] Every existing pack still installs and renders; no regression to current view kits.
+      **DELIVERED** — full `src/lib/apps` + charts + tables suites green (397).
 
 ## Scope Boundaries
 
 **Included:**
-- Making table charts manifest-declarable + promoting them off the buried tab.
+- Making table charts manifest-declarable + promoting them onto a kit surface (Tracker
+  `secondary` slots), off the buried tab.
 - Wiring the existing `RunCadenceHeatmap` to a kit slot.
 - Populating existing `trend`/`spark` KPI-tile fields from windowed history.
+
+**Deferred (not dropped — see the AC trigger):**
+- Auto-materializing a sensible default chart for an *undeclared* table inside the existing
+  Charts tab. Lower leverage + UX-regression risk on the current tab; the manifest path is the
+  real resurfacing win.
 
 **Excluded:**
 - **Building any genuinely-new primitive** — value-heatmap/matrix, radar/spider,

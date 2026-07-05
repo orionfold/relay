@@ -84,6 +84,40 @@ describe("trackerKit.resolve — explicit bindings override defaults", () => {
     expect(proj.heroTableId).toBe("tbl-b");
   });
 
+  it("threads bindings.charts into the projection", () => {
+    const app = makeApp(
+      {
+        tables: [{ id: "txns" }],
+      },
+      {
+        kit: "tracker",
+        hideManifestPane: false,
+        bindings: {
+          charts: [
+            { id: "spend", table: "txns", type: "bar", xColumn: "category", yColumn: "amount", aggregation: "sum" },
+          ],
+        },
+      }
+    );
+    const proj = trackerKit.resolve({
+      manifest: app.manifest,
+      columns: [],
+    }) as Record<string, unknown>;
+    const charts = proj.chartSpecs as Array<{ id: string; type: string }>;
+    expect(charts).toHaveLength(1);
+    expect(charts[0].id).toBe("spend");
+    expect(charts[0].type).toBe("bar");
+  });
+
+  it("defaults chartSpecs to [] when no charts declared", () => {
+    const app = makeApp({ tables: [{ id: "logs" }] });
+    const proj = trackerKit.resolve({
+      manifest: app.manifest,
+      columns: [],
+    }) as Record<string, unknown>;
+    expect(proj.chartSpecs).toEqual([]);
+  });
+
   it("uses bindings.kpis verbatim when declared (no synthesis)", () => {
     const app = makeApp(
       {
@@ -159,5 +193,36 @@ describe("trackerKit.buildModel", () => {
     const model = trackerKit.buildModel(proj, runtime);
     expect(model.hero).toBeDefined();
     expect(model.hero?.kind).toBe("table");
+  });
+
+  it("renders a secondary chart slot for each runtime.chartData entry", () => {
+    const app = makeApp({ tables: [{ id: "txns" }] });
+    const proj = trackerKit.resolve({ manifest: app.manifest, columns: [] });
+    const runtime: RuntimeState = {
+      app,
+      chartData: [
+        {
+          spec: { id: "spend", title: "Spend by category", table: "txns", type: "bar", xColumn: "category", yColumn: "amount", aggregation: "sum" },
+          rows: [{ data: { category: "food", amount: 12 } }],
+        },
+      ],
+    };
+    const model = trackerKit.buildModel(proj, runtime);
+    const slot = model.secondary?.find((s) => s.id === "chart-spend");
+    expect(slot).toBeDefined();
+    expect(slot?.title).toBe("Spend by category");
+    // The chart element carries the resolved rows + typed config.
+    expect((slot!.content as any).props.rows).toHaveLength(1);
+    expect((slot!.content as any).props.config.type).toBe("bar");
+    // The slot owns the title; the chart's own <h3> is suppressed to avoid a
+    // duplicate heading (verified in the dev-server smoke).
+    expect((slot!.content as any).props.title).toBe("");
+  });
+
+  it("leaves secondary undefined when no charts are declared", () => {
+    const app = makeApp({ tables: [{ id: "logs" }] });
+    const proj = trackerKit.resolve({ manifest: app.manifest, columns: [] });
+    const model = trackerKit.buildModel(proj, { app, chartData: [] });
+    expect(model.secondary).toBeUndefined();
   });
 });

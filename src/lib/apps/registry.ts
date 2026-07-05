@@ -113,6 +113,26 @@ export const KpiSpecSchema = z.object({
   format: z.enum(["int", "currency", "percent", "duration", "relative"]).default("int"),
 });
 
+/**
+ * A manifest-declarable table chart. The chart `type` and `aggregation` are
+ * enumerated (no free strings, no component refs) so this stays a typed Core
+ * primitive rather than a rendering escape hatch — same discipline as
+ * `KpiSpecSchema`. Reuses the recharts `TableChartView` at render time; a pack
+ * declares the binding, the kit promotes it onto the app's default surface
+ * instead of leaving charts three clicks deep behind the Charts tab.
+ */
+export const ChartSpecSchema = z
+  .object({
+    id: z.string(),
+    title: z.string().optional(),
+    table: z.string().min(1),
+    type: z.enum(["bar", "line", "pie", "scatter"]),
+    xColumn: z.string().min(1),
+    yColumn: z.string().optional(),
+    aggregation: z.enum(["sum", "avg", "count", "min", "max"]).optional(),
+  })
+  .strict();
+
 export const ViewSchema = z
   .object({
     kit: KitIdSchema.default("auto"),
@@ -123,6 +143,7 @@ export const ViewSchema = z
         cadence: BindingRefSchema.optional(),
         runs: BindingRefSchema.optional(),
         kpis: z.array(KpiSpecSchema).optional(),
+        charts: z.array(ChartSpecSchema).optional(),
       })
       .strict()
       .default({}),

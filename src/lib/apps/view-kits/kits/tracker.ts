@@ -2,6 +2,7 @@ import { createElement } from "react";
 import yaml from "js-yaml";
 import { ManifestPaneBody } from "@/components/apps/kit-view/manifest-pane-body";
 import { TableSpreadsheet } from "@/components/tables/table-spreadsheet";
+import { TableChartView } from "@/components/tables/table-chart-view";
 import { defaultTrackerKpis } from "../default-kpis";
 import type { ViewConfig } from "@/lib/apps/registry";
 import type {
@@ -14,6 +15,7 @@ import type {
 import { headerStatus } from "../header-status";
 
 type KpiSpec = NonNullable<ViewConfig["bindings"]["kpis"]>[number];
+type ChartSpec = NonNullable<ViewConfig["bindings"]["charts"]>[number];
 
 interface TrackerProjection extends KitProjection {
   heroTableId: string | undefined;
@@ -21,6 +23,7 @@ interface TrackerProjection extends KitProjection {
   cadenceScheduleId: string | undefined;
   runsBlueprintId: string | undefined;
   kpiSpecs: KpiSpec[];
+  chartSpecs: ChartSpec[];
   manifestYaml: string;
 }
 
@@ -76,6 +79,7 @@ export const trackerKit: KitDefinition = {
       cadenceScheduleId,
       runsBlueprintId,
       kpiSpecs,
+      chartSpecs: bindings?.charts ?? [],
       manifestYaml: yaml.dump(m, { lineWidth: 100 }),
     };
     return projection;
@@ -100,6 +104,26 @@ export const trackerKit: KitDefinition = {
         }
       : undefined;
 
+    // Wave-1 resurface: render each manifest-declared chart as a promoted
+    // secondary slot (off the buried Charts tab). TableChartView is a client
+    // component, so mount it via createElement like the hero spreadsheet.
+    const secondary = (runtime.chartData ?? []).map((chart) => ({
+      id: `chart-${chart.spec.id}`,
+      title: chart.spec.title,
+      // The slot renders the title; pass "" to TableChartView so its internal
+      // <h3> doesn't duplicate it.
+      content: createElement(TableChartView, {
+        config: {
+          type: chart.spec.type,
+          xColumn: chart.spec.xColumn,
+          yColumn: chart.spec.yColumn,
+          aggregation: chart.spec.aggregation,
+        },
+        title: "",
+        rows: chart.rows,
+      }),
+    }));
+
     return {
       header: {
         title: app.name,
@@ -110,6 +134,7 @@ export const trackerKit: KitDefinition = {
       },
       kpis: runtime.evaluatedKpis ?? [],
       hero,
+      secondary: secondary.length > 0 ? secondary : undefined,
       footer: {
         appId: app.id,
         appName: app.name,

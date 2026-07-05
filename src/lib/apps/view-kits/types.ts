@@ -1,8 +1,14 @@
 import type { ReactNode } from "react";
-import type { AppDetail, AppManifest } from "@/lib/apps/registry";
+import type { AppDetail, AppManifest, ViewConfig } from "@/lib/apps/registry";
 import type { ColumnDef } from "@/lib/tables/types";
 import type { UserTableRowRow } from "@/lib/db/schema";
 import type { TaskStatus } from "@/lib/constants/task-status";
+
+/** A manifest-declared chart plus its resolved (JSON-parsed) source rows. */
+export interface ChartData {
+  spec: NonNullable<ViewConfig["bindings"]["charts"]>[number];
+  rows: { data: Record<string, unknown> }[];
+}
 
 /**
  * Frozen contracts for the composed-app view-kit registry.
@@ -74,6 +80,12 @@ export interface RuntimeState {
   scheduleCadence?: string | null;
   /** Phase 2: hero table content for Tracker kit (columns + last-N rows). */
   heroTable?: HeroTableData | null;
+  /**
+   * Wave-1 resurface: manifest-declared table charts (`view.bindings.charts`)
+   * with their source rows loaded, rendered as promoted secondary slots by the
+   * Tracker kit instead of leaving charts buried behind the Charts tab.
+   */
+  chartData?: ChartData[];
   /** Phase 2: schedule cadence chip data for Tracker / Workflow Hub headers. */
   cadence?: CadenceChipData | null;
   /** Phase 2: KPI tiles already evaluated from declared/synthesized specs. */

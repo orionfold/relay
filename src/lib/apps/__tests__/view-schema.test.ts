@@ -214,4 +214,81 @@ describe("AppManifestSchema — view: field", () => {
     const m = parseAppManifest(`${BASE}custom_field: anything\n`);
     expect(m).not.toBeNull();
   });
+
+  it("accepts a chart binding with an enumerated type", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          charts: [
+            { id: "c1", table: "txns", type: "bar", xColumn: "category", yColumn: "amount", aggregation: "sum" },
+            { id: "c2", table: "txns", type: "pie", xColumn: "category" },
+          ],
+        },
+      },
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("defaults chart title to undefined and requires id/table/type/xColumn", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          charts: [{ id: "c", table: "t", type: "line", xColumn: "date" }],
+        },
+      },
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.view?.bindings.charts?.[0].type).toBe("line");
+      expect(r.data.view?.bindings.charts?.[0].title).toBeUndefined();
+    }
+  });
+
+  it("rejects a chart with an unknown type (enumerated, no free strings)", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          charts: [{ id: "c", table: "t", type: "sankey", xColumn: "x" }],
+        },
+      },
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("rejects a chart with an unknown field (.strict() enforced, no escape hatch)", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          charts: [{ id: "c", table: "t", type: "bar", xColumn: "x", component: "MyChart" }],
+        },
+      },
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("rejects a chart missing its required table", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          charts: [{ id: "c", type: "bar", xColumn: "x" }],
+        },
+      },
+    });
+    expect(r.success).toBe(false);
+  });
 });
