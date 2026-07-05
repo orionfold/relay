@@ -515,6 +515,32 @@ PUT race) and #23 (fresh-boot ALTER TABLE noise) are small fixes tracked on thei
 |---------|----------|--------|--------------|
 | [fix-packs-gallery-plg-cards](fix-packs-gallery-plg-cards.md) | P1 | completed | — |
 
+### Pack Catalog Evolution (2026-07-05)
+
+Groomed from the approved strategy doc `_IDEAS/packs-evolution.md` — pivots Relay from "one
+vertical, go deep" to a **four-category pack catalog** (Persona / Functional / Industry /
+Personal) composed on the proven Apps engine, **breadth-designed / depth-shipped**. Ordered by
+the strategy's §8 depth-ship sequence: Agency-split is the no-new-architecture warm-up
+(P0); flatten-bundle-first is the locked composition call (§5) that ships before the
+genuinely-new cross-project `dependsOn` seam (P3, last). `decisions_open` (first-bundle-proof,
+when-dependsOn-earns-weight, bundle-pricing) need operator + Website calls during grooming.
+
+| Feature | Priority | Status | Dependencies |
+|---------|----------|--------|--------------|
+| [pack-generalize-agency](pack-generalize-agency.md) | P0 | planned | — |
+| [pack-primitive-resurface](pack-primitive-resurface.md) | P1 | planned | — |
+| [pack-bundle-model](pack-bundle-model.md) | P1 | planned | pack-generalize-agency |
+| [pack-agency-bundle](pack-agency-bundle.md) | P1 | planned | pack-generalize-agency, pack-bundle-model |
+| [pack-entitlement-per-line](pack-entitlement-per-line.md) | P2 | planned | pack-bundle-model, pack-agency-bundle |
+| [pack-marketing-line](pack-marketing-line.md) | P2 | planned | pack-bundle-model, pack-agency-bundle |
+| [pack-depth-next-wave](pack-depth-next-wave.md) | P2 | planned | pack-primitive-resurface, pack-bundle-model |
+| [pack-dependson-foundation](pack-dependson-foundation.md) | P3 | planned | pack-bundle-model |
+
+**Operator decision (2026-07-05):** first bundle proof = **Agency→CRE** (`pack-agency-bundle`),
+not Marketing — published Agency marketing assets give it a warm audience. `pack-marketing-line`
+demotes to a later Functional depth pack (P1→P2). Agency generalization is scoped *additively*:
+the persona spine carries the weight, industry packs stay thin (see `pack-generalize-agency`).
+
 ## Dependency Graph
 
 Critical path through the MVP:
@@ -574,6 +600,20 @@ environment-scanner + environment-cache
 
 chat-engine + environment-scanner
     └── workspace-context-awareness
+```
+
+Pack Catalog Evolution chain (breadth-designed / depth-shipped, §8 order):
+
+```
+pack-generalize-agency (P0, warm-up — no new architecture; persona spine deep, industry thin)
+    └── pack-bundle-model (P1, flatten-first — the one new intra-app seam)
+            ├── pack-agency-bundle (P1, FIRST bundle proof — Agency→CRE, warm audience)
+            │       ├── pack-entitlement-per-line (P2, per-line products + Website coord)
+            │       └── pack-marketing-line (P2, later Functional depth bundle)
+            └── pack-dependson-foundation (P3, LAST — cross-project seam, only when it earns weight)
+
+pack-primitive-resurface (P1, resurface existing charts — independent, lifts every pack)
+    └── pack-depth-next-wave (P2, build a new primitive only when a selected pack needs it)
 ```
 
 Structured data (Tables) chain:

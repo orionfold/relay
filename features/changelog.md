@@ -1,5 +1,49 @@
 # Feature Changelog
 
+## 2026-07-05 — Pack Catalog Evolution requirements extracted from strategy doc
+
+### Groomed
+- Extracted **7 feature specs** from the approved strategy `_IDEAS/packs-evolution.md` (the
+  four-category pack-catalog pivot: Persona / Functional / Industry / Personal, composed on the
+  proven Apps engine, breadth-designed / depth-shipped). One spec per §8 build-sequence step,
+  each in house format (frontmatter `source: _IDEAS/packs-evolution.md §N` + `dependencies:`;
+  Description / User-Story / Technical-Approach / Acceptance / Scope-Boundaries), code anchors
+  cited from the this-session-verified tree:
+  - `pack-generalize-agency` (P0, §8.1) — the no-new-architecture warm-up: split persona
+    (`relay-agency`) from industry (`relay-cre`, `relay-nonprofit`).
+  - `pack-primitive-resurface` (P1, §8.2) — wave-1 resurfacing: declarable table charts, wire
+    the orphaned `RunCadenceHeatmap`, feed `evaluateKpi` trend/spark. Lifts every pack.
+  - `pack-bundle-model` (P1, §8.3, §5) — the **locked** composition call: flatten-at-install into
+    one app; reuses the Apps engine fully, no cross-project resolution.
+  - `pack-agency-bundle` (P1, §8.3, §10 Q1 — added 2026-07-05 per operator decision) — the
+    **first bundle proof**: `relay-agency` + `relay-cre` flattened into one "Agency (CRE)" app.
+  - `pack-marketing-line` (P2, §8.3) — a later Functional depth bundle: `relay-crm` +
+    `relay-social` harvested from `~/orionfold/marketing` (demoted from first-proof, see below).
+  - `pack-entitlement-per-line` (P2, §8.4, §7) — migrate to `product:relay-*`, all-access
+    wildcard, foundation packs free; zero schema change; needs Website `pricing.json` coord.
+  - `pack-depth-next-wave` (P2, §8.5, §6) — Web Designer / Video Creator / Retail Investor; build
+    a new analytics primitive (heatmap, radar, gallery) only when a selected pack needs it.
+  - `pack-dependson-foundation` (P3, §8.6, §5 A+B) — the genuinely-new cross-project seam
+    (`dependsOn` + foundation packs + cascade guard); built LAST, only when independent child
+    install/update earns its weight over flatten-bundle.
+- Added a **Pack Catalog Evolution (2026-07-05)** roadmap section + dependency chain, ordered by
+  the §8 depth-ship sequence.
+
+### Operator decisions (2026-07-05, resolved this session)
+- **First bundle proof → Agency→CRE** (resolves `decisions_open` Q1). NOT Marketing: published
+  marketing assets already exist for the Agency persona (warm audience, compounds existing work) —
+  a GTM argument the strategy weighed only on harvest depth. Added `pack-agency-bundle` (P1) as
+  the first proof; demoted `pack-marketing-line` P1→P2 to a later Functional depth bundle.
+- **Generalize Agency *additively*, not just subtractively.** The persona spine (`relay-agency`)
+  becomes the deep, fully-realized domain-neutral operating system; industry packs (`relay-cre`,
+  `relay-nonprofit`) stay thin, sharp content on top. Captured in `pack-generalize-agency`.
+
+### Still open (need operator + Website calls during grooming — `decisions_open`)
+- **When `dependsOn` earns its weight** — the P3 trigger; flatten-bundle is sufficient until a
+  concrete shared-live-foundation need exists.
+- **Bundle pricing mechanics** — per-line list/intro vs all-access anchor; needs a Website
+  `pricing.json` decision + `_RELAY.md` coordination before any price ships.
+
 ## 2026-07-02 — S11: fix-packs-gallery-plg-cards SHIPPED (closes #21 + #20 on main)
 
 ### Completed
