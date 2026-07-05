@@ -1,32 +1,51 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: **S47 — Top-chrome visual-system redesign IMPLEMENTED + dev-smoke
-verified both themes; unreleased on `main`.** Three bisectable commits: L1 `db637c13` (new
-`GET /api/instance/identity` + `useInstanceIdentity()` hook — `version` null-not-`0.0.0`, `licenseTag`
-discriminated union, `activeModel` via `resolvePreferredModel(pickActiveRuntime().runtimeId)`;
-`pickActiveRuntime` extracted to `runtime-setup.ts` shared by telemetry+identity; `TelemetrySnapshot`
-untouched), L2 `1f3da83c` (`BarIdentityCluster` in app-bar; `AuthStatusDot` opt-in `showLabel`),
-L3 `eae30aac` (`--chrome-*`/`--z-*` tokens, s-1/s-2/s-3 depth, `#main-content::before` blueprint grid,
-rail re-type value→`text-base` band 78→88px, model-in-RUNTIME-cell, cyan rail dot). Spec marked
-IMPLEMENTED + resolution `4cfea481`. Notable finding: the `rem`-based `--chrome-header` offset tracks
-the header height under the operator's 14px-root Chrome (resolved 87.5px, flush) where a hardcoded 100px
-would have gapped — token is strictly more robust. FEAT-14 stays DEFERRED. 99 tests green across touched
-scopes; the 8 suite-wide fails are the pre-existing set (none in this diff). Prior: S45 Profile→Agent
-sweep (`1400bf56`), S44 CF-FEAT copy pass (`b4616d2c`) — both unreleased on main; 0.28.0 RELEASED
-(`v0.28.0`→`7e97669a`). Full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-04 (pt: **S48 — top-chrome landed (S47) but its VISUAL TREATMENT needs a
+palette-driven redesign; operator wants a fresh explore+plan session inspired by the relay website's
+dark-green design system.** S47 STRUCTURE is good + unreleased on main (L1 `db637c13` identity
+endpoint/hook, L2 `1f3da83c` bar cluster, L3 `eae30aac` tokens+grid+rail-retype). Three follow-up
+fixes then chased the rail/canvas relationship reactively (`34467e3a` dark-tier legibility + a REAL
+critical-CSS-drift bugfix worth keeping, `700fd4bd` rail→`--background`, `e6ab5ea0` grid-onto-rail) —
+operator halted this: iterating without studying the reference. **Operator directives for next session
+(see NEXT).** Prior unreleased: S45 Profile→Agent (`1400bf56`), S44 CF-FEAT (`b4616d2c`); 0.28.0
+RELEASED (`v0.28.0`→`7e97669a`). Full detail: git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — cut the MINOR release (three unreleased passes on main)
+## ▶️ NEXT SESSION — chrome VISUAL redesign: study the relay website, then plan (explore-first)
 
-**Primary:** `main` carries three unreleased user-facing arcs — the S47 top-chrome redesign
-(`db637c13`→`4cfea481`), the S45 Profile→Agent sweep (`1400bf56`), and the S44 CF-FEAT copy pass
-(`b4616d2c`). Fold all three into the next release (**MINOR** → apiVersion window bump: `CURRENT_PLUGIN_API_VERSION`
-+ registry previous-MINOR literal + the 3 `plugin.yaml` in the SAME release commit; memory
-`apiversion-window-bump-at-version-bump`). Customer-voice CHANGELOG entry (top-chrome = new bar identity
-cluster + bigger telemetry readout + fixed sticky rail); **grep `scripts/npx-prod-smoke.mjs` for any
-endpoint the release touches BEFORE tagging** (memory `prod-smoke-encodes-contracts` — the new
-`/api/instance/identity` route + rail changes are additive, but Case L still asserts the old rail cell
-counts/labels; verify). Annotated tag `git tag -a` (memory `release-tag-must-be-annotated`). No open
-follow-ups on the top-chrome work itself — it is done and verified.
+**FRESH session. Explore + plan BEFORE any edit** (operator halted the reactive iteration). Five
+operator directives:
+
+1. **Rollback the rail-away-from-menu move.** `700fd4bd` broke the rail off the tier-2 menu panel and
+   stuck it to `--background` (overlapping the main container's plane). REVERT that specific behavior —
+   the rail should read as part of the chrome/menu panel, NOT the content plane. (Surgical, not a range
+   revert: KEEP `e6ab5ea0`'s grid-on-rail per #2, and KEEP `34467e3a`'s critical-CSS-drift fix — see
+   memory `critical-css-shadows-surface-tokens`; that `layout.tsx html.dark` shadow-copy is a real trap.)
+2. **KEEP the blueprint grid showing through a TRANSLUCENT rail** — operator likes it: the grid behind
+   the rail makes the sparkline "graphs" stand out naturally. So the rail wants translucency/grid, not
+   an opaque flat band. (This partially conflicts with the FEAT-15 "opaque chrome" spec rule — operator
+   is overriding it here; the grid-through-rail IS the wanted direction.)
+3. **STUDY the relay website dark theme** at https://orionfold.com/relay/ (LOCAL SOURCE
+   `~/orionfold/website`). It uses dark-GREEN variants (not black/gray), glows, blueprint grid, and
+   multiple green shades to great effect. EXTRACT that design system (its green palette, glow treatment,
+   grid, elevation shades) and fold it INTO Relay's current black/dark-gray app palette. This is the
+   core creative task — the current app is monochrome black/gray; the website is a richer dark-green.
+4. **Settings rail is NOT done** — with the settings rail expand/collapse there are **5 distinct areas
+   needing varying background-color treatment**. Audit the settings rail's 5 zones and design their
+   surface/elevation as part of this system (this is why a coherent multi-shade palette matters — not
+   just chrome tiers but the settings rail zones too).
+5. **Light AND dark theme must stay consistent** — every palette/elevation decision needs a coherent
+   light counterpart, not a dark-only treatment.
+
+**Approach:** this is multi-file + cross-layer + a NEW design language (green palette) → write a
+~1-page self-contained spec first (policy 3), get operator approval, THEN `/clear` + implement.
+Reference the relay website source for the token values. The S47 structural work (identity
+endpoint, bar cluster, rail re-type, sticky-fix, z-scale) STAYS — this is a palette/elevation/
+translucency pass on top of it.
+
+**Release is DEFERRED** behind this — don't cut the MINOR until the chrome visual redesign settles
+(the three unreleased passes S44/S45/S47 all fold into that release later, MINOR → apiVersion window
+bump per memory `apiversion-window-bump-at-version-bump`; grep npx-prod-smoke before tagging per
+memory `prod-smoke-encodes-contracts`; annotated tag per `release-tag-must-be-annotated`).
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
 `create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests; other staging R-runs.
