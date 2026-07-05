@@ -93,9 +93,12 @@ export function TelemetryRail() {
     <div
       // Sticky offset tracks the REAL two-tier header height (--chrome-header,
       // 100px) — the old top-16 (64px) let the rail slide 36px UNDER the header
-      // on scroll. z below the header so the bar always wins. --surface-3 is the
-      // deepest chrome tier (descending elevation: bar s-1/s-2 → rail s-3).
-      className="sticky top-[var(--chrome-header)] z-[var(--z-rail)] flex h-[88px] flex-none items-stretch overflow-x-auto border-b border-border bg-[var(--surface-3)]"
+      // on scroll. z below the header so the bar always wins. The rail shares the
+      // canvas --background: it belongs to the content plane it introduces, so
+      // the blueprint grid flows continuously from rail into content. Depth comes
+      // from the two lifted bar tiers (s-1 → s-2) floating above this shared
+      // field; the bottom border carries the rail↔canvas separation.
+      className="sticky top-[var(--chrome-header)] z-[var(--z-rail)] flex h-[88px] flex-none items-stretch overflow-x-auto border-b border-border bg-[var(--background)]"
       aria-label="Telemetry"
     >
       <RailCell
