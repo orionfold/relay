@@ -11,12 +11,11 @@ Compose→Data. Verified in browser both themes; full suite 0 regressions (8 pre
 flake); prod build green. New memories: `card-watermark-recipe`, `card-watermark-taste-rule`. Prior tail:
 git log + CHANGELOG + the findings bundle.)_
 
-## ▶️ NEXT SESSION — 0.31.0 RELEASED; verify CI green
+## ▶️ NEXT SESSION — 0.31.0 shipped clean; pick from standing candidates
 
-- **0.31.0 RELEASED** (`v0.31.0`→`a661054e`; F5 card lift + F6 nav move). Pushed + annotated tag fired
-  publish CI (run `28747032762`). **Verify it went green** (npx prod smoke Case L + OIDC npm publish +
-  GitHub Release + SBOM); if red, check the smoke first (see caveats below). apiVersion window bumped
-  0.30→0.31 in the release commit.
+- **0.31.0 RELEASED & LIVE** (`v0.31.0`→`a661054e`; F5 card lift + F6 nav move). Publish CI
+  (`28747032762`) GREEN: `orionfold-relay@0.31.0` on npm `latest` + GitHub Release + SBOM + npx prod
+  smoke Case L passed. apiVersion window bumped 0.30→0.31. Nothing outstanding on this release.
 - **F5 follow-up (deferred, operator-confirmed):** lift the two dense analytics dashboards
   `costs/cost-dashboard.tsx` + `apps/ledger-hero-panel.tsx` (hand-rolled `surface-card` chart panels) to
   the card recipe — held out for chart-layout-regression risk. Reactive/optional.
