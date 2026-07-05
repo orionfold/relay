@@ -172,7 +172,7 @@ export function GlanceRail() {
           (per-tile links removed), then — only when collapsed — the LEFT-ALIGNED
           summary of compact cells with vertical dividers. When expanded the
           summary HIDES; the panel below carries the detail (no duplicates). */}
-      <div className="glance-row flex h-8 items-stretch">
+      <div className="glance-row flex items-stretch py-[5px]">
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
