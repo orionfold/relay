@@ -1,15 +1,15 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **F5 app-wide CARD DESIGN LIFT + F6 nav move — BUILT & SHIPPED**
-(8 commits `866a4823`→`86dc62a2`, on `main`, not yet pushed). F5: base `ui/card.tsx` gains
+_Last updated: 2026-07-05 (pt: **0.31.0 RELEASED & LIVE** — F5 app-wide CARD DESIGN LIFT + F6 nav move
+(`v0.31.0`→`a661054e`; `orionfold-relay@0.31.0` on npm `latest` + GitHub Release + SBOM; publish CI
+`28747032762` green incl. npx prod smoke Case L). F5: base `ui/card.tsx` gains
 `tone`/`emphasis`/`watermark`+`watermarkColor` props + `card-tones.ts`; swept LOW/MED/RICH surfaces +
-F2 masonry. Operator design laws (see memory `card-watermark-recipe`): watermark = the card's OWN type
+F2 masonry. Operator design laws (memory `card-watermark-recipe`): watermark = the card's OWN type
 glyph moved from left chip to top-right, COLORED by type, uniform on ALL cards; featured cue = accent +
 "Start here" badge + height, NOT watermark. Skipped state/thumbnail cards (memory
 `card-watermark-taste-rule`). cost-dashboard + ledger-hero DEFERRED (operator-confirmed). F6: Schemas
-Compose→Data. Verified in browser both themes; full suite 0 regressions (8 pre-existing + 1 parallel
-flake); prod build green. New memories: `card-watermark-recipe`, `card-watermark-taste-rule`. Prior tail:
-git log + CHANGELOG + the findings bundle.)_
+Compose→Data. apiVersion 0.30→0.31. Verified both themes; full suite 0 regressions. New memories:
+`card-watermark-recipe`, `card-watermark-taste-rule`. Prior tail: git log + CHANGELOG + findings bundle.)_
 
 ## ▶️ NEXT SESSION — 0.31.0 shipped clean; pick from standing candidates
 
