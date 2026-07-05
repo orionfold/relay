@@ -16,8 +16,7 @@ import {
 import { ChevronDown, AlertCircle, Sparkles, RefreshCw } from "lucide-react";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { RunNowButton } from "@/components/apps/run-now-button";
-import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
-import { cardKindStyle } from "@/lib/constants/card-tones";
+import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import type { TaskStatus } from "@/lib/constants/task-status";
 import type { BlueprintCard, RuntimeTaskSummary } from "@/lib/apps/view-kits/types";
 
@@ -142,14 +141,16 @@ export function RunnableBlueprintCard({
     );
   }
 
-  const blueprintStyle = cardKindStyle("blueprint");
+  // The card's own per-type glyph — resolved from the blueprint name — is used
+  // as the top-right watermark (not a left icon chip), giving each card a
+  // unique type identity behind its content.
   const wfIcon = getWorkflowIconFromName(card.name, "sequence");
 
   return (
     <Card
       tone="blueprint"
       emphasis={card.isPrimary ? "featured" : "none"}
-      watermark={blueprintStyle.glyph}
+      watermark={wfIcon.icon}
     >
       <CardHeader className="pb-2 space-y-1.5">
         {card.isPrimary && (
@@ -158,17 +159,12 @@ export function RunnableBlueprintCard({
             Start here
           </Badge>
         )}
-        <div className="flex items-start gap-3">
-          <IconCircle icon={wfIcon.icon} colors={wfIcon.colors} size="sm" />
-          <div className="min-w-0 flex-1 space-y-1">
-            <CardTitle className="text-sm font-medium">{card.name}</CardTitle>
-            {card.description && (
-              <p className="text-xs text-muted-foreground line-clamp-2">
-                {card.description}
-              </p>
-            )}
-          </div>
-        </div>
+        <CardTitle className="text-sm font-medium">{card.name}</CardTitle>
+        {card.description && (
+          <p className="text-xs text-muted-foreground line-clamp-2">
+            {card.description}
+          </p>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2 flex-wrap">

@@ -87,10 +87,13 @@ function Card({
         <Watermark
           aria-hidden
           className={cn(
-            "pointer-events-none absolute -right-5 -top-5 h-32 w-32 select-none",
-            emphasis === "featured"
-              ? "text-primary/[0.12]"
-              : "text-foreground/[0.06]"
+            // +20% over the prior h-32 (→ 9.6rem) and shifted inward from the
+            // corner by the same step, so the glyph reads as a crafted part of
+            // every card rather than hanging off the edge. Uniform opacity on
+            // ALL cards — the watermark is a consistent polish layer, not the
+            // featured cue (the accent tint + "Start here" badge + taller
+            // content already distinguish the featured card).
+            "pointer-events-none absolute -right-3 -top-3 h-[9.6rem] w-[9.6rem] select-none text-foreground/[0.07]"
           )}
         />
       )}
