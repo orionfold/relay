@@ -6,6 +6,19 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.30.0] — 2026-07-05
+
+### Added
+
+- **Run a blueprint in one click, right from the gallery.** Every card on the Blueprints page now has two buttons. "Run" builds the workflow and starts it straight away (it asks for any inputs first if the blueprint needs them). "Create workflow" builds a draft you can review and run later from the Workflows page. Before, the gallery cards only opened the blueprint; you had to go into the detail page to do anything.
+- **Presets now have their own place in the menu.** The built-in agent starting points are now a "Presets" tab next to Agents, so you can browse them directly. You can still reach them from the Agents page with "Start from a preset" exactly as before. Pick one to start a new agent pre-filled from it.
+- **Packs page now explains how the free and paid Agency packs relate.** Each card says plainly that Agency Pro installs alongside the free Agency pack and adds deeper workflows, and that nothing you already have is replaced.
+- **Filter agents, schedules, and tables by the pack they came from.** The "filter by installed pack" control, already on Blueprints, is now on these views too, so you can narrow a long list to just one pack's items.
+
+### Fixed
+
+- **The free Agency pack no longer shows a phantom "Update" prompt.** Installs from an older version stopped incorrectly offering an update to a version you already had.
+
 ## [0.29.1] — 2026-07-05
 
 ### Fixed
