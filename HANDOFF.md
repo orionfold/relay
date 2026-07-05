@@ -1,27 +1,37 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: **S45 — Profile→Agent sweep (the S43-DEFERRED item) DONE on main, UNRELEASED,
-UNCOMMITTED**. 12 files, all label/copy, ZERO wire contracts touched — finishes the S43 rename's presentation
-layer. Renamed the `ToolGroup` union member + icon/order keys + 5 tool `group:`/descriptions (`tool-catalog.ts`),
-`GROUP_TO_TAB` key (`command-tabs.ts`, the `satisfies Record<ToolGroup,…>` forced it), popover entity label +
-system-prompt `### Agents` heading, and the user-facing **primitive-pill label** `Profile`→`Agent`/`agents`
-across its FOUR parallel paths (`composition-detector.ts`, `buildPrimitivesSummary` in `registry.ts`,
-`starter-template-card.tsx`, chat catalog) — the sweep grew 3→8 sites because a coherent rename covers the
-whole vocabulary surface, not one path. **KEPT (wire contracts):** tool names `list_profiles`/`create_profile`
-etc., `entityType:"profile"` key, `profileId`/`profileName`, manifest `profiles:` YAML key, `@/lib/agents/
-profiles/*`, `~/.relay/profiles`. 6 asserting tests updated; 974 pass / 1 skip / 0 fail across chat+apps+packs+
-components. Not runtime-registry-adjacent (pure strings) → no dev smoke needed. Same stale `.next/types` LSP
-phantoms as S44 (memory `next-types-validator-stale-after-rename`) — vitest is truth. **Uncommitted; folds into
-next MINOR alongside CF-FEAT.** Prior: S44 CF-FEAT-5/6/7/8 app-shell copy pass (`b4616d2c`, unreleased);
-0.28.0 RELEASED (`v0.28.0`→`7e97669a`) — full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-04 (pt: **S46 — Top-chrome visual-system design spec DONE + COMMITTED
+(`1d94737f`); operator-APPROVED; ready to implement next session.** Full HOLD-mode brainstorming
+output at `docs/superpowers/specs/2026-07-04-top-chrome-visual-system-design.md`. Approach **C**
+(rail re-typography, freeze lifted for TYPOGRAPHY ONLY). Resolves FEAT-9/10/11/11b/12/15/16 as ONE
+system in three dependency-ordered layers: **L1** consolidated `/api/instance/config` read +
+`useInstanceIdentity()` hook (`version` null-not-`0.0.0`, `licenseTag` discriminated union, activeModel
+rides THIS endpoint not the frozen `TelemetrySnapshot`); **L2** bar identity cluster (version pill +
+license tag + labeled auth dot in the app-bar right cluster); **L3** descending surface elevation
+(Tier1 s-1 / Tier2 s-2 / rail s-3), all-10-cell re-typography (value→`text-base`, model-as-RUNTIME-value),
+shared status-dot legend, subtle blueprint grid behind OPAQUE chrome (`<main>::before` z-0), `--chrome-header`
+offset token that FIXES the latent rail-slides-36px-under-header bug + a named `--z-*` scale. **FEAT-14
+(settings-at-a-glance) DEFERRED** with rationale (new-surface aggregation, orthogonal). **Rail freeze
+amended edit-only** in `_SPECS/feature-cut-freeze.md` Target 4 (2026-07-04): presentation-only lift, anti-
+expansion intent STANDS (no new cells/count stays 10, no new trend series, `RailCell` API + `TelemetrySnapshot`
+shape unchanged) — strategy-repo owner commits that file, not us. 8-row Error & Rescue Registry + 8-step
+`npm run dev` smoke in the spec (L1 adds a route+hook → real dev smoke required, not just units). Prior:
+S45 Profile→Agent sweep COMMITTED+PUSHED (`1400bf56`, unreleased); S44 CF-FEAT copy pass (`b4616d2c`,
+unreleased); 0.28.0 RELEASED (`v0.28.0`→`7e97669a`) — full detail: git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — remaining design cluster (no unreleased-release work; CF-FEAT foldable)
+## ▶️ NEXT SESSION — implement the top-chrome spec (approved, ready)
 
-`main` carries the unreleased CF-FEAT copy pass (`b4616d2c`, committed) + the S45 Profile→Agent sweep
-(UNCOMMITTED — commit it first); fold BOTH into the next release (MINOR → apiVersion window bump). Remaining
-work is design-shaped, no acute defect:
-- **Top-chrome design initiative** (FEAT-9/10/11/11b/12/14/15/16, backlog): ONE design spec decides
-  tokens/z-layers/offsets once — no acute defect.
+**Primary:** implement `docs/superpowers/specs/2026-07-04-top-chrome-visual-system-design.md`
+(S46, operator-approved). Lightweight plan mode chosen — the spec IS the plan; `/clear` first,
+then build L1→L2→L3 in dependency order, TDD per layer, ending on the spec's 8-step real
+`npm run dev` smoke. **Watch:** the L1 route+hook is shell-adjacent → the dev smoke is MANDATORY
+(not just units); the `version` field MUST stay null-not-`0.0.0` (Next 16 `defineServer` RAW-string
+gotcha, memory `nextjs-compiler-define-gotchas`); the freeze amendment is edit-only (strategy owner
+commits `_SPECS/feature-cut-freeze.md`, NOT us). FEAT-14 stays deferred.
+
+`main` also carries the unreleased CF-FEAT copy pass (`b4616d2c`) + S45 Profile→Agent sweep
+(`1400bf56`, committed+pushed) — fold BOTH (and the top-chrome work once landed) into the next release
+(MINOR → apiVersion window bump).
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
 `create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests; other staging R-runs.
