@@ -634,21 +634,20 @@
 
 /* =============================================================
    BLUEPRINT GRID (FEAT-15 → instrument palette WS3, 2026-07-05)
-   Two DISTINCT grids, deliberately not shared:
+   Two grids, both FULL-BLEED (no radial mask):
 
-   • CANVAS (#main-content): the full two-tier TEAL grid (fine 24px
-     --grid-line + major 120px --grid-major) with a radial edge mask
-     so it blooms at the optical center and fades at the margins —
-     a drafting field, not a hard tiled sheet.
-   • RAIL (.rail-instrument): a UNIFORM, SUBTLE single-tier 24px grid
-     with NO mask. The canvas mask kills a grid on an 88px band (it
-     vanishes in the center + hard-edges the sides) and its faded
-     rim reads as a framing "border" — so the rail gets its own even
-     grid keyed on .rail-instrument (which also owns position:sticky,
-     avoiding the [aria-label] specificity trap that clobbered it).
+   • CANVAS (#main-content): the two-tier TEAL grid (fine 24px
+     --grid-line + major 120px --grid-major), covering the canvas
+     EVENLY edge to edge.
+   • RAIL (.rail-instrument): a UNIFORM single-tier 24px grid.
 
-   Both derive from --primary, so light/dark track automatically —
-   no .dark override. Painted on ::before at --z-canvas-grid (0).
+   NO radial edge-mask on either. The mask faded the grid before the
+   centered content edge, leaving a dark ungridded band that read as
+   a ~15px "border" framing the container (operator). A uniform grid
+   has no fade zone, so no perceived frame. `.rail-instrument` also
+   owns position:sticky (avoids the [aria-label] specificity trap
+   that clobbered it). Both derive from --primary → light/dark track
+   automatically. Painted on ::before at --z-canvas-grid (0).
    ============================================================= */
 #main-content {
   position: relative;
@@ -665,9 +664,6 @@
     repeating-linear-gradient(to bottom, var(--grid-line) 0 1px, transparent 1px 24px),
     repeating-linear-gradient(to right, var(--grid-major) 0 1px, transparent 1px 120px),
     repeating-linear-gradient(to bottom, var(--grid-major) 0 1px, transparent 1px 120px);
-  /* Radial edge mask — CANVAS ONLY (see rail note above). */
-  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 45%, transparent 100%);
-  mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 45%, transparent 100%);
 }
 
 /* Translucent instrument rail (WS2) — a tint of --surface-2 the grid reads
