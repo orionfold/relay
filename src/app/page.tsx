@@ -81,8 +81,8 @@ export default async function HomePage() {
     // the welcome path so we don't pay the read on every dashboard hit.
     const starters = listStarters();
     return (
-      <div className="bg-background min-h-screen p-4 sm:p-6">
-        <div className="surface-page-shell min-h-[calc(100dvh-2rem)] rounded-xl p-5 sm:p-6 lg:p-7 space-y-6">
+      <div className="bg-background min-h-screen">
+        <div className="surface-page-shell min-h-screen p-5 sm:p-6 lg:p-7 space-y-6">
           <WelcomeLanding starters={starters} />
         </div>
       </div>
@@ -176,8 +176,8 @@ export default async function HomePage() {
   );
 
   return (
-    <div className="bg-background min-h-screen p-4 sm:p-6">
-      <div className="surface-page-shell min-h-[calc(100dvh-2rem)] rounded-xl p-5 sm:p-6 lg:p-7">
+    <div className="bg-background min-h-screen">
+      <div className="surface-page-shell min-h-screen p-5 sm:p-6 lg:p-7">
         <Greeting
           runningCount={runningResult.count}
           awaitingCount={awaitingResult.count}
