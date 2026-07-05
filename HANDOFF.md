@@ -1,34 +1,32 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **Reconciled OPERATOR-REQUIREMENTS after 0.29.0, adopted the "shipped =
-delivered" acceptance policy, and FIXED the last open bug #31 on `main` (`cafc17b4`, dev-smoke-verified) —
-UNRELEASED.** Closed 5 already-shipped bug issues `shipped` (#32/#33/#34/#36/#37), filed #38 as the 0.29.0
-customer record. Operator policy (memory `shipped-equals-delivered`): a release / "ship it" IS signoff — no
-separate fresh-install-confirm gate; all released work → Delivered (19). #31 fix: `BlueprintCard.resolved`
-flag + honest "couldn't load" card (no fake Run) when a definition can't resolve — the cache half already
-shipped; this closed the silent-husk half (memory `blueprint-card-husk-root-cause`). NEXT = cut a release to
-ship #31 (flips it Delivered, closes the issue). Prior: 0.29.0 RELEASED (`v0.29.0`→`9b9ea0f2`). Full detail:
-git log + CHANGELOG.)_
+_Last updated: 2026-07-05 (pt: **0.29.1 RELEASED (`v0.29.1`→`e210e49a`; npm `latest` + GitHub Release + OIDC
+CI green incl. npx prod smoke Case L) — ships the #31 blueprint-card husk fix; #31 closed `shipped`.** With
+that, ALL operator-filed bugs are Delivered — **zero open bugs**. This session also reconciled
+OPERATOR-REQUIREMENTS after 0.29.0 (closed #32/#33/#34/#36/#37 `shipped`, filed #38) and adopted the "shipped
+= delivered" acceptance policy (a release / "ship it" IS signoff — memory `shipped-equals-delivered`). #31
+root cause = silent-husk fallback when `getBlueprint` misses, NOT the cache race the issue claimed (memory
+`blueprint-card-husk-root-cause`). Prior: 0.29.0 (`v0.29.0`→`9b9ea0f2`). Full detail: git log + CHANGELOG.)_
 
 ## 📋 Operator requirements tracker — `OPERATOR-REQUIREMENTS.md` (LIVE until all Delivered)
 Durable roll-up of ALL ~24 findings/asks from the 2026-07-04 operator harness walkthrough (origin:
 `output/staging/2026-07-04-operator-walkthrough/`). **Policy: shipped = delivered** (memory
-`shipped-equals-delivered`) — a release is signoff, no fresh-install-confirm gate. State now: **19 Delivered,
-1 Done (unbuilt-release) = #31, 3 Pending (backlog FEAT-6/7/13), 3 Deferred, 2 Dropped.** Update rows IN
-PLACE as work lands; retire the file once every row is Delivered.
+`shipped-equals-delivered`) — a release is signoff. State now: **20 Delivered, 0 open bugs, 3 Pending
+(backlog FEAT-6/7/13), 3 Deferred, 2 Dropped.** Retire the file once the 3 backlog features + 3 Deferred
+resolve.
 
-## ▶️ NEXT SESSION — cut a release to ship #31 (then no open bugs remain)
+## ▶️ NEXT SESSION — backlog features + Deferred re-verify (no open bugs)
 
-#31 (blueprint-card husk) is FIXED on `main` (`cafc17b4`) but UNRELEASED. Cutting the next release flips it
-Pending→Delivered and closes the issue (per `release-and-issue-conventions` + `shipped-equals-delivered`).
-Release checklist reminders live in "Known caveats" below (apiVersion window on MINOR; grep the npx prod
-smoke for any endpoint a bundled fix touches; annotated tag). #31 touches only view-kit render + a type —
-NOT the smoke's asserted contracts — so Case L is unaffected; a PATCH bump fits.
+All operator-filed bugs are Delivered. What's left in the tracker is discretionary:
+- **Backlog features (LOW):** FEAT-6 (Run + Create-Workflow two-button card — unblocked by BUG-4),
+  FEAT-7 (filter-by-installed-pack across all 4 primitive views — needs ONE primitive→pack source-of-truth),
+  FEAT-13 (Profile Templates → Compose submenu — **scope UNCONFIRMED with operator**; no such surface exists yet).
+- **Deferred re-verify (live):** CF-BUG-3 (workflow HITL), CF-FEAT-2 (free vs paid Agency on Packs),
+  CF-FEAT-8 (post-Execute signpost) — each claimed shipped; a browser re-verify flips them Delivered or reopens.
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
 `create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests (#5/#6/#11/#12); other
-staging R-runs; backlog features FEAT-6/7/13 (FEAT-13 scope UNCONFIRMED with operator); 3 Deferred
-(CF-BUG-3, CF-FEAT-2, CF-FEAT-8) need a live re-verify.
+staging R-runs.
 
 ### Staging harness — S1-S4 arc COMPLETE + first live 6-run suite done (S25)
 - `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — full loop skill-driven,
@@ -106,14 +104,14 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **gh issue/label writes are ALLOWLISTED** (memory `autonomous-session-permission-gates`).
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
-## On `main`, UNRELEASED
-- **#31 blueprint-card husk fix** (`cafc17b4`): `BlueprintCard.resolved` flag (`data.ts` `loadBlueprintCards`)
-  + honest "couldn't load — reinstall the pack" card with NO fake Run when a definition can't resolve
-  (`last-run-card.tsx`). Cache half already shipped (`install.ts` revalidateTag); this closed the silent-husk
-  half (principle #1). Dev-smoke-verified both states; regression tests at component + kit-view level. Ships
-  at the next release → then #31 closes. Root cause in memory `blueprint-card-husk-root-cause`.
-
 ## Recently shipped
+**0.29.1 (RELEASED — `v0.29.1`→`e210e49a`; npm `latest` + GitHub Release + OIDC CI green incl. npx prod
+smoke Case L):** #31 blueprint-card husk fix. `BlueprintCard.resolved` flag (`data.ts` `loadBlueprintCards`)
++ honest "couldn't load, reinstall the pack" card with NO fake Run when a definition can't resolve
+(`last-run-card.tsx`); working cards unchanged. Cache half was already shipped (`install.ts` revalidateTag);
+this closed the silent-husk half (principle #1). Dev-smoke-verified both states; regression tests at
+component + kit-view level. #31 closed `shipped`. Root cause in memory `blueprint-card-husk-root-cause`.
+
 **0.29.0 (RELEASED — `v0.29.0`→`9b9ea0f2`; npm `latest` + GitHub Release + SBOM + prebuilt; OIDC CI green
 incl. npx prod smoke Case L):** relay-website dark-theme technique ported into app chrome + FEAT-14/15/16 —
 opaque instrument telemetry rail, full-bleed two-tier teal canvas grid, `GET /api/settings/glance` +
