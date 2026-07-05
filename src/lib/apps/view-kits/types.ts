@@ -160,6 +160,15 @@ export interface BlueprintCard {
   trigger: { kind: "row-insert"; table: string; tableName: string } | null;
   /** The recommended first workflow, rendered with a "Start here" flag. */
   isPrimary: boolean;
+  /**
+   * Whether the blueprint DEFINITION was resolved from the registry at
+   * enrichment time. `false` = the registry had no definition for this id (the
+   * files never reached the scanned dir, or the registry import failed), so
+   * `name` fell back to the raw id and there are no `variables`/`description`.
+   * The card renders an explicit "couldn't load" state instead of a fake Run
+   * button that would fail downstream at /instantiate (#31, principle #1).
+   */
+  resolved: boolean;
 }
 
 /** Phase 2: minimal task summary used by Workflow Hub's secondary + activity. */

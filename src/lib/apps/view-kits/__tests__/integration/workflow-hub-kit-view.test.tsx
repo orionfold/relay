@@ -52,6 +52,66 @@ describe("Workflow Hub kit — KitView integration", () => {
     expect(container.querySelectorAll('[data-kit-slot="secondary"]').length).toBeGreaterThanOrEqual(1);
   });
 
+  it("renders an honest 'couldn't load' state (no Run button) for an unresolved blueprint (#31)", () => {
+    // A blueprint whose definition the registry could not resolve at enrichment
+    // time arrives with `resolved: false` and the id as its name. It must NOT
+    // render a fake Run button (which would fail downstream at /instantiate);
+    // it renders an explicit failure state instead (engineering principle #1).
+    renderKitView({
+      kit: workflowHubKit,
+      manifest,
+      columns: [],
+      runtime: {
+        blueprintCards: [
+          {
+            id: "relay-agency--lease-abstraction",
+            name: "relay-agency--lease-abstraction",
+            description: null,
+            variables: [],
+            trigger: null,
+            isPrimary: false,
+            resolved: false,
+          },
+        ],
+        blueprintLastRuns: {},
+        blueprintRunCounts: {},
+        failedTasks: [],
+      },
+    });
+    // Honest failure copy is shown…
+    expect(screen.getByText(/couldn't load/i)).toBeInTheDocument();
+    // …and there is NO Run button on a husk card.
+    expect(
+      screen.queryByRole("button", { name: /^run$/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders a Run button for a resolved blueprint (#31 regression guard)", () => {
+    renderKitView({
+      kit: workflowHubKit,
+      manifest,
+      columns: [],
+      runtime: {
+        blueprintCards: [
+          {
+            id: "ingest",
+            name: "Ingest",
+            description: "Pulls new rows",
+            variables: [],
+            trigger: null,
+            isPrimary: true,
+            resolved: true,
+          },
+        ],
+        blueprintLastRuns: { ingest: null },
+        blueprintRunCounts: { ingest: 0 },
+        failedTasks: [],
+      },
+    });
+    expect(screen.getByRole("button", { name: /^run$/i })).toBeInTheDocument();
+    expect(screen.queryByText(/couldn't load/i)).not.toBeInTheDocument();
+  });
+
   it("renders activity feed with failed tasks when present", () => {
     const { container } = renderKitView({
       kit: workflowHubKit,

@@ -11,6 +11,7 @@ function makeCard(overrides: Partial<BlueprintCard> = {}): BlueprintCard {
     variables: [],
     trigger: null,
     isPrimary: false,
+    resolved: true,
     ...overrides,
   };
 }
@@ -111,6 +112,27 @@ describe("RunnableBlueprintCard (FEAT-5/6)", () => {
     expect(screen.queryByRole("button", { name: /^run$/i })).not.toBeInTheDocument();
     expect(screen.getByText(/runs on its own/i)).toBeInTheDocument();
     expect(screen.getByText(/Intake table/i)).toBeInTheDocument();
+  });
+
+  it("renders an honest 'couldn't load' state (no Run) for an unresolved card (#31)", () => {
+    render(
+      <RunnableBlueprintCard
+        card={makeCard({
+          id: "relay-agency--lease-abstraction",
+          name: "relay-agency--lease-abstraction",
+          description: null,
+          resolved: false,
+        })}
+        lastRun={null}
+        runCount30d={0}
+      />
+    );
+    // The raw id still shows (so the user can identify which one broke) but the
+    // card offers no fake action and states the failure plainly.
+    expect(screen.getByText(/couldn't load/i)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /^run$/i })
+    ).not.toBeInTheDocument();
   });
 
   it("shows last-run status + run count when a run exists", () => {

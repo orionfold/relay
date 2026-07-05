@@ -113,6 +113,33 @@ export function RunnableBlueprintCard({
   runCount30d,
 }: RunnableBlueprintCardProps) {
   const isRowInsert = card.trigger?.kind === "row-insert";
+
+  // #31: an unresolved card is a husk — the registry had no definition for this
+  // blueprint id, so `name` is the raw id and a Run button would fail downstream
+  // at /instantiate. Surface the failure honestly (principle #1) rather than
+  // rendering a fake action. `=== false` so a legacy card lacking the flag still
+  // renders normally.
+  if (card.resolved === false) {
+    return (
+      <Card className="surface-card border-destructive/30">
+        <CardHeader className="pb-2 space-y-1.5">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {card.name}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-px text-destructive" />
+            <span>
+              This workflow couldn&apos;t load. Its definition wasn&apos;t
+              found. Reinstall the pack to restore it.
+            </span>
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card
       className={

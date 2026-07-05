@@ -682,6 +682,10 @@ async function loadBlueprintCards(
       variables: def?.variables ?? [],
       trigger,
       isPrimary: stub.id === primaryBlueprintId,
+      // #31: a definition-less card is a husk (raw id, no variables). Flag it so
+      // the card renders an explicit "couldn't load" state instead of a fake Run
+      // button that would fail downstream at /instantiate (principle #1).
+      resolved: def != null,
     };
   });
 }

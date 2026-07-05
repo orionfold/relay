@@ -172,8 +172,8 @@ describe("workflowHubKit.buildModel", () => {
     const runtime: RuntimeState = {
       app,
       blueprintCards: [
-        { id: "bp-1", name: "One", description: null, variables: [], trigger: null, isPrimary: false },
-        { id: "bp-2", name: "Two", description: null, variables: [], trigger: null, isPrimary: false },
+        { id: "bp-1", name: "One", description: null, variables: [], trigger: null, isPrimary: false, resolved: true },
+        { id: "bp-2", name: "Two", description: null, variables: [], trigger: null, isPrimary: false, resolved: true },
       ],
       blueprintLastRuns: {
         "bp-1": {
@@ -199,8 +199,8 @@ describe("workflowHubKit.buildModel", () => {
     const runtime: RuntimeState = {
       app,
       blueprintCards: [
-        { id: "bp-1", name: "One", description: null, variables: [], trigger: null, isPrimary: false },
-        { id: "bp-2", name: "Two", description: null, variables: [], trigger: null, isPrimary: true },
+        { id: "bp-1", name: "One", description: null, variables: [], trigger: null, isPrimary: false, resolved: true },
+        { id: "bp-2", name: "Two", description: null, variables: [], trigger: null, isPrimary: true, resolved: true },
       ],
     };
     const model = workflowHubKit.buildModel(proj, runtime);
@@ -222,7 +222,7 @@ describe("workflowHubKit.buildModel", () => {
     const runtime: RuntimeState = {
       app,
       blueprintCards: [
-        { id: "bp-1", name: "One", description: null, variables: [], trigger: null, isPrimary: true },
+        { id: "bp-1", name: "One", description: null, variables: [], trigger: null, isPrimary: true, resolved: true },
       ],
     };
     const model = workflowHubKit.buildModel(proj, runtime);
