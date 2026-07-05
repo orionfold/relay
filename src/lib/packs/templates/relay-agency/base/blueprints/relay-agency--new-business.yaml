@@ -1,0 +1,82 @@
+id: relay-agency--new-business
+name: New-Business Machine
+description: >
+  Prospect to signed-ready: research and qualify the prospect, draft the
+  capability pitch, the scoped proposal, and the engagement letter, then stage
+  the kickoff so a won deal becomes an operating client without a dropped
+  handoff. Run it on demand for any prospect in your pipeline.
+version: "1.0.0"
+domain: work
+tags: [new-business, prospects, proposals, engagement-letter, kickoff]
+pattern: checkpoint
+difficulty: intermediate
+estimatedDuration: "45-90 min"
+author: Orionfold
+variables:
+  - id: prospect
+    type: text
+    label: Prospect
+    description: The company, owner, or organization being pursued
+    required: true
+    placeholder: Meadowbrook Ventures
+  - id: context
+    type: textarea
+    label: What we know
+    description: How the prospect arrived and anything already known
+    required: false
+    default: ""
+steps:
+  - name: Research and qualify the prospect
+    profileId: relay-agency--new-business-researcher
+    requiresApproval: false
+    promptTemplate: >
+      Research {{prospect}} and produce the qualification brief: who they are
+      (cited), what they likely need mapped to our service catalog, whether we
+      should want them (including a "pass" recommendation if warranted), and the
+      specific evidenced angle a pitch would open with. Known context: {{context}}
+    expectedOutput: >
+      A cited qualification brief ending in a pursue/pass recommendation and the
+      pitch angle.
+  - name: Draft the capability pitch
+    profileId: relay-agency--proposal-writer
+    requiresApproval: true
+    promptTemplate: >
+      From the research brief, draft the one-page capability pitch for
+      {{prospect}}: open with the angle, present only the two or three services
+      the evidence supports with one proof point each, and close with the
+      proposed first step.
+    expectedOutput: A one-page capability pitch built on the brief's angle.
+  - name: Draft the scoped proposal
+    profileId: relay-agency--proposal-writer
+    requiresApproval: true
+    promptTemplate: >
+      Draft the scoped proposal for {{prospect}}: deliverables, cadence, explicit
+      in/out scope boundaries, and pricing structured as the agency prices
+      (retainer for continuous work, fixed fee for projects, pass-throughs
+      itemized). Write every pricing assumption inline as [ASSUMES: ...] where the
+      brief lacks what pricing needs.
+    expectedOutput: >
+      A scoped proposal with visible assumptions and defensible boundaries.
+  - name: Draft the engagement letter
+    profileId: relay-agency--proposal-writer
+    requiresApproval: true
+    promptTemplate: >
+      Draft the engagement letter for {{prospect}} referencing the proposal:
+      parties, scope by reference, term and renewal, fees and payment terms,
+      termination, confidentiality, signature block. Mark it "DRAFT — for review
+      by the principal and counsel" at the top.
+    expectedOutput: A draft engagement letter clearly marked for review.
+  - name: Stage the client kickoff
+    profileId: relay-agency--intake-coordinator
+    requiresApproval: false
+    promptTemplate: >
+      Assume {{prospect}} signs. Stage the kickoff checklist so the handoff from
+      sale to operations loses nothing: the client record to create, the intake
+      rows to open for each committed service (with service and source), the
+      profiles that will serve them, the first-month deliverables from the
+      proposal, and what the first month-end close should expect to see in the
+      engagements ledger. Do NOT create client records or intake rows yet — this
+      is the staged plan the principal executes on signature.
+    expectedOutput: >
+      A kickoff checklist mapping the signed scope onto Relay primitives, ready to
+      execute on signature day.

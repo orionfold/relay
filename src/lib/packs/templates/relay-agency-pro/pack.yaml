@@ -1,12 +1,12 @@
 id: relay-agency-pro
-version: "0.4.0"
+version: "0.5.0"
 name: Relay Agency Pro
 author: Orionfold
 # This description renders as the what-you-get preview on the locked /packs
 # card (D6) — it is sales copy, not an internal summary.
 description: >
-  Agency Pro runs your whole agency, not just one workflow. Six chapters of an
-  agency operating system:
+  Agency Pro makes your client book run itself. It is the automation layer on
+  top of the free Relay Agency pack:
 
 
   Finance Cockpit closes your month for you. See margin on one screen, with
@@ -24,13 +24,8 @@ description: >
   export you can hand over.
 
 
-  Real Estate renewal engine tracks key dates, escalations, comps, LOI drafts,
-  and your full rent roll.
-
-
-  Nonprofit chapter (new in v0.2.0, your first free update) runs a grant
-  pipeline from a go or no-go call, through the full application, to
-  post-award reporting and fund rules.
+  Your industry delivery work lives in its own pack. Add Relay CRE or Relay
+  Nonprofit for the lease, listing, grant, and impact workflows you deliver.
 
 
   Everything installs offline. Relay never sends your data to Orionfold.
@@ -74,4 +69,10 @@ changelog:
     Your finance cockpit now arrives with a month of sample billing and cost
     entries, so you see real numbers the moment you install. Billed, costs, and
     margin light up right away instead of a blank ledger.
+  "0.5.0": >-
+    Agency Pro is now the automation layer for any agency, whatever work you do.
+    The commercial real estate and nonprofit chapters moved to their own
+    installable packs, Relay CRE and Relay Nonprofit, so you install exactly the
+    delivery work you sell. Your finance cockpit, intake pipelines, new-business
+    machine, and governance keep running and are now vertical-neutral.
 customers: []

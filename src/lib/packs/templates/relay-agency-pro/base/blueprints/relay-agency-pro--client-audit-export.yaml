@@ -17,7 +17,7 @@ variables:
     label: Client
     description: The client the export covers (exactly one)
     required: true
-    placeholder: Meridian CRE
+    placeholder: Northwind Studio
   - id: period
     type: text
     label: Period

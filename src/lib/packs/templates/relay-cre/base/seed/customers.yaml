@@ -1,0 +1,27 @@
+# Relay CRE — client seed (commercial real estate industry pack).
+# Read by installPack -> ensureCustomer (slug-idempotent). 3 scrubbed-but-
+# believable CRE clients. Tier / cap figures are ILLUSTRATIVE seed notes only.
+
+- slug: meridian-cre
+  name: Meridian Commercial Realty
+  industry: CRE
+  notes: >
+    Flagship CRE client (Minneapolis, MN). 14-property office & retail portfolio;
+    lease abstraction, rent-roll, comp research, LP investor reporting.
+    Illustrative retainer tier: ~$1,200/mo guardrail cap.
+
+- slug: summit-cre
+  name: Summit CRE Advisors
+  industry: CRE
+  notes: >
+    CRE brokerage. Twin Cities industrial & multifamily listings and
+    market/submarket analysis, tenant-prospect research.
+    Illustrative retainer tier: ~$600/mo guardrail cap.
+
+- slug: parkview-pm
+  name: Parkview Property Management
+  industry: CRE
+  notes: >
+    Property management (220 managed units / 38 properties). Receipt-to-bookkeeping
+    intake, vendor-invoice triage, monthly owner statements.
+    Illustrative retainer tier: ~$500/mo guardrail cap.

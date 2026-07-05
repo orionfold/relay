@@ -1,11 +1,12 @@
 id: relay-agency-pro
-version: "0.4.0"
+version: "0.5.0"
 name: Relay Agency Pro
 description: >
   The agency operating system on top of the free Relay Agency verbs: a
   scheduled finance cockpit, row-triggered intake pipelines, a new-business
-  machine, client-safe governance, a deep CRE renewal engine, and a deep
-  nonprofit grant pipeline (added in v0.2.0).
+  machine that fires on its own, and client-safe governance with an audit
+  export. The automation layer, vertical-neutral — industry delivery lives in
+  its own installable pack.
 persona: >
   An agency operator whose client book should process itself: intake that
   triggers work, month-end that closes itself, margin visible per client, and
@@ -25,10 +26,6 @@ profiles:
     source: $AINATIVE_DATA_DIR/profiles/relay-agency-pro--governance-auditor/
   - id: relay-agency-pro--sensitive-client-analyst
     source: $AINATIVE_DATA_DIR/profiles/relay-agency-pro--sensitive-client-analyst/
-  - id: relay-agency-pro--cre-renewal-analyst
-    source: $AINATIVE_DATA_DIR/profiles/relay-agency-pro--cre-renewal-analyst/
-  - id: relay-agency-pro--nonprofit-grants-analyst
-    source: $AINATIVE_DATA_DIR/profiles/relay-agency-pro--nonprofit-grants-analyst/
 
 blueprints:
   - id: relay-agency-pro--month-end-close
@@ -42,13 +39,6 @@ blueprints:
     source: $AINATIVE_DATA_DIR/blueprints/relay-agency-pro--new-business.yaml
   - id: relay-agency-pro--client-audit-export
     source: $AINATIVE_DATA_DIR/blueprints/relay-agency-pro--client-audit-export.yaml
-  - id: relay-agency-pro--cre-renewal-engine
-    source: $AINATIVE_DATA_DIR/blueprints/relay-agency-pro--cre-renewal-engine.yaml
-  - id: relay-agency-pro--grant-pipeline-deep
-    source: $AINATIVE_DATA_DIR/blueprints/relay-agency-pro--grant-pipeline-deep.yaml
-    trigger:
-      kind: row-insert
-      table: grants
 
 tables:
   # The engagements ledger: one row per billing/cost line, signed amount
@@ -56,21 +46,16 @@ tables:
   # without configuration. The month-end close writes draft invoice lines here.
   # SEEDED: seed/tables/engagements.json ships a current-month sample ledger so
   # the finance cockpit's MTD KPIs (billed/costs/margin) read non-zero the moment
-  # the pack installs. Only THIS table is seeded — intake/grants below carry
-  # row-insert triggers, and seeding them would dispatch their pipeline
-  # blueprints on install/seed (see src/lib/data/tables.ts addRows). Work queues
-  # are meant to be filled by the operator to TRIGGER work, so they ship empty.
+  # the pack installs. Only THIS table is seeded — intake below carries a
+  # row-insert trigger, and seeding it would dispatch the pipeline blueprint
+  # on install/seed (see src/lib/data/tables.ts addRows). Work queues are meant
+  # to be filled by the operator to TRIGGER work, so they ship empty.
   - id: engagements
     columns: [client, date, category, description, amount, status]
   # The intake work queue: drop a row, the intake pipeline fires (row-insert
-  # trigger) and routes by `kind` under the named client. Ships empty by design.
+  # trigger) and routes by `service` under the named client. Ships empty by design.
   - id: intake
-    columns: [client, kind, source, status, notes]
-  # The grant pipeline: drop an opportunity row, the deep grant pipeline
-  # fires (row-insert trigger) — fit-scored go/no-go, LOI, application
-  # assembly, and the post-award compliance calendar, per client.
-  - id: grants
-    columns: [client, funder, program, amount, deadline, stage, notes]
+    columns: [client, service, source, status, notes]
 
 schedules:
   # Fires the month-end close on the 1st at 06:00 for the month just ended.
@@ -80,11 +65,11 @@ schedules:
     runs: relay-agency-pro--month-end-close
 
 view:
-  # Agency Pro is a six-workflow operating system, so the app home is the
-  # multi-blueprint Workflow Hub: one runnable card per chapter with a Run
+  # Agency Pro is a multi-workflow operating system, so the app home is the
+  # multi-blueprint Workflow Hub: one runnable card per workflow with a Run
   # action, the recommended first workflow flagged "Start here." (The finance
   # KPI tiles below still render — the `kpis` binding is kit-agnostic.) The
-  # single-hero ledger kit hid 5 of the 6 chapters on the app's own home
+  # single-hero ledger kit hid the other workflows on the app's own home
   # (FEAT-5/6, redesign 2026-07-04).
   kit: workflow-hub
   bindings:
@@ -92,7 +77,7 @@ view:
       table: engagements
     secondary:
       - blueprint: relay-agency-pro--month-end-close
-      - blueprint: relay-agency-pro--cre-renewal-engine
+      - blueprint: relay-agency-pro--new-business
     runs:
       blueprint: relay-agency-pro--month-end-close
     kpis:

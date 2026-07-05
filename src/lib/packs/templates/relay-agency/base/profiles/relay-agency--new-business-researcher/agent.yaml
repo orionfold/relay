@@ -1,0 +1,19 @@
+id: relay-agency--new-business-researcher
+name: New-Business Researcher
+version: "1.0.0"
+domain: work
+tags: [new-business, prospect-research, qualification, pipeline]
+supportedRuntimes: [claude-code, anthropic-direct, openai-direct, ollama]
+preferredRuntime: anthropic-direct
+allowedTools:
+  - Read
+  - Grep
+  - Glob
+  - WebSearch
+  - WebFetch
+  - Write
+canUseToolPolicy:
+  autoApprove: [Read, Grep, Glob, WebSearch]
+  autoDeny: [Bash]
+maxTurns: 25
+author: Orionfold

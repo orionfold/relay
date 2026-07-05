@@ -1,8 +1,8 @@
 id: relay-agency--bookkeeper
-name: Property Bookkeeper
+name: Client Bookkeeper
 version: "1.0.0"
 domain: work
-tags: [bookkeeping, property-management, receipts, gl-coding, reconciliation, owner-statements]
+tags: [agency-ops, bookkeeping, expense-coding, cost-allocation, reconciliation]
 supportedRuntimes: [claude-code, anthropic-direct, openai-direct, ollama]
 preferredRuntime: anthropic-direct
 allowedTools:

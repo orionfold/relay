@@ -1,21 +1,40 @@
 id: relay-agency
-version: "0.1.0"
+version: "0.2.0"
 name: Relay Agency
 author: Orionfold
-description: Agency operating layer for CRE and nonprofit verticals.
+# The free, domain-neutral persona pack: the client-book operating system any
+# agency runs, whatever vertical it serves. Vertical delivery (CRE, nonprofit,
+# ...) snaps on as a separate industry pack; automation snaps on as Agency Pro.
+description: >
+  Run your whole client book in one place. Track every client, see margin per
+  client, route new work, win new business, and close your month. Works for any
+  agency. Add your industry pack for the work you deliver, or Agency Pro to make
+  it run on a schedule.
 relayCore: ">=0.15.0"
 icon: building-2
-# Relationship copy: this free pack has a paid upgrade. Additive, not a
-# replacement (the two packs install side by side and share no content).
+# The free pack is the base every other Agency pack builds on. Add an industry
+# pack for delivery, or Agency Pro for automation. Both install side by side.
 related:
-  text: "Agency Pro adds six deeper workflows on top of this pack: finance close, new business, and renewals."
+  text: "Agency Pro makes this run itself: a scheduled month-end close, auto-routing intake, and deeper agents you can trust with client work."
   href: "/packs?filter=premium"
-# Declarative metadata. The installer seeds customers from base/seed/customers.yaml
-# (objects), not from this list — these slugs mirror that seed for at-a-glance review.
+# Per-version customer-voice recap. Every version bump adds a line here — the
+# license status, the update card, and the renewal email all read this map.
+changelog:
+  "0.1.0": >-
+    The agency operating layer: a client book, per-client bookkeeping, client
+    onboarding, and per-client cost and billing you can run on demand.
+  "0.2.0": >-
+    Your whole client book in one place, and now vertical-neutral so it works
+    for any agency. A per-client margin cockpit, a new-business pipeline from
+    lead to signed engagement, an intake router that sends each request to the
+    right work, and an on-demand month-end close. The commercial real estate
+    and nonprofit chapters moved to their own installable industry packs.
+# Declarative metadata. The installer seeds clients from base/seed/customers.yaml
+# (objects), not from this list — these slugs mirror that seed for review.
 customers:
-  - meridian-cre
-  - summit-cre
-  - parkview-pm
-  - community-impact
-  - cornerstone
-  - lakeshore
+  - northwind-studio
+  - harbor-consulting
+  - beacon-collective
+  - summit-partners
+  - kestrel-agency
+  - riverstone-group

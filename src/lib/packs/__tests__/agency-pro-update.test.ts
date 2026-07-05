@@ -6,15 +6,18 @@ import yaml from "js-yaml";
 import realLicense from "@/lib/licensing/__tests__/fixtures/of-relay-verify-20260701.license.json";
 
 /**
- * Acceptance tests for THE FIRST PAID UPDATE — Agency Pro 0.1.0 → 0.2.0
+ * Acceptance tests for THE PAID UPDATE PATH — Agency Pro earlier → current
  * (feat-pack-update-workflow). These prove the D4 arc end-to-end with the
- * REAL bundled template and the REAL prod-signed license fixture:
+ * REAL bundled template and the REAL prod-signed license fixture. Post the
+ * persona/industry split (0.5.0) the update delta is exercised on the
+ * row-triggered intake pipeline (a primitive the neutral pack still owns);
+ * pre-split this used the nonprofit grant chapter, now in relay-nonprofit:
  *
- *   - an entitled 0.1.0 install updates store-consult (no flag) and lands
- *     the nonprofit deep chapter, with the grants row-trigger LIVE after
+ *   - an entitled earlier install updates store-consult (no flag) and re-adds
+ *     the triggered intake chapter, with the intake row-trigger LIVE after
  *     the update (trigger-rewrite machinery re-proven on the update path);
  *   - without a license the update refuses renewal-voiced and the installed
- *     0.1.0 keeps working, byte-identical (the never-re-lock promise).
+ *     earlier version keeps working, byte-identical (the never-re-lock promise).
  *
  * The engine's executeWorkflow is mocked no-op: dispatch-through-instantiation
  * is in scope; agent execution is not.
@@ -59,9 +62,13 @@ function installOpts() {
 }
 
 /**
- * Reconstruct a 0.1.0 Agency Pro from the current bundled template by
- * removing exactly what v0.2.0 added (the nonprofit chapter). This mirrors
- * what a customer who installed 0.1.0 from orionfold-relay@0.19.x has on disk.
+ * Reconstruct an earlier Agency Pro from the current bundled template by
+ * removing one triggered chapter (the row-triggered intake pipeline + its
+ * intake table). Updating back to the current template re-adds them, so the
+ * update path's "adds a triggered blueprint, the trigger fires after update"
+ * mechanics stay covered on a primitive the post-split neutral pack still owns.
+ * (Pre-split this test used the nonprofit grant chapter, which now lives in the
+ * relay-nonprofit industry pack.)
  */
 async function stageV1Template(): Promise<string> {
   const { listPackTemplates } = await import("../catalog");
@@ -84,30 +91,18 @@ async function stageV1Template(): Promise<string> {
     tables: { id: string }[];
   };
   manifest.version = "0.1.0";
-  manifest.profiles = manifest.profiles.filter(
-    (p) => p.id !== "relay-agency-pro--nonprofit-grants-analyst"
-  );
   manifest.blueprints = manifest.blueprints.filter(
-    (b) => b.id !== "relay-agency-pro--grant-pipeline-deep"
+    (b) => b.id !== "relay-agency-pro--intake-pipeline"
   );
-  manifest.tables = manifest.tables.filter((t) => t.id !== "grants");
+  manifest.tables = manifest.tables.filter((t) => t.id !== "intake");
   fs.writeFileSync(manifestPath, yaml.dump(manifest));
 
   fs.rmSync(
     path.join(
       v1Dir,
       "base",
-      "profiles",
-      "relay-agency-pro--nonprofit-grants-analyst"
-    ),
-    { recursive: true }
-  );
-  fs.rmSync(
-    path.join(
-      v1Dir,
-      "base",
       "blueprints",
-      "relay-agency-pro--grant-pipeline-deep.yaml"
+      "relay-agency-pro--intake-pipeline.yaml"
     )
   );
   return v1Dir;
@@ -119,7 +114,7 @@ async function saveRealLicense() {
 }
 
 describe("Agency Pro 0.1.0 → current (the paid update path)", () => {
-  it("updates store-consult and lands the nonprofit chapter; the grants row-trigger fires after update", async () => {
+  it("updates store-consult and adds the triggered intake chapter; the intake row-trigger fires after update", async () => {
     await saveRealLicense();
     const staged = await stageV1Template();
     const { installPack } = await import("../install");
@@ -135,54 +130,43 @@ describe("Agency Pro 0.1.0 → current (the paid update path)", () => {
     // The paid update — store-consult, no flag (the real prod fixture).
     const report = await updatePack("relay-agency-pro", installOpts());
     expect(report.previousVersion).toBe("0.1.0");
-    // The update lands the CURRENT template version. The nonprofit chapter
-    // (added in 0.2.0) still arrives; 0.3.0 reshaped the app home (FEAT-5/6);
-    // 0.4.0 adds a sample engagements ledger seed file (no new primitives), so
-    // the grants trigger contract is unchanged.
-    expect(report.newVersion).toBe("0.4.0");
-    expect(report.install!.tablesCreated).toBe(1); // grants; the other two reused
+    // The update lands the CURRENT template version (0.5.0 = the persona/
+    // industry split). The staged v1 had the intake pipeline + intake table
+    // removed, so the update re-adds exactly one table (intake); engagements
+    // is reused.
+    expect(report.newVersion).toBe("0.5.0");
+    expect(report.install!.tablesCreated).toBe(1); // intake; engagements reused
     expect(readInstallState(appsDir, "relay-agency-pro")?.packVersion).toBe(
-      "0.4.0"
+      "0.5.0"
     );
 
-    // Chapter artifacts on disk.
+    // The re-added blueprint is on disk.
     expect(
       fs.existsSync(
-        path.join(
-          profilesDir,
-          "relay-agency-pro--nonprofit-grants-analyst",
-          "SKILL.md"
-        )
-      )
-    ).toBe(true);
-    expect(
-      fs.existsSync(
-        path.join(blueprintsDir, "relay-agency-pro--grant-pipeline-deep.yaml")
+        path.join(blueprintsDir, "relay-agency-pro--intake-pipeline.yaml")
       )
     ).toBe(true);
 
-    // The grants trigger is rewritten to the REAL table id on the update path.
+    // The intake trigger is rewritten to the REAL table id on the update path.
     const app = registry.getApp("relay-agency-pro", appsDir)!;
-    const grantBp = app.manifest.blueprints.find(
-      (bp) => bp.id === "relay-agency-pro--grant-pipeline-deep"
+    const intakeBp = app.manifest.blueprints.find(
+      (bp) => bp.id === "relay-agency-pro--intake-pipeline"
     )!;
-    const grantsTableId = grantBp.trigger!.table;
-    expect(grantsTableId).not.toBe("grants");
+    const intakeTableId = intakeBp.trigger!.table;
+    expect(intakeTableId).not.toBe("intake");
 
-    // Drop a grants row → the deep blueprint instantiates (trigger machinery
+    // Drop an intake row → the pipeline instantiates (trigger machinery
     // re-proven on content that arrived VIA UPDATE, not install).
     registry.invalidateAppsCache();
     const { addRows } = await import("@/lib/data/tables");
-    await addRows(grantsTableId, [
+    await addRows(intakeTableId, [
       {
         data: {
-          client: "Riverbend Food Bank",
-          funder: "Meyer Trust",
-          program: "Cold storage expansion",
-          amount: "$150,000",
-          deadline: "2026-09-15",
-          stage: "prospect",
-          notes: "RFP attached",
+          client: "Northwind Studio",
+          service: "bookkeeping",
+          source: "email",
+          status: "new",
+          notes: "July receipts attached",
         },
         createdBy: "user" as const,
       },
@@ -205,7 +189,7 @@ describe("Agency Pro 0.1.0 → current (the paid update path)", () => {
     }
     expect(spawned.length).toBeGreaterThanOrEqual(1);
     expect(JSON.stringify(spawned.map((w) => w.definition))).toContain(
-      "grant-pipeline-deep"
+      "intake-pipeline"
     );
   });
 
@@ -245,7 +229,7 @@ describe("Agency Pro 0.1.0 → current (the paid update path)", () => {
     expect(message).toMatch(/keeps working/i);
     expect(message).toContain("https://orionfold.com/relay/");
 
-    // Byte-identical artifacts, sidecar still 0.1.0, no chapter, no backups.
+    // Byte-identical artifacts, sidecar still 0.1.0, no re-added chapter, no backups.
     for (const [file, bytes] of snapshot) {
       expect(fs.readFileSync(file).equals(bytes), file).toBe(true);
     }
@@ -254,7 +238,7 @@ describe("Agency Pro 0.1.0 → current (the paid update path)", () => {
     );
     expect(
       fs.existsSync(
-        path.join(blueprintsDir, "relay-agency-pro--grant-pipeline-deep.yaml")
+        path.join(blueprintsDir, "relay-agency-pro--intake-pipeline.yaml")
       )
     ).toBe(false);
     expect(

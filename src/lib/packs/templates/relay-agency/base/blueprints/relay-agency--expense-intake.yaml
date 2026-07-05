@@ -1,0 +1,56 @@
+id: relay-agency--expense-intake
+name: Receipt to Expense Entry
+description: >
+  Capture a receipt or invoice, code and allocate it to the right client,
+  reconcile against budget, and stage a ledger entry you can approve in one
+  click.
+version: "1.0.0"
+domain: work
+tags: [bookkeeping, expense-coding, cost-allocation, reconciliation]
+pattern: sequence
+difficulty: beginner
+estimatedDuration: "5-10 min"
+author: Orionfold
+variables:
+  - id: client
+    type: text
+    label: Client
+    required: true
+    placeholder: Northwind Studio
+  - id: document
+    type: file
+    label: Receipt / invoice
+    description: The receipt or invoice image to process
+    required: false
+steps:
+  - name: Capture receipt / invoice
+    profileId: relay-agency--bookkeeper
+    requiresApproval: false
+    promptTemplate: >
+      Process the uploaded receipt/invoice for {{client}}. Extract vendor, date,
+      amount, tax, payment method, and line items. Normalize the vendor name
+      against the known-vendor list.
+    expectedOutput: A normalized, structured expense record.
+  - name: Categorize & allocate to client
+    profileId: relay-agency--bookkeeper
+    requiresApproval: false
+    promptTemplate: >
+      Assign the expense category (labor, software, subcontractor, AI cost,
+      travel, overhead) and allocate the expense to the correct client. If it
+      cannot be cleanly attributed to one client, mark it overhead explicitly.
+    expectedOutput: A categorized, client-allocated expense, overhead flagged.
+  - name: Reconcile against budget
+    profileId: relay-agency--bookkeeper
+    requiresApproval: false
+    promptTemplate: >
+      Compare the expense against the client's retainer or project budget for the
+      period. Flag over-budget categories or unusual amounts.
+    expectedOutput: A reconciliation note with any variances flagged.
+  - name: Stage ledger entry
+    profileId: relay-agency--bookkeeper
+    requiresApproval: true
+    promptTemplate: >
+      Stage the engagements ledger entry with all fields complete (client, date,
+      category, description, SIGNED amount, status "draft"), and produce a daily
+      intake summary for {{client}} you can approve in one click.
+    expectedOutput: A staged ledger entry plus a one-click-approvable intake summary.

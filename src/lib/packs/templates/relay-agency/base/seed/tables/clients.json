@@ -1,8 +1,8 @@
 [
-  { "name": "Meridian Commercial Realty", "vertical": "CRE", "retainer_tier": "~$1,200/mo", "status": "active" },
-  { "name": "Summit CRE Advisors", "vertical": "CRE", "retainer_tier": "~$600/mo", "status": "active" },
-  { "name": "Parkview Property Management", "vertical": "CRE", "retainer_tier": "~$500/mo", "status": "active" },
-  { "name": "Community Impact Alliance", "vertical": "nonprofit", "retainer_tier": "~$450/mo", "status": "active" },
-  { "name": "Cornerstone Community Foundation", "vertical": "nonprofit", "retainer_tier": "~$400/mo", "status": "active" },
-  { "name": "Lakeshore Family Services", "vertical": "nonprofit", "retainer_tier": "~$200/mo", "status": "paused" }
+  { "name": "Northwind Studio", "engagement_type": "retainer", "tier": "~$1,200/mo", "status": "active", "health": "green" },
+  { "name": "Harbor Consulting", "engagement_type": "retainer", "tier": "~$800/mo", "status": "active", "health": "green" },
+  { "name": "Beacon Collective", "engagement_type": "hybrid", "tier": "~$600/mo", "status": "active", "health": "amber" },
+  { "name": "Summit Partners", "engagement_type": "project", "tier": "~$500/mo", "status": "active", "health": "green" },
+  { "name": "Kestrel Agency", "engagement_type": "retainer", "tier": "~$450/mo", "status": "active", "health": "amber" },
+  { "name": "Riverstone Group", "engagement_type": "retainer", "tier": "~$200/mo", "status": "paused", "health": "grey" }
 ]

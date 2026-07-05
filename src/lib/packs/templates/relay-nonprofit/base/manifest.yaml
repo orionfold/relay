@@ -1,0 +1,60 @@
+id: relay-nonprofit
+version: "0.1.0"
+name: Relay Nonprofit
+description: >
+  The nonprofit delivery pack: grant and donor research, a grant cycle, impact
+  and compliance reporting, and the deep grant pipeline that fires on a new
+  opportunity. Sits on top of the free Relay Agency operating layer, which owns
+  the client book and margin.
+persona: >
+  A nonprofit-serving agency's delivery work — researching grants, running grant
+  cycles, and reporting impact — layered on the agency operating system so every
+  workflow attributes back to the right client.
+author: Orionfold
+
+profiles:
+  - id: relay-nonprofit--grant-researcher
+    source: $AINATIVE_DATA_DIR/profiles/relay-nonprofit--grant-researcher/
+  - id: relay-nonprofit--impact-writer
+    source: $AINATIVE_DATA_DIR/profiles/relay-nonprofit--impact-writer/
+  - id: relay-nonprofit--nonprofit-grants-analyst
+    source: $AINATIVE_DATA_DIR/profiles/relay-nonprofit--nonprofit-grants-analyst/
+
+blueprints:
+  - id: relay-nonprofit--grant-cycle
+    source: $AINATIVE_DATA_DIR/blueprints/relay-nonprofit--grant-cycle.yaml
+  - id: relay-nonprofit--impact-reporting
+    source: $AINATIVE_DATA_DIR/blueprints/relay-nonprofit--impact-reporting.yaml
+  - id: relay-nonprofit--intake-summary
+    source: $AINATIVE_DATA_DIR/blueprints/relay-nonprofit--intake-summary.yaml
+  - id: relay-nonprofit--grant-pipeline-deep
+    source: $AINATIVE_DATA_DIR/blueprints/relay-nonprofit--grant-pipeline-deep.yaml
+    trigger:
+      kind: row-insert
+      table: grants
+
+tables:
+  # The nonprofit client book fragment: seeds its own vertical clients. Coexists
+  # with the persona pack's clients table under the relay-nonprofit-- namespace.
+  - id: clients
+    columns: [name, industry, retainer_tier, status]
+    seed: seed/tables/clients.json
+  # The grant pipeline queue: drop an opportunity row and the deep grant pipeline
+  # fires (row-insert trigger) — fit-scored go/no-go, LOI, application assembly,
+  # and the post-award compliance calendar. Ships empty by design (seeding a
+  # trigger-bound table would dispatch its blueprint on install).
+  - id: grants
+    columns: [client, funder, program, amount, deadline, stage, notes]
+
+schedules: []
+
+view:
+  kit: workflow-hub
+  bindings:
+    hero:
+      table: clients
+    secondary:
+      - blueprint: relay-nonprofit--grant-cycle
+      - blueprint: relay-nonprofit--impact-reporting
+    runs:
+      blueprint: relay-nonprofit--grant-cycle

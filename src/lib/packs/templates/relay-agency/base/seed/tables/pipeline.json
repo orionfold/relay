@@ -1,0 +1,6 @@
+[
+  { "prospect": "Meadowbrook Ventures", "stage": "qualified", "value": "$1,000/mo retainer", "owner": "You", "notes": "Warm referral from Northwind. Discovery call done; scope looks like a monthly retainer." },
+  { "prospect": "Cascade Labs", "stage": "proposal", "value": "$6,500 project", "owner": "You", "notes": "Proposal sent for a one-off launch project. Follow up on the engagement letter this week." },
+  { "prospect": "Ironwood Co.", "stage": "lead", "value": "TBD", "owner": "You", "notes": "Inbound from the site. Needs a qualification call to size the fit." },
+  { "prospect": "Fairview Group", "stage": "won", "value": "$700/mo retainer", "owner": "You", "notes": "Signed. Hand to onboarding — set guardrails and the recurring deliverables." }
+]

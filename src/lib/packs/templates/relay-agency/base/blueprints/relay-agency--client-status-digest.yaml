@@ -1,0 +1,45 @@
+id: relay-agency--client-status-digest
+name: Client Status Digest
+description: >
+  Read the whole client book, set a health call for each account, and produce
+  the per-client status digest plus the watchlist of accounts to act on. Run it
+  weekly to keep every client on track and nothing drifting.
+version: "1.0.0"
+domain: work
+tags: [agency-ops, account-management, client-health, status-report, watchlist]
+pattern: sequence
+difficulty: beginner
+estimatedDuration: "10-20 min"
+author: Orionfold
+variables:
+  - id: period
+    type: text
+    label: Period
+    description: The period this digest covers
+    required: false
+    default: "this week"
+steps:
+  - name: Read the book and set health
+    profileId: relay-agency--account-manager
+    requiresApproval: false
+    promptTemplate: >
+      Read the whole client book for {{period}}: enumerate every client from the
+      clients and engagements tables — do not work from memory — and for each set
+      a health call (green / amber / grey) with the reason. Green is on track;
+      amber needs attention; grey is paused or stalled. Note recent work, spend,
+      and anything promised but not delivered.
+    expectedOutput: >
+      A per-client health read (green / amber / grey) with a reason for each,
+      traceable to the book.
+  - name: Write the digest and watchlist
+    profileId: relay-agency--account-manager
+    requiresApproval: false
+    promptTemplate: >
+      From the health read, write the status digest for {{period}}: a short
+      per-client line (what shipped, what is in flight, what needs client input,
+      what is next), then the watchlist — the two or three accounts to act on now
+      (thin margin, a slipped deadline, a paused engagement, a client gone quiet),
+      each with a concrete next step and owner. Lead with the watchlist.
+    expectedOutput: >
+      A per-client status digest plus a watchlist of accounts to act on, each with
+      a next step and owner.

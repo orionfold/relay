@@ -3,15 +3,32 @@ import { packOf, type PackablePrimitive } from "../pack-of";
 
 // The installed-pack set the resolver gates against. In production this is
 // `listApps().map(a => a.id)`; here it is fixed so the resolver stays pure.
-const INSTALLED = new Set(["relay-agency", "relay-agency-pro"]);
+// Post persona/industry split there are four bundled packs: the free persona
+// pack, its paid automation tier, and the two paid industry packs.
+const INSTALLED = new Set([
+  "relay-agency",
+  "relay-agency-pro",
+  "relay-cre",
+  "relay-nonprofit",
+]);
 
 describe("packOf — file-based kinds (profiles, blueprints) via the `--` id prefix", () => {
   it("attributes a profile whose id carries an installed pack's prefix", () => {
     const p: PackablePrimitive = {
       kind: "profile",
-      id: "relay-agency--cre-analyst",
+      id: "relay-agency--account-manager",
     };
     expect(packOf(p, INSTALLED)).toBe("relay-agency");
+  });
+
+  it("attributes an industry-pack profile to its own pack, not the persona pack", () => {
+    // After the split, CRE delivery lives in relay-cre; its prefix must
+    // resolve to relay-cre even though relay-agency is also installed.
+    const p: PackablePrimitive = {
+      kind: "profile",
+      id: "relay-cre--cre-analyst",
+    };
+    expect(packOf(p, INSTALLED)).toBe("relay-cre");
   });
 
   it("attributes a blueprint whose id carries an installed pack's prefix", () => {

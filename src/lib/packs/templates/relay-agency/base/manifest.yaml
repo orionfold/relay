@@ -1,83 +1,129 @@
 id: relay-agency
-version: "0.1.0"
+version: "0.2.0"
 name: Relay Agency
 description: >
-  The agency operating layer — every client a customer, every vertical a profile,
-  every service a reusable workflow. CRE + nonprofit verticals, with per-client
-  cost attribution and human-in-the-loop governance.
+  The agency operating layer — every client a customer, every service a reusable
+  workflow. A client book with per-client margin, an intake router, a
+  new-business pipeline, client onboarding, and an on-demand month-end close.
+  Vertical-neutral: add an industry pack for the work you deliver.
 persona: >
-  An agency running Relay for commercial-real-estate and nonprofit clients: lease
-  abstraction, listing ops, bookkeeping, grant cycles, impact reporting, client
-  onboarding, and per-client governance & billing.
+  One operator running a book of clients on retainers and projects, whose own
+  margin is the sum of many small per-client P&Ls. The client book should
+  process itself: work comes in, gets routed, gets done, and the month closes.
 author: Orionfold
 
 profiles:
-  - id: relay-agency--cre-analyst
-    source: $AINATIVE_DATA_DIR/profiles/relay-agency--cre-analyst/
-  - id: relay-agency--cre-listing-writer
-    source: $AINATIVE_DATA_DIR/profiles/relay-agency--cre-listing-writer/
+  - id: relay-agency--account-manager
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--account-manager/
   - id: relay-agency--bookkeeper
     source: $AINATIVE_DATA_DIR/profiles/relay-agency--bookkeeper/
-  - id: relay-agency--grant-researcher
-    source: $AINATIVE_DATA_DIR/profiles/relay-agency--grant-researcher/
-  - id: relay-agency--impact-writer
-    source: $AINATIVE_DATA_DIR/profiles/relay-agency--impact-writer/
-  - id: relay-agency--onboarding-runner
-    source: $AINATIVE_DATA_DIR/profiles/relay-agency--onboarding-runner/
+  - id: relay-agency--intake-coordinator
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--intake-coordinator/
+  - id: relay-agency--new-business-researcher
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--new-business-researcher/
+  - id: relay-agency--proposal-writer
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--proposal-writer/
   - id: relay-agency--governance-officer
     source: $AINATIVE_DATA_DIR/profiles/relay-agency--governance-officer/
+  - id: relay-agency--onboarding-runner
+    source: $AINATIVE_DATA_DIR/profiles/relay-agency--onboarding-runner/
 
 blueprints:
-  - id: relay-agency--lease-abstraction
-    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--lease-abstraction.yaml
-  - id: relay-agency--cre-listing
-    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--cre-listing.yaml
-  - id: relay-agency--bookkeeping
-    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--bookkeeping.yaml
-  - id: relay-agency--grant-cycle
-    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--grant-cycle.yaml
-  - id: relay-agency--impact-reporting
-    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--impact-reporting.yaml
-  - id: relay-agency--intake-summary
-    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--intake-summary.yaml
   - id: relay-agency--client-onboarding
     source: $AINATIVE_DATA_DIR/blueprints/relay-agency--client-onboarding.yaml
-  - id: relay-agency--governance-billing
-    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--governance-billing.yaml
+  - id: relay-agency--intake-routing
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--intake-routing.yaml
+  - id: relay-agency--new-business
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--new-business.yaml
+  - id: relay-agency--expense-intake
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--expense-intake.yaml
+  - id: relay-agency--per-client-billing
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--per-client-billing.yaml
+  - id: relay-agency--month-end-close
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--month-end-close.yaml
+  - id: relay-agency--client-status-digest
+    source: $AINATIVE_DATA_DIR/blueprints/relay-agency--client-status-digest.yaml
 
 tables:
+  # The client book: who you serve, on what commercial terms, at what health.
+  # engagement_type replaces the old CRE/nonprofit `vertical` column — the
+  # persona pack is domain-neutral; an industry pack tags its own clients.
   - id: clients
-    columns: [name, vertical, retainer_tier, status]
+    columns: [name, engagement_type, tier, status, health]
     seed: seed/tables/clients.json
+  # The engagements ledger: one row per billing/cost line, signed amount
+  # (+billing, -cost), so the ledger kit's inflow/outflow/margin math works
+  # with no configuration. SEEDED with a current-month sample so the margin
+  # cockpit reads non-zero the moment the pack installs.
+  - id: engagements
+    columns: [client, date, category, description, amount, status]
+    seed: seed/tables/engagements.json
+  # The intake work queue: a row is a request. In the free pack the intake
+  # router is run on demand; Agency Pro adds the row-insert trigger. Ships
+  # empty by design — it is a work queue the operator fills.
+  - id: intake
+    columns: [client, service, source, status, notes]
+  # The new-business pipeline: a prospect moves lead -> qualified -> proposal
+  # -> won/lost. Seeded with a few live prospects so the pipeline reads
+  # non-empty; the new-business workflow advances a row through the stages.
+  - id: pipeline
+    columns: [prospect, stage, value, owner, notes]
+    seed: seed/tables/pipeline.json
 
 schedules: []
 
 view:
+  # Agency is a multi-workflow operating system, so the app home is the
+  # Workflow Hub: one runnable card per workflow, the recommended first
+  # workflow flagged "Start here." The engagements ledger is the money hero
+  # and the margin KPIs render on any kit.
   kit: workflow-hub
   bindings:
     hero:
-      table: clients
+      table: engagements
     secondary:
-      - blueprint: relay-agency--lease-abstraction
-      - blueprint: relay-agency--grant-cycle
+      - blueprint: relay-agency--month-end-close
+      - blueprint: relay-agency--new-business
+    runs:
+      blueprint: relay-agency--month-end-close
     kpis:
-      - id: client-count
-        label: Clients
+      - id: billed-mtd
+        label: Billed (MTD)
+        source:
+          kind: tableSumWindowed
+          table: engagements
+          column: amount
+          sign: positive
+          window: mtd
+        format: currency
+      - id: costs-mtd
+        label: Costs (MTD)
+        source:
+          kind: tableSumWindowed
+          table: engagements
+          column: amount
+          sign: negative
+          window: mtd
+        format: currency
+      - id: margin-mtd
+        label: Margin (MTD)
+        source:
+          kind: ratio
+          numerator:
+            kind: tableSumWindowed
+            table: engagements
+            column: amount
+            window: mtd
+          denominator:
+            kind: tableSumWindowed
+            table: engagements
+            column: amount
+            sign: positive
+            window: mtd
+        format: percent
+      - id: active-clients
+        label: Active clients
         source:
           kind: tableCount
           table: clients
-        format: int
-      - id: lease-runs
-        label: Lease abstractions (30d)
-        source:
-          kind: blueprintRunCount
-          blueprint: relay-agency--lease-abstraction
-          window: 30d
-        format: int
-      - id: grant-runs
-        label: Grant cycles (30d)
-        source:
-          kind: blueprintRunCount
-          blueprint: relay-agency--grant-cycle
-          window: 30d
         format: int

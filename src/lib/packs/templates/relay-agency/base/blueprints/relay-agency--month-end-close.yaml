@@ -1,0 +1,66 @@
+id: relay-agency--month-end-close
+name: Month-End Close
+description: >
+  Close the month on demand: roll up every client's month — work delivered,
+  retainer and fees due, cost attributed — draft the invoice lines into the
+  engagements ledger, and put per-client margin on one screen. Run it yourself
+  when the month ends. Agency Pro runs this same close on a schedule.
+version: "1.0.0"
+domain: work
+tags: [finance, month-end-close, invoicing, margin]
+pattern: checkpoint
+difficulty: intermediate
+estimatedDuration: "20-40 min"
+author: Orionfold
+variables:
+  - id: period
+    type: text
+    label: Period
+    description: Which month to close
+    required: false
+    default: "the month just ended"
+  - id: focus
+    type: textarea
+    label: Focus notes
+    description: Anything you want this close to pay attention to
+    required: false
+    default: ""
+steps:
+  - name: Roll up the month per client
+    profileId: relay-agency--governance-officer
+    requiresApproval: false
+    promptTemplate: >
+      Close {{period}} for the whole client book. Enumerate every client from the
+      clients and engagements tables — do not work from memory — and for each
+      client roll up: work delivered this period, retainer and project fees due,
+      cost attributable to the client, and pass-throughs. Where cost attribution
+      is ambiguous, put it under "unattributed" — never smear it across clients.
+      {{focus}}
+    expectedOutput: >
+      A per-client rollup table (billed, cost, margin) plus an unattributed
+      remainder, each figure traceable to rows.
+  - name: Draft invoice lines into the ledger
+    profileId: relay-agency--governance-officer
+    requiresApproval: true
+    promptTemplate: >
+      From the rollup, draft the invoice lines for {{period}} into the engagements
+      table: one row per line with client, ledger date, category (retainer /
+      project-fee / cost / pass-through), a clear description, SIGNED amount
+      (revenue positive, cost negative), and status "draft". Before inserting,
+      check for an existing draft row for the same client + period + category so a
+      re-run never doubles lines. List every row you inserted and every duplicate
+      you skipped.
+    expectedOutput: >
+      Draft ledger rows inserted (idempotently), with an insert/skip report.
+  - name: Publish the close report
+    profileId: relay-agency--governance-officer
+    requiresApproval: false
+    promptTemplate: >
+      Produce the close report for {{period}}: per-client sections (billed, cost,
+      margin %, variance vs. prior month) and a one-screen agency rollup. Flag any
+      client whose margin dropped more than 10 points month-over-month, any failed
+      reconciliation, and anything left unattributed. Lead with the exceptions,
+      not the totals.
+    expectedOutput: >
+      A close report you read when the month ends: exceptions first, per-client
+      margin, agency rollup.

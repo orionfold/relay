@@ -1,11 +1,22 @@
 ---
 title: Generalize Agency — split persona (relay-agency) from industry (relay-cre, relay-nonprofit)
-status: planned
+status: built
 priority: P0
 milestone: post-mvp
 source: _IDEAS/packs-evolution.md §1 + §4 + §8.1
 dependencies: []
 ---
+
+> **Built 2026-07-05.** Free `relay-agency` neutralized + fattened (7 agents · 7 blueprints
+> · 4 tables), two paid industry packs authored (`relay-cre` 3·3·1, `relay-nonprofit` 3·4·2,
+> both `entitlement: product:orionfold-relay`), `relay-agency-pro` reshaped to vertical-neutral
+> automation (6·4·2, v0.5.0). All 4 packs parse clean; free installs unlicensed, paid gate +
+> install with one license; `relay-agency`+`relay-cre` coexist isolated (AC #3); row-triggers
+> rewrite on install; every blueprint schema-valid. Tests + npx-prod-smoke Case L updated to the
+> new shape; full suite green (only the 8 pre-existing non-regression failures remain). Dev-server
+> `/packs` gallery verified live (All 4 · Free 1 · Premium 3). NOT yet released (version bump +
+> tag is a separate step). Industry-pack `price` is a PLACEHOLDER ($199/year) pending operator +
+> Website coordination. Enables `pack-bundle-model` → `pack-agency-bundle`.
 
 # Generalize Agency — the persona/industry split
 
@@ -44,6 +55,75 @@ cross-pack resolution, no bundle format. It is P0 because every downstream catal
   strategy weighed only on harvest depth), so the Agency bundle has a warm audience and compounds
   existing work. Consequence: this split feeds directly into `pack-agency-bundle` (the new first
   bundle proof); `pack-marketing-line` demotes to a later depth pack.
+
+## Generalized design — from scratch (2026-07-05)
+
+Operator directive: design the Agency pack "from scratch, no prior-art / prior-marketing
+constraints, most generalized, largest TAM" — get the *content* right first; bundling
+(free vs. paid) and which vertical bundles first are downstream packaging calls.
+
+**First principle — what an agency structurally IS.** Strip every vertical and every agency
+is the same machine: *a business running a book of clients on retainers + projects, whose
+own margin is the sum of many small per-client P&Ls.* The domain-agnostic parts — the money
+spine, new business, intake routing, governance, the client book — are exactly the parts an
+owner would pay for; the *delivery* work (lease abstraction, grant cycles, listing writing) is
+the thinnest part and the only part that changes by vertical. So the persona pack is designed
+**fat on money + new-business + governance + intake**, and **carries zero delivery verticals**.
+
+**The free/pro line is drawn at manual vs. automated — NOT basic vs. advanced.**
+
+> **Free `relay-agency` = the manual client-book operating system. Paid `relay-agency-pro` =
+> it runs itself. Industry packs (`relay-cre`, `relay-nonprofit`, …) = what you deliver.**
+
+This "I do it (free) vs. it does itself (Pro)" line keeps the free pack genuinely fat (max TAM)
+while giving Pro an obvious reason to exist (automation, not gated basics). **This manual/automated
+split is a repeatable pattern intended to apply to EVERY future persona pack** (Marketing/
+Marketing-Pro, Consultant/Consultant-Pro, …); whether all Pro tiers share one base price or each
+earns its own upgrade value is an open packaging decision, deferred.
+
+**Tiering (operator-locked 2026-07-05): the ONLY free/community pack is base `relay-agency`.
+Everything else is license-gated** — `relay-agency-pro` AND both industry packs (`relay-cre`,
+`relay-nonprofit`) carry an `entitlement`. Per the deferral of per-line entitlements to
+`pack-entitlement-per-line`, all paid packs share the **single existing
+`entitlement: product:orionfold-relay`**, so one license unlocks Pro + CRE + nonprofit together
+(`assertEntitled` matches the string against the license `entitlements[]`; no engine change). Deep
+vertical automation (CRE renewal-engine, nonprofit grant-pipeline-deep) therefore lives in the paid
+industry packs — the industry pack is the home of ALL delivery, basic and deep.
+
+### FREE `relay-agency` (persona spine — designed fat, all domain-neutral)
+
+- **Tables** (the data spine): `clients` (name, engagement_type=retainer|project|hybrid, tier,
+  status, health) · `engagements` (per-client signed P&L: client, date, category, description,
+  amount, status) · `intake` (work queue: client, service, source, status, notes — manual routing
+  in free) · `pipeline` (new business: prospect, stage=lead|qualified|proposal|won|lost, value).
+- **Profiles (7):** Account Manager (health/status — *new*) · Bookkeeper (*generalize the
+  property-bookkeeper off GL/property language*) · Intake Coordinator (classify+route — *new to
+  free*) · New-Business Researcher (*pulled down from Pro*) · Proposal Writer (*pulled down from
+  Pro*) · Governance Officer (*neutral already*) · Onboarding Runner (*neutral already*).
+- **Blueprints (7):** Client Onboarding Runbook · Per-Client Cost & Billing · Expense Intake
+  (*generalize bookkeeping*) · Intake Routing (*new*) · New-Business Machine (*pulled from Pro*) ·
+  Month-End Close (**on-demand/manual** — the free version) · Client Status Digest (*new*).
+- **View:** Workflow Hub home; `engagements` ledger is the money hero; per-client margin / billed /
+  cost KPIs. The cockpit is FREE. **Seed:** ~6 neutral clients (engagement_type, NOT `industry:CRE`),
+  a current-month engagements ledger so margin reads non-zero on install; intake/pipeline ship empty
+  (they are trigger queues).
+
+### PAID `relay-agency-pro` (automation layer — gates NO basics)
+
+Scheduled Month-End Close (cron) · row-triggered Intake Pipeline · row-triggered New-Business
+pipeline · Finance Controller + Governance Auditor (deeper hardened agents) · Client Audit Export.
+**Vertical depth NO LONGER lives here** — CRE/nonprofit content moves to industry packs. This
+supersedes the earlier "Agency Pro parity = keep verticals in Pro" reading: parity now means the
+*free/pro line survives* (manual→automated), not that Pro stays vertical. Domain-neutral automation only.
+
+### Industry pack contract — thin by construction, LICENSE-GATED
+
+Both industry packs are paid (`entitlement: product:orionfold-relay`). `relay-cre` carries ALL its
+delivery — basic AND deep: CRE Analyst + Listing Writer + Renewal Analyst profiles; Lease Abstraction
++ Listing/Market + **Renewal Engine** blueprints; `industry:CRE` seed clients; optional rent-roll
+delivery table; `[cre,…]` tags. It plugs into the spine because the spine owns
+`clients`/`engagements`/`intake`. Same shape for `relay-nonprofit` (Grant Researcher + Impact Writer +
+Grants Analyst; Grant Cycle + Impact Reporting + **Grant Pipeline Deep**; grants table).
 
 ## User Story
 

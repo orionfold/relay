@@ -1,9 +1,9 @@
 id: relay-agency--client-onboarding
 name: Client Onboarding Runbook
 description: >
-  Stand up a new client: select vertical profiles and blueprints, configure budget
-  guardrails (approval-gated), schedule recurring deliverables, and produce a
-  one-page onboarding handoff.
+  Stand up a new client: select the profiles and blueprints for the engagement,
+  configure budget guardrails (approval-gated), schedule recurring deliverables,
+  and produce a one-page onboarding handoff.
 version: "1.0.0"
 domain: work
 tags: [agency-ops, onboarding, runbook, guardrails]
@@ -16,28 +16,32 @@ variables:
     type: text
     label: New client
     required: true
-  - id: vertical
+  - id: engagement_type
     type: select
-    label: Vertical
+    label: Engagement type
     required: true
     options:
-      - value: cre
-        label: Commercial Real Estate
-      - value: nonprofit
-        label: Nonprofit
+      - value: retainer
+        label: Retainer
+      - value: project
+        label: Project
+      - value: hybrid
+        label: Hybrid
   - id: retainer
     type: text
     label: Retainer tier / monthly cap
     description: Illustrative budget guardrail (e.g. "$600/mo")
     required: false
 steps:
-  - name: Select vertical profiles
+  - name: Select profiles & blueprints
     profileId: relay-agency--onboarding-runner
     requiresApproval: false
     promptTemplate: >
-      For {{client}} (vertical: {{vertical}}), select which agent profiles to
-      assign and which workflow blueprints to instantiate. Note the client-specific
-      reference docs to gather (brand guide, chart of accounts, grant calendar).
+      For {{client}} (engagement type: {{engagement_type}}), select which agent
+      profiles to assign and which workflow blueprints to instantiate. Note the
+      client-specific reference docs to gather (brand guide, chart of accounts,
+      service calendar). If the client works a specific industry, note that its
+      industry pack adds the delivery profiles and blueprints on top.
     expectedOutput: A profile + blueprint assignment plan with reference-doc list.
   - name: Configure budget guardrails
     profileId: relay-agency--onboarding-runner
@@ -52,7 +56,7 @@ steps:
     requiresApproval: false
     promptTemplate: >
       Create the recurring schedules {{client}} needs (weekly report, monthly
-      statement, grant-deadline watch). Confirm cadence and active hours.
+      statement, deadline watch). Confirm cadence and active hours.
     expectedOutput: A set of recurring schedules with confirmed cadence.
   - name: Produce onboarding handoff
     profileId: relay-agency--onboarding-runner

@@ -198,20 +198,21 @@ async function main() {
       packAdd.code === 0 && /Installed relay-agency-pro@/.test(packAdd.output),
       `premium pack should install with no --license-url (exit ${packAdd.code}):\n${packAdd.output}`,
     );
-    // Counts pinned to the CURRENT Agency Pro template. The counts are stable
-    // across v0.2.0 (+grants table, +nonprofit profile, +grant-pipeline-deep
-    // blueprint), v0.3.0 (app-home redesign, no new primitives) and v0.4.0
-    // (sample engagements ledger seed — adds rows, not tables). Bump these
-    // literals whenever the template grows a chapter — this gate failing on a
-    // stale count is by design (it caught the v0.2.0 bump on the 0.21.0 release).
-    assert(/3 table\(s\)/.test(packAdd.output), `install should create all 3 tables:\n${packAdd.output}`);
-    assert(/8 profile\(s\)/.test(packAdd.output), `install should drop all 8 profiles:\n${packAdd.output}`);
-    assert(/6 blueprint\(s\)/.test(packAdd.output), `install should drop all 6 blueprints:\n${packAdd.output}`);
+    // Counts pinned to the CURRENT Agency Pro template. As of v0.5.0 (the
+    // persona/industry split) Pro is the vertical-neutral automation layer:
+    // the CRE renewal + nonprofit grant chapters moved to relay-cre /
+    // relay-nonprofit, so Pro drops 6 profiles / 4 blueprints / 2 tables
+    // (engagements + intake) and registers the 1 month-end schedule. Bump these
+    // literals whenever the template's primitive set changes — this gate
+    // failing on a stale count is by design.
+    assert(/2 table\(s\)/.test(packAdd.output), `install should create both tables:\n${packAdd.output}`);
+    assert(/6 profile\(s\)/.test(packAdd.output), `install should drop all 6 profiles:\n${packAdd.output}`);
+    assert(/4 blueprint\(s\)/.test(packAdd.output), `install should drop all 4 blueprints:\n${packAdd.output}`);
     assert(/1 schedule\(s\)/.test(packAdd.output), `install should register the month-end schedule:\n${packAdd.output}`);
     const packList = await runCliCommand({ installDir, dataDir, args: ["pack", "list"] });
     assert(/relay-agency-pro.*\[premium\]/.test(packList.output), `pack list should mark [premium]:\n${packList.output}`);
-    // The 0.21.0 update surface: list shows the sidecar-recorded version.
-    assert(/relay-agency-pro.*installed v0\.4\.0/.test(packList.output), `pack list should show the installed version:\n${packList.output}`);
+    // The update surface: list shows the sidecar-recorded version.
+    assert(/relay-agency-pro.*installed v0\.5\.0/.test(packList.output), `pack list should show the installed version:\n${packList.output}`);
 
     // 4. Launch: licensed banner (D3) + seed gate returns an explanatory 403
     //    without RELAY_STAGING. BUG-5 (#34, 0.26.0) replaced the old bare-null

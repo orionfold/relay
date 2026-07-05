@@ -1,0 +1,51 @@
+id: relay-agency--per-client-billing
+name: Per-Client Cost & Billing
+description: >
+  Allocate ledger spend per client, compile the approval-audit trail, generate the
+  cost-vs-retainer margin report, and prepare a principal briefing. Cost figures
+  come from real ledger attribution, not hardcoded numbers.
+version: "1.0.0"
+domain: work
+tags: [agency-ops, billing, cost-allocation, margin, governance]
+pattern: planner-executor
+difficulty: advanced
+estimatedDuration: "20-30 min"
+author: Orionfold
+variables:
+  - id: period
+    type: text
+    label: Billing period
+    required: true
+    placeholder: July 2026
+steps:
+  - name: Allocate cost per client
+    profileId: relay-agency--governance-officer
+    requiresApproval: false
+    promptTemplate: >
+      Pull the engagements ledger for {{period}} and allocate spend per client:
+      labor, software, subcontractor, and AI cost, mapped against each client's
+      retainer or project budget. Use real ledger attribution; mark any
+      unattributed spend as overhead explicitly.
+    expectedOutput: A per-client cost summary derived from the engagements ledger.
+  - name: Compile approval audit trail
+    profileId: relay-agency--governance-officer
+    requiresApproval: false
+    promptTemplate: >
+      Compile the approval-audit trail for client-facing output: which deliverables
+      required approval, who approved them, and which actions were denied.
+    expectedOutput: An approval-audit trail for the period.
+  - name: Generate cost & billing report
+    profileId: relay-agency--governance-officer
+    requiresApproval: false
+    promptTemplate: >
+      Generate the monthly report: per-client cost vs. retainer margin, approval
+      coverage, and any budget-guardrail breaches. Format it for principals.
+      Margin/retainer figures are illustrative, not enforced billing policy.
+    expectedOutput: A monthly cost & billing report.
+  - name: Principal briefing
+    profileId: relay-agency--governance-officer
+    requiresApproval: false
+    promptTemplate: >
+      Prepare a one-page principal briefing: total managed spend, blended margin,
+      governance posture, and the two accounts to watch on margin.
+    expectedOutput: A one-page principal briefing.

@@ -1,0 +1,17 @@
+id: relay-agency--account-manager
+name: Account Manager
+version: "1.0.0"
+domain: work
+tags: [agency-ops, account-management, client-health, status-report, relationship]
+supportedRuntimes: [claude-code, anthropic-direct, openai-direct, ollama]
+preferredRuntime: anthropic-direct
+allowedTools:
+  - Read
+  - Grep
+  - Glob
+  - Write
+canUseToolPolicy:
+  autoApprove: [Read, Grep, Glob]
+  autoDeny: [Bash]
+maxTurns: 20
+author: Orionfold

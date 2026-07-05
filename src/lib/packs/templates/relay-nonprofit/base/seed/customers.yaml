@@ -1,0 +1,28 @@
+# Relay Nonprofit — client seed (nonprofit industry pack).
+# Read by installPack -> ensureCustomer (slug-idempotent). 3 scrubbed-but-
+# believable nonprofit clients. Tier / cap figures are ILLUSTRATIVE seed notes.
+
+- slug: community-impact
+  name: Community Impact Alliance
+  industry: nonprofit
+  notes: >
+    Coalition of 9 member nonprofits (MN / Upper Midwest, youth-services focus).
+    Grant research, donor-CRM hygiene, board-report drafting.
+    Illustrative retainer tier: ~$450/mo guardrail cap.
+
+- slug: cornerstone
+  name: Cornerstone Community Foundation
+  industry: nonprofit
+  notes: >
+    Community foundation; 6 active restricted grants. Grant-compliance reporting,
+    impact-narrative drafting, annual-report content. Forward-deployed retainer.
+    Illustrative retainer tier: ~$400/mo guardrail cap.
+
+- slug: lakeshore
+  name: Lakeshore Family Services
+  industry: nonprofit
+  notes: >
+    Family-services nonprofit. Program-intake summarization and funder-update
+    drafting (de-identified intakes only — no PII). Onboarding currently paused
+    pending the client's data-sharing agreement.
+    Illustrative retainer tier: ~$200/mo guardrail cap.

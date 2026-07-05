@@ -1,0 +1,53 @@
+id: relay-agency--intake-routing
+name: Intake Routing
+description: >
+  Read a new request, figure out which client it belongs to and which service it
+  needs, and route it to the right work — or flag it for a human when it is
+  unclear. Run it on demand as work arrives. Agency Pro fires this same routing
+  automatically when a row lands in the intake queue.
+version: "1.0.0"
+domain: work
+tags: [intake, routing, triage, work-queue]
+pattern: sequence
+difficulty: beginner
+estimatedDuration: "5-15 min"
+author: Orionfold
+variables:
+  - id: request
+    type: textarea
+    label: The request
+    description: The incoming request to route (paste the email, form, or note)
+    required: true
+  - id: client
+    type: text
+    label: Client (if known)
+    description: Leave blank if the request does not name a client
+    required: false
+    default: ""
+steps:
+  - name: Read and classify the request
+    profileId: relay-agency--intake-coordinator
+    requiresApproval: false
+    promptTemplate: >
+      Read this incoming request and classify it: {{request}}. Known client:
+      "{{client}}". Pull out which client it belongs to (flag if none is named),
+      which service it needs (a report, a campaign, a bookkeeping run, a
+      new-business inquiry, support, or other), how urgent it is, and what is
+      attached or referenced. If it spans two services, name the primary one and
+      note the second.
+    expectedOutput: >
+      A classified request: client, service, urgency, and any attachments, or a
+      clear flag for what is missing.
+  - name: Route or flag
+    profileId: relay-agency--intake-coordinator
+    requiresApproval: false
+    promptTemplate: >
+      Route the classified request to the right work: name the workflow or owner
+      that should pick it up and the one next step. If the request is ambiguous,
+      names no client, or falls outside the agency's services, flag it for a human
+      with the specific reason rather than forcing a route. Stage an intake-queue
+      row for the request (client, service, source, status, notes) so the queue
+      reflects it.
+    expectedOutput: >
+      A routing decision with a next step and owner, or a clear flag for triage,
+      plus a staged intake-queue row.

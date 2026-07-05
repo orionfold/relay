@@ -1,0 +1,42 @@
+id: relay-cre
+version: "0.1.0"
+name: Relay CRE
+author: Orionfold
+# The commercial-real-estate industry pack: the delivery work a CRE agency does,
+# on top of the free Relay Agency operating layer. Install Relay Agency first for
+# the client book and margin cockpit; this pack adds the CRE workflows.
+description: >
+  The commercial real estate workflows for your agency. Abstract leases into a
+  clean rent roll, write listings with a market read, and run the renewal engine
+  that tracks every key date, escalation, and option. Built to sit on top of the
+  free Relay Agency pack. Everything installs offline. Relay never sends your
+  data to Orionfold.
+relayCore: ">=0.18.0"
+entitlement: product:orionfold-relay
+# Priced to match orionfold.com/relay/ in this release. Hand-maintained; when the
+# Website price changes, update this to match (reading the public Orionfold source
+# to stay current is allowed — the promise forbids SENDING user data, not reading
+# public data). PLACEHOLDER pending operator + Website pricing coordination.
+price:
+  list: "$199/year"
+  note: "Add-on to the free Relay Agency pack. One license unlocks every paid Relay pack."
+purchaseUrl: https://orionfold.com/relay/
+icon: building
+# Relationship copy: this paid pack adds delivery work on top of the free Agency
+# pack. It never replaces it; the free client-book workflows keep running.
+related:
+  text: "Adds commercial real estate delivery on top of the free Relay Agency pack. Nothing is replaced."
+  href: "/packs?filter=free"
+# Per-version customer-voice recap — read by the license status, the update
+# refusal, the /packs card, and the renewal email. Add a line every version bump.
+changelog:
+  "0.1.0": >-
+    The commercial real estate workflows, split out of the Agency pack into
+    their own installable industry pack: a lease-abstraction pipeline that
+    builds your rent roll, a listing and market-analysis workflow, and the deep
+    renewal engine that tracks critical dates, escalations, options, comps, and
+    LOI drafts across the portfolio.
+customers:
+  - meridian-cre
+  - summit-cre
+  - parkview-pm

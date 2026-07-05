@@ -1,0 +1,49 @@
+id: relay-cre
+version: "0.1.0"
+name: Relay CRE
+description: >
+  The commercial real estate delivery pack: lease abstraction into a rent roll,
+  listing and market analysis, and the deep renewal engine. Sits on top of the
+  free Relay Agency operating layer, which owns the client book and margin.
+persona: >
+  A CRE agency's delivery work — abstracting leases, writing listings, and
+  running renewals — layered on the agency operating system so every workflow
+  attributes back to the right client.
+author: Orionfold
+
+profiles:
+  - id: relay-cre--cre-analyst
+    source: $AINATIVE_DATA_DIR/profiles/relay-cre--cre-analyst/
+  - id: relay-cre--cre-listing-writer
+    source: $AINATIVE_DATA_DIR/profiles/relay-cre--cre-listing-writer/
+  - id: relay-cre--cre-renewal-analyst
+    source: $AINATIVE_DATA_DIR/profiles/relay-cre--cre-renewal-analyst/
+
+blueprints:
+  - id: relay-cre--lease-abstraction
+    source: $AINATIVE_DATA_DIR/blueprints/relay-cre--lease-abstraction.yaml
+  - id: relay-cre--cre-listing
+    source: $AINATIVE_DATA_DIR/blueprints/relay-cre--cre-listing.yaml
+  - id: relay-cre--cre-renewal-engine
+    source: $AINATIVE_DATA_DIR/blueprints/relay-cre--cre-renewal-engine.yaml
+
+tables:
+  # The CRE client book fragment: this pack seeds its own vertical clients with
+  # the industry tagged. It coexists with the persona pack's clients table under
+  # the relay-cre-- namespace (two installed apps, isolated tables).
+  - id: clients
+    columns: [name, industry, retainer_tier, status]
+    seed: seed/tables/clients.json
+
+schedules: []
+
+view:
+  kit: workflow-hub
+  bindings:
+    hero:
+      table: clients
+    secondary:
+      - blueprint: relay-cre--cre-renewal-engine
+      - blueprint: relay-cre--lease-abstraction
+    runs:
+      blueprint: relay-cre--lease-abstraction

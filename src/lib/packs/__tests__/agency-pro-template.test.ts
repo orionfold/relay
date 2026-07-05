@@ -112,9 +112,12 @@ describe("relay-agency-pro bundled template", () => {
     const report = await installPack("relay-agency-pro", installOpts());
 
     expect(report.packId).toBe("relay-agency-pro");
-    expect(report.profilesDropped).toBeGreaterThanOrEqual(7);
-    expect(report.blueprintsDropped).toBeGreaterThanOrEqual(6);
-    expect(report.tablesCreated).toBe(3);
+    // Post-split (0.5.0): vertical-neutral automation layer only. The CRE
+    // renewal and nonprofit grant chapters moved to relay-cre / relay-nonprofit,
+    // so Pro ships 6 profiles / 4 blueprints / 2 tables (engagements + intake).
+    expect(report.profilesDropped).toBe(6);
+    expect(report.blueprintsDropped).toBe(4);
+    expect(report.tablesCreated).toBe(2);
     expect(report.schedulesRegistered).toBe(1);
     expect(report.customersSeeded).toBe(0); // Pro operates real clients
 
@@ -149,9 +152,9 @@ describe("relay-agency-pro bundled template", () => {
       kit?: string;
       bindings?: { kpis?: { id: string; source?: Record<string, unknown> }[] };
     };
-    // FEAT-5/6 (2026-07-04): Agency Pro now routes to the multi-blueprint
-    // Workflow Hub home so all six chapters surface as runnable cards. The
-    // ledger single-hero kit hid 5 of 6 on the app's own home.
+    // FEAT-5/6 (2026-07-04): Agency Pro routes to the multi-blueprint Workflow
+    // Hub home so every workflow surfaces as a runnable card. The ledger
+    // single-hero kit hid all but one on the app's own home.
     expect(view.kit).toBe("workflow-hub");
     const nextClose = view.bindings!.kpis!.find(
       (k) => (k.source as { kind?: string }).kind === "scheduleNextFire"
@@ -162,49 +165,41 @@ describe("relay-agency-pro bundled template", () => {
     );
   });
 
-  it("current version ships the nonprofit deep chapter — the first paid update (D4 pitch made real)", async () => {
+  it("current version is the vertical-neutral automation layer — verticals moved to their own packs (the persona/industry split)", async () => {
     const { listPackTemplates } = await import("../catalog");
     const tpl = listPackTemplates().find((t) => t.id === "relay-agency-pro")!;
-    // Bumped 0.3.0 → 0.4.0 with the sample engagements ledger seed (BUG-6),
-    // so the finance cockpit reads non-zero on first install. The nonprofit
-    // chapter shipped in 0.2.0 and remains included.
-    expect(tpl.meta!.version).toBe("0.4.0");
-    // The locked-card description now sells the chapter as INCLUDED, not
-    // promised ("arrives in v0.2.0" was the 0.1.0 copy).
-    expect(tpl.meta!.description).toMatch(/nonprofit/i);
-    expect(tpl.meta!.description).not.toMatch(/arrives in v0\.2\.0/i);
+    // 0.4.0 → 0.5.0: the persona/industry split. CRE renewal and nonprofit
+    // grant chapters left Pro for relay-cre / relay-nonprofit; Pro is now the
+    // domain-neutral automation layer (scheduled close, triggered intake,
+    // new-business, governance/audit).
+    expect(tpl.meta!.version).toBe("0.5.0");
 
     await saveEntitledLicense();
     const { installPack } = await import("../install");
-    const registry = await import("@/lib/apps/registry");
     await installPack("relay-agency-pro", installOpts());
 
-    // The chapter's three primitives land: deep profile, row-triggered deep
-    // blueprint bound to the grants table (rewritten to the real UUID), and
-    // the grants table itself.
-    expect(
-      fs.existsSync(
-        path.join(
-          profilesDir,
-          "relay-agency-pro--nonprofit-grants-analyst",
-          "SKILL.md"
-        )
-      )
-    ).toBe(true);
-    expect(
-      fs.existsSync(
-        path.join(blueprintsDir, "relay-agency-pro--grant-pipeline-deep.yaml")
-      )
-    ).toBe(true);
+    // The vertical chapters no longer ship here.
+    for (const gone of [
+      "relay-agency-pro--nonprofit-grants-analyst",
+      "relay-agency-pro--cre-renewal-analyst",
+    ]) {
+      expect(fs.existsSync(path.join(profilesDir, gone))).toBe(false);
+    }
+    for (const gone of [
+      "relay-agency-pro--grant-pipeline-deep.yaml",
+      "relay-agency-pro--cre-renewal-engine.yaml",
+    ]) {
+      expect(fs.existsSync(path.join(blueprintsDir, gone))).toBe(false);
+    }
 
-    const app = registry.getApp("relay-agency-pro", appsDir)!;
-    const grantBp = app.manifest.blueprints.find(
-      (bp) => bp.id === "relay-agency-pro--grant-pipeline-deep"
-    );
-    expect(grantBp?.trigger?.kind).toBe("row-insert");
-    const tableIds = new Set(app.manifest.tables.map((t) => t.id));
-    expect(tableIds.has(grantBp!.trigger!.table)).toBe(true);
-    expect(grantBp!.trigger!.table).not.toBe("grants"); // rewritten to real id
+    // The shipped blueprint prompts carry no CRE/nonprofit delivery content.
+    const bpDir = path.join(tpl.dir, "base", "blueprints");
+    for (const file of fs.readdirSync(bpDir).filter((f) => f.endsWith(".yaml"))) {
+      const raw = fs.readFileSync(path.join(bpDir, file), "utf-8").toLowerCase();
+      expect(raw, `${file} leaks vertical content`).not.toMatch(
+        /lease|rent-roll|rent roll|grant pipeline|nonprofit|\bcre\b/
+      );
+    }
   });
 
   it("ships hardened profiles — governance as content, verifiable on disk", async () => {
@@ -257,7 +252,7 @@ describe("relay-agency-pro bundled template", () => {
     const blueprintFiles = fs
       .readdirSync(blueprintsDir)
       .filter((f) => f.startsWith("relay-agency-pro--") && f.endsWith(".yaml"));
-    expect(blueprintFiles.length).toBeGreaterThanOrEqual(5);
+    expect(blueprintFiles.length).toBeGreaterThanOrEqual(4);
 
     for (const file of blueprintFiles) {
       const bp = yaml.load(
@@ -285,7 +280,7 @@ describe("relay-agency-pro bundled template", () => {
     const tpl = listPackTemplates().find((t) => t.id === "relay-agency-pro")!;
     const bpDir = path.join(tpl.dir, "base", "blueprints");
     const files = fs.readdirSync(bpDir).filter((f) => f.endsWith(".yaml"));
-    expect(files.length).toBeGreaterThanOrEqual(5);
+    expect(files.length).toBeGreaterThanOrEqual(4);
     for (const file of files) {
       const parsed = yaml.load(fs.readFileSync(path.join(bpDir, file), "utf-8"));
       const result = BlueprintSchema.safeParse(parsed);

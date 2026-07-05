@@ -1,0 +1,38 @@
+id: relay-nonprofit
+version: "0.1.0"
+name: Relay Nonprofit
+author: Orionfold
+# The nonprofit industry pack: the grant and impact work a nonprofit-serving
+# agency does, on top of the free Relay Agency operating layer. Install Relay
+# Agency first for the client book and margin cockpit; this pack adds the
+# nonprofit delivery workflows.
+description: >
+  The nonprofit workflows for your agency. Research grants and donors, run a
+  grant cycle from a go or no-go call through the full application, and write
+  the impact and compliance reports that keep restricted funds in good standing.
+  The deep grant pipeline fires on its own when a new opportunity lands. Built to
+  sit on top of the free Relay Agency pack. Everything installs offline. Relay
+  never sends your data to Orionfold.
+relayCore: ">=0.18.0"
+entitlement: product:orionfold-relay
+# Priced to match orionfold.com/relay/ in this release. Hand-maintained.
+# PLACEHOLDER pending operator + Website pricing coordination.
+price:
+  list: "$199/year"
+  note: "Add-on to the free Relay Agency pack. One license unlocks every paid Relay pack."
+purchaseUrl: https://orionfold.com/relay/
+icon: heart-handshake
+related:
+  text: "Adds nonprofit grant and impact delivery on top of the free Relay Agency pack. Nothing is replaced."
+  href: "/packs?filter=free"
+changelog:
+  "0.1.0": >-
+    The nonprofit workflows, split out of the Agency pack into their own
+    installable industry pack: grant and donor research, a grant-cycle workflow,
+    impact and compliance reporting, and the deep grant pipeline that fires when
+    a new opportunity lands and carries it from fit-scored go/no-go through LOI,
+    full application, and post-award restricted-funds compliance.
+customers:
+  - community-impact
+  - cornerstone
+  - lakeshore

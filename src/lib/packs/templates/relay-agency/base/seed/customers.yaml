@@ -1,56 +1,48 @@
-# Relay Agency — customer seed.
+# Relay Agency — client seed (domain-neutral persona pack).
 # Read by installPack -> ensureCustomer (slug-idempotent: re-seeding never
-# clobbers operator edits). 6 scrubbed-but-believable clients: 3 CRE, 3 nonprofit.
-# Retainer / cap / spend figures are ILLUSTRATIVE seed notes only — the pack
-# records cost ATTRIBUTION via the ledger rollup, not billing POLICY
-# (that's the future customer-billing-policy spec). Canonical name for the P6
-# slot is "Lakeshore Family Services" (the demo's "Riverside" alias is dropped).
+# clobbers operator edits). 6 scrubbed-but-believable clients across engagement
+# types, with NO vertical pinned — an industry pack tags its own clients. Tier /
+# cap figures are ILLUSTRATIVE seed notes only — the pack records cost
+# ATTRIBUTION via the ledger rollup, not billing POLICY.
 
-- slug: meridian-cre
-  name: Meridian Commercial Realty
-  industry: CRE
+- slug: northwind-studio
+  name: Northwind Studio
   notes: >
-    Flagship CRE client (Minneapolis, MN). 14-property office & retail portfolio;
-    lease abstraction, rent-roll, comp research, LP investor reporting.
+    Flagship retainer client. Steady monthly scope with occasional project work;
+    the account you build the operating rhythm around.
     Illustrative retainer tier: ~$1,200/mo guardrail cap.
 
-- slug: summit-cre
-  name: Summit CRE Advisors
-  industry: CRE
+- slug: harbor-consulting
+  name: Harbor Consulting
   notes: >
-    CRE brokerage. Twin Cities industrial & multifamily listings and
-    market/submarket analysis, tenant-prospect research.
+    Retainer client on a predictable monthly cadence. Clean intake, low variance,
+    a good reference account.
+    Illustrative retainer tier: ~$800/mo guardrail cap.
+
+- slug: beacon-collective
+  name: Beacon Collective
+  notes: >
+    Hybrid engagement — a base retainer plus project spikes. Margin swings with
+    project mix, so it is one to watch on the cockpit.
     Illustrative retainer tier: ~$600/mo guardrail cap.
 
-- slug: parkview-pm
-  name: Parkview Property Management
-  industry: CRE
+- slug: summit-partners
+  name: Summit Partners
   notes: >
-    Property management (220 managed units / 38 properties). Receipt-to-bookkeeping
-    intake, vendor-invoice triage, monthly owner statements. "Simple-module" client.
+    Project-based client. No standing retainer; each engagement is scoped and
+    billed on its own, so cost attribution matters most here.
     Illustrative retainer tier: ~$500/mo guardrail cap.
 
-- slug: community-impact
-  name: Community Impact Alliance
-  industry: nonprofit
+- slug: kestrel-agency
+  name: Kestrel Agency
   notes: >
-    Coalition of 9 member nonprofits (MN / Upper Midwest, youth-services focus).
-    Grant research, donor-CRM hygiene, board-report drafting.
+    Retainer client with a tighter cap. Margin runs thin, so guardrails and
+    per-client cost tracking keep the account healthy.
     Illustrative retainer tier: ~$450/mo guardrail cap.
 
-- slug: cornerstone
-  name: Cornerstone Community Foundation
-  industry: nonprofit
+- slug: riverstone-group
+  name: Riverstone Group
   notes: >
-    Community foundation; 6 active restricted grants. Grant-compliance reporting,
-    impact-narrative drafting, annual-report content. Forward-deployed retainer.
-    Illustrative retainer tier: ~$400/mo guardrail cap.
-
-- slug: lakeshore
-  name: Lakeshore Family Services
-  industry: nonprofit
-  notes: >
-    Family-services nonprofit. Program-intake summarization and funder-update
-    drafting (de-identified intakes only — no PII). Onboarding currently paused
-    pending the client's data-sharing agreement.
+    Smaller retainer, currently paused pending a renewed statement of work.
+    Kept in the book so the pipeline and status digest surface the restart.
     Illustrative retainer tier: ~$200/mo guardrail cap.

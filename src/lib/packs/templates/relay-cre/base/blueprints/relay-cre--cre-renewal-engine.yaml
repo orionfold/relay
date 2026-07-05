@@ -1,0 +1,93 @@
+id: relay-cre--cre-renewal-engine
+name: CRE Renewal Engine
+description: >
+  The renewal engine for a CRE client's portfolio: deep-abstract the leases
+  (critical dates, escalations, CAM, options), run the renewal-decision
+  analysis against normalized comps, draft the LOI for the lead renewal, and
+  roll the portfolio up so nothing expires unnoticed.
+version: "1.0.0"
+domain: work
+tags: [cre, renewals, critical-dates, comps, loi, rent-roll]
+pattern: checkpoint
+difficulty: advanced
+estimatedDuration: "60-120 min"
+author: Orionfold
+variables:
+  - id: client
+    type: text
+    label: Client
+    description: The CRE client whose portfolio this run covers
+    required: true
+    placeholder: Meridian CRE
+  - id: scope
+    type: textarea
+    label: Portfolio scope
+    description: Which properties or leases; blank = everything abstracted for this client
+    required: false
+    default: ""
+steps:
+  - name: Deep-abstract the leases
+    profileId: relay-cre--cre-renewal-analyst
+    requiresApproval: false
+    promptTemplate: >
+      Deep-abstract the leases for {{client}} {{scope}} to your renewal
+      schema: critical dates with the LATEST OPTION-NOTICE DATE as an
+      absolute calendar date, the year-by-year rent schedule with escalation
+      mechanics (flag uncapped CPI), the full recovery structure (shares,
+      caps, exclusions, gross-up, audit windows), and the option structure
+      with FMV mechanics. Cite page/section for every field and
+      confidence-score each abstraction; fields under ~90% go on the
+      exception list.
+    expectedOutput: >
+      Per-lease deep abstracts with cited fields, absolute critical dates,
+      and a confidence exception list.
+  - name: Run the renewal-decision analysis
+    profileId: relay-cre--cre-renewal-analyst
+    requiresApproval: true
+    promptTemplate: >
+      For every lease of {{client}} inside its decision window, run the
+      renewal analysis: in-place trajectory vs. option terms vs. market,
+      the spread in $/SF and total dollars with concessions normalized,
+      a recommendation (exercise / negotiate outside the option /
+      prepare to relocate) with its decision deadline and notice mechanics,
+      and the explicit do-nothing outcome and cost.
+    expectedOutput: >
+      A per-lease renewal recommendation table with deadlines and
+      do-nothing costs.
+  - name: Build the comp evidence
+    profileId: relay-cre--cre-renewal-analyst
+    requiresApproval: false
+    promptTemplate: >
+      Assemble and normalize the comps supporting the renewal analysis for
+      {{client}}: effective rent (concessions amortized), same basis and
+      measurement as the subjects, matched on submarket / size band /
+      class / term, every comp dated and cited. Unsubstantiated comps are
+      labeled "assumption", never presented as evidence.
+    expectedOutput: >
+      A normalized, cited comp set with match quality and freshness stated.
+  - name: Draft the lead LOI
+    profileId: relay-cre--cre-renewal-analyst
+    requiresApproval: true
+    promptTemplate: >
+      For the most time-critical renewal of {{client}}, draft the
+      non-binding LOI per your structure: parties/premises/RSF, requested
+      term and option structure, economics traced to the analysis, your
+      three standard tenant-protective clauses (controllable-CAM cap,
+      FMV-with-concessions, audit rights), non-binding language, and an
+      offer expiration. Mark negotiation positions explicitly.
+    expectedOutput: >
+      A draft non-binding LOI, every economic term cited or marked
+      [NEGOTIATION POSITION].
+  - name: Roll up the portfolio
+    profileId: relay-cre--cre-renewal-analyst
+    requiresApproval: false
+    promptTemplate: >
+      Produce the portfolio rent-roll rollup for {{client}}: the per-lease
+      table sorted by next critical date ascending (tenant, RSF,
+      expiration, next critical date with days remaining, in-place vs.
+      market, option status, recommendation state), then total RSF, WALT,
+      the next-12-months expiration schedule, and every lease inside its
+      decision window that still lacks a decision.
+    expectedOutput: >
+      The portfolio view sorted by urgency, with WALT and the 12-month
+      expiration schedule.
