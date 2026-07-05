@@ -25,10 +25,11 @@ when its fix ships in a release. Note the release version + commit/issue. Keep t
 Verify status against issue state + git log, NOT spec self-claims (memory
 `verify-walkthrough-findings-before-grooming`).
 
-_Last updated: 2026-07-05 · after the 0.29.1 release (#31, `cafc17b4`), ran the **Deferred re-verify pass**
-(live browser): CF-BUG-3 + CF-FEAT-8 confirmed Delivered; **CF-FEAT-2 overturned → reopened Pending** (the
-free↔paid Agency-pack relationship was never built). **22 Delivered, 0 open bugs, 0 Deferred.** Remaining:
-4 Pending backlog features (FEAT-6/7/13 + CF-FEAT-2)._
+_Last updated: 2026-07-05 · built **CF-FEAT-2** (free↔paid Agency relationship copy + fixed the phantom
+"Update to v0.1.0" prompt, `0c3c0262`) and **FEAT-7** (filter-by-installed-pack on the 3 remaining primitive
+views, `c21441c1`) — both on `main`, live-verified, NOT yet in a cut release → **Done (unbuilt-release)**.
+Prior: 0.29.1 release + Deferred re-verify pass (CF-BUG-3 + CF-FEAT-8 Delivered; CF-FEAT-2 was reopened).
+**22 Delivered, 2 Done (unbuilt-release), 0 open bugs, 0 Deferred.** Remaining Pending: FEAT-6, FEAT-13._
 
 ---
 
@@ -69,7 +70,7 @@ free↔paid Agency-pack relationship was never built). **22 Delivered, 0 open bu
 | CF-FEAT-5/6/7/8 | App-shell activation copy (explainers, 1-2-3 steps, verb clarity, signposting) | **Delivered** | RELEASED 0.29.0 (S44 activation-copy pass `b4616d2c`, bundled into the ship). |
 | FEAT-8 | Pack-provenance pill on every primitive card | **Delivered** | RELEASED 0.27.0 (S40 `PackPill` on all 4 primitive views `f29f0098`); operator's "distinct color per view" refinement → backlog. |
 | FEAT-6 | Card shows TWO buttons: Run + Create Workflow | **Pending** | Depends on one-click-run (BUG-4). Backlog. |
-| FEAT-7 | "Filter by installed pack" on all 4 primitive views | **Pending** | Blueprints-only filter shipped (S40 #27); all-views version needs ONE primitive→pack source-of-truth. Backlog. |
+| FEAT-7 | "Filter by installed pack" on all 4 primitive views | **Done (unbuilt-release)** | Blueprints filter shipped S40 (#27); ported to agents/schedules/tables via the shared `packOf` resolver (`c21441c1`). Live-verified: agents 42→7/8, schedules 12→1, tables 11→1. Delivered at next release. |
 
 ## 4. Other operator asks
 
@@ -78,7 +79,7 @@ free↔paid Agency-pack relationship was never built). **22 Delivered, 0 open bu
 | TASK-1 | Brainstorm Profiles → "Agents" rename | **Delivered** | S43/S45 executed the rename (`profile.yaml`→`agent.yaml`, routes, copy). |
 | FEAT-13 | Profile Templates → Compose submenu | **Pending** | Caveat: no Profile Templates surface exists yet (Tables has one, Profiles doesn't); likely needs creating first. Scope UNCONFIRMED with operator. |
 | CF-BUG-3 | Workflow HITL (agents ask user mid-workflow) | **Delivered** | 2026-07-05 live re-verify: paused HITL workflow (HIPAA Content Review) holds honestly (not auto-failed); Inbox shows a completed checkpoint round-trip (Responded/Allowed); halt-on-refusal visible as honest nil reports in run output; `hitl-ask-user.test.ts` 3/3 pass. Shipped `4c0bae6c` (in 0.25.0+). |
-| CF-FEAT-2 | Free "Agency" vs paid "Agency Pro" relationship on Packs | **Pending (reopened)** | 2026-07-05 live re-verify OVERTURNED the shipped claim: `/packs` renders `relay-agency` (Free) + `relay-agency-pro` (Premium) as two INDEPENDENT cards with NO copy linking them. The free→paid relationship was never built (source-confirmed: neither `pack.yaml` references the other). Needs relationship copy (free card → "upgrade to Pro"; Pro card → "builds on the free Agency pack"). Backlog. |
+| CF-FEAT-2 | Free "Agency" vs paid "Agency Pro" relationship on Packs | **Done (unbuilt-release)** | Built `0c3c0262`: new `related` pack-manifest field renders ADDITIVE relationship copy on both cards (free → "Agency Pro adds six deeper workflows…"; Pro → "Builds alongside the free Agency pack. Nothing is replaced…"). Confirmed disjoint (zero shared primitives) → Pro installs alongside Free, never replaces it. Also fixed the phantom "Update to v0.1.0" on the installed free card (sidecar-less pre-0.21 install → manifest-version fallback in `packUpdateAvailability`). Live-verified. Delivered at next release. |
 | CF-FEAT-8 | Post-Execute signpost to Monitor/Inbox | **Delivered** | 2026-07-05 live re-verify: `draft` shows "Ready to go. Click Execute"; `paused` HITL shows "Waiting for your approval. Answer it in your Inbox." (inbox icon, warning tone); banner is a working link (clicking routed to /inbox). All `computeSignpost` branches render as specified. Shipped in 0.25.0+. |
 | CF-FEAT-1 | License date renders 1 day early | **Dropped** | Verify gate overturned: real license `01:10:21Z` renders correctly. Re-verify live only if operator sees it. |
 | Manifest chevron (CF-FEAT-4) | Chevron direction vs slide-sheet | **Dropped** | `ChevronRight` matches right sheet; consistent affordance. |
@@ -90,19 +91,21 @@ free↔paid Agency-pack relationship was never built). **22 Delivered, 0 open bu
 | Status | Count | Items |
 |--------|:---:|-------|
 | **Delivered** | 22 | BUG-6 (#35), FEAT-5, TASK-1, FEAT-9/10/11/11b/12, FEAT-14/15/16, CF-FEAT-5/6/7/8, FEAT-8, BUG-1/2/3/4/5 (#36/33/31/32/34), FEAT-4 (#37), CF-BUG-3, CF-FEAT-8 |
-| **Pending** | 4 | FEAT-6, FEAT-7, FEAT-13, CF-FEAT-2 (reopened) |
+| **Done (unbuilt-release)** | 2 | CF-FEAT-2 (`0c3c0262`), FEAT-7 (`c21441c1`) — Delivered at next release |
+| **Pending** | 2 | FEAT-6, FEAT-13 |
 | **Deferred** | 0 | — |
 | **Dropped** | 2 | CF-FEAT-1, Manifest chevron |
 
 **Path to full delivery (operator satisfaction):**
 1. ✅ **Released** — S44 activation copy, S45 Profile→Agent, S47 top-chrome, S48 chrome spec all shipped
-   in 0.27.0/0.28.0/0.29.0. Under the operator policy "shipped = delivered", all 16 are now **Delivered**.
-2. ✅ **S48 chrome spec implemented + released 0.29.0** → FEAT-14/15/16 Delivered.
-3. ✅ **#31 RELEASED in 0.29.1** (`cafc17b4`) — honest "couldn't load" card replaces the silent husk.
-   **All operator-filed bugs are now Delivered; zero open bugs remain.**
-4. ✅ **Deferred re-verify run 2026-07-05** (live browser, `npm run dev`): CF-BUG-3 + CF-FEAT-8
-   confirmed Delivered; **CF-FEAT-2 overturned → reopened Pending** (the free↔paid pack relationship
-   was never actually built). **Zero Deferred remain.**
-5. **Groom the remaining feature backlog** (FEAT-6/7/13 + reopened CF-FEAT-2). CF-FEAT-2 is small:
-   add relationship copy to both Agency pack cards on `/packs`.
+   in 0.27.0/0.28.0/0.29.0; #31 in 0.29.1 (`cafc17b4`). All operator-filed bugs Delivered; zero open bugs.
+2. ✅ **Deferred re-verify run 2026-07-05** (live browser): CF-BUG-3 + CF-FEAT-8 Delivered; CF-FEAT-2 was
+   overturned → reopened, then built this session. **Zero Deferred remain.**
+3. ✅ **CF-FEAT-2 + FEAT-7 built 2026-07-05** (`0c3c0262`, `c21441c1`) — on `main`, live-verified, awaiting
+   the next release cut to flip Delivered.
+4. **Cut the next release** to move the 2 unbuilt-release items to Delivered.
+5. **Remaining Pending needs an operator decision, not more code:** FEAT-6 (Run + Create-Workflow buttons —
+   the `RunNowButton` two-verb component already exists on app-kit cards; the only open question is whether
+   to surface it onto the primitive-LIST cards) and FEAT-13 (Profile Templates → Compose submenu — scope
+   UNCONFIRMED; no Profile Templates surface exists yet).
 6. **Operator confirms** each cluster on a fresh `npx` walkthrough → mark Delivered.

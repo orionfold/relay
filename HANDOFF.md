@@ -1,33 +1,32 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **Deferred re-verify pass DONE (live browser, `npm run dev`): CF-BUG-3 +
-CF-FEAT-8 confirmed Delivered; CF-FEAT-2 OVERTURNED → reopened Pending** — the free↔paid Agency-pack
-relationship was never actually built (both packs exist but no copy links them). Tracker now: **22 Delivered,
-0 open bugs, 0 Deferred, 4 Pending** (FEAT-6/7/13 + CF-FEAT-2). Prior: 0.29.1 RELEASED (`v0.29.1`→`e210e49a`;
-npm `latest` + GitHub Release + OIDC CI green incl. npx prod smoke Case L) — #31 blueprint-card husk fix, all
-operator-filed bugs Delivered. "shipped = delivered" acceptance policy holds (memory
-`shipped-equals-delivered`). #31 root cause in memory `blueprint-card-husk-root-cause`. Full detail: git log +
-CHANGELOG.)_
+_Last updated: 2026-07-05 (pt: **CF-FEAT-2 + FEAT-7 BUILT on `main`, live-verified, awaiting a release cut.**
+CF-FEAT-2 (`0c3c0262`): new `related` pack-manifest field → additive free↔paid Agency relationship copy on
+both `/packs` cards (Pro installs ALONGSIDE Free, never replaces — packs are disjoint); also fixed the phantom
+"Update to v0.1.0" on the sidecar-less free Agency card via a manifest-version fallback in
+`packUpdateAvailability`. FEAT-7 (`c21441c1`): filter-by-installed-pack ported to agents/schedules/tables via
+the shared `packOf` resolver (blueprints already had it, #27). Tracker: **22 Delivered, 2 Done
+(unbuilt-release), 0 open bugs, 0 Deferred, 2 Pending** (FEAT-6, FEAT-13 — both need an operator decision, not
+code). Prior: 0.29.1 RELEASED + Deferred re-verify pass. Full detail: git log + CHANGELOG.)_
 
 ## 📋 Operator requirements tracker — `OPERATOR-REQUIREMENTS.md` (LIVE until all Delivered)
-Durable roll-up of ALL ~24 findings/asks from the 2026-07-04 operator harness walkthrough (origin:
+Durable roll-up of the ~24 findings/asks from the 2026-07-04 operator harness walkthrough (origin:
 `output/staging/2026-07-04-operator-walkthrough/`). **Policy: shipped = delivered** (memory
-`shipped-equals-delivered`) — a release is signoff. State now: **20 Delivered, 0 open bugs, 3 Pending
-(backlog FEAT-6/7/13), 3 Deferred, 2 Dropped.** Retire the file once the 3 backlog features + 3 Deferred
-resolve.
+`shipped-equals-delivered`). State now: **22 Delivered, 2 Done (unbuilt-release: CF-FEAT-2 + FEAT-7),
+0 open bugs, 0 Deferred, 2 Pending (FEAT-6, FEAT-13), 2 Dropped.** Retire the file once FEAT-6/13 resolve
+and the next release flips the 2 unbuilt-release items to Delivered.
 
-## ▶️ NEXT SESSION — backlog features only (no open bugs, no Deferred)
+## ▶️ NEXT SESSION — cut a release, then the 2 remaining Pending need a decision (no bugs, no Deferred)
 
-All operator-filed bugs are Delivered and the Deferred bucket is cleared (2026-07-05 re-verify). What's
-left in the tracker is 4 discretionary backlog features (all LOW):
-- **CF-FEAT-2 (reopened, SMALL):** free↔paid Agency pack relationship on `/packs`. Both packs exist
-  (`relay-agency` Free + `relay-agency-pro` Premium) but render as INDEPENDENT cards with no linking copy.
-  Fix = add relationship copy to both cards (free → "upgrade to Pro"; Pro → "builds on the free Agency pack").
-  Copy-only; no new mechanism. (Also noticed live: the free Agency card shows an odd "Update to v0.1.0" prompt
-  while marked Installed with no version — worth a glance but separate from CF-FEAT-2.)
-- **FEAT-6** (Run + Create-Workflow two-button card — unblocked by BUG-4),
-  **FEAT-7** (filter-by-installed-pack across all 4 primitive views — needs ONE primitive→pack source-of-truth),
-  **FEAT-13** (Profile Templates → Compose submenu — **scope UNCONFIRMED with operator**; no such surface exists yet).
+CF-FEAT-2 + FEAT-7 are BUILT on `main`, live-verified, but **not yet in a cut release** → next release
+delivers them. The 2 remaining Pending features are BOTH gated on an operator decision, not more code:
+- **FEAT-6** — Run + Create-Workflow two-button card. The two-verb `RunNowButton` (Run + Create workflow),
+  its `instantiateAndMaybeExecute` action, both API routes, and tests ALREADY EXIST and are live on the
+  app-kit cards (`src/components/apps/`). The only open question: surface that existing button onto the
+  primitive-LIST cards (starting with `blueprint-gallery`)? That's a component drop-in — ask the operator
+  what "the card" means here before building.
+- **FEAT-13** — Profile Templates → Compose submenu. **Scope UNCONFIRMED**; no Profile Templates surface
+  exists yet (Tables has one, Profiles/Agents doesn't) — likely needs creating first. Confirm scope first.
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
 `create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests (#5/#6/#11/#12); other
@@ -110,6 +109,13 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**On `main`, UNRELEASED (next release delivers these):** CF-FEAT-2 (`0c3c0262`) — `related` pack-manifest
+field renders additive free↔paid Agency relationship copy on both `/packs` cards + manifest-version fallback
+in `packUpdateAvailability` killing the phantom "Update to v0.1.0" on sidecar-less installs; regression tests
+rewritten to encode the corrected same-version-no-update contract. FEAT-7 (`c21441c1`) — filter-by-installed-
+pack on agents/schedules/tables (blueprints already had it #27), all driven by the shared `packOf` resolver.
+Both live-verified under `npm run dev`. NOTE at release: bump apiVersion window only on a MINOR (see caveats).
+
 **0.29.1 (RELEASED — `v0.29.1`→`e210e49a`; npm `latest` + GitHub Release + OIDC CI green incl. npx prod
 smoke Case L):** #31 blueprint-card husk fix. `BlueprintCard.resolved` flag (`data.ts` `loadBlueprintCards`)
 + honest "couldn't load, reinstall the pack" card with NO fake Run when a definition can't resolve
