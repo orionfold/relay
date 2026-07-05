@@ -1,28 +1,30 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **`pack-generalize-agency` (P0) BUILT + committed** (`3797c839`) — the
-persona/industry split shipped to source: free `relay-agency` neutralized+fattened (7·7·4), two paid
-industry packs authored (`relay-cre` 3·3·1, `relay-nonprofit` 3·4·2), `relay-agency-pro` reshaped to
-vertical-neutral automation (6·4·2, v0.5.0). Operator locked the design from scratch (memory
-`persona-pack-manual-automated-split`): free=manual OS, Pro=automation, industry=thin delivery; ONLY
-relay-agency is free, everything else = one license `product:orionfold-relay`. All 4 packs parse+install
-(gate+coexist), tests+prod-smoke updated, full suite green (8 pre-existing fails only), `/packs` gallery
-verified live. NOT released (version bump+tag pending). Prior tail: 8 pack-catalog specs (`42cf3c4a`), 0.31.0
-F5/F6 (`v0.31.0`→`a661054e`).)_
+_Last updated: 2026-07-05 (pt: **`pack-bundle-model` (P1) BUILT, NOT committed** — compose-then-install
+flatten shipped to source: a bundle pack declares `bundle: [childIds]` (no base/manifest.yaml) and
+`mergeBundle` (new `src/lib/packs/bundle.ts`, pure) flattens children into ONE synthetic pack that the
+existing single-app `installPack` flow runs unchanged, so the logical→real UUID rewrite spans the merged
+manifest and cross-child triggers/KPIs resolve (no silent 0-read). Changed `format.ts` (`bundle` field +
+`isBundle` + `BundleCollisionError`, bundle skips base-manifest req → derived placeholder), `install.ts`
+(bundle branch after parsePack; `readCustomerSeed` aggregates+dedupes per-child seeds). View merge =
+first-hero+concat-rest; entitlement gates once; git-URL children refused. Test-only fixtures under
+`__tests__/fixtures/`. 147 packs+install-route tests green; full suite = ONLY the 8 documented pre-existing
+fails (0 regressions); e2e module-graph smoke + live dev server both clean. Memory `pack-bundle-flatten-model`.
+Prior tail: `pack-generalize-agency` P0 (`3797c839`), 8 pack-catalog specs (`42cf3c4a`), 0.31.0 (`a661054e`).)_
 
-## ▶️ NEXT SESSION — `pack-bundle-model` → `pack-agency-bundle` (the first bundle proof)
+## ▶️ NEXT SESSION — commit `pack-bundle-model`, then `pack-agency-bundle` (the first bundle proof)
 
-- **P0 `pack-generalize-agency` is DONE** (`3797c839`; spec status=built with a verification note). Next in
-  the §8.1 sequence: **`pack-bundle-model`** (the bundle format that lets persona+industry install as ONE app)
-  then **`pack-agency-bundle`** (Agency→CRE, the operator's locked first-bundle proof). Full order in the specs'
-  roadmap + memory `packs-evolution-requirements-extracted`.
-- **Before releasing the split**: cut a version bump + annotated tag (memory `release-tag-must-be-annotated`);
-  apiVersion window bump IF minor (memory `apiversion-window-bump-at-version-bump`); the industry-pack `price`
-  is a PLACEHOLDER ($199/year) — needs operator + Website `_RELAY.md` coordination before it ships (memory
-  `packs-evolution-requirements-extracted` bundle-pricing). Prod-smoke Case L already updated to the new counts.
-- **New durable facts this session**: memory `persona-pack-manual-automated-split` (repeatable free/pro design
-  for ALL persona packs) + `pack-install-drops-by-dir-scan` (installPack drops by walking base/, not the
-  manifest lists — remove a primitive = move/delete the FILE; install rewrites logical table ids→UUIDs).
+- **`pack-bundle-model` (P1) is BUILT but UNCOMMITTED** — commit it (spec status=built + verification note).
+  Next in the §8.1 sequence: **`pack-agency-bundle`** (Agency→CRE, the operator's locked first-bundle proof),
+  which CONSUMES this bundle format directly — a `pack.yaml` with `bundle: [relay-agency, relay-cre]`, no merge
+  code changes. Full order in the specs' roadmap + memory `packs-evolution-requirements-extracted`.
+- **Before releasing** (bundle-model + the still-unreleased persona/industry split): cut a version bump +
+  annotated tag (memory `release-tag-must-be-annotated`); apiVersion window bump IF minor (memory
+  `apiversion-window-bump-at-version-bump`); the industry-pack `price` is a PLACEHOLDER ($199/year) — needs
+  operator + Website `_RELAY.md` coordination before it ships (memory `packs-evolution-requirements-extracted`
+  bundle-pricing). Prod-smoke Case L already updated to the split's counts; a bundle pack is NOT yet in Case L.
+- **New durable fact this session**: memory `pack-bundle-flatten-model` (repeatable compose-then-install rules
+  for ALL future bundles — view-merge, collision-refuse, entitlement-gates-once).
 - `pack-primitive-resurface` (P1) runs on an **independent track** (resurface existing charts; lifts every
   pack) — schedule whenever. `decisions_open` still needing operator+Website calls: when-dependsOn-earns-weight
   (P3 trigger), bundle-pricing-mechanics (`pricing.json` + `_RELAY.md` coord before any price ships).
@@ -111,6 +113,13 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**Packs-evolution (BUILT, NOT released — on `main`, behind the next release cut):** `pack-generalize-agency`
+P0 (`3797c839`) — persona/industry split: free `relay-agency` neutralized+fattened (7·7·4), paid `relay-cre`
+(3·3·1) + `relay-nonprofit` (3·4·2), `relay-agency-pro` → vertical-neutral automation (6·4·2, v0.5.0); only
+relay-agency free, rest = one license `product:orionfold-relay` (memory `persona-pack-manual-automated-split`,
+`pack-install-drops-by-dir-scan`). Then `pack-bundle-model` P1 (uncommitted) — the flatten composition model
+(memory `pack-bundle-flatten-model`). Next consumer: `pack-agency-bundle`.
+
 **0.31.0 (RELEASED — `v0.31.0`→`a661054e`; publish CI `28747032762`):** app-wide card design lift (F5) +
 Schemas Compose→Data nav move (F6). Base `ui/card.tsx` gains `tone`/`emphasis`/`watermark`+`watermarkColor`
 (`149c7122`); operator-refined to own-glyph colored-by-type uniform watermark (`4ab95caf`,`b8d7498e`); swept

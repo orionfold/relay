@@ -1,0 +1,8 @@
+id: relay-crm-mini--rep
+name: CRM Rep
+version: "1.0.0"
+domain: work
+tags: [crm, leads]
+allowedTools: [Read, Write]
+maxTurns: 10
+author: Orionfold

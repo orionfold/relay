@@ -1,6 +1,6 @@
 ---
 title: Bundle-at-install (flatten) — the composition model, ship first
-status: planned
+status: built
 priority: P1
 milestone: post-mvp
 source: _IDEAS/packs-evolution.md §5 + §2 + §8.3
@@ -104,3 +104,36 @@ first consumer) and verifies the merged app renders and its cross-child bindings
   deferred to A/B).
 - Enables: `pack-marketing-line` (first bundle), `pack-entitlement-per-line` (bundle price →
   parent). Depends on: `pack-generalize-agency` (persona+industry is the miniature bundle case).
+
+## Verification run — 2026-07-05 (BUILT)
+
+Shipped **compose-then-install**: a bundle pack declares `bundle: [childIds]` (no
+`base/manifest.yaml`); `installPack` resolves each child local-first, `mergeBundle` flattens them
+into ONE synthetic pack, and the existing single-app install flow runs unchanged — so the single
+logical→real UUID rewrite spans the merged manifest and every cross-child binding resolves
+intra-app.
+
+- **New:** `src/lib/packs/bundle.ts` (`mergeBundle`, pure). **Changed:** `format.ts`
+  (`bundle` field, `isBundle`, `BundleCollisionError`, bundle packs skip the `base/manifest.yaml`
+  requirement + get a derived placeholder manifest), `install.ts` (bundle branch after
+  `parsePack`; `readCustomerSeed` aggregates all children's `seed/customers.yaml` + dedupes by
+  slug). Bundle's OWN `entitlement` gates install (one license per bundle); git-URL children
+  refused (no-marketplace fence).
+- **View merge rule (locked):** first-hero + concat-rest — `hero`/`kit` from the FIRST child that
+  declares a view; `secondary` + `kpis` concatenated in `bundle:` order.
+- **Collision rule:** refuse-on-collision with `BundleCollisionError` naming the id + both child
+  packs, for any shared logical id (table/profile/blueprint/schedule) or droppable-file relPath.
+  No half-merge (validated pre-write, so a colliding bundle writes nothing).
+- **Tests:** `bundle.test.ts` (8, merge unit), `install.test.ts` (+3: one-app flatten,
+  cross-child trigger+KPI resolve to real UUID, collision refusal writes nothing),
+  `format.test.ts` (+bundle field / no-base-manifest / back-compat), `catalog.test.ts` (+bundle
+  template lists cleanly, fixtures excluded from the real catalog). 147 packs+install-route tests
+  green; full suite = only the 8 documented pre-existing failures (0 regressions).
+- **E2E smoke (runtime-registry-adjacent, CLAUDE.md):** installed the `relay-bundle-smoke` fixture
+  through the REAL non-mocked module graph — one merged app, cross-child trigger + KPI both
+  resolved to the real `leads` UUID (no silent 0-read), no module-load-cycle `ReferenceError`.
+  Live `npm run dev` server healthy after the change (`/packs` 200, install route responds
+  through the Next runtime).
+- **Fixtures:** test-only under `src/lib/packs/__tests__/fixtures/` (invisible to `/packs`), NOT
+  the shipped `templates/`. The real Marketing children are `pack-marketing-line` (out of scope).
+- **NOT released:** ships behind the next release cut (version bump + annotated tag pending).

@@ -684,3 +684,135 @@ describe("installPack by bundled name", () => {
     }
   });
 });
+
+// ── Bundle-at-install (flatten) — pack-bundle-model ──────────────────────
+
+describe("installPack — bundle flatten", () => {
+  // The test-only bundle fixtures (relay-bundle-smoke + its two children) live
+  // beside this test; children resolve via the templatesDir override.
+  const fixturesDir = path.join(import.meta.dirname, "fixtures");
+  const bundleDir = path.join(fixturesDir, "relay-bundle-smoke");
+
+  function bundleOpts() {
+    return { ...installOpts(), templatesDir: fixturesDir };
+  }
+
+  it("flattens a bundle's children into ONE app under one project", async () => {
+    const { installPack, registry, db, projects } = await loadModules();
+
+    const report = await installPack(bundleDir, bundleOpts());
+
+    // The bundle installs as ONE app under the bundle's id.
+    expect(report.packId).toBe("relay-bundle-smoke");
+    expect(report.projectCreated).toBe(true);
+    // Two children → 2 tables (leads + posts), 2 profiles, 2 blueprints.
+    expect(report.tablesCreated).toBe(2);
+    expect(report.profilesDropped).toBe(2);
+    expect(report.blueprintsDropped).toBe(2);
+    // Only the CRM child seeds rows (3 leads); Social's posts ships empty.
+    expect(report.rowsSeeded).toBe(3);
+
+    // listApps sees a SINGLE app — indistinguishable from a hand-composed one.
+    const apps = registry.listApps(appsDir);
+    expect(apps.map((a: { id: string }) => a.id)).toEqual([
+      "relay-bundle-smoke",
+    ]);
+
+    // One project row, not one-per-child.
+    const projRows = await db.select().from(projects);
+    expect(projRows.map((p: { id: string }) => p.id)).toEqual([
+      "relay-bundle-smoke",
+    ]);
+  });
+
+  it("resolves a CROSS-CHILD binding + KPI post-merge (no silent 0-read)", async () => {
+    const { installPack, registry, tables } = await loadModules();
+
+    await installPack(bundleDir, bundleOpts());
+    const app = registry.getApp("relay-bundle-smoke", appsDir)!;
+
+    // The `leads` logical id (CRM child) was rewritten to a real UUID.
+    const leads = app.manifest.tables.find(
+      (t: { id: string }) => t.id !== "posts"
+    );
+    // Both table ids are UUIDs now; find leads by its seeded row count instead.
+    const tablesWithRows = await Promise.all(
+      app.manifest.tables.map(async (t: { id: string }) => ({
+        id: t.id,
+        rows: (await tables.listRows(t.id)).length,
+      }))
+    );
+    const leadsTable = tablesWithRows.find((t) => t.rows === 3)!;
+    expect(leadsTable).toBeDefined();
+
+    // CROSS-CHILD TRIGGER: the Social child's blueprint fires on the CRM
+    // child's leads table — its trigger.table must be the REAL leads UUID.
+    const announce = app.manifest.blueprints.find((b: { id: string }) =>
+      b.id.includes("announce")
+    ) as { trigger?: { table?: string } };
+    expect(announce.trigger?.table).toBe(leadsTable.id);
+
+    // CROSS-CHILD KPI: the Social child's `leads-to-announce` KPI counts the
+    // CRM child's leads table. Post-merge it must point at the real UUID (so it
+    // reads 3, not silent 0). It sits at index 1 (CRM's lead-count is index 0).
+    const view = app.manifest.view as {
+      bindings?: { kpis?: { id: string; source?: { table?: string } }[] };
+    };
+    const crossKpi = view.bindings?.kpis?.find(
+      (k) => k.id === "leads-to-announce"
+    );
+    expect(crossKpi?.source?.table).toBe(leadsTable.id);
+    void leads;
+  });
+
+  it("refuses to merge children that collide on a logical table id", async () => {
+    // A second bundle whose two children both declare a `leads` table.
+    const collideRoot = fs.mkdtempSync(
+      path.join(os.tmpdir(), "ainative-bundle-collide-")
+    );
+    try {
+      // Child A + B, each with a `leads` table.
+      for (const childId of ["collide-a", "collide-b"]) {
+        const base = path.join(collideRoot, childId, "base");
+        fs.mkdirSync(base, { recursive: true });
+        fs.writeFileSync(
+          path.join(collideRoot, childId, "pack.yaml"),
+          yaml.dump({ id: childId, version: "0.1.0", name: childId })
+        );
+        fs.writeFileSync(
+          path.join(base, "manifest.yaml"),
+          yaml.dump({
+            id: childId,
+            name: childId,
+            tables: [{ id: "leads" }],
+          })
+        );
+      }
+      const bundle = path.join(collideRoot, "collide-bundle");
+      fs.mkdirSync(bundle, { recursive: true });
+      fs.writeFileSync(
+        path.join(bundle, "pack.yaml"),
+        yaml.dump({
+          id: "collide-bundle",
+          version: "0.1.0",
+          name: "Collide Bundle",
+          bundle: ["collide-a", "collide-b"],
+        })
+      );
+
+      const { installPack, registry, db, projects } = await loadModules();
+      await expect(
+        installPack(bundle, { ...installOpts(), templatesDir: collideRoot })
+      ).rejects.toThrow(/collision.*leads/i);
+
+      // No half-merge: the colliding bundle wrote nothing.
+      expect(registry.getApp("collide-bundle", appsDir)).toBeNull();
+      const projRows = await db.select().from(projects);
+      expect(
+        projRows.some((p: { id: string }) => p.id === "collide-bundle")
+      ).toBe(false);
+    } finally {
+      fs.rmSync(collideRoot, { recursive: true, force: true });
+    }
+  });
+});

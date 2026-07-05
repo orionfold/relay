@@ -1,0 +1,5 @@
+id: relay-social-mini
+version: "0.1.0"
+name: Relay Social Mini
+author: Orionfold
+description: TEST-ONLY bundle child — binds to the CRM child's leads table (cross-child).

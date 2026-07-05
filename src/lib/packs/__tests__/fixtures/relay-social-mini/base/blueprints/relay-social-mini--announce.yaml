@@ -1,0 +1,18 @@
+id: relay-social-mini--announce
+name: Announce Lead
+description: Test-only — announce a new lead on social.
+version: "1.0.0"
+domain: work
+tags: [social]
+pattern: sequence
+author: Orionfold
+variables:
+  - id: lead
+    type: text
+    label: Lead
+    required: true
+steps:
+  - name: Draft announcement
+    profileId: relay-social-mini--writer
+    promptTemplate: "Draft a social post announcing {{lead}}."
+    requiresApproval: false

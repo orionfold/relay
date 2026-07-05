@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import yaml from "js-yaml";
-import { packPrice, parsePack, PackValidationError } from "../format";
+import { isBundle, packPrice, parsePack, PackValidationError } from "../format";
 
 let packDir: string;
 
@@ -174,5 +174,58 @@ describe("pack.yaml icon field", () => {
     });
 
     expect(parsePack(packDir).meta.icon).toBe("briefcase");
+  });
+});
+
+describe("pack.yaml bundle field", () => {
+  /** Write ONLY a pack.yaml — no base/manifest.yaml (a bundle has none). */
+  function writeBundlePack(meta: Record<string, unknown>): void {
+    fs.writeFileSync(path.join(packDir, "pack.yaml"), yaml.dump(meta));
+  }
+
+  it("accepts a bundle listing child pack ids and needs no base/manifest.yaml", () => {
+    writeBundlePack({
+      id: "relay-marketing",
+      version: "0.1.0",
+      name: "Relay Marketing",
+      bundle: ["relay-crm", "relay-social"],
+    });
+
+    const pack = parsePack(packDir);
+    expect(pack.meta.bundle).toEqual(["relay-crm", "relay-social"]);
+    expect(isBundle(pack.meta)).toBe(true);
+    // The synthetic manifest is a derived placeholder — id/name carried from
+    // pack.yaml, empty primitive arrays (children fill them at merge time).
+    expect(pack.manifest.id).toBe("relay-marketing");
+    expect(pack.manifest.name).toBe("Relay Marketing");
+    expect(pack.manifest.profiles).toEqual([]);
+    expect(pack.manifest.blueprints).toEqual([]);
+    expect(pack.manifest.tables).toEqual([]);
+  });
+
+  it("rejects an empty bundle list (a bundle of nothing is a packaging bug)", () => {
+    writeBundlePack({
+      id: "relay-marketing",
+      version: "0.1.0",
+      name: "Relay Marketing",
+      bundle: [],
+    });
+
+    expect(() => parsePack(packDir)).toThrow(PackValidationError);
+  });
+
+  it("still REQUIRES base/manifest.yaml for a non-bundle pack (back-compat)", () => {
+    // A plain pack with no bundle field and no base/manifest.yaml must fail.
+    fs.writeFileSync(
+      path.join(packDir, "pack.yaml"),
+      yaml.dump({ id: "plain", version: "0.1.0", name: "Plain" })
+    );
+
+    expect(() => parsePack(packDir)).toThrow(/missing base\/manifest\.yaml/);
+  });
+
+  it("isBundle is false for a normal pack", () => {
+    writePack({ id: "test-pack", version: "0.1.0", name: "Test Pack" });
+    expect(isBundle(parsePack(packDir).meta)).toBe(false);
   });
 });

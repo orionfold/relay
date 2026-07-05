@@ -1,0 +1,18 @@
+id: relay-crm-mini--nurture
+name: Lead Nurture
+description: Test-only nurture flow for a new lead.
+version: "1.0.0"
+domain: work
+tags: [crm, leads]
+pattern: sequence
+author: Orionfold
+variables:
+  - id: lead
+    type: text
+    label: Lead
+    required: true
+steps:
+  - name: Draft outreach
+    profileId: relay-crm-mini--rep
+    promptTemplate: "Draft an outreach note for {{lead}}."
+    requiresApproval: false

@@ -1,0 +1,15 @@
+id: relay-bundle-smoke
+version: "0.1.0"
+name: Relay Bundle Smoke
+author: Orionfold
+# TEST-ONLY fixture for pack-bundle-model. A bundle pack owns NO base/manifest.yaml;
+# it lists child pack ids that installPack flattens into ONE app at install time.
+# The children (relay-crm-mini + relay-social-mini) live alongside this fixture and
+# resolve via the templatesDir override in tests — they never ship in /packs.
+description: >
+  A two-child bundle used only to prove the flatten-at-install merge: the Social
+  child's blueprint fires on the CRM child's leads table, and a Social KPI counts
+  CRM leads. If those bindings resolve after the merge, the flatten works.
+bundle:
+  - relay-crm-mini
+  - relay-social-mini

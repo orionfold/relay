@@ -94,6 +94,18 @@ export const PackManifestSchema = z
     changelog: z.record(z.string(), z.string().min(1)).optional(),
     /** Customer slugs seeded via ensureCustomer at install. */
     customers: z.array(z.string()).default([]),
+    /**
+     * Bundle descriptor (`pack-bundle-model`). When present, this pack is a
+     * BUNDLE: it owns no inner AppManifest of its own and instead lists child
+     * pack ids to flatten into ONE installed app at install time. Children
+     * resolve local-first (bundled template dir or existing local path) — never
+     * a remote index (no-marketplace fence). A bundle pack therefore has NO
+     * `base/manifest.yaml`; `parsePack` derives a placeholder manifest from
+     * this pack.yaml and the install path merges the children in. Non-empty:
+     * a bundle of nothing is a packaging bug that must fail at parse, not
+     * install an empty app.
+     */
+    bundle: z.array(z.string().min(1)).nonempty().optional(),
   })
   .strict();
 
@@ -153,6 +165,24 @@ export class PackValidationError extends Error {
   }
 }
 
+/**
+ * Thrown when merging a bundle's children hits a collision that would silently
+ * overwrite one child's primitive with another's (a logical table/primitive id
+ * shared across children, or two child files landing on the same dest path).
+ * A colliding bundle must fail install LOUDLY, never half-merge (Principle #1).
+ */
+export class BundleCollisionError extends Error {
+  constructor(message: string, readonly cause?: unknown) {
+    super(message);
+    this.name = "BundleCollisionError";
+  }
+}
+
+/** A pack is a BUNDLE iff it declares a non-empty `bundle` child list. */
+export function isBundle(meta: PackMeta): boolean {
+  return Array.isArray(meta.bundle) && meta.bundle.length > 0;
+}
+
 // ── parsePack ────────────────────────────────────────────────────────
 
 /**
@@ -166,12 +196,6 @@ export function parsePack(dir: string): Pack {
   if (!fs.existsSync(packYamlPath)) {
     throw new PackValidationError(`Pack is missing pack.yaml: ${dir}`);
   }
-  const manifestPath = path.join(dir, "base", "manifest.yaml");
-  if (!fs.existsSync(manifestPath)) {
-    throw new PackValidationError(
-      `Pack is missing base/manifest.yaml: ${dir}`
-    );
-  }
 
   let rawMeta: unknown;
   try {
@@ -184,6 +208,29 @@ export function parsePack(dir: string): Pack {
     throw new PackValidationError(
       `pack.yaml failed validation: ${metaResult.error.message}`,
       metaResult.error
+    );
+  }
+
+  // A BUNDLE pack owns no inner manifest — it composes children at install. We
+  // derive a placeholder AppManifest (id/name/version/description/entitlement
+  // from pack.yaml, empty primitive arrays) so the `Pack` contract holds and
+  // every non-bundle caller is unaffected. The real primitives arrive at merge.
+  if (isBundle(metaResult.data)) {
+    const meta = metaResult.data;
+    const placeholder = AppManifestSchema.parse({
+      id: meta.id,
+      version: meta.version,
+      name: meta.name,
+      ...(meta.description ? { description: meta.description } : {}),
+      ...(meta.entitlement ? { entitlement: meta.entitlement } : {}),
+    });
+    return { rootDir: dir, meta, manifest: placeholder };
+  }
+
+  const manifestPath = path.join(dir, "base", "manifest.yaml");
+  if (!fs.existsSync(manifestPath)) {
+    throw new PackValidationError(
+      `Pack is missing base/manifest.yaml: ${dir}`
     );
   }
 

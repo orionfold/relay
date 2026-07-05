@@ -1,0 +1,42 @@
+id: relay-social-mini
+version: "0.1.0"
+name: Relay Social Mini
+description: The Social half of the smoke bundle — reacts to CRM leads.
+
+profiles:
+  - id: relay-social-mini--writer
+    source: $AINATIVE_DATA_DIR/profiles/relay-social-mini--writer/
+
+blueprints:
+  # CROSS-CHILD BINDING: this blueprint fires on inserts into the CRM child's
+  # `leads` table. Post-merge, install.ts rewrites "leads"→its real UUID across
+  # the merged manifest, so the trigger resolves intra-app (no silent 0-read).
+  - id: relay-social-mini--announce
+    source: $AINATIVE_DATA_DIR/blueprints/relay-social-mini--announce.yaml
+    trigger:
+      kind: row-insert
+      table: leads
+
+tables:
+  - id: posts
+    columns: [headline, status]
+
+schedules: []
+
+# This child declares a view too, but the merged app's hero comes from the FIRST
+# child (CRM's leads). This child's KPI counts the CRM child's `leads` table —
+# a CROSS-CHILD KPI that must read the seeded rows post-merge, not silent 0.
+view:
+  kit: workflow-hub
+  bindings:
+    hero:
+      table: posts
+    secondary:
+      - blueprint: relay-social-mini--announce
+    kpis:
+      - id: leads-to-announce
+        label: Leads to announce
+        source:
+          kind: tableCount
+          table: leads
+        format: int

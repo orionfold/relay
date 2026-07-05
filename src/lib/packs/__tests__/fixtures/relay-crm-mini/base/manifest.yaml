@@ -1,0 +1,34 @@
+id: relay-crm-mini
+version: "0.1.0"
+name: Relay CRM Mini
+description: The CRM half of the smoke bundle — a leads book.
+
+profiles:
+  - id: relay-crm-mini--rep
+    source: $AINATIVE_DATA_DIR/profiles/relay-crm-mini--rep/
+
+blueprints:
+  - id: relay-crm-mini--nurture
+    source: $AINATIVE_DATA_DIR/blueprints/relay-crm-mini--nurture.yaml
+
+tables:
+  - id: leads
+    columns: [name, stage, owner]
+    seed: seed/tables/leads.json
+
+schedules: []
+
+view:
+  kit: tracker
+  bindings:
+    hero:
+      table: leads
+    secondary:
+      - blueprint: relay-crm-mini--nurture
+    kpis:
+      - id: lead-count
+        label: Leads
+        source:
+          kind: tableCount
+          table: leads
+        format: int

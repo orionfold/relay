@@ -14,10 +14,13 @@ import { writeAppManifest, type AppManifest } from "@/lib/apps/registry";
 import {
   parsePack,
   resolvePackLayer,
+  isBundle,
   PackValidationError,
   type Pack,
+  type ResolvedPack,
   type ResolvedPackFile,
 } from "./format";
+import { mergeBundle } from "./bundle";
 
 // Compile-time core version, embedded by tsup's `define` (see tsup.config.ts).
 // Present ONLY in the bundled CLI; `undefined` in dev/test/Next.js builds,
@@ -122,7 +125,39 @@ export async function installPack(
 
   try {
     // 2. Validate — strict schema gate (throws PackValidationError) ...
-    const pack = parsePack(packDir);
+    let pack = parsePack(packDir);
+
+    // 2a-bundle. Bundle flatten (`pack-bundle-model`). A bundle pack owns no
+    // inner manifest; it lists child pack ids to merge into ONE app. Resolve
+    // each child LOCAL-FIRST (bundled template dir or an existing local path —
+    // never a remote index, preserving the no-marketplace fence), then merge
+    // into a synthetic pack. From here the entire flow below runs UNCHANGED
+    // over the merged pack + resolved files, so the single logical→real UUID
+    // rewrite spans the whole manifest and every cross-child binding resolves
+    // intra-app. Runs before the license gate so the BUNDLE's own entitlement
+    // (not the children's) is what gates install — one license per bundle.
+    let resolved: ResolvedPack;
+    if (isBundle(pack.meta)) {
+      const { resolvePackSource } = await import("./catalog");
+      const children = pack.meta.bundle!.map((childId) => {
+        if (isGitUrl(childId)) {
+          throw new PackValidationError(
+            `Bundle "${pack.meta.id}" lists a git URL child "${childId}". ` +
+              `Bundle children must be bundled pack names or local paths ` +
+              `(no remote index — the no-marketplace fence).`
+          );
+        }
+        const childDir = resolvePackSource(childId, {
+          templatesDir: options.templatesDir,
+        });
+        return resolvePackLayer(parsePack(childDir));
+      });
+      const merged = mergeBundle(pack, children);
+      pack = merged.pack;
+      resolved = merged;
+    } else {
+      resolved = resolvePackLayer(pack);
+    }
 
     // ... then the relayCore compat check (also before any write).
     if (pack.meta.relayCore) {
@@ -160,8 +195,6 @@ export async function installPack(
         }
       }
     }
-
-    const resolved = resolvePackLayer(pack);
 
     // 2c. Manifest-schedule validation — still BEFORE any write. A schedule
     // that can never fire (no cron) or fires into nothing (no/unknown
@@ -444,15 +477,33 @@ function findResolved(
 function readCustomerSeed(
   resolved: ReturnType<typeof resolvePackLayer>
 ): CustomerSeedEntry[] {
-  const file = findResolved(resolved.files, "seed/customers.yaml");
-  if (!file) return [];
-  const parsed = yaml.load(fs.readFileSync(file.absPath, "utf-8"));
-  if (!Array.isArray(parsed)) {
-    throw new PackValidationError(
-      "seed/customers.yaml must be a YAML list of { slug, name, ... }"
-    );
+  // A single pack ships one seed/customers.yaml; a merged BUNDLE carries one
+  // per child (same relPath, distinct child dirs). Aggregate ALL of them and
+  // dedupe by slug so a customer shared across children seeds once (matching
+  // ensureCustomer's slug-idempotence). Entries without a slug pass through.
+  const files = resolved.files.filter(
+    (f) => f.relPath === "seed/customers.yaml"
+  );
+  if (files.length === 0) return [];
+
+  const out: CustomerSeedEntry[] = [];
+  const seenSlugs = new Set<string>();
+  for (const file of files) {
+    const parsed = yaml.load(fs.readFileSync(file.absPath, "utf-8"));
+    if (!Array.isArray(parsed)) {
+      throw new PackValidationError(
+        "seed/customers.yaml must be a YAML list of { slug, name, ... }"
+      );
+    }
+    for (const entry of parsed as CustomerSeedEntry[]) {
+      if (entry.slug) {
+        if (seenSlugs.has(entry.slug)) continue;
+        seenSlugs.add(entry.slug);
+      }
+      out.push(entry);
+    }
   }
-  return parsed as CustomerSeedEntry[];
+  return out;
 }
 
 function readTableSeed(

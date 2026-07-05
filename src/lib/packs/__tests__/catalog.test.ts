@@ -124,6 +124,38 @@ describe("listPackTemplates", () => {
     expect(agency!.error).toBeUndefined();
     expect(agency!.meta?.name).toBe("Relay Agency");
   });
+
+  it("lists a BUNDLE template cleanly (empty derived manifest, no error)", () => {
+    // A bundle pack has only pack.yaml + a `bundle` list, no base/manifest.yaml.
+    // parsePack derives an empty placeholder manifest; buildPrimitivesSummary
+    // must not throw on it, and the template must list without an error.
+    const dir = path.join(templatesDir, "sample-bundle");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, "pack.yaml"),
+      yaml.dump({
+        id: "sample-bundle",
+        version: "0.1.0",
+        name: "Sample Bundle",
+        bundle: ["child-a", "child-b"],
+      })
+    );
+
+    const out = listPackTemplates({ templatesDir });
+    const bundle = out.find((t) => t.id === "sample-bundle");
+    expect(bundle).toBeDefined();
+    expect(bundle!.error).toBeUndefined();
+    expect(bundle!.meta?.bundle).toEqual(["child-a", "child-b"]);
+  });
+
+  it("does NOT list the test-only bundle fixtures in the real catalog", () => {
+    // relay-bundle-smoke / relay-crm-mini / relay-social-mini live under
+    // __tests__/fixtures, never the shipped templates/ dir.
+    const ids = listPackTemplates().map((t) => t.id);
+    expect(ids).not.toContain("relay-bundle-smoke");
+    expect(ids).not.toContain("relay-crm-mini");
+    expect(ids).not.toContain("relay-social-mini");
+  });
 });
 
 describe("resolvePackSource", () => {

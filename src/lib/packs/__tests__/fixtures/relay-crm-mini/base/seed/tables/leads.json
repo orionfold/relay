@@ -1,0 +1,5 @@
+[
+  { "name": "Acme Corp", "stage": "new", "owner": "rep" },
+  { "name": "Globex", "stage": "qualified", "owner": "rep" },
+  { "name": "Initech", "stage": "new", "owner": "rep" }
+]

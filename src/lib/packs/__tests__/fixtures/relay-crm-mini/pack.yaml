@@ -1,0 +1,5 @@
+id: relay-crm-mini
+version: "0.1.0"
+name: Relay CRM Mini
+author: Orionfold
+description: TEST-ONLY bundle child — owns the leads table the Social child binds to.
