@@ -23,7 +23,11 @@ export async function AppShell({ children }: { children: ReactNode }) {
       <AppBar apps={apps} />
       <TelemetryRail />
       <main id="main-content" className="flex-1 px-[clamp(20px,4vw,40px)] py-7">
-        <div className="mx-auto w-full max-w-[96rem]">{children}</div>
+        {/* relative + z-1 so page content paints ABOVE the blueprint-grid
+            texture on #main-content::before (--z-canvas-grid: 0). */}
+        <div className="relative z-[1] mx-auto w-full max-w-[96rem]">
+          {children}
+        </div>
       </main>
     </div>
   );

@@ -1,8 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { TelemetryRail } from "../telemetry-rail";
 import type { TelemetrySnapshot } from "../telemetry-types";
 import * as useTelemetryModule from "../use-telemetry";
+import * as useInstanceIdentityModule from "../use-instance-identity";
+import type { InstanceIdentityState } from "../use-instance-identity";
 
 // The SPEND cells must render real metered ledger sums — never the plan price
 // or budget cap as a value (fix-dashboard-budget-vs-cost-labeling). The plan /
@@ -43,6 +45,22 @@ function stubTelemetry(data: TelemetrySnapshot | null) {
   );
 }
 
+function stubIdentity(overrides: Partial<InstanceIdentityState> = {}) {
+  vi.spyOn(useInstanceIdentityModule, "useInstanceIdentity").mockReturnValue({
+    status: "ready",
+    version: "0.28.0",
+    activeModel: "claude-opus-4-8",
+    licenseTag: { kind: "community" },
+    ...overrides,
+  } as InstanceIdentityState);
+}
+
+// The rail now reads BOTH hooks; default the identity stub for every test so a
+// real fetch never fires. Individual tests override as needed.
+beforeEach(() => {
+  stubIdentity();
+});
+
 describe("TelemetryRail spend cells", () => {
   it("shows $0.00 metered spend on a fresh subscription-billed instance, with the plan named in the sub-line", () => {
     stubTelemetry(snapshot({ planPricedMonthlyMicros: 20_000_000 }));
@@ -72,5 +90,27 @@ describe("TelemetryRail spend cells", () => {
     render(<TelemetryRail />);
 
     expect(screen.queryByText("not configured")).not.toBeInTheDocument();
+  });
+});
+
+describe("TelemetryRail runtime cell (FEAT-10)", () => {
+  it("leads the RUNTIME cell with the active model, provider + sdk in the sub", () => {
+    stubIdentity({ activeModel: "claude-opus-4-8" });
+    stubTelemetry(
+      snapshot({ runtimeLabel: "Claude Code", providerId: "anthropic", runtimeSdkVersion: "0.60.0" }),
+    );
+    render(<TelemetryRail />);
+
+    // Model is the value; provider · sdk fold into the sub-line.
+    expect(screen.getByText("claude-opus-4-8")).toBeInTheDocument();
+    expect(screen.getByText("anthropic · sdk 0.60.0")).toBeInTheDocument();
+  });
+
+  it("falls back to the runtime label when the model has not resolved (never blank)", () => {
+    stubIdentity({ activeModel: null });
+    stubTelemetry(snapshot({ runtimeLabel: "Claude Code", providerId: "anthropic" }));
+    render(<TelemetryRail />);
+
+    expect(screen.getByText("Claude Code")).toBeInTheDocument();
   });
 });

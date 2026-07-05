@@ -42,7 +42,7 @@ export function RailCell({
 }) {
   return (
     <div className="flex min-w-[8.5rem] flex-none flex-col gap-0.5 border-r border-border px-4 pt-2.5">
-      <div className="flex items-center gap-1.5 font-mono text-[0.58rem] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+      <div className="flex items-center gap-1.5 font-mono text-[0.6rem] font-medium uppercase tracking-[0.08em] text-muted-foreground">
         {icon && (
           <span className="flex h-3 w-3 items-center justify-center text-muted-foreground [&_svg]:h-3 [&_svg]:w-3">
             {icon}
@@ -51,9 +51,11 @@ export function RailCell({
         {label}
       </div>
       <div className="flex items-baseline gap-2">
+        {/* Value LEADS the cell (FEAT-9): text-base is the most-scanned figure,
+            up from text-sm. The label above and sub below both recede. */}
         <div
           className={cn(
-            "flex items-baseline gap-1.5 font-mono text-sm tabular-nums",
+            "flex items-baseline gap-1.5 truncate font-mono text-base tabular-nums",
             tone === "accent" && "text-primary",
             tone === "danger" && "text-[var(--status-failed)]",
             !tone && "text-foreground",
@@ -74,7 +76,9 @@ export function RailCell({
         )}
       </div>
       {sub != null && (
-        <div className="truncate font-mono text-[0.65rem] text-muted-foreground">
+        // Sub-line demoted: muted + looser tracking so it clearly recedes
+        // beneath the now-larger value.
+        <div className="truncate font-mono text-[0.65rem] tracking-[0.02em] text-muted-foreground/80">
           {sub}
         </div>
       )}

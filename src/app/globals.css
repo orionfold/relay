@@ -173,6 +173,22 @@
   --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
+
+  /* Top-chrome geometry — the two-tier app bar's real stacked height. The
+     telemetry rail's sticky `top` MUST equal this (rail slides UNDER the header
+     otherwise). Theme-agnostic, so declared once here, not in .dark. */
+  --chrome-tier1: 3.5rem;  /* h-14 — tier-1 nav bar */
+  --chrome-tier2: 2.75rem; /* h-11 — tier-2 sub-nav */
+  --chrome-header: calc(var(--chrome-tier1) + var(--chrome-tier2)); /* 100px */
+
+  /* Named z-scale — formalizes values previously scattered as magic numbers
+     (z-20/z-30/100/9999). Header always wins over rail; grid sits below all
+     chrome; overlays and toasts stay on top. */
+  --z-canvas-grid: 0;
+  --z-rail: 30;
+  --z-header: 40;
+  --z-overlay: 100;
+  --z-toast: 9999;
 }
 
 /* =============================================================
@@ -537,7 +553,7 @@
 .of-boot {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: var(--z-overlay);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -560,6 +576,53 @@
 .animate-card-exit {
   animation: card-exit 400ms ease-out forwards;
   overflow: hidden;
+}
+
+/* =============================================================
+   CANVAS BLUEPRINT GRID (FEAT-15)
+   A faint blueprint-grid texture behind the content canvas ONLY.
+   Painted on #main-content::before at --z-canvas-grid (0), beneath
+   the page content (which sits in a positioned wrapper above it).
+   Chrome (bar + rail) stays OPAQUE via --surface-* backgrounds, so
+   the grid never shows through the header or rail — it is a
+   canvas-only background texture, not a see-through effect. Zero
+   interaction with the sticky z-stack.
+   ============================================================= */
+#main-content {
+  position: relative;
+}
+#main-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-canvas-grid);
+  pointer-events: none;
+  /* 24px grid of hairlines. Light: dark ink at very low opacity; dark:
+     light ink at very low opacity — a drafting-paper feel in both themes. */
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      oklch(0.14 0.02 250 / 0.03) 0 1px,
+      transparent 1px 24px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      oklch(0.14 0.02 250 / 0.03) 0 1px,
+      transparent 1px 24px
+    );
+}
+.dark #main-content::before {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      oklch(0.92 0.01 250 / 0.035) 0 1px,
+      transparent 1px 24px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      oklch(0.92 0.01 250 / 0.035) 0 1px,
+      transparent 1px 24px
+    );
 }
 
 /* =============================================================
@@ -587,7 +650,7 @@ body {
   width: 1px;
   height: 1px;
   overflow: hidden;
-  z-index: 9999;
+  z-index: var(--z-toast);
 }
 .skip-nav:focus {
   position: fixed;

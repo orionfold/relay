@@ -94,7 +94,7 @@ export function AppBar({ apps }: { apps: AppInstance[] }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex flex-col border-b border-border bg-[var(--surface-1)]">
+    <header className="sticky top-0 z-[var(--z-header)] flex flex-col border-b border-border bg-[var(--surface-1)]">
       {/* Tier 1 — top-level sections + utility cluster. */}
       <div className="flex h-14 flex-none items-center gap-3 px-4">
         <Link
@@ -177,8 +177,9 @@ export function AppBar({ apps }: { apps: AppInstance[] }) {
         </div>
       </div>
 
-      {/* Tier 2 — children of the active section, always visible. */}
-      <div className="flex h-11 flex-none items-center border-t border-border/60 px-4">
+      {/* Tier 2 — children of the active section, always visible. Steps back
+          one surface tier (s-2) so the chrome reads as descending elevation. */}
+      <div className="flex h-11 flex-none items-center border-t border-border/60 bg-[var(--surface-2)] px-4">
         <ul
           aria-label={`${activeGroup.label} sections`}
           className="flex min-w-0 items-center gap-1 overflow-x-auto"

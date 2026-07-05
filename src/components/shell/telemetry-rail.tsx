@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { RailCell, formatMicros } from "./rail-cell";
 import { useTelemetry } from "./use-telemetry";
+import { useInstanceIdentity } from "./use-instance-identity";
 import type { TelemetrySnapshot } from "./telemetry-types";
 
 // The standing instrument cluster: a single dense horizontal row beneath the app
@@ -62,17 +63,39 @@ function spendToDateSub(data: TelemetrySnapshot | null): string {
   return "monthly";
 }
 
+// Sub-line for the RUNTIME cell once the active MODEL leads as the value:
+// fold the provider and (when known) the SDK version into "provider · sdk N".
+// Falls back to "not configured" only once data has actually said so.
+function runtimeSub(data: TelemetrySnapshot | null): string {
+  if (!data) return "—";
+  const parts: string[] = [];
+  if (data.providerId) parts.push(data.providerId);
+  if (data.runtimeSdkVersion) parts.push(`sdk ${data.runtimeSdkVersion}`);
+  return parts.length > 0 ? parts.join(" · ") : "not configured";
+}
+
 export function TelemetryRail() {
   const telemetry = useTelemetry();
+  const identity = useInstanceIdentity();
   const data = telemetry.data;
   const loading = telemetry.status === "loading";
   const errored = telemetry.status === "error";
 
   const branch = data?.host.branch ?? null;
 
+  // The active model leads the RUNTIME cell (FEAT-10). Falls back to the
+  // runtime LABEL when the model hasn't resolved, so the cell is never blank —
+  // a mis-configured runtime shows something, never nothing.
+  const activeModel = identity.status === "loading" ? null : identity.activeModel;
+  const runtimeValue = activeModel ?? data?.runtimeLabel ?? "—";
+
   return (
     <div
-      className="sticky top-16 z-20 flex h-[78px] flex-none items-stretch overflow-x-auto border-b border-border bg-[var(--surface-1)]"
+      // Sticky offset tracks the REAL two-tier header height (--chrome-header,
+      // 100px) — the old top-16 (64px) let the rail slide 36px UNDER the header
+      // on scroll. z below the header so the bar always wins. --surface-3 is the
+      // deepest chrome tier (descending elevation: bar s-1/s-2 → rail s-3).
+      className="sticky top-[var(--chrome-header)] z-[var(--z-rail)] flex h-[88px] flex-none items-stretch overflow-x-auto border-b border-border bg-[var(--surface-3)]"
       aria-label="Telemetry"
     >
       <RailCell
@@ -86,16 +109,8 @@ export function TelemetryRail() {
         label="Runtime"
         icon={<Cpu aria-hidden />}
         loading={loading}
-        value={data?.runtimeLabel ?? "—"}
-        sub={
-          // Never fabricate "not configured" while the snapshot is still
-          // loading — only claim it once data has actually said so.
-          data
-            ? data.runtimeSdkVersion
-              ? `sdk ${data.runtimeSdkVersion}`
-              : data.providerId ?? "not configured"
-            : "—"
-        }
+        value={runtimeValue}
+        sub={runtimeSub(data)}
       />
       <RailCell
         label="Tasks"
@@ -174,8 +189,11 @@ export function TelemetryRail() {
           </>
         ) : (
           <>
+            {/* Rail data dot is CYAN (--status-running) for "live-data
+                freshness" — distinct from the bar's GREEN connectivity dot in
+                the shared status-dot legend (FEAT-12). Both are labeled. */}
             <span
-              className="h-1.5 w-1.5 flex-none rounded-full bg-[var(--status-completed)]"
+              className="h-1.5 w-1.5 flex-none rounded-full bg-[var(--status-running)]"
               aria-hidden
             />
             <span>{loading ? "syncing" : "live"}</span>
