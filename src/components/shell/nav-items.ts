@@ -78,7 +78,6 @@ const composeItems: NavItem[] = [
   { title: "Projects", href: "/projects", icon: FolderKanban, description: "Group work by project", alsoMatches: ["/projects/"] },
   { title: "Workflows", href: "/workflows", icon: Workflow, description: "Multi-step agent pipelines", alsoMatches: ["/workflows/"] },
   { title: "Blueprints", href: "/blueprints", icon: Layers, description: "Reusable workflow templates", alsoMatches: ["/blueprints/"] },
-  { title: "Schemas", href: "/schemas", icon: LayoutTemplate, description: "Reusable table structures", alsoMatches: ["/schemas/"] },
   { title: "Agents", href: "/agents", icon: Bot, description: "Configure your agents", alsoMatches: ["/agents/"] },
   { title: "Presets", href: "/presets", icon: Sparkles, description: "Start from a built-in agent preset", alsoMatches: ["/presets/"] },
 ];
@@ -88,6 +87,7 @@ const dataItems: NavItem[] = [
   { title: "Schedules", href: "/schedules", icon: Clock, description: "Recurring automated runs", alsoMatches: ["/schedules/"] },
   { title: "Documents", href: "/documents", icon: FileText, description: "Shared context library", alsoMatches: ["/documents/"] },
   { title: "Tables", href: "/tables", icon: Table2, description: "Structured data views", alsoMatches: ["/tables/"] },
+  { title: "Schemas", href: "/schemas", icon: LayoutTemplate, description: "Reusable table structures", alsoMatches: ["/schemas/"] },
 ];
 
 const observeItems: NavItem[] = [
