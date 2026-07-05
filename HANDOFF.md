@@ -1,44 +1,22 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **`pack-primitive-resurface` wave 1 BUILT — uncommitted on `main`** (independent
-track, no release/pricing dependency). Three already-existing-but-unreachable capabilities made
-manifest-declarable, lifting EVERY pack with zero new chart components. (1) **Table charts** — new `.strict()`
-`ChartSpecSchema` + `view.bindings.charts` arm (enumerated type/aggregation, no component-ref/formula hatch);
-`loadChartData` (`data.ts`) resolves rows; the **Tracker kit** promotes each declared chart into a `secondary`
-slot via `TableChartView` (off the 3-clicks-deep Charts tab). (2) **`RunCadenceHeatmap` wired** — coach kit
-`buildModel` renders the tested-but-orphaned heatmap in a "Run cadence" slot fed by `coachCadenceCells` (shapes
-matched exactly, zero transform). (3) **KPI trend/spark** — `tableSumWindowedSeries` added to `KpiContext`;
-`evaluateKpi` fills the `trend`/`spark` fields `KpiTile` always accepted, but ONLY for `tableSumWindowed` w/ a
-window + ≥2 daily buckets; every other kind stays an honest flat scalar. **Half B DEFERRED** (operator-picked):
-auto-materialize a default chart for undeclared tables in the buried tab — recorded as an explicit AC deferral
-+ un-defer trigger in the spec, not a silent drop. Verified: 397 tests green (touched areas), tsc clean, full
-browser smoke against live `~/.relay` (chart bars + $425 MTD sparkline + heatmap grid all mount) then torn down
-clean. Also fixed a latent date-window time-bomb in `run-cadence-heatmap.test.tsx` (pre-existing failure 8→7).
-Memory `resurface-before-build-primitive-pattern`. Prior tail: `pack-agency-bundle` (`a03e53dd`), pack-taxonomy
-(`3ee81dd0`), `pack-bundle-model` (`3bc9b05c`), 0.31.0 (`a661054e`) — full detail in git.)_
+_Last updated: 2026-07-05 (pt: **0.32.0 packs-evolution RELEASED** (`v0.32.0`→`b181a24d`; annotated tag,
+publish CI `28757924752` green incl. npx prod smoke, npm `latest`, GitHub Release + SBOM; issue #39 shipped).
+Cut in three bisectable commits: pricing fix + drift-gate generalization (`b0e05e4c`), prod-smoke Case L2
+bundle-flatten case (`5a7a7e8e`), the release chore (`b181a24d`). The whole packs-evolution arc (persona/industry
+split, bundle-model, Agency bundles, taxonomy, wave-1 resurface) is now released. apiVersion 0.31→0.32. 8
+pre-existing failures re-confirmed unchanged (router×6 + settings×1 + glance-shadow×1). Prior tail: wave-1
+resurface (`c3dd178e`), 0.31.0 (`a661054e`) — full detail in git + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — release the packs-evolution arc, or `pack-primitive-resurface`
+## ▶️ NEXT SESSION — packs-evolution shipped; follow-up is pack DEPTH
 
-- **The packs-evolution arc is BUILT + unreleased on `main`** (persona/industry split `3797c839`, bundle-model
-  `3bc9b05c`, agency-bundle `a03e53dd`, taxonomy `3ee81dd0`). The natural next move is to **cut the release**:
-  version bump + ANNOTATED tag (memory `release-tag-must-be-annotated`); apiVersion window bump IF minor (memory
-  `apiversion-window-bump-at-version-bump`). **BLOCKER before shipping:** the industry-pack + bundle `price` is a
-  PLACEHOLDER ($199/year) — needs operator + Website `_RELAY.md` coordination (memory
-  `packs-evolution-requirements-extracted` bundle-pricing). The bundle is a distinct SKU from the standalone CRE
-  pack; confirm the bundle price with the operator before it ships.
-- **Prod-smoke Case L:** updated to the split's counts already, but a BUNDLE pack is NOT yet exercised in Case L.
-  Before tagging, add a bundle-install case (or grep Case L for the seed 403/counts a bundle touches) — memory
-  `prod-smoke-encodes-contracts`.
-- **`pack-primitive-resurface` wave 1 is BUILT but UNCOMMITTED on `main`** (14 files, all TDD + browser-smoked).
-  Independent track, no release/pricing dependency — can commit anytime. Suggested split for bisectability:
-  one commit per item (heatmap-wire / kpi-trend-spark / chart-declarability) or one feature commit. Presentation +
-  engine-schema change; NOT release-gated. `pack-depth-next-wave` (build genuinely-NEW primitives) is the natural
-  follow-up now that wave-1 resurfacing is done. Half B (auto-default-chart-in-tab) deferred w/ trigger in the spec.
-- `decisions_open` still needing operator+Website calls: when-dependsOn-earns-weight (P3 trigger),
-  bundle-pricing-mechanics (`pricing.json` + `_RELAY.md` coord).
+- **`pack-depth-next-wave` is the natural next arc** now that the persona/industry split + wave-1 resurfacing are
+  released: build genuinely-NEW primitives (not just resurface existing ones). `decisions_open`:
+  when-dependsOn-earns-weight (P3 trigger — the dependsOn-trigger + bundle-pricing opens from
+  `packs-evolution-requirements-extracted`).
+- **Optional cross-peer confirm:** post to `strategy/relay/_RELAY.md` that the 4 industry/bundle packs are synced
+  to `pricing.json` (read-only confirm; NOT required — the generalized drift gate enforces it structurally now).
 
-- **0.31.0 shipped clean** (`v0.31.0`→`a661054e`; F5 card lift + F6 nav move; CI green, on npm). Nothing
-  outstanding — full detail in "Recently shipped" + git.
 - **F5 follow-up (deferred, operator-confirmed):** lift the two dense analytics dashboards
   `costs/cost-dashboard.tsx` + `apps/ledger-hero-panel.tsx` (hand-rolled `surface-card` chart panels) to
   the card recipe — held out for chart-layout-regression risk. Reactive/optional.
@@ -94,8 +72,8 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **docs/index.md + docs/features|journeys|use-cases are GITIGNORED** (generated corpus).
   Public docs = README + SECURITY.md + docs/trust/ + docs/RELEASING.md +
   docs/plugin-security.md. Trust-doc claims must stay code-true.
-- **Pre-existing test failures (NOT regressions), 8** (re-confirmed 0.30.0): `router.test.ts` (6),
-  `run-cadence-heatmap`/`settings` validator (2); plus `src/__tests__/e2e/blueprint.test.ts`
+- **Pre-existing test failures (NOT regressions), 8** (re-confirmed 0.32.0 by stash-and-run on the pre-bump
+  tree): `router.test.ts` (6), `settings` validator (1), `settings/glance` shadow-path (1); plus `src/__tests__/e2e/blueprint.test.ts`
   is environmental (needs a running dev server). `agency-pro-update.test.ts` can flake under the full
   parallel run (row-trigger timing) — passes in isolation.
 - **`next` PINNED exactly (16.2.4)**; Next 16 emits `.next/node_modules` symlinks — the
@@ -121,34 +99,28 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**`pack-primitive-resurface` wave 1 (BUILT, UNCOMMITTED on `main`):** engine-side resurfacing shared by all
-packs — manifest-declarable table charts (`ChartSpecSchema` `.strict()` + `view.bindings.charts` → Tracker
-`secondary` slot), wired the orphaned `RunCadenceHeatmap` into the coach kit, and fed `trend`/`spark` into
-`evaluateKpi` (windowed KPIs only). Half B deferred w/ trigger. TDD + full browser smoke. Memory
-`resurface-before-build-primitive-pattern`. Follow-up: `pack-depth-next-wave` (NEW primitives).
-
-**Packs-evolution (BUILT, NOT released — on `main`, behind the next release cut):** `pack-generalize-agency`
-P0 (`3797c839`) — persona/industry split: free `relay-agency` neutralized+fattened (7·7·4), paid `relay-cre`
-(3·3·1) + `relay-nonprofit` (3·4·2), `relay-agency-pro` → vertical-neutral automation (6·4·2, v0.5.0); only
-relay-agency free, rest = one license `product:orionfold-relay` (memory `persona-pack-manual-automated-split`,
-`pack-install-drops-by-dir-scan`). Then `pack-bundle-model` P1 (`3bc9b05c`), `pack-agency-bundle` (`a03e53dd`),
-pack-taxonomy (`3ee81dd0`) (memories `pack-bundle-flatten-model`, `pack-taxonomy-shared-registry`).
+**0.32.0 (RELEASED — `v0.32.0`→`b181a24d`; publish CI `28757924752` green incl. npx prod smoke; npm `latest` +
+GitHub Release + SBOM + OIDC; issue #39):** the whole packs-evolution arc released. `pack-generalize-agency` P0
+(`3797c839`) persona/industry split — free `relay-agency` neutralized+fattened (7·7·4), paid `relay-cre` (3·3·1)
++ `relay-nonprofit` (3·4·2), `relay-agency-pro` → vertical-neutral automation (6·4·2, v0.5.0); only relay-agency
+free, rest = one license `product:orionfold-relay`. `pack-bundle-model` P1 (`3bc9b05c`) + `pack-agency-bundle`
+(`a03e53dd`, Agency-for-CRE / Agency-for-Nonprofit flatten a persona+industry pack into ONE app) + pack-taxonomy
+(`3ee81dd0`); wave-1 resurface (`c3dd178e`, manifest table charts + RunCadenceHeatmap + trend/spark KPIs) rode
+alongside. This session's release commits: pricing fix + drift-gate glob-every-premium-pack (`b0e05e4c`),
+prod-smoke Case L2 bundle-flatten (`5a7a7e8e`), release chore + apiVersion 0.31→0.32 (`b181a24d`). Memories
+`persona-pack-manual-automated-split`, `pack-bundle-flatten-model`, `pack-taxonomy-shared-registry`,
+`packs-license-price-is-shared-not-per-pack`, `resurface-before-build-primitive-pattern`.
 
 **0.31.0 (RELEASED — `v0.31.0`→`a661054e`; publish CI `28747032762`):** app-wide card design lift (F5) +
-Schemas Compose→Data nav move (F6). Base `ui/card.tsx` gains `tone`/`emphasis`/`watermark`+`watermarkColor`
-(`149c7122`); operator-refined to own-glyph colored-by-type uniform watermark (`4ab95caf`,`b8d7498e`); swept
-LOW (`89f657b0`) / MED (`1966d42b`) / RICH (`b8d7498e`) surfaces + F2 CSS-multicolumn masonry (`86dc62a2`);
-F6 (`866a4823`). Recipe + taste rule in memories `card-watermark-recipe` / `card-watermark-taste-rule`.
-Deferred: cost-dashboard + ledger-hero. Presentation-only (NOT runtime-registry-adjacent); apiVersion
-0.30→0.31. 0 test regressions; prod build green.
+Schemas Compose→Data nav move (F6). Base `ui/card.tsx` gains `tone`/`emphasis`/`watermark`+`watermarkColor`;
+operator-refined to own-glyph colored-by-type uniform watermark; swept LOW/MED/RICH surfaces + F2 CSS-multicolumn
+masonry. Recipe + taste rule in memories `card-watermark-recipe` / `card-watermark-taste-rule`. Deferred:
+cost-dashboard + ledger-hero. Presentation-only; apiVersion 0.30→0.31. 0 test regressions.
 
-**0.30.0 (RELEASED — `v0.30.0`→`8519e9af`; npm `latest` + GitHub Release + SBOM + OIDC CI green incl. npx prod
-smoke Case L):** the final four operator-walkthrough requirements. FEAT-6 (`82861850`) two-verb `RunNowButton`
-on `/blueprints` gallery cards (blueprint-only; stopPropagation guard vs the clickable Card). FEAT-13
-(`cb97eb9e`) extracted `ProfilePresetGallery` → `/presets` route + "Presets" Compose nav peer of Agents (nav
-elevation, not a new feature). CF-FEAT-2 (`0c3c0262`) + FEAT-7 (`c21441c1`) bundled from the prior unbuilt-
-release. apiVersion 0.29→0.30. `OPERATOR-REQUIREMENTS.md` retired. Memories `two-verb-run-is-blueprint-only`,
-`compose-submenu-elevation-pattern`.
+**0.30.0 (RELEASED — `v0.30.0`→`8519e9af`):** the final four operator-walkthrough requirements — FEAT-6 two-verb
+`RunNowButton` on `/blueprints` cards, FEAT-13 `ProfilePresetGallery` → `/presets` nav peer, CF-FEAT-2 + FEAT-7.
+apiVersion 0.29→0.30. Memories `two-verb-run-is-blueprint-only`, `compose-submenu-elevation-pattern`. Full detail
+in git + CHANGELOG.
 
 **0.29.1 (RELEASED — `v0.29.1`→`e210e49a`):** #31 blueprint-card husk fix. `BlueprintCard.resolved` flag +
 honest "couldn't load, reinstall the pack" card with NO fake Run when a definition can't resolve; working
