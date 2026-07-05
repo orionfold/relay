@@ -1,6 +1,6 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **`pack-bundle-model` (P1) BUILT, NOT committed** — compose-then-install
+_Last updated: 2026-07-05 (pt: **`pack-bundle-model` (P1) BUILT + committed (`3bc9b05c`)** — compose-then-install
 flatten shipped to source: a bundle pack declares `bundle: [childIds]` (no base/manifest.yaml) and
 `mergeBundle` (new `src/lib/packs/bundle.ts`, pure) flattens children into ONE synthetic pack that the
 existing single-app `installPack` flow runs unchanged, so the logical→real UUID rewrite spans the merged
@@ -12,9 +12,9 @@ first-hero+concat-rest; entitlement gates once; git-URL children refused. Test-o
 fails (0 regressions); e2e module-graph smoke + live dev server both clean. Memory `pack-bundle-flatten-model`.
 Prior tail: `pack-generalize-agency` P0 (`3797c839`), 8 pack-catalog specs (`42cf3c4a`), 0.31.0 (`a661054e`).)_
 
-## ▶️ NEXT SESSION — commit `pack-bundle-model`, then `pack-agency-bundle` (the first bundle proof)
+## ▶️ NEXT SESSION — `pack-agency-bundle` (the first bundle proof)
 
-- **`pack-bundle-model` (P1) is BUILT but UNCOMMITTED** — commit it (spec status=built + verification note).
+- **`pack-bundle-model` (P1) is BUILT + committed (`3bc9b05c`)** — spec status=built with a verification note.
   Next in the §8.1 sequence: **`pack-agency-bundle`** (Agency→CRE, the operator's locked first-bundle proof),
   which CONSUMES this bundle format directly — a `pack.yaml` with `bundle: [relay-agency, relay-cre]`, no merge
   code changes. Full order in the specs' roadmap + memory `packs-evolution-requirements-extracted`.
@@ -117,7 +117,7 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 P0 (`3797c839`) — persona/industry split: free `relay-agency` neutralized+fattened (7·7·4), paid `relay-cre`
 (3·3·1) + `relay-nonprofit` (3·4·2), `relay-agency-pro` → vertical-neutral automation (6·4·2, v0.5.0); only
 relay-agency free, rest = one license `product:orionfold-relay` (memory `persona-pack-manual-automated-split`,
-`pack-install-drops-by-dir-scan`). Then `pack-bundle-model` P1 (uncommitted) — the flatten composition model
+`pack-install-drops-by-dir-scan`). Then `pack-bundle-model` P1 (`3bc9b05c`) — the flatten composition model
 (memory `pack-bundle-flatten-model`). Next consumer: `pack-agency-bundle`.
 
 **0.31.0 (RELEASED — `v0.31.0`→`a661054e`; publish CI `28747032762`):** app-wide card design lift (F5) +
