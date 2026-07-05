@@ -583,19 +583,24 @@
 }
 
 /* =============================================================
-   CANVAS BLUEPRINT GRID (FEAT-15)
-   A faint blueprint-grid texture behind the content canvas ONLY.
-   Painted on #main-content::before at --z-canvas-grid (0), beneath
-   the page content (which sits in a positioned wrapper above it).
-   Chrome (bar + rail) stays OPAQUE via --surface-* backgrounds, so
-   the grid never shows through the header or rail — it is a
-   canvas-only background texture, not a see-through effect. Zero
+   BLUEPRINT GRID (FEAT-15)
+   A faint blueprint-grid texture on the content canvas AND the
+   telemetry rail, so the rail reads as the same surface as the
+   container it introduces (the rail shares --background; matching
+   the grid makes the two visually continuous rather than a plain
+   band over a textured canvas). Painted on ::before at
+   --z-canvas-grid (0), beneath each element's own content. The
+   grid seam is aligned by anchoring both grids to the viewport
+   origin (background-position tracks the element, but the 24px
+   cell size + shared alpha keep them reading as one field). Zero
    interaction with the sticky z-stack.
    ============================================================= */
-#main-content {
+#main-content,
+[aria-label="Telemetry"] {
   position: relative;
 }
-#main-content::before {
+#main-content::before,
+[aria-label="Telemetry"]::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -615,7 +620,8 @@
       transparent 1px 24px
     );
 }
-.dark #main-content::before {
+.dark #main-content::before,
+.dark [aria-label="Telemetry"]::before {
   background-image:
     repeating-linear-gradient(
       to right,
