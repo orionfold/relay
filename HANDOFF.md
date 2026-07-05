@@ -1,12 +1,13 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **0.29.1 RELEASED (`v0.29.1`→`e210e49a`; npm `latest` + GitHub Release + OIDC
-CI green incl. npx prod smoke Case L) — ships the #31 blueprint-card husk fix; #31 closed `shipped`.** With
-that, ALL operator-filed bugs are Delivered — **zero open bugs**. This session also reconciled
-OPERATOR-REQUIREMENTS after 0.29.0 (closed #32/#33/#34/#36/#37 `shipped`, filed #38) and adopted the "shipped
-= delivered" acceptance policy (a release / "ship it" IS signoff — memory `shipped-equals-delivered`). #31
-root cause = silent-husk fallback when `getBlueprint` misses, NOT the cache race the issue claimed (memory
-`blueprint-card-husk-root-cause`). Prior: 0.29.0 (`v0.29.0`→`9b9ea0f2`). Full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-05 (pt: **Deferred re-verify pass DONE (live browser, `npm run dev`): CF-BUG-3 +
+CF-FEAT-8 confirmed Delivered; CF-FEAT-2 OVERTURNED → reopened Pending** — the free↔paid Agency-pack
+relationship was never actually built (both packs exist but no copy links them). Tracker now: **22 Delivered,
+0 open bugs, 0 Deferred, 4 Pending** (FEAT-6/7/13 + CF-FEAT-2). Prior: 0.29.1 RELEASED (`v0.29.1`→`e210e49a`;
+npm `latest` + GitHub Release + OIDC CI green incl. npx prod smoke Case L) — #31 blueprint-card husk fix, all
+operator-filed bugs Delivered. "shipped = delivered" acceptance policy holds (memory
+`shipped-equals-delivered`). #31 root cause in memory `blueprint-card-husk-root-cause`. Full detail: git log +
+CHANGELOG.)_
 
 ## 📋 Operator requirements tracker — `OPERATOR-REQUIREMENTS.md` (LIVE until all Delivered)
 Durable roll-up of ALL ~24 findings/asks from the 2026-07-04 operator harness walkthrough (origin:
@@ -15,14 +16,18 @@ Durable roll-up of ALL ~24 findings/asks from the 2026-07-04 operator harness wa
 (backlog FEAT-6/7/13), 3 Deferred, 2 Dropped.** Retire the file once the 3 backlog features + 3 Deferred
 resolve.
 
-## ▶️ NEXT SESSION — backlog features + Deferred re-verify (no open bugs)
+## ▶️ NEXT SESSION — backlog features only (no open bugs, no Deferred)
 
-All operator-filed bugs are Delivered. What's left in the tracker is discretionary:
-- **Backlog features (LOW):** FEAT-6 (Run + Create-Workflow two-button card — unblocked by BUG-4),
-  FEAT-7 (filter-by-installed-pack across all 4 primitive views — needs ONE primitive→pack source-of-truth),
-  FEAT-13 (Profile Templates → Compose submenu — **scope UNCONFIRMED with operator**; no such surface exists yet).
-- **Deferred re-verify (live):** CF-BUG-3 (workflow HITL), CF-FEAT-2 (free vs paid Agency on Packs),
-  CF-FEAT-8 (post-Execute signpost) — each claimed shipped; a browser re-verify flips them Delivered or reopens.
+All operator-filed bugs are Delivered and the Deferred bucket is cleared (2026-07-05 re-verify). What's
+left in the tracker is 4 discretionary backlog features (all LOW):
+- **CF-FEAT-2 (reopened, SMALL):** free↔paid Agency pack relationship on `/packs`. Both packs exist
+  (`relay-agency` Free + `relay-agency-pro` Premium) but render as INDEPENDENT cards with no linking copy.
+  Fix = add relationship copy to both cards (free → "upgrade to Pro"; Pro → "builds on the free Agency pack").
+  Copy-only; no new mechanism. (Also noticed live: the free Agency card shows an odd "Update to v0.1.0" prompt
+  while marked Installed with no version — worth a glance but separate from CF-FEAT-2.)
+- **FEAT-6** (Run + Create-Workflow two-button card — unblocked by BUG-4),
+  **FEAT-7** (filter-by-installed-pack across all 4 primitive views — needs ONE primitive→pack source-of-truth),
+  **FEAT-13** (Profile Templates → Compose submenu — **scope UNCONFIRMED with operator**; no such surface exists yet).
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
 `create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests (#5/#6/#11/#12); other

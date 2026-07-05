@@ -25,9 +25,10 @@ when its fix ships in a release. Note the release version + commit/issue. Keep t
 Verify status against issue state + git log, NOT spec self-claims (memory
 `verify-walkthrough-findings-before-grooming`).
 
-_Last updated: 2026-07-05 · applied "shipped = delivered" (0.25.0–0.29.0 work → Delivered), then fixed +
-RELEASED the last open bug #31 in 0.29.1 (`cafc17b4`). **20 Delivered, 0 open bugs.** Only 3 backlog
-features (FEAT-6/7/13) + 3 Deferred re-verifies remain._
+_Last updated: 2026-07-05 · after the 0.29.1 release (#31, `cafc17b4`), ran the **Deferred re-verify pass**
+(live browser): CF-BUG-3 + CF-FEAT-8 confirmed Delivered; **CF-FEAT-2 overturned → reopened Pending** (the
+free↔paid Agency-pack relationship was never built). **22 Delivered, 0 open bugs, 0 Deferred.** Remaining:
+4 Pending backlog features (FEAT-6/7/13 + CF-FEAT-2)._
 
 ---
 
@@ -76,9 +77,9 @@ features (FEAT-6/7/13) + 3 Deferred re-verifies remain._
 |----|-------------|--------|-----------------|
 | TASK-1 | Brainstorm Profiles → "Agents" rename | **Delivered** | S43/S45 executed the rename (`profile.yaml`→`agent.yaml`, routes, copy). |
 | FEAT-13 | Profile Templates → Compose submenu | **Pending** | Caveat: no Profile Templates surface exists yet (Tables has one, Profiles doesn't); likely needs creating first. Scope UNCONFIRMED with operator. |
-| CF-BUG-3 | Workflow HITL (agents ask user mid-workflow) | **Deferred** | Pending live re-verify; handoff claims shipped `4c0bae6c`. Fold into app-shell acceptance criteria. |
-| CF-FEAT-2 | Free "Agency" vs paid "Agency Pro" relationship on Packs | **Deferred** | Pending live re-verify; not re-checked this run. |
-| CF-FEAT-8 | Post-Execute signpost to Monitor/Inbox | **Deferred** | Pending live re-verify; `computeSignpost` claimed shipped. |
+| CF-BUG-3 | Workflow HITL (agents ask user mid-workflow) | **Delivered** | 2026-07-05 live re-verify: paused HITL workflow (HIPAA Content Review) holds honestly (not auto-failed); Inbox shows a completed checkpoint round-trip (Responded/Allowed); halt-on-refusal visible as honest nil reports in run output; `hitl-ask-user.test.ts` 3/3 pass. Shipped `4c0bae6c` (in 0.25.0+). |
+| CF-FEAT-2 | Free "Agency" vs paid "Agency Pro" relationship on Packs | **Pending (reopened)** | 2026-07-05 live re-verify OVERTURNED the shipped claim: `/packs` renders `relay-agency` (Free) + `relay-agency-pro` (Premium) as two INDEPENDENT cards with NO copy linking them. The free→paid relationship was never built (source-confirmed: neither `pack.yaml` references the other). Needs relationship copy (free card → "upgrade to Pro"; Pro card → "builds on the free Agency pack"). Backlog. |
+| CF-FEAT-8 | Post-Execute signpost to Monitor/Inbox | **Delivered** | 2026-07-05 live re-verify: `draft` shows "Ready to go. Click Execute"; `paused` HITL shows "Waiting for your approval. Answer it in your Inbox." (inbox icon, warning tone); banner is a working link (clicking routed to /inbox). All `computeSignpost` branches render as specified. Shipped in 0.25.0+. |
 | CF-FEAT-1 | License date renders 1 day early | **Dropped** | Verify gate overturned: real license `01:10:21Z` renders correctly. Re-verify live only if operator sees it. |
 | Manifest chevron (CF-FEAT-4) | Chevron direction vs slide-sheet | **Dropped** | `ChevronRight` matches right sheet; consistent affordance. |
 
@@ -88,9 +89,9 @@ features (FEAT-6/7/13) + 3 Deferred re-verifies remain._
 
 | Status | Count | Items |
 |--------|:---:|-------|
-| **Delivered** | 20 | BUG-6 (#35), FEAT-5, TASK-1, FEAT-9/10/11/11b/12, FEAT-14/15/16, CF-FEAT-5/6/7/8, FEAT-8, BUG-1/2/3/4/5 (#36/33/31/32/34), FEAT-4 (#37) |
-| **Pending** | 3 | FEAT-6, FEAT-7, FEAT-13 |
-| **Deferred** | 3 | CF-BUG-3, CF-FEAT-2, CF-FEAT-8 |
+| **Delivered** | 22 | BUG-6 (#35), FEAT-5, TASK-1, FEAT-9/10/11/11b/12, FEAT-14/15/16, CF-FEAT-5/6/7/8, FEAT-8, BUG-1/2/3/4/5 (#36/33/31/32/34), FEAT-4 (#37), CF-BUG-3, CF-FEAT-8 |
+| **Pending** | 4 | FEAT-6, FEAT-7, FEAT-13, CF-FEAT-2 (reopened) |
+| **Deferred** | 0 | — |
 | **Dropped** | 2 | CF-FEAT-1, Manifest chevron |
 
 **Path to full delivery (operator satisfaction):**
@@ -99,5 +100,9 @@ features (FEAT-6/7/13) + 3 Deferred re-verifies remain._
 2. ✅ **S48 chrome spec implemented + released 0.29.0** → FEAT-14/15/16 Delivered.
 3. ✅ **#31 RELEASED in 0.29.1** (`cafc17b4`) — honest "couldn't load" card replaces the silent husk.
    **All operator-filed bugs are now Delivered; zero open bugs remain.**
-4. **Groom the remaining feature backlog** (FEAT-6/7/13) + confirm the 3 Deferred via a live re-verify run.
-5. **Operator confirms** each cluster on a fresh `npx` walkthrough → mark Delivered.
+4. ✅ **Deferred re-verify run 2026-07-05** (live browser, `npm run dev`): CF-BUG-3 + CF-FEAT-8
+   confirmed Delivered; **CF-FEAT-2 overturned → reopened Pending** (the free↔paid pack relationship
+   was never actually built). **Zero Deferred remain.**
+5. **Groom the remaining feature backlog** (FEAT-6/7/13 + reopened CF-FEAT-2). CF-FEAT-2 is small:
+   add relationship copy to both Agency pack cards on `/packs`.
+6. **Operator confirms** each cluster on a fresh `npx` walkthrough → mark Delivered.
