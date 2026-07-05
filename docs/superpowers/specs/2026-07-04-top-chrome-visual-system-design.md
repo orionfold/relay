@@ -1,7 +1,7 @@
 ---
 title: Top-Chrome Visual-System Redesign
 date: 2026-07-04
-status: design — awaiting implementation-plan
+status: IMPLEMENTED 2026-07-04 (L1 db637c13 · L2 1f3da83c · L3 eae30aac) — dev-smoke verified both themes
 scope_mode: HOLD (max rigor on the 8 named FEAT items; Error & Rescue Registry required)
 approach: C — rail re-typography (freeze lifted for typography only)
 blast_radius: medium — ~9 files across shell components, one API route, globals.css, and an
@@ -330,3 +330,37 @@ runtime-registry-adjacent *shell* surface, not the runtime catalog itself), veri
 7. **Shadow paths:** with no runtime configured → model falls back to `runtimeLabel`; with the config
    endpoint stubbed to 500 → identity cluster is absent, no crash, dev-warn logged.
 8. `npm test` green (esp. `telemetry-rail.test.tsx` cell-count = 10 still passes).
+
+---
+
+## Resolution (implemented 2026-07-04)
+
+Built in dependency order across three bisectable commits, TDD per layer:
+
+- **L1 (`db637c13`)** — new `GET /api/instance/identity` + `useInstanceIdentity()` hook. Both
+  shadow-path rules enforced and unit-tested (8 route tests): `version` maps the `0.0.0`/non-semver
+  build-fallback to `null`; `licenseTag` is a discriminated union. `activeModel` resolves via
+  `resolvePreferredModel(pickActiveRuntime(...).runtimeId)` — `pickActiveRuntime` extracted from the
+  telemetry route into `runtime-setup.ts` as a shared helper (4 tests), so one definition of "which
+  runtime is live" feeds both the rail and the identity endpoint. `TelemetrySnapshot` untouched.
+- **L2 (`1f3da83c`)** — `BarIdentityCluster` in the app-bar right cluster (version pill · license tag ·
+  labeled auth dot). `AuthStatusDot` gained an opt-in `showLabel` (default false, all other call
+  sites unaffected). 5 shadow-path tests.
+- **L3 (`eae30aac`)** — `--chrome-*` offset tokens + named `--z-*` scale in `globals.css`; descending
+  surface elevation (s-1/s-2/s-3); `#main-content::before` blueprint grid (theme-aware, opaque chrome
+  above); rail re-typography (value→`text-base`, band 78→88px); active model in the RUNTIME cell;
+  cyan rail live-dot. 2 FEAT-10 tests added.
+
+**Dev-smoke (all 8 steps passed, both themes).** One notable finding, in our favor: the operator's
+Chrome renders at a **14px root font-size**, so `--chrome-header` (`calc(3.5rem + 2.75rem)`) resolved
+to **87.5px**, not the 100px the spec assumed — and the rail's sticky `top` tracked it *exactly*,
+sitting flush at the header's real bottom. Because the offset is expressed in the **same `rem` unit**
+as the header's `h-14`/`h-11` Tailwind heights, the fix is robust across any root font-scale; a
+hardcoded `100px` would have left a 12.5px gap here. The spec's literal 100px is correct at a 16px
+root but the token is strictly more correct. No code change needed — the `rem`-based token already
+does the right thing.
+
+99 tests green across the touched scopes; the 8 suite-wide failures are the pre-existing set (handoff
+`router.test.ts` ×6 + heatmap/settings validator ×2), none in the redesign's diff. `RailCell` prop
+signature + `TelemetrySnapshot` shape verified unchanged (freeze amendment held). Freeze-doc amendment
+already present in `_SPECS/feature-cut-freeze.md` Target 4 — strategy-repo owner commits it.
