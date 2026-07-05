@@ -6,6 +6,12 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.29.1] — 2026-07-05
+
+### Fixed
+
+- **A workflow card that can't load now says so, instead of looking broken.** On your app's home, if one of a pack's workflows couldn't be found (for example after a half-finished install), its card used to show a raw code name and a Run button that did nothing when clicked. That card now says plainly that the workflow couldn't load and to reinstall the pack to restore it, with no dead button to click. Every workflow that is working shows its real name and Run button exactly as before.
+
 ## [0.29.0] — 2026-07-05
 
 ### Added
