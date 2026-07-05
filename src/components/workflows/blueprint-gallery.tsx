@@ -13,6 +13,7 @@ import { Search, Layers, Plus } from "lucide-react";
 import { patternLabels } from "@/lib/constants/status-colors";
 import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import { PackPill } from "@/components/shared/pack-pill";
+import { RunNowButton } from "@/components/apps/run-now-button";
 import { packOf } from "@/lib/apps/pack-of";
 import type { WorkflowBlueprint } from "@/lib/workflows/blueprints/types";
 
@@ -215,6 +216,18 @@ export function BlueprintGallery() {
                       <span>{bp.estimatedDuration}</span>
                     </>
                   )}
+                </div>
+                {/* FEAT-6: the two-verb Run / Create workflow control the operator
+                    asked for on EVERY blueprint card. Wrapped so its clicks and
+                    keystrokes don't bubble to the card's navigate-to-detail
+                    handler — a bare button inside the clickable card would fire
+                    both the run and the navigation. */}
+                <div
+                  className="mt-3"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                >
+                  <RunNowButton blueprintId={bp.id} variables={bp.variables} label="Run" />
                 </div>
               </CardContent>
             </Card>
