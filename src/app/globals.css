@@ -103,6 +103,24 @@
   --surface-3: oklch(0.96 0.006 250);
   --surface-foreground: oklch(0.14 0.02 250);
 
+  /* Instrument palette (WS3, 2026-07-05) — the relay-website technique ported
+     into the app: a two-tier teal blueprint grid, translucent teal elevation
+     washes, and an accent glow, ALL derived from --primary so they track the
+     theme automatically (dark teal vs light teal, no .dark override needed).
+     These are ADDITIVE — surfaces stay neutral; the teal lives only in the
+     grid/glow/wash LAYERS painted over neutral surfaces (per the website). Light
+     washes run slightly hotter than dark since teal-on-white is subtle. */
+  --grid-line: color-mix(in oklch, var(--primary) 10%, transparent);   /* fine 24px hairline */
+  --grid-major: color-mix(in oklch, var(--primary) 18%, transparent);  /* major 120px line */
+  --glow-accent: color-mix(in oklch, var(--primary) 22%, transparent); /* ambient accent (light) */
+  --wash-1: color-mix(in oklch, var(--primary) 5%, transparent);       /* faintest teal wash */
+  --wash-2: color-mix(in oklch, var(--primary) 8%, transparent);
+  --wash-3: color-mix(in oklch, var(--primary) 12%, transparent);      /* strongest teal wash */
+  /* The translucent instrument rail: a tint of --surface-2 the grid reads
+     through, + a faint teal seam-glow on the rail's top edge. */
+  --rail-surface: color-mix(in oklch, var(--surface-2) 84%, transparent);
+  --rail-glow: color-mix(in oklch, var(--primary) 12%, transparent);
+
   /* Accent */
   --accent: oklch(0.955 0.01 250);
   --accent-foreground: oklch(0.25 0.03 250);
@@ -180,6 +198,13 @@
   --chrome-tier1: 3.5rem;  /* h-14 — tier-1 nav bar */
   --chrome-tier2: 2.75rem; /* h-11 — tier-2 sub-nav */
   --chrome-header: calc(var(--chrome-tier1) + var(--chrome-tier2)); /* 100px */
+  /* The telemetry rail's height (was a magic h-[88px]). The settings-glance
+     collapsed row parks sticky BELOW the rail, so its `top` is header + rail;
+     tokenizing keeps that offset honest if the rail height ever changes. We do
+     NOT fold these into --chrome-header — that token is the telemetry rail's own
+     `top` and folding rail height in would shove the rail under the header. */
+  --chrome-rail: 88px;     /* telemetry rail height */
+  --chrome-glance-top: calc(var(--chrome-header) + var(--chrome-rail)); /* 188px — glance sticky top */
 
   /* Named z-scale — formalizes values previously scattered as magic numbers
      (z-20/z-30/100/9999). Header always wins over rail; grid sits below all
@@ -227,6 +252,19 @@
   --surface-2: oklch(0.15 0.02 250);         /* steps back */
   --surface-3: oklch(0.115 0.018 250);       /* deepest — the instrument rail */
   --surface-foreground: oklch(0.92 0.01 250);
+
+  /* Instrument palette (WS3) — dark. Same derivation from --primary (dark teal
+     oklch 0.78/.13/192), but the grid runs slightly hotter than light because
+     the bright teal reads faint over the charcoal ground, and the seam-glow is
+     a touch stronger. Washes track --primary; surfaces stay neutral charcoal. */
+  --grid-line: color-mix(in oklch, var(--primary) 12%, transparent);   /* fine 24px hairline */
+  --grid-major: color-mix(in oklch, var(--primary) 22%, transparent);  /* major 120px line */
+  --glow-accent: color-mix(in oklch, var(--primary) 26%, transparent); /* ambient accent (dark) */
+  --wash-1: color-mix(in oklch, var(--primary) 4%, transparent);
+  --wash-2: color-mix(in oklch, var(--primary) 6%, transparent);
+  --wash-3: color-mix(in oklch, var(--primary) 10%, transparent);
+  --rail-surface: color-mix(in oklch, var(--surface-2) 82%, transparent);
+  --rail-glow: color-mix(in oklch, var(--primary) 14%, transparent);
 
   /* Accent */
   --accent: oklch(0.20 0.02 250);
@@ -583,17 +621,18 @@
 }
 
 /* =============================================================
-   BLUEPRINT GRID (FEAT-15)
-   A faint blueprint-grid texture on the content canvas AND the
-   telemetry rail, so the rail reads as the same surface as the
-   container it introduces (the rail shares --background; matching
-   the grid makes the two visually continuous rather than a plain
-   band over a textured canvas). Painted on ::before at
-   --z-canvas-grid (0), beneath each element's own content. The
-   grid seam is aligned by anchoring both grids to the viewport
-   origin (background-position tracks the element, but the 24px
-   cell size + shared alpha keep them reading as one field). Zero
-   interaction with the sticky z-stack.
+   BLUEPRINT GRID (FEAT-15 → instrument palette WS3, 2026-07-05)
+   A two-tier TEAL blueprint grid on the content canvas AND the
+   translucent telemetry rail — the relay-website technique ported
+   in. Fine 24px hairlines (--grid-line) + major 120px lines
+   (--grid-major), teal-tinted (derived from --primary, so it
+   tracks the theme automatically — no .dark override), with a
+   radial edge mask so it fades at the margins (a drafting surface,
+   not a hard tiled sheet). Painted on ::before at --z-canvas-grid
+   (0), beneath each element's own content. The rail is translucent
+   (see .rail-instrument) so the canvas grid AND the rail's own
+   grid both read through, reading as one continuous gridded field.
+   Zero interaction with the sticky z-stack.
    ============================================================= */
 #main-content,
 [aria-label="Telemetry"] {
@@ -606,33 +645,69 @@
   inset: 0;
   z-index: var(--z-canvas-grid);
   pointer-events: none;
-  /* 24px grid of hairlines. Light: dark ink at very low opacity; dark:
-     light ink at very low opacity — a drafting-paper feel in both themes. */
+  /* Two tiers: fine 24px cells + major 120px cells (every 5th line). Both
+     teal, derived from --primary via --grid-line / --grid-major, so light and
+     dark are handled by the theme's own accent — no per-theme override. */
   background-image:
-    repeating-linear-gradient(
-      to right,
-      oklch(0.14 0.02 250 / 0.03) 0 1px,
-      transparent 1px 24px
-    ),
-    repeating-linear-gradient(
-      to bottom,
-      oklch(0.14 0.02 250 / 0.03) 0 1px,
-      transparent 1px 24px
-    );
+    repeating-linear-gradient(to right, var(--grid-line) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(to bottom, var(--grid-line) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(to right, var(--grid-major) 0 1px, transparent 1px 120px),
+    repeating-linear-gradient(to bottom, var(--grid-major) 0 1px, transparent 1px 120px);
+  /* Radial edge mask — the grid blooms at the optical center and fades to the
+     margins so it reads as a drafting field, not a wall-to-wall tiled sheet. */
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 45%, transparent 100%);
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 45%, transparent 100%);
 }
-.dark #main-content::before,
-.dark [aria-label="Telemetry"]::before {
-  background-image:
-    repeating-linear-gradient(
-      to right,
-      oklch(0.92 0.01 250 / 0.035) 0 1px,
-      transparent 1px 24px
-    ),
-    repeating-linear-gradient(
-      to bottom,
-      oklch(0.92 0.01 250 / 0.035) 0 1px,
-      transparent 1px 24px
-    );
+
+/* Translucent instrument rail (WS2) — a tint of --surface-2 the grid reads
+   through, so the sparkline "graphs" pop on a drafting field while the cell
+   values stay legible. The teal seam-glow (inset top box-shadow) marks the
+   chrome↔canvas seam and ties the rail to the accent system. The grid ::before
+   above still paints on this element (it keys on [aria-label="Telemetry"]). */
+.rail-instrument {
+  background: var(--rail-surface);
+  box-shadow: inset 0 1px 0 0 var(--rail-glow);
+}
+
+/* =============================================================
+   SETTINGS-AT-A-GLANCE RAIL (FEAT-14, WS4 · 2026-07-05)
+   A two-level progressive-disclosure rail below the telemetry
+   rail. Its FIVE zones each get a distinct surface/wash so they
+   read as layers (the /settings page mushes everything onto
+   --surface-1 — this rail must NOT repeat that):
+     (1) glance-row     collapsed chip row — translucent chrome
+                        (like the telemetry rail), grid reads through
+     (2) glance-panel   expanded panel ground — one step toward canvas
+     (3) glance-tile    each group tile — faint teal --wash-1
+     (4) glance-pill    nested value pills — solid --surface-1
+     (5) glance-seam    telemetry-rail↔glance seam — teal hairline glow
+   Collapsed row is sticky under the telemetry rail (top =
+   --chrome-glance-top); the expanded panel is a non-sticky block
+   that pushes content (simple, no overlay jank).
+   ============================================================= */
+.glance-row {
+  /* Zone 1 + Zone 5: translucent chrome over the grid, with a teal
+     seam-glow on its TOP edge marking the telemetry-rail↔glance seam. */
+  background: var(--rail-surface);
+  box-shadow: inset 0 1px 0 0 var(--rail-glow);
+}
+.glance-panel {
+  /* Zone 2: expanded ground — a step toward the canvas (translucent
+     wash-1 over the surface-2 chrome family, so it reads deeper than
+     the collapsed row but still chrome, not content). */
+  background: color-mix(in oklch, var(--surface-2) 88%, transparent);
+}
+.glance-tile {
+  /* Zone 3: group tile — faint teal wash + tinted hairline. The wash
+     (not a darker neutral) is the website's "elevation = teal" move. */
+  background: var(--wash-1);
+  border: 1px solid var(--grid-line);
+}
+.glance-pill {
+  /* Zone 4: nested value pill — solid frontmost surface so values
+     sit clearly above the washed tile. */
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
 }
 
 /* =============================================================

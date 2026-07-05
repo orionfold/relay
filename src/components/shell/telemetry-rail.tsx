@@ -93,12 +93,15 @@ export function TelemetryRail() {
     <div
       // Sticky offset tracks the REAL two-tier header height (--chrome-header,
       // 100px) — the old top-16 (64px) let the rail slide 36px UNDER the header
-      // on scroll. z below the header so the bar always wins. The rail shares the
-      // canvas --background: it belongs to the content plane it introduces, so
-      // the blueprint grid flows continuously from rail into content. Depth comes
-      // from the two lifted bar tiers (s-1 → s-2) floating above this shared
-      // field; the bottom border carries the rail↔canvas separation.
-      className="sticky top-[var(--chrome-header)] z-[var(--z-rail)] flex h-[88px] flex-none items-stretch overflow-x-auto border-b border-border bg-[var(--background)]"
+      // on scroll. z below the header so the bar always wins. The rail is a
+      // TRANSLUCENT chrome surface over the gridded canvas (WS2, 2026-07-05):
+      // --rail-surface = a tint of --surface-2 that lets both the canvas grid and
+      // the rail's own ::before grid read through faintly, so the sparkline
+      // "graphs" pop on a drafting field while cell values stay legible. It is
+      // chrome (bottom of the s-1 → s-2 → translucent-s-2 bar stack), NOT the
+      // content plane. A faint teal top-glow (--rail-glow inset) marks the
+      // chrome↔canvas seam and ties the rail to the accent system.
+      className="rail-instrument sticky top-[var(--chrome-header)] z-[var(--z-rail)] flex h-[88px] flex-none items-stretch overflow-x-auto border-b border-border"
       aria-label="Telemetry"
     >
       <RailCell

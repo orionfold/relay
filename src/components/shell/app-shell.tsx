@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { AppBar } from "./app-bar";
 import { TelemetryRail } from "./telemetry-rail";
+import { GlanceRail } from "./glance-rail";
 import { listAppsCached } from "@/lib/apps/registry";
 import type { AppInstance } from "./nav-items";
 
@@ -22,6 +23,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col">
       <AppBar apps={apps} />
       <TelemetryRail />
+      <GlanceRail />
       <main id="main-content" className="flex-1 px-[clamp(20px,4vw,40px)] py-7">
         {/* relative + z-1 so page content paints ABOVE the blueprint-grid
             texture on #main-content::before (--z-canvas-grid: 0). */}
