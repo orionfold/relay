@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-export function AuthStatusDot() {
+export function AuthStatusDot({ showLabel = false }: { showLabel?: boolean } = {}) {
   const [status, setStatus] = useState<"connected" | "disconnected" | "loading">("loading");
 
   useEffect(() => {
@@ -41,6 +41,15 @@ export function AuthStatusDot() {
     loading: "Checking...",
   };
 
+  // Short, visible labels for the bar's labeled variant (FEAT-12). The dot is
+  // green/red/grey per the shared status-dot legend grammar; the adjacent word
+  // disambiguates it from the rail's cyan live-data dot.
+  const shortLabels = {
+    connected: "Connected",
+    disconnected: "Disconnected",
+    loading: "Checking",
+  };
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -49,6 +58,11 @@ export function AuthStatusDot() {
             className={`inline-block h-2 w-2 rounded-full ${colors[status]}`}
             aria-label={labels[status]}
           />
+          {showLabel && (
+            <span className="text-xs text-muted-foreground">
+              {shortLabels[status]}
+            </span>
+          )}
         </Link>
       </TooltipTrigger>
       <TooltipContent side="top">

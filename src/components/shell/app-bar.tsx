@@ -6,7 +6,7 @@ import { Settings, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AinativeWordmark } from "@/components/shared/ainative-wordmark";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { AuthStatusDot } from "@/components/settings/auth-status-dot";
+import { BarIdentityCluster } from "./bar-identity-cluster";
 import { UnreadBadge } from "@/components/notifications/unread-badge";
 import {
   NAV_GROUPS,
@@ -171,9 +171,9 @@ export function AppBar({ apps }: { apps: AppInstance[] }) {
             <kbd className="font-mono">⌘K</kbd>
           </button>
           <ThemeToggle />
-          <span className="flex items-center gap-2 whitespace-nowrap text-xs text-muted-foreground">
-            <AuthStatusDot />
-          </span>
+          {/* Identity group: version pill · license tag · labeled auth dot.
+              Static instance identity — the bar half of the rail-vs-bar split. */}
+          <BarIdentityCluster />
         </div>
       </div>
 
