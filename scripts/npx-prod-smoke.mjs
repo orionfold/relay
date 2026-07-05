@@ -22,6 +22,12 @@
 //      seed refuses with an explanatory 403 without RELAY_STAGING; rm the license store → banner
 //      reverts to Community Edition, the pack STAYS installed (D4), and
 //      RELAY_STAGING=true opens seed/clear on the prod build (PLG-S).
+//   L2. Bundle install (pack-bundle-model): the CLI resolves a BUNDLE pack
+//      (relay-agency-cre) by bare name from the tarball, refuses unlicensed on
+//      the bundle's OWN entitlement, then under the license flattens its two
+//      children into ONE app reporting the MERGED counts (5 tables, no
+//      duplicate client book) — the flatten path unit tests can't reach at the
+//      CLI boundary.
 //   C. Broken artifact URL: loud "Could not set up the production build"
 //      warning and a working dev-mode fallback (the status-quo floor).
 //
@@ -269,6 +275,70 @@ async function main() {
     assert(/relay-agency-pro/.test(listAfter.output), "pack list still shows the pack after license removal (D4)");
   }
 
+  // ---- Case L2: BUNDLE install — the flatten-at-install path (pack-bundle-model) ----
+  // A bundle pack owns no manifest; installPack flattens its child packs into
+  // ONE app at install (mergeBundle). Unit tests exercise mergeBundle in-process
+  // (relay-agency-bundle-template.test.ts), but only the smoke proves the CLI
+  // resolves a bundle by BARE NAME from the packaged tarball, gates on the
+  // bundle's OWN entitlement, and reports the MERGED primitive counts. This case
+  // was the last pre-tag gap flagged for the packs-evolution release cut.
+  console.log("\n[smoke] Case L2: bundle install (relay-agency-cre → flatten Agency + CRE into one app)");
+  {
+    const dataDir = path.join(workDir, "data-l2");
+    mkdirSync(dataDir, { recursive: true });
+    // Reuse the same real prod-signed fixture already materialized for Case L.
+    const licensePath = path.join(workDir, "my.license.json");
+
+    // 0. Unlicensed refusal by bare name: the bundle's own entitlement gates,
+    //    and it must refuse BEFORE any write (free/pro line survives).
+    const refused = await runCliCommand({ installDir, dataDir, args: ["pack", "add", "relay-agency-cre"] });
+    assert(refused.code !== 0, `unlicensed bundle install must refuse (exit ${refused.code}):\n${refused.output}`);
+    assert(/license/i.test(refused.output), `bundle refusal must name the license path:\n${refused.output}`);
+    assert(
+      !existsSync(path.join(dataDir, "apps", "relay-agency-cre")),
+      "a refused bundle must leave NO half-installed app dir",
+    );
+
+    // 1. Redeem the SAME real prod-signed license (one license unlocks every
+    //    paid pack — the bundle is not a separate SKU).
+    const add = await runCliCommand({ installDir, dataDir, args: ["license", "add", licensePath] });
+    assert(add.code === 0, `license add should succeed for the bundle case (exit ${add.code}):\n${add.output}`);
+
+    // 2. Install by bare name → the two children flatten into ONE app. The CLI
+    //    reports the MERGED counts: persona (4 tables) + CRE (1 rent_roll) = 5,
+    //    and profiles/blueprints from both children. The 5-table merge (no
+    //    duplicate client book) is the whole point of the bundle model; bump
+    //    this literal only when a child's table set changes.
+    const packAdd = await runCliCommand({ installDir, dataDir, args: ["pack", "add", "relay-agency-cre"] });
+    assert(
+      packAdd.code === 0 && /Installed relay-agency-cre@/.test(packAdd.output),
+      `bundle should install by bare name under the license (exit ${packAdd.code}):\n${packAdd.output}`,
+    );
+    assert(/5 table\(s\)/.test(packAdd.output), `bundle should flatten to 5 merged tables:\n${packAdd.output}`);
+
+    // 3. It installs as ONE app under the bundle's id — not one-app-per-child.
+    assert(
+      existsSync(path.join(dataDir, "apps", "relay-agency-cre", "manifest.yaml")),
+      "bundle must install as ONE app under the bundle id",
+    );
+    assert(
+      !existsSync(path.join(dataDir, "apps", "relay-agency")) &&
+        !existsSync(path.join(dataDir, "apps", "relay-cre")),
+      "bundle flatten must NOT leave the children as separate installed apps",
+    );
+    const packList = await runCliCommand({ installDir, dataDir, args: ["pack", "list"] });
+    assert(/relay-agency-cre.*\[premium\]/.test(packList.output), `bundle should list [premium]:\n${packList.output}`);
+    // Only the bundle is an installed pack; strip its id from each line before
+    // checking no child id leaked in as a separate entry (substring-safe).
+    const listedChildAsPack = packList.output
+      .split("\n")
+      .some((line) => /\b(relay-agency|relay-cre)\b/.test(line.replace(/relay-agency-cre/g, "")));
+    assert(
+      !listedChildAsPack,
+      `pack list must show only the bundle, not its flattened children:\n${packList.output}`,
+    );
+  }
+
   // ---- Case C: broken artifact URL — loud warning, dev-mode fallback boots ----
   console.log("\n[smoke] Case C: broken artifact URL → loud dev-mode fallback");
   {
@@ -314,7 +384,7 @@ async function main() {
   await fs.rm(workDir, { recursive: true, force: true });
   rmSync(tarballPath, { force: true });
   console.log(
-    "\n[smoke] npx production smoke passed: A (prod first run), B (cached + LAN), L (license lifecycle + staging gate), C (loud fallback), P (price drift).",
+    "\n[smoke] npx production smoke passed: A (prod first run), B (cached + LAN), L (license lifecycle + staging gate), L2 (bundle flatten), C (loud fallback), P (price drift).",
   );
 }
 
