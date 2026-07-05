@@ -25,9 +25,9 @@ when its fix ships in a release. Note the release version + commit/issue. Keep t
 Verify status against issue state + git log, NOT spec self-claims (memory
 `verify-walkthrough-findings-before-grooming`).
 
-_Last updated: 2026-07-05 · applied operator policy "shipped = delivered = done" — everything already in a
-released build (0.25.0–0.29.0) flipped to Delivered; only unshipped items remain open. #31 is the sole
-unshipped bug._
+_Last updated: 2026-07-05 · applied operator policy "shipped = delivered = done" (everything in a released
+build 0.25.0–0.29.0 → Delivered); then fixed the last open bug #31 on `main` (`cafc17b4`, dev-smoke-verified)
+— now Done (unbuilt-release). Only 3 backlog features remain Pending; no open bugs after next release._
 
 ---
 
@@ -36,7 +36,7 @@ unshipped bug._
 | ID | Requirement | Status | Evidence / Next |
 |----|-------------|--------|-----------------|
 | BUG-6 (#35) | Seed sample data must cover installed packs (Pro ledger stays empty) | **Delivered** | #35 CLOSED `shipped`; S41 `reseedInstalledPacks` (memory `seed-clears-pack-tables-and-addrows-fires-triggers`). |
-| BUG-3 (#31) | Blueprint cards render DEAD on `/apps/relay-agency` (no working action) | **Pending** | #31 OPEN — **only unshipped bug** (the other five #32/#33/#34/#36/#37 shipped in 0.25.0/0.27.0). Root cause = `unstable_cache` snapshot not invalidated on pack install (`data.ts:882`); runtime-registry-adjacent → smoke budget. |
+| BUG-3 (#31) | Blueprint cards render DEAD on `/apps/relay-agency` (no working action) | **Done (unbuilt-release)** | FIXED on `main` (`cafc17b4`) — cache half already shipped (`install.ts` revalidateTag); this closes the silent-husk half: `BlueprintCard.resolved` flag + honest "couldn't load" card (no fake Run) when a definition can't resolve. Dev smoke verified both states live. Becomes Delivered at next release; #31 closes then. |
 | BUG-4 (#32) | "Run now" drafts but doesn't execute; toast lies "Run started" | **Delivered** | RELEASED 0.27.0 (relabel path: toast now "Draft created" + deep-link). #32 closed `shipped`. |
 | BUG-2 (#33) | Header "Running" chip is a hardcoded literal; pulses on idle app | **Delivered** | RELEASED 0.27.0 (data-driven status; "Ready" when idle). #33 closed `shipped`. |
 | BUG-5 (#34) | Seed 404 surfaces as scary "network error"; button shown on customer build | **Delivered** | RELEASED 0.27.0 (explanatory message + controls hidden when disallowed). #34 closed `shipped`. |
@@ -89,7 +89,8 @@ unshipped bug._
 | Status | Count | Items |
 |--------|:---:|-------|
 | **Delivered** | 19 | BUG-6 (#35), FEAT-5, TASK-1, FEAT-9/10/11/11b/12, FEAT-14/15/16, CF-FEAT-5/6/7/8, FEAT-8, BUG-1/2/4/5 (#36/33/32/34), FEAT-4 (#37) |
-| **Pending** | 4 | BUG-3 (#31, only unshipped bug), FEAT-6, FEAT-7, FEAT-13 |
+| **Done (unbuilt-release)** | 1 | BUG-3 (#31) — fixed on `main` `cafc17b4`, awaiting next release |
+| **Pending** | 3 | FEAT-6, FEAT-7, FEAT-13 |
 | **Deferred** | 3 | CF-BUG-3, CF-FEAT-2, CF-FEAT-8 |
 | **Dropped** | 2 | CF-FEAT-1, Manifest chevron |
 
@@ -97,7 +98,7 @@ unshipped bug._
 1. ✅ **Released** — S44 activation copy, S45 Profile→Agent, S47 top-chrome, S48 chrome spec all shipped
    in 0.27.0/0.28.0/0.29.0. Under the operator policy "shipped = delivered", all 16 are now **Delivered**.
 2. ✅ **S48 chrome spec implemented + released 0.29.0** → FEAT-14/15/16 Delivered.
-3. **Fix the last open bug** #31 (BUG-3, blueprint cards render dead — the only unshipped bug) →
-   app-shell activation redesign; runtime-registry-adjacent, so budget a real launch smoke.
+3. ✅ **#31 fixed on `main`** (`cafc17b4`, dev-smoke-verified) — honest "couldn't load" card replaces
+   the silent husk. Becomes Delivered at next release; no open bugs remain after that ships.
 4. **Groom the remaining feature backlog** (FEAT-6/7/13) + confirm the 3 Deferred via a live re-verify run.
 5. **Operator confirms** each cluster on a fresh `npx` walkthrough → mark Delivered.
