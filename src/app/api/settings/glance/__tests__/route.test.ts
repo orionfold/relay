@@ -9,6 +9,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  */
 
 const OK = {
+  // getRuntimeSetupStates returns a record; two configured runtimes here.
+  runtimeStates: {
+    "claude-code": { configured: true },
+    "openai-codex-app-server": { configured: true },
+    "anthropic-direct": { configured: false },
+  },
   runtime: { runtimeId: "claude-code", runtimeLabel: "Claude Code" },
   model: { modelId: "claude-opus-4-8", source: "default" },
   license: "Acme Corp",
@@ -18,6 +24,13 @@ const OK = {
   allowed: ["Bash(git status)", "Read(*)"],
   exa: "true",
   channels: 3,
+  // getSetting is keyed; the mock returns per-key values below.
+  settings: {
+    "web.exaSearchEnabled": "true",
+    "runtime.sdkTimeoutSeconds": "90",
+    "runtime.maxTurns": "12",
+    "environment.autoPromoteSkills": "false",
+  } as Record<string, string | null>,
 };
 
 function mockAll(o: Partial<typeof OK> & { throwRuntime?: boolean } = {}) {
@@ -25,7 +38,7 @@ function mockAll(o: Partial<typeof OK> & { throwRuntime?: boolean } = {}) {
   vi.doMock("@/lib/settings/runtime-setup", () => ({
     getRuntimeSetupStates: async () => {
       if (o.throwRuntime) throw new Error("no runtime");
-      return {};
+      return c.runtimeStates;
     },
     pickActiveRuntime: () => ({
       runtimeId: c.runtime.runtimeId,
@@ -52,7 +65,12 @@ function mockAll(o: Partial<typeof OK> & { throwRuntime?: boolean } = {}) {
     getAllowedPermissions: async () => c.allowed,
   }));
   vi.doMock("@/lib/settings/helpers", () => ({
-    getSetting: async () => c.exa,
+    // Key-aware: exa override still supported via c.exa for the exa-specific
+    // tests; every other key reads from c.settings.
+    getSetting: async (key: string) => {
+      if (key === "web.exaSearchEnabled" && "exa" in o) return c.exa;
+      return c.settings[key] ?? null;
+    },
   }));
   vi.doMock("@/lib/db", () => ({
     db: {
@@ -88,12 +106,16 @@ describe("GET /api/settings/glance — happy path", () => {
       activeRuntimeLabel: "Claude Code",
       activeModel: "claude-opus-4-8",
       routingPreference: "quality",
+      configuredRuntimeCount: 2,
+      sdkTimeoutSeconds: 90,
+      maxTurns: 12,
       licenseTag: { kind: "licensed", label: "Acme Corp" },
       budgetMonthlyCapUsd: 200,
       activePreset: "git-safe",
       allowedPermissionCount: 2,
       webSearchEnabled: true,
       channelCount: 3,
+      autoPromoteSkills: false,
     });
   });
 

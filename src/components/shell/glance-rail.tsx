@@ -68,7 +68,7 @@ function Chip({
 function Pill({ label, value }: { label: string; value: string | null }) {
   if (value == null) return null;
   return (
-    <div className="glance-pill flex items-baseline justify-between gap-3 rounded px-2 py-1">
+    <div className="glance-pill flex items-baseline justify-between gap-3 px-0.5 py-1">
       <span className="font-mono text-[0.55rem] font-medium uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </span>
@@ -131,6 +131,16 @@ function boolLabel(v: boolean | null): string | null {
   return v == null ? null : v ? "On" : "Off";
 }
 
+// Preset label with a "Custom" fallback for the expanded view.
+function presetLabel(id: string | null): string | null {
+  if (!id) return null;
+  return PRESET_LABEL[id] ?? id;
+}
+function routingLabel(p: string | null): string | null {
+  if (!p) return null;
+  return ROUTING_LABEL[p] ?? p;
+}
+
 export function GlanceRail() {
   const glance = useSettingsGlance();
   const [expanded, setExpanded] = useState(false);
@@ -138,9 +148,34 @@ export function GlanceRail() {
   // Failed first read (error + no last-good) → render nothing. The rail
   // collapses to zero height; no crash, no empty chrome band.
   if (glance.status === "error" && glance.data == null) return null;
-  // Loading before the first payload → a slim placeholder row so the layout
-  // does not jump when data lands.
   const data = glance.data;
+
+  // The collapsed chip set — every resolved setting, dense, spanning the full
+  // rail width like the telemetry rail. Chips render null when their field is
+  // null, so the row only shows what resolved.
+  const chips: Array<{ label: string; value: string | null }> = data
+    ? [
+        { label: "Model", value: data.activeModel },
+        { label: "Runtime", value: data.activeRuntimeLabel },
+        { label: "Routing", value: routingLabel(data.routingPreference) },
+        { label: "License", value: licenseLabel(data) },
+        { label: "Budget", value: budgetCapLabel(data) },
+        { label: "Access", value: presetLabel(data.activePreset) ?? "Custom" },
+        {
+          label: "Rules",
+          value:
+            data.allowedPermissionCount != null
+              ? String(data.allowedPermissionCount)
+              : null,
+        },
+        { label: "Search", value: boolLabel(data.webSearchEnabled) },
+        {
+          label: "Channels",
+          value: data.channelCount != null ? String(data.channelCount) : null,
+        },
+        { label: "Learning", value: boolLabel(data.autoPromoteSkills) },
+      ]
+    : [];
 
   return (
     <div
@@ -150,8 +185,11 @@ export function GlanceRail() {
       className="sticky top-[var(--chrome-glance-top)] z-[var(--z-rail)] flex-none border-b border-border"
       aria-label="Settings at a glance"
     >
-      {/* Zone 1 + 5: collapsed glance row — translucent chrome, teal seam-glow. */}
-      <div className="glance-row flex h-8 items-center gap-4 overflow-x-auto px-4">
+      {/* Collapsed row: the SETTINGS toggle + (only when collapsed) the dense
+          chip summary. When expanded the chips HIDE — the panel below carries
+          the detail, so no duplicate summaries (#6). The toggle stays as the
+          panel header. */}
+      <div className="glance-row flex h-8 items-center gap-3 px-4">
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
@@ -170,66 +208,60 @@ export function GlanceRail() {
             )}
           />
         </button>
-        {data == null ? (
-          <span className="font-mono text-xs text-muted-foreground/50">—</span>
-        ) : (
-          <>
-            <Chip label="Model" value={data.activeModel} />
-            <Chip label="License" value={licenseLabel(data)} />
-            <Chip label="Budget" value={budgetCapLabel(data)} />
-            <Chip
-              label="Access"
-              value={data.activePreset ? PRESET_LABEL[data.activePreset] ?? data.activePreset : null}
-            />
-            <Chip label="Search" value={boolLabel(data.webSearchEnabled)} />
-            <Chip
-              label="Channels"
-              value={data.channelCount != null ? String(data.channelCount) : null}
-            />
-          </>
-        )}
+        {!expanded &&
+          (data == null ? (
+            <span className="font-mono text-xs text-muted-foreground/50">—</span>
+          ) : (
+            // flex-1 + justify-between spreads the chips across the full rail
+            // width instead of left-packing a few (#4).
+            <div className="flex flex-1 items-center justify-between gap-3 overflow-x-auto">
+              {chips.map((c) => (
+                <Chip key={c.label} label={c.label} value={c.value} />
+              ))}
+            </div>
+          ))}
       </div>
 
-      {/* Zone 2: expanded panel — a step toward the canvas. Four grouped tiles. */}
+      {/* Expanded panel — four grouped tiles, each dense with every resolved
+          field for its cluster (#5). Same translucent chrome family as the row
+          so it reads as one surface. */}
       {expanded && data != null && (
-        <div className="glance-panel grid grid-cols-1 gap-2 border-t border-border p-3 sm:grid-cols-2 lg:grid-cols-4">
-          <GroupTile
-            icon={<Cpu aria-hidden />}
-            title="Runtime"
-            href="/settings"
-          >
+        <div className="glance-panel grid grid-cols-1 items-start gap-2 border-t border-border p-2.5 sm:grid-cols-2 lg:grid-cols-4">
+          <GroupTile icon={<Cpu aria-hidden />} title="Runtime" href="/settings">
             <Pill label="Runtime" value={data.activeRuntimeLabel} />
             <Pill label="Model" value={data.activeModel} />
+            <Pill label="Routing" value={routingLabel(data.routingPreference)} />
             <Pill
-              label="Routing"
+              label="Configured"
               value={
-                data.routingPreference
-                  ? ROUTING_LABEL[data.routingPreference] ?? data.routingPreference
+                data.configuredRuntimeCount != null
+                  ? `${data.configuredRuntimeCount} runtimes`
                   : null
               }
             />
+            <Pill
+              label="Timeout"
+              value={
+                data.sdkTimeoutSeconds != null
+                  ? `${data.sdkTimeoutSeconds}s`
+                  : null
+              }
+            />
+            <Pill
+              label="Max turns"
+              value={data.maxTurns != null ? String(data.maxTurns) : null}
+            />
           </GroupTile>
-          <GroupTile
-            icon={<Wallet aria-hidden />}
-            title="Budget"
-            href="/settings"
-          >
+          <GroupTile icon={<Wallet aria-hidden />} title="Budget" href="/settings">
             <Pill label="License" value={licenseLabel(data)} />
-            <Pill label="Monthly cap" value={budgetCapLabel(data)} />
+            <Pill label="Monthly cap" value={budgetCapLabel(data) ?? "None set"} />
           </GroupTile>
           <GroupTile
             icon={<ShieldCheck aria-hidden />}
             title="Permissions"
             href="/settings"
           >
-            <Pill
-              label="Preset"
-              value={
-                data.activePreset
-                  ? PRESET_LABEL[data.activePreset] ?? data.activePreset
-                  : "Custom"
-              }
-            />
+            <Pill label="Preset" value={presetLabel(data.activePreset) ?? "Custom"} />
             <Pill
               label="Allowed"
               value={
@@ -239,11 +271,7 @@ export function GlanceRail() {
               }
             />
           </GroupTile>
-          <GroupTile
-            icon={<Plug aria-hidden />}
-            title="Integrations"
-            href="/settings"
-          >
+          <GroupTile icon={<Plug aria-hidden />} title="Integrations" href="/settings">
             <Pill label="Web search" value={boolLabel(data.webSearchEnabled)} />
             <Pill
               label="Channels"
@@ -251,6 +279,7 @@ export function GlanceRail() {
                 data.channelCount != null ? String(data.channelCount) : null
               }
             />
+            <Pill label="Skill learning" value={boolLabel(data.autoPromoteSkills)} />
           </GroupTile>
         </div>
       )}

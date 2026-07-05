@@ -44,6 +44,9 @@ export interface SettingsGlanceResponse {
   activeRuntimeLabel: string | null;
   activeModel: string | null;
   routingPreference: RoutingPreference | null;
+  configuredRuntimeCount: number | null;
+  sdkTimeoutSeconds: number | null;
+  maxTurns: number | null;
   // Budget cluster
   licenseTag: LicenseTag;
   budgetMonthlyCapUsd: number | null;
@@ -53,6 +56,7 @@ export interface SettingsGlanceResponse {
   // Integrations cluster
   webSearchEnabled: boolean | null;
   channelCount: number | null;
+  autoPromoteSkills: boolean | null;
 }
 
 // The active preset id, choosing the MOST permissive when several are fully
@@ -68,16 +72,28 @@ function pickPreset(activePresets: string[]): string | null {
 async function resolveRuntime(): Promise<{
   label: string | null;
   model: string | null;
+  configuredCount: number | null;
 }> {
   const states = await getRuntimeSetupStates();
   const { runtimeId, runtimeLabel } = pickActiveRuntime(states);
+  // Count runtimes the user has actually set up (any state marked configured).
+  const configuredCount = Object.values(states).filter(
+    (s) => (s as { configured?: boolean }).configured,
+  ).length;
   let model: string | null = null;
   try {
     model = (await resolvePreferredModel(runtimeId)).modelId;
   } catch {
     model = null;
   }
-  return { label: runtimeLabel, model };
+  return { label: runtimeLabel, model, configuredCount };
+}
+
+// Parse a numeric setting stored as a string; null/NaN → null (shadow path).
+function numSetting(raw: string | null): number | null {
+  if (raw == null) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
 }
 
 async function countChannels(): Promise<number> {
@@ -98,8 +114,15 @@ export async function GET() {
       allowed,
       exa,
       channels,
+      sdkTimeout,
+      maxTurns,
+      autoPromote,
     ] = await Promise.all([
-      resolveRuntime().catch(() => ({ label: null, model: null })),
+      resolveRuntime().catch(() => ({
+        label: null,
+        model: null,
+        configuredCount: null,
+      })),
       Promise.resolve(getLicensedIdentity()).catch(() => null),
       getBudgetGuardrailSnapshot().catch(() => null),
       getRoutingPreference().catch(() => null),
@@ -107,6 +130,9 @@ export async function GET() {
       getAllowedPermissions().catch(() => null),
       getSetting(SETTINGS_KEYS.EXA_SEARCH_MCP_ENABLED).catch(() => null),
       countChannels().catch(() => null),
+      getSetting(SETTINGS_KEYS.SDK_TIMEOUT_SECONDS).catch(() => null),
+      getSetting(SETTINGS_KEYS.MAX_TURNS).catch(() => null),
+      getSetting(SETTINGS_KEYS.AUTO_PROMOTE_SKILLS).catch(() => null),
     ]);
 
     const licenseTag: LicenseTag = label
@@ -117,6 +143,9 @@ export async function GET() {
       activeRuntimeLabel: runtime.label,
       activeModel: runtime.model,
       routingPreference: routing,
+      configuredRuntimeCount: runtime.configuredCount,
+      sdkTimeoutSeconds: numSetting(sdkTimeout),
+      maxTurns: numSetting(maxTurns),
       licenseTag,
       budgetMonthlyCapUsd: budget?.policy.overall.monthlySpendCapUsd ?? null,
       activePreset: presets ? pickPreset(presets) : null,
@@ -124,6 +153,7 @@ export async function GET() {
       // exa is stored as the string "true"/"false"; null (unread) → null, not false.
       webSearchEnabled: exa == null ? null : exa === "true",
       channelCount: channels,
+      autoPromoteSkills: autoPromote == null ? null : autoPromote === "true",
     };
     return NextResponse.json(body);
   } catch (err) {

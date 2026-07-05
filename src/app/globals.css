@@ -622,92 +622,108 @@
 
 /* =============================================================
    BLUEPRINT GRID (FEAT-15 → instrument palette WS3, 2026-07-05)
-   A two-tier TEAL blueprint grid on the content canvas AND the
-   translucent telemetry rail — the relay-website technique ported
-   in. Fine 24px hairlines (--grid-line) + major 120px lines
-   (--grid-major), teal-tinted (derived from --primary, so it
-   tracks the theme automatically — no .dark override), with a
-   radial edge mask so it fades at the margins (a drafting surface,
-   not a hard tiled sheet). Painted on ::before at --z-canvas-grid
-   (0), beneath each element's own content. The rail is translucent
-   (see .rail-instrument) so the canvas grid AND the rail's own
-   grid both read through, reading as one continuous gridded field.
-   Zero interaction with the sticky z-stack.
+   Two DISTINCT grids, deliberately not shared:
+
+   • CANVAS (#main-content): the full two-tier TEAL grid (fine 24px
+     --grid-line + major 120px --grid-major) with a radial edge mask
+     so it blooms at the optical center and fades at the margins —
+     a drafting field, not a hard tiled sheet.
+   • RAIL (.rail-instrument): a UNIFORM, SUBTLE single-tier 24px grid
+     with NO mask. The canvas mask kills a grid on an 88px band (it
+     vanishes in the center + hard-edges the sides) and its faded
+     rim reads as a framing "border" — so the rail gets its own even
+     grid keyed on .rail-instrument (which also owns position:sticky,
+     avoiding the [aria-label] specificity trap that clobbered it).
+
+   Both derive from --primary, so light/dark track automatically —
+   no .dark override. Painted on ::before at --z-canvas-grid (0).
    ============================================================= */
-#main-content,
-[aria-label="Telemetry"] {
+#main-content {
   position: relative;
 }
-#main-content::before,
-[aria-label="Telemetry"]::before {
+#main-content::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: var(--z-canvas-grid);
   pointer-events: none;
-  /* Two tiers: fine 24px cells + major 120px cells (every 5th line). Both
-     teal, derived from --primary via --grid-line / --grid-major, so light and
-     dark are handled by the theme's own accent — no per-theme override. */
+  /* Two tiers: fine 24px cells + major 120px cells. */
   background-image:
     repeating-linear-gradient(to right, var(--grid-line) 0 1px, transparent 1px 24px),
     repeating-linear-gradient(to bottom, var(--grid-line) 0 1px, transparent 1px 24px),
     repeating-linear-gradient(to right, var(--grid-major) 0 1px, transparent 1px 120px),
     repeating-linear-gradient(to bottom, var(--grid-major) 0 1px, transparent 1px 120px);
-  /* Radial edge mask — the grid blooms at the optical center and fades to the
-     margins so it reads as a drafting field, not a wall-to-wall tiled sheet. */
+  /* Radial edge mask — CANVAS ONLY (see rail note above). */
   -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 45%, transparent 100%);
   mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 45%, transparent 100%);
 }
 
 /* Translucent instrument rail (WS2) — a tint of --surface-2 the grid reads
-   through, so the sparkline "graphs" pop on a drafting field while the cell
-   values stay legible. The teal seam-glow (inset top box-shadow) marks the
-   chrome↔canvas seam and ties the rail to the accent system. The grid ::before
-   above still paints on this element (it keys on [aria-label="Telemetry"]). */
+   through, so the sparkline "graphs" pop while cell values stay legible + a
+   teal seam-glow (inset top) marks the chrome↔canvas seam. `.rail-instrument`
+   OWNS position:sticky here (specificity 0,1,0 on the class) instead of the
+   telemetry rail joining the grid's `[aria-label]` position:relative rule
+   (0,1,1) — that attribute selector out-specifies Tailwind's `.sticky` and
+   silently demoted the rail to relative, so it scrolled away. */
 .rail-instrument {
+  position: sticky;
   background: var(--rail-surface);
   box-shadow: inset 0 1px 0 0 var(--rail-glow);
+}
+.rail-instrument::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-canvas-grid);
+  pointer-events: none;
+  /* UNIFORM subtle 24px grid — no major tier, no mask; an even instrument
+     texture the sparklines sit on. */
+  background-image:
+    repeating-linear-gradient(to right, var(--grid-line) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(to bottom, var(--grid-line) 0 1px, transparent 1px 24px);
 }
 
 /* =============================================================
    SETTINGS-AT-A-GLANCE RAIL (FEAT-14, WS4 · 2026-07-05)
    A two-level progressive-disclosure rail below the telemetry
-   rail. Its FIVE zones each get a distinct surface/wash so they
-   read as layers (the /settings page mushes everything onto
-   --surface-1 — this rail must NOT repeat that):
-     (1) glance-row     collapsed chip row — translucent chrome
-                        (like the telemetry rail), grid reads through
-     (2) glance-panel   expanded panel ground — one step toward canvas
-     (3) glance-tile    each group tile — faint teal --wash-1
-     (4) glance-pill    nested value pills — solid --surface-1
-     (5) glance-seam    telemetry-rail↔glance seam — teal hairline glow
+   rail. It reads as ONE coherent chrome surface (the same
+   translucent instrument family as the telemetry rail), NOT a
+   stack of detached cards. Depth is carried by teal WASHES and
+   HAIRLINES, never by lighter/darker solid bands (that inverted
+   the hierarchy and made pills read as inconsistent dark strips):
+     • row    collapsed chip row — translucent chrome + seam-glow
+     • panel  expanded ground — same chrome family as the row
+     • tile   group cluster — faint teal wash + hairline, no hard card
+     • pill   key/value line — borderless, a hairline rule between
+              rows; the value sits on the tile, not on a solid band
    Collapsed row is sticky under the telemetry rail (top =
-   --chrome-glance-top); the expanded panel is a non-sticky block
-   that pushes content (simple, no overlay jank).
+   --chrome-glance-top); the expanded panel pushes content (no jank).
    ============================================================= */
 .glance-row {
-  /* Zone 1 + Zone 5: translucent chrome over the grid, with a teal
-     seam-glow on its TOP edge marking the telemetry-rail↔glance seam. */
+  /* Translucent chrome over the grid + a teal seam-glow on the TOP
+     edge marking the telemetry-rail↔glance seam. */
   background: var(--rail-surface);
   box-shadow: inset 0 1px 0 0 var(--rail-glow);
 }
 .glance-panel {
-  /* Zone 2: expanded ground — a step toward the canvas (translucent
-     wash-1 over the surface-2 chrome family, so it reads deeper than
-     the collapsed row but still chrome, not content). */
-  background: color-mix(in oklch, var(--surface-2) 88%, transparent);
+  /* Expanded ground — the SAME translucent chrome family as the row,
+     so panel + row read as one surface (not a lighter/darker band). */
+  background: var(--rail-surface);
 }
 .glance-tile {
-  /* Zone 3: group tile — faint teal wash + tinted hairline. The wash
-     (not a darker neutral) is the website's "elevation = teal" move. */
+  /* Group cluster — a faint teal wash + hairline. Subtle enough to
+     group without reading as a hard detached card. */
   background: var(--wash-1);
   border: 1px solid var(--grid-line);
 }
 .glance-pill {
-  /* Zone 4: nested value pill — solid frontmost surface so values
-     sit clearly above the washed tile. */
-  background: var(--surface-1);
-  border: 1px solid var(--border-subtle);
+  /* Key/value line — NO solid background (that made lighter bands).
+     A hairline rule separates rows; the value reads directly on the
+     washed tile, so the tile stays one coherent surface. */
+  border-top: 1px solid var(--grid-line);
+}
+.glance-pill:first-child {
+  border-top: none;
 }
 
 /* =============================================================
