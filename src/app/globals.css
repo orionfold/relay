@@ -118,9 +118,8 @@
   --wash-3: color-mix(in oklch, var(--primary) 12%, transparent);      /* strongest teal wash */
   /* The translucent instrument rail: a tint of --surface-2 the grid reads
      through, + a faint teal seam-glow on the rail's top edge. */
-  /* Rail opacity raised ~50% per operator (was 84% surface / 16% transparent →
-     now 92% / 8%): the grid still reads through but the rail sits more solidly. */
-  --rail-surface: color-mix(in oklch, var(--surface-2) 92%, transparent);
+  /* Rail is now 100% OPAQUE per operator — solid --surface-2, no grid through. */
+  --rail-surface: var(--surface-2);
   --rail-glow: color-mix(in oklch, var(--primary) 12%, transparent);
 
   /* Accent */
@@ -270,12 +269,11 @@
   --wash-1: color-mix(in oklch, var(--primary) 4%, transparent);
   --wash-2: color-mix(in oklch, var(--primary) 6%, transparent);
   --wash-3: color-mix(in oklch, var(--primary) 10%, transparent);
-  /* Dark rail: base on --surface-1 (L0.185), NOT --surface-2 (L0.15). --surface-2
-     is only 0.01L above the canvas --background (0.14), so a translucent tint of
-     it merged into the background and read as fully see-through — the rail must
-     be a LIFTED chrome band above the canvas. --surface-1 (0.185) sits clearly
-     above 0.14 while 91% opacity still lets the grid read through subtly. */
-  --rail-surface: color-mix(in oklch, var(--surface-1) 91%, transparent);
+  /* Dark rail: 100% OPAQUE per operator, on --surface-1 (L0.185) — a solid
+     lifted chrome band clearly above the canvas --background (0.14). --surface-1
+     (not --surface-2, which is only 0.01L above the bg) keeps the band distinct;
+     opaque means no grid shows through. */
+  --rail-surface: var(--surface-1);
   --rail-glow: color-mix(in oklch, var(--primary) 14%, transparent);
 
   /* Accent */
@@ -686,18 +684,10 @@
 [aria-label="Telemetry"] > * {
   border-right-color: var(--border-strong);
 }
-.rail-instrument::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: var(--z-canvas-grid);
-  pointer-events: none;
-  /* UNIFORM subtle 24px grid — no major tier, no mask; an even instrument
-     texture the sparklines sit on. */
-  background-image:
-    repeating-linear-gradient(to right, var(--grid-line) 0 1px, transparent 1px 24px),
-    repeating-linear-gradient(to bottom, var(--grid-line) 0 1px, transparent 1px 24px);
-}
+/* The rail is now 100% OPAQUE (--rail-surface = solid surface), so it carries NO
+   grid: an opaque background does not hide a ::before grid (the pseudo paints
+   ABOVE the background), so the grid ::before was removed rather than relying on
+   opacity. The rail is a clean solid band; the canvas keeps its own grid. */
 
 /* =============================================================
    SETTINGS-AT-A-GLANCE RAIL (FEAT-14, WS4 · 2026-07-05)
