@@ -54,6 +54,8 @@ export function TableBrowser({
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [projectFilter, setProjectFilter] = useState<string>("all");
+  // FEAT-7 — "all" or a specific installed pack id.
+  const [packFilter, setPackFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [createOpen, setCreateOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -81,6 +83,13 @@ export function TableBrowser({
     }
     if (sourceFilter !== "all" && t.source !== sourceFilter) return false;
     if (projectFilter !== "all" && t.projectId !== projectFilter) return false;
+    if (
+      packFilter !== "all" &&
+      packOf({ kind: "table", id: "", projectId: t.projectId }, installedPackIds) !==
+        packFilter
+    ) {
+      return false;
+    }
     return true;
   });
 
@@ -122,6 +131,7 @@ export function TableBrowser({
   const activeFilters = [
     sourceFilter !== "all",
     projectFilter !== "all",
+    packFilter !== "all",
   ].filter(Boolean).length;
 
   const navigate = (id: string) => router.push(`/tables/${id}`);
@@ -186,6 +196,7 @@ export function TableBrowser({
         onClear={() => {
           setSourceFilter("all");
           setProjectFilter("all");
+          setPackFilter("all");
         }}
       >
         <Select value={sourceFilter} onValueChange={setSourceFilter}>
@@ -214,6 +225,24 @@ export function TableBrowser({
             ))}
           </SelectContent>
         </Select>
+
+        {/* FEAT-7 — filter by installed pack. Only shown when a pack is
+            installed, so the control never appears empty on a fresh instance. */}
+        {installedPacks.length > 0 && (
+          <Select value={packFilter} onValueChange={setPackFilter}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Pack" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Packs</SelectItem>
+              {installedPacks.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </FilterBar>
 
       {filtered.length === 0 ? (

@@ -51,6 +51,8 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
   );
   const [createOpen, setCreateOpen] = useState(false);
   const [editingScheduleId, setEditingScheduleId] = useState<string | null>(null);
+  // FEAT-7 — "all" or a specific installed pack id.
+  const [packFilter, setPackFilter] = useState<string>("all");
 
   const refresh = useCallback(async () => {
     const res = await fetch("/api/schedules");
@@ -79,6 +81,14 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
     const packId = packOf({ kind: "schedule", id }, installedPackIds);
     return packId ? packNameById.get(packId) ?? null : null;
   };
+
+  // FEAT-7 — filter by installed pack, resolved from the schedule id via packOf.
+  const filteredSchedules =
+    packFilter === "all"
+      ? schedules
+      : schedules.filter(
+          (s) => packOf({ kind: "schedule", id: s.id }, installedPackIds) === packFilter
+        );
 
   async function handlePauseResume(id: string, currentStatus: string) {
     const newStatus = currentStatus === "active" ? "paused" : "active";
@@ -131,7 +141,24 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
 
   return (
     <div>
-      <div className="flex justify-end mb-4">
+      <div className="flex items-center justify-end gap-2 mb-4">
+        {/* FEAT-7 — filter by installed pack. Only shown when a pack is
+            installed, so the control never appears empty on a fresh instance. */}
+        {installedPacks.length > 0 && (
+          <select
+            value={packFilter}
+            onChange={(e) => setPackFilter(e.target.value)}
+            aria-label="Filter by pack"
+            className="surface-control h-9 rounded-md border border-input px-3 text-sm"
+          >
+            <option value="all">All packs</option>
+            {installedPacks.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        )}
         <Button onClick={() => setCreateOpen(true)}>
           <Clock className="h-4 w-4 mr-2" />
           New Schedule
@@ -163,9 +190,15 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
           heading="No schedules yet"
           description="Create a schedule to run agent tasks on a recurring interval or one-time delay."
         />
+      ) : filteredSchedules.length === 0 ? (
+        <EmptyState
+          icon={Clock}
+          heading="No schedules in this pack"
+          description="No schedules match the selected pack. Choose a different pack or show all."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {schedules.map((sched) => (
+          {filteredSchedules.map((sched) => (
             <Card
               key={sched.id}
               tabIndex={0}

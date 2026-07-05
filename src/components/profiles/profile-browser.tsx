@@ -73,6 +73,8 @@ export function ProfileBrowser({
   const [provenanceFilter, setProvenanceFilter] = useState<
     "all" | "builtin" | "imported" | "custom"
   >("all");
+  // FEAT-7 — "all" or a specific installed pack id.
+  const [packFilter, setPackFilter] = useState<string>("all");
 
   const refreshProfiles = useCallback(async () => {
     try {
@@ -93,6 +95,12 @@ export function ProfileBrowser({
     const q = search.toLowerCase();
     return profiles.filter((p) => {
       if (domainFilter !== "all" && p.domain !== domainFilter) return false;
+      if (
+        packFilter !== "all" &&
+        packOf({ kind: "profile", id: p.id }, installedPackIds) !== packFilter
+      ) {
+        return false;
+      }
       if (provenanceFilter !== "all") {
         const isImported = !!p.importMeta;
         const isBi = p.isBuiltin;
@@ -107,7 +115,7 @@ export function ProfileBrowser({
         p.tags.some((t) => t.toLowerCase().includes(q))
       );
     });
-  }, [profiles, search, domainFilter, provenanceFilter]);
+  }, [profiles, search, domainFilter, provenanceFilter, packFilter, installedPackIds]);
 
   return (
     <div className="space-y-6">
@@ -208,6 +216,23 @@ export function ProfileBrowser({
             <TabsTrigger value="custom">Custom</TabsTrigger>
           </TabsList>
         </Tabs>
+        {/* FEAT-7 — filter by installed pack. Only shown when a pack is
+            installed, so the control never appears empty on a fresh instance. */}
+        {installedPacks.length > 0 && (
+          <select
+            value={packFilter}
+            onChange={(e) => setPackFilter(e.target.value)}
+            aria-label="Filter by pack"
+            className="surface-control h-9 rounded-md border border-input px-3 text-sm"
+          >
+            <option value="all">All packs</option>
+            {installedPacks.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Grid */}
