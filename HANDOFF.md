@@ -1,21 +1,33 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **0.31.0 RELEASED & LIVE** — F5 app-wide CARD DESIGN LIFT + F6 nav move
-(`v0.31.0`→`a661054e`; `orionfold-relay@0.31.0` on npm `latest` + GitHub Release + SBOM; publish CI
-`28747032762` green incl. npx prod smoke Case L). F5: base `ui/card.tsx` gains
-`tone`/`emphasis`/`watermark`+`watermarkColor` props + `card-tones.ts`; swept LOW/MED/RICH surfaces +
-F2 masonry. Operator design laws (memory `card-watermark-recipe`): watermark = the card's OWN type
-glyph moved from left chip to top-right, COLORED by type, uniform on ALL cards; featured cue = accent +
-"Start here" badge + height, NOT watermark. Skipped state/thumbnail cards (memory
-`card-watermark-taste-rule`). cost-dashboard + ledger-hero DEFERRED (operator-confirmed). F6: Schemas
-Compose→Data. apiVersion 0.30→0.31. Verified both themes; full suite 0 regressions. New memories:
-`card-watermark-recipe`, `card-watermark-taste-rule`. Prior tail: git log + CHANGELOG + findings bundle.)_
+_Last updated: 2026-07-05 (pt: **8 PACK-CATALOG SPECS COMMITTED** — the 8 `features/pack-*.md` specs +
+roadmap + changelog are reviewed and committed (`42cf3c4a`); a subagent verified every code anchor across
+7 specs resolves, and the P0 `pack-generalize-agency.md` anchor was fixed to the real
+`src/lib/packs/templates/relay-agency/` path (was bare `templates/`). Stray `.gitignore` ainative→relay
+comment fix committed separately (`3070bcb7`). Nothing implemented yet — next is grooming/building the P0.
+Prior tail: strategy `_IDEAS/packs-evolution.md` written+approved+extracted (memory
+`packs-evolution-requirements-extracted`), then 0.31.0 F5 card lift + F6 nav move (`v0.31.0`→`a661054e`) —
+see git log + CHANGELOG + memories `card-watermark-recipe` / `card-watermark-taste-rule`.)_
 
-## ▶️ NEXT SESSION — 0.31.0 shipped clean; pick from standing candidates
+## ▶️ NEXT SESSION — groom + implement `pack-generalize-agency` (P0)
 
-- **0.31.0 RELEASED & LIVE** (`v0.31.0`→`a661054e`; F5 card lift + F6 nav move). Publish CI
-  (`28747032762`) GREEN: `orionfold-relay@0.31.0` on npm `latest` + GitHub Release + SBOM + npx prod
-  smoke Case L passed. apiVersion window bumped 0.30→0.31. Nothing outstanding on this release.
+- **Build `pack-generalize-agency` first** (the only P0 — no-new-architecture warm-up: split persona
+  `relay-agency` from thin industry packs `relay-cre`/`relay-nonprofit`, generalizing the persona spine
+  *additively*/deep). Multi-file cross-layer → fresh session, spec (`features/pack-generalize-agency.md`) as
+  anchor. Then `pack-bundle-model` → `pack-agency-bundle` (first bundle proof). Full order + rationale in the
+  specs' roadmap section + memory `packs-evolution-requirements-extracted`.
+- **P0 implementation gotchas** (from this session's anchor review): pack templates live at
+  `src/lib/packs/templates/relay-agency/` + `relay-agency-pro/`; on-disk profile ids are namespaced
+  (`relay-agency-pro--cre-renewal-analyst`, `--governance-auditor`), so the spec's "rename `cre-analyst`" is
+  shorthand for the `--cre-…` dirs under `.../base/profiles/`. `-pro` carries the heavy vertical content
+  (cre-renewal-engine / grant-pipeline-deep / month-end-close blueprints) → "Agency Pro parity" is the
+  heaviest AC. `relay-cre`/`relay-nonprofit` don't exist yet — spec says AUTHOR them.
+- `pack-primitive-resurface` (P1) runs on an **independent track** (resurface existing charts; lifts every
+  pack) — schedule whenever. `decisions_open` still needing operator+Website calls at grooming: when-dependsOn-
+  earns-weight (P3 trigger), bundle-pricing-mechanics (`pricing.json` + `_RELAY.md` coord before any price ships).
+
+- **0.31.0 shipped clean** (`v0.31.0`→`a661054e`; F5 card lift + F6 nav move; CI green, on npm). Nothing
+  outstanding — full detail in "Recently shipped" + git.
 - **F5 follow-up (deferred, operator-confirmed):** lift the two dense analytics dashboards
   `costs/cost-dashboard.tsx` + `apps/ledger-hero-panel.tsx` (hand-rolled `surface-card` chart panels) to
   the card recipe — held out for chart-layout-regression risk. Reactive/optional.
