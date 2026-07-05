@@ -1,37 +1,32 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-04 (pt: **S46 — Top-chrome visual-system design spec DONE + COMMITTED
-(`1d94737f`); operator-APPROVED; ready to implement next session.** Full HOLD-mode brainstorming
-output at `docs/superpowers/specs/2026-07-04-top-chrome-visual-system-design.md`. Approach **C**
-(rail re-typography, freeze lifted for TYPOGRAPHY ONLY). Resolves FEAT-9/10/11/11b/12/15/16 as ONE
-system in three dependency-ordered layers: **L1** consolidated `/api/instance/config` read +
-`useInstanceIdentity()` hook (`version` null-not-`0.0.0`, `licenseTag` discriminated union, activeModel
-rides THIS endpoint not the frozen `TelemetrySnapshot`); **L2** bar identity cluster (version pill +
-license tag + labeled auth dot in the app-bar right cluster); **L3** descending surface elevation
-(Tier1 s-1 / Tier2 s-2 / rail s-3), all-10-cell re-typography (value→`text-base`, model-as-RUNTIME-value),
-shared status-dot legend, subtle blueprint grid behind OPAQUE chrome (`<main>::before` z-0), `--chrome-header`
-offset token that FIXES the latent rail-slides-36px-under-header bug + a named `--z-*` scale. **FEAT-14
-(settings-at-a-glance) DEFERRED** with rationale (new-surface aggregation, orthogonal). **Rail freeze
-amended edit-only** in `_SPECS/feature-cut-freeze.md` Target 4 (2026-07-04): presentation-only lift, anti-
-expansion intent STANDS (no new cells/count stays 10, no new trend series, `RailCell` API + `TelemetrySnapshot`
-shape unchanged) — strategy-repo owner commits that file, not us. 8-row Error & Rescue Registry + 8-step
-`npm run dev` smoke in the spec (L1 adds a route+hook → real dev smoke required, not just units). Prior:
-S45 Profile→Agent sweep COMMITTED+PUSHED (`1400bf56`, unreleased); S44 CF-FEAT copy pass (`b4616d2c`,
-unreleased); 0.28.0 RELEASED (`v0.28.0`→`7e97669a`) — full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-04 (pt: **S47 — Top-chrome visual-system redesign IMPLEMENTED + dev-smoke
+verified both themes; unreleased on `main`.** Three bisectable commits: L1 `db637c13` (new
+`GET /api/instance/identity` + `useInstanceIdentity()` hook — `version` null-not-`0.0.0`, `licenseTag`
+discriminated union, `activeModel` via `resolvePreferredModel(pickActiveRuntime().runtimeId)`;
+`pickActiveRuntime` extracted to `runtime-setup.ts` shared by telemetry+identity; `TelemetrySnapshot`
+untouched), L2 `1f3da83c` (`BarIdentityCluster` in app-bar; `AuthStatusDot` opt-in `showLabel`),
+L3 `eae30aac` (`--chrome-*`/`--z-*` tokens, s-1/s-2/s-3 depth, `#main-content::before` blueprint grid,
+rail re-type value→`text-base` band 78→88px, model-in-RUNTIME-cell, cyan rail dot). Spec marked
+IMPLEMENTED + resolution `4cfea481`. Notable finding: the `rem`-based `--chrome-header` offset tracks
+the header height under the operator's 14px-root Chrome (resolved 87.5px, flush) where a hardcoded 100px
+would have gapped — token is strictly more robust. FEAT-14 stays DEFERRED. 99 tests green across touched
+scopes; the 8 suite-wide fails are the pre-existing set (none in this diff). Prior: S45 Profile→Agent
+sweep (`1400bf56`), S44 CF-FEAT copy pass (`b4616d2c`) — both unreleased on main; 0.28.0 RELEASED
+(`v0.28.0`→`7e97669a`). Full detail: git log + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — implement the top-chrome spec (approved, ready)
+## ▶️ NEXT SESSION — cut the MINOR release (three unreleased passes on main)
 
-**Primary:** implement `docs/superpowers/specs/2026-07-04-top-chrome-visual-system-design.md`
-(S46, operator-approved). Lightweight plan mode chosen — the spec IS the plan; `/clear` first,
-then build L1→L2→L3 in dependency order, TDD per layer, ending on the spec's 8-step real
-`npm run dev` smoke. **Watch:** the L1 route+hook is shell-adjacent → the dev smoke is MANDATORY
-(not just units); the `version` field MUST stay null-not-`0.0.0` (Next 16 `defineServer` RAW-string
-gotcha, memory `nextjs-compiler-define-gotchas`); the freeze amendment is edit-only (strategy owner
-commits `_SPECS/feature-cut-freeze.md`, NOT us). FEAT-14 stays deferred.
-
-`main` also carries the unreleased CF-FEAT copy pass (`b4616d2c`) + S45 Profile→Agent sweep
-(`1400bf56`, committed+pushed) — fold BOTH (and the top-chrome work once landed) into the next release
-(MINOR → apiVersion window bump).
+**Primary:** `main` carries three unreleased user-facing arcs — the S47 top-chrome redesign
+(`db637c13`→`4cfea481`), the S45 Profile→Agent sweep (`1400bf56`), and the S44 CF-FEAT copy pass
+(`b4616d2c`). Fold all three into the next release (**MINOR** → apiVersion window bump: `CURRENT_PLUGIN_API_VERSION`
++ registry previous-MINOR literal + the 3 `plugin.yaml` in the SAME release commit; memory
+`apiversion-window-bump-at-version-bump`). Customer-voice CHANGELOG entry (top-chrome = new bar identity
+cluster + bigger telemetry readout + fixed sticky rail); **grep `scripts/npx-prod-smoke.mjs` for any
+endpoint the release touches BEFORE tagging** (memory `prod-smoke-encodes-contracts` — the new
+`/api/instance/identity` route + rail changes are additive, but Case L still asserts the old rail cell
+counts/labels; verify). Annotated tag `git tag -a` (memory `release-tag-must-be-annotated`). No open
+follow-ups on the top-chrome work itself — it is done and verified.
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
 `create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests; other staging R-runs.
@@ -113,6 +108,17 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**Top-chrome visual-system redesign (S47, UNRELEASED on main — `db637c13`→`4cfea481`):** resolved
+FEAT-9/10/11/11b/12/15/16 as ONE coherent system (spec IMPLEMENTED). Rail-vs-bar semantic split — the
+BAR carries static instance identity (version pill · license tag · labeled auth dot from the new
+`useInstanceIdentity()` hook / `GET /api/instance/identity`), the RAIL carries live ops (10 cells,
+value→`text-base`, model leads the RUNTIME cell). Two shadow-path rules: `version` null-not-`0.0.0`,
+`licenseTag` discriminated union. Fixed the latent sticky bug (rail slid 36px under the header) via
+`rem`-based `--chrome-header` offset + named `--z-*` scale; descending surface depth (s-1/s-2/s-3);
+faint blueprint grid behind OPAQUE chrome. `TelemetrySnapshot` + `RailCell` API unchanged (freeze
+amendment held). Dev-smoke verified both themes. FEAT-14 (settings-at-a-glance) DEFERRED. Detail: git
++ spec Resolution section.
+
 **Profile→Agent sweep (S45, UNRELEASED + UNCOMMITTED on main):** finished the S43 rename's presentation layer
 — the deferred internal-facing "Profiles" vocabulary. 12 files, all label/copy, zero wire contracts. Renamed
 the `ToolGroup` union + icon/order keys + tool `group:`/descriptions (`tool-catalog.ts`), `GROUP_TO_TAB` key
@@ -150,23 +156,10 @@ $13,950 billed / 49% margin, ledger-only — intake/grants trigger-bound) + `res
 (`seed-data/installed-packs.ts`) as `seed.ts` step 25. Pack stays 0.4.0. MINOR bump → apiVersion window
 0.26→0.27 (5 sites). Memory `seed-clears-pack-tables-and-addrows-fires-triggers`.
 
-**0.26.0 (S38+S39 RELEASED — `v0.26.0`→`5db27412`; npm `latest` + GitHub Release + SBOM; OIDC CI green):**
-groomed 2026-07-04 fix specs — FEAT-4 header row-wrap (#37), BUG-1 git stdio (#36), BUG-5 seed gate 404→403
-(#34), BUG-2 data-driven header status (#33), BUG-4 honest run-now toast (#32), BUG-3 not-repro (#31). Two
-lessons captured in memory: `apiversion-window-bump-at-version-bump` (MINOR forces the 5-site window bump)
-+ `prod-smoke-encodes-contracts` (Case L asserted the OLD contract a bundled fix changed). Detail: git + CHANGELOG.
-
-**0.25.1 (S35, RELEASED — npm `latest` + GitHub Release `v0.25.1` + SBOM; OIDC publish CI green):** two
-fresh-install blockers from staging R2. **#29** — internal loopback self-calls (trigger dispatch, compose
-table tools) now derive origin via the zero-import leaf `getSelfBaseUrl()` (`RELAY_SELF_BASE_URL` →
-`NEXTAUTH_URL` → `NEXT_PUBLIC_APP_URL` → `127.0.0.1:${PORT}`), never a bare `:3000`; CLI threads
-`RELAY_SELF_BASE_URL`; also fixed a co-located `create_task` `projectId:null` 400 the port bug had masked.
-**#30** — `conversations/route.ts` validRuntimes now includes `"ollama"` (Best-privacy tier could not
-chat/compose), + `chat-session-provider.tsx` toasts a swallowed non-2xx create. Both verified with real
-non-3000 launches (`:3210` task dispatched; `:3211` Ollama streamed). PATCH → no apiVersion-window bump.
-Memory `self-http-calls-hardcode-3000`. Commits `982a1ed9`→`ab1bbcfe`.
-
-**Older (in git + CHANGELOG + closed issues):** 0.25.0 (S33, `2a50f91a`, FEAT-5/6/7/8 app-activation redesign
-#27 + BUG-3 workflow HITL #28, memory `workflow-status-vocab-active-not-running`); 0.24.1 (S25–S27, customer
-fixes #24/#25/#26); 0.24.0 (S19, legacy-brand + apiVersion 0.23→0.24); Staging-harness skill arc (S20–S23);
-0.23.0 (packs gallery + founding price) ← 0.16. Full history: `git tag` + CHANGELOG + `git log`.
+**Older (RELEASED — full detail in git + CHANGELOG + closed issues):** 0.26.0 (S38+S39, `5db27412`,
+2026-07-04 fix specs #31-37, memories `apiversion-window-bump-at-version-bump` + `prod-smoke-encodes-contracts`);
+0.25.1 (S35, `982a1ed9`→`ab1bbcfe`, staging-R2 fresh-install fixes #29/#30, memory `self-http-calls-hardcode-3000`);
+0.25.0 (S33, `2a50f91a`, FEAT-5/6/7/8 app-activation #27 + workflow HITL #28, memory
+`workflow-status-vocab-active-not-running`); 0.24.1 (S25–S27, customer fixes #24/#25/#26); 0.24.0 (S19,
+legacy-brand + apiVersion 0.23→0.24); Staging-harness skill arc (S20–S23); 0.23.0 (packs gallery + founding
+price) ← 0.16. Full history: `git tag` + CHANGELOG + `git log`.
