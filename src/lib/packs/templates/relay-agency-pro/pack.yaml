@@ -47,6 +47,11 @@ price:
   note: "Founding price for early buyers. Locks in before it returns to list."
 purchaseUrl: https://orionfold.com/relay/
 icon: briefcase
+# Relationship copy: this paid pack builds ALONGSIDE the free Agency pack.
+# It never replaces it, and the free workflows keep running after you install.
+related:
+  text: "Builds alongside the free Agency pack. Nothing is replaced, and your free workflows keep running."
+  href: "/packs?filter=free"
 # Per-version customer-voice recap — the single source every renewal surface
 # reads (license status, the update refusal, the /packs card, the renewal
 # email). Add a line here with EVERY version bump; the template test suite

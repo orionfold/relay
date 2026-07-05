@@ -5,6 +5,11 @@ author: Orionfold
 description: Agency operating layer for CRE and nonprofit verticals.
 relayCore: ">=0.15.0"
 icon: building-2
+# Relationship copy: this free pack has a paid upgrade. Additive, not a
+# replacement (the two packs install side by side and share no content).
+related:
+  text: "Agency Pro adds six deeper workflows on top of this pack: finance close, new business, and renewals."
+  href: "/packs?filter=premium"
 # Declarative metadata. The installer seeds customers from base/seed/customers.yaml
 # (objects), not from this list — these slugs mirror that seed for at-a-glance review.
 customers:

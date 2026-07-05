@@ -188,6 +188,49 @@ function OfferPrice({ price }: { price: PackPrice }) {
 }
 
 /**
+ * Cross-pack relationship line (free↔paid). Additive framing only — the packs
+ * coexist. A link (internal path or purchase URL) is rendered when `href` is
+ * set; otherwise the text stands alone. Same copy source on every card variant.
+ */
+function RelatedNote({
+  related,
+}: {
+  related: NonNullable<PackTemplate["meta"]>["related"];
+}) {
+  if (!related) return null;
+  const isInternal = related.href?.startsWith("/");
+  return (
+    <p className="text-xs text-muted-foreground">
+      {related.text}
+      {related.href &&
+        (isInternal ? (
+          <>
+            {" "}
+            <Link
+              href={related.href}
+              className="font-medium text-foreground underline underline-offset-2 hover:text-primary"
+            >
+              See packs →
+            </Link>
+          </>
+        ) : (
+          <>
+            {" "}
+            <a
+              href={related.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground underline underline-offset-2 hover:text-primary"
+            >
+              Learn more →
+            </a>
+          </>
+        ))}
+    </p>
+  );
+}
+
+/**
  * Locked premium pack — the conversion hero. Full sales copy at a readable
  * measure (never clamped), offer rail with the two-phase price + CTAs.
  */
@@ -227,6 +270,7 @@ function FeaturedPackCard({ template }: { template: PackTemplate }) {
                 {meta.description}
               </p>
             )}
+            {meta.related && <RelatedNote related={meta.related} />}
           </div>
 
           <div className="surface-card-muted flex flex-col gap-4 rounded-lg border p-4 lg:self-start">
@@ -317,6 +361,7 @@ function PackCard({
             {template.primitivesSummary}
           </p>
         )}
+        {meta.related && <RelatedNote related={meta.related} />}
 
         <div className="mt-auto">
           {installed ? (

@@ -74,6 +74,16 @@ export interface UpdateAvailability {
  * The ONE comparison source for "is an update available?" — CLI `pack list`,
  * the /packs card, and the update API all derive from this (D7). An unknown
  * installed version counts as older than any template, mirroring updatePack.
+ *
+ * Installed version resolves in two steps: the install-state sidecar first,
+ * then the installed manifest.yaml `version`. The sidecar was added in 0.21;
+ * older installs never wrote one, but `installPack` has always stamped the
+ * manifest with the pack version. Without the manifest fallback, such installs
+ * read `installedVersion: null` and — via the "unknown = older than anything"
+ * rule below — advertise a phantom "update" to the exact version they already
+ * run (e.g. relay-agency showing "Update to v0.1.0"). The fallback recovers
+ * the real version, so equal versions correctly report no update, while a
+ * genuinely-behind pre-0.21 install still compares as older.
  */
 export function packUpdateAvailability(
   appId: string,
@@ -81,7 +91,9 @@ export function packUpdateAvailability(
 ): UpdateAvailability {
   const appsDir = opts.appsDir ?? getAinativeAppsDir();
   const installedVersion =
-    readInstallState(appsDir, appId)?.packVersion ?? null;
+    readInstallState(appsDir, appId)?.packVersion ??
+    getApp(appId, appsDir)?.manifest.version ??
+    null;
   const template = findPackTemplate(appId, { templatesDir: opts.templatesDir });
   const availableVersion = template?.meta?.version ?? null;
   const updateAvailable =

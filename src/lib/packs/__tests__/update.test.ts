@@ -251,7 +251,11 @@ describe("packUpdateAvailability", () => {
     }
   });
 
-  it("treats an unknown installed version (no sidecar) as older than any template", async () => {
+  it("falls back to the installed manifest version when the sidecar is missing (no phantom same-version update)", async () => {
+    // A pre-0.21 install has no install-state sidecar, but installPack has
+    // always stamped the manifest with the pack version. When the sidecar is
+    // gone and the template matches that manifest version, NO update is offered
+    // — the fix for the "Update to v0.1.0" phantom on the free Agency pack.
     buildPack(packDirV1, { version: "0.1.0" });
     const { installPack } = await import("../install");
     const { packUpdateAvailability } = await import("../update");
@@ -259,6 +263,71 @@ describe("packUpdateAvailability", () => {
 
     await installPack(packDirV1, dirs());
     fs.rmSync(installStatePath(appsDir, "test-agency")); // pre-0.21 install
+
+    const templatesDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), "ainative-templates-")
+    );
+    try {
+      buildPack(path.join(templatesDir, "test-agency"), { version: "0.1.0" });
+      expect(
+        packUpdateAvailability("test-agency", { appsDir, templatesDir })
+      ).toEqual({
+        installedVersion: "0.1.0", // recovered from manifest.yaml, not the sidecar
+        availableVersion: "0.1.0",
+        updateAvailable: false,
+      });
+    } finally {
+      fs.rmSync(templatesDir, { recursive: true, force: true });
+    }
+  });
+
+  it("still offers a genuine upgrade for a pre-0.21 install (sidecar missing, template newer)", async () => {
+    // The manifest fallback must not suppress a REAL upgrade: manifest at
+    // 0.1.0, template at 0.2.0 → update available, installedVersion recovered.
+    buildPack(packDirV1, { version: "0.1.0" });
+    const { installPack } = await import("../install");
+    const { packUpdateAvailability } = await import("../update");
+    const { installStatePath } = await import("../install-state");
+
+    await installPack(packDirV1, dirs());
+    fs.rmSync(installStatePath(appsDir, "test-agency")); // pre-0.21 install
+
+    const templatesDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), "ainative-templates-")
+    );
+    try {
+      buildPack(path.join(templatesDir, "test-agency"), { version: "0.2.0" });
+      expect(
+        packUpdateAvailability("test-agency", { appsDir, templatesDir })
+      ).toEqual({
+        installedVersion: "0.1.0",
+        availableVersion: "0.2.0",
+        updateAvailable: true,
+      });
+    } finally {
+      fs.rmSync(templatesDir, { recursive: true, force: true });
+    }
+  });
+
+  it("treats a truly-unknown installed version (no sidecar AND no manifest version) as older than any template", async () => {
+    // Both version records absent → the original fail-open rule still holds:
+    // unknown counts as older, so an update is offered rather than silently
+    // withheld. (Manifest without a version is degenerate but must be safe.)
+    buildPack(packDirV1, { version: "0.1.0" });
+    const { installPack } = await import("../install");
+    const { packUpdateAvailability } = await import("../update");
+    const { installStatePath } = await import("../install-state");
+
+    await installPack(packDirV1, dirs());
+    fs.rmSync(installStatePath(appsDir, "test-agency")); // pre-0.21 install
+    // Strip the version field from the installed manifest.
+    const manifestPath = path.join(appsDir, "test-agency", "manifest.yaml");
+    const stripped = fs
+      .readFileSync(manifestPath, "utf-8")
+      .split("\n")
+      .filter((l) => !/^version:/.test(l.trim()))
+      .join("\n");
+    fs.writeFileSync(manifestPath, stripped);
 
     const templatesDir = fs.mkdtempSync(
       path.join(os.tmpdir(), "ainative-templates-")

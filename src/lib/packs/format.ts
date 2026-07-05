@@ -72,6 +72,20 @@ export const PackManifestSchema = z
     /** Get-license CTA target on the locked card. */
     purchaseUrl: z.url().optional(),
     /**
+     * Relationship copy linking this pack to a sibling (e.g. a free pack that
+     * has a paid upgrade, or a paid pack that builds ALONGSIDE a free one).
+     * Rendered as one line on the /packs card. `href` is optional — an
+     * app-internal path ("/packs?filter=premium") or absolute purchase URL.
+     * Additive framing only: the packs coexist, one never replaces the other.
+     */
+    related: z
+      .object({
+        text: z.string().min(1),
+        href: z.string().min(1).optional(),
+      })
+      .strict()
+      .optional(),
+    /**
      * Per-version customer-voice recap, version → one line. The single source
      * for every renewal value-recap surface (`license status`, the 402 update
      * refusal, the /packs update card, the Website renewal email). Optional —
