@@ -96,6 +96,9 @@ first consumer) and verifies the merged app renders and its cross-child bindings
 
 ## References
 
+- **Authoring a bundle child? Read `features/pack-taxonomy.md` first** — the shared registry of
+  logical table/schedule ids and the one-owner-per-primitive rule. A bundle child that redeclares a
+  table a sibling owns fails the flatten with `BundleCollisionError` (by design).
 - Source: `_IDEAS/packs-evolution.md` §5 (mechanism table, C-first recommendation), §2 (Apps
   engine = composition engine), §8.3.
 - Anchors: `src/lib/packs/format.ts` (pack = superset of AppManifest, extends around),
