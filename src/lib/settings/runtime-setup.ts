@@ -1,5 +1,6 @@
 import {
   getRuntimeCatalogEntry,
+  DEFAULT_AGENT_RUNTIME,
   SUPPORTED_AGENT_RUNTIMES,
   type AgentRuntimeId,
 } from "@/lib/agents/runtime/catalog";
@@ -105,4 +106,35 @@ export function listConfiguredRuntimeIds(
   states: Record<AgentRuntimeId, RuntimeSetupState>
 ) {
   return SUPPORTED_AGENT_RUNTIMES.filter((runtimeId) => states[runtimeId].configured);
+}
+
+/**
+ * Pick the runtime to surface as "active": the default (claude-code) if it is
+ * configured, otherwise the first configured runtime in catalog order, and
+ * failing that the default itself (so callers show the default's identity with
+ * the understanding it is not yet set up, rather than nothing).
+ *
+ * Shared by the telemetry RUNTIME cell and the instance-identity endpoint's
+ * active-model resolution — one definition of "which runtime is live".
+ */
+export function pickActiveRuntime(
+  states: Record<AgentRuntimeId, RuntimeSetupState>
+): {
+  runtimeId: AgentRuntimeId;
+  runtimeLabel: string | null;
+  providerId: RuntimeSetupState["providerId"] | null;
+} {
+  const ordered: AgentRuntimeId[] = [
+    DEFAULT_AGENT_RUNTIME,
+    ...SUPPORTED_AGENT_RUNTIMES.filter((id) => id !== DEFAULT_AGENT_RUNTIME),
+  ];
+  const configured = ordered.find((id) => states[id]?.configured);
+  const chosen = configured ?? DEFAULT_AGENT_RUNTIME;
+  const state = states[chosen];
+  if (!state) return { runtimeId: chosen, runtimeLabel: null, providerId: null };
+  return {
+    runtimeId: chosen,
+    runtimeLabel: state.label,
+    providerId: state.providerId,
+  };
 }

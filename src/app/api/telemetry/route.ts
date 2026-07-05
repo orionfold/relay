@@ -17,12 +17,7 @@ import {
   getCompletionsByDay,
   getFailuresByDay,
 } from "@/lib/queries/chart-data";
-import {
-  DEFAULT_AGENT_RUNTIME,
-  SUPPORTED_AGENT_RUNTIMES,
-  type AgentRuntimeId,
-} from "@/lib/agents/runtime/catalog";
-import type { RuntimeSetupState } from "@/lib/settings/runtime-setup";
+import { pickActiveRuntime } from "@/lib/settings/runtime-setup";
 import type { TelemetrySnapshot } from "@/components/shell/telemetry-types";
 
 // Telemetry is a live read of mutable server state; never let a route or the
@@ -95,24 +90,6 @@ function getHostMetrics(): { cpuLoadPct: number | null; memUsedPct: number | nul
     // leave null
   }
   return { cpuLoadPct, memUsedPct };
-}
-
-// Pick the runtime to surface in the RUNTIME cell: the default (claude-code) if
-// it is configured, otherwise the first configured runtime in catalog order, and
-// failing that the default's label (so the cell shows "Claude Code · anthropic"
-// with the understanding it is not yet set up, rather than an empty cell).
-function pickActiveRuntime(
-  states: Record<AgentRuntimeId, RuntimeSetupState>,
-): { runtimeLabel: string | null; providerId: string | null } {
-  const ordered: AgentRuntimeId[] = [
-    DEFAULT_AGENT_RUNTIME,
-    ...SUPPORTED_AGENT_RUNTIMES.filter((id) => id !== DEFAULT_AGENT_RUNTIME),
-  ];
-  const configured = ordered.find((id) => states[id]?.configured);
-  const chosen = configured ?? DEFAULT_AGENT_RUNTIME;
-  const state = states[chosen];
-  if (!state) return { runtimeLabel: null, providerId: null };
-  return { runtimeLabel: state.label, providerId: state.providerId };
 }
 
 export async function GET() {
