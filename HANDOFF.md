@@ -1,39 +1,29 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **S48 — chrome-instrument-palette + FEAT-14 IMPLEMENTED on main
-(UNRELEASED, UNCOMMITTED). All 4 workstreams landed one pass: WS1 surgical rollback of the
-rail→`--background` move; WS2 translucent instrument rail (grid reads through, sparklines pop, teal
-seam-glow); WS3 two-tier teal blueprint grid (24/120px + radial edge mask) + `--grid/wash/rail-*`
-tokens derived from `--primary` (light+dark auto); WS4 FEAT-14 settings-glance rail (`/api/settings/
-glance` + `useSettingsGlance()` + `GlanceRail`, collapsed chip row → 4-group panel, 5 wash-zone
-backgrounds). Verified real `npm run dev` both themes; route smoke 200; dev log zero errors (no
-module-load cycle); `npm test` 2641 pass, the SAME documented 8 pre-existing fails (router×6 +
-heatmap + settings-validator), zero regressions. `layout.tsx` critical-CSS untouched (all new tokens
-additive/non-critical). NEXT = commit + cut the deferred MINOR.** Prior pt: OPERATOR-REQUIREMENTS.md
-tracker created (S48). Prior unreleased folding into the MINOR: S47 top-chrome structure
-(`db637c13`→`4cfea481`), S45 Profile→Agent (`1400bf56`), S44 CF-FEAT (`b4616d2c`); 0.28.0 RELEASED
-(`v0.28.0`→`7e97669a`). Full detail: git log + CHANGELOG.)_
+_Last updated: 2026-07-05 (pt: **0.29.0 RELEASED (`v0.29.0`→`9b9ea0f2`; npm `latest` + GitHub Release +
+SBOM + prebuilt artifact; OIDC publish CI green incl. npx prod smoke Case L).** Bundled the four passes
+that had been unreleased on main: S48 chrome-instrument-palette + FEAT-14/15/16 (settings-glance rail +
+instrument-rail visual system), S47 top-chrome structure, S45 Profile→Agent, S44 CF-FEAT. S48 shipped in
+~10 operator-driven refinement commits after the operator reviewed it in-browser (opaque rail, dimmed
+full-bleed grid, page-shell margin fix, telemetry cell grammar, divider-flash fix — all live-verified
+both themes). MINOR → apiVersion window 0.28→0.29 (5 sites). Memory `chrome-sticky-stack-additive-offsets`
+added. NEXT = update OPERATOR-REQUIREMENTS rows to Delivered + operator fresh-install confirm. Prior:
+0.28.0 (`v0.28.0`→`7e97669a`). Full detail: git log + CHANGELOG.)_
 
 ## 📋 Operator requirements tracker — `OPERATOR-REQUIREMENTS.md` (LIVE until all Delivered)
 Durable roll-up of ALL ~24 findings/asks from the 2026-07-04 operator harness walkthrough (origin:
-`output/staging/2026-07-04-operator-walkthrough/`), tracked to operator satisfaction. **Current:** 3
-Delivered · 8 Done-unconfirmed · 10 Pending · 3 Deferred · 2 Dropped. Update that file's rows IN PLACE
-as work lands; retire it only when every row is Delivered + operator-confirmed. Its "Path to full
-delivery" section sequences the release → S48 chrome → open-bugs → backlog → operator-confirm arc.
+`output/staging/2026-07-04-operator-walkthrough/`), tracked to operator satisfaction. **0.29.0 shipped the
+top-chrome cluster (FEAT-9/10/11/12/14/15/16) — flip those rows to Done-unconfirmed; Delivered awaits an
+operator fresh-install confirm.** Update that file's rows IN PLACE as work lands; retire it only when every
+row is Delivered + operator-confirmed. Its "Path to full delivery" section sequences the arc.
 
-## ▶️ NEXT SESSION — commit S48 chrome work, then cut the deferred MINOR
+## ▶️ NEXT SESSION — reconcile OPERATOR-REQUIREMENTS after the 0.29.0 ship
 
-**S48 chrome-instrument-palette + FEAT-14 is IMPLEMENTED + verified on `main` but UNCOMMITTED.** First
-action: commit it (operator wasn't asked yet). Changed: `globals.css` (+149), `telemetry-rail.tsx`,
-`app-shell.tsx`; new `src/app/api/settings/glance/` (route + test), `glance-rail.tsx`,
-`use-settings-glance.ts`. Spec fully resolved: `docs/superpowers/specs/2026-07-05-chrome-instrument-palette.md`.
-
-**Then cut the deferred MINOR.** Four unreleased passes fold in: S48 chrome + S47 top-chrome + S45
-Profile→Agent + S44 CF-FEAT. Release checklist (memories): apiVersion window bump 0.28→0.29 (5 sites —
-`apiversion-window-bump-at-version-bump`); grep `npx-prod-smoke.mjs` for any endpoint the bundle touches
-BEFORE tagging (`prod-smoke-encodes-contracts` — note the NEW `/api/settings/glance` route); annotated
-tag `git tag -a` (`release-tag-must-be-annotated`); customer-voice CHANGELOG + public issue
-(`release-and-issue-conventions`). Then update OPERATOR-REQUIREMENTS.md rows the chrome work delivered.
+0.29.0 shipped FEAT-14/15/16 (settings-glance + chrome instrument system). Flip those rows in
+`OPERATOR-REQUIREMENTS.md` from Pending → **Done (unconfirmed)** — they reach **Delivered** only after an
+operator fresh-install confirm (npx `orionfold-relay@0.29.0`), same convention as FEAT-9/12. Also close the
+stale 0.26.0 fix issues as `shipped` (#32/#33/#34/#36/#37) if not done. Optional: file the public
+`shipped`-labeled issue for 0.29.0 per `release-and-issue-conventions` (CHANGELOG entry is the customer record).
 
 Also standing (unchanged, LOW): not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4
 `create_trigger` `appId` gap; #29 retry-with-backoff hardening; held-issue retests; other staging R-runs.
@@ -116,48 +106,23 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**Chrome instrument palette + FEAT-14 (S48, UNRELEASED + UNCOMMITTED on main):** the relay-website
-dark-theme TECHNIQUE ported into the app chrome, one pass. WS1 reverted `700fd4bd` (rail off
-`--background`), KEPT `e6ab5ea0` grid-on-rail + `34467e3a` critical-CSS fix. WS2 made the telemetry
-rail a translucent chrome surface (`--rail-surface` = color-mix of `--surface-2`) so the blueprint grid
-reads THROUGH it (sparklines pop) + a teal seam-glow (`--rail-glow` inset). WS3 upgraded the grid to
-TWO-TIER teal (24px fine + 120px major, radial edge mask) + added `--grid-line/-major`, `--glow-accent`,
-`--wash-1/2/3` tokens, ALL derived from `--primary` so light+dark track automatically (no hue change —
-teal stays; the website accent WAS already Relay's `--primary`). WS4 built FEAT-14: `GET /api/settings/
-glance` (aggregates 8 lib sources server-side, per-source `.catch` shadow paths) + `useSettingsGlance()`
-(cloned from `useInstanceIdentity`) + `GlanceRail` (collapsed chip row → 4-group panel Runtime/Budget/
-Permissions/Integrations, 5 wash-zone backgrounds). Sticky stack composes additively (memory
-`chrome-sticky-stack-additive-offsets`): rail `top`=`--chrome-header`, glance `top`=`--chrome-glance-top`
-(header+rail). `layout.tsx` critical-CSS UNTOUCHED (new tokens additive/non-first-paint). Verified real
-`npm run dev` both themes; route smoke 200; `npm test` 2641 pass / same 8 pre-existing fails / 0
-regressions. Detail: git (once committed) + spec Resolution.
-
-**Top-chrome visual-system redesign (S47, UNRELEASED on main — `db637c13`→`4cfea481`):** resolved
-FEAT-9/10/11/11b/12/15/16 as ONE coherent system (spec IMPLEMENTED). Rail-vs-bar semantic split — the
-BAR carries static instance identity (version pill · license tag · labeled auth dot from the new
-`useInstanceIdentity()` hook / `GET /api/instance/identity`), the RAIL carries live ops (10 cells,
-value→`text-base`, model leads the RUNTIME cell). Two shadow-path rules: `version` null-not-`0.0.0`,
-`licenseTag` discriminated union. Fixed the latent sticky bug (rail slid 36px under the header) via
-`rem`-based `--chrome-header` offset + named `--z-*` scale; descending surface depth (s-1/s-2/s-3);
-faint blueprint grid behind OPAQUE chrome. `TelemetrySnapshot` + `RailCell` API unchanged (freeze
-amendment held). Dev-smoke verified both themes. FEAT-14 (settings-at-a-glance) DEFERRED. Detail: git
-+ spec Resolution section.
-
-**Profile→Agent sweep (S45, UNRELEASED + UNCOMMITTED on main):** finished the S43 rename's presentation layer
-— the deferred internal-facing "Profiles" vocabulary. 12 files, all label/copy, zero wire contracts. Renamed
-the `ToolGroup` union + icon/order keys + tool `group:`/descriptions (`tool-catalog.ts`), `GROUP_TO_TAB` key
-(`command-tabs.ts`), popover entity label + system-prompt heading, and the primitive-pill label
-`Profile`→`Agent`/`agents` across composition-detector + `buildPrimitivesSummary` (registry.ts) +
-starter-template-card + chat catalog. KEPT all wire contracts (tool names, `entityType:"profile"`,
-`profileId`, manifest `profiles:` key, lib paths, data dir). 6 tests updated; 974 pass / 1 skip / 0 fail.
-Memory `profiles-are-file-based-not-db` extended with the primitive-label-surface note. Detail: git.
-
-**CF-FEAT-5/6/7/8 (S44, UNRELEASED on main — `b4616d2c`):** app-shell activation copy pass on the
-runnable-blueprint Workflow-Hub kit (`/apps/<pack>`). CF-FEAT-5 per-card Run/Create explainer on every card;
-CF-FEAT-6 `secondarySteps` 1→2→3 strip (`view-kits/types.ts` + `workflow-hub.ts` + `kit-view.tsx`); CF-FEAT-7
-REJECTED (kept single "Start here"); CF-FEAT-8 Run toast → Monitor. No engine touch, not smoke-gated,
-browser-verified. Foldable into the next MINOR (needs the apiVersion-window bump then). Spec
-`fix-app-shell-activation-redesign.md` fully resolved. Detail: git + spec Resolution section.
+**0.29.0 (RELEASED — `v0.29.0`→`9b9ea0f2`; npm `latest` + GitHub Release + SBOM + prebuilt artifact; OIDC
+publish CI green incl. npx prod smoke Case L):** the relay-website dark-theme TECHNIQUE ported into the app
+chrome + FEAT-14/15/16. **Instrument system:** telemetry rail is a 100% OPAQUE chrome band (dark
+`--rail-surface`=`--surface-1` lifted 0.045L above the canvas so it doesn't merge; light `--surface-2`),
+NO grid through the rail (`.rail-instrument::before` removed — an opaque bg does NOT hide a `::before`),
+cell dividers bumped to `--border-strong` via scoped `[aria-label="Telemetry"] > *`. **Canvas grid:**
+two-tier teal (24/120px) `--grid-line/-major` derived from `--primary` (light+dark auto), FULL-BLEED (no
+radial mask — the mask's fade band read as a framing border), dark alpha halved (6/11%) per operator.
+**FEAT-14 settings-glance rail:** `GET /api/settings/glance` (aggregates ~11 lib sources server-side,
+per-source `.catch` shadow paths) + `useSettingsGlance()` (cloned from `useInstanceIdentity`) + `GlanceRail`
+using the telemetry RailCell grammar (collapsed left-aligned cell summary w/ dividers + single Open
+deep-link; expanded ONE horizontal row of labeled groups Runtime/Execution/Budget/Permissions/Integrations).
+**Dashboard:** dropped the `p-4 sm:p-6` page-shell margin (the real "dark border" — a page wrapper, not
+chrome/grid). Sticky stack composes additively (memory `chrome-sticky-stack-additive-offsets`). Also bundled
+S47 top-chrome structure (identity hook/endpoint, bar cluster, rem `--chrome-header` sticky-fix, `--z-*`
+scale), S45 Profile→Agent presentation rename, S44 CF-FEAT activation copy. MINOR → apiVersion window
+0.28→0.29 (5 sites). Detail: git + CHANGELOG + spec Resolution.
 
 **Older (RELEASED — full detail in git + CHANGELOG + closed issues):** 0.28.0 (S43, `v0.28.0`→`7e97669a`,
 nav/naming pass + Profiles→Agents user-facing rename + FEAT-5/6, apiVersion 0.27→0.28, memory
