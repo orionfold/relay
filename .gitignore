@@ -34,11 +34,11 @@ methods/
 output/
 
 # strategy channel symlink — planning artifacts live in the private
-# orionfold/strategy repo (_IDEAS -> ../strategy/ainative/_IDEAS); never ship here
+# orionfold/strategy repo (_IDEAS -> ../strategy/relay/_IDEAS); never ship here
 _IDEAS
 
 # strategy channel symlink — dev-time spec/backlog lives in the private
-# orionfold/strategy repo (_SPECS -> ../strategy/ainative/_SPECS); never ship here
+# orionfold/strategy repo (_SPECS -> ../strategy/relay/_SPECS); never ship here
 _SPECS
 
 # Claude Code self-improvement reference docs (local only — playbook + Opus 4.8
