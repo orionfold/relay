@@ -198,21 +198,28 @@ export function GlanceRail() {
           Open
           <ArrowUpRight aria-hidden className="h-2.5 w-2.5" />
         </Link>
-        {!expanded &&
-          (data == null ? (
+        {/* The collapsed summary is ALWAYS in the DOM (toggled via `hidden`,
+            not conditionally unmounted) so the OPEN cell is consistently NOT the
+            row's last child. Conditionally rendering this container made OPEN
+            flip to :last-child on expand, and the mount/unmount on toggle
+            flashed OPEN's divider for a frame ("brief vertical bar" on
+            collapse). Keeping it mounted keeps the divider state stable. */}
+        <div
+          className={cn(
+            "flex flex-1 items-center overflow-x-auto",
+            expanded && "hidden",
+          )}
+        >
+          {data == null ? (
             <span className="flex items-center px-4 font-mono text-xs text-muted-foreground/50">
               —
             </span>
           ) : (
-            // Left-aligned row of compact cells; each Cell carries its own right
-            // divider (.glance-cell). overflow-x-auto so a narrow viewport
-            // scrolls rather than wraps.
-            <div className="flex flex-1 items-center overflow-x-auto">
-              {chips.map((c) => (
-                <Cell key={c.label} label={c.label} value={c.value} />
-              ))}
-            </div>
-          ))}
+            chips.map((c) => (
+              <Cell key={c.label} label={c.label} value={c.value} />
+            ))
+          )}
+        </div>
       </div>
 
       {/* Expanded panel — ONE horizontal row of labeled groups (like the
