@@ -19,7 +19,7 @@
 //   node scripts/check-price-drift.mjs            # against the live canon
 //   node scripts/check-price-drift.mjs --url file:///tmp/pricing.json
 // Exits 0 on ok/skip, 1 only on real drift.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
@@ -29,15 +29,8 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 /** Canonical pricing source published by the Website (operator-ruled SSOT). */
 export const CANONICAL_PRICING_URL = "https://orionfold.com/relay/pricing.json";
 
-/** The premium pack whose hand-maintained price is diffed against the canon. */
-export const PACK_YAML_PATH = path.join(
-  "src",
-  "lib",
-  "packs",
-  "templates",
-  "relay-agency-pro",
-  "pack.yaml",
-);
+/** Root dir holding one subdir per bundled pack template. */
+export const TEMPLATES_DIR = path.join("src", "lib", "packs", "templates");
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 
@@ -122,12 +115,38 @@ export function diffPrice(packPrice, canonical) {
 
 // ── I/O boundaries ───────────────────────────────────────────────────
 
-/** Read + parse the pack's `price` block. Throws on a malformed pack.yaml —
- *  the pack is OUR source, so a broken one is a real error, not a fail-open. */
-export function readPackPrice(root = repoRoot) {
-  const raw = readFileSync(path.join(root, PACK_YAML_PATH), "utf-8");
-  const meta = yaml.load(raw);
-  return meta?.price ?? null;
+/**
+ * Discover every PREMIUM pack template (one carrying an `entitlement:` — i.e.
+ * a paid pack whose card shows the license price) and read its `price` block.
+ * Returns `[{ id, price }]` sorted by id. Free packs (no entitlement) have no
+ * price to gate and are skipped. Throws on a malformed pack.yaml — the pack is
+ * OUR source, so a broken one is a real error, not a fail-open.
+ *
+ * Generalized from a single hardcoded relay-agency-pro path (2026-07-05): the
+ * four industry/bundle packs carried a stale `$199` the old single-path gate
+ * never saw. Globbing every entitlement-bearing pack closes that blind spot so
+ * a new paid pack is gated automatically, with no script edit.
+ */
+export function premiumPackPrices(root = repoRoot) {
+  const dir = path.join(root, TEMPLATES_DIR);
+  const entries = readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
+    .sort();
+  const out = [];
+  for (const id of entries) {
+    const packYaml = path.join(dir, id, "pack.yaml");
+    let raw;
+    try {
+      raw = readFileSync(packYaml, "utf-8");
+    } catch {
+      continue; // a template dir without a pack.yaml (e.g. a bundle child) — skip
+    }
+    const meta = yaml.load(raw);
+    if (!meta?.entitlement) continue; // free pack — no license price to gate
+    out.push({ id, price: meta.price ?? null });
+  }
+  return out;
 }
 
 /**
@@ -166,12 +185,16 @@ export async function checkPriceDrift({
   url = CANONICAL_PRICING_URL,
   timeoutMs = DEFAULT_TIMEOUT_MS,
 } = {}) {
-  const packPrice = readPackPrice(root); // local read — throws loudly if broken
+  const packs = premiumPackPrices(root); // local read — throws loudly if broken
   const fetched = await fetchCanonicalPricing(url, timeoutMs);
   if (!fetched.ok) {
     return { status: "skipped", reason: fetched.reason };
   }
-  const findings = diffPrice(packPrice, fetched.data);
+  // Every premium pack shows the SAME license offer, so each diffs against the
+  // same canon; prefix each finding with the pack id so a drift names the pack.
+  const findings = packs.flatMap(({ id, price }) =>
+    diffPrice(price, fetched.data).map((f) => `${id}: ${f}`),
+  );
   return { status: findings.length === 0 ? "ok" : "drift", findings };
 }
 
@@ -196,10 +219,10 @@ async function mainCli() {
     console.log(`[price-drift] OK — pack.yaml price matches ${url}.`);
     return;
   }
-  console.error(`[price-drift] DRIFT — pack.yaml disagrees with the canonical pricing:`);
+  console.error(`[price-drift] DRIFT — a premium pack.yaml disagrees with the canonical pricing:`);
   for (const f of result.findings) console.error(`  - ${f}`);
   console.error(
-    `[price-drift] Fix: reconcile ${PACK_YAML_PATH} with ${url}, or flag the intended change on strategy/relay/_RELAY.md.`,
+    `[price-drift] Fix: reconcile the named pack(s) under ${TEMPLATES_DIR}/ with ${url}, or flag the intended change on strategy/relay/_RELAY.md.`,
   );
   process.exitCode = 1;
 }

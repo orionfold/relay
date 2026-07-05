@@ -6,6 +6,7 @@ import { describe, it, expect } from "vitest";
 import {
   canonicalDisplay,
   diffPrice,
+  premiumPackPrices,
 } from "../../../../scripts/check-price-drift.mjs";
 
 // A canonical pricing.json shaped like the live one at
@@ -101,5 +102,34 @@ describe("diffPrice — degraded canon", () => {
     const findings = diffPrice(pack, canon);
     expect(findings).toHaveLength(1);
     expect(findings[0]).toContain("still carries intro");
+  });
+});
+
+describe("premiumPackPrices — gate covers EVERY premium pack, not just one", () => {
+  // Regression guard: the gate once hardcoded relay-agency-pro, so the four
+  // industry/bundle packs drifted to a stale $199 unseen. Discovery must return
+  // every entitlement-bearing pack so a new paid pack is gated automatically.
+  it("discovers all entitlement-bearing pack templates", () => {
+    const ids = premiumPackPrices().map((p) => p.id);
+    for (const id of [
+      "relay-agency-pro",
+      "relay-cre",
+      "relay-nonprofit",
+      "relay-agency-cre",
+      "relay-agency-nonprofit",
+    ]) {
+      expect(ids).toContain(id);
+    }
+  });
+
+  it("skips the free relay-agency pack (no entitlement, no license price to gate)", () => {
+    const ids = premiumPackPrices().map((p) => p.id);
+    expect(ids).not.toContain("relay-agency");
+  });
+
+  it("every discovered pack carries a price block to diff", () => {
+    for (const { id, price } of premiumPackPrices()) {
+      expect(price, `${id} has no price block`).toBeTruthy();
+    }
   });
 });

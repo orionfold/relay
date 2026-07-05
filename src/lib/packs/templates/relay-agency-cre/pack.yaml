@@ -25,12 +25,15 @@ icon: building
 # installs. Same product as every paid Relay pack — one license unlocks all.
 entitlement: product:orionfold-relay
 # Priced to match orionfold.com/relay/ in this release. Hand-maintained; when the
-# Website price changes, update this to match (reading the public Orionfold
-# source to stay current is allowed — the promise forbids SENDING user data, not
-# reading public data). PLACEHOLDER pending operator + Website pricing
-# coordination — a bundle price is a distinct SKU from the standalone CRE pack.
+# Two-phase license offer, hand-maintained to match orionfold.com/relay/ in this
+# release (canonical SSOT: orionfold.com/relay/pricing.json). One license unlocks
+# every paid Relay pack — the bundle is NOT a separate SKU; it installs under the
+# same single license, so it shows the same license price. Reading the canonical
+# Orionfold source to stay current is allowed (the promise forbids SENDING user
+# data, not reading public data). When the founding window closes, delete `intro`.
 price:
-  list: "$199/year"
+  intro: "$349/year"
+  list: "$499/year"
   note: "One install of the whole agency operating system tuned for CRE. One license unlocks every paid Relay pack."
 purchaseUrl: https://orionfold.com/relay/
 related:

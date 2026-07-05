@@ -15,10 +15,13 @@ description: >
   never sends your data to Orionfold.
 relayCore: ">=0.18.0"
 entitlement: product:orionfold-relay
-# Priced to match orionfold.com/relay/ in this release. Hand-maintained.
-# PLACEHOLDER pending operator + Website pricing coordination.
+# Two-phase license offer, hand-maintained to match orionfold.com/relay/ in this
+# release (canonical SSOT: orionfold.com/relay/pricing.json). One license unlocks
+# every paid Relay pack — this is the license price, not a per-pack price. When the
+# founding window closes on the Website, delete `intro` here in a normal release.
 price:
-  list: "$199/year"
+  intro: "$349/year"
+  list: "$499/year"
   note: "Add-on to the free Relay Agency pack. One license unlocks every paid Relay pack."
 purchaseUrl: https://orionfold.com/relay/
 icon: heart-handshake
