@@ -1,33 +1,38 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **`pack-bundle-model` (P1) BUILT + committed (`3bc9b05c`)** — compose-then-install
-flatten shipped to source: a bundle pack declares `bundle: [childIds]` (no base/manifest.yaml) and
-`mergeBundle` (new `src/lib/packs/bundle.ts`, pure) flattens children into ONE synthetic pack that the
-existing single-app `installPack` flow runs unchanged, so the logical→real UUID rewrite spans the merged
-manifest and cross-child triggers/KPIs resolve (no silent 0-read). Changed `format.ts` (`bundle` field +
-`isBundle` + `BundleCollisionError`, bundle skips base-manifest req → derived placeholder), `install.ts`
-(bundle branch after parsePack; `readCustomerSeed` aggregates+dedupes per-child seeds). View merge =
-first-hero+concat-rest; entitlement gates once; git-URL children refused. Test-only fixtures under
-`__tests__/fixtures/`. 147 packs+install-route tests green; full suite = ONLY the 8 documented pre-existing
-fails (0 regressions); e2e module-graph smoke + live dev server both clean. Memory `pack-bundle-flatten-model`.
-Prior tail: `pack-generalize-agency` P0 (`3797c839`), 8 pack-catalog specs (`42cf3c4a`), 0.31.0 (`a661054e`).)_
+_Last updated: 2026-07-05 (pt: **`pack-agency-bundle` (P1) BUILT + committed (`a03e53dd`)** — the first bundle
+proof. Two bundle descriptors: `relay-agency-cre` (`bundle: [relay-agency, relay-cre]`, operator's locked
+first-bundle) + `relay-agency-nonprofit` (neutrality gate), each a `pack.yaml` with no base/manifest.yaml —
+zero merge-code changes, rides `pack-bundle-model`. **Resolved a collision the split exposed:** CRE + nonprofit
+each still declared their own `clients` table (side-by-side leftover) → collided with the persona spine's
+`clients` under a flatten (`BundleCollisionError`, by design). Operator-picked fix (recommended): persona spine
+owns the ONE client book; industry packs DROP `clients` + add their DISTINCT table (CRE gains `rent_roll` w/
+lease-abstraction row-trigger; nonprofit keeps `grants`); vertical clients flow via `seed/customers.yaml`
+aggregation. `relay-agency-bundle-template.test.ts` (8, real templates) + full packs suite green (141) +
+module-graph parse + e2e install smoke (1 app, 5 tables no-collision, 35 rows, trigger→real UUID, merged
+manifest render-ready). Memory `pack-bundle-flatten-model`. **Then (`3ee81dd0`) `features/pack-taxonomy.md`** —
+operator-requested global registry so new packs build on peers not shadow them (one-owner-per-logical-id;
+6 tables + 1 schedule surveyed); referenced from the `ainative-app` skill + pack-bundle-model/generalize specs.
+Memory `pack-taxonomy-shared-registry`. Prior tail: `pack-bundle-model` P1 (`3bc9b05c`), `pack-generalize-agency`
+P0 (`3797c839`), 0.31.0 (`a661054e`).)_
 
-## ▶️ NEXT SESSION — `pack-agency-bundle` (the first bundle proof)
+## ▶️ NEXT SESSION — release the packs-evolution arc, or `pack-primitive-resurface`
 
-- **`pack-bundle-model` (P1) is BUILT + committed (`3bc9b05c`)** — spec status=built with a verification note.
-  Next in the §8.1 sequence: **`pack-agency-bundle`** (Agency→CRE, the operator's locked first-bundle proof),
-  which CONSUMES this bundle format directly — a `pack.yaml` with `bundle: [relay-agency, relay-cre]`, no merge
-  code changes. Full order in the specs' roadmap + memory `packs-evolution-requirements-extracted`.
-- **Before releasing** (bundle-model + the still-unreleased persona/industry split): cut a version bump +
-  annotated tag (memory `release-tag-must-be-annotated`); apiVersion window bump IF minor (memory
-  `apiversion-window-bump-at-version-bump`); the industry-pack `price` is a PLACEHOLDER ($199/year) — needs
-  operator + Website `_RELAY.md` coordination before it ships (memory `packs-evolution-requirements-extracted`
-  bundle-pricing). Prod-smoke Case L already updated to the split's counts; a bundle pack is NOT yet in Case L.
-- **New durable fact this session**: memory `pack-bundle-flatten-model` (repeatable compose-then-install rules
-  for ALL future bundles — view-merge, collision-refuse, entitlement-gates-once).
+- **The packs-evolution arc is BUILT + unreleased on `main`** (persona/industry split `3797c839`, bundle-model
+  `3bc9b05c`, agency-bundle `a03e53dd`, taxonomy `3ee81dd0`). The natural next move is to **cut the release**:
+  version bump + ANNOTATED tag (memory `release-tag-must-be-annotated`); apiVersion window bump IF minor (memory
+  `apiversion-window-bump-at-version-bump`). **BLOCKER before shipping:** the industry-pack + bundle `price` is a
+  PLACEHOLDER ($199/year) — needs operator + Website `_RELAY.md` coordination (memory
+  `packs-evolution-requirements-extracted` bundle-pricing). The bundle is a distinct SKU from the standalone CRE
+  pack; confirm the bundle price with the operator before it ships.
+- **Prod-smoke Case L:** updated to the split's counts already, but a BUNDLE pack is NOT yet exercised in Case L.
+  Before tagging, add a bundle-install case (or grep Case L for the seed 403/counts a bundle touches) — memory
+  `prod-smoke-encodes-contracts`.
 - `pack-primitive-resurface` (P1) runs on an **independent track** (resurface existing charts; lifts every
-  pack) — schedule whenever. `decisions_open` still needing operator+Website calls: when-dependsOn-earns-weight
-  (P3 trigger), bundle-pricing-mechanics (`pricing.json` + `_RELAY.md` coord before any price ships).
+  pack) — schedule whenever, no release dependency. `decisions_open` still needing operator+Website calls:
+  when-dependsOn-earns-weight (P3 trigger), bundle-pricing-mechanics (`pricing.json` + `_RELAY.md` coord).
+- **New durable facts this session**: `pack-taxonomy-shared-registry` (read/update `features/pack-taxonomy.md`
+  before authoring ANY pack — one owner per logical id). The bundle flatten rules stay in `pack-bundle-flatten-model`.
 
 - **0.31.0 shipped clean** (`v0.31.0`→`a661054e`; F5 card lift + F6 nav move; CI green, on npm). Nothing
   outstanding — full detail in "Recently shipped" + git.
