@@ -6,14 +6,17 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.32.0] — 2026-07-05
+
 ### Added
 
 - **The Agency pack now works for any agency, and your industry gets its own pack.** The free Relay Agency pack is now vertical-neutral: it runs your whole client book, with per-client margin, a new-business pipeline from lead to signed engagement, an intake router, and an on-demand month-end close. Whatever work you deliver, it fits. Two new industry packs carry the vertical delivery work: **Relay CRE** (lease abstraction, listings, and the renewal engine) and **Relay Nonprofit** (grant and donor research, grant cycles, and impact reporting with a deep grant pipeline that fires on its own).
+- **Buy your whole setup in one bundle.** Two new bundle packs, **Relay Agency for CRE** and **Relay Agency for Nonprofit**, install the free Agency pack and the matching industry pack together as one app. Install once and get the client book, per-client margin, intake, new-business pipeline, and month-end close, with your industry's delivery work composed right in. Prefer to build it yourself? Install the free Agency pack and add the industry pack on top for the same result.
 
 ### Changed
 
 - **Agency Pro is now the automation layer for any agency.** It makes your client book run itself with a scheduled month-end close, auto-routing intake, a new-business machine, and client-safe governance. The commercial real estate and nonprofit chapters moved into the new Relay CRE and Relay Nonprofit packs, so you install exactly the delivery work you sell. Your existing Agency Pro workflows keep running.
-- **One license unlocks every paid Relay pack.** The free Relay Agency pack is the only free pack. Agency Pro, Relay CRE, and Relay Nonprofit are all covered by a single license, so you buy once and add whichever paid packs you need.
+- **One license unlocks every paid Relay pack.** The free Relay Agency pack is the only free pack. Agency Pro, Relay CRE, Relay Nonprofit, and the two Agency bundles are all covered by a single license, so you buy once and add whichever paid packs you need.
 
 ## [0.31.0] — 2026-07-05
 
