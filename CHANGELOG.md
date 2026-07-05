@@ -6,6 +6,16 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.29.0] — 2026-07-05
+
+### Added
+
+- **A settings summary now sits right under the top status bar.** You can see your key settings at a glance without leaving the page: the active model, runtime, routing, license, budget, permissions, web search, and channels. Click "Settings" to expand it into grouped detail, or "Open" to jump to the full settings page. It stays pinned as you scroll.
+
+### Changed
+
+- **The top status bar and app chrome got a cleaner, calmer look.** The status bar reads as one solid band with clear dividers between each reading, so the live figures are easy to scan. The app now shows a faint blueprint-grid texture on the work area behind your content, tuned to stay quiet in both light and dark themes. Everything stays consistent whether you use light or dark mode.
+
 ## [0.28.0] — 2026-07-04
 
 ### Changed
