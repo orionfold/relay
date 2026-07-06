@@ -26,7 +26,7 @@ export interface PackCommandIo {
 
 const USAGE = [
   "Usage: relay pack <action>",
-  "  add <name|path|git-url> [--license-url=<path|url>]   install a pack",
+  "  add <name|path|git-url> [--license-url=<path|url>] [--allow-community]   install a pack",
   "  list                 list installed packs",
   "  remove <id>          uninstall a pack",
   "  update <id> [source] [--license-url=<path|url>]      update to a newer version",
@@ -57,17 +57,39 @@ function extractFlag(
   return { value, rest };
 }
 
+/**
+ * Pull a bare boolean `--flag` (no value) out of argv, returning whether it was
+ * present and the remaining positional args. Local + tiny, same rationale as
+ * extractFlag (Principle #6).
+ */
+function hasFlag(argv: string[], name: string): { present: boolean; rest: string[] } {
+  const rest: string[] = [];
+  let present = false;
+  for (const tok of argv) {
+    if (tok === `--${name}`) present = true;
+    else rest.push(tok);
+  }
+  return { present, rest };
+}
+
 export async function runPackCommand(
   argv: string[],
   io: PackCommandIo
 ): Promise<number> {
   const action = argv[0];
-  const { value: licenseUrl, rest } = extractFlag(argv.slice(1), "license-url");
+  const { value: licenseUrl, rest: afterLicense } = extractFlag(
+    argv.slice(1),
+    "license-url"
+  );
+  const { present: allowCommunity, rest } = hasFlag(
+    afterLicense,
+    "allow-community"
+  );
   const arg = rest[0];
 
   switch (action) {
     case "add":
-      return runAdd(arg, licenseUrl, io);
+      return runAdd(arg, licenseUrl, allowCommunity, io);
     case "list":
       return runList(io);
     case "remove":
@@ -84,6 +106,7 @@ export async function runPackCommand(
 async function runAdd(
   source: string | undefined,
   licenseUrl: string | undefined,
+  allowCommunity: boolean,
   io: PackCommandIo
 ): Promise<number> {
   if (!source) {
@@ -92,14 +115,17 @@ async function runAdd(
   }
   try {
     const { installPack } = await import("./install");
+    const { packTierBadge } = await import("./provenance");
     const report = await installPack(source, {
       appsDir: io.appsDir,
       profilesDir: io.profilesDir,
       blueprintsDir: io.blueprintsDir,
       licenseUrl,
+      allowCommunity,
     });
     io.log(
-      `Installed ${report.packId}@${report.packVersion}: ` +
+      `Installed ${report.packId}@${report.packVersion} ` +
+        `[${packTierBadge(report.tier, report.tierLabel)}]: ` +
         `${report.projectCreated ? "project created" : "project reused"}, ` +
         `${report.tablesCreated} table(s) (${report.rowsSeeded} row(s)), ` +
         `${report.customersSeeded} customer(s), ` +

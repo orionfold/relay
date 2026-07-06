@@ -9,6 +9,7 @@ import {
   Check,
   Lock,
   Package,
+  ShieldCheck,
   TriangleAlert,
   type LucideIcon,
 } from "lucide-react";
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { listApps } from "@/lib/apps/registry";
 import { listPackTemplates, type PackTemplate } from "@/lib/packs/catalog";
 import { packPrice, type PackPrice } from "@/lib/packs/format";
+import { packTierBadge } from "@/lib/packs/provenance";
 import { packUpdateAvailability } from "@/lib/packs/update";
 import { changelogWindow } from "@/lib/licensing/recap";
 import { PackInstallButton } from "@/components/packs/pack-install-button";
@@ -163,6 +165,22 @@ function FilterChips({
         </Link>
       ))}
     </nav>
+  );
+}
+
+/**
+ * Trust-tier line (R3 `pack-provenance-tiers`). Every BUNDLED pack shown here
+ * is `official` by definition (it shipped signed-in-tarball, Orionfold-authored)
+ * — the /packs browser is local-first and cannot reach a remote community pack.
+ * A remotely-fetched community pack would surface "Community · unverified" as a
+ * caution at CLI install time; this subtle line is the standing official cue.
+ */
+function PackTrustLine() {
+  return (
+    <p className="flex items-center gap-1 text-[11px] text-muted-foreground/70">
+      <ShieldCheck className="h-3 w-3 shrink-0" aria-hidden="true" />
+      {packTierBadge("official", "Orionfold")}
+    </p>
   );
 }
 
@@ -363,6 +381,7 @@ function PackCard({
           </p>
         )}
         {meta.related && <RelatedNote related={meta.related} />}
+        <PackTrustLine />
 
         <div className="mt-auto">
           {installed ? (

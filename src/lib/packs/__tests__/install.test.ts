@@ -169,6 +169,12 @@ describe("installPack", () => {
     expect(report.blueprintsDropped).toBe(1);
     expect(report.rowsSeeded).toBe(2);
 
+    // R3 — a local/bundled pack (no remote index entry) is implicitly official,
+    // no fetch-side verify. The report carries the tier for the CLI badge.
+    expect(report.tier).toBe("official");
+    expect(report.tierVerified).toBe(true);
+    expect(report.tierLabel).toBe("Orionfold");
+
     // Project row exists.
     const proj = await db
       .select()
@@ -692,6 +698,112 @@ describe("installPack by bundled name", () => {
       ).rejects.toThrow(/Unknown pack "not-a-pack"/);
     } finally {
       fs.rmSync(templatesDir, { recursive: true, force: true });
+    }
+  });
+
+  // R3 `pack-provenance-tiers` — a pack fetched through the canonical index
+  // carries `entry.sig`/`entry.keyId`; the install verifies provenance offline
+  // and reports the tier. Stages a signed file:// canonical tree and asserts the
+  // signed pack installs as `official` (verified end-to-end through the R2 fetch
+  // → R3 verify seam), then that a tampered sig downgrades to community.
+  async function stageSignedTree(
+    sign: (parts: { meta: unknown; manifest: unknown }) => string
+  ) {
+    const { parsePack } = await import("../format");
+    const tar = await import("tar");
+    const { createHash } = await import("node:crypto");
+    const base = fs.mkdtempSync(path.join(os.tmpdir(), "ainative-signed-tree-"));
+
+    // A minimal valid pack, staged and PARSED so we sign over the exact canonical
+    // meta+manifest the verifier recomputes (schema defaults applied).
+    const stage = path.join(base, "stage");
+    fs.mkdirSync(path.join(stage, "base"), { recursive: true });
+    fs.writeFileSync(
+      path.join(stage, "pack.yaml"),
+      "id: relay-signed-demo\nname: Signed Demo\nversion: 1.0.0\n"
+    );
+    fs.writeFileSync(
+      path.join(stage, "base", "manifest.yaml"),
+      "id: relay-signed-demo\nname: Signed Demo\nversion: 1.0.0\ntables: []\nprofiles: []\nblueprints: []\n"
+    );
+    const parsed = parsePack(stage);
+    const sig = sign({ meta: parsed.meta, manifest: parsed.manifest });
+
+    const artifactDir = path.join(base, "packs", "official");
+    fs.mkdirSync(artifactDir, { recursive: true });
+    const tgzPath = path.join(artifactDir, "relay-signed-demo.tgz");
+    await tar.create({ gzip: true, file: tgzPath, cwd: stage }, [
+      "pack.yaml",
+      "base",
+    ]);
+    const sha = createHash("sha256")
+      .update(fs.readFileSync(tgzPath))
+      .digest("hex");
+    fs.writeFileSync(`${tgzPath}.sha256`, sha);
+
+    fs.writeFileSync(
+      path.join(base, "index.json"),
+      JSON.stringify({
+        schema: "orionfold.packs/v1",
+        packs: [
+          {
+            id: "relay-signed-demo",
+            tier: "official",
+            version: "1.0.0",
+            path: "packs/official/relay-signed-demo",
+            sha,
+            sig,
+            keyId: "of-packs-dev-2026",
+          },
+        ],
+      })
+    );
+    return {
+      baseUrl: pathToFileURL(base).href,
+      cleanup: () => fs.rmSync(base, { recursive: true, force: true }),
+    };
+  }
+
+  it("installs a signed index pack as official, verified end-to-end", async () => {
+    const { signPack } = await import("./sign-pack-helper");
+    const { baseUrl, cleanup } = await stageSignedTree(({ meta, manifest }) =>
+      signPack(meta, manifest)
+    );
+    try {
+      const { installPack } = await loadModules();
+      const report = await installPack("relay-signed-demo", {
+        ...installOpts(),
+        packIndexBaseUrl: baseUrl,
+      });
+      expect(report.packId).toBe("relay-signed-demo");
+      expect(report.tier).toBe("official");
+      expect(report.tierVerified).toBe(true);
+      expect(report.tierLabel).toBe("Orionfold");
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("downgrades a bad-signature index pack to community (warn-and-install)", async () => {
+    // Sign correctly, then corrupt the sig bytes so verify fails → downgrade.
+    const { signPack } = await import("./sign-pack-helper");
+    const { baseUrl, cleanup } = await stageSignedTree(({ meta, manifest }) => {
+      const good = Buffer.from(signPack(meta, manifest), "base64");
+      good[0] ^= 0xff; // flip a byte
+      return good.toString("base64");
+    });
+    try {
+      const { installPack } = await loadModules();
+      const report = await installPack("relay-signed-demo", {
+        ...installOpts(),
+        packIndexBaseUrl: baseUrl,
+      });
+      // Warn-and-install is the default ceiling — it installs, tier downgraded.
+      expect(report.packId).toBe("relay-signed-demo");
+      expect(report.tier).toBe("community");
+      expect(report.tierVerified).toBe(false);
+    } finally {
+      cleanup();
     }
   });
 });

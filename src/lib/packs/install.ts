@@ -21,6 +21,13 @@ import {
   type ResolvedPackFile,
 } from "./format";
 import { mergeBundle } from "./bundle";
+import {
+  verifyPackProvenance,
+  packProvenanceBytes,
+  packInstallPolicy,
+  packTierBadge,
+  type PackTier,
+} from "./provenance";
 
 // Compile-time core version, embedded by tsup's `define` (see tsup.config.ts).
 // Present ONLY in the bundled CLI; `undefined` in dev/test/Next.js builds,
@@ -78,6 +85,12 @@ export interface InstallPackOptions {
    * pack never reaches the index so this is unused for offline installs.
    */
   packIndexBaseUrl?: string;
+  /**
+   * The `--allow-community` escape hatch (R3 `pack-provenance-tiers`). Only
+   * consulted if the trust ceiling is tightened (open decision #3); ignored
+   * while the default warn-and-install ceiling is in force.
+   */
+  allowCommunity?: boolean;
 }
 
 export interface InstallReport {
@@ -90,6 +103,14 @@ export interface InstallReport {
   blueprintsDropped: number;
   rowsSeeded: number;
   schedulesRegistered: number;
+  /** Trust tier assigned by the offline provenance verify (R3). A bundled pack
+   * is implicitly `official`; a remotely-fetched pack is verified against the
+   * embedded pack-key map. */
+  tier: PackTier;
+  /** True only when a signature verified against a trusted pack key. */
+  tierVerified: boolean;
+  /** The signer's human label (e.g. "Orionfold"), present only when verified. */
+  tierLabel?: string;
 }
 
 interface CustomerSeedEntry {
@@ -136,7 +157,9 @@ export async function installPack(
     templatesDir: options.templatesDir,
     baseUrl: options.packIndexBaseUrl,
   });
-  void indexEntry; // R3 (pack-provenance-tiers) verifies entry.sig/keyId here.
+  // `indexEntry` (present only on the remote path) carries `sig`/`keyId` — R3
+  // verifies provenance against them just below, after parsePack yields the
+  // meta+manifest the signature covers.
   const acquired = acquirePack(resolvedSource);
   const packDir = acquired.dir;
   // Compose the fetch's temp-dir cleanup (if any) with acquirePack's own, so a
@@ -149,6 +172,45 @@ export async function installPack(
   try {
     // 2. Validate — strict schema gate (throws PackValidationError) ...
     let pack = parsePack(packDir);
+
+    // 2-provenance. Offline trust-tier verify (R3 `pack-provenance-tiers`).
+    // Verified against the ORIGINALLY-parsed meta+manifest (before any bundle
+    // merge mutates `pack`), which is exactly what a signer covers. A pack that
+    // arrived through the remote index carries `indexEntry.sig`/`.keyId`; a
+    // BUNDLED or local pack has no entry and is implicitly `official` (it
+    // shipped signed-in-tarball / is Orionfold-authored by definition), skipping
+    // the fetch-side verify. The verify is 100% offline — no network, no
+    // registry (promise-clean; a test asserts zero network during verify).
+    let provenance: { tier: PackTier; verified: boolean; label?: string };
+    if (indexEntry) {
+      const bytes = packProvenanceBytes(pack.meta, pack.manifest);
+      provenance = verifyPackProvenance(bytes, indexEntry.sig, indexEntry.keyId);
+      // Trust-ceiling policy seam (open decision #3 — default warn-and-install).
+      const decision = packInstallPolicy(provenance.tier, provenance.verified, {
+        allowCommunity: options.allowCommunity,
+      });
+      if (decision === "refuse") {
+        throw new PackValidationError(
+          `Pack ${pack.meta.id}@${pack.meta.version} is ${packTierBadge(
+            provenance.tier,
+            provenance.label
+          )} and the trust ceiling refuses it. ` +
+            `Re-run with --allow-community to install it anyway.`
+        );
+      }
+      if (decision === "warn-install" && !provenance.verified) {
+        // Loud, never silent (Principle #1): the user is about to install code
+        // whose author Relay cannot vouch for.
+        console.warn(
+          `⚠ Installing ${pack.meta.id}@${pack.meta.version} as ${packTierBadge(
+            provenance.tier
+          )} — its signature could not be verified against a trusted Orionfold ` +
+            `or partner key. Install only if you trust the source.`
+        );
+      }
+    } else {
+      provenance = { tier: "official", verified: true, label: "Orionfold" };
+    }
 
     // 2a-bundle. Bundle flatten (`pack-bundle-model`). A bundle pack owns no
     // inner manifest; it lists child pack ids to merge into ONE app. Resolve
@@ -461,6 +523,9 @@ export async function installPack(
       blueprintsDropped,
       rowsSeeded,
       schedulesRegistered,
+      tier: provenance.tier,
+      tierVerified: provenance.verified,
+      tierLabel: provenance.label,
     };
   } finally {
     cleanup();
