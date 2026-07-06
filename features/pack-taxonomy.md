@@ -56,6 +56,13 @@ The manual-vs-automated line (free spine = manual client-book OS; Pro = automati
 
 ## Owned-primitives registry (the shared namespace — keep current)
 
+> **Source of truth: `src/lib/packs/taxonomy.ts` (R1, codified 2026-07-06).** This markdown table
+> mirrors it for human reading. The machine-checked registry lives in `taxonomy.ts` (typed + Zod),
+> is mirrored to `taxonomy.json`, and the **`check:pack-taxonomy` build gate** (R3,
+> `scripts/check-pack-taxonomy.mjs`) fails a release if any pack manifest declares an owned id with
+> drifted columns, an unregistered id, or a second owner. Add/move a primitive in `taxonomy.ts` (then
+> `node scripts/generate-taxonomy-json.mjs`) AND here, in the same change.
+
 The logical table/schedule ids currently in play and their **single owner**. When you add or move a
 primitive, update this table in the SAME change (it is the source of truth reviewers diff against).
 

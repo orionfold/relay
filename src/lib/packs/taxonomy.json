@@ -1,0 +1,218 @@
+{
+  "tables": {
+    "clients": {
+      "owner": "relay-agency",
+      "kind": "persona",
+      "columns": [
+        "name",
+        "engagement_type",
+        "tier",
+        "status",
+        "health"
+      ],
+      "note": "The client book. Industry packs seed verticals into it via seed/customers.yaml, never redeclare it."
+    },
+    "engagements": {
+      "owner": "relay-agency",
+      "kind": "persona",
+      "columns": [
+        "client",
+        "date",
+        "category",
+        "description",
+        "amount",
+        "status"
+      ],
+      "note": "The signed-amount ledger (margin cockpit source). relay-agency-pro re-lists it to attach automation."
+    },
+    "intake": {
+      "owner": "relay-agency",
+      "kind": "persona",
+      "columns": [
+        "client",
+        "service",
+        "source",
+        "status",
+        "notes"
+      ],
+      "note": "The work queue. relay-agency-pro attaches a row-insert trigger. Ships empty."
+    },
+    "pipeline": {
+      "owner": "relay-agency",
+      "kind": "persona",
+      "columns": [
+        "prospect",
+        "stage",
+        "value",
+        "owner",
+        "notes"
+      ],
+      "note": "The lead→signed new-business pipeline."
+    },
+    "rent_roll": {
+      "owner": "relay-cre",
+      "kind": "industry",
+      "columns": [
+        "property",
+        "tenant",
+        "base_rent",
+        "expiry",
+        "escalation",
+        "option"
+      ],
+      "note": "CRE's distinct vertical primitive; carries the lease-abstraction row-insert trigger. Ships empty."
+    },
+    "grants": {
+      "owner": "relay-nonprofit",
+      "kind": "industry",
+      "columns": [
+        "client",
+        "funder",
+        "program",
+        "amount",
+        "deadline",
+        "stage",
+        "notes"
+      ],
+      "note": "Nonprofit's distinct vertical primitive; carries the grant-pipeline-deep row-insert trigger. Ships empty."
+    },
+    "leads": {
+      "owner": "relay-crm",
+      "kind": "functional",
+      "columns": [
+        "display_name",
+        "email",
+        "stage",
+        "direct_status",
+        "segment",
+        "source_origin",
+        "source_campaign",
+        "owner",
+        "last_touch",
+        "notes"
+      ],
+      "note": "The core CRM record (two-axis lifecycle). Carries the lead-enrich trigger → ships empty. source_campaign == campaigns.utm_campaign is the intra-bundle join key."
+    },
+    "lead_research": {
+      "owner": "relay-crm",
+      "kind": "functional",
+      "columns": [
+        "lead_id",
+        "target_offering",
+        "fit_score",
+        "role",
+        "company",
+        "location",
+        "likely_pain",
+        "latent_need",
+        "email_status",
+        "last_researched"
+      ],
+      "note": "The public-research dossier. Seeded (not trigger-bound)."
+    },
+    "consent_policy": {
+      "owner": "relay-crm",
+      "kind": "functional",
+      "columns": [
+        "basis",
+        "mailable",
+        "scope",
+        "jurisdiction",
+        "cadence_cap",
+        "notes"
+      ],
+      "note": "The consent guardrail as data, read by the outreach-guard profile. Seeded."
+    },
+    "content_assets": {
+      "owner": "relay-social",
+      "kind": "functional",
+      "columns": [
+        "title",
+        "type",
+        "collection",
+        "funnel_stage",
+        "promotes",
+        "repurpose_status",
+        "priority",
+        "owner"
+      ],
+      "note": "Source content (supply side). Carries the repurpose row-insert trigger. Seeded."
+    },
+    "creatives": {
+      "owner": "relay-social",
+      "kind": "functional",
+      "columns": [
+        "parent",
+        "promotes",
+        "channel",
+        "format",
+        "campaign",
+        "status",
+        "hook",
+        "cta"
+      ],
+      "note": "Channel-ready drafts — the output of repurpose/welcome-creative. Ships empty."
+    },
+    "campaigns": {
+      "owner": "relay-social",
+      "kind": "functional",
+      "columns": [
+        "promotes",
+        "funnel_stage",
+        "starts",
+        "ends",
+        "status",
+        "utm_campaign",
+        "impressions",
+        "clicks",
+        "signups"
+      ],
+      "note": "Demand-gen initiatives. utm_campaign is the join key CRM leads.source_campaign references. Seeded."
+    },
+    "channels": {
+      "owner": "relay-social",
+      "kind": "functional",
+      "columns": [
+        "platform",
+        "handle",
+        "url",
+        "funnel_role",
+        "audience",
+        "last_refreshed",
+        "refresh_status"
+      ],
+      "note": "Publishing surfaces. Seeded."
+    },
+    "ad_initiatives": {
+      "owner": "relay-social",
+      "kind": "functional",
+      "columns": [
+        "title",
+        "intent_kind",
+        "status",
+        "attached_campaign",
+        "primary_kpi",
+        "budget_envelope_usd",
+        "target_cac_usd"
+      ],
+      "note": "The paid side. Seeded lightly."
+    }
+  },
+  "schedules": {
+    "month-end-close": {
+      "owner": "relay-agency-pro",
+      "kind": "automation",
+      "note": "Installed as composite id app:relay-agency-pro:month-end-close."
+    },
+    "lead-poller": {
+      "owner": "relay-crm",
+      "kind": "functional",
+      "note": "relay-crm--outreach-loop — the 4×/day list-hygiene pass."
+    },
+    "content-cadence": {
+      "owner": "relay-social",
+      "kind": "functional",
+      "note": "relay-social--campaign-launch — the weekly posting companion."
+    }
+  }
+}

@@ -54,6 +54,10 @@ import {
 // hand-maintained price must not contradict the Website's canonical
 // pricing.json. Fail-open offline; fail loud on a reachable contradiction.
 import { checkPriceDrift } from "./check-price-drift.mjs";
+// Publish-gate pack-taxonomy check (R3): every pack manifest's declared logical
+// table/schedule ids must reconcile against the codified owned-primitive
+// registry (src/lib/packs/taxonomy.ts → taxonomy.json). LOCAL check, fail-CLOSED.
+import { runCheck as runTaxonomyCheck } from "./check-pack-taxonomy.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = JSON.parse(readFileSync(path.join(repoRoot, "package.json"), "utf-8"));
@@ -381,10 +385,28 @@ async function main() {
     }
   }
 
+  // ---- Case T: pack-taxonomy drift — every manifest vs the codified registry ----
+  // LOCAL, fail-CLOSED (no network): a pack that declares an owned id with
+  // divergent columns, an unregistered id, or an owner-contract drift fails the
+  // release. runTaxonomyCheck throws on a broken local input (missing/broken
+  // taxonomy.json) — that is a real error, surfaced as a failed release.
+  console.log("\n[smoke] Case T: pack-taxonomy drift (manifests vs codified registry)");
+  {
+    const tax = runTaxonomyCheck();
+    if (tax.findings.length > 0) {
+      for (const f of tax.findings) console.error(`  - ${f}`);
+      assert(false, "Case T: a pack manifest drifted from src/lib/packs/taxonomy.ts (see findings above)");
+    } else {
+      console.log(
+        `[smoke] Case T: OK — ${tax.packCount} manifest packs, ${tax.tableCount} tables + ${tax.scheduleCount} schedules, all owned + in-contract.`,
+      );
+    }
+  }
+
   await fs.rm(workDir, { recursive: true, force: true });
   rmSync(tarballPath, { force: true });
   console.log(
-    "\n[smoke] npx production smoke passed: A (prod first run), B (cached + LAN), L (license lifecycle + staging gate), L2 (bundle flatten), C (loud fallback), P (price drift).",
+    "\n[smoke] npx production smoke passed: A (prod first run), B (cached + LAN), L (license lifecycle + staging gate), L2 (bundle flatten), C (loud fallback), P (price drift), T (pack-taxonomy drift).",
   );
 }
 

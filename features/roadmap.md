@@ -534,7 +534,18 @@ when-dependsOn-earns-weight, bundle-pricing) need operator + Website calls durin
 | [pack-entitlement-per-line](pack-entitlement-per-line.md) | P2 | planned | pack-bundle-model, pack-agency-bundle |
 | [pack-marketing-line](pack-marketing-line.md) | P2 | planned | pack-bundle-model, pack-agency-bundle |
 | [pack-depth-next-wave](pack-depth-next-wave.md) | P2 | planned | pack-primitive-resurface, pack-bundle-model |
+| [pack-taxonomy-codified](pack-taxonomy-codified.md) | P1 | shipped | — |
+| [pack-taxonomy-ci-gate](pack-taxonomy-ci-gate.md) | P1 | shipped | pack-taxonomy-codified |
 | [pack-dependson-foundation](pack-dependson-foundation.md) | P3 | planned | pack-bundle-model |
+
+**Packs Robustify (governance layer, 2026-07-06):** `_IDEAS/packs-robustify.md` §10 R1+R3 **BUILT
+2026-07-06** — the codified taxonomy data file (`pack-taxonomy-codified`, R1: `src/lib/packs/taxonomy.ts`
++ `taxonomy.json` + pure loader) + the CI gate that fails the build on ownership drift
+(`pack-taxonomy-ci-gate`, R3: `scripts/check-pack-taxonomy.mjs`, wired into the npx-prod-smoke publish
+gate as Case T + `check:pack-taxonomy` npm alias). Gates-before-features (§11): a one-time gate makes
+every future pack safe at author time. R2 (install-time check), R5 (compat-diff gate), R7 (integration),
+R8 (dependsOn), R9 (distribution) remain in the idea doc, ungroomed — groom the next tranche (R5 pairs
+with R3) when this lands.
 
 **Operator decision (2026-07-05):** first bundle proof = **Agency→CRE** (`pack-agency-bundle`),
 not Marketing — published Agency marketing assets give it a warm audience. `pack-marketing-line`

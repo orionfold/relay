@@ -1,5 +1,49 @@
 # Feature Changelog
 
+## 2026-07-06 — Packs Robustify R1+R3 BUILT (the taxonomy governance gate)
+
+### Built (internal — build-time governance, no runtime/user-facing surface)
+- **R1 `pack-taxonomy-codified`** — the owned-primitive registry is now a machine-checked data file.
+  `src/lib/packs/taxonomy.ts` (typed + Zod `.strict()`, 14 tables + 3 schedules seeded verbatim from
+  the shipped manifests — `pipeline` recorded with its REAL columns `[prospect, stage, value, owner,
+  notes]`, not the doc's prose) + a pure loader (`loadTaxonomy`, `ownerOfTable`, `ownerOfSchedule`,
+  `registeredColumns`). Kept a **zero-runtime-import leaf** (only imports `zod`; `pack-of.ts` purity
+  precedent) so it stays out of the `catalog.ts` module-load-cycle blast radius. Mirrored to a
+  checked-in `taxonomy.json` (the plain-node gate reads it; `scripts/generate-taxonomy-json.mjs`
+  regenerates it; a `taxonomy.test.ts` json-in-sync assertion fails on drift).
+- **R3 `pack-taxonomy-ci-gate`** — `scripts/check-pack-taxonomy.mjs` (modeled on
+  `check-price-drift.mjs`: standalone `.mjs`, `TEMPLATES_DIR` walk, exported testable core, exits 1 on
+  drift). Reconciles every pack manifest against the registry and fails on three drift classes:
+  **(i) second owner** (a non-owner declares an owned id with DIFFERENT columns — the divergent
+  re-definition; an identical-column re-list is the legal Pro→spine pattern and passes), **(ii)
+  unregistered** (a declared id absent from the registry), **(iii) column drift** (the owner's own
+  declaration differs from the registered contract). Skips bundle packs (no `base/manifest.yaml`),
+  fail-CLOSED (local check, no network). Wired into `npx-prod-smoke.mjs` as **Case T** (publish gate)
+  + `check:pack-taxonomy` npm alias. Passes clean against the current 6 manifest packs (16 declared
+  tables incl. Pro's 2 legal re-lists + 3 schedules).
+- Closes the side-by-side silent-divergent-table hole `BundleCollisionError` misses (it fires
+  flatten-only; `install.ts` `createTable` mints a fresh UUID for a side-by-side redefine). 24 new
+  tests, 0 regressions vs the 8 known pre-existing failures. `pack-taxonomy.md` + the `ainative-app`
+  skill now point at `taxonomy.ts` as the SSOT.
+
+## 2026-07-06 — Packs Robustify R1+R3 groomed (the taxonomy governance gate)
+
+### Groomed
+- Extracted **2 build-ready specs** from `_IDEAS/packs-robustify.md` §10 (the packs governance layer),
+  scoped to **R1 + R3 only** per operator decision (the two highest-leverage first builds; §11
+  "gates before features"). R2/R5/R7/R8/R9 remain in the idea doc, ungroomed.
+  - `pack-taxonomy-codified` (P1, R1) — lift the hand-maintained `pack-taxonomy.md` registry into a
+    typed, Zod-validated `src/lib/packs/taxonomy.ts` data file + pure typed loader; the SSOT the gate
+    and the `ainative-app` skill read. Data + loader only, no runtime behavior change (blast **S**).
+  - `pack-taxonomy-ci-gate` (P1, R3, depends on R1) — a `scripts/check-pack-taxonomy.mjs` gate
+    (modeled on `check-price-drift.mjs`) that walks every pack manifest and fails the build on second
+    owner, unregistered owner, or column-contract drift. Closes the side-by-side silent-divergent-table
+    hole `BundleCollisionError` misses (it fires flatten-only). Wired into the release check chain.
+- **All doc anchors code-verified before writing** (operator `verify-before-groom` discipline):
+  `format.ts` `.strict()` rejects `dependsOn`; `bundle.ts:45` `claimIds` fires flatten-only;
+  `install.ts:252` `createTable` mints fresh UUIDs (the divergence R3 pre-empts); `pack-of.ts`
+  I/O-free purity precedent; bundle packs have no `base/manifest.yaml` (the gate must skip them).
+
 ## 2026-07-05 — Pack Catalog Evolution requirements extracted from strategy doc
 
 ### Groomed
