@@ -1,6 +1,6 @@
 id: reading-radar
 version: 0.1.0
-apiVersion: "0.32"
+apiVersion: "0.33"
 kind: primitives-bundle
 name: Reading Radar
 description: |

@@ -6,6 +6,13 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.33.0] — 2026-07-06
+
+### Added
+
+- **A whole marketing function you can install: the Relay Marketing line.** Three new packs cover your marketing work end to end. **Relay CRM** is your lead book — capture leads from your campaigns, auto-enrich and screen each one against a consent guardrail, and move it from first touch to champion, with a four-times-a-day pass that keeps stale leads honest. **Relay Social** is your demand engine — keep an inventory of source content, repurpose it into channel-native creatives the moment it lands, run campaigns from plan to published to measured, track your channels, and gate the paid side on CAC and ROAS. Install either on its own, or buy them together.
+- **Buy the whole marketing function as one app: the Relay Marketing bundle.** One install composes Relay CRM and Relay Social into a single app, so campaign performance reads against your real lead book and a new lead can fire a welcome creative automatically. Prefer to wire it up yourself? Install the two packs separately for the same result. One license unlocks every paid Relay pack, and everything installs offline — Relay never sends your data to Orionfold.
+
 ## [0.32.1] — 2026-07-05
 
 ### Changed

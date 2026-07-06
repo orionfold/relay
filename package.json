@@ -1,6 +1,6 @@
 {
   "name": "orionfold-relay",
-  "version": "0.32.1",
+  "version": "0.33.0",
   "description": "Orionfold Relay — a local-first, multi-agent orchestration runtime and builder scaffold for AI-native work.",
   "keywords": [
     "ai",
