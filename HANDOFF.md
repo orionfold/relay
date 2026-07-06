@@ -5,8 +5,10 @@ publish CI `28757924752` green incl. npx prod smoke, npm `latest`, GitHub Releas
 Cut in three bisectable commits: pricing fix + drift-gate generalization (`b0e05e4c`), prod-smoke Case L2
 bundle-flatten case (`5a7a7e8e`), the release chore (`b181a24d`). The whole packs-evolution arc (persona/industry
 split, bundle-model, Agency bundles, taxonomy, wave-1 resurface) is now released. apiVersion 0.31→0.32. 8
-pre-existing failures re-confirmed unchanged (router×6 + settings×1 + glance-shadow×1). Prior tail: wave-1
-resurface (`c3dd178e`), 0.31.0 (`a661054e`) — full detail in git + CHANGELOG.)_
+pre-existing failures re-confirmed unchanged (router×6 + settings×1 + glance-shadow×1). Post-release: added
+marketing-screenshot tooling (`829ad897`, 2 Playwright scripts; memory `marketing-screenshot-recipe`; 20 dark
+in-use shots in gitignored `output/marketing-screenshots/`). Prior tail: wave-1 resurface (`c3dd178e`), 0.31.0
+(`a661054e`) — full detail in git + CHANGELOG.)_
 
 ## ▶️ NEXT SESSION — packs-evolution shipped; follow-up is pack DEPTH
 
