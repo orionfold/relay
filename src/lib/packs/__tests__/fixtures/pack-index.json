@@ -1,0 +1,46 @@
+{
+  "schema": "orionfold.packs/v1",
+  "packs": [
+    {
+      "id": "relay-crm",
+      "tier": "official",
+      "version": "1.0.0",
+      "relayCore": ">=0.34.0",
+      "entitlement": "product:orionfold-relay",
+      "path": "packs/official/relay-crm",
+      "sha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+      "sig": "MEUCIQD-official-signature-placeholder-base64url",
+      "keyId": "orionfold-2026"
+    },
+    {
+      "id": "relay-social",
+      "tier": "official",
+      "version": "1.0.0",
+      "relayCore": ">=0.34.0",
+      "entitlement": "product:orionfold-relay",
+      "path": "packs/official/relay-social",
+      "sha": "b2c3d4e5f60718293a4b5c6d7e8f901234567890",
+      "sig": "MEUCIQE-official-signature-placeholder-base64url",
+      "keyId": "orionfold-2026"
+    },
+    {
+      "id": "acme-field-service",
+      "tier": "partner",
+      "version": "0.3.1",
+      "relayCore": ">=0.30.0",
+      "entitlement": "product:acme-field-service",
+      "path": "packs/partner/acme-field-service",
+      "sha": "c3d4e5f60718293a4b5c6d7e8f90123456789012",
+      "sig": "MEUCIQF-partner-signature-placeholder-base64url",
+      "keyId": "acme-partner-2026"
+    },
+    {
+      "id": "janes-invoice-pack",
+      "tier": "community",
+      "version": "0.1.0",
+      "repo": "github.com/jane/janes-invoice-pack",
+      "sha": "d4e5f60718293a4b5c6d7e8f9012345678901234",
+      "sig": null
+    }
+  ]
+}
