@@ -3,6 +3,7 @@ import yaml from "js-yaml";
 import { ManifestPaneBody } from "@/components/apps/kit-view/manifest-pane-body";
 import { RunnableBlueprintCard } from "@/components/apps/last-run-card";
 import { ErrorTimeline } from "@/components/workflows/error-timeline";
+import { FunnelFlowView } from "@/components/apps/kit-view/funnel-flow-view";
 import type { ViewConfig } from "@/lib/apps/registry";
 import type {
   KitDefinition,
@@ -14,11 +15,13 @@ import type {
 import { headerStatus } from "../header-status";
 
 type KpiSpec = NonNullable<ViewConfig["bindings"]["kpis"]>[number];
+type FunnelSpec = NonNullable<ViewConfig["bindings"]["funnel"]>;
 
 interface WorkflowHubProjection extends KitProjection {
   blueprintIds: string[];
   scheduleIds: string[];
   kpiSpecs: KpiSpec[];
+  funnelSpec?: FunnelSpec;
   primaryBlueprintId?: string;
   manifestYaml: string;
 }
@@ -72,6 +75,7 @@ export const workflowHubKit: KitDefinition = {
       blueprintIds: input.manifest.blueprints.map((b) => b.id),
       scheduleIds: input.manifest.schedules.map((s) => s.id),
       kpiSpecs: input.manifest.view?.bindings?.kpis ?? [],
+      funnelSpec: input.manifest.view?.bindings?.funnel,
       primaryBlueprintId: pickPrimaryBlueprintId(input),
       manifestYaml: yaml.dump(input.manifest, { lineWidth: 100 }),
     };
@@ -93,7 +97,7 @@ export const workflowHubKit: KitDefinition = {
     const ordered = [...cards].sort(
       (a, b) => Number(b.isPrimary) - Number(a.isPrimary)
     );
-    const secondary = ordered.map((card) => ({
+    const cardSlots = ordered.map((card) => ({
       id: `blueprint-${card.id}`,
       content: createElement(RunnableBlueprintCard, {
         card,
@@ -101,6 +105,24 @@ export const workflowHubKit: KitDefinition = {
         runCount30d: counts[card.id] ?? 0,
       }),
     }));
+
+    // The funnel band-flow (if declared) leads the secondary grid as the app's
+    // analytics header, above the runnable blueprint cards. This is the primary
+    // consumer of the funnel-flow primitive — the merged Marketing app maps its
+    // leads lifecycle + channel reach onto Attract → Capture → Nurture →
+    // Convert.
+    const funnelSlot = runtime.funnelData
+      ? [
+          {
+            id: "funnel-flow",
+            title: runtime.funnelData.title ?? undefined,
+            content: createElement(FunnelFlowView, {
+              bands: runtime.funnelData.bands,
+            }),
+          },
+        ]
+      : [];
+    const secondary = [...funnelSlot, ...cardSlots];
 
     const failed = runtime.failedTasks ?? [];
     const activity =
@@ -126,16 +148,18 @@ export const workflowHubKit: KitDefinition = {
       },
       kpis: runtime.evaluatedKpis ?? [],
       // FEAT-7: the blueprint-vs-workflow one-liner. Only render it when there
-      // are cards to explain, so an empty hub doesn't show a dangling lead.
+      // are CARDS to explain (not merely a funnel slot), so an empty hub — or
+      // one showing just the funnel — doesn't show a dangling "each card below"
+      // lead pointing at no cards.
       secondaryLead:
-        secondary.length > 0
+        cardSlots.length > 0
           ? "Each card below is a workflow this app can run."
           : undefined,
       // CF-FEAT-6: the 1-2-3 activation flow. Gives a first-time user the
       // sequence from "installed" to "something ran" that flat prose can't.
       // Step 3 signposts Monitor, matching the post-run toast (CF-FEAT-8).
       secondarySteps:
-        secondary.length > 0
+        cardSlots.length > 0
           ? [
               { n: 1, text: "Pick a workflow below." },
               { n: 2, text: "Click Run to start it." },

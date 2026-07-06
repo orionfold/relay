@@ -6,6 +6,12 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.34.0] — 2026-07-06
+
+### Added
+
+- **See your whole funnel as one flow.** Marketing apps now show a live Attract, Capture, Nurture, Convert band across the top of the view. Attract is your reach across active channels, Capture is the leads you touched lately, Nurture is who is in play, and Convert is who you won, each with the mix behind it and the pass-through rate between stages. In the Marketing bundle the same flow spans both your channels and your lead book, so reach and results read against each other. Where two stages count different things, the rate reads as a plain gap instead of a made-up number, so what you see is always honest.
+
 ## [0.33.1] — 2026-07-06
 
 ### Fixed

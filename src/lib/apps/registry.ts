@@ -133,6 +133,85 @@ export const ChartSpecSchema = z
   })
   .strict();
 
+/**
+ * How a single funnel band derives its count. A typed discriminated union —
+ * never a `where`/formula string — so the funnel stays a Core primitive on the
+ * `.strict()` schema, same discipline as `KpiSpecSchema`/`ChartSpecSchema`:
+ *   - `sumColumn` — Σ a numeric column, optionally restricted to rows whose
+ *     `activeColumn` equals `activeValue` (Attract: sum reach over active
+ *     channels). Reach and contacts are different denominators.
+ *   - `rowsWhereIn` — count rows whose `column` value is in an enumerated set
+ *     (stage membership: Nurture = subscriber|engaged|qualified).
+ *   - `rowsRecent` — count rows whose date `column` is within `withinDays`
+ *     (Capture: "how many did we add lately"). Windowed, not lifetime.
+ */
+const FunnelBandCountSchema = z.discriminatedUnion("kind", [
+  z
+    .object({
+      kind: z.literal("sumColumn"),
+      column: z.string().min(1),
+      /**
+       * Optional "is this row live" filter, by EXCLUSION: a row whose
+       * `excludeColumn` value is in `excludeValues` is dropped from the sum
+       * (e.g. exclude `refresh_status: deprecated` channels from Attract reach).
+       * Exclusion — not an inclusion allowlist — so a new live status value
+       * (e.g. `stale`) still counts; only the explicitly-dead ones drop.
+       */
+      excludeColumn: z.string().min(1).optional(),
+      excludeValues: z.array(z.string()).min(1).optional(),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("rowsWhereIn"),
+      column: z.string().min(1),
+      values: z.array(z.string()).min(1),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("rowsRecent"),
+      column: z.string().min(1),
+      withinDays: z.number().int().positive(),
+    })
+    .strict(),
+]);
+
+/**
+ * A manifest-declarable funnel band-flow (Attract → Capture → Nurture →
+ * Convert). The one non-standard chart the marketing harvest surfaced, carried
+ * here from `pack-marketing-line` §6 as a deliberate Core primitive — NOT a
+ * component ref, formula, or HTML escape hatch. The north-star declined
+ * D3/Sankey (YAGNI) and hand-rolled HTML bands; the render kit mirrors that.
+ *
+ * `conversionFrom` names a PRIOR band whose count is the denominator for this
+ * band's stage-to-stage rate; omit it (as Attract and Capture do) to render a
+ * muted gap-marker instead — reach and contacts are not directly comparable.
+ * Every table-reference field is named `table` so the pack installer's
+ * `rewriteViewRefs` deep-rewrites the logical id → the real UUID for free.
+ */
+const FunnelBandSpecSchema = z
+  .object({
+    key: z.enum(["attract", "capture", "nurture", "convert"]),
+    label: z.string().min(1),
+    table: z.string().min(1),
+    count: FunnelBandCountSchema,
+    detail: z.string().optional(),
+    /** Column whose values become the band's sub-chips (grouped counts). */
+    subBy: z.string().min(1).optional(),
+    /** Prior band key whose count is this band's conversion denominator. */
+    conversionFrom: z.enum(["attract", "capture", "nurture", "convert"]).optional(),
+  })
+  .strict();
+
+export const FunnelSpecSchema = z
+  .object({
+    id: z.string(),
+    title: z.string().optional(),
+    bands: z.array(FunnelBandSpecSchema).min(2),
+  })
+  .strict();
+
 export const ViewSchema = z
   .object({
     kit: KitIdSchema.default("auto"),
@@ -144,6 +223,7 @@ export const ViewSchema = z
         runs: BindingRefSchema.optional(),
         kpis: z.array(KpiSpecSchema).optional(),
         charts: z.array(ChartSpecSchema).optional(),
+        funnel: FunnelSpecSchema.optional(),
       })
       .strict()
       .default({}),

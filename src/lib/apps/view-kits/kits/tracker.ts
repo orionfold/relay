@@ -3,6 +3,7 @@ import yaml from "js-yaml";
 import { ManifestPaneBody } from "@/components/apps/kit-view/manifest-pane-body";
 import { TableSpreadsheet } from "@/components/tables/table-spreadsheet";
 import { TableChartView } from "@/components/tables/table-chart-view";
+import { FunnelFlowView } from "@/components/apps/kit-view/funnel-flow-view";
 import { defaultTrackerKpis } from "../default-kpis";
 import type { ViewConfig } from "@/lib/apps/registry";
 import type {
@@ -16,6 +17,7 @@ import { headerStatus } from "../header-status";
 
 type KpiSpec = NonNullable<ViewConfig["bindings"]["kpis"]>[number];
 type ChartSpec = NonNullable<ViewConfig["bindings"]["charts"]>[number];
+type FunnelSpec = NonNullable<ViewConfig["bindings"]["funnel"]>;
 
 interface TrackerProjection extends KitProjection {
   heroTableId: string | undefined;
@@ -24,6 +26,7 @@ interface TrackerProjection extends KitProjection {
   runsBlueprintId: string | undefined;
   kpiSpecs: KpiSpec[];
   chartSpecs: ChartSpec[];
+  funnelSpec: FunnelSpec | undefined;
   manifestYaml: string;
 }
 
@@ -80,6 +83,7 @@ export const trackerKit: KitDefinition = {
       runsBlueprintId,
       kpiSpecs,
       chartSpecs: bindings?.charts ?? [],
+      funnelSpec: bindings?.funnel,
       manifestYaml: yaml.dump(m, { lineWidth: 100 }),
     };
     return projection;
@@ -104,10 +108,25 @@ export const trackerKit: KitDefinition = {
         }
       : undefined;
 
+    // Funnel band-flow (if declared) leads the secondary grid — it's the app's
+    // analytics header. Full-width by convention (its own slot). Mounted via
+    // createElement to match the chart/hero client-component pattern.
+    const funnelSlot = runtime.funnelData
+      ? [
+          {
+            id: "funnel-flow",
+            title: runtime.funnelData.title ?? undefined,
+            content: createElement(FunnelFlowView, {
+              bands: runtime.funnelData.bands,
+            }),
+          },
+        ]
+      : [];
+
     // Wave-1 resurface: render each manifest-declared chart as a promoted
     // secondary slot (off the buried Charts tab). TableChartView is a client
     // component, so mount it via createElement like the hero spreadsheet.
-    const secondary = (runtime.chartData ?? []).map((chart) => ({
+    const chartSlots = (runtime.chartData ?? []).map((chart) => ({
       id: `chart-${chart.spec.id}`,
       title: chart.spec.title,
       // The slot renders the title; pass "" to TableChartView so its internal
@@ -123,6 +142,9 @@ export const trackerKit: KitDefinition = {
         rows: chart.rows,
       }),
     }));
+
+    // Funnel first (analytics header), then the promoted charts.
+    const secondary = [...funnelSlot, ...chartSlots];
 
     return {
       header: {

@@ -10,6 +10,7 @@ import type {
   BlueprintCard,
   CadenceChipData,
   ChartData,
+  FunnelData,
   HeroTableData,
   KitId,
   KpiTile,
@@ -21,9 +22,11 @@ import type { TaskStatus } from "@/lib/constants/task-status";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
 import { evaluateKpi } from "./evaluate-kpi";
 import { createKpiContext, windowStart } from "./kpi-context";
+import { computeFunnelBands } from "./funnel-compute";
 
 type KpiSpec = NonNullable<ViewConfig["bindings"]["kpis"]>[number];
 type ChartSpec = NonNullable<ViewConfig["bindings"]["charts"]>[number];
+type FunnelSpec = NonNullable<ViewConfig["bindings"]["funnel"]>;
 
 /**
  * Subset of kit projection fields read by `loadRuntimeState`. Kits that need
@@ -37,6 +40,8 @@ export interface KitProjectionShape {
   kpiSpecs?: KpiSpec[];
   /** Wave-1 resurface: manifest-declared charts to load rows for (Tracker). */
   chartSpecs?: ChartSpec[];
+  /** Funnel band-flow spec to compute bands for (Tracker + Workflow Hub). */
+  funnelSpec?: FunnelSpec;
   blueprintIds?: string[];
   scheduleIds?: string[];
   /** FEAT-5/6: Workflow Hub — blueprint flagged "Start here" on the card home. */
@@ -84,6 +89,7 @@ async function loadRuntimeStateUncached(
       heroTable: await loadHeroTable(projection.heroTableId),
       evaluatedKpis: await loadEvaluatedKpis(projection.kpiSpecs ?? []),
       chartData: await loadChartData(projection.chartSpecs ?? []),
+      funnelData: await loadFunnelData(projection.funnelSpec),
     };
   }
 
@@ -96,6 +102,7 @@ async function loadRuntimeStateUncached(
       blueprintCards: await loadBlueprintCards(app.manifest, projection.primaryBlueprintId),
       failedTasks: await loadFailedTasks(app.id, 10),
       evaluatedKpis: await loadEvaluatedKpis(projection.kpiSpecs ?? []),
+      funnelData: await loadFunnelData(projection.funnelSpec),
     };
   }
 
@@ -277,6 +284,42 @@ async function loadChartData(specs: ChartSpec[]): Promise<ChartData[]> {
     out.push({ spec, rows });
   }
   return out;
+}
+
+/**
+ * Compute the funnel band-flow from live rows. Collects the DISTINCT tables the
+ * bands reference (Attract reads `channels`, the leads bands read `leads`),
+ * loads each once, and delegates the math to the pure `computeFunnelBands`. A
+ * table that fails to load resolves to empty rows, so a band over it renders 0
+ * rather than erroring the whole view (Principle #1 — contained, not swallowed:
+ * a 0 band is visible). Returns `null` when the app declares no funnel.
+ *
+ * After a bundle flatten the band `table` refs are already the real UUIDs
+ * (`rewriteViewRefs` walked every `table` key at install), so a cross-child
+ * read — Attract's `channels` from relay-social feeding the same funnel as the
+ * leads bands from relay-crm — resolves against the merged app's real tables.
+ */
+async function loadFunnelData(spec?: FunnelSpec): Promise<FunnelData | null> {
+  if (!spec) return null;
+  const tableIds = [...new Set(spec.bands.map((b) => b.table))];
+  const rows: Record<string, { data: Record<string, unknown> }[]> = {};
+  for (const tableId of tableIds) {
+    try {
+      const raw = db
+        .select({ data: userTableRows.data })
+        .from(userTableRows)
+        .where(eq(userTableRows.tableId, tableId))
+        .limit(2000)
+        .all();
+      rows[tableId] = raw.map((r) => ({
+        data: JSON.parse(r.data) as Record<string, unknown>,
+      }));
+    } catch {
+      rows[tableId] = [];
+    }
+  }
+  const bands = computeFunnelBands(spec, rows, { now: Date.now() });
+  return { title: spec.title ?? null, bands };
 }
 
 async function loadBlueprintLastRuns(

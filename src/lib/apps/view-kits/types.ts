@@ -11,6 +11,16 @@ export interface ChartData {
 }
 
 /**
+ * A manifest-declared funnel band-flow with its bands already computed from the
+ * live table rows (via `computeFunnelBands`). Carries the spec's title for the
+ * slot header and the computed bands for `FunnelFlowView` to render.
+ */
+export interface FunnelData {
+  title: string | null;
+  bands: import("./funnel-compute").FunnelBand[];
+}
+
+/**
  * Frozen contracts for the composed-app view-kit registry.
  *
  * Phase 1.1 lands these types and a single `placeholder` kit. Later phases
@@ -86,6 +96,12 @@ export interface RuntimeState {
    * Tracker kit instead of leaving charts buried behind the Charts tab.
    */
   chartData?: ChartData[];
+  /**
+   * The funnel band-flow (`view.bindings.funnel`) with its bands computed from
+   * live rows, rendered as a promoted secondary slot by the Tracker + Workflow
+   * Hub kits. `null` when the app declares no funnel.
+   */
+  funnelData?: FunnelData | null;
   /** Phase 2: schedule cadence chip data for Tracker / Workflow Hub headers. */
   cadence?: CadenceChipData | null;
   /** Phase 2: KPI tiles already evaluated from declared/synthesized specs. */

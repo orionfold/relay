@@ -88,8 +88,10 @@ export function mergeBundle(
   let hero: unknown;
   const secondary: unknown[] = [];
   const kpis: unknown[] = [];
+  const charts: unknown[] = [];
   let cadence: unknown;
   let runs: unknown;
+  let funnel: unknown;
   let hasView = false;
 
   // File merge: flatten every child's files; guard droppable relPaths only.
@@ -111,7 +113,12 @@ export function mergeBundle(
     schedules.push(...m.schedules);
 
     // View: take kit + hero from the FIRST child that declares a view/hero;
-    // concatenate secondary + kpis across children in order.
+    // concatenate secondary + kpis + charts across children in order. `funnel`
+    // is single-valued like hero — the first child to declare one wins (a
+    // second funnel would fight for the same analytics-header slot). Missing
+    // `charts`/`funnel` here silently DROPS them from the merged app — the same
+    // shadow-path class the KPI-ref rewrite guards against — so every binding a
+    // child can declare must be carried through.
     if (m.view) {
       hasView = true;
       if (kit === undefined) kit = m.view.kit;
@@ -119,8 +126,10 @@ export function mergeBundle(
       if (hero === undefined && b.hero !== undefined) hero = b.hero;
       if (cadence === undefined && b.cadence !== undefined) cadence = b.cadence;
       if (runs === undefined && b.runs !== undefined) runs = b.runs;
+      if (funnel === undefined && b.funnel !== undefined) funnel = b.funnel;
       if (Array.isArray(b.secondary)) secondary.push(...b.secondary);
       if (Array.isArray(b.kpis)) kpis.push(...b.kpis);
+      if (Array.isArray(b.charts)) charts.push(...b.charts);
     }
 
     for (const file of child.files) {
@@ -146,6 +155,8 @@ export function mergeBundle(
   if (cadence !== undefined) bindings.cadence = cadence;
   if (runs !== undefined) bindings.runs = runs;
   if (kpis.length > 0) bindings.kpis = kpis;
+  if (charts.length > 0) bindings.charts = charts;
+  if (funnel !== undefined) bindings.funnel = funnel;
   const view = hasView ? { kit: kit ?? "auto", bindings } : undefined;
 
   // Compose + validate the merged manifest against the strict schema. Identity

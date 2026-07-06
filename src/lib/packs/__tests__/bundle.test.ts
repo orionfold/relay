@@ -180,6 +180,80 @@ describe("mergeBundle", () => {
     ]);
   });
 
+  it("carries funnel (first-wins) + charts (concat) through the merge", () => {
+    // Regression: mergeBundle merged only hero/cadence/runs/secondary/kpis, so a
+    // child's `funnel` (the marketing band-flow) and `charts` were SILENTLY
+    // dropped from the merged app — a Principle #1 shadow-path. This pins that
+    // every declarable binding survives the flatten.
+    const bundle = bundlePack("relay-marketing", ["relay-crm", "relay-social"]);
+    const crm = child("relay-crm", {
+      tables: [{ id: "leads" }],
+      view: {
+        kit: "workflow-hub",
+        bindings: {
+          charts: [
+            {
+              id: "leads-by-stage",
+              table: "leads",
+              type: "bar",
+              xColumn: "stage",
+              aggregation: "count",
+            },
+          ],
+          funnel: {
+            id: "leads-funnel",
+            title: "Lead funnel",
+            bands: [
+              {
+                key: "capture",
+                label: "Capture",
+                table: "leads",
+                count: { kind: "rowsRecent", column: "last_touch", withinDays: 28 },
+              },
+              {
+                key: "convert",
+                label: "Convert",
+                table: "leads",
+                count: { kind: "rowsWhereIn", column: "stage", values: ["customer"] },
+                conversionFrom: "capture",
+              },
+            ],
+          },
+        },
+      },
+    });
+    const social = child("relay-social", {
+      tables: [{ id: "channels" }],
+      view: {
+        kit: "tracker",
+        bindings: {
+          charts: [
+            {
+              id: "reach-by-channel",
+              table: "channels",
+              type: "bar",
+              xColumn: "platform",
+              yColumn: "audience",
+              aggregation: "sum",
+            },
+          ],
+        },
+      },
+    });
+
+    const merged = mergeBundle(bundle, [crm, social]);
+    const view = merged.pack.manifest.view!;
+
+    // funnel: first child that declares one wins (single analytics-header slot).
+    expect(view.bindings.funnel?.id).toBe("leads-funnel");
+    expect(view.bindings.funnel?.bands).toHaveLength(2);
+    // charts: concatenated across children in bundle order.
+    expect(view.bindings.charts?.map((c) => c.id)).toEqual([
+      "leads-by-stage",
+      "reach-by-channel",
+    ]);
+  });
+
   it("takes the hero from the first child that HAS one, skipping heroless earlier children", () => {
     const bundle = bundlePack("relay-marketing", ["relay-crm", "relay-social"]);
     const crm = child("relay-crm", {
