@@ -6,6 +6,12 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.33.1] — 2026-07-06
+
+### Fixed
+
+- **Automations that fire on a new row now run.** Some packs have workflows that kick off automatically when a new row lands — a new lead enriches itself, a new content asset gets repurposed, a new lease gets abstracted. A few of those were quietly failing right after they fired because they were waiting on a value only a person could type. They now read that value straight from the new row, so they run on their own as intended. Packs that could never auto-run this way are now caught at install time with a clear message instead of failing silently later.
+
 ## [0.33.0] — 2026-07-06
 
 ### Added
