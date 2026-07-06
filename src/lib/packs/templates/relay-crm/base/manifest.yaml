@@ -1,0 +1,106 @@
+id: relay-crm
+version: "0.1.0"
+name: Relay CRM
+description: >
+  The marketing lead book: capture, research, screen, and move leads through a
+  two-axis lifecycle, guarded by a real consent policy. A new lead is enriched
+  the moment it lands. The CRM half of the Relay Marketing line.
+persona: >
+  A marketing operator running a lead book: leads arrive from campaigns and
+  magnet forms, get researched and screened against a compliance guardrail, and
+  move from first touch to champion — while a poller keeps the list clean.
+author: Orionfold
+
+profiles:
+  - id: relay-crm--lead-pipeline
+    source: $AINATIVE_DATA_DIR/profiles/relay-crm--lead-pipeline/
+  - id: relay-crm--lead-screen
+    source: $AINATIVE_DATA_DIR/profiles/relay-crm--lead-screen/
+  - id: relay-crm--outreach-guard
+    source: $AINATIVE_DATA_DIR/profiles/relay-crm--outreach-guard/
+
+blueprints:
+  # Lead enrich fires on a row-insert into `leads`: a new lead (from a magnet
+  # form or import) is researched, screened against the 6 gates, and fit-scored,
+  # writing a `lead_research` dossier row. This is the CRM pack's own trigger,
+  # bound to its own owned table — after a bundle flatten it lives in the same
+  # app as Relay Social, so a Social reaction can react to the same row-insert.
+  - id: relay-crm--lead-enrich
+    source: $AINATIVE_DATA_DIR/blueprints/relay-crm--lead-enrich.yaml
+    trigger:
+      kind: row-insert
+      table: leads
+  - id: relay-crm--outreach-loop
+    source: $AINATIVE_DATA_DIR/blueprints/relay-crm--outreach-loop.yaml
+
+tables:
+  # The lead book: the CRM pack's core owned primitive. `stage` is the list
+  # lifecycle (lead -> subscriber -> engaged -> qualified -> customer ->
+  # champion); `direct_status` is the second axis for direct outreach
+  # (research_queue -> ready_to_contact -> awaiting_reply -> follow_up_due ->
+  # do_not_contact | converted) — folded onto one table for the first proof.
+  # `source_campaign` is the join key back to relay-social's `campaigns.id`
+  # (== utm_campaign): the intra-bundle attribution spine.
+  #
+  # Ships EMPTY by design: `leads` carries the lead-enrich row-insert trigger,
+  # and seeding a trigger-bound table would dispatch the pipeline on install
+  # (src/lib/data/tables.ts addRows). It is a capture queue — a lead lands, the
+  # enrich pipeline researches and screens it.
+  - id: leads
+    columns: [display_name, email, stage, direct_status, segment, source_origin, source_campaign, owner, last_touch, notes]
+  # The public-research dossier, one row per direct-engagement lead. NOT
+  # trigger-bound, so it seeds with a few real examples — the enrich pipeline
+  # appends more as leads land.
+  - id: lead_research
+    columns: [lead_id, target_offering, fit_score, role, company, location, likely_pain, latent_need, email_status, last_researched]
+    seed: seed/tables/lead_research.json
+  # The consent guardrail as a first-class table, so the outreach-guard profile
+  # reads policy from data, not code. Seeded from the north-star guardrails.
+  - id: consent_policy
+    columns: [basis, mailable, scope, jurisdiction, cadence_cap, notes]
+    seed: seed/tables/consent_policy.json
+
+schedules:
+  # The 4x/day list-hygiene pass (harvested from launchd com.orionfold.leads-
+  # poller): reconcile stale leads, advance follow-up-due, sweep do-not-contact.
+  - id: lead-poller
+    name: Lead list hygiene
+    cron: "0 6,11,15,19 * * *"
+    runs: relay-crm--outreach-loop
+
+view:
+  # The CRM is a lead-pipeline operating surface, so the app home is the
+  # Workflow Hub: runnable cards for the outreach loop + the enrich pipeline,
+  # with the lead book as the hero and lifecycle KPIs on top.
+  kit: workflow-hub
+  bindings:
+    hero:
+      table: leads
+    secondary:
+      - blueprint: relay-crm--outreach-loop
+      - blueprint: relay-crm--lead-enrich
+    runs:
+      blueprint: relay-crm--outreach-loop
+    kpis:
+      - id: total-leads
+        label: Leads
+        source:
+          kind: tableCount
+          table: leads
+        format: int
+      - id: researched-leads
+        label: Researched
+        source:
+          kind: tableCount
+          table: lead_research
+        format: int
+    charts:
+      # Lead-count-by-stage — the standard resurfaced bar (pack-primitive-
+      # resurface wave-1). Reads the CRM's own `leads` table; in the bundle it
+      # renders in the merged app off the real (UUID-rewritten) table.
+      - id: leads-by-stage
+        title: Leads by stage
+        table: leads
+        type: bar
+        xColumn: stage
+        aggregation: count

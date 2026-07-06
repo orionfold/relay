@@ -1,0 +1,42 @@
+[
+  {
+    "title": "A 4B model scored 18 out of 21 on my laptop",
+    "type": "story",
+    "collection": "receipts",
+    "funnel_stage": "awareness",
+    "promotes": "software/orionfold-proof",
+    "repurpose_status": "published",
+    "priority": "high",
+    "owner": "content-studio"
+  },
+  {
+    "title": "Same input, same receipt",
+    "type": "story",
+    "collection": "receipts",
+    "funnel_stage": "consideration",
+    "promotes": "software/orionfold-proof",
+    "repurpose_status": "drafted",
+    "priority": "high",
+    "owner": "content-studio"
+  },
+  {
+    "title": "AI Native Business",
+    "type": "book",
+    "collection": "books",
+    "funnel_stage": "conversion",
+    "promotes": "book/ai-native-business",
+    "repurpose_status": "drafted",
+    "priority": "medium",
+    "owner": "content-studio"
+  },
+  {
+    "title": "The founder arc: building in public",
+    "type": "story",
+    "collection": "story",
+    "funnel_stage": "awareness",
+    "promotes": "book/ai-native-business",
+    "repurpose_status": "planned",
+    "priority": "medium",
+    "owner": "content-studio"
+  }
+]

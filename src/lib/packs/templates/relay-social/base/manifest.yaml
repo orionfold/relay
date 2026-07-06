@@ -1,0 +1,113 @@
+id: relay-social
+version: "0.1.0"
+name: Relay Social
+description: >
+  The demand engine: a content inventory that repurposes into channel-native
+  creatives, a campaign runner that moves initiatives from plan to measured, a
+  channel board, and a paid-advertising advisor. The social half of the Relay
+  Marketing line — pairs with Relay CRM for attributed funnel outcomes.
+persona: >
+  A marketing operator running demand generation: source content becomes
+  channel-native creatives, campaigns move plan -> live -> measured, channels
+  are kept fresh, and the paid side is advised against CAC and ROAS.
+author: Orionfold
+
+profiles:
+  - id: relay-social--content-studio
+    source: $AINATIVE_DATA_DIR/profiles/relay-social--content-studio/
+  - id: relay-social--campaign-runner
+    source: $AINATIVE_DATA_DIR/profiles/relay-social--campaign-runner/
+  - id: relay-social--advertising-advisor
+    source: $AINATIVE_DATA_DIR/profiles/relay-social--advertising-advisor/
+
+blueprints:
+  # Repurpose fires on a row-insert into `content_assets`: a new source asset is
+  # repurposed into channel-native `creatives` drafts. This is relay-social's own
+  # trigger, bound to its own owned table (content_assets is seeded, but the
+  # trigger is what mandates `creatives` ship empty).
+  - id: relay-social--repurpose
+    source: $AINATIVE_DATA_DIR/blueprints/relay-social--repurpose.yaml
+    trigger:
+      kind: row-insert
+      table: content_assets
+  # CROSS-CHILD trigger: welcome-creative fires on a row-insert into `leads` —
+  # a table OWNED BY relay-crm. This is legal only because the bundle flatten
+  # puts both children in ONE app, so a new lead can queue a welcome creative.
+  # In a standalone relay-social install the `leads` table does not exist, so
+  # this trigger never fires (harmless) — it only lights up inside the bundle.
+  - id: relay-social--welcome-creative
+    source: $AINATIVE_DATA_DIR/blueprints/relay-social--welcome-creative.yaml
+    trigger:
+      kind: row-insert
+      table: leads
+  - id: relay-social--campaign-launch
+    source: $AINATIVE_DATA_DIR/blueprints/relay-social--campaign-launch.yaml
+
+tables:
+  # Source content (the supply side). Seeded — the repurpose trigger fires on
+  # NEW inserts after install, not on the seeded rows (seed writes bypass the
+  # row-insert trigger; a fresh asset added later fires the repurpose pipeline).
+  - id: content_assets
+    columns: [title, type, collection, funnel_stage, promotes, repurpose_status, priority, owner]
+    seed: seed/tables/content_assets.json
+  # Channel-ready social drafts. Ships EMPTY by design: `creatives` is the
+  # output of the repurpose trigger, and seeding it would be seeding the
+  # pipeline's product. A new content_asset repurposes into creatives here.
+  - id: creatives
+    columns: [parent, promotes, channel, format, campaign, status, hook, cta]
+  # Demand-gen initiatives. `id == utm_campaign` for the join: leads carry
+  # `source_campaign == campaigns.utm_campaign`, so the two are seeded equal
+  # here (the north-star keeps them as distinct fields, but the pack models one
+  # canonical campaign key). Seeded with real live campaigns.
+  - id: campaigns
+    columns: [promotes, funnel_stage, starts, ends, status, utm_campaign, impressions, clicks, signups]
+    seed: seed/tables/campaigns.json
+  # Publishing surfaces. Seeded from the real channel roster.
+  - id: channels
+    columns: [platform, handle, url, funnel_role, audience, last_refreshed, refresh_status]
+    seed: seed/tables/channels.json
+  # The paid side. Seeded lightly with real ad initiatives.
+  - id: ad_initiatives
+    columns: [title, intent_kind, status, attached_campaign, primary_kpi, budget_envelope_usd, target_cac_usd]
+    seed: seed/tables/ad_initiatives.json
+
+schedules:
+  # The weekly "today + next 7 days" posting companion.
+  - id: content-cadence
+    name: Content cadence
+    cron: "0 8 * * 1"
+    runs: relay-social--campaign-launch
+
+view:
+  # relay-social is a demand-generation operating surface: the Workflow Hub with
+  # the campaigns board as hero and campaign-launch + repurpose as runnable cards.
+  kit: workflow-hub
+  bindings:
+    hero:
+      table: campaigns
+    secondary:
+      - blueprint: relay-social--campaign-launch
+      - blueprint: relay-social--repurpose
+    runs:
+      blueprint: relay-social--campaign-launch
+    kpis:
+      - id: live-campaigns
+        label: Campaigns
+        source:
+          kind: tableCount
+          table: campaigns
+        format: int
+      # CROSS-CHILD READ (the whole point of the split): this KPI reads
+      # relay-crm's OWNED `leads` table. In a standalone relay-social install
+      # `leads` does not exist and it reads 0 (honest — there is no lead book).
+      # After the bundle flatten `leads` is a real (UUID-rewritten) table in the
+      # SAME app, so the `table` ref resolves to the real UUID and the KPI reads
+      # the attributed lead book with no silent 0-read. `kpis` bindings are
+      # merged by the bundle flatten (charts bindings are NOT — so the
+      # attribution proof must live here as a KPI, not a chart).
+      - id: attributed-leads
+        label: Attributed leads
+        source:
+          kind: tableCount
+          table: leads
+        format: int

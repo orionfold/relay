@@ -1,0 +1,48 @@
+id: relay-social--welcome-creative
+name: Welcome Creative
+description: >
+  A new lead lands in the shared lead book and this pipeline queues a welcome
+  creative for their attributed campaign — the concrete cross-child reaction that
+  the Marketing bundle makes possible. Fires automatically on a new lead
+  (row-insert trigger on the CRM-owned `leads` table); it only lights up inside
+  the bundle, where the CRM and Social packs share one app. A human checkpoint
+  approves the creative before it is drafted.
+version: "1.0.0"
+domain: work
+tags: [social, leads, welcome, creative, cross-child]
+pattern: checkpoint
+difficulty: beginner
+estimatedDuration: "5-10 min"
+author: Orionfold
+variables:
+  - id: lead
+    type: text
+    label: Lead
+    description: The new lead to welcome
+    required: true
+    placeholder: New subscriber
+  - id: source_campaign
+    type: text
+    label: Source campaign
+    description: The utm_campaign the lead attributes to
+    required: false
+    placeholder: become-ai-native-business
+steps:
+  - name: Match the lead to a campaign
+    profileId: relay-social--campaign-runner
+    requiresApproval: false
+    promptTemplate: >
+      A new lead ({{lead}}) landed with source_campaign {{source_campaign}}.
+      Find the matching campaign by utm_campaign and read its funnel stage and
+      what it promotes. If no campaign matches, note the unattributed lead and
+      stop — do not invent a campaign.
+    expectedOutput: The matched campaign (or an explicit no-match note).
+  - name: Draft the welcome creative
+    profileId: relay-social--content-studio
+    requiresApproval: true
+    promptTemplate: >
+      For the matched campaign, draft a welcome creative for a new subscriber on
+      the campaign's conversion channel: a hook tied to what the campaign
+      promotes and a single clear CTA. Write it to the creatives table with
+      status drafted, parent set to the campaign context.
+    expectedOutput: A welcome creative row, status drafted.

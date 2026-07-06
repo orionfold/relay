@@ -1,0 +1,43 @@
+id: relay-social
+version: "0.1.0"
+name: Relay Social
+author: Orionfold
+# The social/content/campaigns child of the Marketing line (pack-marketing-line).
+# A Functional pack: it owns the content, creative, campaign, channel, and ad
+# tables. Bundled with Relay CRM into the one "Relay Marketing" app, or installed
+# standalone as the demand-generation half of the marketing function.
+description: >
+  The demand engine for your marketing function. Keep an inventory of source
+  content, repurpose it into channel-native creatives, run campaigns from plan
+  to published to measured, track your publishing channels, and advise the paid
+  side against CAC and ROAS. Pairs with Relay CRM so a campaign's performance
+  reads against your real lead book. Everything installs offline. Relay never
+  sends your data to Orionfold.
+relayCore: ">=0.18.0"
+entitlement: product:orionfold-relay
+# Two-phase license offer, hand-maintained to match orionfold.com/relay/ in this
+# release (canonical SSOT: orionfold.com/relay/pricing.json). One license unlocks
+# every paid Relay pack — this is the license price, not a per-pack price. Reading
+# the canonical Orionfold source to stay current is fine (the promise forbids
+# SENDING user data, not reading public data); when the founding window closes on
+# the Website, delete `intro` here in a normal release.
+price:
+  intro: "$349/year"
+  list: "$499/year"
+  note: "The social half of the Relay Marketing line. One license unlocks every paid Relay pack."
+purchaseUrl: https://orionfold.com/relay/
+icon: megaphone
+related:
+  text: "The social half of the Marketing line. Install the Relay Marketing bundle to get it composed with Relay CRM in one app."
+  href: "/packs?filter=premium"
+# Per-version customer-voice recap — read by the license status, the update
+# refusal, the /packs card, and the renewal email. Add a line every version bump.
+changelog:
+  "0.1.0": >-
+    The demand engine, split out as its own installable pack: a content
+    inventory that repurposes new assets into channel-native creative drafts the
+    moment they land, a campaign runner that moves an initiative from plan to
+    published to measured, a channel board tracking every publishing surface, and
+    an advertising advisor that gates the paid side on CAC and ROAS. When paired
+    with Relay CRM, a new lead can fire a welcome creative and campaign
+    performance reads against the real lead book.

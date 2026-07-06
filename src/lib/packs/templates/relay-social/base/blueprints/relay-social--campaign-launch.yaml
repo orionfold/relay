@@ -1,0 +1,54 @@
+id: relay-social--campaign-launch
+name: Campaign Launch
+description: >
+  Take a campaign from plan to measured: compose it from the catalog, channels,
+  and drafted creatives; set the UTM that leads attribute back to; pre-load each
+  channel's compose surface for the operator to publish; and measure the results
+  back onto the campaign. Human checkpoints approve the plan and confirm each
+  publish — nothing goes live without review.
+version: "1.0.0"
+domain: work
+tags: [social, campaigns, launch, schedule, measure]
+pattern: checkpoint
+difficulty: intermediate
+estimatedDuration: "30-60 min"
+author: Orionfold
+variables:
+  - id: campaign
+    type: text
+    label: Campaign
+    description: The campaign to launch (utm_campaign)
+    required: true
+    placeholder: 2026-q3-ai-native-series
+  - id: promotes
+    type: text
+    label: Promotes
+    description: What this campaign promotes
+    required: false
+    placeholder: books/ai-native-business
+steps:
+  - name: Compose the campaign
+    profileId: relay-social--campaign-runner
+    requiresApproval: true
+    promptTemplate: >
+      Compose the campaign {{campaign}} promoting {{promotes}}: pick the target
+      channels and the drafted creatives, set the funnel stage and window, and
+      set the utm_campaign. Confirm the utm_campaign matches what the lead book
+      will record as source_campaign — this is the attribution spine.
+    expectedOutput: A composed campaign with channels, creatives, window, and UTM.
+  - name: Publish-helper
+    profileId: relay-social--campaign-runner
+    requiresApproval: true
+    promptTemplate: >
+      Pre-load each channel's compose surface with the scheduled creative for
+      {{campaign}} for the operator to review and publish. Stop before publish —
+      the operator presses send. Move the campaign to live.
+    expectedOutput: Each channel staged for the operator to publish; campaign live.
+  - name: Measure
+    profileId: relay-social--campaign-runner
+    requiresApproval: false
+    promptTemplate: >
+      Pull per-post metrics for {{campaign}} and write impressions, clicks, and
+      signups back onto the campaign row. Record what actually happened, not the
+      target.
+    expectedOutput: The campaign row updated with measured impressions/clicks/signups.

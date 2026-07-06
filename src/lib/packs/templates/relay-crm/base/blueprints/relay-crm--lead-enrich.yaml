@@ -1,0 +1,56 @@
+id: relay-crm--lead-enrich
+name: Lead Enrich
+description: >
+  A new lead lands and this pipeline researches it, screens it against the six
+  intake gates, fit-scores it, and writes a research dossier — so every lead
+  enters the book already qualified against the consent policy. Fires
+  automatically on a new lead (row-insert trigger); a human checkpoint approves
+  the screen verdict before the lead is marked ready.
+version: "1.0.0"
+domain: work
+tags: [crm, leads, enrich, research, screen, fit-score]
+pattern: checkpoint
+difficulty: intermediate
+estimatedDuration: "10-20 min"
+author: Orionfold
+variables:
+  - id: lead
+    type: text
+    label: Lead
+    description: The lead being enriched (display name or handle)
+    required: true
+    placeholder: Chris Benson
+  - id: source_campaign
+    type: text
+    label: Source campaign
+    description: The utm_campaign this lead attributes to
+    required: false
+    placeholder: 2026-q3-ai-native-series
+steps:
+  - name: Research the lead
+    profileId: relay-crm--lead-pipeline
+    requiresApproval: false
+    promptTemplate: >
+      Research {{lead}} from public sources only. Capture role, company,
+      location, likely pain, and latent need. Establish email status
+      (verified_public or needs_lookup) and identity confidence. Never fabricate
+      a field — a defensible "unknown" beats an invented value.
+    expectedOutput: A research dossier with fit fields and email status.
+  - name: Screen against the six gates
+    profileId: relay-crm--lead-screen
+    requiresApproval: true
+    promptTemplate: >
+      Screen {{lead}} against the six gates using the consent_policy table:
+      email-reality, jurisdiction tag, guardrail/geo (us-only cold email; non-US
+      kept only with a social handle), dedup, zero-fabrication, and the fit floor
+      (min score 3 of 5). Return a pass/fail per gate and an overall verdict.
+    expectedOutput: A per-gate screen report with an overall pass/fail verdict.
+  - name: Fit-score and write the dossier
+    profileId: relay-crm--lead-pipeline
+    requiresApproval: false
+    promptTemplate: >
+      For a lead that passed screening, assign a fit score (1-5) with confidence,
+      set the target offering, and write the lead_research dossier row. Set the
+      lead's direct_status to ready_to_contact (or research_queue if more work is
+      needed). Attribute it to {{source_campaign}} if provided.
+    expectedOutput: A lead_research dossier row and an updated lead lifecycle state.

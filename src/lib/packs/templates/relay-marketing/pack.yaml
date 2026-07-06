@@ -1,0 +1,55 @@
+id: relay-marketing
+version: "0.1.0"
+name: Relay Marketing
+author: Orionfold
+# The Marketing line's bundle proof (pack-marketing-line). A BUNDLE pack owns NO
+# base/manifest.yaml; it lists child pack ids that installPack flattens into ONE
+# installed app at install time (pack-bundle-model). Unlike the Agency-for-CRE
+# bundle (a persona spine + one thin vertical), this bundle SPLITS one purchase
+# into two Functional-domain packs — Relay CRM (the lead book) + Relay Social
+# (the demand engine) — composed into one "Relay Marketing" app. This is the
+# capability a single-vertical industry bundle never exercised: a splitting
+# bundle across two different function domains, bound by the utm_campaign spine.
+description: >
+  The whole marketing function in one app. Capture leads from your campaigns and
+  move them through a clean lifecycle, run the demand engine that repurposes
+  content into channel-native creatives and takes campaigns from plan to
+  measured, and read campaign performance against your real lead book. A new lead
+  is auto-enriched and can fire a welcome creative. One install, one app.
+  Everything installs offline. Relay never sends your data to Orionfold.
+relayCore: ">=0.18.0"
+icon: megaphone
+# One license per bundle. The bundle's OWN entitlement gates install (not the
+# children's), so a buyer redeems one license and the whole Marketing app
+# installs. Same product as every paid Relay pack — one license unlocks all.
+entitlement: product:orionfold-relay
+# Two-phase license offer, hand-maintained to match orionfold.com/relay/ in this
+# release (canonical SSOT: orionfold.com/relay/pricing.json). One license unlocks
+# every paid Relay pack — the bundle is NOT a separate SKU; it installs under the
+# same single license, so it shows the same license price. Reading the canonical
+# Orionfold source to stay current is allowed (the promise forbids SENDING user
+# data, not reading public data). When the founding window closes, delete `intro`.
+price:
+  intro: "$349/year"
+  list: "$499/year"
+  note: "One install of the whole marketing function — CRM plus Social composed. One license unlocks every paid Relay pack."
+purchaseUrl: https://orionfold.com/relay/
+related:
+  text: "Prefer to compose it yourself? Install the Relay CRM and Relay Social packs separately — same result, wired by hand."
+  href: "/packs?filter=premium"
+# Per-version customer-voice recap — read by the license status, the update
+# refusal, the /packs card, and the renewal email. Add a line every version bump.
+changelog:
+  "0.1.0": >-
+    The marketing lead book and the demand engine, composed into one installable
+    app. Install once and get the CRM — a leads table with a two-axis lifecycle,
+    auto-enrichment, and a consent-guarded outreach loop — together with Social —
+    content repurposing, a campaign runner, a channel board, and an advertising
+    advisor. Campaign performance reads against the real lead book, and a new
+    lead can fire a welcome creative, all in the same app.
+# The two children flattened at install (bundle order = merge order: Relay CRM
+# first so it owns the leads book and the merged app's hero is the lead
+# pipeline, Relay Social second to add campaigns, content, and channels on top).
+bundle:
+  - relay-crm
+  - relay-social

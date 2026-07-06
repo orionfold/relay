@@ -1,0 +1,41 @@
+id: relay-social--repurpose
+name: Repurpose
+description: >
+  A new source content asset lands and this pipeline repurposes it into
+  channel-native creative drafts — one per target channel and format — matched
+  to the asset's funnel stage. Fires automatically on a new content asset
+  (row-insert trigger). A human checkpoint approves the briefs before the drafts
+  are written.
+version: "1.0.0"
+domain: work
+tags: [social, content, repurpose, creative]
+pattern: checkpoint
+difficulty: beginner
+estimatedDuration: "10-20 min"
+author: Orionfold
+variables:
+  - id: asset
+    type: text
+    label: Content asset
+    description: The source asset being repurposed
+    required: true
+    placeholder: A 4B model scored 18 out of 21 on my laptop
+steps:
+  - name: Plan the repurpose
+    profileId: relay-social--content-studio
+    requiresApproval: true
+    promptTemplate: >
+      For the source asset "{{asset}}", read its type, collection, funnel_stage,
+      and what it promotes. Pick the target channels from the channel board whose
+      funnel_role matches the asset's funnel_stage, and choose a format per
+      channel. Write a short brief per creative.
+    expectedOutput: A per-channel repurpose brief with formats and hooks.
+  - name: Draft the creatives
+    profileId: relay-social--content-studio
+    requiresApproval: false
+    promptTemplate: >
+      From the approved briefs, write one channel-native creative draft per
+      channel. Each creative names its parent asset, what it promotes, its
+      channel and format, a hook, and a CTA, and is written to the creatives
+      table with status drafted.
+    expectedOutput: One creatives row per target channel, status drafted.

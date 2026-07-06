@@ -70,16 +70,36 @@ primitive, update this table in the SAME change (it is the source of truth revie
 | `rent_roll` | `relay-cre` | `property, tenant, base_rent, expiry, escalation, option` | CRE's distinct vertical primitive; carries the `lease-abstraction` row-insert trigger. Ships empty. |
 | `grants` | `relay-nonprofit` | `client, funder, program, amount, deadline, stage, notes` | Nonprofit's distinct vertical primitive; carries the `grant-pipeline-deep` row-insert trigger. Ships empty. |
 
+#### Marketing family (Functional line — disjoint from the Agency family)
+
+The Marketing line (`pack-marketing-line`) is a **Functional** bundle, NOT part of the Agency persona
+family. It owns its OWN lead book — it does NOT build on the Agency `pipeline`/`clients`. The two
+children are bound by `utm_campaign` (a Social campaign KPI reads the CRM `leads` book; a new lead can
+fire a Social reaction), not by a shared persona spine. Every id below is disjoint from the Agency ids.
+
+| Logical id | Owner | Columns | Built on by (referencing pack) |
+| --- | --- | --- | --- |
+| `leads` | `relay-crm` | `display_name, email, stage, direct_status, segment, source_origin, source_campaign, owner, last_touch, notes` | The core CRM record (two-axis lifecycle). Carries the `lead-enrich` row-insert trigger → ships EMPTY. `source_campaign == campaigns.utm_campaign` is the intra-bundle join key. `relay-social` REFERENCES it (a KPI, the `welcome-creative` trigger) — never redeclares it. |
+| `lead_research` | `relay-crm` | `lead_id, target_offering, fit_score, role, company, location, likely_pain, latent_need, email_status, last_researched` | The public-research dossier. Seeded (NOT trigger-bound). |
+| `consent_policy` | `relay-crm` | `basis, mailable, scope, jurisdiction, cadence_cap, notes` | The consent guardrail as data, read by the outreach-guard profile. Seeded. |
+| `content_assets` | `relay-social` | `title, type, collection, funnel_stage, promotes, repurpose_status, priority, owner` | Source content (supply side). Carries the `repurpose` row-insert trigger (fires on NEW inserts; seeded rows are added via seed writes, which bypass the trigger). Seeded. |
+| `creatives` | `relay-social` | `parent, promotes, channel, format, campaign, status, hook, cta` | Channel-ready drafts — the output of `repurpose`/`welcome-creative`. Ships EMPTY. |
+| `campaigns` | `relay-social` | `promotes, funnel_stage, starts, ends, status, utm_campaign, impressions, clicks, signups` | Demand-gen initiatives. `utm_campaign` is the join key the CRM `leads.source_campaign` references. Seeded. |
+| `channels` | `relay-social` | `platform, handle, url, funnel_role, audience, last_refreshed, refresh_status` | Publishing surfaces. Seeded. |
+| `ad_initiatives` | `relay-social` | `title, intent_kind, status, attached_campaign, primary_kpi, budget_envelope_usd, target_cac_usd` | The paid side. Seeded lightly. |
+
 ### Schedules
 
 | Logical id | Owner | Runs |
 | --- | --- | --- |
 | `month-end-close` | `relay-agency-pro` | `relay-agency-pro--month-end-close` (installed as composite id `app:relay-agency-pro:month-end-close`). |
+| `lead-poller` | `relay-crm` | `relay-crm--outreach-loop` — the 4×/day list-hygiene pass. |
+| `content-cadence` | `relay-social` | `relay-social--campaign-launch` — the weekly posting companion. |
 
 ### Profile / blueprint prefixes (namespaced — collision-free by construction)
 
-`relay-agency--`, `relay-cre--`, `relay-nonprofit--`, `relay-agency-pro--`. A new pack claims its own
-`<pack-id>--` prefix; nothing to reconcile here.
+`relay-agency--`, `relay-cre--`, `relay-nonprofit--`, `relay-agency-pro--`, `relay-crm--`,
+`relay-social--`. A new pack claims its own `<pack-id>--` prefix; nothing to reconcile here.
 
 ## Rules for a new pack (the checklist)
 

@@ -1,0 +1,44 @@
+id: relay-crm
+version: "0.1.0"
+name: Relay CRM
+author: Orionfold
+# The CRM child of the Marketing line (pack-marketing-line). A Functional pack
+# (not part of the Agency persona family): it owns its OWN lead book — `leads`
+# with a two-axis lifecycle — rather than building on the Agency `pipeline`.
+# Bundled with Relay Social into the one "Relay Marketing" app, or installed
+# standalone as the lead-capture-and-qualify half of the marketing function.
+description: >
+  The lead book for your marketing function. Capture leads from your campaigns,
+  research and screen each one against a compliance guardrail, and move them
+  through a clean lifecycle from first touch to champion. A new lead is
+  auto-enriched the moment it lands. Pairs with Relay Social so campaign
+  performance reads against your real lead book. Everything installs offline.
+  Relay never sends your data to Orionfold.
+relayCore: ">=0.18.0"
+entitlement: product:orionfold-relay
+# Two-phase license offer, hand-maintained to match orionfold.com/relay/ in this
+# release (canonical SSOT: orionfold.com/relay/pricing.json). One license unlocks
+# every paid Relay pack — this is the license price, not a per-pack price. Reading
+# the canonical Orionfold source to stay current is fine (the promise forbids
+# SENDING user data, not reading public data); when the founding window closes on
+# the Website, delete `intro` here in a normal release.
+price:
+  intro: "$349/year"
+  list: "$499/year"
+  note: "The CRM half of the Relay Marketing line. One license unlocks every paid Relay pack."
+purchaseUrl: https://orionfold.com/relay/
+icon: contact
+# Relationship copy: this is one child of the Marketing bundle. Install the
+# Relay Marketing bundle to get it composed with Relay Social in one app.
+related:
+  text: "The CRM half of the Marketing line. Install the Relay Marketing bundle to get it composed with Relay Social in one app."
+  href: "/packs?filter=premium"
+# Per-version customer-voice recap — read by the license status, the update
+# refusal, the /packs card, and the renewal email. Add a line every version bump.
+changelog:
+  "0.1.0": >-
+    The marketing lead book, split out as its own installable pack: a `leads`
+    table with a two-axis lifecycle (list stage plus a direct-outreach status),
+    a lead-enrich pipeline that researches and screens every new lead the moment
+    it lands, an outreach loop guarded by a real consent policy, and a
+    four-times-a-day list-hygiene pass that reconciles stale leads.

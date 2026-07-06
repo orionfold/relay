@@ -1,0 +1,38 @@
+[
+  {
+    "lead_id": "linkedin-chrisbenson",
+    "target_offering": "software/arena",
+    "fit_score": "5",
+    "role": "Cohost, Practical AI; Principal AI/Autonomy Research Engineer",
+    "company": "Lockheed Martin",
+    "location": "Atlanta, GA, USA",
+    "likely_pain": "Evaluates whether practical-AI tooling runs in constrained, air-gapped, and edge environments.",
+    "latent_need": "A demonstrable local-model lifecycle on edge-class hardware he can interrogate on-air.",
+    "email_status": "verified_public",
+    "last_researched": "2026-06-14"
+  },
+  {
+    "lead_id": "github-amaiya",
+    "target_offering": "software/orionfold-proof",
+    "fit_score": "4",
+    "role": "Computer scientist",
+    "company": "Institute for Defense Analyses",
+    "location": "Washington DC-Baltimore Area, US",
+    "likely_pain": "Data-sovereignty buyer running air-gapped LLMs; needs to verify tooling works offline.",
+    "latent_need": "A defensible, rerunnable receipt anyone can rerun offline.",
+    "email_status": "needs_lookup",
+    "last_researched": "2026-06-27"
+  },
+  {
+    "lead_id": "linkedin-editor-changelog",
+    "target_offering": "software/orionfold-proof",
+    "fit_score": "4",
+    "role": "Editorial / developer-media network",
+    "company": "Changelog Media",
+    "location": "United States",
+    "likely_pain": "Filters a high volume of AI tooling pitches; needs a proof that stands on its own.",
+    "latent_need": "A story with a reproducible artifact readers can rerun, not a claim.",
+    "email_status": "verified_public",
+    "last_researched": "2026-06-14"
+  }
+]

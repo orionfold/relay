@@ -1,0 +1,56 @@
+id: relay-crm--outreach-loop
+name: Outreach Loop
+description: >
+  Take a researched lead through a single compliant outreach: draft the message,
+  gate it through the outreach guard (go/fix/no-go), log the touch, and set the
+  follow-up. Two human checkpoints — approve the draft, and confirm the send —
+  so nothing leaves without review. Run on demand, or on the list-hygiene
+  schedule to reconcile stale leads.
+version: "1.0.0"
+domain: work
+tags: [crm, leads, outreach, compliance, follow-up]
+pattern: checkpoint
+difficulty: intermediate
+estimatedDuration: "15-30 min"
+author: Orionfold
+variables:
+  - id: lead
+    type: text
+    label: Lead
+    description: The lead to run outreach for
+    required: true
+    placeholder: Chris Benson
+  - id: objective
+    type: text
+    label: Objective
+    description: The outreach objective (share a resource, book a call, partner)
+    required: false
+    placeholder: share_resource
+steps:
+  - name: Draft the outreach
+    profileId: relay-crm--lead-pipeline
+    requiresApproval: true
+    promptTemplate: >
+      Draft a single 1:1 outreach for {{lead}} with the objective {{objective}}.
+      Read the lead_research dossier for context. Keep it specific to their
+      likely pain and latent need; no boilerplate.
+    expectedOutput: A drafted outreach message tailored to the lead.
+  - name: Gate the send (go / fix / no-go)
+    profileId: relay-crm--outreach-guard
+    requiresApproval: true
+    promptTemplate: >
+      Gate the draft for {{lead}} against the consent_policy table: channel
+      routing (geo us-only wins — non-US routes to social), CAN-SPAM (postal
+      address, working opt-out, honest subject), GDPR/PECR posture, and the
+      cadence cap. Return go, fix (with the correction), or no-go (with the
+      blocking reason). Do not send if the lead is at its cadence cap or on
+      do_not_contact.
+    expectedOutput: A go/fix/no-go verdict with the reason.
+  - name: Log the touch and set follow-up
+    profileId: relay-crm--lead-pipeline
+    requiresApproval: false
+    promptTemplate: >
+      For a lead that got a go verdict and was sent, log the touch, set
+      direct_status to awaiting_reply, and schedule the single permitted
+      follow-up per the cadence cap. Update last_touch.
+    expectedOutput: An updated lead with the touch logged and follow-up set.

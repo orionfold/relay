@@ -1,0 +1,34 @@
+[
+  {
+    "basis": "geo-gate",
+    "mailable": "conditional",
+    "scope": "Cold email to US contacts only. Non-US kept only if a LinkedIn or X handle exists (route to social); non-US email-only with no social is disqualified.",
+    "jurisdiction": "us-only",
+    "cadence_cap": "2",
+    "notes": "Base cadence: 1 cold touch plus at most 1 follow-up. geo_gate_wins: routing never puts a non-US contact on cold email. Channel order: official_email, linkedin_connect, inmail, personal_email."
+  },
+  {
+    "basis": "website-optin",
+    "mailable": "true",
+    "scope": "Confirmed double opt-in via the website magnet form. Mailable on the newsletter list; beehiiv status active.",
+    "jurisdiction": "us",
+    "cadence_cap": "unlimited",
+    "notes": "Opt-in subscribers are mailable within the consented scope. A daily pull-back flips unsubscribe or bounce to mailable:false."
+  },
+  {
+    "basis": "amplifier",
+    "mailable": "conditional",
+    "scope": "Amplifier segment: soft ranking tilt (fit_boost 1) within audience band 10k-500k, never a reject. Reach by US email or social.",
+    "jurisdiction": "us-only",
+    "cadence_cap": "2",
+    "notes": "Segment override. Objective: share a resource, not book a call. Fit floor to enter the lead book: min_score 3 of 5."
+  },
+  {
+    "basis": "whale",
+    "mailable": "conditional",
+    "scope": "Whale segment: high-value org target. Reach by US email or social; objective is to book a call.",
+    "jurisdiction": "us-only",
+    "cadence_cap": "5",
+    "notes": "Segment override. Dossier is org-level. Partner segment shares this cadence with a partner objective."
+  }
+]
