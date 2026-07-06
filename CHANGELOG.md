@@ -6,6 +6,12 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.32.1] — 2026-07-05
+
+### Changed
+
+- **A new look for the Relay star.** The brand mark is now a crafted 3D origami star, refreshed across the app, the browser tab, and your home-screen and PWA icons. Same star you know, with real depth and paper texture. Nothing about how Relay works changes.
+
 ## [0.32.0] — 2026-07-05
 
 ### Added
