@@ -1,29 +1,60 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-06 (pt: **Marketing line RELEASED (0.33.0)** + **row-insert var-mapping gap fixed &
-released (0.33.1)**. 0.33.0: `relay-crm`+`relay-social`+`relay-marketing` bundle shipped (feat `d0303f24` +
-release `84be9825`, `v0.33.0`, publish CI green, npm `latest`+SBOM, issue #40; apiVersion window 0.32→0.33).
-0.33.1: 4 shipped row-insert blueprints declared a `required` var with no `{{row.col}}` default → threw
-`Missing required variables` at first fire; fixed all 4 to optional+`{{row.col}}` default matching the working
-`relay-agency-pro`/`relay-nonprofit` pattern, PLUS an install-time guard (`install.ts` block 2d
-`assertRowTriggerVarsFillable`) that now REFUSES any unfillable-trigger-var pack loudly (fix `4266687e` +
-release `7d2baa99`, `v0.33.1`, publish CI green, npm `latest`, PATCH no apiVersion). New tests:
-`row-insert-var-fillability.test.ts` (sweeps all packs + synthetic broken/fixed pair) + bundle test now asserts
-`buildVariables` fills the var end-to-end. `buildVariables` exported. Real-path install smoke: all packs clean.
-Memories `pack-backward-compat-convention`, `dont-ask-when-codebase-answers`. Prior tail: 0.32.1 3D-logo
-(`d30615ee`), 0.32.0 packs-evolution (`b181a24d`) — full detail in git + CHANGELOG.)_
+_Last updated: 2026-07-06 (pt: **BUILT Packs Publish R1 + R2** — the distribution standard's READ half.
+R1 `pack-canonical-index` (`e6dde729`): `src/lib/packs/index-schema.ts` — the `orionfold.packs/v1` Zod schema +
+pure `parsePackIndex`/`findIndexEntry` (zero-import leaf, taxonomy.ts discipline) + committed fixture
+`__tests__/fixtures/pack-index.json`; drafted the open-decision-#1 note (canonical index URL) into
+`strategy/relay/_RELAY.md` (edit-only, uncommitted). R2 `pack-remote-resolver` (`92d5a808`): `src/lib/packs/remote.ts`
+(the ONE egress — `fetchPackIndex`+`fetchPackDir` reuse `prebuilt-download.ts` `downloadToFile`/sha256; per-pack
+`.tgz` shape, operator-confirmed) + `resolvePackSourceAsync` in `catalog.ts` (the one branch, local-first, ZERO
+network for bundled) + `installPack` wired + bundle-child fence kept shut (tested) + `data-flow.md` egress row #11.
+Two shadow-path findings: **fail-OPEN on the index read** (unreachable index → helpful `UnknownPackNameError`, not a
+raw net error) + **trust-doc drift** (R2's GET falsified "no call to orionfold.com"; corrected). Real `tsx` dev smoke
+(no mocks) proved fetch→sha→extract→parse→DB-write + tamper-reject end-to-end. 0 new regressions. Memory
+`packs-publish-authored` updated. Prior tail: packs-publish GROOM → 7 specs (same commit family), packs-robustify
+R1+R3 (`b43f1b69`), 0.34.0 funnel-flow (`cab55bd1`), Web Designer TDR-039 (`features/architect-report.md`, open),
+0.33.x/0.32.x — full detail in git + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — both releases shipped; depth is the open arc
+## ▶️ NEXT SESSION — build `pack-provenance-tiers` (R3) OR Web Designer specs / R5-tranche
 
-- **`pack-depth-next-wave` is the next arc** — build genuinely-NEW primitives (not just resurface).
-  **New dangling build ticket to add there when groomed:** a **funnel band-flow** Core primitive (horizontal
-  Attract→Capture→Nurture→Convert with inter-band conversion arrows; Zod arm + evaluator + kit) — the one
-  non-standard chart the marketing harvest surfaced, fenced OUT of `pack-marketing-line` per §6. `decisions_open`:
-  when-dependsOn-earns-weight (P3 trigger — the dependsOn-trigger opens from
-  `packs-evolution-requirements-extracted`).
-- **Optional cross-peer confirm:** post to `strategy/relay/_RELAY.md` that the 4 industry/bundle packs are synced
-  to `pricing.json` (read-only confirm; NOT required — the generalized drift gate enforces it structurally now).
-
+- **Packs Publish — R1 + R2 BUILT 2026-07-06 (`e6dde729`, `92d5a808`); NOT released (no version bump).** Build
+  **R3 `pack-provenance-tiers`** next — the third P1 READ-trio spec: verify each index entry's `sig`/`keyId`
+  offline against the licensing embedded-key map (`verify.ts:37-40` + `canonicalize.ts`), tiers official/partner/
+  community + a trust badge. **The `entry` is ALREADY threaded** into `installPack` as `indexEntry` (`void`-ed with
+  a pointer comment at the acquire seam) — R3 wires the verify there. **R6/R7 (community SEND loop) sequence LAST,
+  behind the TDR-039 substrate** (shared GitHub publisher adapter with the Web Designer ticket). **Open decision #1
+  (canonical index URL) is DRAFTED into `strategy/relay/_RELAY.md`** (2026-07-06, edit-only/uncommitted — the
+  strategy owner commits) awaiting the Website peer; `DEFAULT_PACK_INDEX_BASE` in `remote.ts` is a placeholder +
+  `RELAY_PACK_INDEX_URL` override drives smoke/mirrors until confirmed. 3 open decisions remain (slim-cut R4,
+  trust ceiling R3/R7, partner-key onboarding R3) — raise each at its build. Then R4/R5 (P2), R6/R7 (P3).
+  `_IDEAS/packs-publish.md` stays the durable source thesis. Memory `packs-publish-authored` carries the build
+  findings + reuse anchors.
+- **Web Designer ticket — TDR-039 done, specs next (may SHARE the packs-publish GitHub publisher adapter).**
+  The generator/publisher substrate is DESIGNED
+  (TDR-039 proposed + `features/architect-report.md`). Next: author `features/pack-web-designer.md` (the
+  bundle) + a substrate feature spec from the report's 5-phase sequence, then implement **Phase 1** (substrate
+  types + `GeneratorAdapter`/`PublisherAdapter` registries + `publishTargets`/`deployments` storage +
+  `github-pages` adapter, behind tests). **2 open design Qs to resolve at spec time:** (a) where `generate:`
+  sits so `rewriteViewRefs` (install.ts:674, recursive) UUID-rewrites its table refs for free — or extend the
+  rewriter; (b) does the generation half mirror the document-processor registry (TDR-017)? **Operator scope
+  locks:** Web Publisher DOES generate+deploy real artifacts (not sync-only); it's the family template.
+  The gallery primitive (`view.bindings.gallery`) is a plain Core primitive independent of the substrate →
+  Web Asset Manager is useful standalone. TDR-039 promotes proposed→accepted after a live publish smoke.
+- **Substrate build discipline (from TDR-039):** any new `view.bindings`/manifest arm must be added to the
+  `mergeBundle` accumulator (`bundle.ts` ~L152) or it vanishes in a bundle (the funnel shadow-path lesson);
+  prefer the GitHub Contents API over shelling `git` (avoids the heavier `child_process` capability);
+  `publishTargets.config` NEVER returned unmasked (new drift check). Smoke-budget: publisher is
+  runtime-registry-adjacent → real dev-server publish smoke, not just unit tests.
+- **`pack-depth-next-wave` arc — other tickets still open:** **Video Creator** (harvest source `tbd` — under-
+  specified, needs a north-star named) and **Retail Investor** (`relay-portfolio`+`relay-technical-analyst`:
+  value-heatmap + radar; §9 ICP prosumer-first). `decisions_open`: when-dependsOn-earns-weight (P3 trigger).
+- **`_IDEAS/packs-robustify.md` — R1+R3 BUILT (2026-07-06, `b43f1b69`); R2/R5/R7/R8 still ungroomed.** The
+  packs governance layer (six pillars: codified taxonomy · provenance API · compat-diff gate · dependsOn
+  guardrails · integration contract · distribution-at-scale). §10 is a 9-row table (R1–R9). Groom the next
+  gate tranche: **R5** (compat-diff CI gate — the other highest-leverage gate, §11) pairs naturally with R3;
+  then R2 (install-time cross-pack check, runtime-adjacent → dev smoke), R7 (integration/`joinKeys`), R4
+  (provenanceOf API). R8 (dependsOn) stays P3/trigger-gated. **R9 (distribution at scale) is now MATERIALIZED
+  as its own doc — `packs-publish.md` (authored 2026-07-06, ready to groom — top of ▶️ above).**
 - **F5 follow-up (deferred, operator-confirmed):** lift the two dense analytics dashboards
   `costs/cost-dashboard.tsx` + `apps/ledger-hero-panel.tsx` (hand-rolled `surface-card` chart panels) to
   the card recipe — held out for chart-layout-regression risk. Reactive/optional.
@@ -109,6 +140,16 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**0.34.0 (RELEASED — `v0.34.0`→`cab55bd1`; publish CI `28815321497` green incl. npx prod smoke; npm `latest` +
+GitHub Release + SBOM; MINOR, apiVersion window 0.33→0.34; issue #41):** the funnel-flow Core primitive — the
+Attract→Capture→Nurture→Convert band-flow (`pack-depth-next-wave` first build ticket; the chart fenced out of
+`pack-marketing-line` §6). `.strict()` `FunnelSpecSchema` on `ViewSchema.bindings.funnel` (enumerated bands,
+discriminated `count` union `sumColumn`|`rowsWhereIn`|`rowsRecent`, refs named `table` for `rewriteViewRefs`
+UUID-rewrite) + pure `computeFunnelBands` (`funnel-compute.ts`, 9 TDD tests) + `loadFunnelData` + `FunnelFlowView`
+(HTML+CSS, no D3) in tracker+workflow-hub; wired into `relay-crm` → renders in merged `relay-marketing`. Fixed a
+`mergeBundle` binding-allowlist shadow-path (was dropping `charts`+`funnel` in bundles). Real-data smoke caught a
+synthetic-fixture bug → active-filter is EXCLUSION (`excludeValues:[deprecated]`). Memory `funnel-flow-primitive-built`.
+
 **0.33.1 (RELEASED — `v0.33.1`→`7d2baa99`; publish CI `28808826797` green; npm `latest` + SBOM; PATCH):**
 row-insert var-mapping fix. 4 shipped blueprints (`relay-crm--lead-enrich`, `relay-social--repurpose` +
 `--welcome-creative`, `relay-cre--lease-abstraction`) declared a `required` trigger var with no `{{row.col}}`
@@ -156,15 +197,9 @@ cost-dashboard + ledger-hero. Presentation-only; apiVersion 0.30→0.31. 0 test 
 apiVersion 0.29→0.30. Memories `two-verb-run-is-blueprint-only`, `compose-submenu-elevation-pattern`. Full detail
 in git + CHANGELOG.
 
-**0.29.1 (RELEASED — `v0.29.1`→`e210e49a`):** #31 blueprint-card husk fix. `BlueprintCard.resolved` flag +
-honest "couldn't load, reinstall the pack" card with NO fake Run when a definition can't resolve; working
-cards unchanged. Closed the silent-husk half (principle #1). Root cause in memory `blueprint-card-husk-root-cause`.
-
-**0.29.0 (RELEASED — `v0.29.0`→`9b9ea0f2`):** relay-website dark-theme chrome + FEAT-14/15/16 — opaque
-telemetry rail, full-bleed teal canvas grid, `GET /api/settings/glance` + `GlanceRail`; bundled S47 top-chrome
-+ S45 Profile→Agent + S44 CF-FEAT copy. Memory `chrome-sticky-stack-additive-offsets`.
-
-**Older (RELEASED — full detail in git + CHANGELOG + closed issues):** 0.28.0 (`v0.28.0`→`7e97669a`, nav/naming
+**Older (RELEASED — full detail in git + CHANGELOG + closed issues):** 0.29.1 (`e210e49a`, #31 blueprint-card
+husk fix, memory `blueprint-card-husk-root-cause`); 0.29.0 (`9b9ea0f2`, relay-website dark chrome + FEAT-14/15/16
+GlanceRail, memory `chrome-sticky-stack-additive-offsets`); 0.28.0 (`v0.28.0`→`7e97669a`, nav/naming
 + Profiles→Agents rename, memory `profiles-are-file-based-not-db`); 0.27.0 (`f29f0098`, packOf/PackPill +
 FEAT-7/8 + BUG-6 pack-aware seed, memory `seed-clears-pack-tables-and-addrows-fires-triggers`); 0.26.0
 (`5db27412`, fix specs #31-37, memories `apiversion-window-bump-at-version-bump` + `prod-smoke-encodes-contracts`);
