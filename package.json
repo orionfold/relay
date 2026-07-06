@@ -44,6 +44,7 @@
     "public/icon-192.png",
     "public/icon-512.png",
     "public/icon-512-maskable.png",
+    "public/brand/",
     "next.config.mjs",
     "tsconfig.json",
     "postcss.config.mjs",

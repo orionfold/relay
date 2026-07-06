@@ -7,29 +7,40 @@ interface OfMarkProps {
 /**
  * OfMark — the Orionfold delta-star brand mark.
  *
- * A cyan disc with a white 5-pointed star rotated 45°. Self-contained inline SVG
- * so it inherits the theme: the disc fill reads `var(--primary)` (Tide cyan in
- * both light + dark), the star stays white. This is the canonical theme-aware
- * mark used at every size — nav/app-bar brand, footer, boot splash, seals.
- * Replaces the pre-brand raster `ainative-s-*.png` logos.
+ * The 3D origami star on a Tide-cyan disc, served from the design-system's
+ * native app-embed renders (`/public/brand/orionfold-mark-*.png`). The disc is
+ * opaque and self-contained, so a single transparent variant reads correctly on
+ * any theme background — no light/dark switch needed. Canonical mark at every
+ * size: nav/app-bar brand, wordmark lockup, boot splash, seals.
+ *
+ * Each placement ships a 1×/2× pair rendered at that exact size (not downscaled
+ * at runtime), wired via `srcset` so retina stays crisp with no server
+ * re-encoding — the browser paints the design-system pixels 1:1. Replaces the
+ * earlier flat theme-aware SVG (cyan disc + white vector star).
  */
 export function OfMark({ size = 24, className }: OfMarkProps) {
+  const { src, src2x } = markAssets(size);
   return (
-    <svg
-      viewBox="0 0 64 64"
+    <img
+      src={src}
+      srcSet={`${src} 1x, ${src2x} 2x`}
       width={size}
       height={size}
-      role="img"
-      aria-label="Orionfold"
+      alt="Orionfold"
       className={className}
-    >
-      <circle cx="32" cy="32" r="32" fill="var(--primary)" />
-      <g transform="rotate(45 32 32)">
-        <path
-          fill="#ffffff"
-          d="M32,9L37.41,24.56L53.88,24.89L40.75,34.84L45.52,50.61L32,41.2L18.48,50.61L23.25,34.84L10.12,24.89L26.59,24.56Z"
-        />
-      </g>
-    </svg>
+    />
   );
+}
+
+/**
+ * Map a display size to its native 1×/2× asset pair. The design system renders
+ * the mark at the three sizes the app embeds (24 rail, 28 wordmark, 72 boot);
+ * for any other size we serve the 144px master downscaled by the browser.
+ */
+function markAssets(size: number): { src: string; src2x: string } {
+  const base = "/brand/orionfold-mark-";
+  if (size <= 24) return { src: `${base}24.png`, src2x: `${base}48.png` };
+  if (size <= 28) return { src: `${base}28.png`, src2x: `${base}56.png` };
+  if (size <= 72) return { src: `${base}72.png`, src2x: `${base}144.png` };
+  return { src: `${base}144.png`, src2x: `${base}144.png` };
 }
