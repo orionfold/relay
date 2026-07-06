@@ -1,14 +1,14 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **0.32.0 packs-evolution RELEASED** (`v0.32.0`→`b181a24d`; annotated tag,
-publish CI `28757924752` green incl. npx prod smoke, npm `latest`, GitHub Release + SBOM; issue #39 shipped).
-Cut in three bisectable commits: pricing fix + drift-gate generalization (`b0e05e4c`), prod-smoke Case L2
-bundle-flatten case (`5a7a7e8e`), the release chore (`b181a24d`). The whole packs-evolution arc (persona/industry
-split, bundle-model, Agency bundles, taxonomy, wave-1 resurface) is now released. apiVersion 0.31→0.32. 8
-pre-existing failures re-confirmed unchanged (router×6 + settings×1 + glance-shadow×1). Post-release: added
-marketing-screenshot tooling (`829ad897`, 2 Playwright scripts; memory `marketing-screenshot-recipe`; 20 dark
-in-use shots in gitignored `output/marketing-screenshots/`). Prior tail: wave-1 resurface (`c3dd178e`), 0.31.0
-(`a661054e`) — full detail in git + CHANGELOG.)_
+_Last updated: 2026-07-05 (pt: **0.32.1 3D-logo RELEASED** (`v0.32.1`→`d30615ee`; annotated tag, publish CI
+`28769241850` green incl. npx prod smoke + <10MB guard, npm `latest`, GitHub Release + SBOM). Swapped the flat
+theme-aware SVG `OfMark` for the design-system 3D origami-star: in-app mark now a plain `<img srcset>` off
+`public/brand/orionfold-mark-{24,28,48,56,72,144}.png` (native 1×/2× per placement, NO `next/image` re-encode —
+browser paints DS pixels 1:1), plus favicons/PWA icons + a safe-zone-padded maskable icon. Logo swap `d3dbf0a1` +
+release chore `d30615ee`. **Gotcha caught:** `public/brand/` had to be added to the `files` allowlist or npx
+users get a 404'd in-app mark (OfMark ships via `src/`, references the assets at runtime). Memory
+`logo-3d-swap-recipe`. Prior tail: 0.32.0 packs-evolution (`b181a24d`), marketing-screenshot tooling
+(`829ad897`) — full detail in git + CHANGELOG.)_
 
 ## ▶️ NEXT SESSION — packs-evolution shipped; follow-up is pack DEPTH
 
@@ -101,6 +101,13 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**0.32.1 (RELEASED — `v0.32.1`→`d30615ee`; publish CI `28769241850` green; npm `latest` + GitHub Release + SBOM):**
+3D origami-star brand logo replaces the flat SVG `OfMark` everywhere. In-app mark = `<img srcset>` off native
+`public/brand/orionfold-mark-*.png` (28/56 wordmark · 72/144 boot · 24/48 rail), NO `next/image` (paints DS pixels
+1:1, fixes the "dimmer" downscale). Favicons/PWA icons swapped; maskable icon padded to an 80% safe-zone in
+brand-slate `#040a11`. Added `public/brand/` to the `files` allowlist (else npx 404s the mark). Presentation-only,
+apiVersion unchanged. Memory `logo-3d-swap-recipe`. Design-system source: `logo-3d/app-embed/{transparent,white}/`.
+
 **0.32.0 (RELEASED — `v0.32.0`→`b181a24d`; publish CI `28757924752` green incl. npx prod smoke; npm `latest` +
 GitHub Release + SBOM + OIDC; issue #39):** the whole packs-evolution arc released. `pack-generalize-agency` P0
 (`3797c839`) persona/industry split — free `relay-agency` neutralized+fattened (7·7·4), paid `relay-cre` (3·3·1)
