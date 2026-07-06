@@ -19,7 +19,10 @@ variables:
     type: text
     label: Lead
     description: The new lead to welcome
-    required: true
+    # Fires on a row-insert into the (bundle-merged) `leads` table with no human
+    # to prompt: optional + a {{row.col}} default that auto-fills from the row.
+    required: false
+    default: "{{row.display_name}}"
     placeholder: New subscriber
   - id: source_campaign
     type: text

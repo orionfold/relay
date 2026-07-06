@@ -18,7 +18,10 @@ variables:
     type: text
     label: Content asset
     description: The source asset being repurposed
-    required: true
+    # Row-insert triggers have no human to prompt: optional + a {{row.col}}
+    # default so a new `content_assets` row auto-fills this from its title.
+    required: false
+    default: "{{row.title}}"
     placeholder: A 4B model scored 18 out of 21 on my laptop
 steps:
   - name: Plan the repurpose

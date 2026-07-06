@@ -18,7 +18,10 @@ variables:
     type: text
     label: Lead
     description: The lead being enriched (display name or handle)
-    required: true
+    # Row-insert triggers have no human to prompt: optional + a {{row.col}}
+    # default so a new `leads` row auto-fills this from its display_name.
+    required: false
+    default: "{{row.display_name}}"
     placeholder: Chris Benson
   - id: source_campaign
     type: text

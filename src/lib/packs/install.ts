@@ -222,6 +222,20 @@ export async function installPack(
       }
     }
 
+    // 2d. Row-insert trigger var fillability — still BEFORE any write. A
+    // row-insert trigger fires with NO human in the loop, so every REQUIRED
+    // variable on the triggered blueprint must be auto-fillable from the
+    // inserted row: either a column named exactly like the variable (the
+    // passthrough in manifest-trigger-dispatch `buildVariables`), or a
+    // `{{row.<col>}}` default naming a real column of the trigger table.
+    // Otherwise the pack installs clean, then throws "Missing required
+    // variables" the moment the FIRST row lands (Principle #1 — this converts
+    // that silent runtime failure into a loud install-time refusal). Only the
+    // trigger table's OWN columns count; a trigger whose table this manifest
+    // does not declare is inert here (e.g. a cross-child trigger in a
+    // standalone child install), so it is skipped.
+    assertRowTriggerVarsFillable(pack, resolved);
+
     // 3. DB-write boundary (bounded, reuses existing seams).
     const { ensureAppProject } = await import("@/lib/apps/compose-integration");
     const { ensureCustomer } = await import("@/lib/customers");
@@ -463,6 +477,87 @@ export function acquirePack(
     dir: tmp,
     cleanup: () => fs.rmSync(tmp, { recursive: true, force: true }),
   };
+}
+
+// ── Row-insert trigger var fillability guard (block 2d) ──────────────
+
+// Mirror of manifest-trigger-dispatch's ROW_PLACEHOLDER: a blueprint variable
+// whose `default` is exactly `{{row.<col>}}` is filled from the inserted row.
+const ROW_DEFAULT = /^\{\{\s*row\.([a-zA-Z0-9_-]+)\s*\}\}$/;
+
+/**
+ * Convert a manifest blueprint `source` (e.g. `$AINATIVE_DATA_DIR/blueprints/
+ * x--y.yaml` or a bare `blueprints/x--y.yaml`) to a resolved-file relPath.
+ * Returns null for a source that does not point at a bundled blueprint file
+ * (e.g. an inline/absent source), which the caller treats as "can't inspect,
+ * skip" rather than a hard failure.
+ */
+function blueprintRelPathFromSource(source: string | undefined): string | null {
+  if (!source) return null;
+  const idx = source.indexOf("blueprints/");
+  if (idx === -1) return null;
+  const rel = source.slice(idx);
+  return rel.endsWith(".yaml") ? rel : null;
+}
+
+/**
+ * Guard: every REQUIRED variable on a row-insert-triggered blueprint must be
+ * auto-fillable from the trigger table's row. Throws PackValidationError
+ * naming the blueprint, variable, and table when it is not. Skips a trigger
+ * whose table is not declared in this manifest (inert here).
+ */
+function assertRowTriggerVarsFillable(pack: Pack, resolved: ResolvedPack): void {
+  const columnsByTable = new Map<string, Set<string>>();
+  for (const t of pack.manifest.tables) {
+    columnsByTable.set(t.id, new Set((t.columns as string[] | undefined) ?? []));
+  }
+
+  for (const bp of pack.manifest.blueprints) {
+    const trigger = bp.trigger;
+    if (trigger?.kind !== "row-insert") continue;
+    const cols = columnsByTable.get(trigger.table);
+    // Trigger table not declared here → trigger is inert in this install
+    // (e.g. a cross-child trigger installed standalone). Nothing to guard.
+    if (!cols) continue;
+
+    const relPath = blueprintRelPathFromSource(bp.source);
+    if (!relPath) continue; // no bundled file to inspect
+    const file = findResolved(resolved.files, relPath);
+    if (!file) continue;
+
+    let parsed: unknown;
+    try {
+      parsed = yaml.load(fs.readFileSync(file.absPath, "utf-8"));
+    } catch (err) {
+      throw new PackValidationError(
+        `Row-insert blueprint "${bp.id}" could not be read for validation: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
+    }
+
+    const vars =
+      (parsed as { variables?: Array<Record<string, unknown>> })?.variables ??
+      [];
+    for (const v of vars) {
+      if (v.required !== true) continue;
+      const varId = String(v.id);
+      // Path 1: a column named exactly like the variable (dispatch passthrough).
+      if (cols.has(varId)) continue;
+      // Path 2: a `{{row.<col>}}` default naming a real column.
+      const defStr = typeof v.default === "string" ? v.default : null;
+      const m = defStr ? ROW_DEFAULT.exec(defStr) : null;
+      if (m && cols.has(m[1])) continue;
+
+      throw new PackValidationError(
+        `Row-insert blueprint "${bp.id}" (trigger on table "${trigger.table}") ` +
+          `has a required variable "${varId}" that cannot be filled from an ` +
+          `inserted row. Give it a "{{row.<col>}}" default naming a column of ` +
+          `"${trigger.table}" (${[...cols].join(", ")}), or make it optional. ` +
+          `A row-insert trigger has no human to prompt for a required value.`
+      );
+    }
+  }
 }
 
 // ── Seed readers (override-aware via resolvePackLayer) ───────────────

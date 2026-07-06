@@ -234,6 +234,25 @@ describe("relay-marketing — the splitting bundle proof", () => {
       (await tables.listRows(leadsTableId!)).length,
       "cross-child READ must resolve to a real non-zero count post-insert"
     ).toBe(1);
+
+    // CROSS-CHILD TRIGGER DISPATCH (the actual fix, not just the wiring): the
+    // row-insert must fill both triggered blueprints' `lead` var from the row,
+    // so dispatch does NOT throw "Missing required variables". Before the fix,
+    // `lead` was required with no {{row.col}} default and dispatch threw.
+    const { buildVariables } = await import("@/lib/apps/manifest-trigger-dispatch");
+    // listRows returns each row's `data` as a serialized JSON string; the real
+    // dispatch path passes an already-parsed object to buildVariables.
+    const rawRow = (await tables.listRows(leadsTableId!))[0].data;
+    const row = (
+      typeof rawRow === "string" ? JSON.parse(rawRow) : rawRow
+    ) as Record<string, unknown>;
+    for (const bpId of ["relay-social--welcome-creative", "relay-crm--lead-enrich"]) {
+      const vars = buildVariables(bpId, row);
+      expect(
+        vars.lead,
+        `${bpId}: the required "lead" var must be filled from the row (display_name)`
+      ).toBe("New Subscriber");
+    }
   });
 
   it("trigger-bound tables ship EMPTY; seeded tables read non-zero", async () => {

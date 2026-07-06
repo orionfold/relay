@@ -7,10 +7,13 @@ tags: [social]
 pattern: sequence
 author: Orionfold
 variables:
+  # Row-insert trigger (on the CRM child's `leads` table): auto-fills from the
+  # row, no human prompt — mirrors the shipped convention (fix-row-insert-...).
   - id: lead
     type: text
     label: Lead
-    required: true
+    required: false
+    default: "{{row.name}}"
 steps:
   - name: Draft announcement
     profileId: relay-social-mini--writer

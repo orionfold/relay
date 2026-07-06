@@ -224,8 +224,15 @@ const ROW_PLACEHOLDER = /^\{\{\s*row\.([a-zA-Z0-9_-]+)\s*\}\}$/;
  *      resolve to `rowData[col]` so the variable has a concrete value
  *      even if `rowData[col]` is missing from step 1's column-name passthrough.
  *   3. Required variables left unresolved → instantiator throws → caller catches.
+ *
+ * Exported for tests: this is the exact seam where the row-insert var-mapping
+ * gap lived (a required var with no `{{row.col}}` default could not be filled
+ * from the row and threw "Missing required variables" at dispatch). The
+ * install-time guard (install.ts block 2d) now refuses such packs, but the
+ * bundle template test also asserts this function fills the required var end
+ * to end.
  */
-function buildVariables(
+export function buildVariables(
   blueprintId: string,
   rowData: Record<string, unknown>
 ): Record<string, unknown> {

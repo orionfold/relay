@@ -16,7 +16,12 @@ variables:
     type: text
     label: Client
     description: The CRE client whose leases are being abstracted
-    required: true
+    # Fires on a row-insert into `rent_roll` with no human to prompt: optional
+    # + a {{row.col}} default so a new lease row auto-fills this from its
+    # property (the rent_roll has no client column; property is the per-row
+    # subject of a lease-abstraction run).
+    required: false
+    default: "{{row.property}}"
     placeholder: Meridian Commercial Realty
   - id: portfolio
     type: textarea
