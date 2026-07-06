@@ -28,6 +28,10 @@ flowchart LR
         gh["GitHub Releases<br/>prebuilt server build<br/>bare GET, sha256-verified"]
     end
 
+    subgraph packfetch["Only when you install a non-bundled pack"]
+        pidx["Canonical pack index<br/>+ pack .tgz<br/>bare GET, sha256-verified"]
+    end
+
     subgraph providers["Model providers — only those YOU configure"]
         ant["api.anthropic.com"]
         oai["api.openai.com"]
@@ -39,6 +43,7 @@ flowchart LR
     end
 
     relay -->|"download only"| gh
+    relay -->|"download only"| pidx
     relay -->|"prompts, instructions,<br/>attached document content,<br/>tool results"| ant
     relay -->|"prompts, instructions,<br/>attached document content,<br/>tool results"| oai
     relay -.-> chan
@@ -51,9 +56,11 @@ For a plain `npx orionfold-relay` install with nothing configured, Relay
 makes exactly **one** kind of outbound call: a checksum-verified download of
 the production server build from GitHub Releases, once per version. Every
 other egress in the product exists only downstream of something you
-explicitly configure or click. There is **no telemetry, no analytics, no
-crash reporting, no update check, no license activation server, and no call
-to orionfold.com** anywhere in the codebase.
+explicitly configure or click — including the canonical pack index, which is
+read **only** when you run `relay pack add <name>` for a pack that did not
+ship with your install (a bare, sha256-verified GET that sends nothing about
+you; row 11). There is **no telemetry, no analytics, no crash reporting, no
+update check, and no license activation server** anywhere in the codebase.
 
 ## Complete egress inventory
 
@@ -69,6 +76,7 @@ to orionfold.com** anywhere in the codebase.
 | 8 | Pricing registry refresh | You click **Refresh** in Settings → Pricing | Public pricing pages (`anthropic.com`, `openai.com`) | Nothing — informational GET | Manual-only; never scheduled |
 | 9 | Plugin MCP servers | You install a plugin that ships a stdio MCP server | Whatever that plugin's binary calls | Whatever you pass it — treat third-party plugins as code you're running | `--safe-mode` / `RELAY_SAFE_MODE=true` disables plugin MCP servers |
 | 10 | Upstream `git fetch` (contributors only) | Hourly, **only when the launch directory is a git clone** — never for npm/npx installs | Your clone's own `origin` remote | Standard git fetch; compares SHAs locally, uploads nothing | Absent `.git` = never runs ([`upgrade-poller.ts`](../../src/lib/instance/upgrade-poller.ts)) |
+| 11 | Non-bundled pack fetch | You run `relay pack add <name>` for a pack that did **not** ship in your install | Canonical Orionfold pack index + pack `.tgz` (`orionfold.com/relay/packs`) | Nothing — bare GET; the index and each pack are sha256-verified before use ([`remote.ts`](../../src/lib/packs/remote.ts)) | Bundled packs never reach this path (install offline); `RELAY_PACK_INDEX_URL` (mirror or `file://` for air-gap) |
 
 (`npm`/`npx` itself contacts the npm registry to install the package — that
 is npm's standard behavior before any Relay code runs, and it's covered by

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import yaml from "js-yaml";
 
 let dataDir: string;
@@ -674,10 +675,20 @@ describe("installPack by bundled name", () => {
     const templatesDir = fs.mkdtempSync(
       path.join(os.tmpdir(), "ainative-pack-templates-")
     );
+    // Point the R2 remote-resolver at an empty local index base so an unknown
+    // name deterministically falls through to the helpful UnknownPackNameError
+    // (fail-open on an unreachable index) — never a real network call in tests.
+    const emptyIndexBase = pathToFileURL(
+      fs.mkdtempSync(path.join(os.tmpdir(), "ainative-empty-index-"))
+    ).href;
     try {
       const { installPack } = await loadModules();
       await expect(
-        installPack("not-a-pack", { ...installOpts(), templatesDir })
+        installPack("not-a-pack", {
+          ...installOpts(),
+          templatesDir,
+          packIndexBaseUrl: emptyIndexBase,
+        })
       ).rejects.toThrow(/Unknown pack "not-a-pack"/);
     } finally {
       fs.rmSync(templatesDir, { recursive: true, force: true });
@@ -813,6 +824,35 @@ describe("installPack — bundle flatten", () => {
       ).toBe(false);
     } finally {
       fs.rmSync(collideRoot, { recursive: true, force: true });
+    }
+  });
+
+  // R2 opens the TOP-LEVEL install to remote resolution but keeps the
+  // bundle-child fence (install.ts:143-149) shut: a bundle's flattened children
+  // must still be bundled names or local paths — never resolved across the
+  // network (a bundle is one atomic app; N remote children would make one
+  // install depend on N fetches and could pull unvetted community children into
+  // a higher-tier app).
+  it("still refuses a git-URL bundle child (the no-marketplace fence stays shut)", async () => {
+    const fenceRoot = fs.mkdtempSync(path.join(os.tmpdir(), "ainative-pack-fence-"));
+    try {
+      const bundle = path.join(fenceRoot, "fence-bundle");
+      fs.mkdirSync(bundle, { recursive: true });
+      fs.writeFileSync(
+        path.join(bundle, "pack.yaml"),
+        yaml.dump({
+          id: "fence-bundle",
+          version: "0.1.0",
+          name: "Fence Bundle",
+          bundle: ["https://example.com/child.git"],
+        })
+      );
+      const { installPack } = await loadModules();
+      await expect(
+        installPack(bundle, { ...installOpts(), templatesDir: fenceRoot })
+      ).rejects.toThrow(/no-marketplace fence|git URL child|Bundle children/i);
+    } finally {
+      fs.rmSync(fenceRoot, { recursive: true, force: true });
     }
   });
 });

@@ -201,3 +201,134 @@ describe("resolvePackSource", () => {
     );
   });
 });
+
+// ── resolvePackSourceAsync — the R2 remote-resolution branch ─────────────
+
+describe("resolvePackSourceAsync", () => {
+  let templatesDir: string;
+  let indexBase: string;
+  let indexBaseUrl: string;
+
+  beforeEach(async () => {
+    templatesDir = makeTmp();
+    indexBase = makeTmp();
+  });
+  afterEach(() => {
+    fs.rmSync(templatesDir, { recursive: true, force: true });
+    fs.rmSync(indexBase, { recursive: true, force: true });
+  });
+
+  /** Stage a file:// canonical tree: index.json + one sha-verified pack .tgz. */
+  async function stageRemotePack(id: string): Promise<string> {
+    const { pathToFileURL } = await import("node:url");
+    const { createHash } = await import("node:crypto");
+    const tar = await import("tar");
+
+    const stage = path.join(indexBase, "stage");
+    fs.mkdirSync(path.join(stage, "base"), { recursive: true });
+    fs.writeFileSync(
+      path.join(stage, "pack.yaml"),
+      yaml.dump({ id, version: "1.0.0", name: id })
+    );
+    fs.writeFileSync(
+      path.join(stage, "base", "manifest.yaml"),
+      yaml.dump({ id, version: "1.0.0", name: id, profiles: [], blueprints: [], tables: [], schedules: [] })
+    );
+    const artDir = path.join(indexBase, "packs", "official");
+    fs.mkdirSync(artDir, { recursive: true });
+    const tgz = path.join(artDir, `${id}.tgz`);
+    await tar.create({ gzip: true, file: tgz, cwd: stage }, ["pack.yaml", "base"]);
+    const sha = createHash("sha256").update(fs.readFileSync(tgz)).digest("hex");
+    fs.writeFileSync(
+      path.join(indexBase, "index.json"),
+      JSON.stringify({
+        schema: "orionfold.packs/v1",
+        packs: [{ id, tier: "official", version: "1.0.0", path: `packs/official/${id}`, sha }],
+      })
+    );
+    indexBaseUrl = pathToFileURL(indexBase).href;
+    return sha;
+  }
+
+  it("resolves a bundled name with ZERO network (local-first, no index consulted)", async () => {
+    const { resolvePackSourceAsync } = await import("../catalog");
+    const dir = writeTemplate(templatesDir, "sample-pack");
+    // Point the index base at a dir with NO index.json — if it were consulted,
+    // the fetch would throw. It resolves locally, so it must not be.
+    const { dir: resolved, entry } = await resolvePackSourceAsync("sample-pack", {
+      templatesDir,
+      baseUrl: indexBaseUrl,
+    });
+    expect(resolved).toBe(dir);
+    expect(entry).toBeUndefined();
+  });
+
+  it("delegates a local path and a git URL to the sync resolver", async () => {
+    const { resolvePackSourceAsync } = await import("../catalog");
+    const git = await resolvePackSourceAsync("https://example.com/repo.git", {
+      templatesDir,
+    });
+    expect(git.dir).toBe("https://example.com/repo.git");
+    expect(git.entry).toBeUndefined();
+  });
+
+  it("consults the index and fetches a non-bundled pack into a temp dir", async () => {
+    await stageRemotePack("relay-remote-demo");
+    const { resolvePackSourceAsync } = await import("../catalog");
+    const { dir, cleanup, entry } = await resolvePackSourceAsync("relay-remote-demo", {
+      templatesDir,
+      baseUrl: indexBaseUrl,
+    });
+    try {
+      expect(fs.existsSync(path.join(dir, "pack.yaml"))).toBe(true);
+      expect(entry?.id).toBe("relay-remote-demo");
+      expect(entry?.tier).toBe("official");
+    } finally {
+      cleanup?.();
+    }
+  });
+
+  it("rethrows the helpful UnknownPackNameError when the name is absent from the index", async () => {
+    await stageRemotePack("relay-remote-demo");
+    writeTemplate(templatesDir, "sample-pack");
+    const { resolvePackSourceAsync, UnknownPackNameError } = await import("../catalog");
+    await expect(
+      resolvePackSourceAsync("no-such-pack", { templatesDir, baseUrl: indexBaseUrl })
+    ).rejects.toThrow(UnknownPackNameError);
+    await expect(
+      resolvePackSourceAsync("no-such-pack", { templatesDir, baseUrl: indexBaseUrl })
+    ).rejects.toThrow(/sample-pack/);
+  });
+
+  it("fails OPEN to the helpful error when the index itself is unreachable", async () => {
+    // indexBase has no index.json — the fetch throws; a never-bundled name
+    // must still surface UnknownPackNameError, not a raw network error.
+    const { pathToFileURL } = await import("node:url");
+    writeTemplate(templatesDir, "sample-pack");
+    const { resolvePackSourceAsync, UnknownPackNameError } = await import("../catalog");
+    await expect(
+      resolvePackSourceAsync("no-such-pack", {
+        templatesDir,
+        baseUrl: pathToFileURL(indexBase).href,
+      })
+    ).rejects.toThrow(UnknownPackNameError);
+  });
+
+  it("hands a community repo entry to git-clone as a URL", async () => {
+    const { pathToFileURL } = await import("node:url");
+    fs.writeFileSync(
+      path.join(indexBase, "index.json"),
+      JSON.stringify({
+        schema: "orionfold.packs/v1",
+        packs: [{ id: "janes-pack", tier: "community", version: "0.1.0", repo: "github.com/jane/janes-pack", sig: null }],
+      })
+    );
+    const { resolvePackSourceAsync } = await import("../catalog");
+    const { dir, entry } = await resolvePackSourceAsync("janes-pack", {
+      templatesDir,
+      baseUrl: pathToFileURL(indexBase).href,
+    });
+    expect(dir).toBe("https://github.com/jane/janes-pack");
+    expect(entry?.tier).toBe("community");
+  });
+});

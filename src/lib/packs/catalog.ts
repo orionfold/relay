@@ -3,6 +3,7 @@ import path from "node:path";
 import { getAppRoot } from "@/lib/utils/app-root";
 import { buildPrimitivesSummary } from "@/lib/apps/registry";
 import { parsePack, type PackMeta } from "./format";
+import type { PackIndexEntry } from "./index-schema";
 
 /**
  * Bundled-pack catalog — enumerates the in-tree templates that ship inside
@@ -119,4 +120,55 @@ export function resolvePackSource(
     `Unknown pack "${source}". Bundled packs: ${ids.length ? ids.join(", ") : "(none)"}. ` +
       `Otherwise pass a folder path or git URL.`
   );
+}
+
+/**
+ * The one remote-resolution branch (R2, `pack-remote-resolver`). Local-first is
+ * preserved: the sync `resolvePackSource` ladder wins first (existing local
+ * path, git URL, bundled name), so a bundled pack resolves offline with ZERO
+ * network. Only a bare name that is neither a local path nor a bundled template
+ * — the `UnknownPackNameError` case — reaches the canonical index (R1) and a
+ * sha-verified fetch (the ONE egress, `remote.ts`).
+ *
+ * Returns `{ dir, entry? }`: `dir` is what `acquirePack` reads (a bundled dir,
+ * or a fetched temp dir); `entry` (present only on the remote path) is threaded
+ * to R3 for provenance verification against `entry.sig`/`keyId`. For a community
+ * `repo` entry the URL is handed back as `dir` so the existing git-clone in
+ * `acquirePack` fetches it (the same mechanic bundle-children are barred from).
+ *
+ * Async sibling on purpose — the sync `resolvePackSource` signature is unchanged
+ * for its many synchronous callers (the `/packs` gallery, the CLI lister).
+ */
+export async function resolvePackSourceAsync(
+  source: string,
+  opts: CatalogOptions & { baseUrl?: string } = {}
+): Promise<{ dir: string; cleanup?: () => void; entry?: PackIndexEntry }> {
+  try {
+    return { dir: resolvePackSource(source, opts) };
+  } catch (e) {
+    if (!(e instanceof UnknownPackNameError)) throw e;
+    // Not bundled, not a path — consult the canonical index (R1) + fetch (R2).
+    const { fetchPackIndex, fetchPackDir } = await import("./remote");
+    const { findIndexEntry } = await import("./index-schema");
+    // Fail-OPEN on the index READ (the pricing.json precedent): if the catalog
+    // can't be consulted at all, the most helpful thing for a never-bundled name
+    // is still the "Unknown pack — here are the bundled ids" error, not a raw
+    // network error. A specific pack found in the index that then fails to fetch
+    // IS loud below (the user explicitly asked for that pack).
+    let index;
+    try {
+      index = await fetchPackIndex({ baseUrl: opts.baseUrl });
+    } catch {
+      throw e; // index unreachable — surface the helpful bundled-ids error.
+    }
+    const entry = findIndexEntry(index, source);
+    if (!entry) throw e; // in the index? no — rethrow the helpful bundled-ids error.
+    if (entry.repo) {
+      // Community link: hand the repo URL to acquirePack's existing git-clone.
+      const gitUrl = entry.repo.startsWith("http") ? entry.repo : `https://${entry.repo}`;
+      return { dir: gitUrl, entry };
+    }
+    const { dir, cleanup } = await fetchPackDir(entry, { baseUrl: opts.baseUrl });
+    return { dir, cleanup, entry };
+  }
 }

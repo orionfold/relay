@@ -71,6 +71,13 @@ export interface InstallPackOptions {
   licenseUrl?: string;
   /** Override the bundled-templates dir for bare-name resolution (tests). */
   templatesDir?: string;
+  /**
+   * Override the canonical pack-index base URL for remote resolution (R2).
+   * Falls back to `RELAY_PACK_INDEX_URL`, then the canonical default. A
+   * `file://` base points the smoke/tests at a local fixture tree; a bundled
+   * pack never reaches the index so this is unused for offline installs.
+   */
+  packIndexBaseUrl?: string;
 }
 
 export interface InstallReport {
@@ -115,13 +122,29 @@ export async function installPack(
   const coreVersion = options.coreVersion ?? relayCoreVersion();
 
   // 1. Acquire — a bare name resolves to its bundled template dir first
-  // (existing local paths win; see resolvePackSource), then clone a git URL
-  // into a temp dir, or read a folder in place.
-  const { resolvePackSource } = await import("./catalog");
-  const resolvedSource = resolvePackSource(source, {
+  // (existing local paths win; see resolvePackSource), then, for a bare name
+  // that is neither local nor bundled, consult the canonical index (R1) and
+  // fetch it sha-verified (R2). Finally clone a git URL into a temp dir, or read
+  // a folder in place. `entry` (present only on the remote path) carries the
+  // index metadata R3 verifies provenance against.
+  const { resolvePackSourceAsync } = await import("./catalog");
+  const {
+    dir: resolvedSource,
+    cleanup: fetchCleanup,
+    entry: indexEntry,
+  } = await resolvePackSourceAsync(source, {
     templatesDir: options.templatesDir,
+    baseUrl: options.packIndexBaseUrl,
   });
-  const { dir: packDir, cleanup } = acquirePack(resolvedSource);
+  void indexEntry; // R3 (pack-provenance-tiers) verifies entry.sig/keyId here.
+  const acquired = acquirePack(resolvedSource);
+  const packDir = acquired.dir;
+  // Compose the fetch's temp-dir cleanup (if any) with acquirePack's own, so a
+  // remotely-fetched pack's temp dir is always removed in the finally below.
+  const cleanup = () => {
+    acquired.cleanup();
+    fetchCleanup?.();
+  };
 
   try {
     // 2. Validate — strict schema gate (throws PackValidationError) ...
