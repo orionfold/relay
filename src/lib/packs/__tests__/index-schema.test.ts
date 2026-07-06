@@ -77,7 +77,10 @@ describe("PackIndexEntrySchema — location refine (exactly one of path|repo)", 
 });
 
 describe("PackIndexSchema", () => {
-  it("rejects an unknown top-level schema string", () => {
+  it("rejects an unknown top-level schema string (R5 forward-incompat is LOUD)", () => {
+    // R5 pack-standard-versioning: the literal `schema` discriminant means a v1
+    // Relay REFUSES a future v2 index rather than misreading it — a breaking
+    // index change majors the string and old cores fail loudly, by construction.
     const bad = { schema: "orionfold.packs/v2", packs: [] };
     expect(() => PackIndexSchema.parse(bad)).toThrow();
   });

@@ -218,8 +218,15 @@ describe("resolvePackSourceAsync", () => {
     fs.rmSync(indexBase, { recursive: true, force: true });
   });
 
-  /** Stage a file:// canonical tree: index.json + one sha-verified pack .tgz. */
-  async function stageRemotePack(id: string): Promise<string> {
+  /** Stage a file:// canonical tree: index.json + one sha-verified pack .tgz.
+   * `opts.relayCore` stamps a semver range on the index ENTRY (drives the R5
+   * early-skip); `opts.skipArtifact` writes the index but NOT the .tgz, so any
+   * fetch attempt throws RemotePackFetchError — proving the early skip fired
+   * before the fetch (a versioning skip must beat the missing-artifact error). */
+  async function stageRemotePack(
+    id: string,
+    opts: { relayCore?: string; skipArtifact?: boolean } = {}
+  ): Promise<string> {
     const { pathToFileURL } = await import("node:url");
     const { createHash } = await import("node:crypto");
     const tar = await import("tar");
@@ -239,11 +246,21 @@ describe("resolvePackSourceAsync", () => {
     const tgz = path.join(artDir, `${id}.tgz`);
     await tar.create({ gzip: true, file: tgz, cwd: stage }, ["pack.yaml", "base"]);
     const sha = createHash("sha256").update(fs.readFileSync(tgz)).digest("hex");
+    if (opts.skipArtifact) fs.rmSync(tgz, { force: true });
     fs.writeFileSync(
       path.join(indexBase, "index.json"),
       JSON.stringify({
         schema: "orionfold.packs/v1",
-        packs: [{ id, tier: "official", version: "1.0.0", path: `packs/official/${id}`, sha }],
+        packs: [
+          {
+            id,
+            tier: "official",
+            version: "1.0.0",
+            path: `packs/official/${id}`,
+            sha,
+            ...(opts.relayCore ? { relayCore: opts.relayCore } : {}),
+          },
+        ],
       })
     );
     indexBaseUrl = pathToFileURL(indexBase).href;
@@ -330,5 +347,62 @@ describe("resolvePackSourceAsync", () => {
     });
     expect(dir).toBe("https://github.com/jane/janes-pack");
     expect(entry?.tier).toBe("community");
+  });
+
+  // ── R5 pack-standard-versioning — the early relayCore skip ──────────────
+
+  it("skips a pack whose entry.relayCore the running core does not satisfy, BEFORE fetching", async () => {
+    // The index entry requires a core this install cannot satisfy, and the
+    // artifact is absent — so if the fetch were attempted it would throw
+    // RemotePackFetchError. The early skip must throw the versioning error
+    // FIRST, proving no fetch happened.
+    await stageRemotePack("relay-future-demo", { relayCore: ">=99.0.0", skipArtifact: true });
+    const { resolvePackSourceAsync } = await import("../catalog");
+    const { PackValidationError } = await import("../format");
+    await expect(
+      resolvePackSourceAsync("relay-future-demo", {
+        templatesDir,
+        baseUrl: indexBaseUrl,
+        coreVersion: "1.2.3",
+      })
+    ).rejects.toThrow(PackValidationError);
+    await expect(
+      resolvePackSourceAsync("relay-future-demo", {
+        templatesDir,
+        baseUrl: indexBaseUrl,
+        coreVersion: "1.2.3",
+      })
+    ).rejects.toThrow(/relay-core|before fetch/i);
+  });
+
+  it("fetches a pack whose entry.relayCore the running core DOES satisfy", async () => {
+    await stageRemotePack("relay-remote-demo", { relayCore: ">=1.0.0" });
+    const { resolvePackSourceAsync } = await import("../catalog");
+    const { dir, cleanup, entry } = await resolvePackSourceAsync("relay-remote-demo", {
+      templatesDir,
+      baseUrl: indexBaseUrl,
+      coreVersion: "1.2.3",
+    });
+    try {
+      expect(fs.existsSync(path.join(dir, "pack.yaml"))).toBe(true);
+      expect(entry?.id).toBe("relay-remote-demo");
+    } finally {
+      cleanup?.();
+    }
+  });
+
+  it("does not skip an entry with no relayCore (unversioned entries pass)", async () => {
+    await stageRemotePack("relay-remote-demo"); // no relayCore stamped
+    const { resolvePackSourceAsync } = await import("../catalog");
+    const { dir, cleanup } = await resolvePackSourceAsync("relay-remote-demo", {
+      templatesDir,
+      baseUrl: indexBaseUrl,
+      coreVersion: "0.0.1",
+    });
+    try {
+      expect(fs.existsSync(path.join(dir, "pack.yaml"))).toBe(true);
+    } finally {
+      cleanup?.();
+    }
   });
 });

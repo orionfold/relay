@@ -43,6 +43,33 @@ Pushing the `vX.Y.Z` tag triggers `.github/workflows/publish.yml`, which:
 
 Watch the run in the repo's **Actions** tab. No secrets to manage.
 
+## Versioning axes — bump these together (the standard's forward-compat checklist)
+
+The "Orionfold Packs" standard has **three independent versioning axes**. They must move
+*together* at release time or the standard silently drifts (the exact near-miss the
+`apiversion-window-bump-at-version-bump` memory documents). This is one ordered checklist a
+release consults — the axes are **co-listed, not merged**: they are separate mechanisms for
+separate artifact kinds.
+
+1. **Index schema** — `orionfold.packs/v1` (the string in `index.json`, read by
+   `src/lib/packs/index-schema.ts`). **Additive fields only within a version.** A *breaking*
+   index change majors the string (`v1` → `v2`); a `v1` Relay then refuses a `v2` index loudly
+   (the `.strict()` + literal `schema` discriminant — a v1 core rejects rather than misreads).
+   Do not remove or repurpose a field within a version; only add optional ones.
+2. **Per-pack `relayCore`** — the semver range in each pack's `pack.yaml`
+   (`src/lib/packs/format.ts` field; checked at `install.ts` post-acquire AND, for a remotely
+   fetched pack, skipped *early* in the R2 resolver before the fetch). A pack adopting a new
+   manifest field **must raise its `relayCore`**, exactly as the `price`-object shape did — older
+   cores reject an unknown key via `.strict()`. This is per-pack forward-compat; the compat-diff
+   CI gate (`_IDEAS/packs-robustify.md` R5) guards each pack's own version-to-version compat.
+3. **Plugin `apiVersion` window** — `CURRENT_PLUGIN_API_VERSION` (`sdk/types.ts`) + the
+   previous-MINOR literal (`registry.ts`) + the 3 example `src/lib/plugins/examples/*/plugin.yaml`.
+   **Bump on every MINOR** (the window test derives its expected window from `package.json` and
+   fails loudly until every site bumps together). A PATCH does NOT bump it.
+
+**Do NOT unify `relayCore` (packs) with `apiVersion` (plugins)** — they version different artifact
+kinds. This checklist co-lists them so a release never bumps one axis and forgets another.
+
 ## Why not a stored `NPM_TOKEN` secret?
 
 A long-lived token in GitHub secrets is exactly the leak-prone artifact OIDC

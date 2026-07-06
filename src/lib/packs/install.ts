@@ -156,6 +156,8 @@ export async function installPack(
   } = await resolvePackSourceAsync(source, {
     templatesDir: options.templatesDir,
     baseUrl: options.packIndexBaseUrl,
+    coreVersion, // R5: the early relayCore skip filters an incompatible remote
+    // pack before fetching it; the post-acquire check below stays (defense in depth).
   });
   // `indexEntry` (present only on the remote path) carries `sig`/`keyId` — R3
   // verifies provenance against them just below, after parsePack yields the

@@ -141,7 +141,7 @@ export function resolvePackSource(
  */
 export async function resolvePackSourceAsync(
   source: string,
-  opts: CatalogOptions & { baseUrl?: string } = {}
+  opts: CatalogOptions & { baseUrl?: string; coreVersion?: string } = {}
 ): Promise<{ dir: string; cleanup?: () => void; entry?: PackIndexEntry }> {
   try {
     return { dir: resolvePackSource(source, opts) };
@@ -163,6 +163,24 @@ export async function resolvePackSourceAsync(
     }
     const entry = findIndexEntry(index, source);
     if (!entry) throw e; // in the index? no — rethrow the helpful bundled-ids error.
+    // R5 pack-standard-versioning — the early relayCore skip. The R1 index
+    // carries `entry.relayCore`, so an incompatible pack is filtered HERE,
+    // before the fetch, rather than after a wasted download at install time.
+    // This is an optimization + a clearer error, NOT a replacement: the
+    // post-acquire relayCore check in install.ts stays (defense in depth for a
+    // locally-pointed pack or a stale index that bypasses this branch).
+    if (entry.relayCore) {
+      const semver = (await import("semver")).default;
+      const { relayCoreVersion } = await import("./install");
+      const coreVersion = opts.coreVersion ?? relayCoreVersion();
+      if (!semver.satisfies(coreVersion, entry.relayCore)) {
+        const { PackValidationError } = await import("./format");
+        throw new PackValidationError(
+          `Pack "${entry.id}"@${entry.version} requires relay-core ${entry.relayCore}, ` +
+            `but this install is ${coreVersion}. Skipped before fetch.`
+        );
+      }
+    }
     if (entry.repo) {
       // Community link: hand the repo URL to acquirePack's existing git-clone.
       const gitUrl = entry.repo.startsWith("http") ? entry.repo : `https://${entry.repo}`;
