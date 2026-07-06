@@ -1,20 +1,25 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-05 (pt: **0.32.1 3D-logo RELEASED** (`v0.32.1`→`d30615ee`; annotated tag, publish CI
-`28769241850` green incl. npx prod smoke + <10MB guard, npm `latest`, GitHub Release + SBOM). Swapped the flat
-theme-aware SVG `OfMark` for the design-system 3D origami-star: in-app mark now a plain `<img srcset>` off
-`public/brand/orionfold-mark-{24,28,48,56,72,144}.png` (native 1×/2× per placement, NO `next/image` re-encode —
-browser paints DS pixels 1:1), plus favicons/PWA icons + a safe-zone-padded maskable icon. Logo swap `d3dbf0a1` +
-release chore `d30615ee`. **Gotcha caught:** `public/brand/` had to be added to the `files` allowlist or npx
-users get a 404'd in-app mark (OfMark ships via `src/`, references the assets at runtime). Memory
-`logo-3d-swap-recipe`. Prior tail: 0.32.0 packs-evolution (`b181a24d`), marketing-screenshot tooling
-(`829ad897`) — full detail in git + CHANGELOG.)_
+_Last updated: 2026-07-06 (pt: **Marketing line RELEASED (0.33.0)** + **row-insert var-mapping gap fixed &
+released (0.33.1)**. 0.33.0: `relay-crm`+`relay-social`+`relay-marketing` bundle shipped (feat `d0303f24` +
+release `84be9825`, `v0.33.0`, publish CI green, npm `latest`+SBOM, issue #40; apiVersion window 0.32→0.33).
+0.33.1: 4 shipped row-insert blueprints declared a `required` var with no `{{row.col}}` default → threw
+`Missing required variables` at first fire; fixed all 4 to optional+`{{row.col}}` default matching the working
+`relay-agency-pro`/`relay-nonprofit` pattern, PLUS an install-time guard (`install.ts` block 2d
+`assertRowTriggerVarsFillable`) that now REFUSES any unfillable-trigger-var pack loudly (fix `4266687e` +
+release `7d2baa99`, `v0.33.1`, publish CI green, npm `latest`, PATCH no apiVersion). New tests:
+`row-insert-var-fillability.test.ts` (sweeps all packs + synthetic broken/fixed pair) + bundle test now asserts
+`buildVariables` fills the var end-to-end. `buildVariables` exported. Real-path install smoke: all packs clean.
+Memories `pack-backward-compat-convention`, `dont-ask-when-codebase-answers`. Prior tail: 0.32.1 3D-logo
+(`d30615ee`), 0.32.0 packs-evolution (`b181a24d`) — full detail in git + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — packs-evolution shipped; follow-up is pack DEPTH
+## ▶️ NEXT SESSION — both releases shipped; depth is the open arc
 
-- **`pack-depth-next-wave` is the natural next arc** now that the persona/industry split + wave-1 resurfacing are
-  released: build genuinely-NEW primitives (not just resurface existing ones). `decisions_open`:
-  when-dependsOn-earns-weight (P3 trigger — the dependsOn-trigger + bundle-pricing opens from
+- **`pack-depth-next-wave` is the next arc** — build genuinely-NEW primitives (not just resurface).
+  **New dangling build ticket to add there when groomed:** a **funnel band-flow** Core primitive (horizontal
+  Attract→Capture→Nurture→Convert with inter-band conversion arrows; Zod arm + evaluator + kit) — the one
+  non-standard chart the marketing harvest surfaced, fenced OUT of `pack-marketing-line` per §6. `decisions_open`:
+  when-dependsOn-earns-weight (P3 trigger — the dependsOn-trigger opens from
   `packs-evolution-requirements-extracted`).
 - **Optional cross-peer confirm:** post to `strategy/relay/_RELAY.md` that the 4 industry/bundle packs are synced
   to `pricing.json` (read-only confirm; NOT required — the generalized drift gate enforces it structurally now).
@@ -56,9 +61,9 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 ## Known caveats
 - **apiVersion window**: bump `CURRENT_PLUGIN_API_VERSION` (sdk/types.ts) + previous-MINOR
   literal (registry.ts) + the 3 `src/lib/plugins/examples/*/plugin.yaml` IN the release commit ONLY on a
-  MINOR bump (now `{0.30, 0.29}` set in `8519e9af`); the window test derives its expected window from
+  MINOR bump (now `{0.33, 0.32}` set in `84be9825`); the window test derives its expected window from
   package.json, so it fails loudly until every site bumps together. Needed on EVERY MINOR (S38→S39 near-miss:
-  a handoff once wrongly said "no bump needed" — it always is).
+  a handoff once wrongly said "no bump needed" — it always is). A PATCH (e.g. 0.33.1) does NOT bump it.
 - **The npx prod smoke (`scripts/npx-prod-smoke.mjs`) encodes API contracts that bundled fixes may change** —
   it runs ONLY at release (gates publish, not in `npm test`), so a fix that changes a status/response shape
   passes all unit tests then fails the release. Before tagging a release, grep the smoke for any endpoint a
@@ -71,6 +76,11 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Pack `price` is now `string | {list, intro?, note?}`** behind `packPrice()` — render sites
   never branch on the raw shape; externally-shipped packs adopting the object shape must raise
   their `relayCore` (older cores reject it as `PackValidationError` — `.strict()` schema).
+- **Row-insert trigger vars MUST be row-fillable (install-enforced, 0.33.1):** a `required` var on a
+  row-insert blueprint needs a `{{row.<col>}}` default (or a column named like the var); else `install.ts`
+  block 2d refuses the pack. Convention = optional+`{{row.col}}` default (memory
+  `pack-backward-compat-convention`). `buildVariables` expects a PARSED object; `tables.listRows().data`
+  is a JSON STRING — parse before feeding it.
 - **docs/index.md + docs/features|journeys|use-cases are GITIGNORED** (generated corpus).
   Public docs = README + SECURITY.md + docs/trust/ + docs/RELEASING.md +
   docs/plugin-security.md. Trust-doc claims must stay code-true.
@@ -80,11 +90,9 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
   parallel run (row-trigger timing) — passes in isolation.
 - **`next` PINNED exactly (16.2.4)**; Next 16 emits `.next/node_modules` symlinks — the
   artifact ships a manifest + CLI relinks (junction on win32). See #10 spec.
-- **Nav IA (S13, committed `119e6ba8`):** permanent two-tier bar — tier-1 underline-tab / tier-2
-  pill-selection; the old 4-children-per-group width cap is GONE (each tier scrolls). Apps is
-  top-level with live instances as tier-2 (`listAppsCached`). Spec: `features/nav-redesign-ia.md`.
-  Compose peers now include Blueprints/Schemas/**Presets** (elevation pattern, memory
-  `compose-submenu-elevation-pattern`).
+- **Nav IA (S13, `119e6ba8`):** permanent two-tier bar (tier-1 underline / tier-2 pill), each tier scrolls,
+  Apps top-level w/ live instances as tier-2. Spec `features/nav-redesign-ia.md`; Compose peers +Presets
+  (memory `compose-submenu-elevation-pattern`).
 - **Blueprint/profile content must pass its Zod schema** — the registry skips invalid files
   with only a console.warn (→ "Blueprint not found" at first trigger).
 - **Budget guardrails' plan-price substitution is INTENTIONAL** — display surfaces read
@@ -101,6 +109,23 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**0.33.1 (RELEASED — `v0.33.1`→`7d2baa99`; publish CI `28808826797` green; npm `latest` + SBOM; PATCH):**
+row-insert var-mapping fix. 4 shipped blueprints (`relay-crm--lead-enrich`, `relay-social--repurpose` +
+`--welcome-creative`, `relay-cre--lease-abstraction`) declared a `required` trigger var with no `{{row.col}}`
+default → threw `Missing required variables` at first fire; fixed all to optional+`{{row.col}}` default (matching
+`relay-agency-pro`/`relay-nonprofit`). Added `install.ts` block 2d `assertRowTriggerVarsFillable` — refuses any
+unfillable-trigger-var pack loudly (Principle #1). Fix `4266687e`, release `7d2baa99`. Tests:
+`row-insert-var-fillability.test.ts` + bundle test dispatch-fill assertion; `buildVariables` exported. Memories
+`pack-backward-compat-convention` (additive-only + relayCore lever + this rule), `dont-ask-when-codebase-answers`.
+
+**0.33.0 (RELEASED — `v0.33.0`→`84be9825`; publish CI `28789149553` green; npm `latest` + GitHub Release + SBOM;
+issue #40):** the Marketing line. `relay-crm` + `relay-social` child packs + `relay-marketing` splitting bundle
+(one purchase → two Functional-domain packs, bound by `utm_campaign`), all premium (`product:orionfold-relay`),
+harvested from `~/orionfold/marketing`. Taxonomy updated (Marketing-family ids disjoint from Agency). feat
+`d0303f24` + release `84be9825` (apiVersion window 0.32→0.33). Two build findings in memory
+`pack-marketing-line-built`: (1) cross-child attribution must be a `kpis` binding not `charts` (charts don't
+survive bundle merge); (2) the row-insert var-mapping gap — FIXED in 0.33.1 above.
+
 **0.32.1 (RELEASED — `v0.32.1`→`d30615ee`; publish CI `28769241850` green; npm `latest` + GitHub Release + SBOM):**
 3D origami-star brand logo replaces the flat SVG `OfMark` everywhere. In-app mark = `<img srcset>` off native
 `public/brand/orionfold-mark-*.png` (28/56 wordmark · 72/144 boot · 24/48 rail), NO `next/image` (paints DS pixels
