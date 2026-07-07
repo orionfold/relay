@@ -582,6 +582,26 @@ for the Web Designer live publish smoke: preview locally from the exact generate
 that same artifact to the user's GitHub Pages target. It keeps the TDR-039 SEND honest without adding a
 second local server or a separate generation path.
 
+### Operator Walkthrough Follow-ups (2026-07-07)
+
+Groomed from `output/operator-walkthrough-feedback-2026-07-07.md` after the Web Designer live
+walkthrough. These specs separate product IA, Web Designer generator/template work, publish UX
+hardening, and runtime defects so the next build slice can be chosen without re-reading the raw log.
+
+| Feature | Priority | Status | Dependencies |
+|---------|----------|--------|--------------|
+| [web-designer-site-controls](web-designer-site-controls.md) | P1 | planned | pack-web-designer, generator-publisher-substrate |
+| [web-templates-pack](web-templates-pack.md) | P1 | planned | pack-web-designer, web-designer-site-controls, generator-publisher-substrate |
+| [publish-preview-ux-hardening](publish-preview-ux-hardening.md) | P1 | planned | publish-preview-artifacts, generator-publisher-substrate |
+| [gallery-card-interactions](gallery-card-interactions.md) | P1 | planned | pack-web-designer |
+| [packs-first-ia](packs-first-ia.md) | P1 | planned | nav-redesign-ia, pack-bundle-model, composed-app-view-shell |
+| [dashboard-settings-drilldowns](dashboard-settings-drilldowns.md) | P1 | planned | homepage-dashboard, settings-interactive-controls |
+| [fix-turbopack-dynamic-transport-dispatch](fix-turbopack-dynamic-transport-dispatch.md) | P1 | planned | provider-runtime-abstraction |
+| [fix-scheduled-lead-list-hygiene-dispatch](fix-scheduled-lead-list-hygiene-dispatch.md) | P1 | planned | scheduled-prompt-loops, row-trigger-blueprint-execution |
+| [fix-app-detail-row-cache-invalidation](fix-app-detail-row-cache-invalidation.md) | P1 | planned | tables-data-layer, composed-app-view-shell, pack-web-designer |
+| [fix-in-app-preview-sheet-visibility](fix-in-app-preview-sheet-visibility.md) | P2 | planned | composed-app-view-shell |
+| [flagship-card-polish](flagship-card-polish.md) | P2 | planned | packs-first-ia, operational-surface-foundation |
+
 **4 open decisions** (`packs-publish.md §12`) need `strategy/relay/_RELAY.md` coordination: canonical
 index URL+versioning (R1), slim-default cut (R4), community trust ceiling (R3/R7), partner-key
 onboarding (R3). **R7 sequences behind the TDR-039 substrate build** (shares the GitHub publisher adapter).

@@ -170,6 +170,18 @@ summary keys; diff touched only the fenced files. Note: the `commit` field maps 
 0028 precedent (SQL file committed, drizzle journal untouched — bootstrap is the
 executable path, the journal count test pins 12).
 
+## Acceptance run — 2026-07-07 (TDR-039 accepted)
+
+Phase 5 live smoke completed through the Web Designer UI/API path:
+`relay-web-designer` generated a local preview artifact, published that exact
+artifact to the existing GitHub Pages target, and produced deployment
+`da6cd84c-061b-494b-ac41-f8d691700083` with commit
+`d22251ead78c90696be3156d90e296cbe866e9da` and artifact hash
+`981b9074823d77978dd81f9307ecb7d3b418f5c875c648cd2c79bb52e9f7f9cc`.
+The raw `gh-pages` branch content was verified to contain the polished static
+site template. TDR-039 is accepted as of this run; the publish target remains
+user-owned, credential-masked, and explicit-action SEND only.
+
 ## Anchors / memory
 
 - `funnel-flow-primitive-built` (the `mergeBundle` binding shadow-path lesson — Phase 2 must heed).

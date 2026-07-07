@@ -34,11 +34,23 @@ project provenance or private workspace references.
       primitive from managed table rows.
 - [x] `relay-web-publisher` declares a real `static-site` generate seam and
       `github-pages` publish seam.
-- [ ] Live GitHub Pages smoke through the UI.
-- [ ] Move TDR-039 proposed -> accepted after the live smoke.
+- [x] Live GitHub Pages smoke through the UI.
+- [x] Move TDR-039 proposed -> accepted after the live smoke.
 
 ## Scope Notes
 
 The first pass keeps the generator row contract from Phase 2: one ordered section
 table emits a single `index.html`. Theme controls, custom domains, delete-target,
 and multiple generate arms are later enhancements.
+
+## Verification
+
+- 2026-07-07: live GitHub Pages smoke succeeded for `relay-web-designer` against
+  `orionfold/relay-web-smoke` after the target token was granted Contents-write
+  permission.
+- 2026-07-07: polished static-site template was previewed locally, published via
+  preview artifact `ba39db0d-5fd6-45e6-b1fd-6015305f162c`, and wrote commit
+  `d22251ead78c90696be3156d90e296cbe866e9da` with artifact hash
+  `981b9074823d77978dd81f9307ecb7d3b418f5c875c648cd2c79bb52e9f7f9cc`.
+  The public Pages URL now serves the polished masthead, numbered section
+  labels, signal cards, and footer.

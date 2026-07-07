@@ -13,7 +13,8 @@ A new capability class for Relay packs: **packs that generate an artifact from
 their managed data and publish it to an external target.** First consumer is a
 **Web Designer** bundle (`relay-web-assets` + `relay-web-publisher`); it must
 generalize to a named family of future generators (social, video, research
-paper, book). Decision codified in **TDR-039** (proposed).
+paper, book). Decision codified in **TDR-039** (accepted 2026-07-07 after the
+Web Designer live GitHub Pages smoke).
 
 ### Pattern Alignment
 
@@ -78,8 +79,10 @@ manifest data ──[Generator]──> Artifact ──[Publisher]──> externa
 
 ### New TDRs Needed
 
-- **TDR-039** (this run) — the substrate decision. **Proposed**; promote to
-  accepted after a live publish smoke.
+- **TDR-039** (this run) — the substrate decision. **Accepted 2026-07-07** after
+  the Web Designer live GitHub Pages smoke wrote the polished static-site
+  artifact to the `orionfold/relay-web-smoke` `gh-pages` branch and the public
+  Pages URL remained reachable.
 - A follow-up may be warranted for the **generation half** specifically (does it
   mirror the document-processor registry, TDR-017?) — deferred to the
   generation-half design.

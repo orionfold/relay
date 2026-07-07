@@ -1,5 +1,28 @@
 # Feature Changelog
 
+## 2026-07-07 — Operator walkthrough follow-ups groomed
+
+### Groomed
+- Extracted the Web Designer/operator walkthrough feedback into 11 bounded specs:
+  `web-designer-site-controls`, `web-templates-pack`, `publish-preview-ux-hardening`,
+  `gallery-card-interactions`, `packs-first-ia`, `dashboard-settings-drilldowns`,
+  `fix-turbopack-dynamic-transport-dispatch`, `fix-scheduled-lead-list-hygiene-dispatch`,
+  `fix-app-detail-row-cache-invalidation`, `fix-in-app-preview-sheet-visibility`, and
+  `flagship-card-polish`.
+- Added an Operator Walkthrough Follow-ups tranche to the roadmap so runtime defects, Packs-first
+  IA, Web Designer controls/templates, and publish-preview hardening can be scheduled separately.
+
+## 2026-07-07 — Web Designer publish smoke accepted
+
+### Built
+- Published the polished `relay-web-designer` static-site artifact to
+  `orionfold/relay-web-smoke` via the preview-first GitHub Pages flow. Deployment
+  `da6cd84c-061b-494b-ac41-f8d691700083` wrote commit
+  `d22251ead78c90696be3156d90e296cbe866e9da` with artifact hash
+  `981b9074823d77978dd81f9307ecb7d3b418f5c875c648cd2c79bb52e9f7f9cc`.
+  Public Pages content verified the polished masthead, numbered section labels,
+  signal cards, and footer. TDR-039 is now accepted.
+
 ## 2026-07-07 — Publish preview artifact specified
 
 ### Groomed
