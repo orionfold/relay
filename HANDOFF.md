@@ -1,22 +1,20 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-06 (pt: **BUILT Packs Publish R5 + R4-mechanism** (`f6b1029d`, `b7f3b3d1`, unreleased).
-**R5 `pack-standard-versioning`**: the early `relayCore` skip in `resolvePackSourceAsync` (`catalog.ts`, after
-`findIndexEntry`/before `fetchPackDir`) — an incompatible `entry.relayCore` throws `PackValidationError`
-"Skipped before fetch", filtering the pack before the wasted download; all 3 new deps (`semver`,
-`relayCoreVersion`, `PackValidationError`) are dynamic `await import()` in-body (no static edge, no cycle —
-live compiled-CLI smoke proved it) + `install.ts` threads `coreVersion` in; post-acquire check STAYS
-(defense in depth). Plus `docs/RELEASING.md` "Versioning axes" section (index-schema / relayCore / apiVersion
-co-listed as ONE checklist, NOT merged). **R4 `pack-tarball-diet` MECHANISM (status: partial)**: measurement
-drove scope — templates are 206 KB/9 packs (~3%), so the CUT is NOT performed (operator: "build the mechanism,
-don't cut yet"). Shipped `bundled.ts` (`BUNDLED_PACK_IDS` SSOT + `SIZE_BUDGET_KB=500` trigger, zero-import
-leaf, `bundled.json` lockstep) + `check-pack-tarball.mjs` (smoke Case TB: allowlist-drift + size-overflow,
-fail-closed). Hidden dep found: fetch-then-cache needs the `§5` managed-base overlay graduation (deferred).
-241 packs + 324 licensing/plugins green. Prior tail: R1/R2/R3 READ-trio (`e6dde729`/`92d5a808`/`bf7619b8`),
-packs-publish GROOM → 7 specs, packs-robustify R1+R3 (`b43f1b69`), 0.34.0 funnel-flow (`cab55bd1`), Web
-Designer TDR-039 (`features/architect-report.md`, open) — full detail in git + CHANGELOG.)_
+_Last updated: 2026-07-06 (pt: **AUTHORED the Phase-1 substrate spec + committed the packs-publish paper
+trail.** Committed the grooming record left uncommitted from the prior session — packs-publish roadmap/changelog
++ the regenerated TDR-039 integration report + R6/R7 specs (`c8d11283`). Then authored + committed
+`features/generator-publisher-substrate.md` (`c323e0ca`) — a self-contained **Phase-1** spec grounded in 3
+parallel read-agent verifications. It **corrects the report's wrong paths** (real pack code is `src/lib/packs/`,
+NOT `src/lib/apps/` — full correction table in the spec + memory), **resolves both open design Qs** (`generate:`
+goes in `view.bindings` with `table`-named refs → free UUID rewrite, because `rewriteViewRefs` is name-keyed;
+generator-registry shape deferred to Phase 2), and **surfaces a 4th storage wiring point** (dual
+bootstrap+migration — a table in only one path 500s on the other environment). `pack-web-designer.md` NOT
+authored — it's the Phase-5 consumer, speculative before the manifest seam exists. Operator chose
+clear-then-implement-fresh for Phase 1. Prior tail: Packs Publish R5+R4-mech (`f6b1029d`/`b7f3b3d1`), R1/R2/R3
+READ-trio (`e6dde729`/`92d5a808`/`bf7619b8`), packs-robustify R1+R3 (`b43f1b69`), 0.34.0 funnel-flow
+(`cab55bd1`) — full detail in git + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — Web Designer specs OR the §5 managed-base overlay graduation
+## ▶️ NEXT SESSION — implement substrate Phase 1 (spec is READY, clear-then-implement)
 
 - **Packs Publish — P1 READ trio (R1/R2/R3) + R5 + R4-mechanism ALL BUILT, unreleased (`e6dde729`,
   `92d5a808`, `bf7619b8`, `f6b1029d`, `b7f3b3d1`).** No version bump — a future release bundles them
@@ -30,22 +28,28 @@ Designer TDR-039 (`features/architect-report.md`, open) — full detail in git +
   (R3 seam built / R7), partner-key onboarding (R3 `of-packs-official-2026` key — coordinate w/ licensing
   issuer owner). `_IDEAS/packs-publish.md` = durable source thesis; memory `packs-publish-authored` carries
   all build findings + reuse anchors.
-- **Web Designer ticket — TDR-039 done, specs next (may SHARE the packs-publish GitHub publisher adapter).**
-  The generator/publisher substrate is DESIGNED
-  (TDR-039 proposed + `features/architect-report.md`). Next: author `features/pack-web-designer.md` (the
-  bundle) + a substrate feature spec from the report's 5-phase sequence, then implement **Phase 1** (substrate
-  types + `GeneratorAdapter`/`PublisherAdapter` registries + `publishTargets`/`deployments` storage +
-  `github-pages` adapter, behind tests). **2 open design Qs to resolve at spec time:** (a) where `generate:`
-  sits so `rewriteViewRefs` (install.ts:674, recursive) UUID-rewrites its table refs for free — or extend the
-  rewriter; (b) does the generation half mirror the document-processor registry (TDR-017)? **Operator scope
-  locks:** Web Publisher DOES generate+deploy real artifacts (not sync-only); it's the family template.
-  The gallery primitive (`view.bindings.gallery`) is a plain Core primitive independent of the substrate →
-  Web Asset Manager is useful standalone. TDR-039 promotes proposed→accepted after a live publish smoke.
-- **Substrate build discipline (from TDR-039):** any new `view.bindings`/manifest arm must be added to the
-  `mergeBundle` accumulator (`bundle.ts` ~L152) or it vanishes in a bundle (the funnel shadow-path lesson);
-  prefer the GitHub Contents API over shelling `git` (avoids the heavier `child_process` capability);
-  `publishTargets.config` NEVER returned unmasked (new drift check). Smoke-budget: publisher is
-  runtime-registry-adjacent → real dev-server publish smoke, not just unit tests.
+- **Web Designer substrate — Phase-1 spec READY, implement it (`features/generator-publisher-substrate.md`).**
+  Spec is self-contained + anchor-verified (this session, 3 parallel read agents). **Just build it, TDD:**
+  1. `src/lib/publishers/{types,registry}.ts` — mirror `channels/{types.ts:5-17,registry.ts:9-24}`;
+     `PublisherAdapter { targetType, publish(artifact,config), testConnection }` + `Artifact`/`PublishResult` +
+     `maskPublishTarget()` (mirror masking `channels/types.ts:33-63`, `SENSITIVE_PUBLISH_KEYS`).
+  2. `src/lib/publishers/github-pages-adapter.ts` — Contents API (fetch, NOT `git`); mocked-fetch tests.
+  3. `src/lib/generators/types.ts` — minimal `GeneratorAdapter` interface only (registry → Phase 2).
+  4. **Storage = FOUR points** (dual mechanism): `schema.ts` (`publishTargets`+`deployments`, JSON-in-TEXT
+     `config`, FK `deployments→publishTargets`) + `bootstrap.ts` (CREATE-IF-NOT-EXISTS + append names to
+     `LEGACY_DATA_TABLES` at `:4`) + `migrations/0029_add_publish_substrate.sql` (next # after 0028) +
+     `clear.ts` (FK-safe order `deployments`→`publishTargets`→parent + summary keys).
+  - **End-to-end check = a real `npm run dev` boot smoke** (tables exist + `/api/data/clear` succeeds) — the
+    storage change is runtime-registry-adjacent (CLAUDE.md budget); unit tests alone don't catch the npx-vs-dev
+    table-creation split. Phase-1 fences: NO manifest arms / API routes / UI / Web Designer packs / `data-flow.md`
+    row #11 (all Phases 2-5). Anchor CORRECTIONS + design-Q resolutions live in the spec + memory
+    `generator-publisher-substrate-tdr039` (report paths were `src/lib/apps/` — WRONG, use `src/lib/packs/`).
+- **Phase 2+ discipline (when Phase 1 lands):** `generate:`/`publish:` arms go in `ViewSchema.bindings` `.strict()`
+  (`apps/registry.ts:228`), table-ref fields named `table` (free `rewriteViewRefs` UUID rewrite); AND add both
+  keys to the `mergeBundle` allowlist — read `bundle.ts:122-133` + write `152-159` — or they vanish in a bundle
+  (funnel shadow-path). Then `pack-web-designer.md` (the bundle) is authored against the real seam. TDR-039
+  promotes proposed→accepted after a live GitHub Pages publish smoke (Phase 5). Operator locks: Web Publisher
+  does real generate+deploy (not sync-only); the `gallery` primitive is standalone-useful.
 - **`pack-depth-next-wave` arc — other tickets still open:** **Video Creator** (harvest source `tbd` — under-
   specified, needs a north-star named) and **Retail Investor** (`relay-portfolio`+`relay-technical-analyst`:
   value-heatmap + radar; §9 ICP prosumer-first). `decisions_open`: when-dependsOn-earns-weight (P3 trigger).
@@ -141,6 +145,13 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**Substrate Phase-1 spec + packs-publish paper trail (2026-07-06, docs-only — `c8d11283`, `c323e0ca`):**
+`c8d11283` committed the grooming record left uncommitted from the prior session (packs-publish
+roadmap/changelog + TDR-039 integration report + R6 `pack-app-exporter` + R7 `pack-community-publish` specs).
+`c323e0ca` authored `features/generator-publisher-substrate.md` — the Phase-1 spec (verified anchors, corrected
+`src/lib/apps/`→`src/lib/packs/` paths, resolved both design Qs, 4th storage wiring point). Memory
+`generator-publisher-substrate-tdr039` updated with the corrections. No code change.
+
 **Packs Publish P1 READ-trio + R5 + R4-mechanism (BUILT 2026-07-06, UNRELEASED — no version bump; a future
 release bundles them, packs-publish is READ-only / no apiVersion bump):** R1 index-schema (`e6dde729`), R2
 remote-resolver (`92d5a808`), R3 provenance-tiers (`bf7619b8`), R5 standard-versioning (`f6b1029d` — early
@@ -167,45 +178,15 @@ unfillable-trigger-var pack loudly (Principle #1). Fix `4266687e`, release `7d2b
 `row-insert-var-fillability.test.ts` + bundle test dispatch-fill assertion; `buildVariables` exported. Memories
 `pack-backward-compat-convention` (additive-only + relayCore lever + this rule), `dont-ask-when-codebase-answers`.
 
-**0.33.0 (RELEASED — `v0.33.0`→`84be9825`; publish CI `28789149553` green; npm `latest` + GitHub Release + SBOM;
-issue #40):** the Marketing line. `relay-crm` + `relay-social` child packs + `relay-marketing` splitting bundle
-(one purchase → two Functional-domain packs, bound by `utm_campaign`), all premium (`product:orionfold-relay`),
-harvested from `~/orionfold/marketing`. Taxonomy updated (Marketing-family ids disjoint from Agency). feat
-`d0303f24` + release `84be9825` (apiVersion window 0.32→0.33). Two build findings in memory
-`pack-marketing-line-built`: (1) cross-child attribution must be a `kpis` binding not `charts` (charts don't
-survive bundle merge); (2) the row-insert var-mapping gap — FIXED in 0.33.1 above.
-
-**0.32.1 (RELEASED — `v0.32.1`→`d30615ee`; publish CI `28769241850` green; npm `latest` + GitHub Release + SBOM):**
-3D origami-star brand logo replaces the flat SVG `OfMark` everywhere. In-app mark = `<img srcset>` off native
-`public/brand/orionfold-mark-*.png` (28/56 wordmark · 72/144 boot · 24/48 rail), NO `next/image` (paints DS pixels
-1:1, fixes the "dimmer" downscale). Favicons/PWA icons swapped; maskable icon padded to an 80% safe-zone in
-brand-slate `#040a11`. Added `public/brand/` to the `files` allowlist (else npx 404s the mark). Presentation-only,
-apiVersion unchanged. Memory `logo-3d-swap-recipe`. Design-system source: `logo-3d/app-embed/{transparent,white}/`.
-
-**0.32.0 (RELEASED — `v0.32.0`→`b181a24d`; publish CI `28757924752` green incl. npx prod smoke; npm `latest` +
-GitHub Release + SBOM + OIDC; issue #39):** the whole packs-evolution arc released. `pack-generalize-agency` P0
-(`3797c839`) persona/industry split — free `relay-agency` neutralized+fattened (7·7·4), paid `relay-cre` (3·3·1)
-+ `relay-nonprofit` (3·4·2), `relay-agency-pro` → vertical-neutral automation (6·4·2, v0.5.0); only relay-agency
-free, rest = one license `product:orionfold-relay`. `pack-bundle-model` P1 (`3bc9b05c`) + `pack-agency-bundle`
-(`a03e53dd`, Agency-for-CRE / Agency-for-Nonprofit flatten a persona+industry pack into ONE app) + pack-taxonomy
-(`3ee81dd0`); wave-1 resurface (`c3dd178e`, manifest table charts + RunCadenceHeatmap + trend/spark KPIs) rode
-alongside. This session's release commits: pricing fix + drift-gate glob-every-premium-pack (`b0e05e4c`),
-prod-smoke Case L2 bundle-flatten (`5a7a7e8e`), release chore + apiVersion 0.31→0.32 (`b181a24d`). Memories
-`persona-pack-manual-automated-split`, `pack-bundle-flatten-model`, `pack-taxonomy-shared-registry`,
-`packs-license-price-is-shared-not-per-pack`, `resurface-before-build-primitive-pattern`.
-
-**0.31.0 (RELEASED — `v0.31.0`→`a661054e`; publish CI `28747032762`):** app-wide card design lift (F5) +
-Schemas Compose→Data nav move (F6). Base `ui/card.tsx` gains `tone`/`emphasis`/`watermark`+`watermarkColor`;
-operator-refined to own-glyph colored-by-type uniform watermark; swept LOW/MED/RICH surfaces + F2 CSS-multicolumn
-masonry. Recipe + taste rule in memories `card-watermark-recipe` / `card-watermark-taste-rule`. Deferred:
-cost-dashboard + ledger-hero. Presentation-only; apiVersion 0.30→0.31. 0 test regressions.
-
-**0.30.0 (RELEASED — `v0.30.0`→`8519e9af`):** the final four operator-walkthrough requirements — FEAT-6 two-verb
-`RunNowButton` on `/blueprints` cards, FEAT-13 `ProfilePresetGallery` → `/presets` nav peer, CF-FEAT-2 + FEAT-7.
-apiVersion 0.29→0.30. Memories `two-verb-run-is-blueprint-only`, `compose-submenu-elevation-pattern`. Full detail
-in git + CHANGELOG.
-
-**Older (RELEASED — full detail in git + CHANGELOG + closed issues):** 0.29.1 (`e210e49a`, #31 blueprint-card
+**Older (RELEASED — full detail in git + CHANGELOG + closed issues + linked memories):** 0.33.0 (`84be9825`,
+#40 Marketing line — `relay-crm`+`relay-social`+`relay-marketing` splitting bundle, memory
+`pack-marketing-line-built`); 0.32.1 (`d30615ee`, 3D origami logo, memory `logo-3d-swap-recipe`); 0.32.0
+(`b181a24d`, #39 packs-evolution arc — persona/industry split + bundle model + taxonomy, memories
+`persona-pack-manual-automated-split`/`pack-bundle-flatten-model`/`pack-taxonomy-shared-registry`/
+`packs-license-price-is-shared-not-per-pack`/`resurface-before-build-primitive-pattern`); 0.31.0 (`a661054e`,
+F5 card lift + F6 Schemas→Data, memories `card-watermark-recipe`/`card-watermark-taste-rule`); 0.30.0
+(`8519e9af`, final 4 walkthrough reqs, memories `two-verb-run-is-blueprint-only`/`compose-submenu-elevation-pattern`);
+0.29.1 (`e210e49a`, #31 blueprint-card
 husk fix, memory `blueprint-card-husk-root-cause`); 0.29.0 (`9b9ea0f2`, relay-website dark chrome + FEAT-14/15/16
 GlanceRail, memory `chrome-sticky-stack-additive-offsets`); 0.28.0 (`v0.28.0`→`7e97669a`, nav/naming
 + Profiles→Agents rename, memory `profiles-are-file-based-not-db`); 0.27.0 (`f29f0098`, packOf/PackPill +
