@@ -9,6 +9,7 @@ import {
 const triggerPublishSchema = z
   .object({
     targetId: z.string().min(1),
+    artifactId: z.string().min(1).optional(),
   })
   .strict();
 
@@ -43,7 +44,7 @@ export async function POST(
 
   try {
     const result = triggerAppPublish(id, parsed.data.targetId);
-    runDeployment(result.deployment.id).catch((err) => {
+    runDeployment(result.deployment.id, parsed.data.artifactId).catch((err) => {
       console.error("[apps/publish] background deployment failed:", err);
     });
     return NextResponse.json(result, { status: 202 });

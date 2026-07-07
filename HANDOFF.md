@@ -1,18 +1,17 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-07 (pt: **TDR-039 Phase 3+4 BUILT + COMMITTED, UNRELEASED; preview-first follow-up
-SPECIFIED.** Phase 3 `28f17d77`: app publish/publish-target/deployment routes, row JSON parsing before
-`static-site`, masked target responses, durable `pending → publishing → success|failed` deployment rows, named
-`APP_*`/`PUBLISH_*`/`GENERATE_*` errors, and trust-doc row 12 for user-owned GitHub Pages SEND. Phase 4
-`19bc6f70`: gated app-detail publish panel for manifest generate+github-pages publish bindings; create/test
-target, target selection, publish action, active-deployment double-click guard, polling deployments, and visible
-failed-deployment errors. Added `features/publish-preview-artifacts.md` + roadmap/changelog entry: local
-preview stores the exact generated `Artifact`, serves it from Relay's existing Next server, then publish accepts
-`artifactId` so "what you preview is what gets published." Verification for built code: focused tests 14/14
-pass; `npm run build` passes with the known Turbopack dynamic-trace warnings around `workspace/fix-data-dir` /
-plugin transport dispatch. Untracked before/session: `.agents/`, `.codex/` left untouched.)_
+_Last updated: 2026-07-07 (pt: **TDR-039 preview-first COMMITTED in this commit; Phase 5 next.**
+After committed Phase 3 `28f17d77` + Phase 4 `19bc6f70`, implemented the preview-first follow-up from
+`features/publish-preview-artifacts.md`: preview artifacts persist under Relay data dir, `POST
+/api/apps/:id/preview` generates the exact `Artifact`, `GET /api/apps/:id/previews/:artifactId/...` serves
+it with path/app/hash/expiry guardrails, `POST /publish` accepts optional `artifactId`, deployments publish
+the stored artifact without regenerating, stale source rows fail visibly as `PREVIEW_STALE`, and the app
+publish panel now supports Preview → Open local preview → Publish this preview plus a secondary Publish fresh
+path. Verification: focused preview/publish tests 23/23 pass; `npm run build` passes with known Turbopack
+dynamic-trace warnings around plugin transport / `workspace/fix-data-dir`; dev smoke returned named
+`APP_NOT_FOUND` 404 for missing preview app.)_
 
-## ▶️ NEXT SESSION — substrate Phase 5 bundle + live publish smoke
+## ▶️ NEXT SESSION — Phase 5 bundle + live publish smoke
 
 - **Packs Publish — P1 READ trio (R1/R2/R3) + R5 + R4-mechanism ALL BUILT + RELEASED in 0.35.0**
   (`e6dde729`, `92d5a808`, `bf7619b8`, `f6b1029d`, `b7f3b3d1` — shipped with the Phase-2 bundle). **R4's CUT is deferred with a live
@@ -25,16 +24,14 @@ plugin transport dispatch. Untracked before/session: `.agents/`, `.codex/` left 
   (R3 seam built / R7), partner-key onboarding (R3 `of-packs-official-2026` key — coordinate w/ licensing
   issuer owner). `_IDEAS/packs-publish.md` = durable source thesis; memory `packs-publish-authored` carries
   all build findings + reuse anchors.
-- **Web Designer substrate — Phase 1+2 RELEASED in 0.35.0/0.35.1; Phase 3+4 BUILT in `28f17d77` +
-  `19bc6f70`, UNRELEASED; preview-first feature SPECIFIED in `features/publish-preview-artifacts.md`.**
-  Next build should insert Preview before the live GitHub Pages smoke: `POST /api/apps/:id/preview` generates
-  and stores a local `Artifact`, `GET /api/apps/:id/previews/:artifactId/:path*` serves it from the existing
-  Next server, and `POST /publish` accepts `artifactId` to publish that exact artifact (same hash in UI +
-  deployment row). Then Phase 5 = author `pack-web-designer.md` against the real generate/preview/publish seam,
-  include a standalone-useful `gallery` primitive, run a live GitHub Pages smoke through the new UI, and move
-  TDR-039 proposed→accepted. If any API contract changes before release, grep `scripts/npx-prod-smoke.mjs`
-  first. Delete target remains a later enhancement because no DELETE route exists yet. Build findings + anchors:
-  spec verification-run section + memory `generator-publisher-substrate-tdr039`.
+- **Web Designer substrate — Phase 1+2 RELEASED in 0.35.0/0.35.1; Phase 3+4 COMMITTED in `28f17d77` +
+  `19bc6f70`, UNRELEASED; preview-first COMMITTED in this commit, UNRELEASED.** Phase 5 = author
+  `pack-web-designer.md` against the real
+  generate/preview/publish seam, include a standalone-useful `gallery` primitive, run a live GitHub Pages smoke
+  through the new UI, and move TDR-039 proposed→accepted. If any API contract changes before release, grep
+  `scripts/npx-prod-smoke.mjs` first. Delete target remains a later enhancement because no DELETE route exists
+  yet. Build findings + anchors: `features/publish-preview-artifacts.md`, focused tests, and memory
+  `generator-publisher-substrate-tdr039`.
 - **`pack-depth-next-wave` arc — other tickets still open:** **Video Creator** (harvest source `tbd` — under-
   specified, needs a north-star named) and **Retail Investor** (`relay-portfolio`+`relay-technical-analyst`:
   value-heatmap + radar; §9 ICP prosumer-first). `decisions_open`: when-dependsOn-earns-weight (P3 trigger).
@@ -130,6 +127,13 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**TDR-039 preview-first local artifacts (BUILT 2026-07-07, this commit, UNRELEASED):** Added a durable
+preview artifact store under Relay data dir with `meta.json` + file hashes + expiry cleanup; `POST
+/api/apps/:id/preview`; `GET /api/apps/:id/previews/:artifactId/...` with traversal/cross-app/hash/expiry
+guards and defensive headers; optional `artifactId` on `POST /publish`; stale-preview refusal via
+`PREVIEW_STALE`; and preview-first `AppPublishPanel` UI. Verification: focused tests 23/23 pass; `npm run
+build` passes with known Turbopack dynamic-trace warnings; dev route smoke returned named `APP_NOT_FOUND` 404.
+
 **TDR-039 Phase 3+4 (BUILT 2026-07-07, `28f17d77` + `19bc6f70`, UNRELEASED):** Phase 3 added the
 app-scoped publish service/routes (`publish`, `publish-targets`, `deployments`), row JSON parsing before
 `static-site`, masked target responses, durable deployment status, named failure errors, and the trust-doc

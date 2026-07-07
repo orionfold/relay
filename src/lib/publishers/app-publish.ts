@@ -1,11 +1,18 @@
+import { createHash } from "node:crypto";
 import { desc, eq, and } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { deployments, publishTargets, type DeploymentRow, type PublishTargetRow } from "@/lib/db/schema";
-import { getApp, type AppDetail } from "@/lib/apps/registry";
+import { getApp, type AppDetail, type ViewConfig } from "@/lib/apps/registry";
 import { getTable, listRows } from "@/lib/data/tables";
 import { getGeneratorAdapter } from "@/lib/generators/registry";
+import { getSelfBaseUrl } from "@/lib/http/self-base-url";
 import { getPublisherAdapter } from "@/lib/publishers/registry";
 import { maskPublishTarget } from "@/lib/publishers/types";
+import {
+  loadPreviewArtifact,
+  PreviewStoreError,
+  storePreviewArtifact,
+} from "@/lib/publishers/preview-store";
 
 export type AppPublishErrorCode =
   | "APP_NOT_FOUND"
@@ -16,6 +23,12 @@ export type AppPublishErrorCode =
   | "PUBLISH_TARGET_CONFIG_INVALID"
   | "GENERATE_TABLE_NOT_FOUND"
   | "GENERATE_ROW_INVALID"
+  | "PREVIEW_NOT_FOUND"
+  | "PREVIEW_EXPIRED"
+  | "PREVIEW_APP_MISMATCH"
+  | "PREVIEW_HASH_INVALID"
+  | "PREVIEW_PATH_INVALID"
+  | "PREVIEW_STALE"
   | "PUBLISH_FAILED";
 
 export class AppPublishError extends Error {
@@ -38,6 +51,16 @@ export interface CreatePublishTargetInput {
 export interface TriggerPublishResult {
   deployment: DeploymentRow;
 }
+
+export interface CreatePreviewResult {
+  artifactId: string;
+  url: string;
+  hash: string;
+  createdAt: string;
+  expiresAt: string;
+}
+
+type GenerateBinding = NonNullable<ViewConfig["bindings"]["generate"]>;
 
 function requireApp(appId: string): AppDetail {
   const app = getApp(appId);
@@ -71,6 +94,41 @@ function deploymentError(err: unknown): string {
     return `${err.name}: ${err.message}`;
   }
   return `UNKNOWN_ERROR: ${String(err)}`;
+}
+
+function appPublishErrorFromPreviewStore(err: PreviewStoreError): AppPublishError {
+  const status =
+    err.code === "PREVIEW_NOT_FOUND"
+      ? 404
+      : err.code === "PREVIEW_EXPIRED"
+        ? 409
+        : 400;
+  return new AppPublishError(err.code, err.message, status);
+}
+
+function sourceFingerprint(input: {
+  generate: GenerateBinding;
+  rows: Record<string, unknown>[];
+}): string {
+  return createHash("sha256")
+    .update(
+      JSON.stringify({
+        generatorType: input.generate.generatorType,
+        table: input.generate.table,
+        siteTitle: input.generate.siteTitle ?? null,
+        rows: input.rows,
+      })
+    )
+    .digest("hex");
+}
+
+async function generateArtifactForBinding(generate: GenerateBinding) {
+  const rows = await loadGenerateRows(generate.table);
+  const generator = getGeneratorAdapter(generate.generatorType);
+  return {
+    rows,
+    artifact: await generator.generate(rows, { siteTitle: generate.siteTitle }),
+  };
 }
 
 export function listPublishTargets(appId: string): PublishTargetRow[] {
@@ -188,6 +246,35 @@ export async function loadGenerateRows(tableId: string): Promise<Record<string, 
   });
 }
 
+export async function createAppPreview(appId: string): Promise<CreatePreviewResult> {
+  const app = requireApp(appId);
+  const generate = app.manifest.view?.bindings.generate;
+  if (!generate) {
+    throw new AppPublishError(
+      "APP_GENERATE_NOT_CONFIGURED",
+      "App manifest does not declare view.bindings.generate"
+    );
+  }
+
+  const { rows, artifact } = await generateArtifactForBinding(generate);
+  const metadata = await storePreviewArtifact({
+    appId,
+    generatorType: generate.generatorType,
+    sourceTable: generate.table,
+    sourceFingerprint: sourceFingerprint({ generate, rows }),
+    artifact,
+  });
+  const encodedId = encodeURIComponent(appId);
+  const encodedArtifact = encodeURIComponent(metadata.artifactId);
+  return {
+    artifactId: metadata.artifactId,
+    url: `${getSelfBaseUrl()}/api/apps/${encodedId}/previews/${encodedArtifact}`,
+    hash: metadata.hash,
+    createdAt: metadata.createdAt,
+    expiresAt: metadata.expiresAt,
+  };
+}
+
 function createDeploymentRow(appId: string, targetId: string): DeploymentRow {
   const id = crypto.randomUUID();
   const now = new Date();
@@ -212,7 +299,10 @@ function createDeploymentRow(appId: string, targetId: string): DeploymentRow {
   return deployment;
 }
 
-export async function runDeployment(deploymentId: string): Promise<DeploymentRow> {
+export async function runDeployment(
+  deploymentId: string,
+  artifactId?: string
+): Promise<DeploymentRow> {
   const deployment = db
     .select()
     .from(deployments)
@@ -252,9 +342,38 @@ export async function runDeployment(deploymentId: string): Promise<DeploymentRow
       );
     }
 
-    const rows = await loadGenerateRows(generate.table);
-    const generator = getGeneratorAdapter(generate.generatorType);
-    const artifact = await generator.generate(rows, { siteTitle: generate.siteTitle });
+    let artifact;
+    if (artifactId) {
+      try {
+        const preview = await loadPreviewArtifact(deployment.appId, artifactId);
+        if (
+          preview.metadata.generatorType !== generate.generatorType ||
+          preview.metadata.sourceTable !== generate.table
+        ) {
+          throw new AppPublishError(
+            "PREVIEW_APP_MISMATCH",
+            "Preview artifact does not match the app generate binding"
+          );
+        }
+        const rows = await loadGenerateRows(generate.table);
+        const currentFingerprint = sourceFingerprint({ generate, rows });
+        if (preview.metadata.sourceFingerprint !== currentFingerprint) {
+          throw new AppPublishError(
+            "PREVIEW_STALE",
+            "Preview artifact is stale; generate a new preview before publishing",
+            409
+          );
+        }
+        artifact = preview.artifact;
+      } catch (err) {
+        if (err instanceof PreviewStoreError) {
+          throw appPublishErrorFromPreviewStore(err);
+        }
+        throw err;
+      }
+    } else {
+      artifact = (await generateArtifactForBinding(generate)).artifact;
+    }
     const publisher = getPublisherAdapter(target.targetType);
     const result = await publisher.publish(artifact, parseTargetConfig(target));
     const finishedAt = new Date();
@@ -296,7 +415,10 @@ export async function runDeployment(deploymentId: string): Promise<DeploymentRow
     .get()!;
 }
 
-export function triggerAppPublish(appId: string, targetId: string): TriggerPublishResult {
+export function triggerAppPublish(
+  appId: string,
+  targetId: string
+): TriggerPublishResult {
   requireApp(appId);
   getPublishTargetForApp(appId, targetId);
   const deployment = createDeploymentRow(appId, targetId);

@@ -187,4 +187,70 @@ describe("AppPublishPanel", () => {
       expect(screen.getAllByText("PUBLISH_FAILED: denied")).toHaveLength(2);
     });
   });
+
+  it("generates a preview and publishes that artifact id", async () => {
+    const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
+    const preview = {
+      artifactId: "artifact-1",
+      url: "http://127.0.0.1:3000/api/apps/app-1/previews/artifact-1",
+      hash: "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      createdAt: "2026-07-07T00:00:00.000Z",
+      expiresAt: "2999-07-07T00:00:00.000Z",
+    };
+    fetchSpy
+      .mockResolvedValueOnce(ok([target]))
+      .mockResolvedValueOnce(ok([]))
+      .mockResolvedValueOnce(created(preview))
+      .mockResolvedValueOnce(
+        accepted({
+          deployment: {
+            id: "dep-preview",
+            appId: "app-1",
+            targetId: "target-1",
+            status: "pending",
+            url: null,
+            commit: null,
+            artifactHash: null,
+            startedAt: "2026-07-07T00:00:00.000Z",
+            finishedAt: null,
+            error: null,
+          },
+        })
+      )
+      .mockResolvedValueOnce(
+        ok([
+          {
+            id: "dep-preview",
+            appId: "app-1",
+            targetId: "target-1",
+            status: "success",
+            url: "https://acme.github.io/site/",
+            commit: "abc123",
+            artifactHash: preview.hash,
+            startedAt: "2026-07-07T00:00:00.000Z",
+            finishedAt: "2026-07-07T00:00:01.000Z",
+            error: null,
+          },
+        ])
+      );
+
+    renderPanel();
+    fireEvent.click(await screen.findByRole("button", { name: /^Preview$/i }));
+
+    expect(await screen.findByText("Local preview")).toBeInTheDocument();
+    expect(screen.getByText("abcdef123456")).toBeInTheDocument();
+    expect(openSpy).toHaveBeenCalledWith(preview.url, "_blank", "noopener,noreferrer");
+
+    fireEvent.click(screen.getByRole("button", { name: /Publish this preview/i }));
+
+    await waitFor(() => expect(toastSuccess).toHaveBeenCalledWith("Preview publish started"));
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "/api/apps/app-1/publish",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ targetId: "target-1", artifactId: "artifact-1" }),
+      })
+    );
+    openSpy.mockRestore();
+  });
 });

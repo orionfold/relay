@@ -62,7 +62,7 @@ describe("POST /api/apps/[id]/publish", () => {
     const body = await res.json();
     expect(body.deployment.id).toBe("dep-1");
     expect(triggerAppPublish).toHaveBeenCalledWith("app-1", "target-1");
-    expect(runDeployment).toHaveBeenCalledWith("dep-1");
+    expect(runDeployment).toHaveBeenCalledWith("dep-1", undefined);
   });
 
   it("returns a named 404 when the app or target does not exist", async () => {
@@ -79,6 +79,31 @@ describe("POST /api/apps/[id]/publish", () => {
       code: "PUBLISH_TARGET_NOT_FOUND",
     });
     expect(runDeployment).not.toHaveBeenCalled();
+  });
+
+  it("passes an artifactId through to the background deployment", async () => {
+    vi.mocked(triggerAppPublish).mockReturnValue({
+      deployment: {
+        id: "dep-2",
+        appId: "app-1",
+        targetId: "target-1",
+        status: "pending",
+        url: null,
+        commit: null,
+        artifactHash: null,
+        startedAt: new Date("2026-07-07T00:00:00Z"),
+        finishedAt: null,
+        error: null,
+      },
+    });
+    vi.mocked(runDeployment).mockResolvedValue({} as never);
+
+    const res = await POST(req({ targetId: "target-1", artifactId: "artifact-1" }), {
+      params: Promise.resolve({ id: "app-1" }),
+    });
+    expect(res.status).toBe(202);
+    expect(triggerAppPublish).toHaveBeenCalledWith("app-1", "target-1");
+    expect(runDeployment).toHaveBeenCalledWith("dep-2", "artifact-1");
   });
 
   it("rejects invalid bodies before creating a deployment", async () => {

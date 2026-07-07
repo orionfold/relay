@@ -7,7 +7,13 @@ import {
   userTables,
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { loadGenerateRows, runDeployment, triggerAppPublish } from "../app-publish";
+import {
+  createAppPreview,
+  loadGenerateRows,
+  runDeployment,
+  triggerAppPublish,
+} from "../app-publish";
+import { loadPreviewArtifact } from "../preview-store";
 
 vi.mock("@/lib/apps/registry", async () => {
   const actual =
@@ -144,6 +150,40 @@ describe("loadGenerateRows", () => {
   });
 });
 
+describe("createAppPreview", () => {
+  it("stores a local preview artifact and returns a browsable preview URL", async () => {
+    mockApp();
+    const now = new Date();
+    db.insert(userTableRows)
+      .values({
+        id: "publish-row-preview",
+        tableId: TABLE_ID,
+        data: JSON.stringify({
+          kind: "hero",
+          heading: "Preview me",
+          status: "published",
+        }),
+        position: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+
+    const preview = await createAppPreview(APP_ID);
+    expect(preview.artifactId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+    );
+    expect(preview.url).toContain(
+      `/api/apps/${encodeURIComponent(APP_ID)}/previews/${encodeURIComponent(preview.artifactId)}`
+    );
+    expect(preview.hash).toMatch(/^[a-f0-9]{64}$/);
+
+    const stored = await loadPreviewArtifact(APP_ID, preview.artifactId);
+    expect(String(stored.artifact.files[0]!.content)).toContain("Preview me");
+    expect(stored.metadata.sourceFingerprint).toMatch(/^[a-f0-9]{64}$/);
+  });
+});
+
 describe("runDeployment", () => {
   it("records a success deployment with artifact hash, URL, and commit", async () => {
     mockApp();
@@ -202,5 +242,89 @@ describe("runDeployment", () => {
     expect(finished.status).toBe("failed");
     expect(finished.error).toBe("PUBLISH_FAILED: denied");
     expect(finished.finishedAt).toBeInstanceOf(Date);
+  });
+
+  it("publishes the exact stored preview artifact when artifactId is supplied", async () => {
+    mockApp();
+    const publish = vi.fn().mockResolvedValue({
+      success: true,
+      url: "https://acme.github.io/site/",
+      commit: "preview123",
+    });
+    vi.mocked(getPublisherAdapter).mockReturnValue({
+      targetType: "github-pages",
+      testConnection: vi.fn(),
+      publish,
+    });
+    const now = new Date();
+    db.insert(userTableRows)
+      .values({
+        id: "publish-row-preview-publish",
+        tableId: TABLE_ID,
+        data: JSON.stringify({
+          kind: "hero",
+          heading: "Exact preview",
+          status: "published",
+        }),
+        position: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+
+    const preview = await createAppPreview(APP_ID);
+    const { deployment } = triggerAppPublish(APP_ID, TARGET_ID);
+    const finished = await runDeployment(deployment.id, preview.artifactId);
+
+    expect(finished.status).toBe("success");
+    expect(finished.artifactHash).toBe(preview.hash);
+    expect(publish).toHaveBeenCalledWith(
+      expect.objectContaining({ hash: preview.hash }),
+      expect.objectContaining({ githubToken: "ghp_secret1234" })
+    );
+  });
+
+  it("refuses to publish a preview when the source rows changed", async () => {
+    mockApp();
+    vi.mocked(getPublisherAdapter).mockReturnValue({
+      targetType: "github-pages",
+      testConnection: vi.fn(),
+      publish: vi.fn().mockResolvedValue({ success: true }),
+    });
+    const now = new Date();
+    db.insert(userTableRows)
+      .values({
+        id: "publish-row-preview-stale",
+        tableId: TABLE_ID,
+        data: JSON.stringify({
+          kind: "hero",
+          heading: "Before",
+          status: "published",
+        }),
+        position: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+
+    const preview = await createAppPreview(APP_ID);
+    db.update(userTableRows)
+      .set({
+        data: JSON.stringify({
+          kind: "hero",
+          heading: "After",
+          status: "published",
+        }),
+        updatedAt: new Date(),
+      })
+      .where(eq(userTableRows.id, "publish-row-preview-stale"))
+      .run();
+
+    const { deployment } = triggerAppPublish(APP_ID, TARGET_ID);
+    const finished = await runDeployment(deployment.id, preview.artifactId);
+    expect(finished.status).toBe("failed");
+    expect(finished.error).toBe(
+      "PREVIEW_STALE: Preview artifact is stale; generate a new preview before publishing"
+    );
   });
 });

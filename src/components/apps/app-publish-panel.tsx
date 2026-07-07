@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
+  Eye,
   ExternalLink,
   GitBranch,
   Globe2,
@@ -41,6 +42,14 @@ type Deployment = {
 };
 
 type TestResult = { status: "ok" | "failed"; error?: string };
+
+type PreviewArtifact = {
+  artifactId: string;
+  url: string;
+  hash: string;
+  createdAt: string;
+  expiresAt: string;
+};
 
 interface AppPublishPanelProps {
   appId: string;
@@ -128,6 +137,8 @@ export function AppPublishPanel({
   const [saving, setSaving] = useState(false);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
+  const [preview, setPreview] = useState<PreviewArtifact | null>(null);
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
 
   async function loadTargets() {
@@ -234,7 +245,28 @@ export function AppPublishPanel({
     }
   }
 
-  async function handlePublish() {
+  const previewExpired = preview ? new Date(preview.expiresAt).getTime() <= Date.now() : false;
+
+  async function handlePreview() {
+    setPreviewing(true);
+    setError(null);
+    try {
+      const result = await fetch(`/api/apps/${encodeURIComponent(appId)}/preview`, {
+        method: "POST",
+      }).then((res) => readJson<PreviewArtifact>(res));
+      setPreview(result);
+      window.open(result.url, "_blank", "noopener,noreferrer");
+      toast.success("Preview generated");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Preview generation failed";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setPreviewing(false);
+    }
+  }
+
+  async function handlePublish(artifactId?: string) {
     if (!selectedTargetId) return;
     setPublishing(true);
     setError(null);
@@ -242,10 +274,10 @@ export function AppPublishPanel({
       const result = await fetch(`/api/apps/${encodeURIComponent(appId)}/publish`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetId: selectedTargetId }),
+        body: JSON.stringify({ targetId: selectedTargetId, artifactId }),
       }).then((res) => readJson<{ deployment: Deployment }>(res));
       setDeployments((prev) => [result.deployment, ...prev.filter((d) => d.id !== result.deployment.id)]);
-      toast.success("Publish started");
+      toast.success(artifactId ? "Preview publish started" : "Publish started");
       await loadDeployments();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Publish failed to start";
@@ -270,20 +302,38 @@ export function AppPublishPanel({
               <span className="font-mono">{sourceTable}</span> to GitHub Pages.
             </p>
           </div>
-          <Button
-            type="button"
-            size="sm"
-            onClick={handlePublish}
-            disabled={!selectedTargetId || publishing || hasActiveDeployment}
-            className="gap-1.5"
-          >
-            {publishing ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-            ) : (
-              <Rocket className="h-3.5 w-3.5" aria-hidden="true" />
-            )}
-            {hasActiveDeployment ? "Publishing…" : "Publish"}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={handlePreview}
+              disabled={previewing}
+              className="gap-1.5"
+            >
+              {previewing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+              ) : (
+                <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              Preview
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={preview ? "outline" : "default"}
+              onClick={() => handlePublish()}
+              disabled={!selectedTargetId || publishing || hasActiveDeployment}
+              className="gap-1.5"
+            >
+              {publishing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+              ) : (
+                <Rocket className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              {hasActiveDeployment ? "Publishing…" : preview ? "Publish fresh" : "Publish"}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -291,6 +341,65 @@ export function AppPublishPanel({
           <div className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </div>
+        )}
+
+        {preview && (
+          <section className="surface-card-muted rounded-lg border p-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-sm font-medium">Local preview</h3>
+                  <Badge
+                    variant="outline"
+                    className={
+                      previewExpired
+                        ? "border-status-warning/25 bg-status-warning/10 text-status-warning"
+                        : undefined
+                    }
+                  >
+                    {previewExpired ? "Expired" : "Fresh"}
+                  </Badge>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <span>
+                    Hash{" "}
+                    <span className="font-mono text-foreground">
+                      {preview.hash.slice(0, 12)}
+                    </span>
+                  </span>
+                  <span>{new Date(preview.createdAt).toLocaleString()}</span>
+                  <a
+                    href={preview.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                  >
+                    Open preview
+                    <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => handlePublish(preview.artifactId)}
+                disabled={
+                  !selectedTargetId ||
+                  publishing ||
+                  hasActiveDeployment ||
+                  previewExpired
+                }
+                className="gap-1.5"
+              >
+                {publishing ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Rocket className="h-3.5 w-3.5" aria-hidden="true" />
+                )}
+                Publish this preview
+              </Button>
+            </div>
+          </section>
         )}
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
