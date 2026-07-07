@@ -1,6 +1,6 @@
 ---
 name: quality-manager
-description: Quality assurance orchestrator for testing strategy, test creation, coverage tracking, code review, regression guarding, and browser-based feature evaluation. Use this skill when the user mentions setting up testing, writing tests, checking coverage, code review, quality audit, regression check, "safe to ship", evaluating features in browser, verifying acceptance criteria, or testing strategy. Also triggers on "set up vitest", "write tests for", "what's our coverage", "quality check", "run tests", "evaluate features", "verify in browser", "test the UI", or any request involving test infrastructure, test creation, or quality assurance workflows. Do NOT use for building components (use frontend-design), creating feature specs (use product-manager), or UX review (use frontend-designer).
+description: Quality assurance orchestrator for testing strategy, test creation, coverage tracking, code review, regression guarding, and browser-based feature evaluation. Use this skill when the user mentions setting up testing, writing tests, checking coverage, code review, quality audit, regression check, "safe to ship", evaluating features in browser, verifying acceptance criteria, or testing strategy. Also triggers on "set up vitest", "write tests for", "what's our coverage", "quality check", "run tests", "evaluate features", "verify in browser", "test the UI", or any request involving test infrastructure, test creation, or quality assurance workflows. Do NOT use for building components, creating feature specs (use product-manager), or UX review.
 ---
 
 # Quality Manager
@@ -16,9 +16,9 @@ Quality assurance orchestrator that bridges product specs to verified, tested so
 | "What's our test coverage?" | `quality-manager` | — |
 | "Code review this PR" | `quality-manager` (delegates) | `code-review` directly |
 | "Safe to ship?" | `quality-manager` | — |
-| "Evaluate features in browser" | `quality-manager` | `frontend-designer` |
-| "Build me a component" | `frontend-design` | `quality-manager` |
-| "Review the UX" | `frontend-designer` | `quality-manager` |
+| "Evaluate features in browser" | `quality-manager` | Direct UX/design-system review |
+| "Build me a component" | Direct implementation using repo frontend docs | `quality-manager` |
+| "Review the UX" | Direct UX/design-system review | `quality-manager` |
 | "Create a feature spec" | `product-manager` | `quality-manager` |
 
 ## Workflow Detection
@@ -400,8 +400,8 @@ Browser-based verification of released features against product specs and design
 
 1. **Gather specifications**
    - Read `features/*.md` — extract acceptance criteria for completed/in-progress features
-   - Read `/frontend-designer` recommendations if available — UX criteria, interaction patterns, visual hierarchy expectations
-   - Read `/taste` metrics if configured — design system requirements, visual quality standards
+   - Read UX/design recommendations if available — UX criteria, interaction patterns, visual hierarchy expectations
+   - Read `design-system/MASTER.md` and `src/app/globals.css` when design-system requirements matter
 
 2. **Start browser session**
    - Call `mcp__claude-in-chrome__tabs_context_mcp` to check current browser state
@@ -420,7 +420,7 @@ Browser-based verification of released features against product specs and design
    - Compare actual UI behavior against acceptance criteria
 
 4. **Check design compliance**
-   - Verify visual hierarchy matches `/frontend-designer` recommendations
+   - Verify visual hierarchy matches available UX/design recommendations
    - Check state completeness (loading, empty, error, populated states)
    - Verify interaction patterns work as specified
    - Check accessibility basics (keyboard navigation, focus management)
@@ -484,7 +484,7 @@ Browser-based verification of released features against product specs and design
 - **Input:** Acceptance criteria from `features/*.md` become the source of truth for test cases
 - **Output:** Untested criteria are flagged in Quality Audit reports; quality-manager can request spec clarification when criteria are ambiguous or untestable
 
-### From frontend-designer
+### From UX/design review
 
 - **Input:** UX state completeness requirements, interaction specs, and accessibility criteria become component test cases and browser evaluation checklists
 - **Output:** Feature Evaluation reports surface design compliance issues; missing states or broken interactions are flagged
@@ -508,7 +508,7 @@ Browser-based verification of released features against product specs and design
 - **`__tests__/` subdirectories** — Keep test files in `__tests__/` directories adjacent to source files. This keeps source directories clean while maintaining test proximity.
 - **Don't test the framework** — Don't test that React renders, that Next.js routes work, or that shadcn/ui components display. Test your business logic and custom behavior.
 - **Mock at boundaries** — Mock the database, external APIs, and file system. Don't mock internal functions unless they have side effects.
-- **Delegate, don't duplicate** — Use `code-review:code-review` for code review rather than reimplementing. Use `/taste` for design system checks rather than writing visual assertions.
+- **Delegate, don't duplicate** — Use `code-review:code-review` for code review rather than reimplementing. Use repo design-system docs for design checks rather than writing brittle visual assertions.
 - **Browser evaluation is verification, not testing** — Feature Evaluation mode verifies shipped features work end-to-end. It complements but does not replace unit and integration tests.
 - **Clean dev environment before evaluation** — Kill stale `next-server` child processes before starting `npm run dev`. Child processes survive `pkill -f "next dev"` — also run `pkill -f "next-server"`. Check DB locks with `lsof ~/.ainative/ainative.db`. Multiple zombie dev servers cause timeouts and hung pages.
 - **Report, don't block** — Quality reports surface issues and recommend actions. They don't prevent shipping — that's the team's decision based on the data.

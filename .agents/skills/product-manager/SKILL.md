@@ -128,7 +128,7 @@ Outline the implementation strategy:
 - Data structures or APIs involved
 - Integration points with other features
 - Technology choices (reference decisions from idea docs)
-- UX considerations (interaction patterns, state handling, accessibility requirements — flag for `/frontend-designer` review if complex)
+- UX considerations (interaction patterns, state handling, accessibility requirements — flag for direct UX/design-system review if complex)
 
 ## Acceptance Criteria
 
@@ -270,11 +270,11 @@ Common operations:
 
 ## Collaborating with Frontend Designer
 
-The `/frontend-designer` skill handles UX strategy and design orchestration. Coordinate with it at these touchpoints:
+UX strategy and design orchestration should be handled by direct review against repo docs until new Relay frontend skills exist. Coordinate at these touchpoints:
 
-- **During grooming:** Flag features that need UX design input — any feature with complex user interactions, multiple states, or novel UI patterns should be tagged for `/frontend-designer` review before implementation begins
-- **During spec review:** Accept design-driven spec changes (additional UX acceptance criteria, state specifications, interaction patterns) via the Incremental Update Workflow. The frontend-designer produces these in a compatible format.
-- **During status checks:** Note features with pending UX design (not yet reviewed by `/frontend-designer`) vs. features ready for implementation. A feature with unresolved UX questions should not be recommended as "next to build."
+- **During grooming:** Flag features that need UX design input — any feature with complex user interactions, multiple states, or novel UI patterns should be tagged for UX/design-system review before implementation begins
+- **During spec review:** Accept design-driven spec changes (additional UX acceptance criteria, state specifications, interaction patterns) via the Incremental Update Workflow.
+- **During status checks:** Note features with pending UX design vs. features ready for implementation. A feature with unresolved UX questions should not be recommended as "next to build."
 
 ---
 

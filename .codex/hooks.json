@@ -10,16 +10,6 @@
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 '/Users/manavsehgal/orionfold/relay/.codex/hooks/handoff-nudge.py'"
-          }
-        ]
-      }
     ]
   }
 }

@@ -227,7 +227,7 @@ Refuse and redirect if the user needs:
 
 - A net-new DB table kind beyond `userTables` → use `architect` (new schema requires code)
 - A new chat tool → use `architect` (new MCP tool requires code)
-- A new UI route or component → use `frontend-design` (this skill emits no React)
+- A new UI route or component → implement directly using `AGENTS.md`, `design-system/MASTER.md`, and `src/app/globals.css` (this skill emits no React)
 - A new runtime feature, new catalog flag, or new provider adapter → use `architect`
 - A new primitive kind entirely (e.g., "app-level pricing plans") → use `product-manager` to spec it first
 

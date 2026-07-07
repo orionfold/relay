@@ -1,6 +1,6 @@
 ---
 name: supervisor
-description: Meta-orchestrator that reads project state holistically to recommend what to work on next. Use this skill when the user asks "what should I work on next", "project health", "status overview", "plan a sprint", "are we on track", "vision check", "retro", "lessons learned", "what's the priority", or any question about overall project direction, velocity, or process improvement. Do NOT use for writing feature specs (use product-manager), building components (use frontend-design), running tests (use quality-manager), or UX review (use frontend-designer).
+description: Meta-orchestrator that reads project state holistically to recommend what to work on next. Use this skill when the user asks "what should I work on next", "project health", "status overview", "plan a sprint", "are we on track", "vision check", "retro", "lessons learned", "what's the priority", or any question about overall project direction, velocity, or process improvement. Do NOT use for writing feature specs (use product-manager), building components directly, running tests (use quality-manager), or UX review.
 ---
 
 # Supervisor
@@ -19,8 +19,8 @@ Meta-orchestrator that reads project artifacts holistically to answer: **"What s
 | "Write a feature spec for X" | `product-manager` | `supervisor` |
 | "What features are planned?" | `product-manager` | `supervisor` |
 | "Run tests" | `quality-manager` | `supervisor` |
-| "Review the UX" | `frontend-designer` | `supervisor` |
-| "Build a component" | `frontend-design` | `supervisor` |
+| "Review the UX" | Direct UX/design-system review | `supervisor` |
+| "Build a component" | Direct implementation using `AGENTS.md` + design-system docs | `supervisor` |
 
 ## Core Principle
 
@@ -423,7 +423,7 @@ Create the `features/retros/` directory if it doesn't exist. Each retro overwrit
 |-------|----------------|-------|
 | `/product-manager` | [high/medium/low] | [observations] |
 | `/quality-manager` | [high/medium/low] | [observations] |
-| `/frontend-design` | [high/medium/low] | [observations] |
+| Direct frontend implementation | [high/medium/low] | [observations] |
 | [other skills...] | | |
 
 ### Lessons Learned (from MEMORY.md)
@@ -468,9 +468,9 @@ mode: [health-check | next-steps | sprint-planning | vision-alignment | retrospe
 | Pipeline is dry | "Groom new features from ideas/" | `/product-manager` |
 | Feature completed but unverified | "Run ship verification" | `/product-manager` (ship verify) |
 | Quality debt detected | "Run coverage report and write tests" | `/quality-manager` |
-| Design inconsistencies found | "Audit design system compliance" | `/taste` |
-| UX gaps in feature specs | "Add interaction specs" | `/frontend-designer` |
-| Ready to build next feature | "Build [feature] with creative direction" | `/frontend-design` + `/taste` |
+| Design inconsistencies found | "Audit against AGENTS.md, design-system/MASTER.md, and globals.css" | Direct implementation/review |
+| UX gaps in feature specs | "Add interaction specs" | Direct UX/design-system review |
+| Ready to build next feature | "Build [feature] using Relay design-system guidance" | Direct implementation |
 | Reference docs missing | "Capture docs for [library]" | `/capture` |
 | Need to check library usage | "Look up [API] usage" | `/refer` |
 | Screenshots captured but docs/user guide not synced | "Sync user guide with latest screengrabs" | `/user-guide-sync` |
@@ -486,8 +486,8 @@ mode: [health-check | next-steps | sprint-planning | vision-alignment | retrospe
 
 - Write or modify feature specs (that's `/product-manager`)
 - Create or run tests (that's `/quality-manager`)
-- Build components or pages (that's `/frontend-design`)
-- Review UX or design (that's `/frontend-designer` or `/taste`)
+- Build components or pages (direct implementation using `AGENTS.md`, `design-system/MASTER.md`, and `src/app/globals.css`)
+- Review UX or design (direct review against repo docs until new Relay frontend skills exist)
 - Create or modify skills (that's `/skill-creator`)
 - Sync screenshots or fix documentation references (that's `/user-guide-sync`)
 - Assess architectural blast radius or pattern drift (that's `/architect`)

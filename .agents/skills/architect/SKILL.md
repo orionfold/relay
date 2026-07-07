@@ -1,6 +1,6 @@
 ---
 name: architect
-description: Technical architecture advisor that maintains Technical Decision Records (TDRs) and advises on system design, integration patterns, architectural changes, and drift detection. Use this skill when the user asks about architecture review, system design, blast radius analysis, integration design, technical decisions, pattern consistency, coupling analysis, technical debt assessment, TDR management, architecture drift, or pattern drift. Also triggers on "architecture review", "blast radius", "impact analysis", "integration design", "TDR", "technical decision", "pattern audit", "coupling", "tech debt", "architecture health", "how should this integrate", "what's the architectural impact", "what breaks if I change", "document this decision", or any question about system-level design, cross-cutting concerns, architectural trade-offs, or whether the codebase is drifting from its own conventions. Do NOT use for building components (use frontend-design), UX review (use frontend-designer), writing feature specs (use product-manager), running tests (use quality-manager), or project prioritization (use supervisor).
+description: Technical architecture advisor that maintains Technical Decision Records (TDRs) and advises on system design, integration patterns, architectural changes, and drift detection. Use this skill when the user asks about architecture review, system design, blast radius analysis, integration design, technical decisions, pattern consistency, coupling analysis, technical debt assessment, TDR management, architecture drift, or pattern drift. Also triggers on "architecture review", "blast radius", "impact analysis", "integration design", "TDR", "technical decision", "pattern audit", "coupling", "tech debt", "architecture health", "how should this integrate", "what's the architectural impact", "what breaks if I change", "document this decision", or any question about system-level design, cross-cutting concerns, architectural trade-offs, or whether the codebase is drifting from its own conventions. Do NOT use for building components, UX review, writing feature specs (use product-manager), running tests (use quality-manager), or project prioritization (use supervisor).
 ---
 
 # Architect
@@ -17,10 +17,10 @@ Technical architecture advisor that reads codebase artifacts and Technical Decis
 | "Create a TDR for this decision" | `architect` | `product-manager` |
 | "Is the codebase drifting from conventions?" | `architect` | `quality-manager` |
 | "What should I work on next?" | `supervisor` | `architect` |
-| "Build a component" | `frontend-design` | `architect` |
+| "Build a component" | Direct implementation using repo frontend docs | `architect` |
 | "Write a feature spec" | `product-manager` | `architect` |
 | "Review code quality" | `quality-manager` | `architect` |
-| "Check design system compliance" | `taste` | `architect` |
+| "Check design system compliance" | Direct review against `design-system/MASTER.md` and `src/app/globals.css` | `architect` |
 
 ## Core Principle
 
@@ -520,18 +520,18 @@ mode: [review | impact | integration | tdr | health | drift]
 |---------|------------|--------|
 | Integration blueprint ready | `/product-manager` | Inform feature spec's technical approach section |
 | Pattern compliance issues found | `/quality-manager` | May generate test requirements for violated patterns |
-| Design system TDR drift | `/taste` | Audit design token compliance |
+| Design system TDR drift | Direct review | Audit design token compliance against repo docs |
 | Code remediation needed | Developer (direct) | Specific file + line guidance in report |
 | New TDR created | `/supervisor` | Picks up in next health check via TDR data source |
 
 ### What Architect Does NOT Do
 
-- Write application code (that's `/frontend-design` or direct implementation)
+- Write application code (that's direct implementation)
 - Create feature specs (that's `/product-manager`)
 - Review code quality or run tests (that's `/quality-manager` or `/code-review`)
 - Make project prioritization decisions (that's `/supervisor`)
-- Design UI/UX (that's `/frontend-designer`)
-- Audit design system compliance (that's `/taste`)
+- Design UI/UX (direct review against repo docs until new Relay frontend skills exist)
+- Audit design system compliance (direct review against repo docs)
 
 ---
 

@@ -10,6 +10,8 @@ other platform's entries — this doc is a shared ledger, not a scratchpad.
   and the `AGENTS.md` ↔ `CLAUDE.md` sync contract.
 - **Companion contracts:** `CLAUDE.md` ("Cross-Tool Sync"), `AGENTS.md`, and the
   gitignored `.claude/skills/` (memory `skills-are-gitignored-secret-sauce`).
+- **Single-ledger rule:** keep this as the one Codex↔Claude Code coordination file.
+  Do not create a separate `CLAUDE-CC.md`; Claude Code should read and update this file.
 
 ---
 
@@ -20,19 +22,23 @@ other platform's entries — this doc is a shared ledger, not a scratchpad.
 | `AGENTS.md` ↔ `CLAUDE.md` (5 synced sections) | ✅ In sync | none |
 | Memory (Claude files vs Codex SQLite) | ✅ Independent by design | none — not a shared surface |
 | Tool-specific skills (Claude-only staging; Codex-only OpenAI) | ✅ Correctly partitioned | none |
-| 18 "shared" skills | ⚠️ Architecturally forked | reconcile only genuine stale-content cases (below) |
+| 15 "shared" skills | ⚠️ Architecturally forked | reconcile only genuine stale-content cases (below) |
+| Removed Codex frontend skills | ✅ Intentionally removed | do not recreate `frontend-design`, `frontend-designer`, or `taste` |
+| Codex browser/handoff settings | ✅ Codex-only | preserve browser runbook and disabled Stop hook |
 
 **Key finding (2026-07-06):** the 18 "shared" skills are **not** symmetrically synced
 copies. The pattern is deliberate: **Claude holds the fat, authoritative skill body;
 Codex holds a thin shim or condensed port** that routes back to (or mirrors) the Claude
 version. So most "drift" is architectural, not accidental. A blind copy in either
 direction would clobber real work. Reconcile case-by-case using the table below.
+As of 2026-07-07, the current shared count is 15 because the three Stagent-era Codex
+frontend skills were intentionally removed.
 
 ---
 
-## Per-skill reconciliation report (the 18 shared skills)
+## Per-skill reconciliation report
 
-Evidence captured 2026-07-06 by `[CC]`. `newer` = SKILL.md mtime. `lines` = C(laude)/X(codex).
+Evidence captured 2026-07-06 by `[CC]`, amended 2026-07-07 by `[CODEX]`. `newer` = SKILL.md mtime. `lines` = C(laude)/X(codex).
 **Classification:**
 - **SHIM** — Codex file is an explicit compatibility shim / port that points at or defers
   to the Claude body. Divergence is intentional; **do not sync**. Codex line count is
@@ -50,24 +56,30 @@ Evidence captured 2026-07-06 by `[CC]`. `newer` = SKILL.md mtime. `lines` = C(la
 | code-review | CODEX | 130/35 | no | PORT | Leave. Codex port defers to Claude's fuller 2-pass model. |
 | commit-push-pr | CODEX | 22/24 | `-overrides` vs `commit-push-pr` | PORT | Leave. Claude = plugin override; Codex = standalone port. Never byte-identical. |
 | docx | CODEX | 590/20 | no | **SHIM** | Leave. Codex explicitly says "Compatibility shim… read `.claude/skills/docx/SKILL.md`". Claude authoritative. |
-| frontend-design | CODEX (same day) | 52/28 | no | PORT | Leave. Codex condensed port. |
-| frontend-designer | CLAUDE | 436/57 | no | PORT | Leave. Claude is the full UX-strategy body; Codex is a thin standalone. |
 | pdf | CLAUDE | 314/67 | quoting only | PORT | Leave. `name: "pdf"` (quoted) vs `pdf` is cosmetic. Claude is authoritative body. |
 | pptx | CODEX | 232/26 | no | PORT | Leave. Codex condensed port. |
 | product-manager | CLAUDE | 294/123 | no | PORT | **Watch.** Claude newer + Codex has a real 123-line body. If Claude gained backlog/roadmap rules, mirror the substantive ones into Codex. |
 | quality-manager | CLAUDE | 514/73 | no | PORT | Leave. Claude authoritative; Codex thin port. |
 | refer | CODEX | 88/25 | no | PORT | Leave. Codex condensed standalone; same `.claude/reference/` contract. |
 | supervisor | CLAUDE | 540/65 | no | PORT | Leave. Claude authoritative; Codex thin port. |
-| taste | CLAUDE | 251/119 | no | PORT | **Watch.** Claude newer (2026-04-18) + Codex has a substantive 119-line body. If Claude added design metrics/forbidden-patterns, mirror the rule set into Codex. |
 | worktree-production | CODEX (same day) | 212/32 | no | PORT | Leave. Codex thin port; Claude full body. |
 | writing-plans | CLAUDE | 56/36 | `-overrides` vs `writing-plans` | PORT | Leave. Claude = plugin override; Codex = port. |
 | xlsx | CODEX | 291/20 | no | **SHIM** | Leave. Codex explicit compatibility shim → Claude body. |
 
-**Net:** 2 SHIM + 14 PORT are intentional and need **no action**. Only 2 are worth a
-human glance — **`product-manager`** and **`taste`** — where Claude is newer *and* Codex
-carries a real (non-stub) body, so a substantive Claude rule addition might be worth
-mirroring into Codex. Neither is a mechanical copy; both need a rule-level diff, not a
-file overwrite.
+### Removed from Codex on 2026-07-07
+
+| Skill | Prior state | Current action |
+|---|---|---|
+| `frontend-design` | Stagent-era Codex port | Removed from repo-local and global Codex skills. Do not recreate from Claude. |
+| `frontend-designer` | Stagent-era Codex port | Removed from repo-local and global Codex skills. Do not recreate from Claude. |
+| `taste` | Stagent-era Codex port | Removed from repo-local and global Codex skills. Do not recreate from Claude. |
+
+**Net:** 2 SHIM + 13 PORT are intentional and need **no action**. Only
+**`product-manager`** is currently worth a human rule-level glance because Claude is
+newer and Codex carries a real body. The removed frontend skills are not drift; they are
+deliberate Codex cleanup. Future Relay frontend skills should be created deliberately
+from current research, `design-system/MASTER.md`, `src/app/globals.css`, and Relay
+practice, not restored from Stagent-era ports.
 
 ---
 
@@ -82,7 +94,9 @@ file overwrite.
 4. `.claude/skills/` is **gitignored** (public npm package) — there is **no CI gate** on
    this sync. That absence of enforcement is why drift accumulates; this doc is the
    manual ledger that stands in for the missing gate.
-5. After any reconciliation, **append a signed Sync Log entry below**.
+5. Do not restore Codex-only deletions from Claude-local source material. The removed
+   Codex `frontend-design`, `frontend-designer`, and `taste` skill dirs are intentional.
+6. After any reconciliation, **append a signed Sync Log entry below**.
 
 ---
 
@@ -99,6 +113,40 @@ file overwrite.
 - **Config:** `~/.codex/config.toml` (model, trust, MCP servers) is Codex-only with no
   Claude peer. `.claude/settings.local.json` is Claude-only. No cross-sync contract.
 
+## Codex-Specific Deltas (verified 2026-07-07)
+
+- **Browser use:** In Codex desktop sessions, Relay UI verification follows
+  `docs/codex-browser-runbook.md`: in-app Browser/Browser plugin first for
+  unauthenticated localhost/file/public pages; Codex Chrome extension for
+  signed-in/profile/extension state; Computer Use for GUI-only desktop flows; Chrome
+  DevTools MCP only for CDP debugging against an isolated debug browser. `open -a
+  "Google Chrome" <url>` is not sufficient verification unless Chrome-control tooling is
+  connected or the operator specifically needs to watch. Do not launch the normal Chrome
+  app directly in headless mode unless explicitly requested. This is Codex-specific and
+  does not constrain Claude Code browser tooling.
+- **Stop hook:** `.codex/hooks.json` intentionally keeps only the PreToolUse secrets
+  guard. The Codex `Stop` handoff nudge was removed because it fired too frequently.
+  Use auto compact or operator-initiated handoff for Codex session wrap-up.
+- **Memory:** Keep `MEMORY.md` and `CODEX-CC.md` aligned when changing
+  Codex-only hooks, skills, settings, or browser guidance. Do not add these Codex-only
+  notes to `CLAUDE.md`.
+
+## Private Peer-Folder Privacy Guardrail
+
+Claude Code and Codex must not use private local peer folders as Relay pack-content
+sources. This includes `~/orionfold/peer-folders` and sibling private workspaces under
+`~/orionfold/*` for marketing, website, consulting, LLC, self-wealth, self-health, books,
+strategy, customer, prospect, channel, campaign, finance, health, legal, or tax work.
+
+The issue was found and fixed on 2026-07-07: real Orionfold examples had shipped in
+public npm pack seed files for the Marketing line. See `5b491819` (`v0.35.2`) for the
+sanitized seeds, `53e5de5d` for private-peer guardrails and privacy regressions, and
+strategy commit `c7a0a6e` for the strategy-side note.
+
+Standing rule: `package.json` ships `src/`, so `src/lib/packs/templates/**` is public
+package surface. Use synthetic seed data only. If a pack needs an existing project as
+reference material, wait for a clean synthetic clone and cite that clone explicitly.
+
 ---
 
 ## Sync Log
@@ -111,3 +159,15 @@ _Newest at bottom. One signed, timestamped entry per update from either platform
   14 PORT, 0 true bidirectional stale — Claude holds authoritative bodies, Codex holds
   thin shims/ports. Flagged only `product-manager` + `taste` for a human rule-level
   glance (Claude newer + Codex non-stub body). No files changed; report only.
+- **2026-07-07 — `[CODEX]`:** Amended the ledger after Codex-specific cleanup. Marked
+  `frontend-design`, `frontend-designer`, and `taste` as intentionally removed Codex
+  skills; documented visible-OS-Chrome browser use, disabled Codex Stop hook behavior,
+  and the requirement to keep `CODEX-CC.md`/`MEMORY.md` aligned. Added
+  the private `~/orionfold/peer-folders` pack-data leak guardrail and linked the
+  2026-07-07 seed sanitization/guardrail commits.
+- **2026-07-07 — `[CODEX]`:** Replaced the stale visible-Chrome-first Codex browser rule
+  with `docs/codex-browser-runbook.md` after checking current OpenAI Codex Browser,
+  Chrome extension, Computer Use, MCP, and sandbox docs plus Chrome DevTools MCP and
+  Chrome remote-debugging guidance. Mirrored the new rule through `AGENTS.md`,
+  `CLAUDE.md`, `MEMORY.md`, and this ledger so future Codex sessions pick the right
+  browser tool instead of retrying brittle Chrome paths.
