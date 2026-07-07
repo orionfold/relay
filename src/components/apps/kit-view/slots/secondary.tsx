@@ -19,6 +19,49 @@ interface SecondarySlotProps {
  */
 export function SecondarySlotView({ slots }: SecondarySlotProps) {
   if (slots.length === 0) return null;
+  const groups = groupSlots(slots);
+
+  return (
+    <div className="space-y-4">
+      {groups.map((group, i) =>
+        group.kind === "full" ? (
+          <SecondarySection key={group.slot.id} slot={group.slot} />
+        ) : (
+          <SecondaryMasonry key={`masonry-${i}`} slots={group.slots} />
+        )
+      )}
+    </div>
+  );
+}
+
+type SecondarySlotGroup =
+  | { kind: "full"; slot: SecondarySlot }
+  | { kind: "masonry"; slots: SecondarySlot[] };
+
+function groupSlots(slots: SecondarySlot[]): SecondarySlotGroup[] {
+  const groups: SecondarySlotGroup[] = [];
+  let masonry: SecondarySlot[] = [];
+
+  for (const slot of slots) {
+    if (slot.fullWidth) {
+      if (masonry.length > 0) {
+        groups.push({ kind: "masonry", slots: masonry });
+        masonry = [];
+      }
+      groups.push({ kind: "full", slot });
+    } else {
+      masonry.push(slot);
+    }
+  }
+
+  if (masonry.length > 0) {
+    groups.push({ kind: "masonry", slots: masonry });
+  }
+
+  return groups;
+}
+
+function SecondaryMasonry({ slots }: SecondarySlotProps) {
   const cols =
     slots.length === 1
       ? "columns-1"
@@ -28,17 +71,29 @@ export function SecondarySlotView({ slots }: SecondarySlotProps) {
   return (
     <div className={`gap-4 ${cols}`}>
       {slots.map((slot) => (
-        <section
-          key={slot.id}
-          data-kit-slot="secondary"
-          className="mb-4 space-y-2 break-inside-avoid"
-        >
-          {slot.title && (
-            <h2 className="text-sm font-medium">{slot.title}</h2>
-          )}
-          {slot.content}
-        </section>
+        <SecondarySection key={slot.id} slot={slot} masonry />
       ))}
     </div>
+  );
+}
+
+function SecondarySection({
+  slot,
+  masonry = false,
+}: {
+  slot: SecondarySlot;
+  masonry?: boolean;
+}) {
+  return (
+    <section
+      data-kit-slot="secondary"
+      data-kit-slot-width={slot.fullWidth ? "full" : "auto"}
+      className={`space-y-2 ${masonry ? "mb-4 break-inside-avoid" : ""}`}
+    >
+      {slot.title && (
+        <h2 className="text-sm font-medium">{slot.title}</h2>
+      )}
+      {slot.content}
+    </section>
   );
 }

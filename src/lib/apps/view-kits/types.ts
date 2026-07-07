@@ -257,6 +257,8 @@ export interface HeroSlot {
 export interface SecondarySlot {
   id: string;
   title?: string;
+  /** Render this slot as its own full-width row before/among normal cards. */
+  fullWidth?: boolean;
   content: ReactNode;
 }
 

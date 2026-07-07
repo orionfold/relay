@@ -1,19 +1,23 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-07 (pt: **TDR-039 preview-first COMMITTED in `0d2e29c5`; agent sync committed in
-`72706130`; Phase 5 next.**
-After committed Phase 3 `28f17d77` + Phase 4 `19bc6f70`, implemented the preview-first follow-up from
-`features/publish-preview-artifacts.md`: preview artifacts persist under Relay data dir, `POST
-/api/apps/:id/preview` generates the exact `Artifact`, `GET /api/apps/:id/previews/:artifactId/...` serves
-it with path/app/hash/expiry guardrails, `POST /publish` accepts optional `artifactId`, deployments publish
-the stored artifact without regenerating, stale source rows fail visibly as `PREVIEW_STALE`, and the app
-publish panel now supports Preview → Open local preview → Publish this preview plus a secondary Publish fresh
-path. Verification: focused preview/publish tests 23/23 pass; `npm run build` passes with known Turbopack
-dynamic-trace warnings around plugin transport / `workspace/fix-data-dir`; dev smoke returned named
-`APP_NOT_FOUND` 404 for missing preview app.)_
+_Last updated: 2026-07-07 (pt: **Public Marketing-pack seed privacy fix BUILT in working tree, UNCOMMITTED;
+Workflow Hub funnel-row UX fix also remains built/uncommitted; preview-first remains committed in `0d2e29c5`.**
+User flagged that Relay Marketing's funnel looked too close to the private Orionfold marketing source. Audit confirmed
+`relay-crm`/`relay-social` seed files had shipped real Orionfold channel/campaign/ad/prospect-research examples in
+npm-public `src/` from `v0.33.0` through latest `0.35.1`. Fixed public template seeds to synthetic examples
+(`lead_research`, `channels`, `campaigns`, `content_assets`, `ad_initiatives`, consent copy + manifest comments) and
+added a `relay-marketing-bundle-template` privacy regression. Verification: focused pack test 8/8 pass; leak grep over
+public Marketing seed/template surface clean; `git diff --check` pass. Durable memory promoted:
+`MEMORY.md` now records pack template seed data as public package surface.)_
 
-## ▶️ NEXT SESSION — Phase 5 bundle + live publish smoke
+## ▶️ NEXT SESSION — commit privacy + funnel fixes, then patch-release response before Phase 5
 
+- **P0 release-response: Marketing pack seed privacy fix BUILT in working tree, UNCOMMITTED.** Commit this logical
+  diff with the funnel-row UX fix or as an adjacent commit, then prepare a patch release (likely `0.35.2`) before
+  returning to Phase 5. Published exposure confirmed: `d0303f24` is contained in tags `v0.33.0`→`v0.35.1`, and
+  npm has `orionfold-relay@0.33.0` through latest `0.35.1`. Fix replaced real Orionfold/prospect/channel/campaign/ad
+  seed data with synthetic examples and added a regression test blocking known markers. Open operator/release decision:
+  whether to npm-deprecate affected versions or simply publish the fixed patch and note it in release notes.
 - **Packs Publish — P1 READ trio (R1/R2/R3) + R5 + R4-mechanism ALL BUILT + RELEASED in 0.35.0**
   (`e6dde729`, `92d5a808`, `bf7619b8`, `f6b1029d`, `b7f3b3d1` — shipped with the Phase-2 bundle). **R4's CUT is deferred with a live
   trigger:** the `check:pack-tarball` size gate fires when templates cross 500 KB (≈22 packs) AND open
@@ -33,8 +37,14 @@ dynamic-trace warnings around plugin transport / `workspace/fix-data-dir`; dev s
   `scripts/npx-prod-smoke.mjs` first. Delete target remains a later enhancement because no DELETE route exists
   yet. Build findings + anchors: `features/publish-preview-artifacts.md`, focused tests, and memory
   `generator-publisher-substrate-tdr039`.
-- **`pack-depth-next-wave` arc — other tickets still open:** **Video Creator** (harvest source `tbd` — under-
-  specified, needs a north-star named) and **Retail Investor** (`relay-portfolio`+`relay-technical-analyst`:
+- **Workflow Hub / Relay Marketing funnel-row UX fix BUILT in working tree, UNCOMMITTED.** Next action:
+  inspect + commit the UI diff (`SecondarySlot.fullWidth`, grouped secondary renderer,
+  workflow-hub `funnel-flow` marked full-width, model + integration tests). Verification already run:
+  `npm test -- src/lib/apps/view-kits/__tests__/workflow-hub.test.ts
+  src/lib/apps/view-kits/__tests__/integration/workflow-hub-kit-view.test.tsx` → 21/21 pass; browser
+  geometry confirmed funnel 1112px wide and cards below.
+- **`pack-depth-next-wave` arc — other tickets still open:** **Video Creator** (under-specified; needs a clean
+  synthetic reference model before build) and **Retail Investor** (`relay-portfolio`+`relay-technical-analyst`:
   value-heatmap + radar; §9 ICP prosumer-first). `decisions_open`: when-dependsOn-earns-weight (P3 trigger).
 - **`_IDEAS/packs-robustify.md` — R1+R3 BUILT (2026-07-06, `b43f1b69`); R2/R5/R7/R8 still ungroomed.** The
   packs governance layer (six pillars: codified taxonomy · provenance API · compat-diff gate · dependsOn
@@ -128,6 +138,22 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**Public Marketing-pack seed privacy fix (BUILT 2026-07-07, working tree, UNCOMMITTED):** Sanitized the
+`relay-crm`/`relay-social` public seed files after confirming real Orionfold marketing/prospecting examples had
+shipped in npm package versions `0.33.0` through `0.35.1` (`package.json` ships `src/`). Replaced
+`lead_research`, `channels`, `campaigns`, `content_assets`, `ad_initiatives`, and beehiiv-specific consent copy with
+synthetic examples; updated manifest comments; added a pack-template privacy regression against known leaked markers.
+Verification: `npm test -- src/lib/packs/__tests__/relay-marketing-bundle-template.test.ts` → 8/8 pass; leak grep over
+the public Marketing seed/template surface clean; `git diff --check` pass. Memory promoted:
+`MEMORY.md` → "Pack template seed data is public package surface."
+
+**Workflow Hub funnel-row UX fix (BUILT 2026-07-07, working tree, UNCOMMITTED):** User spotted that Relay
+Marketing's `Lead funnel` was structurally below the 1-2-3 workflow intro but visually squeezed into the
+secondary masonry columns, causing overlap/partial hiding by `Lead Enrich` and `Repurpose`. Fix adds a
+`fullWidth` secondary-slot contract and renders full-width slots as their own rows before resuming masonry for
+normal workflow cards. Verification: focused workflow-hub tests 21/21 pass; in-app browser live route confirmed
+the funnel takes the full content width and cards start below it.
+
 **TDR-039 preview-first local artifacts (BUILT 2026-07-07, `0d2e29c5`, UNRELEASED):** Added a durable
 preview artifact store under Relay data dir with `meta.json` + file hashes + expiry cleanup; `POST
 /api/apps/:id/preview`; `GET /api/apps/:id/previews/:artifactId/...` with traversal/cross-app/hash/expiry
@@ -146,13 +172,6 @@ GitHub Pages SEND row. Phase 4 added the app-detail publish panel gated by manif
 create/test GitHub Pages target, select target, publish, poll deployments, block duplicate active publishes, and
 surface failed deployment errors. Verification: focused tests 14/14 pass; `npm run build` passes with the known
 Turbopack dynamic-trace warnings.
-
-**CODEX-CC.md — CC↔Codex sync ledger (2026-07-06, tooling/no code, untracked-new):** audited the four
-cross-harness surfaces; the 18 "shared" skills are NOT symmetric — CC holds fat authoritative bodies, Codex
-holds thin SHIMs (`docx`/`xlsx`) + PORTs. `AGENTS.md`↔`CLAUDE.md` (5 synced §), memory (files vs Codex
-SQLite), tool-specific partitioning all healthy. Only `product-manager`+`taste` flagged for a rule-level
-glance. Wrote `CODEX-CC.md` (living dual-signed ledger, per-skill classification + reconcile protocol),
-memory `codex-cc-living-handoff`, and broadcast the pattern to marketing+website peers via strategy `_RELAY`.
 
 **Substrate Phase 1 (TDR-039) BUILT (2026-07-06, `b9fcb674`, UNRELEASED — bundles with the packs-publish
 tail in a future release):** PublisherAdapter registry + `github-pages` Contents-API adapter + minimal

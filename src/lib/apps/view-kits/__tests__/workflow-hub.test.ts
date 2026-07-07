@@ -216,6 +216,28 @@ describe("workflowHubKit.buildModel", () => {
     expect(model.secondary ?? []).toEqual([]);
   });
 
+  it("marks the funnel flow as a full-width row before workflow cards", () => {
+    const app = makeApp({ blueprints: [{ id: "bp-1" }] });
+    const proj = workflowHubKit.resolve({ manifest: app.manifest, columns: [] });
+    const runtime: RuntimeState = {
+      app,
+      funnelData: {
+        title: "Lead funnel",
+        bands: [],
+      },
+      blueprintCards: [
+        { id: "bp-1", name: "One", description: null, variables: [], trigger: null, isPrimary: true, resolved: true },
+      ],
+    };
+    const model = workflowHubKit.buildModel(proj, runtime);
+    expect(model.secondary?.[0]).toMatchObject({
+      id: "funnel-flow",
+      title: "Lead funnel",
+      fullWidth: true,
+    });
+    expect(model.secondary?.[1].id).toBe("blueprint-bp-1");
+  });
+
   it("emits the 1-2-3 activation steps when there are cards (CF-FEAT-6)", () => {
     const app = makeApp({ blueprints: [{ id: "bp-1" }] });
     const proj = workflowHubKit.resolve({ manifest: app.manifest, columns: [] });

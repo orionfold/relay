@@ -116,6 +116,7 @@ export const workflowHubKit: KitDefinition = {
           {
             id: "funnel-flow",
             title: runtime.funnelData.title ?? undefined,
+            fullWidth: true,
             content: createElement(FunnelFlowView, {
               bands: runtime.funnelData.bands,
             }),

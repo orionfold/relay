@@ -52,6 +52,32 @@ describe("Workflow Hub kit — KitView integration", () => {
     expect(container.querySelectorAll('[data-kit-slot="secondary"]').length).toBeGreaterThanOrEqual(1);
   });
 
+  it("renders the funnel flow as a full-width secondary row before workflow cards", () => {
+    const { container } = renderKitView({
+      kit: workflowHubKit,
+      manifest,
+      columns: [],
+      runtime: {
+        funnelData: {
+          title: "Lead funnel",
+          bands: [],
+        },
+        blueprintCards: [
+          { id: "ingest", name: "Ingest", description: null, variables: [], trigger: null, isPrimary: true },
+          { id: "transform", name: "Transform", description: null, variables: [], trigger: null, isPrimary: false },
+        ],
+        blueprintLastRuns: {},
+        blueprintRunCounts: {},
+        failedTasks: [],
+      },
+    });
+
+    expect(screen.getByText("Lead funnel")).toBeInTheDocument();
+    const secondary = Array.from(container.querySelectorAll('[data-kit-slot="secondary"]'));
+    expect(secondary[0]).toHaveAttribute("data-kit-slot-width", "full");
+    expect(secondary[1]).toHaveAttribute("data-kit-slot-width", "auto");
+  });
+
   it("renders an honest 'couldn't load' state (no Run button) for an unresolved blueprint (#31)", () => {
     // A blueprint whose definition the registry could not resolve at enrichment
     // time arrives with `resolved: false` and the id as its name. It must NOT
