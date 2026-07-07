@@ -1,7 +1,7 @@
 ---
 title: "Data flow: what leaves your machine, and when"
 category: "trust"
-lastUpdated: "2026-07-01"
+lastUpdated: "2026-07-07"
 ---
 
 # Data flow: what leaves your machine, and when
@@ -40,6 +40,7 @@ flowchart LR
     subgraph optin["Only if you enable them"]
         chan["Slack / Telegram /<br/>webhooks you configure"]
         tools["Web search & browser tools<br/>granted to agents"]
+        pages["GitHub Pages repo<br/>you configure"]
     end
 
     relay -->|"download only"| gh
@@ -48,6 +49,7 @@ flowchart LR
     relay -->|"prompts, instructions,<br/>attached document content,<br/>tool results"| oai
     relay -.-> chan
     relay -.-> tools
+    relay -.->|"generated static-site files"| pages
 ```
 
 ## The short version
@@ -59,8 +61,10 @@ other egress in the product exists only downstream of something you
 explicitly configure or click — including the canonical pack index, which is
 read **only** when you run `relay pack add <name>` for a pack that did not
 ship with your install (a bare, sha256-verified GET that sends nothing about
-you; row 11). There is **no telemetry, no analytics, no crash reporting, no
-update check, and no license activation server** anywhere in the codebase.
+you; row 11), and GitHub Pages publishing, which sends generated site files
+only after you create a target with your own GitHub credential and click
+publish (row 12). There is **no telemetry, no analytics, no crash reporting,
+no update check, and no license activation server** anywhere in the codebase.
 
 ## Complete egress inventory
 
@@ -77,6 +81,7 @@ update check, and no license activation server** anywhere in the codebase.
 | 9 | Plugin MCP servers | You install a plugin that ships a stdio MCP server | Whatever that plugin's binary calls | Whatever you pass it — treat third-party plugins as code you're running | `--safe-mode` / `RELAY_SAFE_MODE=true` disables plugin MCP servers |
 | 10 | Upstream `git fetch` (contributors only) | Hourly, **only when the launch directory is a git clone** — never for npm/npx installs | Your clone's own `origin` remote | Standard git fetch; compares SHAs locally, uploads nothing | Absent `.git` = never runs ([`upgrade-poller.ts`](../../src/lib/instance/upgrade-poller.ts)) |
 | 11 | Non-bundled pack fetch | You run `relay pack add <name>` for a pack that did **not** ship in your install | Canonical Orionfold pack index + pack `.tgz` (`orionfold.com/relay/packs`) | Nothing — bare GET; the index and each pack are sha256-verified before use ([`remote.ts`](../../src/lib/packs/remote.ts)) | Bundled packs never reach this path (install offline); `RELAY_PACK_INDEX_URL` (mirror or `file://` for air-gap) |
+| 12 | GitHub Pages publish | You click publish for an app that declares `view.bindings.generate`/`publish` and select a GitHub Pages target | `api.github.com` for the repo you configured | Generated static-site artifact files plus GitHub Contents API metadata, authenticated with your stored GitHub token ([`publish/route.ts`](../../src/app/api/apps/%5Bid%5D/publish/route.ts), [`github-pages-adapter.ts`](../../src/lib/publishers/github-pages-adapter.ts)) | Do not create a publish target or click publish; delete the target/token |
 
 (`npm`/`npx` itself contacts the npm registry to install the package — that
 is npm's standard behavior before any Relay code runs, and it's covered by
@@ -114,4 +119,4 @@ Your levers, all first-class in the product:
 - No license data ever sent to Orionfold — verification is an offline Ed25519 check against
   keys embedded in [open-source code](../../src/lib/licensing/verify.ts);
   works air-gapped, forever.
-- No calls to orionfold.com, ever, for any reason.
+- No background uploads to Orionfold; user data is never sent to Orionfold.
