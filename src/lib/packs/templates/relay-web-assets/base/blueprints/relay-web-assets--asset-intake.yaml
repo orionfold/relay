@@ -1,0 +1,29 @@
+id: relay-web-assets--asset-intake
+name: Asset intake
+description: >
+  Turn a rough offer, proof point, or page idea into a clean web_assets row that
+  can appear in the gallery.
+version: "1.0.0"
+domain: work
+tags: [web, design, assets, intake]
+pattern: sequence
+difficulty: beginner
+estimatedDuration: "5-10 min"
+author: Orionfold
+variables:
+  - id: asset_note
+    type: text
+    label: Asset note
+    description: The rough asset, proof point, or page idea to structure
+    required: true
+    placeholder: "Proof: onboarding call to published first draft in one week"
+steps:
+  - name: Structure the asset
+    profileId: relay-web-assets--asset-curator
+    requiresApproval: false
+    promptTemplate: >
+      Turn this note into a web_assets row: "{{asset_note}}". Choose an
+      asset_type, page_role, audience, summary, status, and source_note. Leave
+      image_url and reference_url blank unless the operator supplied a concrete
+      URL.
+    expectedOutput: One structured web_assets row.

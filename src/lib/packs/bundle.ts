@@ -89,6 +89,7 @@ export function mergeBundle(
   const secondary: unknown[] = [];
   const kpis: unknown[] = [];
   const charts: unknown[] = [];
+  const galleries: unknown[] = [];
   let cadence: unknown;
   let runs: unknown;
   let funnel: unknown;
@@ -115,11 +116,11 @@ export function mergeBundle(
     schedules.push(...m.schedules);
 
     // View: take kit + hero from the FIRST child that declares a view/hero;
-    // concatenate secondary + kpis + charts across children in order. `funnel`,
+    // concatenate secondary + kpis + charts + galleries across children in order. `funnel`,
     // `generate`, and `publish` are single-valued like hero — the first child to
     // declare one wins (a second funnel would fight for the analytics-header
     // slot; a bundle is one site so one generate/publish pair). Missing
-    // `charts`/`funnel`/`generate`/`publish` here silently DROPS them from the
+    // `charts`/`galleries`/`funnel`/`generate`/`publish` here silently DROPS them from the
     // merged app — the same shadow-path class the KPI-ref rewrite guards against
     // — so every binding a child can declare must be carried through.
     if (m.view) {
@@ -135,6 +136,7 @@ export function mergeBundle(
       if (Array.isArray(b.secondary)) secondary.push(...b.secondary);
       if (Array.isArray(b.kpis)) kpis.push(...b.kpis);
       if (Array.isArray(b.charts)) charts.push(...b.charts);
+      if (Array.isArray(b.galleries)) galleries.push(...b.galleries);
     }
 
     for (const file of child.files) {
@@ -161,6 +163,7 @@ export function mergeBundle(
   if (runs !== undefined) bindings.runs = runs;
   if (kpis.length > 0) bindings.kpis = kpis;
   if (charts.length > 0) bindings.charts = charts;
+  if (galleries.length > 0) bindings.galleries = galleries;
   if (funnel !== undefined) bindings.funnel = funnel;
   if (generate !== undefined) bindings.generate = generate;
   if (publish !== undefined) bindings.publish = publish;

@@ -8,7 +8,10 @@
     "relay-crm",
     "relay-marketing",
     "relay-nonprofit",
-    "relay-social"
+    "relay-social",
+    "relay-web-assets",
+    "relay-web-designer",
+    "relay-web-publisher"
   ],
   "sizeBudgetKb": 500
 }

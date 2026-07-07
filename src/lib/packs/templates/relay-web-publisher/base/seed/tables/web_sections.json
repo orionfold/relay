@@ -1,0 +1,46 @@
+[
+  {
+    "kind": "hero",
+    "heading": "Launch a sharper service page in one focused week",
+    "body": "A synthetic web-studio offer for operators who already know the service they need to sell.",
+    "order": 1,
+    "ctaLabel": "Book a working session",
+    "ctaUrl": "#contact",
+    "imageUrl": "",
+    "status": "published",
+    "notes": "Synthetic example"
+  },
+  {
+    "kind": "features",
+    "heading": "Strategy, build, and publishing in one loop",
+    "body": "Position the offer, structure the page, review the preview, then publish to the owner's GitHub Pages target.",
+    "order": 2,
+    "ctaLabel": "",
+    "ctaUrl": "",
+    "imageUrl": "",
+    "status": "published",
+    "notes": "Synthetic example"
+  },
+  {
+    "kind": "text",
+    "heading": "What the client needs ready",
+    "body": "A clear offer, a short proof library, and one accountable reviewer. The pack keeps those materials organized before publish.",
+    "order": 3,
+    "ctaLabel": "",
+    "ctaUrl": "",
+    "imageUrl": "",
+    "status": "published",
+    "notes": "Synthetic example"
+  },
+  {
+    "kind": "cta",
+    "heading": "Review the preview before anything leaves the machine",
+    "body": "Generate a local artifact first. Publish only after the exact preview is approved.",
+    "order": 4,
+    "ctaLabel": "Open the project brief",
+    "ctaUrl": "#brief",
+    "imageUrl": "",
+    "status": "published",
+    "notes": "Synthetic example"
+  }
+]

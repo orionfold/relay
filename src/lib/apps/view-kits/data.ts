@@ -11,6 +11,7 @@ import type {
   CadenceChipData,
   ChartData,
   FunnelData,
+  GalleryData,
   HeroTableData,
   KitId,
   KpiTile,
@@ -26,6 +27,7 @@ import { computeFunnelBands } from "./funnel-compute";
 
 type KpiSpec = NonNullable<ViewConfig["bindings"]["kpis"]>[number];
 type ChartSpec = NonNullable<ViewConfig["bindings"]["charts"]>[number];
+type GallerySpec = NonNullable<ViewConfig["bindings"]["galleries"]>[number];
 type FunnelSpec = NonNullable<ViewConfig["bindings"]["funnel"]>;
 
 /**
@@ -40,6 +42,8 @@ export interface KitProjectionShape {
   kpiSpecs?: KpiSpec[];
   /** Wave-1 resurface: manifest-declared charts to load rows for (Tracker). */
   chartSpecs?: ChartSpec[];
+  /** Gallery/preview widgets to load rows for. */
+  gallerySpecs?: GallerySpec[];
   /** Funnel band-flow spec to compute bands for (Tracker + Workflow Hub). */
   funnelSpec?: FunnelSpec;
   blueprintIds?: string[];
@@ -89,6 +93,7 @@ async function loadRuntimeStateUncached(
       heroTable: await loadHeroTable(projection.heroTableId),
       evaluatedKpis: await loadEvaluatedKpis(projection.kpiSpecs ?? []),
       chartData: await loadChartData(projection.chartSpecs ?? []),
+      galleryData: await loadGalleryData(projection.gallerySpecs ?? []),
       funnelData: await loadFunnelData(projection.funnelSpec),
     };
   }
@@ -278,6 +283,45 @@ async function loadChartData(specs: ChartSpec[]): Promise<ChartData[]> {
       rows = raw.map((r) => ({
         data: JSON.parse(r.data) as Record<string, unknown>,
       }));
+    } catch {
+      rows = [];
+    }
+    out.push({ spec, rows });
+  }
+  return out;
+}
+
+async function loadGalleryData(specs: GallerySpec[]): Promise<GalleryData[]> {
+  const out: GalleryData[] = [];
+  for (const spec of specs) {
+    let rows: { id: string; data: Record<string, unknown> }[] = [];
+    try {
+      const raw = db
+        .select({ id: userTableRows.id, data: userTableRows.data })
+        .from(userTableRows)
+        .where(eq(userTableRows.tableId, spec.table))
+        .orderBy(desc(userTableRows.createdAt))
+        .limit(500)
+        .all();
+      rows = raw
+        .map((r) => ({
+          id: r.id,
+          data: JSON.parse(r.data) as Record<string, unknown>,
+        }))
+        .filter((r) =>
+          spec.statusColumn && spec.statusValue
+            ? String(r.data[spec.statusColumn] ?? "") === spec.statusValue
+            : true
+        )
+        .sort((a, b) => {
+          if (!spec.orderColumn) return 0;
+          const av = Number(a.data[spec.orderColumn]);
+          const bv = Number(b.data[spec.orderColumn]);
+          const an = Number.isFinite(av) ? av : Number.POSITIVE_INFINITY;
+          const bn = Number.isFinite(bv) ? bv : Number.POSITIVE_INFINITY;
+          return an - bn;
+        })
+        .slice(0, spec.limit);
     } catch {
       rows = [];
     }

@@ -1,0 +1,64 @@
+id: relay-web-publisher
+version: "0.1.0"
+name: Relay Web Publisher
+description: >
+  Manage ordered website sections, preview the generated static site, and
+  publish the exact preview artifact to GitHub Pages.
+persona: >
+  A web designer assembling a focused landing page from structured section rows
+  and publishing it to a user-owned GitHub Pages target.
+author: Orionfold
+
+profiles:
+  - id: relay-web-publisher--site-editor
+    source: $AINATIVE_DATA_DIR/profiles/relay-web-publisher--site-editor/
+
+blueprints:
+  - id: relay-web-publisher--section-draft
+    source: $AINATIVE_DATA_DIR/blueprints/relay-web-publisher--section-draft.yaml
+
+tables:
+  - id: web_sections
+    columns: [kind, heading, body, order, ctaLabel, ctaUrl, imageUrl, status, notes]
+    seed: seed/tables/web_sections.json
+
+view:
+  kit: tracker
+  bindings:
+    hero:
+      table: web_sections
+    runs:
+      blueprint: relay-web-publisher--section-draft
+    kpis:
+      - id: section-count
+        label: Sections
+        source:
+          kind: tableCount
+          table: web_sections
+        format: int
+      - id: published-sections
+        label: Published rows
+        source:
+          kind: tableCount
+          table: web_sections
+          where: status
+        format: int
+    galleries:
+      - id: site-preview-gallery
+        title: Page sections
+        table: web_sections
+        titleColumn: heading
+        subtitleColumn: body
+        metaColumn: kind
+        imageUrlColumn: imageUrl
+        hrefColumn: ctaUrl
+        statusColumn: status
+        statusValue: published
+        orderColumn: order
+        limit: 12
+    generate:
+      generatorType: static-site
+      table: web_sections
+      siteTitle: Studio Launch Page
+    publish:
+      targetType: github-pages

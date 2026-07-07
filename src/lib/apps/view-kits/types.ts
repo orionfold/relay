@@ -10,6 +10,12 @@ export interface ChartData {
   rows: { data: Record<string, unknown> }[];
 }
 
+/** A manifest-declared gallery plus its resolved table rows. */
+export interface GalleryData {
+  spec: NonNullable<ViewConfig["bindings"]["galleries"]>[number];
+  rows: { id: string; data: Record<string, unknown> }[];
+}
+
 /**
  * A manifest-declared funnel band-flow with its bands already computed from the
  * live table rows (via `computeFunnelBands`). Carries the spec's title for the
@@ -96,6 +102,8 @@ export interface RuntimeState {
    * Tracker kit instead of leaving charts buried behind the Charts tab.
    */
   chartData?: ChartData[];
+  /** Manifest-declared gallery/preview widgets promoted by kits. */
+  galleryData?: GalleryData[];
   /**
    * The funnel band-flow (`view.bindings.funnel`) with its bands computed from
    * live rows, rendered as a promoted secondary slot by the Tracker + Workflow

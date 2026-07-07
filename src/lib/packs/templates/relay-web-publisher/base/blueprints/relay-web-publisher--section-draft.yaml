@@ -1,0 +1,28 @@
+id: relay-web-publisher--section-draft
+name: Draft page section
+description: >
+  Convert a rough page note into a structured web_sections row compatible with
+  the static-site generator.
+version: "1.0.0"
+domain: work
+tags: [web, design, landing-page, section]
+pattern: sequence
+difficulty: beginner
+estimatedDuration: "5-10 min"
+author: Orionfold
+variables:
+  - id: section_note
+    type: text
+    label: Section note
+    description: The rough page section idea to structure
+    required: true
+    placeholder: "Hero for a one-week launch offer"
+steps:
+  - name: Draft the section row
+    profileId: relay-web-publisher--site-editor
+    requiresApproval: false
+    promptTemplate: >
+      Turn this note into one web_sections row: "{{section_note}}". Choose kind,
+      heading, body, order, optional CTA fields, optional imageUrl, and status.
+      Use status draft unless the operator explicitly says it is approved.
+    expectedOutput: One structured web_sections row.

@@ -1,0 +1,24 @@
+id: relay-web-publisher
+version: "0.1.0"
+name: Relay Web Publisher
+author: Orionfold
+description: >
+  A static-site publishing surface for a small web studio. Manage ordered page
+  sections, generate a local preview artifact, and publish that exact artifact
+  to a GitHub Pages target you configure. Everything installs offline until you
+  explicitly publish. Relay never sends your data to Orionfold.
+relayCore: ">=0.35.0"
+entitlement: product:orionfold-relay
+price:
+  intro: "$349/year"
+  list: "$499/year"
+  note: "The publishing half of Relay Web Designer. One license unlocks every paid Relay pack."
+purchaseUrl: https://orionfold.com/relay/
+icon: briefcase
+related:
+  text: "Install Relay Web Designer to pair this publisher with a reusable asset gallery in one app."
+  href: "/packs?filter=premium"
+changelog:
+  "0.1.0": >-
+    A static-site section table with a real local preview and GitHub Pages
+    publish seam, powered by the TDR-039 generator/publisher substrate.

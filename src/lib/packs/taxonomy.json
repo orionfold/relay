@@ -196,6 +196,39 @@
         "target_cac_usd"
       ],
       "note": "The paid side. Seeded lightly."
+    },
+    "web_assets": {
+      "owner": "relay-web-assets",
+      "kind": "functional",
+      "columns": [
+        "title",
+        "asset_type",
+        "page_role",
+        "audience",
+        "summary",
+        "status",
+        "source_note",
+        "image_url",
+        "reference_url",
+        "sort_order"
+      ],
+      "note": "The reusable web-design asset library. Rendered through the gallery preview primitive."
+    },
+    "web_sections": {
+      "owner": "relay-web-publisher",
+      "kind": "functional",
+      "columns": [
+        "kind",
+        "heading",
+        "body",
+        "order",
+        "ctaLabel",
+        "ctaUrl",
+        "imageUrl",
+        "status",
+        "notes"
+      ],
+      "note": "The ordered static-site section table read by the static-site generator."
     }
   },
   "schedules": {

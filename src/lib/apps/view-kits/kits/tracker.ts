@@ -4,6 +4,7 @@ import { ManifestPaneBody } from "@/components/apps/kit-view/manifest-pane-body"
 import { TableSpreadsheet } from "@/components/tables/table-spreadsheet";
 import { TableChartView } from "@/components/tables/table-chart-view";
 import { FunnelFlowView } from "@/components/apps/kit-view/funnel-flow-view";
+import { GalleryPreviewView } from "@/components/apps/kit-view/gallery-preview-view";
 import { defaultTrackerKpis } from "../default-kpis";
 import type { ViewConfig } from "@/lib/apps/registry";
 import type {
@@ -17,6 +18,7 @@ import { headerStatus } from "../header-status";
 
 type KpiSpec = NonNullable<ViewConfig["bindings"]["kpis"]>[number];
 type ChartSpec = NonNullable<ViewConfig["bindings"]["charts"]>[number];
+type GallerySpec = NonNullable<ViewConfig["bindings"]["galleries"]>[number];
 type FunnelSpec = NonNullable<ViewConfig["bindings"]["funnel"]>;
 
 interface TrackerProjection extends KitProjection {
@@ -26,6 +28,7 @@ interface TrackerProjection extends KitProjection {
   runsBlueprintId: string | undefined;
   kpiSpecs: KpiSpec[];
   chartSpecs: ChartSpec[];
+  gallerySpecs: GallerySpec[];
   funnelSpec: FunnelSpec | undefined;
   manifestYaml: string;
 }
@@ -83,6 +86,7 @@ export const trackerKit: KitDefinition = {
       runsBlueprintId,
       kpiSpecs,
       chartSpecs: bindings?.charts ?? [],
+      gallerySpecs: bindings?.galleries ?? [],
       funnelSpec: bindings?.funnel,
       manifestYaml: yaml.dump(m, { lineWidth: 100 }),
     };
@@ -143,8 +147,15 @@ export const trackerKit: KitDefinition = {
       }),
     }));
 
-    // Funnel first (analytics header), then the promoted charts.
-    const secondary = [...funnelSlot, ...chartSlots];
+    const gallerySlots = (runtime.galleryData ?? []).map((gallery) => ({
+      id: `gallery-${gallery.spec.id}`,
+      title: gallery.spec.title,
+      fullWidth: true,
+      content: createElement(GalleryPreviewView, { gallery }),
+    }));
+
+    // Funnel first (analytics header), then gallery previews, then charts.
+    const secondary = [...funnelSlot, ...gallerySlots, ...chartSlots];
 
     return {
       header: {

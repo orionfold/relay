@@ -254,7 +254,7 @@ describe("mergeBundle", () => {
     ]);
   });
 
-  it("carries generate + publish (first-wins) through the merge (TDR-039)", () => {
+  it("carries galleries plus generate + publish through the merge (TDR-039)", () => {
     // Same shadow-path class as funnel/charts: a Web Designer bundle whose child
     // declares generate:/publish: must not lose them in the flatten. First child
     // to declare each wins (a bundle is one site → one generate/publish pair).
@@ -267,6 +267,13 @@ describe("mergeBundle", () => {
       view: {
         kit: "tracker",
         bindings: {
+          galleries: [
+            {
+              id: "asset-gallery",
+              table: "web_assets",
+              titleColumn: "title",
+            },
+          ],
           generate: {
             generatorType: "static-site",
             table: "web-sections",
@@ -278,7 +285,16 @@ describe("mergeBundle", () => {
     const publisher = child("relay-web-publisher", {
       view: {
         kit: "tracker",
-        bindings: { publish: { targetType: "github-pages" } },
+        bindings: {
+          galleries: [
+            {
+              id: "section-gallery",
+              table: "web_sections",
+              titleColumn: "heading",
+            },
+          ],
+          publish: { targetType: "github-pages" },
+        },
       },
     });
 
@@ -287,6 +303,10 @@ describe("mergeBundle", () => {
 
     expect(view.bindings.generate?.generatorType).toBe("static-site");
     expect(view.bindings.generate?.table).toBe("web-sections");
+    expect(view.bindings.galleries?.map((g) => g.id)).toEqual([
+      "asset-gallery",
+      "section-gallery",
+    ]);
     expect(view.bindings.publish?.targetType).toBe("github-pages");
   });
 

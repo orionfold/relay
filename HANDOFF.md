@@ -1,20 +1,42 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-07 (pt: **Privacy cleanup + Workflow Hub funnel-row fix committed locally.**
-Relay commits: `5b491819` sanitized Marketing pack public seed examples; `53e5de5d` removed private-peer
-provenance and added a pack/spec privacy guardrail; `f45ea422` made Workflow Hub funnel-flow slots render as
-full-width rows. Strategy repo commits: `c7a0a6e` requires clean synthetic pack references; `e814f4d` updates
-staging + packs strategy docs. Verification this session: privacy/template tests pass, extracted local npm
-tarball scan is clean for private-peer + known Marketing leak markers, and Workflow Hub tests pass 21/21.)_
+_Last updated: 2026-07-07 (pt: **Web Designer pack family built in working tree; next session should
+start in web preview for a guided web* walkthrough; live GitHub Pages smoke still open.** Added strict
+`galleries` view binding + renderer/loader, real `relay-web-assets`, `relay-web-publisher`, and
+`relay-web-designer` templates, taxonomy/bundled allowlist updates, and `features/pack-web-designer.md`.
+Verification: focused suite 72/72 passed, `check:pack-tarball` passed (12 bundled packs, 219.3 KB / 500 KB),
+`check:pack-taxonomy` passed, `npm run build` passed with known Turbopack dynamic-trace warnings, isolated
+install of `relay-web-designer` succeeded, built-server smoke returned `/packs` 200,
+`/apps/relay-web-designer` 200, preview API 201, preview artifact 200. Local dev instance now has the
+Relay license fixture saved and `relay-web-assets`, `relay-web-publisher`, `relay-web-designer` installed;
+no live GitHub Pages publish yet.)_
 
-## ▶️ NEXT SESSION — release cleanup, then resume Phase 5
+## ▶️ NEXT SESSION — Web preview walkthrough, then live publish smoke
 
+- **P0 START HERE — guided `web*` pack walkthrough in the in-app web preview:** Open the app in the
+  visible in-app browser, start at `/apps/relay-web-assets`, then walk step-by-step through
+  `relay-web-assets`, `relay-web-publisher`, and `relay-web-designer`. Drive the UI in the web preview while
+  describing in chat what is happening and why (what rows/tables/profiles/blueprints each pack owns, what the
+  gallery primitive proves, how publisher preview/publish works, and how the bundle composes the two children).
+  Keep `output/operator-walkthrough-feedback-2026-07-07.md` open for append-only notes: browser state, console
+  logs, operator comments, defects, and UX fixes. The current local instance already has a valid Relay license
+  (`OF-RELAY-VERIFY-20260701`) and all three Web packs installed via `/api/packs/install`; browser verification
+  showed `/packs` and `/apps/relay-web-designer` clean with no console warnings.
+- **P0 Web Designer live publish smoke + TDR-039 acceptance:** Phase 5 pack content is now in-tree and
+  installable in the working tree. Remaining acceptance item: configure a real GitHub Pages target through the UI,
+  publish the exact local preview artifact, verify the public Pages URL, then move TDR-039 proposed→accepted.
+  If any API contract changes before release, grep `scripts/npx-prod-smoke.mjs` first.
 - **P0 release-response: publish or rewrite the cleaned history.** Local `main` now contains the seed fix,
   private-peer guardrail, strategy cleanup, and funnel-row fix. Registry latest is `0.35.2`; these newest cleanup
   commits are not yet on npm. Next decision: either push + patch-release `0.35.3` first, or proceed with the planned
   history rewrite/removal sequence. If releasing, rerun the npx prod smoke, bump/tag/push, then verify
   `npm view orionfold-relay versions --json` and the GitHub release/tag state. If rewriting, include
   `5b491819`, `53e5de5d`, and `f45ea422` in the clean branch before force-push.
+- **P1 operator walkthrough grooming:** turn `output/operator-walkthrough-feedback-2026-07-07.md` into
+  feature requirement specs/backlog items. Source asks include telemetry/settings drill-downs, Apps→Packs IA
+  consolidation + Chat copy, app/pack shell owned-table disclosure, primitive-section layout
+  (Workflows/Schedules/Tables), app-detail card sizing, app-detail scroll/focus behavior, plus bug follow-ups for
+  the Turbopack `<dynamic>` warning and scheduled lead-list hygiene `Lead` variable failures.
 - **Packs Publish — P1 READ trio (R1/R2/R3) + R5 + R4-mechanism ALL BUILT + RELEASED in 0.35.0**
   (`e6dde729`, `92d5a808`, `bf7619b8`, `f6b1029d`, `b7f3b3d1` — shipped with the Phase-2 bundle). **R4's CUT is deferred with a live
   trigger:** the `check:pack-tarball` size gate fires when templates cross 500 KB (≈22 packs) AND open
@@ -26,14 +48,11 @@ tarball scan is clean for private-peer + known Marketing leak markers, and Workf
   (R3 seam built / R7), partner-key onboarding (R3 `of-packs-official-2026` key — coordinate w/ licensing
   issuer owner). `_IDEAS/packs-publish.md` = durable source thesis; memory `packs-publish-authored` carries
   all build findings + reuse anchors.
-- **Web Designer substrate — Phase 1+2 RELEASED in 0.35.0/0.35.1; Phase 3+4 COMMITTED in `28f17d77` +
-  `19bc6f70`, UNRELEASED; preview-first COMMITTED in `0d2e29c5`, UNRELEASED.** Phase 5 = author
-  `pack-web-designer.md` against the real
-  generate/preview/publish seam, include a standalone-useful `gallery` primitive, run a live GitHub Pages smoke
-  through the new UI, and move TDR-039 proposed→accepted. If any API contract changes before release, grep
-  `scripts/npx-prod-smoke.mjs` first. Delete target remains a later enhancement because no DELETE route exists
-  yet. Build findings + anchors: `features/publish-preview-artifacts.md`, focused tests, and memory
-  `generator-publisher-substrate-tdr039`.
+- **Web Designer substrate anchor:** Phase 1+2 RELEASED in 0.35.0/0.35.1; Phase 3+4 COMMITTED in
+  `28f17d77` + `19bc6f70`, UNRELEASED; preview-first COMMITTED in `0d2e29c5`, UNRELEASED; Phase 5 pack family
+  BUILT in the working tree, UNCOMMITTED. Delete target remains a later enhancement because no DELETE route exists
+  yet. Build findings + anchors: `features/publish-preview-artifacts.md`, `features/pack-web-designer.md`,
+  focused tests, and memory `generator-publisher-substrate-tdr039`.
 - **`pack-depth-next-wave` arc — other tickets still open:** **Video Creator** (under-specified; needs a clean
   synthetic reference model before build) and **Retail Investor** (`relay-portfolio`+`relay-technical-analyst`:
   value-heatmap + radar; §9 ICP prosumer-first). `decisions_open`: when-dependsOn-earns-weight (P3 trigger).
@@ -130,6 +149,19 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**Web Designer pack family / TDR-039 Phase 5 (BUILT 2026-07-07, UNCOMMITTED):** Added the real
+`relay-web-designer` bundle over `relay-web-publisher` + `relay-web-assets`; the standalone `gallery` Core
+primitive (`view.bindings.galleries` schema, loader, and `GalleryPreviewView`); synthetic `web_sections` and
+`web_assets` seed tables; taxonomy/bundled allowlist updates; and `features/pack-web-designer.md`. The publisher
+child declares `static-site` generate + `github-pages` publish so the app detail mounts the existing preview/publish
+panel. Verification: focused tests 72/72 pass; `check:pack-tarball` OK (12 bundled packs, 219.3 KB / 500 KB);
+`check:pack-taxonomy` OK; `npm run build` passes with known Turbopack dynamic-trace warnings; isolated smoke install
+of `relay-web-designer` succeeded and built-server route smoke returned `/packs` 200, `/apps/relay-web-designer` 200,
+preview API 201, preview artifact 200 with expected generated HTML. Operator then saved the valid local license
+fixture and installed `relay-web-assets`, `relay-web-publisher`, and `relay-web-designer` in the dev instance;
+browser verified `/packs`, `/apps`, and `/apps/relay-web-designer` with no console warnings. Still open: guided
+web-preview walkthrough, live GitHub Pages publish through UI, and TDR-039 proposed→accepted.
+
 **Privacy cleanup and peer-reference guardrails (BUILT 2026-07-07, `5b491819` + `53e5de5d`; strategy
 `c7a0a6e`):** Sanitized the
 `relay-crm`/`relay-social` public seed files after confirming real Orionfold marketing/prospecting examples had

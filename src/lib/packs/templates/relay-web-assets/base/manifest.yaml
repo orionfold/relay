@@ -1,0 +1,58 @@
+id: relay-web-assets
+version: "0.1.0"
+name: Relay Web Assets
+description: >
+  A web-services asset library: track offers, proof blocks, section ideas, and
+  reusable references, then review them through a gallery preview.
+persona: >
+  A web designer or small studio operator keeping client-site material organized
+  before it is assembled into landing pages.
+author: Orionfold
+
+profiles:
+  - id: relay-web-assets--asset-curator
+    source: $AINATIVE_DATA_DIR/profiles/relay-web-assets--asset-curator/
+
+blueprints:
+  - id: relay-web-assets--asset-intake
+    source: $AINATIVE_DATA_DIR/blueprints/relay-web-assets--asset-intake.yaml
+
+tables:
+  - id: web_assets
+    columns: [title, asset_type, page_role, audience, summary, status, source_note, image_url, reference_url, sort_order]
+    seed: seed/tables/web_assets.json
+
+view:
+  kit: tracker
+  bindings:
+    hero:
+      table: web_assets
+    runs:
+      blueprint: relay-web-assets--asset-intake
+    kpis:
+      - id: asset-count
+        label: Assets
+        source:
+          kind: tableCount
+          table: web_assets
+        format: int
+      - id: active-assets
+        label: Active
+        source:
+          kind: tableCount
+          table: web_assets
+          where: status
+        format: int
+    galleries:
+      - id: asset-gallery
+        title: Asset gallery
+        table: web_assets
+        titleColumn: title
+        subtitleColumn: summary
+        metaColumn: page_role
+        imageUrlColumn: image_url
+        hrefColumn: reference_url
+        statusColumn: status
+        statusValue: active
+        orderColumn: sort_order
+        limit: 12

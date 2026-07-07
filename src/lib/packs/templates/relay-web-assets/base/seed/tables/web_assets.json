@@ -1,0 +1,38 @@
+[
+  {
+    "title": "One-week launch proof",
+    "asset_type": "proof",
+    "page_role": "hero",
+    "audience": "Founder-led service business",
+    "summary": "A synthetic proof block for a studio that moves from kickoff to a publishable first draft in one week.",
+    "status": "active",
+    "source_note": "Synthetic example",
+    "image_url": "",
+    "reference_url": "",
+    "sort_order": 1
+  },
+  {
+    "title": "Offer comparison block",
+    "asset_type": "section",
+    "page_role": "features",
+    "audience": "Prospects comparing done-with-you and done-for-you website help",
+    "summary": "A three-column section that separates strategy, build, and publishing support.",
+    "status": "active",
+    "source_note": "Synthetic example",
+    "image_url": "",
+    "reference_url": "",
+    "sort_order": 2
+  },
+  {
+    "title": "Book a working session CTA",
+    "asset_type": "cta",
+    "page_role": "conversion",
+    "audience": "Operators with a site refresh already scoped",
+    "summary": "A direct call-to-action for booking a scoped working session instead of a vague discovery call.",
+    "status": "active",
+    "source_note": "Synthetic example",
+    "image_url": "",
+    "reference_url": "",
+    "sort_order": 3
+  }
+]

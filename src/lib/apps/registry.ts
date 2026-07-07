@@ -134,6 +134,29 @@ export const ChartSpecSchema = z
   .strict();
 
 /**
+ * A manifest-declarable gallery/preview widget. Like charts and funnel, this is
+ * a typed Core primitive rather than a component escape hatch: a pack can map
+ * columns from one managed table into preview cards, but cannot inject HTML,
+ * arbitrary components, or formulas.
+ */
+export const GallerySpecSchema = z
+  .object({
+    id: z.string(),
+    title: z.string().optional(),
+    table: z.string().min(1),
+    titleColumn: z.string().min(1),
+    imageUrlColumn: z.string().min(1).optional(),
+    subtitleColumn: z.string().min(1).optional(),
+    metaColumn: z.string().min(1).optional(),
+    hrefColumn: z.string().min(1).optional(),
+    statusColumn: z.string().min(1).optional(),
+    statusValue: z.string().min(1).optional(),
+    orderColumn: z.string().min(1).optional(),
+    limit: z.number().int().positive().max(50).default(12),
+  })
+  .strict();
+
+/**
  * How a single funnel band derives its count. A typed discriminated union —
  * never a `where`/formula string — so the funnel stays a Core primitive on the
  * `.strict()` schema, same discipline as `KpiSpecSchema`/`ChartSpecSchema`:
@@ -247,6 +270,7 @@ export const ViewSchema = z
         runs: BindingRefSchema.optional(),
         kpis: z.array(KpiSpecSchema).optional(),
         charts: z.array(ChartSpecSchema).optional(),
+        galleries: z.array(GallerySpecSchema).optional(),
         funnel: FunnelSpecSchema.optional(),
         generate: GenerateSpecSchema.optional(),
         publish: PublishSpecSchema.optional(),

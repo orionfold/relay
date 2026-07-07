@@ -292,6 +292,72 @@ describe("AppManifestSchema — view: field", () => {
     expect(r.success).toBe(false);
   });
 
+  it("accepts a gallery binding with typed column refs", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          galleries: [
+            {
+              id: "assets",
+              title: "Assets",
+              table: "web_assets",
+              titleColumn: "title",
+              subtitleColumn: "summary",
+              imageUrlColumn: "image_url",
+              hrefColumn: "reference_url",
+              statusColumn: "status",
+              statusValue: "active",
+              orderColumn: "sort_order",
+              limit: 9,
+            },
+          ],
+        },
+      },
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.view?.bindings.galleries?.[0].limit).toBe(9);
+    }
+  });
+
+  it("rejects a gallery with an unknown field (.strict() — no component escape hatch)", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          galleries: [
+            {
+              id: "assets",
+              table: "web_assets",
+              titleColumn: "title",
+              component: "CustomGallery",
+            },
+          ],
+        },
+      },
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("rejects a gallery missing its required table", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          galleries: [{ id: "assets", titleColumn: "title" }],
+        },
+      },
+    });
+    expect(r.success).toBe(false);
+  });
+
   // ── TDR-039 Phase 2: generate/publish manifest seam ──────────────────
 
   it("accepts a generate + publish binding pair", () => {

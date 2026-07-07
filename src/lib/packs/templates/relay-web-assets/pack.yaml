@@ -1,0 +1,25 @@
+id: relay-web-assets
+version: "0.1.0"
+name: Relay Web Assets
+author: Orionfold
+description: >
+  A web-services asset library for offers, proof points, page blocks, and
+  reusable visual references. It renders a gallery preview from managed rows and
+  can stand alone as the source-of-truth inventory for a small web studio.
+  Everything installs offline. Relay never sends your data to Orionfold.
+relayCore: ">=0.35.0"
+entitlement: product:orionfold-relay
+price:
+  intro: "$349/year"
+  list: "$499/year"
+  note: "The asset-library half of Relay Web Designer. One license unlocks every paid Relay pack."
+purchaseUrl: https://orionfold.com/relay/
+icon: briefcase
+related:
+  text: "Install Relay Web Designer to pair this asset gallery with a static-site publisher in one app."
+  href: "/packs?filter=premium"
+changelog:
+  "0.1.0": >-
+    A synthetic web-services asset library with a managed `web_assets` table and
+    a gallery preview primitive for reviewing offers, proof blocks, page
+    concepts, and reusable visual references.

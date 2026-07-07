@@ -78,7 +78,8 @@ export type Taxonomy = z.infer<typeof TaxonomySchema>;
  *
  * Verified 2026-07-06 against:
  *   relay-agency, relay-cre, relay-nonprofit, relay-agency-pro, relay-crm,
- *   relay-social  (each pack's base/manifest.yaml).
+ *   relay-social, relay-web-assets, relay-web-publisher
+ *   (each pack's base/manifest.yaml).
  */
 export const TAXONOMY: Taxonomy = {
   tables: {
@@ -225,6 +226,40 @@ export const TAXONOMY: Taxonomy = {
         "target_cac_usd",
       ],
       note: "The paid side. Seeded lightly.",
+    },
+    // ── Web Designer family (Functional line) ──────────────────────────
+    web_assets: {
+      owner: "relay-web-assets",
+      kind: "functional",
+      columns: [
+        "title",
+        "asset_type",
+        "page_role",
+        "audience",
+        "summary",
+        "status",
+        "source_note",
+        "image_url",
+        "reference_url",
+        "sort_order",
+      ],
+      note: "The reusable web-design asset library. Rendered through the gallery preview primitive.",
+    },
+    web_sections: {
+      owner: "relay-web-publisher",
+      kind: "functional",
+      columns: [
+        "kind",
+        "heading",
+        "body",
+        "order",
+        "ctaLabel",
+        "ctaUrl",
+        "imageUrl",
+        "status",
+        "notes",
+      ],
+      note: "The ordered static-site section table read by the static-site generator.",
     },
   },
   schedules: {
