@@ -1,34 +1,35 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-06 (pt: **BUILT Packs Publish R1 + R2** — the distribution standard's READ half.
-R1 `pack-canonical-index` (`e6dde729`): `src/lib/packs/index-schema.ts` — the `orionfold.packs/v1` Zod schema +
-pure `parsePackIndex`/`findIndexEntry` (zero-import leaf, taxonomy.ts discipline) + committed fixture
-`__tests__/fixtures/pack-index.json`; drafted the open-decision-#1 note (canonical index URL) into
-`strategy/relay/_RELAY.md` (edit-only, uncommitted). R2 `pack-remote-resolver` (`92d5a808`): `src/lib/packs/remote.ts`
-(the ONE egress — `fetchPackIndex`+`fetchPackDir` reuse `prebuilt-download.ts` `downloadToFile`/sha256; per-pack
-`.tgz` shape, operator-confirmed) + `resolvePackSourceAsync` in `catalog.ts` (the one branch, local-first, ZERO
-network for bundled) + `installPack` wired + bundle-child fence kept shut (tested) + `data-flow.md` egress row #11.
-Two shadow-path findings: **fail-OPEN on the index read** (unreachable index → helpful `UnknownPackNameError`, not a
-raw net error) + **trust-doc drift** (R2's GET falsified "no call to orionfold.com"; corrected). Real `tsx` dev smoke
-(no mocks) proved fetch→sha→extract→parse→DB-write + tamper-reject end-to-end. 0 new regressions. Memory
-`packs-publish-authored` updated. Prior tail: packs-publish GROOM → 7 specs (same commit family), packs-robustify
-R1+R3 (`b43f1b69`), 0.34.0 funnel-flow (`cab55bd1`), Web Designer TDR-039 (`features/architect-report.md`, open),
-0.33.x/0.32.x — full detail in git + CHANGELOG.)_
+_Last updated: 2026-07-06 (pt: **BUILT Packs Publish R5 + R4-mechanism** (`f6b1029d`, `b7f3b3d1`, unreleased).
+**R5 `pack-standard-versioning`**: the early `relayCore` skip in `resolvePackSourceAsync` (`catalog.ts`, after
+`findIndexEntry`/before `fetchPackDir`) — an incompatible `entry.relayCore` throws `PackValidationError`
+"Skipped before fetch", filtering the pack before the wasted download; all 3 new deps (`semver`,
+`relayCoreVersion`, `PackValidationError`) are dynamic `await import()` in-body (no static edge, no cycle —
+live compiled-CLI smoke proved it) + `install.ts` threads `coreVersion` in; post-acquire check STAYS
+(defense in depth). Plus `docs/RELEASING.md` "Versioning axes" section (index-schema / relayCore / apiVersion
+co-listed as ONE checklist, NOT merged). **R4 `pack-tarball-diet` MECHANISM (status: partial)**: measurement
+drove scope — templates are 206 KB/9 packs (~3%), so the CUT is NOT performed (operator: "build the mechanism,
+don't cut yet"). Shipped `bundled.ts` (`BUNDLED_PACK_IDS` SSOT + `SIZE_BUDGET_KB=500` trigger, zero-import
+leaf, `bundled.json` lockstep) + `check-pack-tarball.mjs` (smoke Case TB: allowlist-drift + size-overflow,
+fail-closed). Hidden dep found: fetch-then-cache needs the `§5` managed-base overlay graduation (deferred).
+241 packs + 324 licensing/plugins green. Prior tail: R1/R2/R3 READ-trio (`e6dde729`/`92d5a808`/`bf7619b8`),
+packs-publish GROOM → 7 specs, packs-robustify R1+R3 (`b43f1b69`), 0.34.0 funnel-flow (`cab55bd1`), Web
+Designer TDR-039 (`features/architect-report.md`, open) — full detail in git + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — build `pack-provenance-tiers` (R3) OR Web Designer specs / R5-tranche
+## ▶️ NEXT SESSION — Web Designer specs OR the §5 managed-base overlay graduation
 
-- **Packs Publish — R1 + R2 BUILT 2026-07-06 (`e6dde729`, `92d5a808`); NOT released (no version bump).** Build
-  **R3 `pack-provenance-tiers`** next — the third P1 READ-trio spec: verify each index entry's `sig`/`keyId`
-  offline against the licensing embedded-key map (`verify.ts:37-40` + `canonicalize.ts`), tiers official/partner/
-  community + a trust badge. **The `entry` is ALREADY threaded** into `installPack` as `indexEntry` (`void`-ed with
-  a pointer comment at the acquire seam) — R3 wires the verify there. **R6/R7 (community SEND loop) sequence LAST,
-  behind the TDR-039 substrate** (shared GitHub publisher adapter with the Web Designer ticket). **Open decision #1
-  (canonical index URL) is DRAFTED into `strategy/relay/_RELAY.md`** (2026-07-06, edit-only/uncommitted — the
-  strategy owner commits) awaiting the Website peer; `DEFAULT_PACK_INDEX_BASE` in `remote.ts` is a placeholder +
-  `RELAY_PACK_INDEX_URL` override drives smoke/mirrors until confirmed. 3 open decisions remain (slim-cut R4,
-  trust ceiling R3/R7, partner-key onboarding R3) — raise each at its build. Then R4/R5 (P2), R6/R7 (P3).
-  `_IDEAS/packs-publish.md` stays the durable source thesis. Memory `packs-publish-authored` carries the build
-  findings + reuse anchors.
+- **Packs Publish — P1 READ trio (R1/R2/R3) + R5 + R4-mechanism ALL BUILT, unreleased (`e6dde729`,
+  `92d5a808`, `bf7619b8`, `f6b1029d`, `b7f3b3d1`).** No version bump — a future release bundles them
+  (packs-publish is READ-only, low blast radius; no apiVersion bump). **R4's CUT is deferred with a live
+  trigger:** the `check:pack-tarball` size gate fires when templates cross 500 KB (≈22 packs) AND open
+  decision #2 (most-installed boundary + Website coord) is answered; the cut also needs the §5 managed-base
+  overlay slot for fetch-then-cache. **R6/R7 (community SEND loop) sequence LAST, behind the TDR-039
+  substrate.** Still-open packs-publish decisions to raise at their build: #1 canonical index URL (DRAFTED
+  into `strategy/relay/_RELAY.md` 2026-07-06, awaiting Website peer; `DEFAULT_PACK_INDEX_BASE` placeholder +
+  `RELAY_PACK_INDEX_URL` override drives smoke), #2 slim-cut boundary (R4 cut), trust-ceiling final default
+  (R3 seam built / R7), partner-key onboarding (R3 `of-packs-official-2026` key — coordinate w/ licensing
+  issuer owner). `_IDEAS/packs-publish.md` = durable source thesis; memory `packs-publish-authored` carries
+  all build findings + reuse anchors.
 - **Web Designer ticket — TDR-039 done, specs next (may SHARE the packs-publish GitHub publisher adapter).**
   The generator/publisher substrate is DESIGNED
   (TDR-039 proposed + `features/architect-report.md`). Next: author `features/pack-web-designer.md` (the
@@ -140,6 +141,13 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**Packs Publish P1 READ-trio + R5 + R4-mechanism (BUILT 2026-07-06, UNRELEASED — no version bump; a future
+release bundles them, packs-publish is READ-only / no apiVersion bump):** R1 index-schema (`e6dde729`), R2
+remote-resolver (`92d5a808`), R3 provenance-tiers (`bf7619b8`), R5 standard-versioning (`f6b1029d` — early
+`relayCore` skip + RELEASING.md 3-axis checklist), R4-mechanism (`b7f3b3d1` — `bundled.ts` SSOT +
+`check:pack-tarball` size-gate Case TB; the CUT deferred, trigger @500 KB). Memory `packs-publish-authored`
++ `dont-ask-when-codebase-answers`. Full findings in git + that memory.
+
 **0.34.0 (RELEASED — `v0.34.0`→`cab55bd1`; publish CI `28815321497` green incl. npx prod smoke; npm `latest` +
 GitHub Release + SBOM; MINOR, apiVersion window 0.33→0.34; issue #41):** the funnel-flow Core primitive — the
 Attract→Capture→Nurture→Convert band-flow (`pack-depth-next-wave` first build ticket; the chart fenced out of
