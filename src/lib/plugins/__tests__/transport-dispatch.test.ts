@@ -165,6 +165,26 @@ module.exports = { createServer };
 }
 
 /**
+ * Write a valid ESM SDK server fixture exporting createServer().
+ */
+function writeEsmSdkServer(dirName = "sdk-server-esm"): string {
+  const dir = path.join(examplesDir, dirName);
+  fs.mkdirSync(dir, { recursive: true });
+  const script = `
+export function createServer() {
+  return {
+    setRequestHandler() {},
+    connect() {},
+    _isFakeMcpServer: true,
+  };
+}
+`;
+  const outPath = path.join(dir, "index.mjs");
+  fs.writeFileSync(outPath, script);
+  return outPath;
+}
+
+/**
  * Write an invalid SDK fixture — module with no createServer export.
  */
 function writeInvalidSdkServer_noCreateServer(dirName = "sdk-no-createserver"): string {
@@ -355,6 +375,18 @@ it("8. SDK happy path: valid createServer export → ok: true", async () => {
   expect(result.ok).toBe(true);
 });
 
+it("8b. SDK ESM happy path: valid .mjs createServer export → ok: true", async () => {
+  const entryPath = writeEsmSdkServer();
+  const config: TransportConfig = {
+    transport: "ainative-sdk",
+    entry: entryPath,
+  };
+
+  const result = await validateInProcessSdk(config, "test-plugin", "sdk-esm-happy");
+
+  expect(result.ok).toBe(true);
+});
+
 // ---------------------------------------------------------------------------
 // Test 9: SDK missing createServer — module without createServer → ok: false
 // ---------------------------------------------------------------------------
@@ -415,10 +447,10 @@ it("11. SDK wrong shape: createServer() returns 42 → ok: false, sdk_invalid_ex
 });
 
 // ---------------------------------------------------------------------------
-// Test 12: bustInProcessServerCache — cache cleared, next load sees new content
+// Test 12: bustInProcessServerCache — compatibility no-op
 // ---------------------------------------------------------------------------
 
-it("12. bustInProcessServerCache: cache cleared → next import loads fresh module", async () => {
+it("12. bustInProcessServerCache: no-op does not mutate local require cache", async () => {
   // Write a module that exports a counter value via module.exports.value.
   const modPath = path.join(examplesDir, "cache-test", "index.js");
   fs.mkdirSync(path.dirname(modPath), { recursive: true });
@@ -441,10 +473,11 @@ it("12. bustInProcessServerCache: cache cleared → next import loads fresh modu
   // Bust the cache.
   bustInProcessServerCache(modPath);
 
-  // After bust, require loads fresh file.
+  // SDK validation happens in a child process now, so this compatibility hook
+  // intentionally does not mutate the app process require.cache.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const freshLoad = require(modPath) as { value: string };
-  expect(freshLoad.value).toBe("updated");
+  expect(freshLoad.value).toBe("original");
 });
 
 // ---------------------------------------------------------------------------
@@ -597,4 +630,17 @@ it("15. Invariant grep: transport-dispatch.ts never contains detached: true", ()
   expect(src).not.toMatch(/detached:\s*true/);
   // Must contain detached: false (sanity check).
   expect(src).toMatch(/detached:\s*false/);
+});
+
+it("16. Invariant grep: plugin module loading stays external to Turbopack tracing", () => {
+  const srcPath = path.resolve(__dirname, "../transport-dispatch.ts");
+  const src = fs.readFileSync(srcPath, "utf-8");
+
+  expect(src).not.toMatch(/import\(\s*absPath\s*\)/);
+  expect(src).not.toContain("return import(specifier)");
+  expect(src).not.toMatch(/require\(\s*absPath\s*\)/);
+  expect(src).not.toMatch(/require\.resolve\(\s*absPath\s*\)/);
+  expect(src).toContain("spawn(process.execPath");
+  expect(src).toContain("SDK_VALIDATION_SCRIPT");
+  expect(src).toContain("pathToFileURL(absPath).href");
 });

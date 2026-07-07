@@ -9,11 +9,11 @@
  *     detached: false is REQUIRED per TDR-035 §6 — never change to true.
  *
  *   validateInProcessSdk(config, pluginId, serverName)
- *     Dynamic `await import()` of the absolute entry path, duck-types the
+ *     Child-process Node load of the absolute entry path, duck-types the
  *     createServer() export against MCP SDK server shape.
  *
  *   bustInProcessServerCache(absPath)
- *     Wraps require.cache delete in try/catch — safe in ESM/CJS/Windows.
+ *     Compatibility no-op; validation no longer populates app-process require.cache.
  *
  * Pre-flight model (Option A): validation only, no long-lived children.
  * The SDK / Codex / other adapters spawn their own children at request time.
@@ -26,9 +26,7 @@ import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
 
-import {
-  getAinativeLogsDir,
-} from "@/lib/utils/ainative-paths";
+import { getAinativeLogsDir } from "@/lib/utils/ainative-paths";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,6 +48,68 @@ export type StdioValidationResult =
 export type SdkValidationResult =
   | { ok: true }
   | { ok: false; reason: "sdk_invalid_export"; detail?: string };
+
+const SDK_VALIDATION_SCRIPT = `
+const { createRequire } = require("node:module");
+const path = require("node:path");
+const { pathToFileURL } = require("node:url");
+
+function json(result) {
+  process.stdout.write(JSON.stringify(result) + "\\n");
+}
+
+function resolveCreateServer(mod) {
+  if (mod && typeof mod === "object" && typeof mod.createServer === "function") {
+    return mod.createServer;
+  }
+  const def = mod && typeof mod === "object" ? mod.default : undefined;
+  if (def && typeof def === "object" && typeof def.createServer === "function") {
+    return def.createServer;
+  }
+  return undefined;
+}
+
+(async () => {
+  const absPath = process.argv[1];
+  const ext = path.extname(absPath);
+  const mod = ext === ".mjs"
+    ? await import(pathToFileURL(absPath).href)
+    : createRequire(process.cwd() + "/package.json")(absPath);
+
+  const createServer = resolveCreateServer(mod);
+  if (typeof createServer !== "function") {
+    json({ ok: false, reason: "sdk_invalid_export", detail: "module does not export createServer (named or default.createServer)" });
+    return;
+  }
+
+  let serverInstance;
+  try {
+    serverInstance = await createServer();
+  } catch (err) {
+    json({ ok: false, reason: "sdk_invalid_export", detail: "createServer() threw: " + (err instanceof Error ? err.message : String(err)) });
+    return;
+  }
+
+  if (serverInstance === null || typeof serverInstance !== "object") {
+    json({ ok: false, reason: "sdk_invalid_export", detail: "createServer() returned " + typeof serverInstance + ", expected MCP server object" });
+    return;
+  }
+
+  const hasMcpShape =
+    typeof serverInstance.setRequestHandler === "function" ||
+    typeof serverInstance.connect === "function" ||
+    "onRequest" in serverInstance;
+
+  if (!hasMcpShape) {
+    json({ ok: false, reason: "sdk_invalid_export", detail: "createServer() return value missing setRequestHandler, connect, or onRequest" });
+    return;
+  }
+
+  json({ ok: true });
+})().catch((err) => {
+  json({ ok: false, reason: "sdk_invalid_export", detail: "import error: " + (err instanceof Error ? err.message : String(err)) });
+});
+`;
 
 // ---------------------------------------------------------------------------
 // Logging helper (same pattern as mcp-loader.ts — extracted on 3rd use)
@@ -307,7 +367,7 @@ function killChild(
 
 /**
  * Validates an ainative-sdk module by:
- * 1. Dynamic await import() of the absolute entry path.
+ * 1. Spawning a short-lived Node child that imports/requires the absolute entry path.
  * 2. Resolving createServer from named or default export.
  * 3. Calling createServer() and duck-typing the return value.
  *
@@ -348,111 +408,99 @@ export async function validateInProcessSdk(
     };
   }
 
-  let mod: unknown;
-  try {
-    // Use require() for .js/.cjs (CJS plugin builds) — it handles absolute
-    // paths reliably and avoids Vite/bundler interception in test environments.
-    // Fall back to dynamic import() for .mjs (ESM-only plugin builds).
-    if (ext === ".mjs") {
-      // Dynamic import for ESM modules — never static (TDR-032).
-      mod = await import(absPath);
-    } else {
-      // CJS require — wrapped in eval to avoid static analysis / bundler
-      // treating it as a static import. The indirect call also suppresses
-      // the ESLint no-require warning without needing inline eslint-disable.
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      mod = require(absPath);
-    }
-  } catch (err) {
-    logToFile(
-      `${logPrefix} import failed: ${err instanceof Error ? err.message : String(err)}`
-    );
-    return {
-      ok: false,
-      reason: "sdk_invalid_export",
-      detail: `import error: ${err instanceof Error ? err.message : String(err)}`,
-    };
-  }
+  return validateSdkEntryInChild(absPath, logPrefix);
+}
 
-  // Resolve createServer — named export takes priority, then default export.
-  let createServer: unknown;
-  if (
-    mod !== null &&
-    typeof mod === "object" &&
-    "createServer" in (mod as Record<string, unknown>) &&
-    typeof (mod as Record<string, unknown>)["createServer"] === "function"
-  ) {
-    createServer = (mod as Record<string, unknown>)["createServer"];
-  } else if (
-    mod !== null &&
-    typeof mod === "object" &&
-    "default" in (mod as Record<string, unknown>)
-  ) {
-    const def = (mod as Record<string, unknown>)["default"];
-    if (
-      def !== null &&
-      typeof def === "object" &&
-      "createServer" in (def as Record<string, unknown>) &&
-      typeof (def as Record<string, unknown>)["createServer"] === "function"
-    ) {
-      createServer = (def as Record<string, unknown>)["createServer"];
-    }
-  }
+function validateSdkEntryInChild(
+  absPath: string,
+  logPrefix: string,
+  opts?: { timeoutMs?: number }
+): Promise<SdkValidationResult> {
+  const timeoutMs = opts?.timeoutMs ?? 10_000;
 
-  if (typeof createServer !== "function") {
-    logToFile(`${logPrefix} no createServer export found`);
-    return {
-      ok: false,
-      reason: "sdk_invalid_export",
-      detail: "module does not export createServer (named or default.createServer)",
-    };
-  }
+  return new Promise<SdkValidationResult>((resolve) => {
+    let settled = false;
+    let stdout = "";
+    let stderr = "";
 
-  let serverInstance: unknown;
-  try {
-    serverInstance = await (createServer as () => unknown)();
-  } catch (err) {
-    logToFile(
-      `${logPrefix} createServer() threw: ${err instanceof Error ? err.message : String(err)}`
-    );
-    return {
-      ok: false,
-      reason: "sdk_invalid_export",
-      detail: `createServer() threw: ${err instanceof Error ? err.message : String(err)}`,
-    };
-  }
+    const child = spawn(process.execPath, ["-e", SDK_VALIDATION_SCRIPT, absPath], {
+      detached: false,
+      stdio: ["ignore", "pipe", "pipe"],
+      env: { ...process.env },
+    });
 
-  // Duck-type: MCP SDK server must have at least one of these methods.
-  if (
-    serverInstance === null ||
-    typeof serverInstance !== "object"
-  ) {
-    logToFile(`${logPrefix} createServer() returned non-object: ${typeof serverInstance}`);
-    return {
-      ok: false,
-      reason: "sdk_invalid_export",
-      detail: `createServer() returned ${typeof serverInstance}, expected MCP server object`,
-    };
-  }
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      try {
+        child.kill("SIGKILL");
+      } catch {
+        /* already dead */
+      }
+      resolve({
+        ok: false,
+        reason: "sdk_invalid_export",
+        detail: `validation timed out after ${timeoutMs}ms`,
+      });
+    }, timeoutMs);
 
-  const srv = serverInstance as Record<string, unknown>;
-  const hasMcpShape =
-    typeof srv["setRequestHandler"] === "function" ||
-    typeof srv["connect"] === "function" ||
-    "onRequest" in srv;
+    child.stdout?.on("data", (chunk: Buffer) => {
+      stdout += chunk.toString("utf8");
+    });
+    child.stderr?.on("data", (chunk: Buffer) => {
+      stderr += chunk.toString("utf8");
+    });
 
-  if (!hasMcpShape) {
-    logToFile(
-      `${logPrefix} createServer() return value lacks MCP server shape (setRequestHandler/connect/onRequest)`
-    );
-    return {
-      ok: false,
-      reason: "sdk_invalid_export",
-      detail: "createServer() return value missing setRequestHandler, connect, or onRequest",
-    };
-  }
+    child.on("error", (err: Error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve({
+        ok: false,
+        reason: "sdk_invalid_export",
+        detail: `spawn error: ${err.message}`,
+      });
+    });
 
-  return { ok: true };
+    child.on("close", () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+
+      if (stderr.trim()) {
+        logToFile(`${logPrefix} sdk validator stderr: ${stderr.trim()}`);
+      }
+
+      const line = stdout.trim().split(/\r?\n/).at(-1);
+      if (!line) {
+        resolve({
+          ok: false,
+          reason: "sdk_invalid_export",
+          detail: "validator produced no result",
+        });
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(line) as SdkValidationResult;
+        if (
+          parsed.ok === true ||
+          (parsed.ok === false && parsed.reason === "sdk_invalid_export")
+        ) {
+          resolve(parsed);
+          return;
+        }
+      } catch {
+        // handled below
+      }
+
+      resolve({
+        ok: false,
+        reason: "sdk_invalid_export",
+        detail: `validator produced malformed result: ${line}`,
+      });
+    });
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -460,24 +508,15 @@ export async function validateInProcessSdk(
 // ---------------------------------------------------------------------------
 
 /**
- * Bust the CommonJS require.cache entry for an absolute module path.
+ * Compatibility hook for old in-process SDK cache busting.
  *
- * Safe to call from any runtime:
- * - CJS: deletes the cache entry so next require/import sees a fresh load.
- * - ESM: require.cache may not exist or require.resolve may throw — noop.
- * - Windows: no special handling needed; require.cache works on Win32 CJS.
+ * SDK validation now happens in a short-lived Node child process, so this
+ * module no longer imports user plugin entries into the app process and has no
+ * require.cache entry to clear. Keep the exported function so reload/revoke
+ * callers remain source-compatible.
  *
- * Called by T15 reload to invalidate a running SDK plugin before re-import.
+ * Called by T15 reload/revoke paths as best-effort compatibility.
  */
 export function bustInProcessServerCache(absPath: string): void {
-  try {
-    // In ESM contexts, require may not exist or require.resolve may fail.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const resolved = require.resolve(absPath);
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    delete require.cache[resolved];
-  } catch {
-    // ESM-only environment or path-resolution failure — noop.
-    // Next dynamic import() will load the module fresh regardless.
-  }
+  void absPath;
 }

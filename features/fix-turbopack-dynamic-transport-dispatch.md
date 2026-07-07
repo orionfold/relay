@@ -1,6 +1,6 @@
 ---
 title: Fix Turbopack dynamic transport-dispatch warning
-status: planned
+status: built
 priority: P1
 milestone: post-mvp
 source: output/operator-walkthrough-feedback-2026-07-07.md
@@ -38,11 +38,18 @@ import noise does not hide regressions.
 
 ## Acceptance Criteria
 
-- [ ] `npm run dev` no longer emits `Can't resolve <dynamic>` for `transport-dispatch.ts`.
-- [ ] Runtime plugin transport dispatch still resolves supported transports.
-- [ ] Unsupported transports fail with a named visible error.
-- [ ] No new module-load cycle is introduced through `@/lib/agents/runtime/catalog.ts`.
-- [ ] End-to-end dev smoke covers at least one route importing workflow/runtime code.
+- [x] `npm run dev` no longer emits `Can't resolve <dynamic>` for `transport-dispatch.ts`.
+- [x] Runtime plugin transport dispatch still resolves supported transports.
+- [x] Unsupported transports fail with a named visible error.
+- [x] No new module-load cycle is introduced through `@/lib/agents/runtime/catalog.ts`.
+- [x] End-to-end dev smoke covers at least one route importing workflow/runtime code.
+
+## Verification run — 2026-07-07
+
+- `npm test -- src/lib/plugins/__tests__/transport-dispatch.test.ts src/lib/plugins/__tests__/mcp-loader.test.ts` passed: 55 tests.
+- `npm run build` passed. The previous `src/lib/plugins/transport-dispatch.ts` `Can't resolve <dynamic>` warning is gone; remaining Turbopack warnings are the pre-existing `src/app/api/workspace/fix-data-dir/route.ts` / `next.config.mjs` NFT trace family.
+- `npm run dev` smoke passed: `GET /tasks` returned 200 and dev output showed no `transport-dispatch.ts` dynamic warning.
+- Validation keeps named `sdk_invalid_export` failures for missing `createServer`, throwing `createServer`, wrong return shape, missing entry, relative entry, and unsupported `.ts` entries.
 
 ## Scope Boundaries
 
