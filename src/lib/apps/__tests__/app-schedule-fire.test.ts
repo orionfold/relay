@@ -90,6 +90,7 @@ function mockAppManifest() {
 describe("app-manifest schedule firing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(engine.executeWorkflow).mockResolvedValue(undefined);
     db.delete(scheduleFiringMetrics).run();
     db.delete(notifications).run();
     db.delete(tasks).run();
@@ -131,6 +132,45 @@ describe("app-manifest schedule firing", () => {
     expect(row!.firingCount).toBe(1);
     expect(row!.lastFiredAt).not.toBeNull();
     expect(row!.nextFireAt).not.toBeNull();
+    expect(row!.failureStreak).toBe(0);
+    expect(row!.lastFailureReason).toBeNull();
+  });
+
+  it("records dispatch failure without counting it as a successful firing", async () => {
+    seedAppSchedule();
+    mockAppManifest();
+    vi.mocked(instantiator.instantiateBlueprint).mockRejectedValue(
+      new Error('Missing required variables: "Lead" is required')
+    );
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await tickScheduler();
+
+    expect(engine.executeWorkflow).not.toHaveBeenCalled();
+    expect(logSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining("fired app schedule")
+    );
+
+    const row = db
+      .select()
+      .from(schedules)
+      .where(eq(schedules.id, COMPOSITE_ID))
+      .get();
+    expect(row!.firingCount).toBe(0);
+    expect(row!.lastFiredAt).toBeNull();
+    expect(row!.failureStreak).toBe(1);
+    expect(row!.lastFailureReason).toBe("dispatch_failed");
+    expect(row!.status).toBe("active");
+    expect(row!.nextFireAt!.getTime()).toBeGreaterThan(Date.now());
+
+    const notes = db.select().from(notifications).all();
+    expect(notes).toHaveLength(1);
+    expect(notes[0].title).toContain("Schedule failure");
+    expect(notes[0].body).toContain("Missing required variables");
+
+    logSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 
   it("pauses the schedule and writes a notification when the owning app is gone", async () => {

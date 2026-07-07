@@ -34,6 +34,13 @@ interface TriggerVarCase {
   variables: Array<{ id: string; required?: boolean; default?: unknown }>;
 }
 
+interface ScheduledVarCase {
+  pack: string;
+  scheduleId: string;
+  blueprintId: string;
+  variables: Array<{ id: string; required?: boolean; default?: unknown }>;
+}
+
 /** Enumerate every row-insert-triggered blueprint whose trigger table is
  *  declared in the SAME manifest (a cross-child trigger whose table lives in
  *  another pack is inert standalone and validated only in the merged bundle). */
@@ -90,6 +97,48 @@ function unfillableRequiredVars(c: TriggerVarCase): string[] {
     .map((v) => v.id);
 }
 
+function collectScheduledCases(): ScheduledVarCase[] {
+  const out: ScheduledVarCase[] = [];
+  for (const pack of fs.readdirSync(TEMPLATES)) {
+    const mf = path.join(TEMPLATES, pack, "base", "manifest.yaml");
+    if (!fs.existsSync(mf)) continue;
+    const manifest = yaml.load(fs.readFileSync(mf, "utf-8")) as {
+      blueprints?: Array<{ id: string; source?: string }>;
+      schedules?: Array<{ id: string; runs?: string }>;
+    };
+    const blueprintsById = new Map(
+      (manifest.blueprints ?? []).map((bp) => [bp.id, bp])
+    );
+
+    for (const sched of manifest.schedules ?? []) {
+      if (!sched.runs) continue;
+      const bp = blueprintsById.get(sched.runs);
+      const src = bp?.source?.replace(
+        "$AINATIVE_DATA_DIR",
+        path.join(TEMPLATES, pack, "base")
+      );
+      if (!src || !fs.existsSync(src)) continue;
+      const blueprint = yaml.load(fs.readFileSync(src, "utf-8")) as {
+        variables?: Array<{ id: string; required?: boolean; default?: unknown }>;
+      };
+      out.push({
+        pack,
+        scheduleId: sched.id,
+        blueprintId: sched.runs,
+        variables: blueprint.variables ?? [],
+      });
+    }
+  }
+  return out;
+}
+
+function scheduledVarsWithoutDefaults(c: ScheduledVarCase): string[] {
+  return c.variables
+    .filter((v) => v.required === true)
+    .filter((v) => v.default === undefined || v.default === null)
+    .map((v) => v.id);
+}
+
 describe("row-insert trigger var fillability — shipped pack sweep", () => {
   const cases = collectRowTriggerCases();
 
@@ -124,6 +173,33 @@ describe("row-insert trigger var fillability — shipped pack sweep", () => {
     ]) {
       expect(ids.has(anchor), `${anchor} must be in the swept set`).toBe(true);
     }
+  });
+});
+
+describe("scheduled blueprint var fillability — shipped pack sweep", () => {
+  const cases = collectScheduledCases();
+
+  it("has scheduled blueprints to check (guard is not vacuous)", () => {
+    expect(cases.length).toBeGreaterThan(0);
+  });
+
+  it.each(cases)(
+    "$pack/$scheduleId: scheduled blueprint $blueprintId is fireable with defaults only",
+    (c) => {
+      const bad = scheduledVarsWithoutDefaults(c);
+      expect(
+        bad,
+        `${c.pack}/${c.scheduleId}: scheduled blueprint ${c.blueprintId} ` +
+          `has required var(s) ${bad.join(", ")} with no default. Scheduled ` +
+          `blueprints run without human input, so give each a default or make ` +
+          `it optional.`
+      ).toEqual([]);
+    }
+  );
+
+  it("covers the CRM lead-list hygiene schedule used by the Marketing bundle", () => {
+    const ids = new Set(cases.map((c) => `${c.pack}/${c.scheduleId}`));
+    expect(ids.has("relay-crm/lead-poller")).toBe(true);
   });
 });
 

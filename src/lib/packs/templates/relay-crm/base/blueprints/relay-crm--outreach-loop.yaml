@@ -18,13 +18,15 @@ variables:
     type: text
     label: Lead
     description: The lead to run outreach for
-    required: true
+    required: false
+    default: "all stale leads in the leads table"
     placeholder: Sample Ops Director
   - id: objective
     type: text
     label: Objective
     description: The outreach objective (share a resource, book a call, partner)
     required: false
+    default: "reconcile stale leads, advance follow-up due, and sweep do-not-contact"
     placeholder: share_resource
 steps:
   - name: Draft the outreach

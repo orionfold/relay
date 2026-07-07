@@ -1,6 +1,6 @@
 ---
 title: Fix scheduled lead-list hygiene dispatch variables and firing status
-status: planned
+status: built
 priority: P1
 milestone: post-mvp
 source: output/operator-walkthrough-feedback-2026-07-07.md
@@ -36,12 +36,20 @@ fail, so that a "fired" schedule does not hide a skipped workflow.
 
 ## Acceptance Criteria
 
-- [ ] Lead-list hygiene schedules no longer throw `Missing required variables: "Lead" is required`
+- [x] Lead-list hygiene schedules no longer throw `Missing required variables: "Lead" is required`
       in normal seeded installs.
-- [ ] If scheduled dispatch throws, the schedule is not logged as a successful firing.
-- [ ] Failure state/error details are visible in logs or scheduler history.
-- [ ] Pack install validation catches future scheduled blueprint variables that cannot be filled.
-- [ ] Tests cover success and thrown-dispatch paths.
+- [x] If scheduled dispatch throws, the schedule is not logged as a successful firing.
+- [x] Failure state/error details are visible in logs or scheduler history.
+- [x] Pack install validation catches future scheduled blueprint variables that cannot be filled.
+- [x] Tests cover success and thrown-dispatch paths.
+
+## Verification
+
+- 2026-07-07: `npm test -- src/lib/apps/__tests__/app-schedule-fire.test.ts src/lib/packs/__tests__/install.test.ts src/lib/packs/__tests__/row-insert-var-fillability.test.ts src/lib/packs/__tests__/relay-marketing-bundle-template.test.ts`
+- 2026-07-07: `npm test -- src/lib/schedules/__tests__ src/lib/apps/__tests__/app-schedule-fire.test.ts`
+- 2026-07-07: `npm test -- src/lib/packs/__tests__`
+- 2026-07-07: `npx tsc --noEmit`
+- 2026-07-07: `npm run build` passed with the known `workspace/fix-data-dir` Turbopack/NFT warnings.
 
 ## Scope Boundaries
 

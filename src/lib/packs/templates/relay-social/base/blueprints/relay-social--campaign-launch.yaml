@@ -18,13 +18,15 @@ variables:
     type: text
     label: Campaign
     description: The campaign to launch (utm_campaign)
-    required: true
+    required: false
+    default: "campaigns scheduled for today and the next 7 days"
     placeholder: 2026-q3-field-ops-series
   - id: promotes
     type: text
     label: Promotes
     description: What this campaign promotes
     required: false
+    default: "campaign rows whose status is planned or scheduled"
     placeholder: guide/field-ops-playbook
 steps:
   - name: Compose the campaign

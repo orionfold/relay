@@ -388,6 +388,51 @@ describe("installPack", () => {
     expect(proj).toBeUndefined();
   });
 
+  it("refuses a scheduled blueprint with required variables that have no defaults", async () => {
+    buildFixturePack({
+      schedules: [
+        { id: "month-end", cron: "0 6 1 * *", runs: "test-agency--weekly" },
+      ],
+    });
+    fs.writeFileSync(
+      path.join(packDir, "base", "blueprints", "test-agency--weekly.yaml"),
+      yaml.dump({
+        id: "test-agency--weekly",
+        name: "Weekly Review",
+        description: "Fixture blueprint.",
+        version: "1.0.0",
+        domain: "work",
+        tags: ["fixture"],
+        pattern: "sequence",
+        variables: [
+          { id: "client", type: "text", label: "Client", required: true },
+        ],
+        steps: [
+          {
+            name: "Review",
+            profileId: "test-agency--manager",
+            requiresApproval: false,
+            promptTemplate: "Review {{client}}.",
+          },
+        ],
+      })
+    );
+    const { installPack, db, projects } = await loadModules();
+    const { PackValidationError } = await import("../format");
+    const { eq } = await import("drizzle-orm");
+
+    await expect(installPack(packDir, installOpts())).rejects.toThrow(
+      PackValidationError
+    );
+
+    const proj = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, "test-agency"))
+      .get();
+    expect(proj).toBeUndefined();
+  });
+
   it("is idempotent on re-install — no duplicate project, customers, or tables", async () => {
     buildFixturePack();
     const { installPack, registry, db, customers, userTables, userTableRows } =

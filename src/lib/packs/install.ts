@@ -304,10 +304,11 @@ export async function installPack(
       if (!declaredBlueprints.has(sched.runs)) {
         throw new PackValidationError(
           `Manifest schedule "${sched.id}" runs blueprint "${sched.runs}", ` +
-            `which the manifest does not declare.`
+          `which the manifest does not declare.`
         );
       }
     }
+    assertScheduledBlueprintVarsFillable(pack, resolved);
 
     // 2d. Row-insert trigger var fillability — still BEFORE any write. A
     // row-insert trigger fires with NO human in the loop, so every REQUIRED
@@ -645,6 +646,55 @@ function assertRowTriggerVarsFillable(pack: Pack, resolved: ResolvedPack): void 
           `inserted row. Give it a "{{row.<col>}}" default naming a column of ` +
           `"${trigger.table}" (${[...cols].join(", ")}), or make it optional. ` +
           `A row-insert trigger has no human to prompt for a required value.`
+      );
+    }
+  }
+}
+
+/**
+ * Guard: scheduled blueprints run without human-supplied variables. Every
+ * required variable must therefore have a default, or the first cron firing
+ * will throw "Missing required variables" after the pack has already installed.
+ */
+function assertScheduledBlueprintVarsFillable(
+  pack: Pack,
+  resolved: ResolvedPack
+): void {
+  const blueprintsById = new Map(
+    pack.manifest.blueprints.map((bp) => [bp.id, bp])
+  );
+
+  for (const sched of pack.manifest.schedules) {
+    if (!sched.runs) continue;
+    const bp = blueprintsById.get(sched.runs);
+    const relPath = blueprintRelPathFromSource(bp?.source);
+    if (!relPath) continue; // no bundled file to inspect
+    const file = findResolved(resolved.files, relPath);
+    if (!file) continue;
+
+    let parsed: unknown;
+    try {
+      parsed = yaml.load(fs.readFileSync(file.absPath, "utf-8"));
+    } catch (err) {
+      throw new PackValidationError(
+        `Scheduled blueprint "${sched.runs}" could not be read for validation: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
+    }
+
+    const vars =
+      (parsed as { variables?: Array<Record<string, unknown>> })?.variables ??
+      [];
+    for (const v of vars) {
+      if (v.required !== true) continue;
+      if (v.default !== undefined && v.default !== null) continue;
+
+      throw new PackValidationError(
+        `Manifest schedule "${sched.id}" runs blueprint "${sched.runs}", ` +
+          `whose required variable "${String(v.id)}" has no default. ` +
+          `Scheduled blueprints run without human input; give the variable a ` +
+          `default or make it optional.`
       );
     }
   }

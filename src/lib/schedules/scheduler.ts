@@ -728,11 +728,36 @@ async function fireAppSchedule(
   const { dispatchScheduledBlueprint } = await import(
     "@/lib/apps/manifest-trigger-dispatch"
   );
-  await dispatchScheduledBlueprint({
+  const result = await dispatchScheduledBlueprint({
     appId: parsed.appId,
     blueprintId,
     scheduleId: schedule.id,
   });
+
+  if (!result) {
+    const failureStreak = (schedule.failureStreak ?? 0) + 1;
+    const shouldAutoPause = failureStreak >= 3 && schedule.status === "active";
+    const nextFireAt =
+      !shouldAutoPause && schedule.recurs
+        ? computeNextFireTime(schedule.cronExpression, now)
+        : null;
+
+    await db
+      .update(schedules)
+      .set({
+        failureStreak,
+        lastFailureReason: "dispatch_failed",
+        nextFireAt,
+        status: shouldAutoPause ? "paused" : schedule.status,
+        updatedAt: now,
+      })
+      .where(eq(schedules.id, schedule.id));
+
+    console.error(
+      `[scheduler] app schedule "${schedule.name}" failed to dispatch blueprint ${blueprintId}`
+    );
+    return;
+  }
 
   // Update counters + compute the next fire (scheduleNextFire KPI reads this).
   const firingNumber = schedule.firingCount + 1;
@@ -756,6 +781,8 @@ async function fireAppSchedule(
       lastFiredAt: now,
       nextFireAt,
       status: nextStatus,
+      failureStreak: 0,
+      lastFailureReason: null,
       updatedAt: now,
     })
     .where(eq(schedules.id, schedule.id));
