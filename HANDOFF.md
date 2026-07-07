@@ -1,6 +1,7 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-07 (pt: **TDR-039 preview-first COMMITTED in this commit; Phase 5 next.**
+_Last updated: 2026-07-07 (pt: **TDR-039 preview-first COMMITTED in `0d2e29c5`; agent sync committed in
+`72706130`; Phase 5 next.**
 After committed Phase 3 `28f17d77` + Phase 4 `19bc6f70`, implemented the preview-first follow-up from
 `features/publish-preview-artifacts.md`: preview artifacts persist under Relay data dir, `POST
 /api/apps/:id/preview` generates the exact `Artifact`, `GET /api/apps/:id/previews/:artifactId/...` serves
@@ -25,7 +26,7 @@ dynamic-trace warnings around plugin transport / `workspace/fix-data-dir`; dev s
   issuer owner). `_IDEAS/packs-publish.md` = durable source thesis; memory `packs-publish-authored` carries
   all build findings + reuse anchors.
 - **Web Designer substrate — Phase 1+2 RELEASED in 0.35.0/0.35.1; Phase 3+4 COMMITTED in `28f17d77` +
-  `19bc6f70`, UNRELEASED; preview-first COMMITTED in this commit, UNRELEASED.** Phase 5 = author
+  `19bc6f70`, UNRELEASED; preview-first COMMITTED in `0d2e29c5`, UNRELEASED.** Phase 5 = author
   `pack-web-designer.md` against the real
   generate/preview/publish seam, include a standalone-useful `gallery` primitive, run a live GitHub Pages smoke
   through the new UI, and move TDR-039 proposed→accepted. If any API contract changes before release, grep
@@ -127,12 +128,16 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**TDR-039 preview-first local artifacts (BUILT 2026-07-07, this commit, UNRELEASED):** Added a durable
+**TDR-039 preview-first local artifacts (BUILT 2026-07-07, `0d2e29c5`, UNRELEASED):** Added a durable
 preview artifact store under Relay data dir with `meta.json` + file hashes + expiry cleanup; `POST
 /api/apps/:id/preview`; `GET /api/apps/:id/previews/:artifactId/...` with traversal/cross-app/hash/expiry
 guards and defensive headers; optional `artifactId` on `POST /publish`; stale-preview refusal via
 `PREVIEW_STALE`; and preview-first `AppPublishPanel` UI. Verification: focused tests 23/23 pass; `npm run
 build` passes with known Turbopack dynamic-trace warnings; dev route smoke returned named `APP_NOT_FOUND` 404.
+
+**Repo-local agent skills/hooks sync (2026-07-07, `72706130`):** Added `.agents/skills/` and `.codex/hooks/`
+as repo-local agent surfaces. Verification: commit succeeded; `git diff --cached --check` flagged trailing
+whitespace in imported/vendor skill files and schemas, intentionally left as source-sync content.
 
 **TDR-039 Phase 3+4 (BUILT 2026-07-07, `28f17d77` + `19bc6f70`, UNRELEASED):** Phase 3 added the
 app-scoped publish service/routes (`publish`, `publish-targets`, `deployments`), row JSON parsing before
