@@ -134,6 +134,43 @@ describe("static-site generator — escaping (XSS defense)", () => {
     expect(doc).toContain('href="#"');
   });
 
+  it("strips javascript: obfuscated with control chars / embedded whitespace", async () => {
+    // Regression (post-0.35.0 security review): a browser ignores ASCII control
+    // chars and whitespace while parsing a URL scheme, so a blocklist that reads
+    // the raw string is bypassable. These MUST all collapse to href="#".
+    const CTRL = String.fromCharCode(1); // \x01
+    const vectors = [
+      `${CTRL}javascript:alert(1)`,
+      `java${String.fromCharCode(9)}script:alert(1)`, // embedded tab
+      `java${String.fromCharCode(10)}script:alert(1)`, // embedded newline
+      `java${String.fromCharCode(13)}script:alert(1)`, // embedded CR
+      `${String.fromCharCode(0)}data:text/html,<script>`, // NUL + data:
+      "vbscript:msgbox(1)",
+    ];
+    for (const url of vectors) {
+      const doc = await html([
+        section({ kind: "cta", heading: "X", ctaLabel: "Go", ctaUrl: url }),
+      ]);
+      expect(doc).toContain('href="#"');
+      expect(doc.toLowerCase()).not.toContain("javascript:");
+      expect(doc.toLowerCase()).not.toContain("vbscript:");
+      // No lingering "...script:" after whitespace/control removal either.
+      expect(doc.replace(/\s/g, "").toLowerCase()).not.toContain("script:alert");
+    }
+  });
+
+  it("strips control-char obfuscation in a hero imageUrl too", async () => {
+    const doc = await html([
+      section({
+        kind: "hero",
+        heading: "H",
+        imageUrl: `java${String.fromCharCode(9)}script:alert(1)`,
+      }),
+    ]);
+    expect(doc).toContain('src="#"');
+    expect(doc.replace(/\s/g, "").toLowerCase()).not.toContain("script:alert");
+  });
+
   it("keeps a safe http(s) cta url", async () => {
     const doc = await html([
       section({

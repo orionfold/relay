@@ -1,22 +1,23 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-06 (pt: **BUILT substrate Phase 1 (TDR-039) — `b9fcb674`, unreleased.** TDD
-end-to-end per the spec: `src/lib/publishers/{types,registry,github-pages-adapter}.ts` (ChannelAdapter
-mirror + GitHub Contents-API adapter, mocked-fetch tests) + minimal `src/lib/generators/types.ts` +
-`publish_targets`/`deployments` wired at all FOUR storage points (schema / bootstrap+`LEGACY_DATA_TABLES` /
-`0029` / clear.ts). 26 new tests + the required dev-boot smoke on an isolated `RELAY_DATA_DIR` (tables exist
-via bootstrap, `/api/data/clear` 200, FK live); full suite = only the 8 known pre-existing failures. Build
-findings in memory `generator-publisher-substrate-tdr039`: `commit`→`commit_sha` column (SQLite keyword);
-`0029` NOT journaled per 0028 precedent (bootstrap-on-every-open is the executable path, journal pinned at
-12); `appId` plain text, no SQL FK. Spec flipped to `built` + verification-run section. Prior tail: Phase-1
-spec authored (`c323e0ca`/`c8d11283`), packs-publish R1/R2/R3/R5/R4-mech (`e6dde729`…`b7f3b3d1`), 0.34.0
-funnel-flow — full detail in git + CHANGELOG.)_
+_Last updated: 2026-07-06 (pt: **RELEASED 0.35.0 — TDR-039 Phase 2 (manifest seam + static-site
+generator), `e241b552`→`v0.35.0`.** `generate:`/`publish:` arms in `ViewSchema.bindings` `.strict()`
+(single-valued like funnel, `table`-named ref for free UUID-rewrite) + `mergeBundle` allowlist (funnel
+shadow-path applied) + generator registry (lightweight `Record` dispatch — settles open-Q(b)) +
+`static-site-generator.ts` (ordered landing-page sections hero/features/cta/text → one self-contained
+`index.html`; published-only fail-safe, unknown-kind skip, order-last, HTML/attr escape, `javascript:`
+strip, empty→placeholder, deterministic sha256). 24 new tests incl. e2e generate→publish chain (real
+gen+registries → github-pages, fetch mocked). Diff fenced to generators/+apps/registry+packs/bundle — no
+storage change, no boot smoke needed; full suite = only the 8 known pre-existing failures (proven by
+stash). MINOR: apiVersion window 0.34→0.35 in the same commit (4 sites). Design doc:
+`docs/superpowers/specs/2026-07-06-web-designer-phase2-design.md`. **This RELEASED the whole prior
+unreleased tail too** (Phase 1 `b9fcb674` + packs-publish `e6dde729`…`b7f3b3d1`). Prior tail detail in git
++ CHANGELOG + memory `generator-publisher-substrate-tdr039`.)_
 
-## ▶️ NEXT SESSION — substrate Phase 2 (manifest seam), or bundle a release of the unreleased tail
+## ▶️ NEXT SESSION — substrate Phase 3 (API routes + row loader), then Phase 4 UI
 
-- **Packs Publish — P1 READ trio (R1/R2/R3) + R5 + R4-mechanism ALL BUILT, unreleased (`e6dde729`,
-  `92d5a808`, `bf7619b8`, `f6b1029d`, `b7f3b3d1`).** No version bump — a future release bundles them
-  (packs-publish is READ-only, low blast radius; no apiVersion bump). **R4's CUT is deferred with a live
+- **Packs Publish — P1 READ trio (R1/R2/R3) + R5 + R4-mechanism ALL BUILT + RELEASED in 0.35.0**
+  (`e6dde729`, `92d5a808`, `bf7619b8`, `f6b1029d`, `b7f3b3d1` — shipped with the Phase-2 bundle). **R4's CUT is deferred with a live
   trigger:** the `check:pack-tarball` size gate fires when templates cross 500 KB (≈22 packs) AND open
   decision #2 (most-installed boundary + Website coord) is answered; the cut also needs the §5 managed-base
   overlay slot for fetch-then-cache. **R6/R7 (community SEND loop) sequence LAST, behind the TDR-039

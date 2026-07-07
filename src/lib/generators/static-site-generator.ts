@@ -35,22 +35,31 @@ function escapeHtml(v: unknown): string {
 }
 
 /**
- * Escape a URL for use in an href/src attribute. Strips `javascript:` (and
- * other non-http(s), non-relative) schemes to a safe "#" so a malicious row
- * cannot inject an executable link into the published site.
+ * Escape a URL for use in an href/src attribute. Default-DENY allowlist: a
+ * value is only kept if, after stripping the chars a browser ignores while
+ * parsing a scheme (ASCII control chars + all whitespace, incl. embedded tabs
+ * and newlines), it either has no scheme (relative / fragment / protocol-
+ * relative) or an explicitly allowed one (http, https, mailto). Everything else
+ * — `javascript:`, `data:`, `vbscript:`, and their control-char/whitespace
+ * obfuscations (`\x01javascript:`, `java\tscript:`, `java\nscript:`) —
+ * collapses to "#". A blocklist here is unsafe: browsers ignore those chars, so
+ * the raw string must be normalized BEFORE the scheme is read.
  */
 function safeUrl(v: unknown): string {
   const raw = str(v).trim();
   if (raw === "") return "#";
-  // Allow http(s), protocol-relative, root-relative, and fragment/relative
-  // paths. Anything with a disallowed scheme (javascript:, data:, vbscript:)
-  // collapses to "#".
-  const scheme = raw.match(/^([a-zA-Z][a-zA-Z0-9+.-]*):/);
+  // Normalize the way a browser would when reading the scheme: drop ASCII
+  // control chars (\x00-\x1F, \x7F) and ALL whitespace, then look for a scheme.
+  // eslint-disable-next-line no-control-regex
+  const normalized = raw.replace(/[\x00-\x20\x7F]/g, "");
+  const scheme = normalized.match(/^([a-zA-Z][a-zA-Z0-9+.-]*):/);
   if (scheme) {
     const s = scheme[1]!.toLowerCase();
-    if (s !== "http" && s !== "https") return "#";
+    if (s !== "http" && s !== "https" && s !== "mailto") return "#";
   }
-  // Attr-escape (ampersands + quotes) — the value is otherwise trusted shape.
+  // No scheme (relative/fragment/protocol-relative) or an allowed one — keep the
+  // ORIGINAL raw value (attr-escaped). A scheme-relative "//host" has no scheme
+  // match and is allowed, matching the prior behavior.
   return escapeHtml(raw);
 }
 

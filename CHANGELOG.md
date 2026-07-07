@@ -6,6 +6,12 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.35.1] — 2026-07-06
+
+### Fixed
+
+- **Hardened link safety in generated sites.** The new site generator already blocked unsafe link types like `javascript:`. This release closes an edge case where the same unsafe links could sneak past by hiding invisible characters inside them. Any link that is not a plain web, email, or same-site link is now dropped safely. No site could have been affected yet, since the generator is not wired to any button or page in this release, but the fix lands before it is.
+
 ## [0.35.0] — 2026-07-06
 
 ### Added
