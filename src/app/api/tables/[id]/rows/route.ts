@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTable, listRows, addRows } from "@/lib/data/tables";
+import { revalidateAppRuntimeForTable } from "@/lib/apps/app-runtime-cache";
 import { rowQuerySchema, addRowsSchema } from "@/lib/tables/validation";
 
 export async function GET(
@@ -90,6 +91,9 @@ export async function POST(
     }
 
     const { ids, skippedHashes } = await addRows(id, parsed.data.rows);
+    if (ids.length > 0) {
+      await revalidateAppRuntimeForTable(id);
+    }
     return NextResponse.json(
       { ids, skipped: skippedHashes.length },
       { status: 201 }

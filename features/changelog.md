@@ -1,5 +1,13 @@
 # Feature Changelog
 
+## 2026-07-07 — App-detail row cache invalidation built
+
+### Built
+- `fix-app-detail-row-cache-invalidation`: table row add/update/delete API mutations now
+  revalidate scoped app-runtime cache tags for apps that own the changed table, no-op row
+  updates skip cache churn, and the publish panel marks stored preview artifacts stale when
+  current source rows no longer match the saved preview fingerprint.
+
 ## 2026-07-07 — Gallery card interactions built
 
 ### Built

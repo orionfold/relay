@@ -9,6 +9,7 @@ import {
 import { eq } from "drizzle-orm";
 import {
   createAppPreview,
+  getAppPreviewStatus,
   loadGenerateRows,
   runDeployment,
   triggerAppPublish,
@@ -181,6 +182,50 @@ describe("createAppPreview", () => {
     const stored = await loadPreviewArtifact(APP_ID, preview.artifactId);
     expect(String(stored.artifact.files[0]!.content)).toContain("Preview me");
     expect(stored.metadata.sourceFingerprint).toMatch(/^[a-f0-9]{64}$/);
+  });
+});
+
+describe("getAppPreviewStatus", () => {
+  it("marks an existing preview stale when source rows change", async () => {
+    mockApp();
+    const now = new Date();
+    db.insert(userTableRows)
+      .values({
+        id: "publish-row-preview-status",
+        tableId: TABLE_ID,
+        data: JSON.stringify({
+          kind: "hero",
+          heading: "Before",
+          status: "published",
+        }),
+        position: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+
+    const preview = await createAppPreview(APP_ID);
+    await expect(getAppPreviewStatus(APP_ID, preview.artifactId)).resolves.toMatchObject({
+      artifactId: preview.artifactId,
+      stale: false,
+    });
+
+    db.update(userTableRows)
+      .set({
+        data: JSON.stringify({
+          kind: "hero",
+          heading: "After",
+          status: "published",
+        }),
+        updatedAt: new Date(),
+      })
+      .where(eq(userTableRows.id, "publish-row-preview-status"))
+      .run();
+
+    await expect(getAppPreviewStatus(APP_ID, preview.artifactId)).resolves.toMatchObject({
+      artifactId: preview.artifactId,
+      stale: true,
+    });
   });
 });
 

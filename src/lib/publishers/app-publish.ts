@@ -59,6 +59,14 @@ export interface CreatePreviewResult {
   expiresAt: string;
 }
 
+export interface PreviewStatusResult {
+  artifactId: string;
+  hash: string;
+  createdAt: string;
+  expiresAt: string;
+  stale: boolean;
+}
+
 type GenerateBinding = NonNullable<ViewConfig["bindings"]["generate"]>;
 
 function requireApp(appId: string): AppDetail {
@@ -272,6 +280,48 @@ export async function createAppPreview(appId: string): Promise<CreatePreviewResu
     createdAt: metadata.createdAt,
     expiresAt: metadata.expiresAt,
   };
+}
+
+export async function getAppPreviewStatus(
+  appId: string,
+  artifactId: string
+): Promise<PreviewStatusResult> {
+  const app = requireApp(appId);
+  const generate = app.manifest.view?.bindings.generate;
+  if (!generate) {
+    throw new AppPublishError(
+      "APP_GENERATE_NOT_CONFIGURED",
+      "App manifest does not declare view.bindings.generate"
+    );
+  }
+
+  try {
+    const preview = await loadPreviewArtifact(appId, artifactId);
+    if (
+      preview.metadata.generatorType !== generate.generatorType ||
+      preview.metadata.sourceTable !== generate.table
+    ) {
+      throw new AppPublishError(
+        "PREVIEW_APP_MISMATCH",
+        "Preview artifact does not match the app generate binding"
+      );
+    }
+
+    const rows = await loadGenerateRows(generate.table);
+    const currentFingerprint = sourceFingerprint({ generate, rows });
+    return {
+      artifactId: preview.metadata.artifactId,
+      hash: preview.metadata.hash,
+      createdAt: preview.metadata.createdAt,
+      expiresAt: preview.metadata.expiresAt,
+      stale: preview.metadata.sourceFingerprint !== currentFingerprint,
+    };
+  } catch (err) {
+    if (err instanceof PreviewStoreError) {
+      throw appPublishErrorFromPreviewStore(err);
+    }
+    throw err;
+  }
 }
 
 function createDeploymentRow(appId: string, targetId: string): DeploymentRow {

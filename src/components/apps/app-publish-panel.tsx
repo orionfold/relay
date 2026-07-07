@@ -7,6 +7,7 @@ import {
   ExternalLink,
   GitBranch,
   Globe2,
+  AlertTriangle,
   Loader2,
   Rocket,
   ShieldCheck,
@@ -51,6 +52,8 @@ type PreviewArtifact = {
   createdAt: string;
   expiresAt: string;
 };
+
+type PreviewStatus = "fresh" | "stale" | "expired";
 
 interface AppPublishPanelProps {
   appId: string;
@@ -141,6 +144,7 @@ export function AppPublishPanel({
   const [previewing, setPreviewing] = useState(false);
   const [previewFrameLoading, setPreviewFrameLoading] = useState(false);
   const [preview, setPreview] = useState<PreviewArtifact | null>(null);
+  const [previewStatus, setPreviewStatus] = useState<PreviewStatus>("fresh");
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
 
   async function loadTargets() {
@@ -248,6 +252,56 @@ export function AppPublishPanel({
   }
 
   const previewExpired = preview ? new Date(preview.expiresAt).getTime() <= Date.now() : false;
+  const previewIsExpired = previewExpired || previewStatus === "expired";
+  const previewIsStale = previewStatus === "stale";
+  const previewPublishBlocked = previewIsExpired || previewIsStale;
+
+  async function refreshPreviewStatus(current: PreviewArtifact) {
+    const res = await fetch(
+      `/api/apps/${encodeURIComponent(appId)}/preview?artifactId=${encodeURIComponent(
+        current.artifactId
+      )}`,
+      { cache: "no-store" }
+    );
+    const body = (await res.json().catch(() => ({}))) as {
+      stale?: boolean;
+      code?: string;
+      error?: string;
+    };
+    if (!res.ok) {
+      if (body.code === "PREVIEW_EXPIRED") {
+        setPreviewStatus("expired");
+        return;
+      }
+      throw new Error(body.error ?? `HTTP ${res.status}`);
+    }
+    setPreviewStatus(body.stale ? "stale" : "fresh");
+  }
+
+  useEffect(() => {
+    if (!preview) return;
+
+    let cancelled = false;
+    const check = () => {
+      refreshPreviewStatus(preview).catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Preview status refresh failed");
+        }
+      });
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") check();
+    };
+
+    check();
+    const timer = window.setInterval(check, 5000);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [appId, preview]);
 
   async function handlePreview() {
     setPreviewing(true);
@@ -258,6 +312,7 @@ export function AppPublishPanel({
       }).then((res) => readJson<PreviewArtifact>(res));
       setPreviewFrameLoading(true);
       setPreview(result);
+      setPreviewStatus("fresh");
       toast.success("Preview generated");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Preview generation failed";
@@ -354,14 +409,20 @@ export function AppPublishPanel({
                   <Badge
                     variant="outline"
                     className={
-                      previewExpired
+                      previewIsExpired || previewIsStale
                         ? "border-status-warning/25 bg-status-warning/10 text-status-warning"
                         : undefined
                     }
                   >
-                    {previewExpired ? "Expired" : "Fresh"}
+                    {previewIsExpired ? "Expired" : previewIsStale ? "Stale" : "Fresh"}
                   </Badge>
                 </div>
+                {previewIsStale && (
+                  <p className="mt-1 flex items-center gap-1 text-xs text-status-warning">
+                    <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
+                    Source rows changed. Generate a new preview before publishing.
+                  </p>
+                )}
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span>
                     Hash{" "}
@@ -389,7 +450,7 @@ export function AppPublishPanel({
                   !selectedTargetId ||
                   publishing ||
                   hasActiveDeployment ||
-                  previewExpired
+                  previewPublishBlocked
                 }
                 className="gap-1.5"
               >

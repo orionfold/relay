@@ -201,6 +201,7 @@ describe("AppPublishPanel", () => {
       .mockResolvedValueOnce(ok([target]))
       .mockResolvedValueOnce(ok([]))
       .mockResolvedValueOnce(created(preview))
+      .mockResolvedValueOnce(ok({ ...preview, stale: false }))
       .mockResolvedValueOnce(
         accepted({
           deployment: {
@@ -257,5 +258,29 @@ describe("AppPublishPanel", () => {
       })
     );
     openSpy.mockRestore();
+  });
+
+  it("marks generated previews stale and blocks exact-preview publish", async () => {
+    const preview = {
+      artifactId: "artifact-stale",
+      url: "/api/apps/app-1/previews/artifact-stale",
+      hash: "123456abcdef7890123456abcdef7890123456abcdef7890123456abcdef7890",
+      createdAt: "2026-07-07T00:00:00.000Z",
+      expiresAt: "2999-07-07T00:00:00.000Z",
+    };
+    fetchSpy
+      .mockResolvedValueOnce(ok([target]))
+      .mockResolvedValueOnce(ok([]))
+      .mockResolvedValueOnce(created(preview))
+      .mockResolvedValueOnce(ok({ ...preview, stale: true }));
+
+    renderPanel();
+    fireEvent.click(await screen.findByRole("button", { name: /^Preview$/i }));
+
+    expect(await screen.findByText("Stale")).toBeInTheDocument();
+    expect(
+      screen.getByText("Source rows changed. Generate a new preview before publishing.")
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Publish this preview/i })).toBeDisabled();
   });
 });

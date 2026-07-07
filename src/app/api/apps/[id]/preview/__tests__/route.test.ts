@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NextRequest } from "next/server";
 
 vi.mock("@/lib/publishers/app-publish", () => {
   class AppPublishError extends Error {
@@ -14,16 +15,21 @@ vi.mock("@/lib/publishers/app-publish", () => {
   return {
     AppPublishError,
     createAppPreview: vi.fn(),
+    getAppPreviewStatus: vi.fn(),
   };
 });
 
-import { POST } from "../route";
-import { AppPublishError, createAppPreview } from "@/lib/publishers/app-publish";
+import { GET, POST } from "../route";
+import {
+  AppPublishError,
+  createAppPreview,
+  getAppPreviewStatus,
+} from "@/lib/publishers/app-publish";
 
-function req() {
-  return new Request("http://localhost/api/apps/app-1/preview", {
+function req(url = "http://localhost/api/apps/app-1/preview") {
+  return new NextRequest(url, {
     method: "POST",
-  }) as unknown as import("next/server").NextRequest;
+  });
 }
 
 describe("POST /api/apps/[id]/preview", () => {
@@ -66,6 +72,45 @@ describe("POST /api/apps/[id]/preview", () => {
     expect(await res.json()).toEqual({
       error: "App manifest does not declare view.bindings.generate",
       code: "APP_GENERATE_NOT_CONFIGURED",
+    });
+  });
+});
+
+describe("GET /api/apps/[id]/preview", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns preview freshness status for an artifact", async () => {
+    vi.mocked(getAppPreviewStatus).mockResolvedValue({
+      artifactId: "artifact-1",
+      hash: "abc123",
+      createdAt: "2026-07-07T00:00:00.000Z",
+      expiresAt: "2026-07-08T00:00:00.000Z",
+      stale: true,
+    });
+
+    const res = await GET(
+      req("http://localhost/api/apps/app-1/preview?artifactId=artifact-1"),
+      { params: Promise.resolve({ id: "app-1" }) }
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      artifactId: "artifact-1",
+      hash: "abc123",
+      createdAt: "2026-07-07T00:00:00.000Z",
+      expiresAt: "2026-07-08T00:00:00.000Z",
+      stale: true,
+    });
+    expect(getAppPreviewStatus).toHaveBeenCalledWith("app-1", "artifact-1");
+  });
+
+  it("requires an artifact id", async () => {
+    const res = await GET(req(), { params: Promise.resolve({ id: "app-1" }) });
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({
+      error: "Missing artifactId",
+      code: "PREVIEW_ARTIFACT_REQUIRED",
     });
   });
 });

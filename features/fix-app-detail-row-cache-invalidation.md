@@ -1,6 +1,6 @@
 ---
 title: Fix app-detail row cache invalidation after API updates
-status: planned
+status: completed
 priority: P1
 milestone: post-mvp
 source: output/operator-walkthrough-feedback-2026-07-07.md
@@ -8,6 +8,12 @@ dependencies: [tables-data-layer, composed-app-view-shell, pack-web-designer]
 ---
 
 # Fix App-Detail Row Cache Invalidation
+
+> Built 2026-07-07. Table row add/update/delete API mutations now revalidate the
+> scoped `app-runtime:<appId>` cache tags for apps that own the changed table,
+> no-op row updates skip cache churn, and the publish panel marks stored preview
+> artifacts stale when their source-row fingerprint no longer matches current
+> rows.
 
 ## Description
 
@@ -35,12 +41,17 @@ flow so that the page I publish reflects my latest table changes.
 
 ## Acceptance Criteria
 
-- [ ] Updating an app-owned table row is reflected in the app detail route without manual
+- [x] Updating an app-owned table row is reflected in the app detail route without manual
       cache-busting reload.
-- [ ] Existing preview artifacts become visibly stale when source rows change.
-- [ ] Gallery cards and publish inputs read the same fresh row data.
-- [ ] Cache invalidation is scoped to affected app/table data, not a global full reload.
-- [ ] Tests cover row update, stale preview marking, and no-op updates.
+- [x] Existing preview artifacts become visibly stale when source rows change.
+- [x] Gallery cards and publish inputs read the same fresh row data.
+- [x] Cache invalidation is scoped to affected app/table data, not a global full reload.
+- [x] Tests cover row update, stale preview marking, and no-op updates.
+
+## Verification
+
+- `npm test -- 'src/app/api/tables/[id]/rows/[rowId]/__tests__/route.test.ts' 'src/app/api/apps/[id]/preview/__tests__/route.test.ts' src/lib/publishers/__tests__/app-publish.test.ts src/components/apps/__tests__/app-publish-panel.test.tsx`
+- `npx tsc --noEmit`
 
 ## Scope Boundaries
 

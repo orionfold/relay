@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateRow, deleteRows } from "@/lib/data/tables";
+import { revalidateAppRuntimeForTable } from "@/lib/apps/app-runtime-cache";
+import { updateRow, deleteRows, getRow } from "@/lib/data/tables";
 import { updateRowSchema } from "@/lib/tables/validation";
 
 export async function PATCH(
@@ -18,9 +19,13 @@ export async function PATCH(
       );
     }
 
+    const before = await getRow(rowId);
     const row = await updateRow(rowId, parsed.data);
     if (!row) {
       return NextResponse.json({ error: "Row not found" }, { status: 404 });
+    }
+    if (!before || before.data !== row.data) {
+      await revalidateAppRuntimeForTable(row.tableId);
     }
     return NextResponse.json(row);
   } catch (err) {
@@ -39,7 +44,11 @@ export async function DELETE(
   const { rowId } = await params;
 
   try {
+    const row = await getRow(rowId);
     await deleteRows([rowId]);
+    if (row) {
+      await revalidateAppRuntimeForTable(row.tableId);
+    }
     return new NextResponse(null, { status: 204 });
   } catch (err) {
     console.error("[tables] DELETE row error:", err);
