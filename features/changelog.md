@@ -1,5 +1,14 @@
 # Feature Changelog
 
+## 2026-07-07 — Flagship card polish built
+
+### Built
+- `flagship-card-polish`: pack cards now carry compact icon wells plus `Pack`, `Installed`, and
+  `Premium` subtype badges; app-detail primitive sections now expose icon-backed headers with
+  count badges for workflow/funnel/gallery/chart/table families. App-detail header actions wrap
+  on mobile so dense action rows do not push manifest controls off-canvas. Verified in Codex
+  in-app Browser and OS Chrome desktop/mobile smoke.
+
 ## 2026-07-07 — In-app preview sheet visibility fixed
 
 ### Built

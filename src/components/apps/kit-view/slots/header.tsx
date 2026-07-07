@@ -34,12 +34,11 @@ export function HeaderSlotView({ slot, manifestPane }: HeaderSlotProps) {
         )}
       </div>
       {/*
-       * Action group stays a single non-wrapping row (chips + Run + manifest
-       * never split across lines). When the title can't yield enough inline
-       * space, the PARENT's flex-wrap drops this whole group to its own row —
-       * an intentional stack, not an accidental two-line break (FEAT-4).
+       * At mobile widths the action group wraps inside the card so long labels
+       * do not push the manifest action off-canvas. From `sm` up it keeps the
+       * original single-row behavior and lets the parent wrap the whole group.
        */}
-      <div className="flex flex-nowrap items-center gap-2 sm:shrink-0">
+      <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:shrink-0">
         {status && <StatusChip status={status} size="md" />}
         {cadenceChip && (
           <ScheduleCadenceChip

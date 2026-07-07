@@ -1,4 +1,7 @@
+import { Badge } from "@/components/ui/badge";
 import type { SecondarySlot } from "@/lib/apps/view-kits/types";
+import { BarChart3, Boxes, GalleryHorizontalEnd, Table2, Workflow } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface SecondarySlotProps {
   slots: SecondarySlot[];
@@ -106,16 +109,14 @@ function SecondaryAutoSection({
       className="space-y-3"
     >
       {config.title && (
-        <div className="space-y-1">
-          <h2 id={headingId} className="text-sm font-medium">
-            {config.title}
-          </h2>
-          {config.description && (
-            <p className="text-xs text-muted-foreground">
-              {config.description}
-            </p>
-          )}
-        </div>
+        <PrimitiveSectionHeader
+          id={headingId}
+          title={config.title}
+          description={config.description}
+          count={slots.length}
+          icon={config.icon}
+          badge={config.badge}
+        />
       )}
       {showWorkflowIntro && (
         <div className="surface-card-muted rounded-lg border p-3">
@@ -203,34 +204,89 @@ function sectionConfig(kind: NonNullable<SecondarySlot["primitiveKind"]>) {
       return {
         title: "Workflows",
         description: "Runnable pack actions and automation entry points.",
+        badge: "Workflow",
+        icon: Workflow,
         layout: "grid" as const,
       };
     case "chart":
       return {
         title: "Charts",
         description: "Declared visual readouts from this pack's tables.",
+        badge: "Chart",
+        icon: BarChart3,
         layout: "grid" as const,
       };
     case "table":
       return {
         title: "Tables",
         description: "Data-backed primitives promoted by this pack.",
+        badge: "Table",
+        icon: Table2,
         layout: "grid" as const,
       };
     case "generic":
       return {
         title: undefined,
         description: undefined,
+        badge: undefined,
+        icon: Boxes,
         layout: "masonry" as const,
       };
     case "funnel":
     case "gallery":
       return {
-        title: undefined,
-        description: undefined,
+        title: kind === "funnel" ? "Funnels" : "Galleries",
+        description:
+          kind === "funnel"
+            ? "Stage-based flow views for this pack's source data."
+            : "Promoted row collections with direct table drill-through.",
+        badge: kind === "funnel" ? "Funnel" : "Gallery",
+        icon: kind === "funnel" ? Boxes : GalleryHorizontalEnd,
         layout: "grid" as const,
       };
   }
+}
+
+function PrimitiveSectionHeader({
+  id,
+  title,
+  description,
+  count,
+  icon: Icon,
+  badge,
+}: {
+  id?: string;
+  title: string;
+  description?: string;
+  count: number;
+  icon: LucideIcon;
+  badge?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex min-w-0 items-start gap-2.5">
+        <span className="surface-card-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border">
+          <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+        </span>
+        <div className="min-w-0 space-y-1">
+          <h2 id={id} className="text-sm font-medium">
+            {title}
+          </h2>
+          {description && (
+            <p className="text-xs text-muted-foreground">
+              {description}
+            </p>
+          )}
+        </div>
+      </div>
+      <Badge variant="outline" className="gap-1.5 self-start">
+        {badge}
+        <span className="font-mono text-[11px] text-muted-foreground">
+          {count}
+        </span>
+      </Badge>
+    </div>
+  );
 }
 
 function SecondarySection({

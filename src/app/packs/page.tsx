@@ -276,6 +276,10 @@ function FeaturedPackCard({ template }: { template: PackTemplate }) {
                   {meta.name}
                 </h2>
                 <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                  <Badge variant="secondary" className="gap-1">
+                    <Package className="h-3 w-3" aria-hidden="true" />
+                    Pack
+                  </Badge>
                   <Badge variant="outline" className="gap-1">
                     <Lock className="h-3 w-3" aria-hidden="true" />
                     Premium
@@ -360,14 +364,31 @@ function PackCard({
       watermark={Icon}
       className="relative h-full hover:border-primary/50 transition-colors"
     >
-      <CardContent className="relative flex h-full flex-col gap-2 p-3">
-        <div className="flex items-start justify-between gap-2">
-          <span className="min-w-0 text-sm font-medium truncate">{meta.name}</span>
-          {premium && !installed && (
-            <Badge variant="outline" className="shrink-0">
-              {price?.intro ?? price?.list ?? "Premium"}
-            </Badge>
-          )}
+      <CardContent className="relative flex h-full flex-col gap-3 p-3">
+        <div className="flex items-start gap-3">
+          <div className="surface-card-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border">
+            <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+          </div>
+          <div className="min-w-0 flex-1 space-y-1">
+            <span className="block truncate text-sm font-medium">{meta.name}</span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Badge variant="secondary" className="gap-1">
+                <Package className="h-3 w-3" aria-hidden="true" />
+                Pack
+              </Badge>
+              {installed ? (
+                <Badge variant="success" className="gap-1">
+                  <Check className="h-3 w-3" aria-hidden="true" />
+                  Installed
+                </Badge>
+              ) : premium ? (
+                <Badge variant="outline" className="gap-1">
+                  <Lock className="h-3 w-3" aria-hidden="true" />
+                  {price?.intro ?? price?.list ?? "Premium"}
+                </Badge>
+              ) : null}
+            </div>
+          </div>
         </div>
 
         {meta.description && (
