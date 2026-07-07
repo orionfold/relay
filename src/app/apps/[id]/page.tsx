@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { PageShell } from "@/components/shared/page-shell";
 import { AppDetailActions } from "@/components/apps/app-detail-actions";
+import { AppPublishPanel } from "@/components/apps/app-publish-panel";
 import { KitView } from "@/components/apps/kit-view/kit-view";
 import { getApp } from "@/lib/apps/registry";
 import { loadColumnSchemas, pickKit } from "@/lib/apps/view-kits";
@@ -32,6 +33,8 @@ export default async function AppDetailPage({
   const projection = kit.resolve({ manifest: app.manifest, columns, period, rowId: rowParam });
   const runtime = await loadRuntimeState(app, bindings, kit.id, projection, rowParam);
   const model = kit.buildModel(projection, runtime);
+  const generateBinding = app.manifest.view?.bindings.generate;
+  const publishBinding = app.manifest.view?.bindings.publish;
 
   model.header.actions = (
     <AppDetailActions
@@ -45,7 +48,17 @@ export default async function AppDetailPage({
 
   return (
     <PageShell backHref="/apps" backLabel="All apps">
-      <KitView model={model} />
+      <div className="space-y-6">
+        <KitView model={model} />
+        {generateBinding && publishBinding?.targetType === "github-pages" && (
+          <AppPublishPanel
+            appId={app.id}
+            targetType={publishBinding.targetType}
+            generatorType={generateBinding.generatorType}
+            sourceTable={generateBinding.table}
+          />
+        )}
+      </div>
     </PageShell>
   );
 }
