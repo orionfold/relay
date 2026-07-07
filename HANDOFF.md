@@ -135,6 +135,13 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
+**CODEX-CC.md — CC↔Codex sync ledger (2026-07-06, tooling/no code, untracked-new):** audited the four
+cross-harness surfaces; the 18 "shared" skills are NOT symmetric — CC holds fat authoritative bodies, Codex
+holds thin SHIMs (`docx`/`xlsx`) + PORTs. `AGENTS.md`↔`CLAUDE.md` (5 synced §), memory (files vs Codex
+SQLite), tool-specific partitioning all healthy. Only `product-manager`+`taste` flagged for a rule-level
+glance. Wrote `CODEX-CC.md` (living dual-signed ledger, per-skill classification + reconcile protocol),
+memory `codex-cc-living-handoff`, and broadcast the pattern to marketing+website peers via strategy `_RELAY`.
+
 **Substrate Phase 1 (TDR-039) BUILT (2026-07-06, `b9fcb674`, UNRELEASED — bundles with the packs-publish
 tail in a future release):** PublisherAdapter registry + `github-pages` Contents-API adapter + minimal
 `GeneratorAdapter` + `publish_targets`/`deployments` at all four storage points; 26 TDD tests + isolated
@@ -149,26 +156,10 @@ remote-resolver (`92d5a808`), R3 provenance-tiers (`bf7619b8`), R5 standard-vers
 `check:pack-tarball` size-gate Case TB; the CUT deferred, trigger @500 KB). Memory `packs-publish-authored`
 + `dont-ask-when-codebase-answers`. Full findings in git + that memory.
 
-**0.34.0 (RELEASED — `v0.34.0`→`cab55bd1`; publish CI `28815321497` green incl. npx prod smoke; npm `latest` +
-GitHub Release + SBOM; MINOR, apiVersion window 0.33→0.34; issue #41):** the funnel-flow Core primitive — the
-Attract→Capture→Nurture→Convert band-flow (`pack-depth-next-wave` first build ticket; the chart fenced out of
-`pack-marketing-line` §6). `.strict()` `FunnelSpecSchema` on `ViewSchema.bindings.funnel` (enumerated bands,
-discriminated `count` union `sumColumn`|`rowsWhereIn`|`rowsRecent`, refs named `table` for `rewriteViewRefs`
-UUID-rewrite) + pure `computeFunnelBands` (`funnel-compute.ts`, 9 TDD tests) + `loadFunnelData` + `FunnelFlowView`
-(HTML+CSS, no D3) in tracker+workflow-hub; wired into `relay-crm` → renders in merged `relay-marketing`. Fixed a
-`mergeBundle` binding-allowlist shadow-path (was dropping `charts`+`funnel` in bundles). Real-data smoke caught a
-synthetic-fixture bug → active-filter is EXCLUSION (`excludeValues:[deprecated]`). Memory `funnel-flow-primitive-built`.
-
-**0.33.1 (RELEASED — `v0.33.1`→`7d2baa99`; publish CI `28808826797` green; npm `latest` + SBOM; PATCH):**
-row-insert var-mapping fix. 4 shipped blueprints (`relay-crm--lead-enrich`, `relay-social--repurpose` +
-`--welcome-creative`, `relay-cre--lease-abstraction`) declared a `required` trigger var with no `{{row.col}}`
-default → threw `Missing required variables` at first fire; fixed all to optional+`{{row.col}}` default (matching
-`relay-agency-pro`/`relay-nonprofit`). Added `install.ts` block 2d `assertRowTriggerVarsFillable` — refuses any
-unfillable-trigger-var pack loudly (Principle #1). Fix `4266687e`, release `7d2baa99`. Tests:
-`row-insert-var-fillability.test.ts` + bundle test dispatch-fill assertion; `buildVariables` exported. Memories
-`pack-backward-compat-convention` (additive-only + relayCore lever + this rule), `dont-ask-when-codebase-answers`.
-
-**Older (RELEASED — full detail in git + CHANGELOG + closed issues + linked memories):** 0.33.0 (`84be9825`,
+**Older (RELEASED — full detail in git + CHANGELOG + closed issues + linked memories):** 0.34.0 (`cab55bd1`,
+#41 funnel-flow Core primitive Attract→Capture→Nurture→Convert + `mergeBundle` charts/funnel shadow-path fix,
+memory `funnel-flow-primitive-built`); 0.33.1 (`7d2baa99`, row-insert var-mapping fix + `install.ts` block 2d
+`assertRowTriggerVarsFillable`, memory `pack-backward-compat-convention`); 0.33.0 (`84be9825`,
 #40 Marketing line — `relay-crm`+`relay-social`+`relay-marketing` splitting bundle, memory
 `pack-marketing-line-built`); 0.32.1 (`d30615ee`, 3D origami logo, memory `logo-3d-swap-recipe`); 0.32.0
 (`b181a24d`, #39 packs-evolution arc — persona/industry split + bundle model + taxonomy, memories
