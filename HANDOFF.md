@@ -1,7 +1,10 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-06 (pt: **RELEASED 0.35.0 — TDR-039 Phase 2 (manifest seam + static-site
-generator), `e241b552`→`v0.35.0`.** `generate:`/`publish:` arms in `ViewSchema.bindings` `.strict()`
+_Last updated: 2026-07-06 (pt: **RELEASED 0.35.0 + security patch 0.35.1 — TDR-039 Phase 2 (manifest seam
++ static-site generator), `e241b552`→`v0.35.0`, `22f7dd94`→`v0.35.1`.** 0.35.1 = a push-review-caught XSS:
+the generator's `safeUrl()` blocklist was bypassable via control-char/whitespace scheme obfuscation
+(`\x01javascript:`, `java\tscript:`) → rewrote as normalize-then-default-deny allowlist (http/https/mailto);
+dormant in 0.35.0 (generator not wired to a route/UI yet). Memory [[url-sanitize-default-deny]]. `generate:`/`publish:` arms in `ViewSchema.bindings` `.strict()`
 (single-valued like funnel, `table`-named ref for free UUID-rewrite) + `mergeBundle` allowlist (funnel
 shadow-path applied) + generator registry (lightweight `Record` dispatch — settles open-Q(b)) +
 `static-site-generator.ts` (ordered landing-page sections hero/features/cta/text → one self-contained
