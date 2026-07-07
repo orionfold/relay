@@ -1,236 +1,83 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-07 (pt: **Web Designer pack family built in working tree; next session should
-start in web preview for a guided web* walkthrough; live GitHub Pages smoke still open.** Added strict
-`galleries` view binding + renderer/loader, real `relay-web-assets`, `relay-web-publisher`, and
-`relay-web-designer` templates, taxonomy/bundled allowlist updates, and `features/pack-web-designer.md`.
-Verification: focused suite 72/72 passed, `check:pack-tarball` passed (12 bundled packs, 219.3 KB / 500 KB),
-`check:pack-taxonomy` passed, `npm run build` passed with known Turbopack dynamic-trace warnings, isolated
-install of `relay-web-designer` succeeded, built-server smoke returned `/packs` 200,
-`/apps/relay-web-designer` 200, preview API 201, preview artifact 200. Local dev instance now has the
-Relay license fixture saved and `relay-web-assets`, `relay-web-publisher`, `relay-web-designer` installed;
-no live GitHub Pages publish yet.)_
+_Last updated: 2026-07-07 (pt: **Publish-preview UX hardening committed; release decision remains.** Local `main` now includes the Web Designer pack family (`9f4e0fff`), Codex browser/skill cleanup (`086cd984`), polished static-site generator output (`29f8c667`), publish-preview/final-URL hardening (`b49650ed`), and groomed operator follow-up specs (`4141a4ad`). The polished Web Designer publish remains live at `https://orionfold.com/relay-web-smoke/`: deployment `da6cd84c-061b-494b-ac41-f8d691700083`, commit `d22251ead78c90696be3156d90e296cbe866e9da`, artifact hash `981b9074823d77978dd81f9307ecb7d3b418f5c875c648cd2c79bb52e9f7f9cc`. Latest verification before commit: `git diff --check` passed; focused generator/publisher/panel tests passed 40/40; `npm run build` passed with known Turbopack dynamic-trace warnings. Release gates run before the publish-preview hardening: `check:pack-taxonomy` OK, `check:pack-tarball` OK, `node scripts/npx-prod-smoke.mjs` OK after generating `dist-artifacts/relay-next-build-0.35.2.tgz`. Still open: decide whether to push + patch-release `0.35.3` first or proceed with the planned history rewrite/removal.)_
 
-## ▶️ NEXT SESSION — Web preview walkthrough, then live publish smoke
+## ▶️ NEXT SESSION — Release decision, then choose first groomed follow-up
 
-- **P0 START HERE — guided `web*` pack walkthrough in the in-app web preview:** Open the app in the
-  visible in-app browser, start at `/apps/relay-web-assets`, then walk step-by-step through
-  `relay-web-assets`, `relay-web-publisher`, and `relay-web-designer`. Drive the UI in the web preview while
-  describing in chat what is happening and why (what rows/tables/profiles/blueprints each pack owns, what the
-  gallery primitive proves, how publisher preview/publish works, and how the bundle composes the two children).
-  Keep `output/operator-walkthrough-feedback-2026-07-07.md` open for append-only notes: browser state, console
-  logs, operator comments, defects, and UX fixes. The current local instance already has a valid Relay license
-  (`OF-RELAY-VERIFY-20260701`) and all three Web packs installed via `/api/packs/install`; browser verification
-  showed `/packs` and `/apps/relay-web-designer` clean with no console warnings.
-- **P0 Web Designer live publish smoke + TDR-039 acceptance:** Phase 5 pack content is now in-tree and
-  installable in the working tree. Remaining acceptance item: configure a real GitHub Pages target through the UI,
-  publish the exact local preview artifact, verify the public Pages URL, then move TDR-039 proposed→accepted.
-  If any API contract changes before release, grep `scripts/npx-prod-smoke.mjs` first.
-- **P0 release-response: publish or rewrite the cleaned history.** Local `main` now contains the seed fix,
-  private-peer guardrail, strategy cleanup, and funnel-row fix. Registry latest is `0.35.2`; these newest cleanup
-  commits are not yet on npm. Next decision: either push + patch-release `0.35.3` first, or proceed with the planned
-  history rewrite/removal sequence. If releasing, rerun the npx prod smoke, bump/tag/push, then verify
-  `npm view orionfold-relay versions --json` and the GitHub release/tag state. If rewriting, include
-  `5b491819`, `53e5de5d`, and `f45ea422` in the clean branch before force-push.
-- **P1 operator walkthrough grooming:** turn `output/operator-walkthrough-feedback-2026-07-07.md` into
-  feature requirement specs/backlog items. Source asks include telemetry/settings drill-downs, Apps→Packs IA
-  consolidation + Chat copy, app/pack shell owned-table disclosure, primitive-section layout
-  (Workflows/Schedules/Tables), app-detail card sizing, app-detail scroll/focus behavior, plus bug follow-ups for
-  the Turbopack `<dynamic>` warning and scheduled lead-list hygiene `Lead` variable failures.
-- **Packs Publish — P1 READ trio (R1/R2/R3) + R5 + R4-mechanism ALL BUILT + RELEASED in 0.35.0**
-  (`e6dde729`, `92d5a808`, `bf7619b8`, `f6b1029d`, `b7f3b3d1` — shipped with the Phase-2 bundle). **R4's CUT is deferred with a live
-  trigger:** the `check:pack-tarball` size gate fires when templates cross 500 KB (≈22 packs) AND open
-  decision #2 (most-installed boundary + Website coord) is answered; the cut also needs the §5 managed-base
-  overlay slot for fetch-then-cache. **R6/R7 (community SEND loop) sequence LAST, behind the TDR-039
-  substrate.** Still-open packs-publish decisions to raise at their build: #1 canonical index URL (DRAFTED
-  into `strategy/relay/_RELAY.md` 2026-07-06, awaiting Website peer; `DEFAULT_PACK_INDEX_BASE` placeholder +
-  `RELAY_PACK_INDEX_URL` override drives smoke), #2 slim-cut boundary (R4 cut), trust-ceiling final default
-  (R3 seam built / R7), partner-key onboarding (R3 `of-packs-official-2026` key — coordinate w/ licensing
-  issuer owner). `_IDEAS/packs-publish.md` = durable source thesis; memory `packs-publish-authored` carries
-  all build findings + reuse anchors.
-- **Web Designer substrate anchor:** Phase 1+2 RELEASED in 0.35.0/0.35.1; Phase 3+4 COMMITTED in
-  `28f17d77` + `19bc6f70`, UNRELEASED; preview-first COMMITTED in `0d2e29c5`, UNRELEASED; Phase 5 pack family
-  BUILT in the working tree, UNCOMMITTED. Delete target remains a later enhancement because no DELETE route exists
-  yet. Build findings + anchors: `features/publish-preview-artifacts.md`, `features/pack-web-designer.md`,
-  focused tests, and memory `generator-publisher-substrate-tdr039`.
-- **`pack-depth-next-wave` arc — other tickets still open:** **Video Creator** (under-specified; needs a clean
-  synthetic reference model before build) and **Retail Investor** (`relay-portfolio`+`relay-technical-analyst`:
-  value-heatmap + radar; §9 ICP prosumer-first). `decisions_open`: when-dependsOn-earns-weight (P3 trigger).
-- **`_IDEAS/packs-robustify.md` — R1+R3 BUILT (2026-07-06, `b43f1b69`); R2/R5/R7/R8 still ungroomed.** The
-  packs governance layer (six pillars: codified taxonomy · provenance API · compat-diff gate · dependsOn
-  guardrails · integration contract · distribution-at-scale). §10 is a 9-row table (R1–R9). Groom the next
-  gate tranche: **R5** (compat-diff CI gate — the other highest-leverage gate, §11) pairs naturally with R3;
-  then R2 (install-time cross-pack check, runtime-adjacent → dev smoke), R7 (integration/`joinKeys`), R4
-  (provenanceOf API). R8 (dependsOn) stays P3/trigger-gated. **R9 (distribution at scale) is now MATERIALIZED
-  as its own doc — `packs-publish.md` (authored 2026-07-06, ready to groom — top of ▶️ above).**
-- **F5 follow-up (deferred, operator-confirmed):** lift the two dense analytics dashboards
-  `costs/cost-dashboard.tsx` + `apps/ledger-hero-panel.tsx` (hand-rolled `surface-card` chart panels) to
-  the card recipe — held out for chart-layout-regression risk. Reactive/optional.
+- **P0 START HERE — Codex browser runbook is authoritative.** Use `docs/codex-browser-runbook.md`: in-app Browser/Browser plugin first for unauthenticated localhost/file/public pages; Codex Chrome extension for signed-in/profile/extension state; Computer Use for GUI-only desktop flows; Chrome DevTools MCP only for CDP debugging against an isolated debug browser. Do not treat `open -a "Google Chrome" <url>` as sufficient verification unless Chrome-control tooling is connected or the operator specifically needs to watch. Do not launch the normal Google Chrome app directly in headless mode unless explicitly requested.
+- **P0 Codex handoff behavior:** `.codex/hooks.json` no longer has a `Stop` handoff nudge because it fired too frequently. Use auto compact or an operator-initiated `handoff` skill run for Codex session wrap-up; do not re-enable the Stop hook unless asked.
+- **P0 Codex frontend-skill behavior:** stale Stagent-era Codex frontend design skills were removed from `.agents/skills` and `~/.codex/skills`. Do not reinstall them. Build any new Relay frontend skill later from current online research, Orionfold design-system docs, and project best practices.
+- **P0 publish-preview UX hardening is committed (`b49650ed`).** Preview embeds in `AppPublishPanel`, "View without chrome" opens the raw artifact, GitHub token copy names Contents read/write, deployments carry/display `finalUrl`, GitHub target tests require push/admin/maintain permissions, and `deployments.final_url` exists in schema/bootstrap/`XXXX_add_deployments_final_url.sql`. Use the new browser runbook for any remaining visual check.
+- **P0 release-response: publish or rewrite cleaned history.** Local `main` contains the seed fix, private-peer guardrail, funnel-row fix, Web Designer pack family, accepted TDR-039 docs, generator polish, Codex runbook cleanup, groomed follow-up specs, and publish-preview hardening; registry latest remains `0.35.2`. Release gates passed before the publish-preview hardening, including npx prod smoke, so rerun gates if including these changes. Decide whether to push + patch-release `0.35.3` first or proceed with planned history rewrite/removal. If releasing, bump/tag/push, then verify `npm view orionfold-relay versions --json` and GitHub release/tag state. If rewriting, include `5b491819`, `53e5de5d`, `f45ea422`, `9f4e0fff`, `086cd984`, `29f8c667`, `b49650ed`, and `4141a4ad` in the clean branch before force-push.
+- **P1 operator walkthrough feedback is groomed (`4141a4ad`).** Source file remains `output/operator-walkthrough-feedback-2026-07-07.md`; durable specs now exist in `features/` and the roadmap under "Operator Walkthrough Follow-ups (2026-07-07)": `web-designer-site-controls`, `web-templates-pack`, `publish-preview-ux-hardening`, `gallery-card-interactions`, `packs-first-ia`, `dashboard-settings-drilldowns`, `fix-turbopack-dynamic-transport-dispatch`, `fix-scheduled-lead-list-hygiene-dispatch`, `fix-app-detail-row-cache-invalidation`, `fix-in-app-preview-sheet-visibility`, and `flagship-card-polish`. Pick `fix-turbopack-dynamic-transport-dispatch` next if prioritizing runtime hygiene.
+- **P1 Web Designer substrate follow-up:** Delete target remains later because no DELETE route exists. Build anchors: `features/publish-preview-artifacts.md`, `features/pack-web-designer.md`, focused tests, and memory `generator-publisher-substrate-tdr039`.
+- **Packs Publish — P1 READ trio (R1/R2/R3) + R5 + R4-mechanism ALL BUILT + RELEASED in 0.35.0** (`e6dde729`, `92d5a808`, `bf7619b8`, `f6b1029d`, `b7f3b3d1`). **R4 CUT is deferred with a live trigger:** `check:pack-tarball` size gate fires when templates cross 500 KB (≈22 packs) AND open decision #2 (most-installed boundary + Website coord) is answered; cut also needs the §5 managed-base overlay slot for fetch-then-cache. **R6/R7 community SEND loop stays last, behind TDR-039 substrate.** Still-open decisions: #1 canonical index URL (drafted into `strategy/relay/_RELAY.md` 2026-07-06, awaiting Website peer; `DEFAULT_PACK_INDEX_BASE` placeholder + `RELAY_PACK_INDEX_URL` override drives smoke), #2 slim-cut boundary, trust-ceiling final default, partner-key onboarding (`of-packs-official-2026`).
+- **`pack-depth-next-wave` arc:** Video Creator still under-specified; needs a clean synthetic reference model before build. Retail Investor (`relay-portfolio` + `relay-technical-analyst`) still open: value-heatmap + radar, §9 ICP prosumer-first. `decisions_open`: when-dependsOn-earns-weight (P3 trigger).
+- **`_IDEAS/packs-robustify.md`:** R1+R3 built (2026-07-06, `b43f1b69`); R2/R5/R7/R8 still ungroomed. Next gate tranche: R5 compat-diff CI gate (§11) pairs naturally with R3, then R2 install-time cross-pack check (runtime-adjacent → dev smoke), R7 integration/`joinKeys`, R4 provenanceOf API. R8 dependsOn remains P3/trigger-gated.
+- **F5 follow-up (deferred, operator-confirmed):** lift dense analytics dashboards `costs/cost-dashboard.tsx` + `apps/ledger-hero-panel.tsx` to the card recipe. Reactive/optional.
 
-Standing candidates (unchanged, all LOW / reactive):
+Standing candidates (unchanged, LOW / reactive):
 - Not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4 `create_trigger` `appId` gap.
-- #29 retry-with-backoff hardening; held-issue retests (#5/#6/#11/#12, reactive — see below).
+- #29 retry-with-backoff hardening; held-issue retests (#5/#6/#11/#12).
 - Other staging R-runs (one R-run per session; harness ready).
 - `chore-deprecated-transitive-deps` (P3, spec written); stale `pdfjs-dist` in `serverExternalPackages` (#10).
 
 ### Staging harness — ready, full loop proven end-to-end
-- `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — skill-driven loop.
-  Driver-mix + headed-browser default in the `staging-browser-smoke` SKILL (memories
-  `staging-autonomous-run-playbook`, `staging-headed-browser-preference`).
-- **Re-run cadence:** one R-run per session; `scripts/staging/browser-capture.mjs` is the headed PNG helper
-  (needs `npx playwright@latest install chromium` once). `file://` mirror is per-BUILD —
-  `npm run build && node scripts/build-prebuilt-artifact.mjs` before any verify (memory
-  `staging-artifact-rebuild-before-verify`).
+- `relay-staging` · `staging-cli-run` · `staging-browser-smoke` · `staging-evaluate` — skill-driven loop. Driver-mix + headed-browser default in the `staging-browser-smoke` SKILL (memories `staging-autonomous-run-playbook`, `staging-headed-browser-preference`).
+- **Re-run cadence:** one R-run per session. `scripts/staging/browser-capture.mjs` is the headed PNG helper (needs `npx playwright@latest install chromium` once). `file://` mirror is per-BUILD: `npm run build && node scripts/build-prebuilt-artifact.mjs` before verify (memory `staging-artifact-rebuild-before-verify`).
 - Constraints: work on `main`; `_SPECS`/`_IDEAS` edit-only; paid-frontier OK'd for agent steps.
 
-**PLG-4 stays reactive** (plg-refine §4/§5): free-key **DEFERRED**, founding-supporter loop **DROPPED**
-(price live via #20), reverse trial **DEAD** (violates the promise). **Relay channel:** later-9/10/11 ACTED
-(T-30 renewal email LIVE); **later-12 CLOSED**. Standing: flag each new pack `changelog:` line +
-`docs/trust/*` URL moves on _RELAY.
-- **Anti-patterns stay fenced (§7):** no DB licensing, no CLI upsell banners, no online re-validation, no
-  expiry that disables installed packs (D4 = shipped behavior AND public promise; enforced at the UPDATE gate,
-  proven by agency-pro-update.test.ts). **Promise phrasing:** canonical copy = "Relay never sends your data to
-  Orionfold" — forbids SENDS of user data; read-only pulls FROM canonical Orionfold sources are OK (memory
-  `phone-home-definition`).
+**PLG-4 stays reactive** (plg-refine §4/§5): free-key **DEFERRED**, founding-supporter loop **DROPPED** (price live via #20), reverse trial **DEAD** (violates the promise). **Relay channel:** later-9/10/11 ACTED (T-30 renewal email LIVE); later-12 CLOSED. Standing: flag each new pack `changelog:` line + `docs/trust/*` URL moves on _RELAY.
+- **Anti-patterns fenced (§7):** no DB licensing, no CLI upsell banners, no online re-validation, no expiry disabling installed packs. Canonical promise copy: "Relay never sends your data to Orionfold" — forbids SENDS of user data; read-only pulls FROM canonical Orionfold sources are OK (memory `phone-home-definition`).
 
 ## Held issues #5/#6/#11/#12 — WAITING on customer retest (reactive)
-Labeled `bug` + `awaiting-retest` (S8); retest asks posted on 0.16.0 (2026-07-01), no reply yet.
-Prod build likely moots the class; if they persist, repro cross-machine via Mode D. Triage: `bf204c24`.
+Labeled `bug` + `awaiting-retest` (S8); retest asks posted on 0.16.0 (2026-07-01), no reply yet. Prod build likely moots the class; if they persist, repro cross-machine via Mode D. Triage: `bf204c24`.
 
 ## Known caveats
-- **apiVersion window**: bump `CURRENT_PLUGIN_API_VERSION` (sdk/types.ts) + previous-MINOR
-  literal (registry.ts) + the 3 `src/lib/plugins/examples/*/plugin.yaml` IN the release commit ONLY on a
-  MINOR bump (now `{0.33, 0.32}` set in `84be9825`); the window test derives its expected window from
-  package.json, so it fails loudly until every site bumps together. Needed on EVERY MINOR (S38→S39 near-miss:
-  a handoff once wrongly said "no bump needed" — it always is). A PATCH (e.g. 0.33.1) does NOT bump it.
-- **The npx prod smoke (`scripts/npx-prod-smoke.mjs`) encodes API contracts that bundled fixes may change** —
-  it runs ONLY at release (gates publish, not in `npm test`), so a fix that changes a status/response shape
-  passes all unit tests then fails the release. Before tagging a release, grep the smoke for any endpoint a
-  bundled fix touches (0.26.0: BUG-5 changed the seed gate 404→403; Case L still asserted 404 → 1st publish
-  failed). Case L asserts: pack install counts, `[premium]` mark, installed-version, licensed banner, seed 403
-  + explanatory body (non-staging), seed/clear 200 (RELAY_STAGING), D4 pack-stays-installed.
-- **Pack `changelog:` map feeds every recap surface** (license status, 402 refusal, /packs
-  card, renewal email copy) — add a line with EVERY pack version bump; the template test
-  REQUIRES it for Agency Pro. Case L smoke counts are a SEPARATE bump-on-chapter-growth site.
-- **Pack `price` is now `string | {list, intro?, note?}`** behind `packPrice()` — render sites
-  never branch on the raw shape; externally-shipped packs adopting the object shape must raise
-  their `relayCore` (older cores reject it as `PackValidationError` — `.strict()` schema).
-- **Row-insert trigger vars MUST be row-fillable (install-enforced, 0.33.1):** a `required` var on a
-  row-insert blueprint needs a `{{row.<col>}}` default (or a column named like the var); else `install.ts`
-  block 2d refuses the pack. Convention = optional+`{{row.col}}` default (memory
-  `pack-backward-compat-convention`). `buildVariables` expects a PARSED object; `tables.listRows().data`
-  is a JSON STRING — parse before feeding it.
-- **docs/index.md + docs/features|journeys|use-cases are GITIGNORED** (generated corpus).
-  Public docs = README + SECURITY.md + docs/trust/ + docs/RELEASING.md +
-  docs/plugin-security.md. Trust-doc claims must stay code-true.
-- **Pre-existing test failures (NOT regressions), 8** (re-confirmed 0.32.0 by stash-and-run on the pre-bump
-  tree): `router.test.ts` (6), `settings` validator (1), `settings/glance` shadow-path (1); plus `src/__tests__/e2e/blueprint.test.ts`
-  is environmental (needs a running dev server). `agency-pro-update.test.ts` can flake under the full
-  parallel run (row-trigger timing) — passes in isolation.
-- **`next` PINNED exactly (16.2.4)**; Next 16 emits `.next/node_modules` symlinks — the
-  artifact ships a manifest + CLI relinks (junction on win32). See #10 spec.
-- **Nav IA (S13, `119e6ba8`):** permanent two-tier bar (tier-1 underline / tier-2 pill), each tier scrolls,
-  Apps top-level w/ live instances as tier-2. Spec `features/nav-redesign-ia.md`; Compose peers +Presets
-  (memory `compose-submenu-elevation-pattern`).
-- **Blueprint/profile content must pass its Zod schema** — the registry skips invalid files
-  with only a console.warn (→ "Blueprint not found" at first trigger).
-- **Budget guardrails' plan-price substitution is INTENTIONAL** — display surfaces read
-  `meteredSpend`/`planPricedMonthlyMicros` from the snapshot instead (S8).
+- **Codex desktop browser caveat:** `docs/codex-browser-runbook.md` supersedes the older visible-Chrome-first habit. Use the in-app Browser/Browser plugin for ordinary localhost verification; use Chrome extension/control only when signed-in Chrome state is required; use isolated Chrome DevTools MCP for CDP debugging; avoid direct normal-Chrome headless launches unless explicitly requested. This caveat is Codex-specific, not Claude Code.
+- **apiVersion window:** bump `CURRENT_PLUGIN_API_VERSION` (sdk/types.ts) + previous-MINOR literal (registry.ts) + the 3 `src/lib/plugins/examples/*/plugin.yaml` in the release commit ONLY on a MINOR bump. Needed on EVERY MINOR; PATCH does not bump it.
+- **The npx prod smoke (`scripts/npx-prod-smoke.mjs`) encodes API contracts that bundled fixes may change** and runs only at release. Before tagging, grep it for endpoints a bundled fix touches. Case L asserts pack install counts, `[premium]`, installed-version, licensed banner, seed 403 + explanatory body (non-staging), seed/clear 200 (RELAY_STAGING), D4 pack-stays-installed.
+- **Pack `changelog:` map feeds recap surfaces** (license status, 402 refusal, `/packs` card, renewal email copy). Add a line with every pack version bump; template test requires it for Agency Pro. Case L smoke counts are separate.
+- **Pack `price` is `string | {list, intro?, note?}`** behind `packPrice()`; render sites never branch on raw shape. External packs adopting object shape must raise `relayCore`.
+- **Row-insert trigger vars MUST be row-fillable** (install-enforced, 0.33.1): required var on a row-insert blueprint needs `{{row.<col>}}` default or same-named column. Convention = optional + `{{row.col}}` default. `tables.listRows().data` is a JSON string; parse before feeding `buildVariables`.
+- **docs/index.md + docs/features|journeys|use-cases are gitignored** generated corpus. Public docs = README + SECURITY.md + docs/trust/ + docs/RELEASING.md + docs/plugin-security.md.
+- **Pre-existing test failures (NOT regressions), 8**: `router.test.ts` (6), `settings` validator (1), `settings/glance` shadow-path (1); `src/__tests__/e2e/blueprint.test.ts` is environmental; `agency-pro-update.test.ts` can flake in full parallel but passes isolation.
+- **`next` pinned exactly 16.2.4**; Next 16 emits `.next/node_modules` symlinks; artifact ships manifest + CLI relinks (junction on win32). See #10 spec.
+- **Nav IA (S13, `119e6ba8`):** permanent two-tier bar; Apps top-level with live instances as tier-2. Spec `features/nav-redesign-ia.md`; Compose peers + Presets (memory `compose-submenu-elevation-pattern`).
+- **Blueprint/profile content must pass Zod schema**; registry skips invalid files with console.warn, causing "Blueprint not found" later.
+- **Budget guardrails' plan-price substitution is intentional**; display surfaces read `meteredSpend` / `planPricedMonthlyMicros` from snapshot.
 
 ## Anchors
-- **Strategy repo = read/write only unless explicitly instructed** (memory `strategy-repo-readwrite-only`): edit
-  freely, but commit/push/merge only on an operator request. This session's strategy commits were explicitly requested.
+- **Strategy repo = read/write only unless explicitly instructed** (memory `strategy-repo-readwrite-only`): edit freely, but commit/push/merge only on operator request.
 - **Work directly on `main`** — no worktrees/branches unless operator asks (memory `work-on-main-no-worktrees`).
-- **npm publishing via OIDC** (`publish.yml` on `vX.Y.Z` tag), GATED by the npx prod smoke
-  (Case L exercises the REAL relay-agency-pro); every release attaches a **CycloneDX SBOM**. Tag must be
-  ANNOTATED (`git tag -a`) or publish CI never fires (memory `release-tag-must-be-annotated`).
-- **Smoke-test budget** (CLAUDE.md): runtime-registry-adjacent changes need a real launch smoke.
-- **gh issue/label writes are ALLOWLISTED** (memory `autonomous-session-permission-gates`).
-- **Check git history for prior art**; **verify field reports before fixing** (memories).
+- **npm publishing via OIDC** (`publish.yml` on annotated `vX.Y.Z` tag), gated by npx prod smoke; every release attaches CycloneDX SBOM (memory `release-tag-must-be-annotated`).
+- **Smoke-test budget:** runtime-registry-adjacent changes need real launch smoke.
+- **gh issue/label writes are allowlisted** (memory `autonomous-session-permission-gates`).
+- **Check git history for prior art; verify field reports before fixing** (memories).
 
-## Recently shipped
-**Web Designer pack family / TDR-039 Phase 5 (BUILT 2026-07-07, UNCOMMITTED):** Added the real
-`relay-web-designer` bundle over `relay-web-publisher` + `relay-web-assets`; the standalone `gallery` Core
-primitive (`view.bindings.galleries` schema, loader, and `GalleryPreviewView`); synthetic `web_sections` and
-`web_assets` seed tables; taxonomy/bundled allowlist updates; and `features/pack-web-designer.md`. The publisher
-child declares `static-site` generate + `github-pages` publish so the app detail mounts the existing preview/publish
-panel. Verification: focused tests 72/72 pass; `check:pack-tarball` OK (12 bundled packs, 219.3 KB / 500 KB);
-`check:pack-taxonomy` OK; `npm run build` passes with known Turbopack dynamic-trace warnings; isolated smoke install
-of `relay-web-designer` succeeded and built-server route smoke returned `/packs` 200, `/apps/relay-web-designer` 200,
-preview API 201, preview artifact 200 with expected generated HTML. Operator then saved the valid local license
-fixture and installed `relay-web-assets`, `relay-web-publisher`, and `relay-web-designer` in the dev instance;
-browser verified `/packs`, `/apps`, and `/apps/relay-web-designer` with no console warnings. Still open: guided
-web-preview walkthrough, live GitHub Pages publish through UI, and TDR-039 proposed→accepted.
+## Recently shipped / groomed
+**Publish-preview UX hardening (BUILT 2026-07-07, `b49650ed`, UNRELEASED):** Embedded local preview in the app publish panel, added "View without chrome", clarified GitHub token permission copy, displayed final deployed URLs, tightened GitHub target permission testing, and added `deployments.final_url` storage. Verification: focused tests for publisher + panel passed; `npm run build` passed with known Turbopack dynamic-trace warnings; dev route 200; preview API 201; preview artifact `HEAD` 200. Commit-time verification also passed `git diff --check`, focused generator/publisher/panel tests 40/40, and `npm run build`.
 
-**Privacy cleanup and peer-reference guardrails (BUILT 2026-07-07, `5b491819` + `53e5de5d`; strategy
-`c7a0a6e`):** Sanitized the
-`relay-crm`/`relay-social` public seed files after confirming real Orionfold marketing/prospecting examples had
-shipped in npm package versions `0.33.0` through `0.35.1` (`package.json` ships `src/`). Replaced
-`lead_research`, `channels`, `campaigns`, `content_assets`, `ad_initiatives`, and beehiiv-specific consent copy with
-synthetic examples; updated manifest comments; added template/spec privacy regressions against known leaked markers,
-private local peer paths, and `north-star`/`harvest` provenance terms. Strategy pack docs now require clean synthetic
-reference clones instead of local private peer projects. Verification: focused tests pass, local extracted npm tarball
-scan clean for private-peer + known Marketing leak markers, `git diff --check` pass. Memory promoted:
-`MEMORY.md` -> "Pack template seed data is public package surface."
+**Operator walkthrough follow-ups (GROOMED 2026-07-07, `4141a4ad`):** Added 11 bounded specs from `output/operator-walkthrough-feedback-2026-07-07.md` and an "Operator Walkthrough Follow-ups" tranche to `features/roadmap.md`; `features/changelog.md` records the grooming. This replaces the raw feedback dump previously carried in NEXT SESSION.
 
-**Workflow Hub funnel-row UX fix (BUILT 2026-07-07, `f45ea422`):** User spotted that Relay
-Marketing's `Lead funnel` was structurally below the 1-2-3 workflow intro but visually squeezed into the
-secondary masonry columns, causing overlap/partial hiding by `Lead Enrich` and `Repurpose`. Fix adds a
-`fullWidth` secondary-slot contract and renders full-width slots as their own rows before resuming masonry for
-normal workflow cards. Verification: focused workflow-hub tests 21/21 pass; prior in-app browser live route confirmed
-the funnel takes the full content width and cards start below it.
+**Web Designer live GitHub Pages smoke + polished republish (COMPLETED 2026-07-07, `orionfold/relay-web-smoke`):** Operator configured target `b3129a0e-544b-47b8-a544-5938c2eb9fcb` for app `relay-web-designer`. First publish failed with GitHub Contents 403; after GitHub docs-guided token permission update, publish succeeded. The polished AI SuperApp page is live at `https://orionfold.com/relay-web-smoke/`; latest deployment `da6cd84c-061b-494b-ac41-f8d691700083`, commit `d22251ead78c90696be3156d90e296cbe866e9da`, artifact hash `981b9074823d77978dd81f9307ecb7d3b418f5c875c648cd2c79bb52e9f7f9cc`. TDR-039 accepted and docs updated.
 
-**TDR-039 preview-first local artifacts (BUILT 2026-07-07, `0d2e29c5`, UNRELEASED):** Added a durable
-preview artifact store under Relay data dir with `meta.json` + file hashes + expiry cleanup; `POST
-/api/apps/:id/preview`; `GET /api/apps/:id/previews/:artifactId/...` with traversal/cross-app/hash/expiry
-guards and defensive headers; optional `artifactId` on `POST /publish`; stale-preview refusal via
-`PREVIEW_STALE`; and preview-first `AppPublishPanel` UI. Verification: focused tests 23/23 pass; `npm run
-build` passes with known Turbopack dynamic-trace warnings; dev route smoke returned named `APP_NOT_FOUND` 404.
+**Static-site generator hardcoded template polish (BUILT 2026-07-07, `29f8c667`, UNRELEASED):** Replaced the bare generated landing page styling with a self-contained, design-system-inspired template: sticky masthead, refined editorial hero, responsive image frame, structured section rows, feature accent panel/signal cards, text card, CTA band/footer, focus/reduced-motion handling, and mobile-safe constraints. Verification: `npm test -- src/lib/generators/__tests__/static-site-generator.test.ts` passed 17/17; commit-time focused generator/publisher/panel tests passed 40/40; `npm run build` passed with known Turbopack dynamic-trace warnings; visible Chrome preview accepted; public Pages content verified live.
 
-**Repo-local agent skills/hooks sync (2026-07-07, `72706130`):** Added `.agents/skills/` and `.codex/hooks/`
-as repo-local agent surfaces. Verification: commit succeeded; `git diff --cached --check` flagged trailing
-whitespace in imported/vendor skill files and schemas, intentionally left as source-sync content.
+**Web Designer pack family / TDR-039 Phase 5 (BUILT 2026-07-07, `9f4e0fff`, UNRELEASED):** Added `relay-web-designer` bundle over `relay-web-publisher` + `relay-web-assets`; standalone `gallery` Core primitive (`view.bindings.galleries` schema, loader, `GalleryPreviewView`); synthetic `web_sections` and `web_assets` seed tables; taxonomy/bundled allowlist updates; and `features/pack-web-designer.md`. Publisher child declares `static-site` generate + `github-pages` publish so app detail mounts the preview/publish panel. Verification before commit: focused tests 72/72 pass; `check:pack-tarball` OK (12 bundled packs, 219.3 KB / 500 KB); `check:pack-taxonomy` OK; `npm run build` passes with known Turbopack dynamic-trace warnings; isolated install smoke and built-server route smoke passed. Walkthrough after commit: valid local license fixture saved; all three Web packs installed; Publisher and Designer local preview artifacts rendered expected generated HTML; browser console clean. Live publish smoke complete; TDR-039 accepted.
 
-**TDR-039 Phase 3+4 (BUILT 2026-07-07, `28f17d77` + `19bc6f70`, UNRELEASED):** Phase 3 added the
-app-scoped publish service/routes (`publish`, `publish-targets`, `deployments`), row JSON parsing before
-`static-site`, masked target responses, durable deployment status, named failure errors, and the trust-doc
-GitHub Pages SEND row. Phase 4 added the app-detail publish panel gated by manifest generate/publish bindings:
-create/test GitHub Pages target, select target, publish, poll deployments, block duplicate active publishes, and
-surface failed deployment errors. Verification: focused tests 14/14 pass; `npm run build` passes with the known
-Turbopack dynamic-trace warnings.
+**Privacy cleanup and peer-reference guardrails (BUILT 2026-07-07, `5b491819` + `53e5de5d`; strategy `c7a0a6e`):** Sanitized `relay-crm`/`relay-social` public seed files after confirming real Orionfold examples had shipped in npm `0.33.0`–`0.35.1`. Added template/spec privacy regressions and promoted memory: "Pack template seed data is public package surface."
 
-**Substrate Phase 1 (TDR-039) BUILT (2026-07-06, `b9fcb674`, UNRELEASED — bundles with the packs-publish
-tail in a future release):** PublisherAdapter registry + `github-pages` Contents-API adapter + minimal
-`GeneratorAdapter` + `publish_targets`/`deployments` at all four storage points; 26 TDD tests + isolated
-dev-boot smoke. Same-day docs commits: `c8d11283` (packs-publish paper trail + R6/R7 specs) + `c323e0ca`
-(the Phase-1 spec — anchor-corrected `src/lib/apps/`→`src/lib/packs/`, both design Qs resolved). Memory
-`generator-publisher-substrate-tdr039` carries the build findings.
+**Workflow Hub funnel-row UX fix (BUILT 2026-07-07, `f45ea422`):** Added `fullWidth` secondary-slot contract so Relay Marketing `Lead funnel` renders full-width above normal workflow cards. Verification: focused workflow-hub tests 21/21 pass; live route confirmed.
 
-**Packs Publish P1 READ-trio + R5 + R4-mechanism (BUILT 2026-07-06, UNRELEASED — no version bump; a future
-release bundles them, packs-publish is READ-only / no apiVersion bump):** R1 index-schema (`e6dde729`), R2
-remote-resolver (`92d5a808`), R3 provenance-tiers (`bf7619b8`), R5 standard-versioning (`f6b1029d` — early
-`relayCore` skip + RELEASING.md 3-axis checklist), R4-mechanism (`b7f3b3d1` — `bundled.ts` SSOT +
-`check:pack-tarball` size-gate Case TB; the CUT deferred, trigger @500 KB). Memory `packs-publish-authored`
-+ `dont-ask-when-codebase-answers`. Full findings in git + that memory.
+**TDR-039 preview-first local artifacts (BUILT 2026-07-07, `0d2e29c5`, UNRELEASED):** Durable preview artifact store, preview GET/POST routes, optional `artifactId` on publish, stale-preview refusal, and preview-first `AppPublishPanel`. Verification: focused tests 23/23 pass; build passes with known warning; dev route smoke returned named `APP_NOT_FOUND`.
 
-**Older (RELEASED — full detail in git + CHANGELOG + closed issues + linked memories):** 0.34.0 (`cab55bd1`,
-#41 funnel-flow Core primitive Attract→Capture→Nurture→Convert + `mergeBundle` charts/funnel shadow-path fix,
-memory `funnel-flow-primitive-built`); 0.33.1 (`7d2baa99`, row-insert var-mapping fix + `install.ts` block 2d
-`assertRowTriggerVarsFillable`, memory `pack-backward-compat-convention`); 0.33.0 (`84be9825`,
-#40 Marketing line — `relay-crm`+`relay-social`+`relay-marketing` splitting bundle, memory
-`pack-marketing-line-built`); 0.32.1 (`d30615ee`, 3D origami logo, memory `logo-3d-swap-recipe`); 0.32.0
-(`b181a24d`, #39 packs-evolution arc — persona/industry split + bundle model + taxonomy, memories
-`persona-pack-manual-automated-split`/`pack-bundle-flatten-model`/`pack-taxonomy-shared-registry`/
-`packs-license-price-is-shared-not-per-pack`/`resurface-before-build-primitive-pattern`); 0.31.0 (`a661054e`,
-F5 card lift + F6 Schemas→Data, memories `card-watermark-recipe`/`card-watermark-taste-rule`); 0.30.0
-(`8519e9af`, final 4 walkthrough reqs, memories `two-verb-run-is-blueprint-only`/`compose-submenu-elevation-pattern`);
-0.29.1 (`e210e49a`, #31 blueprint-card
-husk fix, memory `blueprint-card-husk-root-cause`); 0.29.0 (`9b9ea0f2`, relay-website dark chrome + FEAT-14/15/16
-GlanceRail, memory `chrome-sticky-stack-additive-offsets`); 0.28.0 (`v0.28.0`→`7e97669a`, nav/naming
-+ Profiles→Agents rename, memory `profiles-are-file-based-not-db`); 0.27.0 (`f29f0098`, packOf/PackPill +
-FEAT-7/8 + BUG-6 pack-aware seed, memory `seed-clears-pack-tables-and-addrows-fires-triggers`); 0.26.0
-(`5db27412`, fix specs #31-37, memories `apiversion-window-bump-at-version-bump` + `prod-smoke-encodes-contracts`);
-0.25.1 (`982a1ed9`→`ab1bbcfe`, staging-R2 fixes #29/#30, memory `self-http-calls-hardcode-3000`); 0.25.0
-(`2a50f91a`, app-activation #27 + workflow HITL #28, memory `workflow-status-vocab-active-not-running`); 0.24.1
-(customer fixes #24/#25/#26); 0.24.0 (legacy-brand); Staging-harness arc (S20–S23); 0.23.0 ← 0.16. Full
-history: `git tag` + CHANGELOG + `git log`.
+**Repo-local agent skills/hooks sync (2026-07-07, `72706130`):** Added `.agents/skills/` and `.codex/hooks/` as repo-local agent surfaces; source-sync trailing whitespace intentionally preserved.
+
+**TDR-039 Phase 3+4 (BUILT 2026-07-07, `28f17d77` + `19bc6f70`, UNRELEASED):** App-scoped publish service/routes, GitHub Pages target/deployment persistence, row JSON parsing before static-site, masked target responses, app-detail publish panel, duplicate-active-publish blocking, failed deployment surfacing. Verification: focused tests 14/14 pass; build passes with known warning.
+
+**Substrate Phase 1 (TDR-039) BUILT (2026-07-06, `b9fcb674`, UNRELEASED):** PublisherAdapter registry + GitHub Pages Contents adapter + minimal GeneratorAdapter + publish_targets/deployments at all four storage points; 26 TDD tests + isolated dev-boot smoke. Memory `generator-publisher-substrate-tdr039`.
+
+**Packs Publish P1 READ-trio + R5 + R4-mechanism (BUILT 2026-07-06, UNRELEASED):** R1 index-schema (`e6dde729`), R2 remote-resolver (`92d5a808`), R3 provenance-tiers (`bf7619b8`), R5 standard-versioning (`f6b1029d`), R4-mechanism (`b7f3b3d1`). Memory `packs-publish-authored` + `dont-ask-when-codebase-answers`.
+
+**Older released history:** 0.34.0 (`cab55bd1`) through 0.16 captured in git tags, CHANGELOG, closed issues, and linked memories. Use `git tag`, CHANGELOG, and `git log` for full detail.
