@@ -770,6 +770,53 @@ export const channelBindings = sqliteTable(
 
 export type ChannelBindingRow = InferSelectModel<typeof channelBindings>;
 
+// ── Generator/Publisher Substrate (TDR-039) ───────────────────────────
+
+export const publishTargets = sqliteTable(
+  "publish_targets",
+  {
+    // Composite `plugin:<id>:<target>` for pack-seeded rows.
+    id: text("id").primaryKey(),
+    // Logical app/project id — apps are file-based, so no SQL FK.
+    appId: text("app_id").notNull(),
+    targetType: text("target_type", { enum: ["github-pages"] }).notNull(),
+    // SECURITY: The config JSON contains credentials (githubToken) stored as
+    // plaintext. All API responses MUST mask sensitive fields via
+    // maskPublishConfig() before returning.
+    config: text("config").notNull(), // JSON: { owner?, repo?, branch?, githubToken? }
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  },
+  (table) => [
+    index("idx_publish_targets_app").on(table.appId),
+  ]
+);
+
+export type PublishTargetRow = InferSelectModel<typeof publishTargets>;
+
+export const deployments = sqliteTable(
+  "deployments",
+  {
+    id: text("id").primaryKey(),
+    appId: text("app_id").notNull(),
+    targetId: text("target_id").references(() => publishTargets.id).notNull(),
+    status: text("status", {
+      enum: ["pending", "publishing", "success", "failed"],
+    }).default("pending").notNull(),
+    url: text("url"),
+    commit: text("commit_sha"),
+    artifactHash: text("artifact_hash"),
+    startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
+    finishedAt: integer("finished_at", { mode: "timestamp" }),
+    error: text("error"),
+  },
+  (table) => [
+    index("idx_deployments_app").on(table.appId),
+    index("idx_deployments_target").on(table.targetId),
+  ]
+);
+
+export type DeploymentRow = InferSelectModel<typeof deployments>;
+
 // ── Agent Async Handoffs ──────────────────────────────────────────────
 
 export const agentMessages = sqliteTable(

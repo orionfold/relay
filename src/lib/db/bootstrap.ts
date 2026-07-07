@@ -46,6 +46,8 @@ const LEGACY_DATA_TABLES = [
   "snapshots",
   "workflow_execution_stats",
   "schedule_firing_metrics",
+  "publish_targets",
+  "deployments",
 ] as const;
 
 export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
@@ -657,6 +659,36 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_channel_bindings_config ON channel_bindings(channel_config_id);
     CREATE INDEX IF NOT EXISTS idx_channel_bindings_conversation ON channel_bindings(conversation_id);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_channel_bindings_config_thread ON channel_bindings(channel_config_id, external_thread_id);
+  `);
+
+  // ── Generator/Publisher Substrate (TDR-039) ─────────────────────────
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS publish_targets (
+      id TEXT PRIMARY KEY NOT NULL,
+      app_id TEXT NOT NULL,
+      target_type TEXT NOT NULL,
+      config TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_publish_targets_app ON publish_targets(app_id);
+
+    CREATE TABLE IF NOT EXISTS deployments (
+      id TEXT PRIMARY KEY NOT NULL,
+      app_id TEXT NOT NULL,
+      target_id TEXT NOT NULL,
+      status TEXT DEFAULT 'pending' NOT NULL,
+      url TEXT,
+      commit_sha TEXT,
+      artifact_hash TEXT,
+      started_at INTEGER NOT NULL,
+      finished_at INTEGER,
+      error TEXT,
+      FOREIGN KEY (target_id) REFERENCES publish_targets(id) ON UPDATE NO ACTION ON DELETE NO ACTION
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_deployments_app ON deployments(app_id);
+    CREATE INDEX IF NOT EXISTS idx_deployments_target ON deployments(target_id);
   `);
 
   // ── Agent Async Handoffs ──────────────────────────────────────────────

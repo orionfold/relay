@@ -42,6 +42,8 @@ import {
   scheduleTableInputs,
   workflowExecutionStats,
   scheduleFiringMetrics,
+  deployments,
+  publishTargets,
 } from "@/lib/db/schema";
 import { readdirSync, unlinkSync, mkdirSync } from "fs";
 import { join } from "path";
@@ -100,6 +102,10 @@ export function clearAllData() {
   // Agent messages reference tasks — delete before tasks
   const agentMessagesDeleted = step("agentMessages", () => db.delete(agentMessages).run().changes);
   const channelConfigsDeleted = step("channelConfigs", () => db.delete(channelConfigs).run().changes);
+
+  // deployments references publish_targets — delete children first
+  const deploymentsDeleted = step("deployments", () => db.delete(deployments).run().changes);
+  const publishTargetsDeleted = step("publishTargets", () => db.delete(publishTargets).run().changes);
 
   // Snapshots are intentionally preserved — they are backups, not working data
 
@@ -192,6 +198,8 @@ export function clearAllData() {
     agentMessages: agentMessagesDeleted,
     channelBindings: channelBindingsDeleted,
     channelConfigs: channelConfigsDeleted,
+    deployments: deploymentsDeleted,
+    publishTargets: publishTargetsDeleted,
     workflowDocumentInputs: workflowDocInputsDeleted,
     scheduleDocumentInputs: scheduleDocInputsDeleted,
     projectDocumentDefaults: projectDocDefaultsDeleted,

@@ -1,6 +1,6 @@
 ---
 title: Generator/Publisher substrate — packs that generate an artifact and publish it (TDR-039)
-status: planned
+status: built
 priority: P1
 milestone: mvp
 source: features/architect-report.md (TDR-039 integration design) / _IDEAS/packs-publish.md §7 (Pillar D)
@@ -157,6 +157,18 @@ Wire into all four:
 3. `getPublisherAdapter("github-pages")` resolves; `getPublisherAdapter("nope")` throws.
 4. No manifest/bundle/route/UI change — `git diff --stat` touches only `src/lib/publishers/`,
    `src/lib/generators/`, and the four storage files + tests.
+
+## Verification run — 2026-07-06 (Phase 1 BUILT)
+
+All four end-to-end checks passed: 26 new tests green (registry, masking, github-pages
+adapter with mocked fetch, storage round-trip + FK ordering); full suite shows only the 8
+known pre-existing failures; `npm run dev` boot smoke on an isolated `RELAY_DATA_DIR`
+confirmed both tables exist via the bootstrap path, the `deployments → publish_targets`
+FK is live (`PRAGMA foreign_key_list`), and `POST /api/data/clear` returned 200 with both
+summary keys; diff touched only the fenced files. Note: the `commit` field maps to a
+`commit_sha` column (`COMMIT` is a SQLite keyword); migration `0029` follows the
+0028 precedent (SQL file committed, drizzle journal untouched — bootstrap is the
+executable path, the journal count test pins 12).
 
 ## Anchors / memory
 
