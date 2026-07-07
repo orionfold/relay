@@ -599,7 +599,7 @@ hardening, and runtime defects so the next build slice can be chosen without re-
 | [fix-turbopack-dynamic-transport-dispatch](fix-turbopack-dynamic-transport-dispatch.md) | P1 | planned | provider-runtime-abstraction |
 | [fix-scheduled-lead-list-hygiene-dispatch](fix-scheduled-lead-list-hygiene-dispatch.md) | P1 | planned | scheduled-prompt-loops, row-trigger-blueprint-execution |
 | [fix-app-detail-row-cache-invalidation](fix-app-detail-row-cache-invalidation.md) | P1 | completed | tables-data-layer, composed-app-view-shell, pack-web-designer |
-| [fix-in-app-preview-sheet-visibility](fix-in-app-preview-sheet-visibility.md) | P2 | planned | composed-app-view-shell |
+| [fix-in-app-preview-sheet-visibility](fix-in-app-preview-sheet-visibility.md) | P2 | completed | composed-app-view-shell |
 | [flagship-card-polish](flagship-card-polish.md) | P2 | planned | packs-first-ia, operational-surface-foundation |
 
 **4 open decisions** (`packs-publish.md §12`) need `strategy/relay/_RELAY.md` coordination: canonical

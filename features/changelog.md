@@ -1,5 +1,13 @@
 # Feature Changelog
 
+## 2026-07-07 — In-app preview sheet visibility fixed
+
+### Built
+- `fix-in-app-preview-sheet-visibility`: shared sheets now use the project overlay z-token instead
+  of Tailwind `z-50`, preventing row-edit and enrichment sheets from opening underneath the boot
+  veil during Codex in-app preview evaluation. Verified in Codex in-app Browser and Playwright
+  Chromium fallback with screenshots under `output/sheet-visibility/`.
+
 ## 2026-07-07 — Packs-first IA built
 
 ### Built
