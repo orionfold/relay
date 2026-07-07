@@ -1,5 +1,47 @@
 # Feature Changelog
 
+## 2026-07-06 — Packs Publish groomed (R1–R7 → 7 feature specs)
+
+### Groomed
+- Extracted `_IDEAS/packs-publish.md` §10 (R1–R7) into **7 `features/pack-*.md` specs** — the
+  "Orionfold Packs" distribution standard (a versioned format + a canonical READ source + a
+  provenance model + a publish loop; a standard, not a marketplace). Added a **Packs Publish —
+  distribution & community** group to `roadmap.md` + its index-first dependency chain.
+  - **`pack-canonical-index`** (R1, P1) — the `orionfold.packs/v1` Zod schema + pure reader
+    (zero-runtime-import leaf) + a committed fixture; the keystone every other pillar reads. The
+    real `index.json` URL is Website-coordinated (open decision #1).
+  - **`pack-remote-resolver`** (R2, P1) — one async branch at the `resolvePackSource`
+    (`catalog.ts:105-122`) seam: consult the index → sha-verified fetch → `acquirePack`.
+    Local-first preserved; the bundle-child fence (`install.ts:143-149`) kept shut;
+    runtime-registry-adjacent → dev-server smoke; new `data-flow.md` egress row (canonical READ).
+  - **`pack-provenance-tiers`** (R3, P1) — offline Ed25519 verify reusing the shipped licensing
+    `TRUSTED_KEYS` (`verify.ts:37-40`) + `canonicalize.ts`; official/partner/community tiers +
+    badge; trust-ceiling policy seam (default warn-and-install, open decision #3).
+  - **`pack-tarball-diet`** (R4, P2) — slim bundled default + fetch-on-install for the long tail;
+    caches into the managed `base/`; gated on a real npm size measurement + the slim-cut (open
+    decision #2); updates npx-prod-smoke Case L counts.
+  - **`pack-standard-versioning`** (R5, P2) — index-schema + per-pack `relayCore` + plugin
+    `apiVersion` folded into ONE release checklist (co-listed, NOT merged) + an early `relayCore`
+    skip in the resolver. Mostly process + a cheap gate.
+  - **`pack-app-exporter`** (R6, P3) — the app→pack `GeneratorAdapter` (inverse of install;
+    correct-by-construction from live validated primitives); no egress. Gated on the TDR-039
+    substrate (`features/architect-report.md`).
+  - **`pack-community-publish`** (R7, P3) — the only SEND: a `github-repo` PublisherAdapter (reuse
+    TDR-039) + in-product consent ceremony + `data-flow.md` egress row; user-owned target, no
+    install-state telemetry, index links (never hosts). Gated on R6 + the TDR-039 substrate;
+    shares the GitHub publisher adapter with the Web Designer ticket.
+
+### Decisions surfaced (4 open, Website/issuer-coordinated — `packs-publish.md §12`)
+- Canonical index URL + versioning (R1) · slim-default cut (R4, needs a size measurement) ·
+  community trust ceiling (R3/R7) · partner-key onboarding (R3, coordinate with the licensing
+  issuer owner). Routed via `strategy/relay/_RELAY.md`.
+
+### Fences held (recorded so a later pass never over-reaches into the cut sub-product)
+- Every install is a READ from a canonical Orionfold source (promise-clean); the one SEND (R7) is
+  a user-owned consented push to the customer's own GitHub — never orionfold.com, never
+  install-state telemetry. No registry service, review pipeline, creator portal, or ratings. The
+  no-marketplace fence opens only along git/git-URL install; the bundle-child fence stays shut.
+
 ## 2026-07-06 — Packs Robustify R1+R3 BUILT (the taxonomy governance gate)
 
 ### Built (internal — build-time governance, no runtime/user-facing surface)

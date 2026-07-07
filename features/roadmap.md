@@ -547,6 +547,38 @@ every future pack safe at author time. R2 (install-time check), R5 (compat-diff 
 R8 (dependsOn), R9 (distribution) remain in the idea doc, ungroomed — groom the next tranche (R5 pairs
 with R3) when this lands.
 
+### Packs Publish — distribution & community (2026-07-06)
+
+Groomed from `_IDEAS/packs-publish.md` §10 (R1–R7) — the "Orionfold Packs" distribution standard
+that materializes `packs-robustify.md` R9 / Pillar F into a network-effect PLG feature: a versioned
+**format + a canonical READ source + a provenance model + a publish loop**, modeled on how Anthropic
+ships MCP/Skills/Plugins (a standard, not a marketplace). **Index-first** sequencing — the canonical
+index is the keystone every other pillar reads. The P1 trio (R1→R2→R3) is the promise-clean READ path
+(official/partner install); R4/R5 are P2 (tarball diet gated on a size measurement; versioning is
+process+a cheap gate); R6/R7 are P3 — the community SEND loop, **rightly last** because it depends on
+the index, on provenance, and on the TDR-039 generator/publisher substrate (`features/architect-report.md`),
+which R7 **shares** with the Web Designer ticket.
+
+| Feature | Priority | Status | Dependencies |
+|---------|----------|--------|--------------|
+| [pack-canonical-index](pack-canonical-index.md) | P1 | planned | — |
+| [pack-remote-resolver](pack-remote-resolver.md) | P1 | planned | pack-canonical-index |
+| [pack-provenance-tiers](pack-provenance-tiers.md) | P1 | planned | pack-canonical-index |
+| [pack-tarball-diet](pack-tarball-diet.md) | P2 | planned | pack-remote-resolver |
+| [pack-standard-versioning](pack-standard-versioning.md) | P2 | planned | pack-canonical-index |
+| [pack-app-exporter](pack-app-exporter.md) | P3 | planned | pack-provenance-tiers |
+| [pack-community-publish](pack-community-publish.md) | P3 | planned | pack-app-exporter |
+
+**Fences held (§2, §11):** every install path is a **READ** from a canonical Orionfold source
+(promise-clean, the `prebuilt-download.ts` egress-row-#1 shape); the one **SEND** (R7 community
+publish) is a user-owned, consented push to the *customer's own* GitHub — never orionfold.com, never
+install-state telemetry. The no-marketplace fence opens only along its permitted axis (git/git-URL
+install, already shipped); no registry service, no review pipeline, no creator portal, no ratings.
+The bundle-child fence (`install.ts:143-149`) stays shut — only top-level install resolves remotely.
+**4 open decisions** (`packs-publish.md §12`) need `strategy/relay/_RELAY.md` coordination: canonical
+index URL+versioning (R1), slim-default cut (R4), community trust ceiling (R3/R7), partner-key
+onboarding (R3). **R7 sequences behind the TDR-039 substrate build** (shares the GitHub publisher adapter).
+
 **Operator decision (2026-07-05):** first bundle proof = **Agency→CRE** (`pack-agency-bundle`),
 not Marketing — published Agency marketing assets give it a warm audience. `pack-marketing-line`
 demotes to a later Functional depth pack (P1→P2). Agency generalization is scoped *additively*:
@@ -625,6 +657,18 @@ pack-generalize-agency (P0, warm-up — no new architecture; persona spine deep,
 
 pack-primitive-resurface (P1, resurface existing charts — independent, lifts every pack)
     └── pack-depth-next-wave (P2, build a new primitive only when a selected pack needs it)
+```
+
+Packs Publish chain (distribution & community, index-first — READ trio then SEND loop):
+
+```
+pack-canonical-index (P1, KEYSTONE — orionfold.packs/v1 index; every pillar reads it)
+    ├── pack-remote-resolver (P1, one branch at the resolve seam → fetch → acquirePack)
+    │       └── pack-tarball-diet (P2, slim bundled + fetch-on-install; gated on a size measurement)
+    ├── pack-provenance-tiers (P1, offline Ed25519 verify — official/partner/community)
+    │       └── pack-app-exporter (P3, app→pack GeneratorAdapter; needs TDR-039 substrate)
+    │               └── pack-community-publish (P3, the SEND — github-repo PublisherAdapter; needs TDR-039)
+    └── pack-standard-versioning (P2, three axes → one release checklist + early relayCore skip)
 ```
 
 Structured data (Tables) chain:
