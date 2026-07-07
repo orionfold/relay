@@ -7,7 +7,7 @@ type FunnelSpec = NonNullable<ViewConfig["bindings"]["funnel"]>;
 /**
  * The funnel-flow compute is a PURE function over already-loaded, already-parsed
  * table rows — the same DB-free separation the KPI layer uses (evaluateKpi +
- * KpiContext). These tests pin the north-star `funnel_flow()` semantics:
+ * KpiContext). These tests pin the funnel-flow semantics:
  *   - band counts by membership / sum / recency,
  *   - stage-to-stage conversion % between two real leads counts,
  *   - the deliberately-blank Attract→Capture junction (reach ≠ contacts),
@@ -84,7 +84,7 @@ function tableRows(): Record<string, { data: Record<string, unknown> }[]> {
   };
 }
 
-describe("computeFunnelBands — north-star funnel_flow semantics", () => {
+describe("computeFunnelBands — funnel-flow semantics", () => {
   it("Attract sums reach over live rows, excluding only explicitly-dead ones", () => {
     const bands = computeFunnelBands(spec, tableRows(), { now: NOW });
     const attract = bands.find((b) => b.key === "attract")!;

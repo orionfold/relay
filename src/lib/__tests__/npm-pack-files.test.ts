@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { execFileSync } from "child_process";
 import { join, resolve } from "path";
 
@@ -9,8 +9,8 @@ import { join, resolve } from "path";
  * History: `book/` and `ai-native-notes/` once HAD to ship because the in-app
  * kindle reader + in-app chapter generator read them at runtime. That reader
  * was removed (the book lives at ainative.business), and in 2026-06 the book
- * authoring + content was extracted entirely to the private ~/orionfold/books
- * repo. So these dirs must NOT bloat the published tarball — and they are no
+ * authoring + content was extracted entirely to a separate private content
+ * factory. So these dirs must NOT bloat the published tarball — and they are no
  * longer authoring inputs *in this repo* (book-updater now runs from books/).
  * This test guards the standing product-safety contract: the book never ships
  * in the npm package, regardless of whether stray working-tree copies linger.
@@ -48,10 +48,10 @@ describe("npm publish contract", () => {
     expect(filesSet.has("src/")).toBe(true);
   });
 
-  it("does NOT publish docs/ — User Guide UI removed; doc generation moved to ~/orionfold/books", () => {
+  it("does NOT publish docs/ — User Guide UI removed; docs are authoring-only", () => {
     // The in-app User Guide UI and the generated docs corpus were removed in
-    // 2026-06; doc generation now lives in the private books repo. docs/ must
-    // not ship in the tarball.
+    // 2026-06; doc generation now lives outside this package. docs/ must not
+    // ship in the tarball.
     const shipsDocs = pkg.files.some((f) => f === "docs/" || f.startsWith("docs/"));
     expect(
       shipsDocs,
@@ -59,8 +59,8 @@ describe("npm publish contract", () => {
     ).toBe(false);
   });
 
-  it("book content is no longer git-tracked in this repo (extracted to ~/orionfold/books)", () => {
-    // The book authoring + content moved to the private books repo in 2026-06.
+  it("book content is no longer git-tracked in this repo", () => {
+    // The book authoring + content moved outside this repo in 2026-06.
     // Whether or not stray working-tree copies linger on a given machine, the
     // dirs must not be tracked here so they never re-enter the open repo or the
     // npm tarball. Tracked-file membership is the durable guarantee; on-disk
@@ -72,7 +72,50 @@ describe("npm publish contract", () => {
     ).trim();
     expect(
       tracked,
-      `book/ and ai-native-notes/ must be untracked (extracted to ~/orionfold/books). Still tracked:\n${tracked}`
+      `book/ and ai-native-notes/ must be untracked. Still tracked:\n${tracked}`
     ).toBe("");
+  });
+
+  it("pack and spec surfaces do not cite private local peer projects as references", () => {
+    const scannedRoots = [
+      "src/lib/packs/templates",
+      "features",
+      "_IDEAS",
+      "_SPECS",
+    ]
+      .map((root) => join(PROJECT_ROOT, root))
+      .filter((root) => existsSync(root));
+
+    const forbidden = [
+      /~\/orionfold\/(?:marketing|website|self-wealth|self-health|llc|consulting|books)\b/i,
+      /\/Users\/[^/\s]+\/orionfold\/(?:marketing|website|self-wealth|self-health|llc|consulting|books)\b/i,
+      /\bself-wealth\b/i,
+      /\bself-health\b/i,
+      /\bharvest source\b/i,
+      /\bharvest map\b/i,
+      /\bsibling north-star\b/i,
+      /\bnorth-star source\b/i,
+      /\bnorth-star projects\b/i,
+    ];
+
+    const files = (root: string): string[] =>
+      readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
+        const fullPath = join(root, entry.name);
+        if (entry.isDirectory()) return files(fullPath);
+        if (!statSync(fullPath).isFile()) return [];
+        return [fullPath];
+      });
+
+    for (const root of scannedRoots) {
+      for (const fullPath of files(root)) {
+        const raw = readFileSync(fullPath, "utf-8");
+        for (const pattern of forbidden) {
+          expect(
+            raw,
+            `${fullPath} must not cite private local peer projects as pack references (${pattern})`
+          ).not.toMatch(pattern);
+        }
+      }
+    }
   });
 });

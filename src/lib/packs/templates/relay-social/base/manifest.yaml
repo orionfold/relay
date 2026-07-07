@@ -57,8 +57,8 @@ tables:
     columns: [parent, promotes, channel, format, campaign, status, hook, cta]
   # Demand-gen initiatives. `id == utm_campaign` for the join: leads carry
   # `source_campaign == campaigns.utm_campaign`, so the two are seeded equal
-  # here (the north-star keeps them as distinct fields, but the pack models one
-  # canonical campaign key). Seeded with synthetic example campaigns.
+  # here so the pack has one canonical campaign key). Seeded with synthetic
+  # example campaigns.
   - id: campaigns
     columns: [promotes, funnel_stage, starts, ends, status, utm_campaign, impressions, clicks, signups]
     seed: seed/tables/campaigns.json

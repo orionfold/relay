@@ -7,8 +7,8 @@ source: conversation/2026-03-17-playbook-docs
 removed-note: >-
   In-app User Guide deleted in Phase C (commit e6f532e9): the /user-guide route,
   playbook components, and DB-backed docs loader were removed. Documentation
-  generation now lives in the ~/orionfold/books content factory, which reads this
-  product repo read-only. Spec retained as a historical record of what shipped.
+  generation now lives outside this repo and reads the product repo read-only.
+  Spec retained as a historical record of what shipped.
 dependencies:
   - app-shell
   - command-palette-enhancement

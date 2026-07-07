@@ -103,10 +103,10 @@
   --surface-3: oklch(0.96 0.006 250);
   --surface-foreground: oklch(0.14 0.02 250);
 
-  /* Instrument palette (WS3, 2026-07-05) — the relay-website technique ported
-     into the app: a two-tier teal blueprint grid, translucent teal elevation
-     washes, and an accent glow, ALL derived from --primary so they track the
-     theme automatically (dark teal vs light teal, no .dark override needed).
+  /* Instrument palette (WS3, 2026-07-05) — a two-tier teal blueprint grid,
+     translucent teal elevation washes, and an accent glow, ALL derived from
+     --primary so they track the theme automatically (dark teal vs light teal,
+     no .dark override needed).
      These are ADDITIVE — surfaces stay neutral; the teal lives only in the
      grid/glow/wash LAYERS painted over neutral surfaces (per the website). Light
      washes run slightly hotter than dark since teal-on-white is subtle. */

@@ -8,7 +8,7 @@
  *
  * The fingerprint is derived from:
  *   1. os.hostname() — e.g., "macbook-pro.local"
- *   2. os.userInfo().username — e.g., "manavsehgal"
+ *   2. os.userInfo().username — e.g., "local-user"
  *   3. SHA-256 of the first non-internal MAC address
  *
  * The MAC is hashed before it leaves the process so the raw network identifier

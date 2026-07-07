@@ -13,11 +13,11 @@ dependencies: [pack-generalize-agency, pack-bundle-model]
 
 `pack-bundle-model` ships the flatten-at-install composition mechanism; it needs a first real
 consumer to prove composition end to end. The strategy left the first-bundle choice open
-(`packs-evolution.md §10 Q1`: Marketing for harvest depth vs Agency→CRE for familiarity).
+(`packs-evolution.md §10 Q1`: Marketing domain breadth vs Agency→CRE familiarity).
 
 **Operator decision (2026-07-05): the first bundle proof is Agency→CRE, not Marketing.**
 Rationale: published marketing assets already exist for the Agency persona — a GTM argument the
-strategy weighed only on harvest depth. The Agency bundle therefore has a warm audience and
+strategy weighed only on domain breadth. The Agency bundle therefore has a warm audience and
 compounds work already done, and it is the *smallest, most familiar* composition case (§4's
 "composition in miniature"). Marketing demotes to a later depth pack (`pack-marketing-line`).
 

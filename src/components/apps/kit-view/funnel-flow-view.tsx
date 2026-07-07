@@ -8,10 +8,9 @@ interface FunnelFlowViewProps {
  * The funnel band-flow primitive's render — Attract → Capture → Nurture →
  * Convert as horizontal band cards with a conversion connector between each.
  *
- * Deliberately hand-rolled HTML + CSS, no D3/Sankey: the marketing north-star
- * declined a charting dependency as YAGNI (`_SPECS/2026-06-29-crm-funnel-flow-
- * panels.md` §2), and this Core primitive mirrors that. The band ramp uses the
- * app's `--chart-*` tokens so it reads as one system in light and dark.
+ * Deliberately hand-rolled HTML + CSS, no D3/Sankey: this Core primitive keeps
+ * the visual dependency surface small. The band ramp uses the app's `--chart-*`
+ * tokens so it reads as one system in light and dark.
  *
  * A band whose count is 0 still renders (an honest empty funnel, not a hidden
  * one); a `null` conversion renders a muted gap-marker rather than a misleading

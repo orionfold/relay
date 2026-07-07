@@ -14,7 +14,7 @@ export interface FunnelBand {
   /**
    * Whole-percent conversion from the `conversionFrom` band, or `null` where
    * this band declares no denominator or the denominator is 0 — an honest
-   * gap-marker instead of NaN/Infinity (north-star §5.3).
+   * gap-marker instead of NaN/Infinity.
    */
   conversion: number | null;
   /** Grouped sub-chips `[value, count]`, descending by count. */
@@ -26,9 +26,8 @@ type LoadedRows = { data: Record<string, unknown> }[];
 type RowMap = Record<string, LoadedRows>;
 
 /**
- * Pure funnel-flow compute — the TypeScript twin of the marketing north-star's
- * `funnel_flow()` (`_SPECS/2026-06-29-crm-funnel-flow-panels.md`). Takes the
- * declared spec plus already-loaded table rows (no DB, no I/O — the same
+ * Pure funnel-flow compute. Takes the declared spec plus already-loaded table
+ * rows (no DB, no I/O — the same
  * separation the KPI layer uses between `evaluateKpi` and `KpiContext`), and
  * returns one `FunnelBand` per declared band, in declared order.
  *

@@ -179,10 +179,9 @@ const FunnelBandCountSchema = z.discriminatedUnion("kind", [
 
 /**
  * A manifest-declarable funnel band-flow (Attract → Capture → Nurture →
- * Convert). The one non-standard chart the marketing harvest surfaced, carried
- * here from `pack-marketing-line` §6 as a deliberate Core primitive — NOT a
- * component ref, formula, or HTML escape hatch. The north-star declined
- * D3/Sankey (YAGNI) and hand-rolled HTML bands; the render kit mirrors that.
+ * Convert). This is a deliberate Core primitive — NOT a component ref,
+ * formula, or HTML escape hatch. It keeps the dependency surface small by
+ * rendering hand-rolled HTML bands instead of pulling in D3/Sankey.
  *
  * `conversionFrom` names a PRIOR band whose count is the denominator for this
  * band's stage-to-stage rate; omit it (as Attract and Capture do) to render a

@@ -3,9 +3,9 @@ title: Marketing line — relay-crm + relay-social bundled from a synthetic func
 status: groomed
 priority: P2
 milestone: post-mvp
-source: _IDEAS/packs-evolution.md §8.3 + §3 + Appendix
+source: internal pack-evolution strategy §8.3 + §3 + Appendix
 dependencies: [pack-bundle-model, pack-agency-bundle, pack-primitive-resurface]
-groomed: 2026-07-06 (north-star surveyed; primitives mapped; slice sequenced)
+groomed: 2026-07-06 (domain model surveyed; primitives mapped; slice sequenced)
 ---
 
 # Marketing line — a Functional depth bundle
@@ -15,8 +15,8 @@ groomed: 2026-07-06 (north-star surveyed; primitives mapped; slice sequenced)
 > **Operator decision (2026-07-05):** Marketing is **no longer the first bundle proof** — that
 > is now `pack-agency-bundle` (Agency→CRE), because published marketing assets already exist for
 > the Agency persona (warm audience, compounds existing work). Marketing **demotes to a later
-> Functional depth pack** (P1→P2). It still proves the *Functional-category* bundle shape and
-> the richest harvest, just after the Agency bundle has proven the mechanism.
+> Functional depth pack** (P1→P2). It still proves the *Functional-category* bundle shape just
+> after the Agency bundle has proven the mechanism.
 >
 > **That demotion reason is now spent** (Agency→CRE shipped in 0.32.0, `a03e53dd`). Marketing is
 > the natural next arc; it proves the *splitting* bundle (one purchase → two composed function
@@ -70,13 +70,13 @@ Directory `src/lib/packs/templates/relay-crm/` mirroring the `relay-cre` layout
 
 **Tables** (logical ids OWNED by relay-crm — new owners in `pack-taxonomy.md`):
 
-| Logical id | Columns (harvested, trimmed to Relay shape) | Notes |
+| Logical id | Columns (trimmed to Relay shape) | Notes |
 | --- | --- | --- |
 | `leads` | `id, display_name, email, stage, segment, source_origin, source_campaign, owner, last_touch, notes` | The core CRM record. `stage` enum = `lead → subscriber → engaged → qualified → customer → champion`. **Trigger-bound → ships EMPTY** (a magnet-form/import row-insert fires the enrich blueprint). `source_campaign` is the join key to relay-social's `campaigns.id` (== `utm_campaign`). |
 | `lead_research` | `lead_id, target_offering, fit_score, role, company, location, likely_pain, latent_need, email_status, last_researched` | Public-research dossier (one per direct-engagement lead). Seeded with 2–3 synthetic examples. |
 | `consent_policy` | `basis, mailable, scope, jurisdiction, cadence_cap, notes` | The guardrail record, so the outreach-guard profile reads policy from a table, not code. Seeded with synthetic policy examples. |
 
-> **Two-axis lifecycle** (preserve from north-star): a lead carries both `stage` (list
+> **Two-axis lifecycle:** a lead carries both `stage` (list
 > lifecycle) and a `direct_status` (`research_queue → ready_to_contact → awaiting_reply →
 > follow_up_due → do_not_contact | converted`). For the first proof, fold `direct_status` into a
 > column on `leads` rather than a second table — keep the shape minimal, expand later.
@@ -135,8 +135,8 @@ runs = campaign-launch.
 
 ### The intra-bundle binding spine (AC-3, the whole point of the split)
 
-The two children are bound by **`utm_campaign`** — verified as the real join key in the
-north-star (campaign board reads "attributed funnel outcomes keyed by `utm_campaign`"). After the
+The two children are bound by **`utm_campaign`** — the campaign board reads attributed outcomes
+keyed by that value. After the
 bundle flatten both tables live in ONE app, so these bindings resolve intra-app (same as
 relay-cre's lease-abstraction trigger firing on the merged app's `rent_roll`):
 
@@ -172,20 +172,20 @@ Directory `src/lib/packs/templates/relay-marketing/pack.yaml`, mirroring `relay-
 
 ### Charts — what is standard vs. what is a build ticket (§6 discipline)
 
-The north-star survey settled this concretely:
+The domain-modeling pass settled this concretely:
 
 - **Everything the first proof needs is standard** and covered by `pack-primitive-resurface`
   (wave-1, shipped): lead-count-by-stage **bar**, campaign KPI **tiles**, attribution **table +
   status chip**, velocity **line**, channel-freshness **table**. No escape hatch, no new
   component.
 - **The one non-standard chart is OUT of scope**: the horizontal **funnel band-flow** panel
-  (Attract → Capture → Nurture → Convert with inter-band conversion arrows). The north-star
-  *itself* declined D3/Sankey as YAGNI and hand-rolled HTML bands. Per §6 ("build a new primitive
+  (Attract → Capture → Nurture → Convert with inter-band conversion arrows). The product direction
+  declined D3/Sankey as YAGNI in favor of hand-rolled HTML bands. Per §6 ("build a new primitive
   only when a selected pack concretely needs it"), this is a deliberate **build ticket carried to
   `pack-depth-next-wave`** (a `funnel-flow` Core primitive: Zod arm + evaluator + kit) — NOT
   built here. The Marketing bundle ships with the standard KPI/bar/table treatment of the same
   data; the band-flow is a later visual upgrade, not a blocker.
-- **Cohort grid: explicitly declined** (north-star: "honest about small-N rather than inventing a
+- **Cohort grid: explicitly declined** ("honest about small-N rather than inventing a
   cohort-tracked rate the data can't support"). Not built anywhere until real demand.
 
 **Smoke budget** (CLAUDE.md — pack install is runtime-registry-adjacent): after authoring, run a
@@ -232,16 +232,15 @@ unit tests can't replace.
 **Excluded:**
 - The bundle-merge mechanism itself (`pack-bundle-model` — hard dependency, shipped).
 - A separate `relay-campaigns` child (folded into `relay-social` for the first proof; split out
-  only if the harvest concretely outgrows one pack).
+  only if the domain model concretely outgrows one pack).
 - The **funnel band-flow chart primitive** — a deliberate build ticket in `pack-depth-next-wave`
   (§6). The bundle ships standard KPI/bar/table charts of the same data.
-- Cohort-rate charts (declined by the north-star; no demand).
+- Cohort-rate charts (declined for small-N correctness; no demand).
 - Per-line pricing mechanics beyond the shared license (RESOLVED: license-level, no bundle SKU —
   memory `packs-license-price-is-shared-not-per-pack`).
-- The write-discipline runtime (atomic writes, poller-lock, auto-commit) from the north-star's
-  `crm/lib/writes.py` — that is the file-store's concern; Relay tables provide their own
-  persistence. Preserve the *policy* (consent as first-class, never auto-publish/auto-spend) as
-  profile SKILL.md guidance, not ported code.
+- The write-discipline runtime (atomic writes, poller-lock, auto-commit) from the reference
+  file-store model — Relay tables provide their own persistence. Preserve the *policy* (consent
+  as first-class, never auto-publish/auto-spend) as profile SKILL.md guidance, not ported code.
 
 ## Open decisions (for the operator, before build)
 
@@ -254,8 +253,8 @@ unit tests can't replace.
 
 ## References
 
-- Source: `_IDEAS/packs-evolution.md` §8.3 (bundle proof), §3 (Functional category), §10 Q1
-  (Marketing = lead bundle candidate), Appendix (Marketing harvest map row).
+- Source: internal pack-evolution strategy §8.3 (bundle proof), §3 (Functional category), §10 Q1
+  (Marketing = lead bundle candidate), Appendix (Marketing candidate row).
 - Domain model: CRM/leads, consent policy, content, campaigns, channels, ads, and demand-gen flow.
 - Reference implementation to mirror: `relay-cre` (child manifest shape) + `relay-agency-cre`
   (bundle pack.yaml + `relay-agency-bundle-template.test.ts`).

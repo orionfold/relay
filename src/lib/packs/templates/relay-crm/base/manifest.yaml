@@ -55,7 +55,7 @@ tables:
     columns: [lead_id, target_offering, fit_score, role, company, location, likely_pain, latent_need, email_status, last_researched]
     seed: seed/tables/lead_research.json
   # The consent guardrail as a first-class table, so the outreach-guard profile
-  # reads policy from data, not code. Seeded from the north-star guardrails.
+  # reads policy from data, not code. Seeded with synthetic guardrails.
   - id: consent_policy
     columns: [basis, mailable, scope, jurisdiction, cadence_cap, notes]
     seed: seed/tables/consent_policy.json
@@ -105,8 +105,8 @@ view:
         xColumn: stage
         aggregation: count
     # The funnel band-flow (pack-depth-next-wave) — the demand-gen engine as a
-    # live Attract -> Capture -> Nurture -> Convert flow, the TS twin of the
-    # marketing north-star's hand-rolled bands. Declared on the CRM (the bundle's
+    # live Attract -> Capture -> Nurture -> Convert flow. Declared on the CRM
+    # (the bundle's
     # first child, whose view wins the flatten) so it leads the merged Marketing
     # app. Attract reads relay-social's `channels` reach: standalone-CRM has no
     # channels table, so that band honestly reads 0; in the Marketing bundle both
@@ -128,8 +128,8 @@ view:
             # Sum reach over live channels — drop only the explicitly-dead ones.
             # relay-social's `channels` seed uses refresh_status ok|deprecated;
             # excluding `deprecated` (rather than including only `ok`) keeps a
-            # future `stale` channel's reach counted, matching the north-star's
-            # "active unless explicitly dead" rule.
+            # future `stale` channel's reach counted, matching the "active
+            # unless explicitly dead" rule.
             excludeColumn: refresh_status
             excludeValues: [deprecated]
           detail: reach across active channels

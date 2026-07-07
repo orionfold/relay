@@ -78,7 +78,7 @@ const MAIN_BRANCH_NAME = "main";
  *
  * On a domain clone (PRIVATE-INSTANCES.md §1.7), the user's working branch
  * is `<domain>-mgr` and `main` is a tracking shim. After an upstream history
- * rewrite (e.g. the 2026-04-17 navam-io → manavsehgal migration) `main` can
+ * rewrite (e.g. an upstream repository migration) `main` can
  * orphan and accumulate hundreds of commits of phantom divergence — which
  * the upgrade-detection poller renders as a "500+ updates" badge.
  *

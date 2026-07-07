@@ -52,7 +52,7 @@ cross-pack resolution, no bundle format. It is P0 because every downstream catal
   top of it. This raises the ambition of the persona pack beyond §4's subtractive framing.
 - **First bundle proof = Agency→CRE, not Marketing** (resolves `packs-evolution.md §10 Q1`).
   Rationale: published marketing assets already exist for the Agency persona (a GTM argument the
-  strategy weighed only on harvest depth), so the Agency bundle has a warm audience and compounds
+  strategy weighed only on domain breadth), so the Agency bundle has a warm audience and compounds
   existing work. Consequence: this split feeds directly into `pack-agency-bundle` (the new first
   bundle proof); `pack-marketing-line` demotes to a later depth pack.
 
@@ -196,8 +196,8 @@ Split the three fused concerns per `packs-evolution.md §4`:
 - **`features/pack-taxonomy.md`** — the shared logical-id registry this split establishes: the
   persona spine owns `clients`/`engagements`/`intake`/`pipeline`; industry packs own only their
   distinct vertical tables and feed the spine's client book via `seed/customers.yaml`.
-- Source: `_IDEAS/packs-evolution.md` §1 (evolution), §4 (persona/industry split worked
-  example), §8.1 (warm-up), Appendix (harvest map rows 1/7/8).
+- Source: internal pack-evolution strategy §1 (evolution), §4 (persona/industry split worked
+  example), §8.1 (warm-up), Appendix (candidate inventory rows 1/7/8).
 - Anchors: `src/lib/packs/templates/relay-agency/pack.yaml`, `src/lib/packs/install.ts` (intra-app schedule
   validation), `src/lib/apps/manifest-trigger-dispatch.ts`, `features/feat-agency-pro-pack.md`
   (free/pro line + standalone evidence).

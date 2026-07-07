@@ -83,7 +83,7 @@ describe("isPrivateInstance", () => {
   });
 
   it("returns true when RELAY_DATA_DIR is a custom path", async () => {
-    vi.stubEnv("RELAY_DATA_DIR", "/Users/manavsehgal/.relay-wealth");
+    vi.stubEnv("RELAY_DATA_DIR", join(homedir(), ".relay-custom"));
     const { isPrivateInstance } = await loadDetect();
     expect(isPrivateInstance()).toBe(true);
   });

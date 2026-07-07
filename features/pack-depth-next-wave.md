@@ -3,7 +3,7 @@ title: Next depth packs — Web Designer, Video Creator, Retail Investor (each p
 status: planned
 priority: P2
 milestone: post-mvp
-source: _IDEAS/packs-evolution.md §8.5 + §6 + §9 + Appendix
+source: internal pack-evolution strategy §8.5 + §6 + §9 + Appendix
 dependencies: [pack-primitive-resurface, pack-bundle-model]
 ---
 
@@ -15,8 +15,8 @@ With the persona/industry split proven (`pack-generalize-agency`), primitives re
 (`pack-primitive-resurface`), and composition shipping (`pack-bundle-model` +
 `pack-marketing-line`), the catalog spreads to its next depth-ship packs
 (`packs-evolution.md §8.5`): **Web Designer**, **Video Creator**, and **Retail Investor**
-(`relay-portfolio` + `relay-technical-analyst`). Each is **harvested from its sibling
-north-star** and **pulls one *new* analytics primitive only if it concretely needs one** — the
+(`relay-portfolio` + `relay-technical-analyst`). Each is modeled from its functional domain and
+**pulls one *new* analytics primitive only if it concretely needs one** — the
 §6 discipline: build a new primitive only when a *selected* depth pack demands it, never
 speculatively.
 
@@ -33,20 +33,20 @@ grooming. Retail Investor is also a **Personal-category** pack — subject to th
 ## User Story
 
 As a builder dogfooding Relay on my own domain (web design, video, or investing), I want a depth
-pack harvested from the matching north-star with the exact analytics my domain needs, so that
+pack with the exact analytics my domain needs, so that
 Relay operates my personal/prosumer function without me hand-building charts it does not yet have.
 
 ## Technical Approach
 
-Author each pack as an in-tree pristine-AppManifest pack, harvested from its north-star. For
-each, apply the §6 build-vs-resurface rule to its visual needs:
+Author each pack as an in-tree pristine-AppManifest pack seeded with synthetic examples. For each,
+apply the §6 build-vs-resurface rule to its visual needs:
 
-- **Web Designer** (Persona) — harvest from `~/orionfold/website`. New primitive: a
+- **Web Designer** (Persona) — a synthetic web-services operating surface. New primitive: a
   **gallery/preview widget** (Appendix) — ABSENT under the fixed slots, so a *build* ticket
   (new component + kit + Zod arm) gated on this pack shipping.
-- **Video Creator** (Persona) — harvest source tbd. Reuse resurfaced primitives where possible;
+- **Video Creator** (Persona) — domain source tbd. Reuse resurfaced primitives where possible;
   build only what it concretely needs.
-- **Retail Investor** (Personal) — harvest from `~/orionfold/self-wealth`. Children
+- **Retail Investor** (Personal) — a synthetic personal-investing operating surface. Children
   `relay-portfolio` + `relay-technical-analyst` (a bundle per `pack-bundle-model`). New
   primitives: **value-heatmap/matrix** and **radar/spider** (§6 "genuinely absent") — each a
   deliberate build ticket, built here because this selected pack needs them.
@@ -57,7 +57,7 @@ each, apply the §6 build-vs-resurface rule to its visual needs:
 - **§9 ICP tension for Retail Investor.** Personal packs target individuals and break the
   "consultancies/agencies/builders, not end-users" founding ICP. Per §9, ship Retail Investor as
   a **dogfooding/prosumer surface first** (the near-term buyer is the builder dogfooding Relay on
-  themselves — `self-wealth` is exactly this); formalize consumer GTM later. Do NOT bet premature
+  themselves); formalize consumer GTM later. Do NOT bet premature
   consumer GTM.
 
 **Smoke budget:** each new primitive (heatmap, radar, gallery) is runtime-registry-adjacent —
@@ -70,7 +70,7 @@ ticket so the §6 gate ("only when a selected pack needs it") is auditable.
 ## Acceptance Criteria
 
 - [ ] Web Designer, Video Creator, and Retail Investor packs each exist as in-tree packs,
-      harvested from their north-stars, installable and rendering end to end.
+      seeded with synthetic examples, installable and rendering end to end.
 - [ ] Each new analytics primitive (value-heatmap, radar, gallery/preview) is a typed Zod arm +
       evaluator + kit on the `.strict()` manifest schema — no escape hatch — and is built only
       because its consuming pack needs it (auditable per-pack).
@@ -96,9 +96,8 @@ ticket so the §6 gate ("only when a selected pack needs it") is auditable.
 
 ## References
 
-- Source: `_IDEAS/packs-evolution.md` §8.5 (next depth packs), §6 (build-vs-resurface,
-  build-only-when-needed), §9 (Personal-pack ICP tension), Appendix (harvest map + new-primitive
+- Source: internal pack-evolution strategy §8.5 (next depth packs), §6 (build-vs-resurface,
+  build-only-when-needed), §9 (Personal-pack ICP tension), Appendix (candidate inventory + new-primitive
   column).
-- North-stars: `~/orionfold/{website,self-wealth}` (+ Video Creator tbd).
 - Depends on: `pack-primitive-resurface`, `pack-bundle-model`. Relates to:
   `pack-entitlement-per-line` (each depth pack is a per-line product).

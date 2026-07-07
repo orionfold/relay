@@ -3,7 +3,7 @@ title: Resurface primitives (wave 1) — declarable table charts, wire the heatm
 status: in-progress
 priority: P1
 milestone: post-mvp
-source: _IDEAS/packs-evolution.md §6 + §8.2
+source: internal pack-evolution strategy §6 + §8.2
 dependencies: []
 ---
 
@@ -11,9 +11,9 @@ dependencies: []
 
 ## Description
 
-A pack is only as expressive as the primitive kinds it can declare. The catalog's north-star
-projects need richer analytics — factor-exposure matrices, risk-budget breakdowns, vitals
-trending, N-panel dashboards. The visualization audit (`packs-evolution.md §6`) is decisive:
+A pack is only as expressive as the primitive kinds it can declare. The catalog needs richer
+analytics — matrix views, budget breakdowns, trend overlays, and N-panel dashboards. The
+visualization audit (`packs-evolution.md §6`) is decisive:
 for wave 1, **the gap is wiring and declarability, not charting.** Several rich capabilities
 already exist in the codebase but are un-declarable from a manifest, buried behind non-default
 tabs, or wired to nothing.
