@@ -1,0 +1,14 @@
+{
+  "bundledPackIds": [
+    "relay-agency",
+    "relay-agency-cre",
+    "relay-agency-nonprofit",
+    "relay-agency-pro",
+    "relay-cre",
+    "relay-crm",
+    "relay-marketing",
+    "relay-nonprofit",
+    "relay-social"
+  ],
+  "sizeBudgetKb": 500
+}

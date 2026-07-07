@@ -71,6 +71,7 @@
     "validate:tokens": "npx tsx design-system/validate-tokens.ts",
     "check:price-drift": "node scripts/check-price-drift.mjs",
     "check:pack-taxonomy": "node scripts/check-pack-taxonomy.mjs",
+    "check:pack-tarball": "node scripts/check-pack-tarball.mjs",
     "sync-worktree": "bash bin/sync-worktree.sh",
     "prepublishOnly": "npm run build:cli"
   },

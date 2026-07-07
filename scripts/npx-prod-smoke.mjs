@@ -58,6 +58,11 @@ import { checkPriceDrift } from "./check-price-drift.mjs";
 // table/schedule ids must reconcile against the codified owned-primitive
 // registry (src/lib/packs/taxonomy.ts → taxonomy.json). LOCAL check, fail-CLOSED.
 import { runCheck as runTaxonomyCheck } from "./check-pack-taxonomy.mjs";
+// Publish-gate pack-tarball check (R4, features/pack-tarball-diet.md): the
+// declared BUNDLED_PACK_IDS allowlist must equal what physically ships under
+// templates/, and the unpacked template size must stay under budget (the
+// deferral trigger for the tarball diet).
+import { runCheck as runTarballCheck } from "./check-pack-tarball.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = JSON.parse(readFileSync(path.join(repoRoot, "package.json"), "utf-8"));
@@ -403,10 +408,29 @@ async function main() {
     }
   }
 
+  // ---- Case TB: pack-tarball allowlist + size budget ----
+  // LOCAL, fail-CLOSED: the bundled-pack allowlist (BUNDLED_PACK_IDS, mirrored
+  // to bundled.json) must equal the physical templates/ set — a pack present
+  // but undeclared would ship silently; one declared but missing would 404 under
+  // npx (the files-allowlist trap). And the unpacked size must stay under budget
+  // — crossing it means the tarball diet now pays off and forces the cut.
+  console.log("\n[smoke] Case TB: pack-tarball allowlist + size budget");
+  {
+    const tb = runTarballCheck();
+    if (tb.findings.length > 0) {
+      for (const f of tb.findings) console.error(`  - ${f}`);
+      assert(false, "Case TB: bundled-pack allowlist drift or size-budget overflow (see findings above)");
+    } else {
+      console.log(
+        `[smoke] Case TB: OK — ${tb.present.length} bundled packs, ${tb.totalKb.toFixed(1)} KB / ${tb.budgetKb} KB budget, allowlist matches templates/.`,
+      );
+    }
+  }
+
   await fs.rm(workDir, { recursive: true, force: true });
   rmSync(tarballPath, { force: true });
   console.log(
-    "\n[smoke] npx production smoke passed: A (prod first run), B (cached + LAN), L (license lifecycle + staging gate), L2 (bundle flatten), C (loud fallback), P (price drift), T (pack-taxonomy drift).",
+    "\n[smoke] npx production smoke passed: A (prod first run), B (cached + LAN), L (license lifecycle + staging gate), L2 (bundle flatten), C (loud fallback), P (price drift), T (pack-taxonomy drift), TB (pack-tarball allowlist + size).",
   );
 }
 
