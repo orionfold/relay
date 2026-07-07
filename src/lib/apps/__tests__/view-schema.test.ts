@@ -291,4 +291,88 @@ describe("AppManifestSchema — view: field", () => {
     });
     expect(r.success).toBe(false);
   });
+
+  // ── TDR-039 Phase 2: generate/publish manifest seam ──────────────────
+
+  it("accepts a generate + publish binding pair", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          generate: {
+            generatorType: "static-site",
+            table: "web-sections",
+            siteTitle: "Acme Landing",
+          },
+          publish: { targetType: "github-pages" },
+        },
+      },
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.view?.bindings.generate?.generatorType).toBe("static-site");
+      expect(r.data.view?.bindings.generate?.table).toBe("web-sections");
+      expect(r.data.view?.bindings.publish?.targetType).toBe("github-pages");
+    }
+  });
+
+  it("accepts a generate arm without the optional siteTitle", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          generate: { generatorType: "static-site", table: "web-sections" },
+        },
+      },
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects a generate arm missing its required table (the rewrite ref)", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          generate: { generatorType: "static-site" },
+        },
+      },
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("rejects a misspelled generate field (.strict() — no escape hatch)", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: {
+          generate: {
+            generatorType: "static-site",
+            table: "t",
+            tabel: "typo",
+          },
+        },
+      },
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("rejects a publish arm missing its required targetType", () => {
+    const r = AppManifestSchema.safeParse({
+      id: "a",
+      name: "A",
+      view: {
+        kit: "tracker",
+        bindings: { publish: {} },
+      },
+    });
+    expect(r.success).toBe(false);
+  });
 });

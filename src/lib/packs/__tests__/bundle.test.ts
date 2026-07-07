@@ -254,6 +254,42 @@ describe("mergeBundle", () => {
     ]);
   });
 
+  it("carries generate + publish (first-wins) through the merge (TDR-039)", () => {
+    // Same shadow-path class as funnel/charts: a Web Designer bundle whose child
+    // declares generate:/publish: must not lose them in the flatten. First child
+    // to declare each wins (a bundle is one site → one generate/publish pair).
+    const bundle = bundlePack("relay-web-designer", [
+      "relay-web-assets",
+      "relay-web-publisher",
+    ]);
+    const assets = child("relay-web-assets", {
+      tables: [{ id: "web-sections" }],
+      view: {
+        kit: "tracker",
+        bindings: {
+          generate: {
+            generatorType: "static-site",
+            table: "web-sections",
+            siteTitle: "Acme",
+          },
+        },
+      },
+    });
+    const publisher = child("relay-web-publisher", {
+      view: {
+        kit: "tracker",
+        bindings: { publish: { targetType: "github-pages" } },
+      },
+    });
+
+    const merged = mergeBundle(bundle, [assets, publisher]);
+    const view = merged.pack.manifest.view!;
+
+    expect(view.bindings.generate?.generatorType).toBe("static-site");
+    expect(view.bindings.generate?.table).toBe("web-sections");
+    expect(view.bindings.publish?.targetType).toBe("github-pages");
+  });
+
   it("takes the hero from the first child that HAS one, skipping heroless earlier children", () => {
     const bundle = bundlePack("relay-marketing", ["relay-crm", "relay-social"]);
     const crm = child("relay-crm", {

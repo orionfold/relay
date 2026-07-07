@@ -212,6 +212,31 @@ export const FunnelSpecSchema = z
   })
   .strict();
 
+/**
+ * Generator/publisher substrate manifest seam (TDR-039 Phase 2). A pack that
+ * generates an artifact from its managed rows and publishes it declares one
+ * `generate:` arm + one `publish:` arm inside `view.bindings` (single-valued
+ * like `funnel` — an app is one site; first-child-wins in `mergeBundle`).
+ *
+ * The input-table field is named `table` so the installer's `rewriteViewRefs`
+ * deep-rewrites the logical id → the real UUID for free (same convention
+ * `FunnelBandSpecSchema` documents). `publish` implicitly consumes the app's
+ * `generate` output — no cross-ref field.
+ */
+export const GenerateSpecSchema = z
+  .object({
+    generatorType: z.string().min(1),
+    table: z.string().min(1),
+    siteTitle: z.string().min(1).optional(),
+  })
+  .strict();
+
+export const PublishSpecSchema = z
+  .object({
+    targetType: z.string().min(1),
+  })
+  .strict();
+
 export const ViewSchema = z
   .object({
     kit: KitIdSchema.default("auto"),
@@ -224,6 +249,8 @@ export const ViewSchema = z
         kpis: z.array(KpiSpecSchema).optional(),
         charts: z.array(ChartSpecSchema).optional(),
         funnel: FunnelSpecSchema.optional(),
+        generate: GenerateSpecSchema.optional(),
+        publish: PublishSpecSchema.optional(),
       })
       .strict()
       .default({}),

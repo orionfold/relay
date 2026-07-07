@@ -6,6 +6,12 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.35.0] — 2026-07-06
+
+### Added
+
+- **Packs can now build a website from your data and publish it.** A pack can declare a site to generate from one of its tables and a place to publish it. The first generator turns rows into a single landing page, one row per section (a headline, a feature block, a call to action, or plain text), in the order you set. Only rows you mark published go live, so a draft can never leak. The first publish target is your own GitHub Pages, so the site lives in a repo you own. This release lays the plumbing; the point-and-click Web Designer app that uses it comes next.
+
 ## [0.34.0] — 2026-07-06
 
 ### Added

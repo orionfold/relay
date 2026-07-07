@@ -92,6 +92,8 @@ export function mergeBundle(
   let cadence: unknown;
   let runs: unknown;
   let funnel: unknown;
+  let generate: unknown;
+  let publish: unknown;
   let hasView = false;
 
   // File merge: flatten every child's files; guard droppable relPaths only.
@@ -113,12 +115,13 @@ export function mergeBundle(
     schedules.push(...m.schedules);
 
     // View: take kit + hero from the FIRST child that declares a view/hero;
-    // concatenate secondary + kpis + charts across children in order. `funnel`
-    // is single-valued like hero — the first child to declare one wins (a
-    // second funnel would fight for the same analytics-header slot). Missing
-    // `charts`/`funnel` here silently DROPS them from the merged app — the same
-    // shadow-path class the KPI-ref rewrite guards against — so every binding a
-    // child can declare must be carried through.
+    // concatenate secondary + kpis + charts across children in order. `funnel`,
+    // `generate`, and `publish` are single-valued like hero — the first child to
+    // declare one wins (a second funnel would fight for the analytics-header
+    // slot; a bundle is one site so one generate/publish pair). Missing
+    // `charts`/`funnel`/`generate`/`publish` here silently DROPS them from the
+    // merged app — the same shadow-path class the KPI-ref rewrite guards against
+    // — so every binding a child can declare must be carried through.
     if (m.view) {
       hasView = true;
       if (kit === undefined) kit = m.view.kit;
@@ -127,6 +130,8 @@ export function mergeBundle(
       if (cadence === undefined && b.cadence !== undefined) cadence = b.cadence;
       if (runs === undefined && b.runs !== undefined) runs = b.runs;
       if (funnel === undefined && b.funnel !== undefined) funnel = b.funnel;
+      if (generate === undefined && b.generate !== undefined) generate = b.generate;
+      if (publish === undefined && b.publish !== undefined) publish = b.publish;
       if (Array.isArray(b.secondary)) secondary.push(...b.secondary);
       if (Array.isArray(b.kpis)) kpis.push(...b.kpis);
       if (Array.isArray(b.charts)) charts.push(...b.charts);
@@ -157,6 +162,8 @@ export function mergeBundle(
   if (kpis.length > 0) bindings.kpis = kpis;
   if (charts.length > 0) bindings.charts = charts;
   if (funnel !== undefined) bindings.funnel = funnel;
+  if (generate !== undefined) bindings.generate = generate;
+  if (publish !== undefined) bindings.publish = publish;
   const view = hasView ? { kit: kit ?? "auto", bindings } : undefined;
 
   // Compose + validate the merged manifest against the strict schema. Identity
