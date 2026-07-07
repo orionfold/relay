@@ -125,6 +125,63 @@ describe("relay-marketing — catalog contract", () => {
       }
     }
   });
+
+  it("ships synthetic seed data only — no Orionfold marketing/prospecting records", () => {
+    const templateRoots = [
+      path.join(
+        process.cwd(),
+        "src/lib/packs/templates/relay-crm"
+      ),
+      path.join(
+        process.cwd(),
+        "src/lib/packs/templates/relay-social"
+      ),
+      path.join(
+        process.cwd(),
+        "src/lib/packs/templates/relay-marketing"
+      ),
+    ];
+    const forbidden = [
+      /manavsehgal/i,
+      /orionfold-proof/i,
+      /ai-native-business/i,
+      /become-ai-native-business/i,
+      /arena-dgx-spark/i,
+      /2026-q3-ai-native-series/i,
+      /launch-anb-platform/i,
+      /beehiiv/i,
+      /leanpub/i,
+      /com\.orionfold\.leads/i,
+      /harvested from/i,
+      /lockheed martin/i,
+      /chris benson/i,
+      /institute for defense analyses/i,
+      /changelog media/i,
+      /github-amaiya/i,
+      /linkedin-chrisbenson/i,
+      /linkedin-editor-changelog/i,
+      /product hunt \+ ai-agency creators/i,
+      /meta books cold-start/i,
+    ];
+
+    const files = (root: string): string[] =>
+      fs.readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
+        const fullPath = path.join(root, entry.name);
+        if (entry.isDirectory()) return files(fullPath);
+        return [fullPath];
+      });
+
+    for (const root of templateRoots) {
+      for (const fullPath of files(root)) {
+        const raw = fs.readFileSync(fullPath, "utf-8");
+        for (const pattern of forbidden) {
+          expect(raw, `${fullPath} must not contain ${pattern}`).not.toMatch(
+            pattern
+          );
+        }
+      }
+    }
+  });
 });
 
 describe("relay-marketing — the splitting bundle proof", () => {

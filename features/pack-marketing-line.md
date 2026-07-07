@@ -1,5 +1,5 @@
 ---
-title: Marketing line — relay-crm + relay-social bundled, harvested from ~/orionfold/marketing
+title: Marketing line — relay-crm + relay-social bundled from a synthetic functional model
 status: groomed
 priority: P2
 milestone: post-mvp
@@ -24,8 +24,8 @@ groomed: 2026-07-06 (north-star surveyed; primitives mapped; slice sequenced)
 
 Marketing is a **Functional-category** pack (`§3`: "my team *does* Marketing") that splits into
 `relay-crm` + `relay-social` (with `relay-campaigns` folded into `relay-social` for the first
-proof), bundled and installed as one "Marketing" app, harvested from the richest sibling
-north-star `~/orionfold/marketing`.
+proof), bundled and installed as one "Marketing" app, modeled from the functional shape of a
+marketing operating system and seeded with synthetic examples only.
 
 This feature authors those two child packs and the `relay-marketing` bundle pack. It is the
 concrete proof that a *splitting* pack (one purchase, multiple composed primitives from **two
@@ -57,9 +57,8 @@ wiring two separate apps by hand.
 
 ## Technical Approach
 
-Harvest, don't build: `~/orionfold/marketing` already encodes the entire domain as a
-file-per-record markdown+frontmatter store. Each entity maps to a Relay table; each generated
-`_index.md` roster maps to a view. Translate the real schemas (below) into two pristine
+Model the working domain first, then ship synthetic public examples. Each entity maps to a Relay
+table, and each roster maps to a view. Translate the domain shape below into two pristine
 `AppManifest`s + a bundle descriptor. **No new engine seam** — all composition rides on
 `pack-bundle-model`'s flatten path (proven by `relay-agency-cre`); this spec is pack content plus
 one bundle descriptor.
@@ -74,15 +73,15 @@ Directory `src/lib/packs/templates/relay-crm/` mirroring the `relay-cre` layout
 | Logical id | Columns (harvested, trimmed to Relay shape) | Notes |
 | --- | --- | --- |
 | `leads` | `id, display_name, email, stage, segment, source_origin, source_campaign, owner, last_touch, notes` | The core CRM record. `stage` enum = `lead → subscriber → engaged → qualified → customer → champion`. **Trigger-bound → ships EMPTY** (a magnet-form/import row-insert fires the enrich blueprint). `source_campaign` is the join key to relay-social's `campaigns.id` (== `utm_campaign`). |
-| `lead_research` | `lead_id, target_offering, fit_score, role, company, location, likely_pain, latent_need, email_status, last_researched` | Public-research dossier (one per direct-engagement lead). Seeded with 2–3 real examples. |
-| `consent_policy` | `basis, mailable, scope, jurisdiction, cadence_cap, notes` | The guardrail record (harvested from `leads/guardrails.yaml`), so the outreach-guard profile reads policy from a table, not code. Seeded. |
+| `lead_research` | `lead_id, target_offering, fit_score, role, company, location, likely_pain, latent_need, email_status, last_researched` | Public-research dossier (one per direct-engagement lead). Seeded with 2–3 synthetic examples. |
+| `consent_policy` | `basis, mailable, scope, jurisdiction, cadence_cap, notes` | The guardrail record, so the outreach-guard profile reads policy from a table, not code. Seeded with synthetic policy examples. |
 
 > **Two-axis lifecycle** (preserve from north-star): a lead carries both `stage` (list
 > lifecycle) and a `direct_status` (`research_queue → ready_to_contact → awaiting_reply →
 > follow_up_due → do_not_contact | converted`). For the first proof, fold `direct_status` into a
 > column on `leads` rather than a second table — keep the shape minimal, expand later.
 
-**Profiles** (namespaced `relay-crm--`, harvested from the `lead-*` skills):
+**Profiles** (namespaced `relay-crm--`, modeled from the lead workflow):
 - `relay-crm--lead-pipeline` — the CRM owner/operator (files leads, reconciles, promotes stages).
 - `relay-crm--lead-screen` — the intake quality gate (6 gates: email-reality, jurisdiction,
   guardrail, dedup, zero-fabrication, fit-floor).
@@ -96,9 +95,8 @@ Directory `src/lib/packs/templates/relay-crm/` mirroring the `relay-cre` layout
 - `relay-crm--outreach-loop` — research-direct → draft → outreach-guard go/fix/no-go → log touch
   → follow-up-due. On-demand (no trigger).
 
-**Schedules** (namespaced): `relay-crm--lead-poller` — the 4×/day list-hygiene pass (harvested
-from the launchd `com.orionfold.leads-poller`), reconciling stale leads. (Logical id
-`lead-poller`, owned by relay-crm in the taxonomy schedules table.)
+**Schedules** (namespaced): `relay-crm--lead-poller` — the 4×/day list-hygiene pass, reconciling
+stale leads. (Logical id `lead-poller`, owned by relay-crm in the taxonomy schedules table.)
 
 **View:** `kit: workflow-hub`, hero = `leads`, secondary = the outreach-loop + enrich blueprints,
 runs = outreach-loop. KPIs (standard, resurfaced primitives — see §"Charts"): mailable %,
@@ -118,7 +116,7 @@ Directory `src/lib/packs/templates/relay-social/`.
 | `channels` | `id, platform, handle, url, funnel_role, audience, last_refreshed, refresh_status` | Publishing surfaces. `funnel_role`: `reach | engagement | conversion | revenue`. Seeded. |
 | `ad_initiatives` | `id, title, intent_kind, status, attached_campaign, primary_kpi, budget_envelope_usd, target_cac_usd` | The paid side. `status`: `proposed → approved → live → paused | completed`. Seeded lightly. |
 
-**Profiles** (namespaced `relay-social--`, harvested from the content/campaign/ad skills):
+**Profiles** (namespaced `relay-social--`, modeled from the content/campaign/ad workflow):
 - `relay-social--content-studio` — inventory + repurpose planner (writes the creative brief).
 - `relay-social--campaign-runner` — launch/schedule/publish-helper/measure.
 - `relay-social--advertising-advisor` — paid strategist (CAC/ROAS gates, stop-loss/scale-up).
@@ -202,7 +200,7 @@ unit tests can't replace.
 
 - [ ] `relay-crm` exists as an in-tree child pack (owns `leads` + `lead_research` +
       `consent_policy`, 3 `relay-crm--` profiles, `lead-enrich` row-insert trigger blueprint,
-      `lead-poller` schedule), installable standalone, harvested from `~/orionfold/marketing`.
+      `lead-poller` schedule), installable standalone, and seeded with synthetic examples.
 - [ ] `relay-social` exists as an in-tree child pack (owns `content_assets` + `creatives` +
       `campaigns` + `channels` + `ad_initiatives`, 3 `relay-social--` profiles, `repurpose`
       row-insert trigger blueprint, `content-cadence` schedule), installable standalone.
@@ -215,7 +213,7 @@ unit tests can't replace.
 - [ ] **Cross-child TRIGGER works post-merge:** a row-insert into `leads` fires a blueprint in the
       flattened app (proven by `lead-enrich`; a `relay-social` reaction demonstrated).
 - [ ] `leads` and `creatives` (trigger-bound) ship EMPTY; `campaigns`/`channels`/`content_assets`/
-      `lead_research`/`consent_policy` ship with real seeded rows harvested from the north-star.
+      `lead_research`/`consent_policy` ship with synthetic seeded rows.
 - [ ] `pack-taxonomy.md` is updated in the SAME change with the Marketing family's owned tables +
       schedules (disjoint from the Agency family ids); no logical-id has two owners.
 - [ ] The Marketing bundle installs, renders, and runs end to end under a `npm run dev` smoke; the
@@ -227,7 +225,7 @@ unit tests can't replace.
 
 **Included:**
 - Authoring `relay-crm` + `relay-social` child packs + the `relay-marketing` bundle.
-- Harvesting domain content (schemas, seed rows, guardrails) from `~/orionfold/marketing`.
+- Authoring the domain model, synthetic seed rows, and guardrails.
 - Updating `pack-taxonomy.md` with the new Marketing-family owned ids.
 - A bundle-template test + a dev-server smoke.
 
@@ -258,9 +256,7 @@ unit tests can't replace.
 
 - Source: `_IDEAS/packs-evolution.md` §8.3 (bundle proof), §3 (Functional category), §10 Q1
   (Marketing = lead bundle candidate), Appendix (Marketing harvest map row).
-- North-star: `~/orionfold/marketing` — surveyed 2026-07-06. CRM/leads: `leads/`, `crm/lib/model.py`,
-  `_FLOWS/leads-funnel.md`. Social/content/campaigns: `content/`, `campaigns/`, `channels/`,
-  `ads/`, `_FLOWS/demand-gen-engine.svg`.
+- Domain model: CRM/leads, consent policy, content, campaigns, channels, ads, and demand-gen flow.
 - Reference implementation to mirror: `relay-cre` (child manifest shape) + `relay-agency-cre`
   (bundle pack.yaml + `relay-agency-bundle-template.test.ts`).
 - Registry to update: `features/pack-taxonomy.md` (one-owner-per-logical-id).

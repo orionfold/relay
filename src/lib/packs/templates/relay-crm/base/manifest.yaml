@@ -49,8 +49,8 @@ tables:
   - id: leads
     columns: [display_name, email, stage, direct_status, segment, source_origin, source_campaign, owner, last_touch, notes]
   # The public-research dossier, one row per direct-engagement lead. NOT
-  # trigger-bound, so it seeds with a few real examples — the enrich pipeline
-  # appends more as leads land.
+  # trigger-bound, so it seeds with a few synthetic examples — the enrich
+  # pipeline appends more as leads land.
   - id: lead_research
     columns: [lead_id, target_offering, fit_score, role, company, location, likely_pain, latent_need, email_status, last_researched]
     seed: seed/tables/lead_research.json
@@ -61,8 +61,8 @@ tables:
     seed: seed/tables/consent_policy.json
 
 schedules:
-  # The 4x/day list-hygiene pass (harvested from launchd com.orionfold.leads-
-  # poller): reconcile stale leads, advance follow-up-due, sweep do-not-contact.
+  # The 4x/day list-hygiene pass: reconcile stale leads, advance follow-up-due,
+  # sweep do-not-contact.
   - id: lead-poller
     name: Lead list hygiene
     cron: "0 6,11,15,19 * * *"

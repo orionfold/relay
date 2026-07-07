@@ -10,7 +10,7 @@
   {
     "basis": "website-optin",
     "mailable": "true",
-    "scope": "Confirmed double opt-in via the website magnet form. Mailable on the newsletter list; beehiiv status active.",
+    "scope": "Confirmed double opt-in via the website magnet form. Mailable on the newsletter list while subscription status is active.",
     "jurisdiction": "us",
     "cadence_cap": "unlimited",
     "notes": "Opt-in subscribers are mailable within the consented scope. A daily pull-back flips unsubscribe or bounce to mailable:false."

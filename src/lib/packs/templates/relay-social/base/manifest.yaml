@@ -58,15 +58,15 @@ tables:
   # Demand-gen initiatives. `id == utm_campaign` for the join: leads carry
   # `source_campaign == campaigns.utm_campaign`, so the two are seeded equal
   # here (the north-star keeps them as distinct fields, but the pack models one
-  # canonical campaign key). Seeded with real live campaigns.
+  # canonical campaign key). Seeded with synthetic example campaigns.
   - id: campaigns
     columns: [promotes, funnel_stage, starts, ends, status, utm_campaign, impressions, clicks, signups]
     seed: seed/tables/campaigns.json
-  # Publishing surfaces. Seeded from the real channel roster.
+  # Publishing surfaces. Seeded from a synthetic example channel roster.
   - id: channels
     columns: [platform, handle, url, funnel_role, audience, last_refreshed, refresh_status]
     seed: seed/tables/channels.json
-  # The paid side. Seeded lightly with real ad initiatives.
+  # The paid side. Seeded lightly with synthetic example ad initiatives.
   - id: ad_initiatives
     columns: [title, intent_kind, status, attached_campaign, primary_kpi, budget_envelope_usd, target_cac_usd]
     seed: seed/tables/ad_initiatives.json

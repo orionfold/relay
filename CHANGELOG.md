@@ -6,6 +6,16 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.35.2] — 2026-07-07
+
+### Fixed
+
+- **Replaced real Marketing pack examples with synthetic sample data.** Relay CRM
+  and Relay Social now ship only fictional seed rows and placeholders. This
+  removes internal Orionfold marketing/prospecting examples from the public npm
+  package and adds a regression test over the Marketing template surface so
+  private campaign, channel, prospect, and provenance markers cannot slip back in.
+
 ## [0.35.1] — 2026-07-06
 
 ### Fixed

@@ -22,13 +22,13 @@ variables:
     # default so a new `leads` row auto-fills this from its display_name.
     required: false
     default: "{{row.display_name}}"
-    placeholder: Chris Benson
+    placeholder: Sample Ops Director
   - id: source_campaign
     type: text
     label: Source campaign
     description: The utm_campaign this lead attributes to
     required: false
-    placeholder: 2026-q3-ai-native-series
+    placeholder: 2026-q3-field-ops-series
 steps:
   - name: Research the lead
     profileId: relay-crm--lead-pipeline

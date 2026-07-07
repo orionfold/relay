@@ -19,7 +19,7 @@ variables:
     label: Lead
     description: The lead to run outreach for
     required: true
-    placeholder: Chris Benson
+    placeholder: Sample Ops Director
   - id: objective
     type: text
     label: Objective

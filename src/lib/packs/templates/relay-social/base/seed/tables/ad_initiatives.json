@@ -1,20 +1,20 @@
 [
   {
-    "title": "Relay cold paid, first-sale test (Product Hunt + AI-agency creators)",
+    "title": "Automation pack first-sale test",
     "intent_kind": "cold-start-test",
     "status": "proposed",
-    "attached_campaign": "become-ai-native-business",
+    "attached_campaign": "automation-pack-launch",
     "primary_kpi": "revenue",
-    "budget_envelope_usd": "3000",
-    "target_cac_usd": "349"
+    "budget_envelope_usd": "2500",
+    "target_cac_usd": "250"
   },
   {
-    "title": "Meta books cold-start",
+    "title": "Playbook lead-magnet test",
     "intent_kind": "cold-start-test",
     "status": "completed",
-    "attached_campaign": "launch-anb-platform",
+    "attached_campaign": "launch-workflow-audit",
     "primary_kpi": "conversion",
-    "budget_envelope_usd": "300",
-    "target_cac_usd": "20"
+    "budget_envelope_usd": "500",
+    "target_cac_usd": "25"
   }
 ]

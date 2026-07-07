@@ -1,47 +1,47 @@
 [
   {
     "platform": "linkedin",
-    "handle": "manavsehgal",
-    "url": "https://www.linkedin.com/in/manavsehgal/",
+    "handle": "acme-founder",
+    "url": "https://example.com/social/linkedin",
     "funnel_role": "reach",
-    "audience": "4056",
-    "last_refreshed": "2026-07-04",
+    "audience": "2800",
+    "last_refreshed": "2026-07-01",
     "refresh_status": "ok"
   },
   {
     "platform": "x",
-    "handle": "manavsehgal",
-    "url": "https://x.com/manavsehgal",
+    "handle": "acme_ops",
+    "url": "https://example.com/social/x",
     "funnel_role": "reach",
-    "audience": "404",
-    "last_refreshed": "2026-07-04",
+    "audience": "920",
+    "last_refreshed": "2026-07-01",
     "refresh_status": "ok"
   },
   {
     "platform": "email",
-    "handle": "orionfold",
-    "url": "https://app.beehiiv.com",
+    "handle": "acme-newsletter",
+    "url": "https://newsletter.example.com",
     "funnel_role": "conversion",
-    "audience": "59",
-    "last_refreshed": "2026-06-16",
+    "audience": "420",
+    "last_refreshed": "2026-07-01",
     "refresh_status": "ok"
   },
   {
     "platform": "github",
-    "handle": "manavsehgal",
-    "url": "https://github.com/manavsehgal/",
+    "handle": "acme-labs",
+    "url": "https://example.com/social/github",
     "funnel_role": "engagement",
-    "audience": "117",
-    "last_refreshed": "2026-06-16",
+    "audience": "180",
+    "last_refreshed": "2026-07-01",
     "refresh_status": "deprecated"
   },
   {
-    "platform": "leanpub",
-    "handle": "manav",
-    "url": "https://leanpub.com/u/manav",
+    "platform": "marketplace",
+    "handle": "acme-studio",
+    "url": "https://store.example.com/acme",
     "funnel_role": "revenue",
-    "audience": "0",
-    "last_refreshed": "2026-06-16",
+    "audience": "65",
+    "last_refreshed": "2026-07-01",
     "refresh_status": "ok"
   }
 ]

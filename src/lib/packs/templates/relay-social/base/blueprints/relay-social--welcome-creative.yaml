@@ -29,7 +29,7 @@ variables:
     label: Source campaign
     description: The utm_campaign the lead attributes to
     required: false
-    placeholder: become-ai-native-business
+    placeholder: 2026-q3-field-ops-series
 steps:
   - name: Match the lead to a campaign
     profileId: relay-social--campaign-runner

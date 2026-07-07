@@ -113,7 +113,7 @@
   - `pack-agency-bundle` (P1, §8.3, §10 Q1 — added 2026-07-05 per operator decision) — the
     **first bundle proof**: `relay-agency` + `relay-cre` flattened into one "Agency (CRE)" app.
   - `pack-marketing-line` (P2, §8.3) — a later Functional depth bundle: `relay-crm` +
-    `relay-social` harvested from `~/orionfold/marketing` (demoted from first-proof, see below).
+    `relay-social` modeled as a synthetic functional Marketing line (demoted from first-proof, see below).
   - `pack-entitlement-per-line` (P2, §8.4, §7) — migrate to `product:relay-*`, all-access
     wildcard, foundation packs free; zero schema change; needs Website `pricing.json` coord.
   - `pack-depth-next-wave` (P2, §8.5, §6) — Web Designer / Video Creator / Retail Investor; build
