@@ -173,7 +173,7 @@ describe("createAppPreview", () => {
     expect(preview.artifactId).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
     );
-    expect(preview.url).toContain(
+    expect(preview.url).toBe(
       `/api/apps/${encodeURIComponent(APP_ID)}/previews/${encodeURIComponent(preview.artifactId)}`
     );
     expect(preview.hash).toMatch(/^[a-f0-9]{64}$/);

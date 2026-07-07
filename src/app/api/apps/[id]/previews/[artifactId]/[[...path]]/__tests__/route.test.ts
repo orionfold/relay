@@ -41,6 +41,7 @@ describe("GET /api/apps/[id]/previews/[artifactId]/[[...path]]", () => {
     expect(res.headers.get("content-type")).toBe("text/html; charset=utf-8");
     expect(res.headers.get("x-content-type-options")).toBe("nosniff");
     expect(res.headers.get("content-security-policy")).toContain("default-src 'none'");
+    expect(res.headers.get("content-security-policy")).toContain("frame-ancestors 'self'");
     expect(await res.text()).toContain("Preview");
   });
 

@@ -5,7 +5,6 @@ import { deployments, publishTargets, type DeploymentRow, type PublishTargetRow 
 import { getApp, type AppDetail, type ViewConfig } from "@/lib/apps/registry";
 import { getTable, listRows } from "@/lib/data/tables";
 import { getGeneratorAdapter } from "@/lib/generators/registry";
-import { getSelfBaseUrl } from "@/lib/http/self-base-url";
 import { getPublisherAdapter } from "@/lib/publishers/registry";
 import { maskPublishTarget } from "@/lib/publishers/types";
 import {
@@ -268,7 +267,7 @@ export async function createAppPreview(appId: string): Promise<CreatePreviewResu
   const encodedArtifact = encodeURIComponent(metadata.artifactId);
   return {
     artifactId: metadata.artifactId,
-    url: `${getSelfBaseUrl()}/api/apps/${encodedId}/previews/${encodedArtifact}`,
+    url: `/api/apps/${encodedId}/previews/${encodedArtifact}`,
     hash: metadata.hash,
     createdAt: metadata.createdAt,
     expiresAt: metadata.expiresAt,

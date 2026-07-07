@@ -37,7 +37,7 @@ export async function GET(
     if (file.contentType.startsWith("text/html")) {
       headers.set(
         "Content-Security-Policy",
-        "default-src 'none'; img-src 'self' http: https: data:; style-src 'self' 'unsafe-inline'; script-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+        "default-src 'none'; img-src 'self' http: https: data:; style-src 'self' 'unsafe-inline'; script-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"
       );
     }
     return new Response(new Uint8Array(file.content), { status: 200, headers });

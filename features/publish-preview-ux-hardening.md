@@ -1,6 +1,6 @@
 ---
 title: Publish preview UX hardening — embedded preview, target permission check, and final URL
-status: planned
+status: built
 priority: P1
 milestone: post-mvp
 source: output/operator-walkthrough-feedback-2026-07-07.md
@@ -38,13 +38,21 @@ so that I know exactly what will be sent and where it will be visible after publ
 
 ## Acceptance Criteria
 
-- [ ] Clicking Preview renders the artifact inside Relay chrome without losing app context.
-- [ ] "View without chrome" opens the raw artifact in a separate tab.
-- [ ] Target test fails visibly when the token lacks Contents write permission.
-- [ ] Publish setup copy names the required GitHub token permission.
-- [ ] Deployment results show the published URL and, when detectable, the final resolved custom
+- [x] Clicking Preview renders the artifact inside Relay chrome without losing app context.
+- [x] "View without chrome" opens the raw artifact in a separate tab.
+- [x] Target test fails visibly when the token lacks Contents write permission.
+- [x] Publish setup copy names the required GitHub token permission.
+- [x] Deployment results show the published URL and, when detectable, the final resolved custom
       domain URL or a clear custom-domain note.
-- [ ] Iframe loading, stale previews, failed publishes, and double-click publish states are tested.
+- [x] Iframe loading, stale previews, failed publishes, and double-click publish states are tested.
+
+## Verification run — 2026-07-07
+
+- In-app Browser smoke on `http://localhost:3000/apps/relay-web-designer` generated a fresh local preview without leaving Relay chrome.
+- Fixed two smoke findings: preview URLs are now app-relative instead of hard-coded to a self base URL, and preview HTML allows same-origin framing via `frame-ancestors 'self'`.
+- Embedded iframe rendered the generated AI SuperApp page content inside Relay: `AI SuperApp`, `One operating loop`, `Local-first by default`, and `Designed for controlled AI operations`.
+- Browser captured no console errors or warnings after the fix.
+- `npm test -- 'src/app/api/apps/[id]/previews/[artifactId]/[[...path]]/__tests__/route.test.ts' src/lib/publishers/__tests__/app-publish.test.ts src/components/apps/__tests__/app-publish-panel.test.tsx` passed: 14 tests.
 
 ## Scope Boundaries
 

@@ -192,7 +192,7 @@ describe("AppPublishPanel", () => {
     const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
     const preview = {
       artifactId: "artifact-1",
-      url: "http://127.0.0.1:3000/api/apps/app-1/previews/artifact-1",
+      url: "/api/apps/app-1/previews/artifact-1",
       hash: "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
       createdAt: "2026-07-07T00:00:00.000Z",
       expiresAt: "2999-07-07T00:00:00.000Z",
