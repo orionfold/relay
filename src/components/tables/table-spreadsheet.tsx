@@ -32,6 +32,7 @@ interface TableSpreadsheetProps {
   tableId: string;
   columns: ColumnDef[];
   initialRows: UserTableRowRow[];
+  initialSelectedRowId?: string | null;
 }
 
 interface ParsedRow {
@@ -54,6 +55,7 @@ export function TableSpreadsheet({
   tableId,
   columns: initialColumns,
   initialRows,
+  initialSelectedRowId = null,
 }: TableSpreadsheetProps) {
   const [columns, setColumns] = useState<ColumnDef[]>(initialColumns);
   const [rows, setRows] = useState<ParsedRow[]>(() => parseRows(initialRows));
@@ -65,6 +67,7 @@ export function TableSpreadsheet({
   const [rowSheetRow, setRowSheetRow] = useState<ParsedRow | null>(null);
   const [enrichmentOpen, setEnrichmentOpen] = useState(false);
   const [enrichmentRefreshKey, setEnrichmentRefreshKey] = useState(0);
+  const openedInitialRowRef = useRef<string | null>(null);
 
   // ── Refresh helpers ─────────────────────────────────────────────────
 
@@ -159,6 +162,18 @@ export function TableSpreadsheet({
     setRowSheetRow(row);
     setRowSheetOpen(true);
   }, []);
+
+  useEffect(() => {
+    if (!initialSelectedRowId || openedInitialRowRef.current === initialSelectedRowId) {
+      return;
+    }
+    const selectedRow = rows.find((row) => row.id === initialSelectedRowId);
+    if (!selectedRow) {
+      return;
+    }
+    openedInitialRowRef.current = initialSelectedRowId;
+    handleOpenRowSheet(selectedRow);
+  }, [handleOpenRowSheet, initialSelectedRowId, rows]);
 
   const handleRowUpdated = useCallback((rowId: string, data: Record<string, unknown>) => {
     setRows((prev) =>

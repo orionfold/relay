@@ -1,6 +1,6 @@
 ---
 title: Gallery card interactions — thumbnails, click contract, and row focus
-status: planned
+status: completed
 priority: P1
 milestone: post-mvp
 source: output/operator-walkthrough-feedback-2026-07-07.md
@@ -8,6 +8,12 @@ dependencies: [pack-web-designer]
 ---
 
 # Gallery Card Interactions
+
+> Built 2026-07-07. Gallery cards now use a consistent row-open contract:
+> the card body links to `/tables/<tableId>?row=<rowId>`, the table route opens
+> the row edit sheet from that query parameter, and any row CTA/reference URL is
+> rendered as a separate `Open link` action. Empty image slots are omitted; rows
+> with safe image URLs still render thumbnails.
 
 ## Description
 
@@ -37,12 +43,21 @@ that I can understand and edit pack-owned rows without guessing what is clickabl
 
 ## Acceptance Criteria
 
-- [ ] Gallery cards never show blank decorative thumbnail frames.
-- [ ] Cards with available images or generated previews show meaningful thumbnails.
-- [ ] Cards without images use a compact text-first layout.
-- [ ] `Page sections` cards have one documented click behavior and expose it consistently.
-- [ ] Keyboard users can reach the same action with visible focus state.
-- [ ] CTA links inside row content do not create mixed accidental card navigation.
+- [x] Gallery cards never show blank decorative thumbnail frames.
+- [x] Cards with available images or generated previews show meaningful thumbnails.
+- [x] Cards without images use a compact text-first layout.
+- [x] `Page sections` cards have one documented click behavior and expose it consistently.
+- [x] Keyboard users can reach the same action with visible focus state.
+- [x] CTA links inside row content do not create mixed accidental card navigation.
+
+## Verification
+
+- `npm test -- src/components/apps/kit-view/__tests__/gallery-preview-view.test.tsx`
+- `npx tsc --noEmit`
+- Browser verification on `http://127.0.0.1:3000/apps/relay-web-designer`: `Page sections`
+  and `Asset gallery` rendered row links for every card; image-backed cards retained thumbnails;
+  text-only cards had no image frame; no browser warnings/errors were reported; opening
+  `/tables/<tableId>?row=<rowId>` displayed the `Edit Row` sheet.
 
 ## Scope Boundaries
 

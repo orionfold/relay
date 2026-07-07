@@ -1,5 +1,13 @@
 # Feature Changelog
 
+## 2026-07-07 — Gallery card interactions built
+
+### Built
+- `gallery-card-interactions`: Web Designer gallery cards now omit empty thumbnail frames, keep
+  safe image thumbnails when present, and use a consistent row-open contract. The card body opens
+  `/tables/<tableId>?row=<rowId>` and the table route opens the row edit sheet from that query
+  parameter; row CTA/reference URLs render as a separate `Open link` action.
+
 ## 2026-07-07 — Operator walkthrough follow-ups groomed
 
 ### Groomed

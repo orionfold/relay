@@ -46,6 +46,7 @@ interface TableDetailTabsProps {
   columns: ColumnDef[];
   initialRows: UserTableRowRow[];
   tableMeta?: TableMeta;
+  selectedRowId?: string | null;
 }
 
 export function TableDetailTabs({
@@ -53,6 +54,7 @@ export function TableDetailTabs({
   columns,
   initialRows,
   tableMeta,
+  selectedRowId = null,
 }: TableDetailTabsProps) {
   const [charts, setCharts] = useState<ChartView[]>([]);
   const [chartBuilderOpen, setChartBuilderOpen] = useState(false);
@@ -122,6 +124,7 @@ export function TableDetailTabs({
             tableId={tableId}
             columns={columns}
             initialRows={initialRows}
+            initialSelectedRowId={selectedRowId}
           />
         </TabsContent>
 

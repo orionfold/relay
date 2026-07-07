@@ -27,7 +27,7 @@ describe("GalleryPreviewView", () => {
   });
 
   it("renders gallery rows and strips unsafe hrefs", () => {
-    render(
+    const { container } = render(
       <GalleryPreviewView
         gallery={gallery({
           rows: [
@@ -46,6 +46,39 @@ describe("GalleryPreviewView", () => {
     );
 
     expect(screen.getByText("Launch proof")).toBeInTheDocument();
-    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open Launch proof row in table" }))
+      .toHaveAttribute("href", "/tables/web_assets?row=row-1");
+    expect(screen.queryByRole("link", { name: "Open link" })).not.toBeInTheDocument();
+    expect(container.querySelector("[data-testid='gallery-image-frame']")).not.toBeInTheDocument();
+  });
+
+  it("renders image thumbnails only when a safe image URL is available", () => {
+    const { container } = render(
+      <GalleryPreviewView
+        gallery={gallery({
+          rows: [
+            {
+              id: "row-1",
+              data: {
+                title: "Offer block",
+                summary: "Comparison section.",
+                image_url: "https://example.com/offer.png",
+                reference_url: "https://example.com/reference",
+              },
+            },
+          ],
+        })}
+      />
+    );
+
+    expect(container.querySelector("[data-testid='gallery-image-frame']")).toBeInTheDocument();
+    expect(container.querySelector("img")).toHaveAttribute(
+      "src",
+      "https://example.com/offer.png"
+    );
+    expect(screen.getByRole("link", { name: "Open link" })).toHaveAttribute(
+      "href",
+      "https://example.com/reference"
+    );
   });
 });

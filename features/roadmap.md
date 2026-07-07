@@ -593,7 +593,7 @@ hardening, and runtime defects so the next build slice can be chosen without re-
 | [web-designer-site-controls](web-designer-site-controls.md) | P1 | planned | pack-web-designer, generator-publisher-substrate |
 | [web-templates-pack](web-templates-pack.md) | P1 | planned | pack-web-designer, web-designer-site-controls, generator-publisher-substrate |
 | [publish-preview-ux-hardening](publish-preview-ux-hardening.md) | P1 | planned | publish-preview-artifacts, generator-publisher-substrate |
-| [gallery-card-interactions](gallery-card-interactions.md) | P1 | planned | pack-web-designer |
+| [gallery-card-interactions](gallery-card-interactions.md) | P1 | completed | pack-web-designer |
 | [packs-first-ia](packs-first-ia.md) | P1 | planned | nav-redesign-ia, pack-bundle-model, composed-app-view-shell |
 | [dashboard-settings-drilldowns](dashboard-settings-drilldowns.md) | P1 | planned | homepage-dashboard, settings-interactive-controls |
 | [fix-turbopack-dynamic-transport-dispatch](fix-turbopack-dynamic-transport-dispatch.md) | P1 | planned | provider-runtime-abstraction |

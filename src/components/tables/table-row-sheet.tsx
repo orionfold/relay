@@ -16,6 +16,7 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetFooter,
@@ -101,6 +102,9 @@ export function TableRowSheet({
       <SheetContent side="right" className="w-[480px] sm:max-w-[480px] flex flex-col">
         <SheetHeader>
           <SheetTitle>Edit Row</SheetTitle>
+          <SheetDescription>
+            Update the selected table row fields.
+          </SheetDescription>
         </SheetHeader>
         <div className="px-6 pb-6 space-y-4 overflow-y-auto flex-1">
           {sortedColumns.map((col) => (

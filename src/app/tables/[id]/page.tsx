@@ -12,10 +12,13 @@ export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ row?: string | string[] }>;
 }
 
-export default async function TableDetailPage({ params }: Props) {
+export default async function TableDetailPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const query = searchParams ? await searchParams : {};
+  const rowParam = Array.isArray(query.row) ? query.row[0] : query.row;
   const table = await getTable(id);
 
   if (!table) {
@@ -61,6 +64,7 @@ export default async function TableDetailPage({ params }: Props) {
           createdAt: table.createdAt ? new Date(table.createdAt).toISOString() : null,
           updatedAt: table.updatedAt ? new Date(table.updatedAt).toISOString() : null,
         }}
+        selectedRowId={rowParam ?? null}
       />
     </PageShell>
   );
