@@ -27,6 +27,53 @@ const target = {
   createdAt: "2026-07-07T00:00:00.000Z",
 };
 
+const siteSettingsResponse = {
+  settings: {
+    templateId: "relay-default",
+    theme: "calm",
+    density: "comfortable",
+    heroLayout: "split",
+    accent: "tide",
+    showCtas: true,
+    sectionStyle: "cards",
+  },
+  defaults: {
+    templateId: "relay-default",
+    theme: "calm",
+    density: "comfortable",
+    heroLayout: "split",
+    accent: "tide",
+    showCtas: true,
+    sectionStyle: "cards",
+  },
+  templates: [
+    {
+      id: "relay-default",
+      version: "0.1.0",
+      name: "Relay Default",
+      description: "Default template",
+      provenance: {
+        source: "orionfold-bundled",
+        synthetic: true,
+        note: "Synthetic fixture",
+      },
+      supportedSectionKinds: ["hero", "features", "text", "cta"],
+    },
+    {
+      id: "editorial-proof",
+      version: "0.1.0",
+      name: "Editorial Proof",
+      description: "Editorial template",
+      provenance: {
+        source: "orionfold-bundled",
+        synthetic: true,
+        note: "Synthetic fixture",
+      },
+      supportedSectionKinds: ["hero", "features", "text", "cta"],
+    },
+  ],
+};
+
 function ok(body: unknown) {
   return new Response(JSON.stringify(body), {
     status: 200,
@@ -89,7 +136,8 @@ describe("AppPublishPanel", () => {
             error: null,
           },
         ])
-      );
+      )
+      .mockResolvedValueOnce(ok(siteSettingsResponse));
 
     renderPanel();
 
@@ -107,6 +155,7 @@ describe("AppPublishPanel", () => {
     fetchSpy
       .mockResolvedValueOnce(ok([]))
       .mockResolvedValueOnce(ok([]))
+      .mockResolvedValueOnce(ok(siteSettingsResponse))
       .mockResolvedValueOnce(created(createdTarget));
 
     renderPanel();
@@ -133,6 +182,7 @@ describe("AppPublishPanel", () => {
     fetchSpy
       .mockResolvedValueOnce(ok([target]))
       .mockResolvedValueOnce(ok([]))
+      .mockResolvedValueOnce(ok(siteSettingsResponse))
       .mockResolvedValueOnce(ok({ testStatus: "failed", error: "GitHub repo check failed: 404" }));
 
     renderPanel();
@@ -146,6 +196,7 @@ describe("AppPublishPanel", () => {
     fetchSpy
       .mockResolvedValueOnce(ok([target]))
       .mockResolvedValueOnce(ok([]))
+      .mockResolvedValueOnce(ok(siteSettingsResponse))
       .mockResolvedValueOnce(
         accepted({
           deployment: {
@@ -200,6 +251,7 @@ describe("AppPublishPanel", () => {
     fetchSpy
       .mockResolvedValueOnce(ok([target]))
       .mockResolvedValueOnce(ok([]))
+      .mockResolvedValueOnce(ok(siteSettingsResponse))
       .mockResolvedValueOnce(created(preview))
       .mockResolvedValueOnce(ok({ ...preview, stale: false }))
       .mockResolvedValueOnce(
@@ -271,6 +323,7 @@ describe("AppPublishPanel", () => {
     fetchSpy
       .mockResolvedValueOnce(ok([target]))
       .mockResolvedValueOnce(ok([]))
+      .mockResolvedValueOnce(ok(siteSettingsResponse))
       .mockResolvedValueOnce(created(preview))
       .mockResolvedValueOnce(ok({ ...preview, stale: true }));
 
@@ -282,5 +335,43 @@ describe("AppPublishPanel", () => {
       screen.getByText("Source rows changed. Generate a new preview before publishing.")
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Publish this preview/i })).toBeDisabled();
+  });
+
+  it("saves site controls and marks an existing preview stale", async () => {
+    const preview = {
+      artifactId: "artifact-controls",
+      url: "/api/apps/app-1/previews/artifact-controls",
+      hash: "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+      createdAt: "2026-07-07T00:00:00.000Z",
+      expiresAt: "2999-07-07T00:00:00.000Z",
+    };
+    const savedResponse = {
+      ...siteSettingsResponse,
+      settings: { ...siteSettingsResponse.settings, showCtas: false },
+    };
+    fetchSpy
+      .mockResolvedValueOnce(ok([target]))
+      .mockResolvedValueOnce(ok([]))
+      .mockResolvedValueOnce(ok(siteSettingsResponse))
+      .mockResolvedValueOnce(created(preview))
+      .mockResolvedValueOnce(ok({ ...preview, stale: false }))
+      .mockResolvedValueOnce(ok(savedResponse));
+
+    renderPanel();
+    fireEvent.click(await screen.findByRole("button", { name: /^Preview$/i }));
+    expect(await screen.findByText("Fresh")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("switch", { name: /Show CTAs/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Save controls/i }));
+
+    await waitFor(() => expect(toastSuccess).toHaveBeenCalledWith("Site controls saved"));
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "/api/apps/app-1/site-settings",
+      expect.objectContaining({
+        method: "PUT",
+        body: JSON.stringify({ ...siteSettingsResponse.settings, showCtas: false }),
+      })
+    );
+    expect(screen.getByText("Stale")).toBeInTheDocument();
   });
 });

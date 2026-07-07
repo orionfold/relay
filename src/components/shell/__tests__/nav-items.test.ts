@@ -10,9 +10,9 @@ import {
 
 describe("nav-items", () => {
   it("exposes the five top-level IA sections", () => {
-    // Permanent two-tier bar (features/nav-redesign-ia.md): Apps promoted to a
-    // top-level section (out of Compose); Analytics + Environment RETIRED (not
-    // just nav-hidden); Settings lives in the app-bar utility cluster.
+    // Permanent two-tier bar: Packs owns bundled discovery plus installed pack
+    // instances; Analytics + Environment RETIRED (not just nav-hidden);
+    // Settings lives in the app-bar utility cluster.
     expect(NAV_GROUPS.map((g) => g.id)).toEqual([
       "home",
       "apps",
@@ -20,6 +20,7 @@ describe("nav-items", () => {
       "data",
       "observe",
     ]);
+    expect(NAV_GROUPS.find((g) => g.id === "apps")?.label).toBe("Packs");
   });
 
   it("gives every section a landing href", () => {
@@ -35,31 +36,33 @@ describe("nav-items", () => {
     expect(allHrefs).not.toContain("/settings");
   });
 
-  it("has no static children for Apps — its tier-2 is built from live instances", () => {
+  it("has no static children for Packs — its tier-2 is built from live instances", () => {
     const apps = NAV_GROUPS.find((g) => g.id === "apps")!;
     expect(apps.items).toEqual([]);
   });
 
-  it("moves Apps out of Compose (no longer a compose child)", () => {
+  it("moves Packs out of Compose (no longer a compose child)", () => {
     const compose = NAV_GROUPS.find((g) => g.id === "compose")!;
-    expect(compose.items.map((i) => i.href)).not.toContain("/apps");
+    expect(compose.items.map((i) => i.href)).not.toContain("/packs");
   });
 
   describe("appsNavItems", () => {
-    it("leads with 'All apps' then one item per instance linking to /apps/[id]", () => {
+    it("leads with pack browser links then one item per installed instance", () => {
       const items = appsNavItems([
         { id: "abc", name: "Northstar Site Visits" },
         { id: "def", name: "Payroll Ops" },
       ]);
-      expect(items[0]).toMatchObject({ title: "All apps", href: "/apps" });
-      expect(items[1]).toMatchObject({ title: "Northstar Site Visits", href: "/apps/abc" });
-      expect(items[2]).toMatchObject({ title: "Payroll Ops", href: "/apps/def" });
+      expect(items[0]).toMatchObject({ title: "Browse packs", href: "/packs" });
+      expect(items[1]).toMatchObject({ title: "Installed", href: "/apps" });
+      expect(items[2]).toMatchObject({ title: "Northstar Site Visits", href: "/apps/abc" });
+      expect(items[3]).toMatchObject({ title: "Payroll Ops", href: "/apps/def" });
     });
 
-    it("returns just 'All apps' when there are no instances", () => {
+    it("returns pack browser links when there are no instances", () => {
       const items = appsNavItems([]);
-      expect(items).toHaveLength(1);
-      expect(items[0].href).toBe("/apps");
+      expect(items).toHaveLength(2);
+      expect(items[0].href).toBe("/packs");
+      expect(items[1].href).toBe("/apps");
     });
   });
 
@@ -87,14 +90,14 @@ describe("nav-items", () => {
   });
 
   describe("activeGroupId", () => {
-    it("maps Apps routes to the top-level apps section, not compose", () => {
+    it("maps Packs and installed-pack routes to the top-level packs section", () => {
+      expect(activeGroupId("/packs")).toBe("apps");
       expect(activeGroupId("/apps")).toBe("apps");
       expect(activeGroupId("/apps/abc-123")).toBe("apps");
     });
 
     it("maps a route to its owning section", () => {
       expect(activeGroupId("/")).toBe("home");
-      expect(activeGroupId("/packs")).toBe("compose");
       expect(activeGroupId("/workflows/abc")).toBe("compose");
       expect(activeGroupId("/customers")).toBe("data");
       expect(activeGroupId("/customers/abc-123")).toBe("data");
@@ -195,7 +198,8 @@ describe("nav-items", () => {
       expect(groupHasActiveItem(compose, "/workflows")).toBe(true);
       expect(groupHasActiveItem(observe, "/workflows")).toBe(false);
       expect(groupHasActiveItem(apps, "/apps/xyz")).toBe(true);
-      expect(groupHasActiveItem(apps, "/packs")).toBe(false);
+      expect(groupHasActiveItem(apps, "/packs")).toBe(true);
+      expect(groupHasActiveItem(compose, "/packs")).toBe(false);
     });
   });
 });

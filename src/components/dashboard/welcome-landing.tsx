@@ -8,8 +8,8 @@ import type { StarterTemplate } from "@/lib/apps/starters";
 const pillars = [
   {
     icon: Sparkles,
-    title: "Apps from a sentence",
-    description: "Tell Relay what you do each week. It builds a running app for you. No code needed.",
+    title: "Packs from a sentence",
+    description: "Tell Relay what you do each week. It builds an installed pack for you. No code needed.",
   },
   {
     icon: Shield,
@@ -29,9 +29,9 @@ interface WelcomeLandingProps {
 
 /**
  * WelcomeLanding — shown on fresh instances with no tasks.
- * Hero + 3 pillars (apps-first) + 2-CTA cluster + starter cards row. The
+ * Hero + 3 pillars (packs-first) + 2-CTA cluster + starter cards row. The
  * starter row is the discovery surface for Relay's marquee feature; the
- * "Build your first app" CTA routes to /chat where the chat-empty-state
+ * "Build your first pack" CTA routes to /chat where the chat-empty-state
  * surfaces the same starters and example prompts.
  */
 export function WelcomeLanding({ starters = [] }: WelcomeLandingProps) {
@@ -44,7 +44,7 @@ export function WelcomeLanding({ starters = [] }: WelcomeLandingProps) {
         Welcome
       </h1>
       <p className="text-base text-muted-foreground mb-8 max-w-lg">
-        Relay is your AI business operating system. Describe an app. Relay builds it and runs it on your rules, your budget, and your data.
+        Relay is your AI business operating system. Describe a pack. Relay builds it and runs it on your rules, your budget, and your data.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mb-8">
@@ -65,7 +65,7 @@ export function WelcomeLanding({ starters = [] }: WelcomeLandingProps) {
       <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
         <Link href="/chat">
           <Button size="lg" className="gap-1.5">
-            Build your first app
+            Build your first pack
             <ArrowRight className="h-4 w-4" />
           </Button>
         </Link>
@@ -86,13 +86,13 @@ export function WelcomeLanding({ starters = [] }: WelcomeLandingProps) {
               id="welcome-starters-heading"
               className="text-xs font-medium text-muted-foreground"
             >
-              Or start from a ready-made app
+              Or start from a ready-made pack
             </h2>
             <Link
-              href="/apps"
+              href="/packs"
               className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              Browse all
+              Browse packs
               <ArrowRight className="h-3 w-3" aria-hidden="true" />
             </Link>
           </div>

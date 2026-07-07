@@ -1,6 +1,15 @@
 import { createHash } from "crypto";
 import type { GeneratorAdapter } from "./types";
 import type { Artifact } from "@/lib/publishers/types";
+import {
+  parseStaticSiteSettings,
+  type StaticSiteSettings,
+} from "./static-site-settings";
+import {
+  assertTemplateSupportsSettings,
+  getStaticSiteTemplate,
+  type StaticSiteTemplate,
+} from "./static-site-templates";
 
 /**
  * Static-site generator (TDR-039 Phase 2). Turns ordered landing-page section
@@ -69,20 +78,28 @@ function orderOf(row: Record<string, unknown>): number {
   return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
 }
 
-function renderCta(row: Record<string, unknown>): string {
+function renderCta(row: Record<string, unknown>, settings: StaticSiteSettings): string {
+  if (!settings.showCtas) return "";
   const label = str(row.ctaLabel);
   const url = str(row.ctaUrl);
   if (label === "" && url === "") return "";
   return `<a class="cta" href="${safeUrl(url)}">${escapeHtml(label || "Learn more")}</a>`;
 }
 
-function renderSection(row: Record<string, unknown>, index: number): string {
+function renderSection(
+  row: Record<string, unknown>,
+  index: number,
+  settings: StaticSiteSettings,
+  template: StaticSiteTemplate
+): string {
   const kind = str(row.kind);
   const heading = escapeHtml(row.heading);
   const body = str(row.body) === "" ? "" : `<p>${escapeHtml(row.body)}</p>`;
   const sectionNo = String(index + 1).padStart(2, "0");
-  const label = (text: string) =>
-    `<div class="section-label"><span>${sectionNo}</span>${text}</div>`;
+  const label = (fallback: string) => {
+    const text = template.layout.sectionLabels?.[kind as "hero" | "features" | "cta" | "text"] ?? fallback;
+    return `<div class="section-label"><span>${sectionNo}</span>${escapeHtml(text)}</div>`;
+  };
 
   switch (kind) {
     case "hero": {
@@ -93,7 +110,8 @@ function renderSection(row: Record<string, unknown>, index: number): string {
               row.heading
             )}" />`;
       return `<section class="s-hero${img ? " has-image" : ""}"><div class="hero-copy"><h1>${heading}</h1>${body}${renderCta(
-        row
+        row,
+        settings
       )}</div>${img}</section>`;
     }
     case "features":
@@ -102,7 +120,8 @@ function renderSection(row: Record<string, unknown>, index: number): string {
       )}<div class="section-copy"><div><h2>${heading}</h2>${body}</div><div class="feature-card" aria-hidden="true"><span>Signal</span><strong>${sectionNo}</strong></div></div></section>`;
     case "cta":
       return `<section class="s-cta">${label("Release")}<div class="section-copy"><h2>${heading}</h2>${body}${renderCta(
-        row
+        row,
+        settings
       )}</div></section>`;
     case "text":
       return `<section class="s-text">${label("Control")}<div class="section-copy"><h2>${heading}</h2>${body}</div></section>`;
@@ -157,6 +176,27 @@ p{color:var(--muted);max-width:68ch}
 .site-footer .site-shell{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .site-footer a{color:var(--fg);font-weight:650;text-decoration:none}
 .site-footer a:focus-visible{outline:3px solid color-mix(in oklch,var(--accent) 34%,white);outline-offset:3px}
+body.theme-contrast{--fg:oklch(0.11 0.018 250);--muted:oklch(0.36 0.026 250);--bg:oklch(0.97 0.006 250);--paper:oklch(1 0 0);--line:oklch(0.76 0.014 250);--line-strong:oklch(0.62 0.018 250);--shadow:0 20px 56px oklch(0.12 0.018 250 / .14)}
+body.theme-editorial{--fg:oklch(0.18 0.026 70);--muted:oklch(0.43 0.034 70);--bg:oklch(0.985 0.014 85);--soft:oklch(0.955 0.018 85);--line:oklch(0.86 0.018 80);--line-strong:oklch(0.74 0.026 80);--paper:oklch(1 0.006 85)}
+body.accent-indigo{--accent:oklch(0.55 0.16 265);--accent-ink:oklch(0.22 0.065 265)}
+body.accent-emerald{--accent:oklch(0.56 0.15 160);--accent-ink:oklch(0.22 0.055 160)}
+body.accent-coral{--accent:oklch(0.62 0.17 25);--accent-ink:oklch(0.26 0.07 25)}
+body.density-compact .site-header .site-shell{min-height:56px}
+body.density-compact main.site-shell{padding:28px 0 40px}
+body.density-compact .s-hero{min-height:min(560px,calc(100dvh - 200px));padding-bottom:36px}
+body.density-compact .s-features,body.density-compact .s-text{padding:28px 0}
+body.density-compact .s-cta{margin-top:32px;padding:28px}
+body.hero-stacked .s-hero.has-image{display:flex;min-height:auto;flex-direction:column;align-items:stretch;gap:28px}
+body.hero-stacked .hero-img{order:-1;aspect-ratio:16 / 9}
+body.hero-text-first .s-hero.has-image{grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);gap:36px}
+body.hero-text-first h1{max-width:14ch}
+body.sections-ruled .feature-card,body.sections-ruled .s-text .section-copy,body.sections-ruled .s-cta{box-shadow:none;background:transparent}
+body.sections-banded .s-features,body.sections-banded .s-text{margin:28px 0;padding:32px;border:1px solid var(--line);border-radius:var(--radius);background:var(--soft)}
+body.sections-banded .s-features .feature-card,body.sections-banded .s-text .section-copy{background:var(--paper)}
+body.template-editorial-proof h1{font-family:Georgia,"Times New Roman",serif;font-weight:680;max-width:12ch}
+body.template-editorial-proof .brand::before{border-radius:3px}
+body.template-launch-system .s-features .feature-card{background:linear-gradient(180deg,var(--paper),var(--soft))}
+body.template-launch-system .section-label span{border-radius:8px}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .cta{transition:none}
@@ -186,7 +226,23 @@ p{color:var(--muted);max-width:68ch}
 }
 `.trim();
 
-function renderPage(title: string, sectionsHtml: string): string {
+function bodyClass(settings: StaticSiteSettings, template: StaticSiteTemplate): string {
+  return [
+    template.layout.bodyClass ?? `template-${settings.templateId}`,
+    `theme-${settings.theme}`,
+    `density-${settings.density}`,
+    `hero-${settings.heroLayout}`,
+    `accent-${settings.accent}`,
+    `sections-${settings.sectionStyle}`,
+  ].join(" ");
+}
+
+function renderPage(
+  title: string,
+  sectionsHtml: string,
+  settings: StaticSiteSettings,
+  template: StaticSiteTemplate
+): string {
   const inner =
     sectionsHtml.trim() === ""
       ? `<section class="empty"><p>No content yet.</p></section>`
@@ -199,7 +255,7 @@ function renderPage(title: string, sectionsHtml: string): string {
 <title>${escapeHtml(title)}</title>
 <style>${PAGE_STYLE}</style>
 </head>
-<body>
+<body class="${bodyClass(settings, template)}">
 <header class="site-header">
   <div class="site-shell">
     <a class="brand" href="#content">${escapeHtml(title)}</a>
@@ -224,11 +280,16 @@ export const staticSiteGenerator: GeneratorAdapter = {
 
   async generate(rows, config): Promise<Artifact> {
     const title = str(config?.siteTitle) || "Untitled site";
+    const settings = parseStaticSiteSettings(config?.staticSiteSettings);
+    const template = getStaticSiteTemplate(settings.templateId);
+    assertTemplateSupportsSettings(template, settings);
+    const supportedKinds = new Set<string>(template.supportedSectionKinds);
 
     // Fail-safe draft gate + unknown-kind skip, then stable ascending order.
     const published = rows
       .filter((r) => str(r.status) === "published")
       .filter((r) => KNOWN_KINDS.has(str(r.kind)))
+      .filter((r) => supportedKinds.has(str(r.kind)))
       .map((r, i) => ({ r, i }))
       .sort((a, b) => {
         const d = orderOf(a.r) - orderOf(b.r);
@@ -236,8 +297,8 @@ export const staticSiteGenerator: GeneratorAdapter = {
       })
       .map(({ r }) => r);
 
-    const sectionsHtml = published.map((r, i) => renderSection(r, i)).join("\n");
-    const content = renderPage(title, sectionsHtml);
+    const sectionsHtml = published.map((r, i) => renderSection(r, i, settings, template)).join("\n");
+    const content = renderPage(title, sectionsHtml, settings, template);
     const hash = createHash("sha256").update(content).digest("hex");
 
     return {

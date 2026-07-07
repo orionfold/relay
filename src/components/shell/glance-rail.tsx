@@ -49,16 +49,32 @@ const ROUTING_LABEL: Record<string, string> = {
 // (.glance-cell). Used for both the collapsed summary and the expanded panel so
 // the glance rail matches the telemetry rail above it. Renders nothing when the
 // value is null, so a row only shows what resolved.
-function Cell({ label, value }: { label: string; value: string | null }) {
+type GlanceCell = { label: string; value: string | null; href?: string };
+
+function Cell({ label, value, href }: GlanceCell) {
   if (value == null) return null;
-  return (
-    <div className="glance-cell flex min-w-[7rem] flex-none flex-col gap-0.5 px-3">
+  const content = (
+    <>
       <span className="font-mono text-[0.55rem] font-medium uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </span>
       <span className="truncate font-mono text-xs tabular-nums text-foreground">
         {value}
       </span>
+    </>
+  );
+  const className =
+    "glance-cell flex min-w-[7rem] flex-none flex-col gap-0.5 px-3 transition-colors hover:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  if (href) {
+    return (
+      <Link href={href} aria-label={`Open ${label} settings`} className={className}>
+        {content}
+      </Link>
+    );
+  }
+  return (
+    <div className="glance-cell flex min-w-[7rem] flex-none flex-col gap-0.5 px-3">
+      {content}
     </div>
   );
 }
@@ -75,7 +91,7 @@ function Group({
 }: {
   icon: React.ReactNode;
   title: string;
-  cells: Array<{ label: string; value: string | null }>;
+  cells: GlanceCell[];
 }) {
   // Hide a whole section if nothing in it resolved.
   if (cells.every((c) => c.value == null)) return null;
@@ -89,7 +105,7 @@ function Group({
       </div>
       <div className="flex items-stretch">
         {cells.map((c) => (
-          <Cell key={c.label} label={c.label} value={c.value} />
+          <Cell key={c.label} {...c} />
         ))}
       </div>
     </div>
@@ -136,27 +152,45 @@ export function GlanceRail() {
   // The collapsed chip set — every resolved setting, dense, spanning the full
   // rail width like the telemetry rail. Chips render null when their field is
   // null, so the row only shows what resolved.
-  const chips: Array<{ label: string; value: string | null }> = data
+  const chips: GlanceCell[] = data
     ? [
-        { label: "Model", value: data.activeModel },
-        { label: "Runtime", value: data.activeRuntimeLabel },
-        { label: "Routing", value: routingLabel(data.routingPreference) },
-        { label: "License", value: licenseLabel(data) },
-        { label: "Budget", value: budgetCapLabel(data) },
-        { label: "Access", value: presetLabel(data.activePreset) ?? "Custom" },
+        { label: "Model", value: data.activeModel, href: "/settings#settings-providers" },
+        { label: "Runtime", value: data.activeRuntimeLabel, href: "/settings#settings-providers" },
+        {
+          label: "Routing",
+          value: routingLabel(data.routingPreference),
+          href: "/settings#settings-providers",
+        },
+        { label: "License", value: licenseLabel(data), href: "/settings#settings-license" },
+        { label: "Budget", value: budgetCapLabel(data), href: "/settings#settings-budget" },
+        {
+          label: "Access",
+          value: presetLabel(data.activePreset) ?? "Custom",
+          href: "/settings#settings-permissions",
+        },
         {
           label: "Rules",
           value:
             data.allowedPermissionCount != null
               ? String(data.allowedPermissionCount)
               : null,
+          href: "/settings#settings-permissions",
         },
-        { label: "Search", value: boolLabel(data.webSearchEnabled) },
+        {
+          label: "Search",
+          value: boolLabel(data.webSearchEnabled),
+          href: "/settings#settings-web-search",
+        },
         {
           label: "Channels",
           value: data.channelCount != null ? String(data.channelCount) : null,
+          href: "/settings#settings-channels",
         },
-        { label: "Learning", value: boolLabel(data.autoPromoteSkills) },
+        {
+          label: "Learning",
+          value: boolLabel(data.autoPromoteSkills),
+          href: "/settings#settings-learning",
+        },
       ]
     : [];
 
@@ -216,7 +250,7 @@ export function GlanceRail() {
             </span>
           ) : (
             chips.map((c) => (
-              <Cell key={c.label} label={c.label} value={c.value} />
+              <Cell key={c.label} {...c} />
             ))
           )}
         </div>
@@ -233,15 +267,24 @@ export function GlanceRail() {
             icon={<Cpu aria-hidden />}
             title="Runtime"
             cells={[
-              { label: "Runtime", value: data.activeRuntimeLabel },
-              { label: "Model", value: data.activeModel },
-              { label: "Routing", value: routingLabel(data.routingPreference) },
+              {
+                label: "Runtime",
+                value: data.activeRuntimeLabel,
+                href: "/settings#settings-providers",
+              },
+              { label: "Model", value: data.activeModel, href: "/settings#settings-providers" },
+              {
+                label: "Routing",
+                value: routingLabel(data.routingPreference),
+                href: "/settings#settings-providers",
+              },
               {
                 label: "Configured",
                 value:
                   data.configuredRuntimeCount != null
                     ? `${data.configuredRuntimeCount} runtimes`
                     : null,
+                href: "/settings#settings-providers",
               },
             ]}
           />
@@ -255,10 +298,12 @@ export function GlanceRail() {
                   data.sdkTimeoutSeconds != null
                     ? `${data.sdkTimeoutSeconds}s`
                     : null,
+                href: "/settings#settings-runtime",
               },
               {
                 label: "Max turns",
                 value: data.maxTurns != null ? String(data.maxTurns) : null,
+                href: "/settings#settings-runtime",
               },
             ]}
           />
@@ -266,21 +311,30 @@ export function GlanceRail() {
             icon={<Wallet aria-hidden />}
             title="Budget"
             cells={[
-              { label: "License", value: licenseLabel(data) },
-              { label: "Monthly cap", value: budgetCapLabel(data) ?? "None set" },
+              { label: "License", value: licenseLabel(data), href: "/settings#settings-license" },
+              {
+                label: "Monthly cap",
+                value: budgetCapLabel(data) ?? "None set",
+                href: "/settings#settings-budget",
+              },
             ]}
           />
           <Group
             icon={<ShieldCheck aria-hidden />}
             title="Permissions"
             cells={[
-              { label: "Preset", value: presetLabel(data.activePreset) ?? "Custom" },
+              {
+                label: "Preset",
+                value: presetLabel(data.activePreset) ?? "Custom",
+                href: "/settings#settings-permissions",
+              },
               {
                 label: "Allowed",
                 value:
                   data.allowedPermissionCount != null
                     ? `${data.allowedPermissionCount} rules`
                     : null,
+                href: "/settings#settings-permissions",
               },
             ]}
           />
@@ -288,13 +342,22 @@ export function GlanceRail() {
             icon={<Plug aria-hidden />}
             title="Integrations"
             cells={[
-              { label: "Web search", value: boolLabel(data.webSearchEnabled) },
+              {
+                label: "Web search",
+                value: boolLabel(data.webSearchEnabled),
+                href: "/settings#settings-web-search",
+              },
               {
                 label: "Channels",
                 value:
                   data.channelCount != null ? String(data.channelCount) : null,
+                href: "/settings#settings-channels",
               },
-              { label: "Skill learning", value: boolLabel(data.autoPromoteSkills) },
+              {
+                label: "Skill learning",
+                value: boolLabel(data.autoPromoteSkills),
+                href: "/settings#settings-learning",
+              },
             ]}
           />
         </div>

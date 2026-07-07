@@ -1,6 +1,6 @@
 ---
 title: Web Designer site controls — theme, density, layout, and section style
-status: planned
+status: built
 priority: P1
 milestone: post-mvp
 source: output/operator-walkthrough-feedback-2026-07-07.md
@@ -37,13 +37,26 @@ previewed and published site reflects the client's positioning without editing g
 
 ## Acceptance Criteria
 
-- [ ] Web Designer exposes editable controls for `theme`, `density`, `heroLayout`, `accent`,
+- [x] Web Designer exposes editable controls for `theme`, `density`, `heroLayout`, `accent`,
       `showCtas`, and `sectionStyle`.
-- [ ] The generator validates settings and falls back to named defaults when settings are absent.
-- [ ] Preview and publish use the same settings object and record it in preview/deployment metadata.
-- [ ] Invalid settings produce visible named errors, not silently ignored defaults.
-- [ ] Existing `relay-web-publisher` and `relay-web-designer` installs continue to preview with the
+- [x] The generator validates settings and falls back to named defaults when settings are absent.
+- [x] Preview and publish use the same settings object and record it in preview/deployment metadata.
+- [x] Invalid settings produce visible named errors, not silently ignored defaults.
+- [x] Existing `relay-web-publisher` and `relay-web-designer` installs continue to preview with the
       current default look.
+
+## Implementation Notes
+
+- Built 2026-07-07.
+- Settings persist as typed app-scoped JSON in the existing settings table under
+  `apps.staticSiteSettings.<appId>`, avoiding a new app-owned table migration while keeping the
+  contract app-specific and validated.
+- Preview metadata now records `generatorConfig`; deployments record the same config in
+  `deployments.generator_config`. Preview staleness includes both source rows and the current
+  static-site settings object.
+- Verification: focused generator/publisher/preview-store/API/publish-panel/bootstrap tests 53/53,
+  `npx tsc --noEmit`, and in-app Browser smoke on `/apps/relay-web-designer` confirmed controls
+  render and Preview produces a fresh embedded artifact URL.
 
 ## Scope Boundaries
 

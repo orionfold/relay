@@ -9,7 +9,9 @@ import {
   Globe2,
   AlertTriangle,
   Loader2,
+  Palette,
   Rocket,
+  Save,
   ShieldCheck,
   XCircle,
 } from "lucide-react";
@@ -19,7 +21,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import {
+  DEFAULT_STATIC_SITE_SETTINGS,
+  STATIC_SITE_SETTING_OPTIONS,
+  type StaticSiteSettings,
+} from "@/lib/generators/static-site-settings";
 
 type PublishTarget = {
   id: string;
@@ -54,6 +69,25 @@ type PreviewArtifact = {
 };
 
 type PreviewStatus = "fresh" | "stale" | "expired";
+
+type SiteSettingsResponse = {
+  settings: StaticSiteSettings;
+  defaults: StaticSiteSettings;
+  templates: StaticSiteTemplateOption[];
+};
+
+type StaticSiteTemplateOption = {
+  id: string;
+  version: string;
+  name: string;
+  description: string;
+  provenance: {
+    source: "orionfold-bundled";
+    synthetic: true;
+    note: string;
+  };
+  supportedSectionKinds: Array<"hero" | "features" | "cta" | "text">;
+};
 
 interface AppPublishPanelProps {
   appId: string;
@@ -146,6 +180,14 @@ export function AppPublishPanel({
   const [preview, setPreview] = useState<PreviewArtifact | null>(null);
   const [previewStatus, setPreviewStatus] = useState<PreviewStatus>("fresh");
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
+  const [siteSettings, setSiteSettings] = useState<StaticSiteSettings>(
+    DEFAULT_STATIC_SITE_SETTINGS
+  );
+  const [siteSettingsDraft, setSiteSettingsDraft] = useState<StaticSiteSettings>(
+    DEFAULT_STATIC_SITE_SETTINGS
+  );
+  const [savingSiteSettings, setSavingSiteSettings] = useState(false);
+  const [templates, setTemplates] = useState<StaticSiteTemplateOption[]>([]);
 
   async function loadTargets() {
     const rows = await fetch(`/api/apps/${encodeURIComponent(appId)}/publish-targets`, {
@@ -162,10 +204,19 @@ export function AppPublishPanel({
     setDeployments(rows);
   }
 
+  async function loadSiteSettings() {
+    const result = await fetch(`/api/apps/${encodeURIComponent(appId)}/site-settings`, {
+      cache: "no-store",
+    }).then((res) => readJson<SiteSettingsResponse>(res));
+    setSiteSettings(result.settings);
+    setSiteSettingsDraft(result.settings);
+    setTemplates(result.templates);
+  }
+
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    Promise.all([loadTargets(), loadDeployments()])
+    Promise.all([loadTargets(), loadDeployments(), loadSiteSettings()])
       .catch((err) => {
         if (!cancelled) setError(err instanceof Error ? err.message : "Publish data failed to load");
       })
@@ -323,6 +374,29 @@ export function AppPublishPanel({
     }
   }
 
+  async function handleSaveSiteSettings() {
+    setSavingSiteSettings(true);
+    setError(null);
+    try {
+      const result = await fetch(`/api/apps/${encodeURIComponent(appId)}/site-settings`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(siteSettingsDraft),
+      }).then((res) => readJson<SiteSettingsResponse>(res));
+      setSiteSettings(result.settings);
+      setSiteSettingsDraft(result.settings);
+      setTemplates(result.templates);
+      if (preview) setPreviewStatus("stale");
+      toast.success("Site controls saved");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Site controls save failed";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setSavingSiteSettings(false);
+    }
+  }
+
   async function handlePublish(artifactId?: string) {
     if (!selectedTargetId) return;
     setPublishing(true);
@@ -343,6 +417,20 @@ export function AppPublishPanel({
     } finally {
       setPublishing(false);
     }
+  }
+
+  const siteSettingsDirty =
+    JSON.stringify(siteSettingsDraft) !== JSON.stringify(siteSettings);
+
+  const selectedTemplate = templates.find(
+    (template) => template.id === siteSettingsDraft.templateId
+  );
+
+  function updateSiteSetting<K extends keyof StaticSiteSettings>(
+    key: K,
+    value: StaticSiteSettings[K]
+  ) {
+    setSiteSettingsDraft((prev) => ({ ...prev, [key]: value }));
   }
 
   return (
@@ -482,6 +570,173 @@ export function AppPublishPanel({
             </div>
           </section>
         )}
+
+        <section className="surface-card-muted rounded-lg border p-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h3 className="flex items-center gap-2 text-sm font-medium">
+                <Palette className="h-4 w-4 text-primary" aria-hidden="true" />
+                Site controls
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Theme and layout settings used by both preview and publish.
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleSaveSiteSettings}
+              disabled={!siteSettingsDirty || savingSiteSettings}
+              className="gap-1.5"
+            >
+              {savingSiteSettings ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+              ) : (
+                <Save className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              Save controls
+            </Button>
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-1.5 sm:col-span-2 lg:col-span-3">
+              <Label htmlFor="site-template">Template</Label>
+              <Select
+                value={siteSettingsDraft.templateId}
+                onValueChange={(value) => updateSiteSetting("templateId", value)}
+              >
+                <SelectTrigger id="site-template">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedTemplate && (
+                <p className="text-xs text-muted-foreground">
+                  {selectedTemplate.description} Provenance: Orionfold bundled
+                  synthetic template v{selectedTemplate.version}.
+                </p>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="site-theme">Theme</Label>
+              <Select
+                value={siteSettingsDraft.theme}
+                onValueChange={(value) =>
+                  updateSiteSetting("theme", value as StaticSiteSettings["theme"])
+                }
+              >
+                <SelectTrigger id="site-theme">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATIC_SITE_SETTING_OPTIONS.theme.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="site-density">Density</Label>
+              <Select
+                value={siteSettingsDraft.density}
+                onValueChange={(value) =>
+                  updateSiteSetting("density", value as StaticSiteSettings["density"])
+                }
+              >
+                <SelectTrigger id="site-density">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATIC_SITE_SETTING_OPTIONS.density.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="site-hero-layout">Hero layout</Label>
+              <Select
+                value={siteSettingsDraft.heroLayout}
+                onValueChange={(value) =>
+                  updateSiteSetting("heroLayout", value as StaticSiteSettings["heroLayout"])
+                }
+              >
+                <SelectTrigger id="site-hero-layout">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATIC_SITE_SETTING_OPTIONS.heroLayout.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="site-accent">Accent</Label>
+              <Select
+                value={siteSettingsDraft.accent}
+                onValueChange={(value) =>
+                  updateSiteSetting("accent", value as StaticSiteSettings["accent"])
+                }
+              >
+                <SelectTrigger id="site-accent">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATIC_SITE_SETTING_OPTIONS.accent.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="site-section-style">Section style</Label>
+              <Select
+                value={siteSettingsDraft.sectionStyle}
+                onValueChange={(value) =>
+                  updateSiteSetting("sectionStyle", value as StaticSiteSettings["sectionStyle"])
+                }
+              >
+                <SelectTrigger id="site-section-style">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATIC_SITE_SETTING_OPTIONS.sectionStyle.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex min-h-16 items-center justify-between gap-3 rounded-lg border bg-background px-3 py-2">
+              <div className="min-w-0">
+                <Label htmlFor="site-show-ctas">Show CTAs</Label>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Include section action buttons.
+                </p>
+              </div>
+              <Switch
+                id="site-show-ctas"
+                checked={siteSettingsDraft.showCtas}
+                onCheckedChange={(checked) => updateSiteSetting("showCtas", checked)}
+              />
+            </div>
+          </div>
+        </section>
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
           <section className="space-y-3">

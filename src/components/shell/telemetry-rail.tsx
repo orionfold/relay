@@ -117,6 +117,8 @@ export function TelemetryRail() {
         loading={loading}
         value={runtimeValue}
         sub={runtimeSub(data)}
+        href="/settings#settings-providers"
+        ariaLabel="Open runtime settings"
       />
       <RailCell
         label="Tasks"
@@ -127,6 +129,8 @@ export function TelemetryRail() {
         sub="running"
         spark={data?.trends.agentActivity24h}
         sparkLabel="Agent activity, last 24h"
+        href="/tasks?status=running"
+        ariaLabel="Open running tasks"
       />
       <RailCell
         label="Throughput"
@@ -136,6 +140,8 @@ export function TelemetryRail() {
         sub="done today"
         spark={data?.trends.completions7d}
         sparkLabel="Completions, last 7 days"
+        href="/tasks?status=completed"
+        ariaLabel="Open completed tasks"
       />
       <RailCell
         label="Failures"
@@ -147,6 +153,8 @@ export function TelemetryRail() {
         spark={data?.trends.failures7d}
         sparkColor="var(--status-failed)"
         sparkLabel="Failures, last 7 days"
+        href="/tasks?status=failed"
+        ariaLabel="Open failed tasks"
       />
       <RailCell
         label="Review"
@@ -155,6 +163,8 @@ export function TelemetryRail() {
         tone={(data?.reviewPending ?? 0) > 0 ? "accent" : undefined}
         value={data?.reviewPending ?? 0}
         sub="pending"
+        href="/inbox"
+        ariaLabel="Open pending reviews"
       />
       <RailCell
         label="Projects"
@@ -162,6 +172,8 @@ export function TelemetryRail() {
         loading={loading}
         value={data?.activeProjects ?? 0}
         sub="active"
+        href="/projects"
+        ariaLabel="Open active projects"
       />
       <RailCell
         label="Workflows"
@@ -169,6 +181,8 @@ export function TelemetryRail() {
         loading={loading}
         value={data?.activeWorkflows ?? 0}
         sub="active"
+        href="/workflows"
+        ariaLabel="Open active workflows"
       />
       <RailCell
         label="Spend Today"
@@ -176,6 +190,8 @@ export function TelemetryRail() {
         loading={loading}
         value={data ? formatMicros(data.costTodayMicros) : "—"}
         sub="metered"
+        href="/costs"
+        ariaLabel="Open cost dashboard"
       />
       <RailCell
         label="Spend To Date"
@@ -183,6 +199,8 @@ export function TelemetryRail() {
         loading={loading}
         value={data ? formatMicros(data.costToDateMicros) : "—"}
         sub={spendToDateSub(data)}
+        href="/costs"
+        ariaLabel="Open cost dashboard"
       />
       <div className="ml-auto flex items-center gap-2 px-4 font-mono text-xs text-muted-foreground/60">
         {errored ? (

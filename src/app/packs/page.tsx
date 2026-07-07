@@ -427,7 +427,7 @@ function InstalledActions({ template }: { template: PackTemplate }) {
           href={`/apps/${template.id}`}
           className="text-xs font-medium text-foreground hover:text-primary"
         >
-          Open app →
+          Open pack →
         </Link>
       </div>
       {avail.updateAvailable && avail.availableVersion && (

@@ -11,7 +11,8 @@
     "relay-social",
     "relay-web-assets",
     "relay-web-designer",
-    "relay-web-publisher"
+    "relay-web-publisher",
+    "relay-web-templates"
   ],
   "sizeBudgetKb": 500
 }

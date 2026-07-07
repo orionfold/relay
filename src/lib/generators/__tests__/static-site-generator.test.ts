@@ -57,6 +57,85 @@ describe("static-site generator — Artifact shape", () => {
   });
 });
 
+describe("static-site generator — site settings", () => {
+  it("uses the current default settings when settings are absent", async () => {
+    const doc = await html([section({ kind: "hero", heading: "Welcome" })]);
+    expect(doc).toContain(
+      'class="template-relay-default theme-calm density-comfortable hero-split accent-tide sections-cards"'
+    );
+  });
+
+  it("applies validated theme/layout settings to generated output", async () => {
+    const doc = await html(
+      [
+        section({
+          kind: "hero",
+          heading: "Welcome",
+          ctaLabel: "Start",
+          ctaUrl: "https://example.com",
+        }),
+      ],
+      {
+        staticSiteSettings: {
+          templateId: "editorial-proof",
+          theme: "contrast",
+          density: "compact",
+          heroLayout: "stacked",
+          accent: "indigo",
+          showCtas: false,
+          sectionStyle: "ruled",
+        },
+      }
+    );
+    expect(doc).toContain("template-editorial-proof");
+    expect(doc).toContain("theme-contrast");
+    expect(doc).toContain("density-compact");
+    expect(doc).toContain("hero-stacked");
+    expect(doc).toContain("accent-indigo");
+    expect(doc).toContain("sections-ruled");
+    expect(doc).not.toContain('class="cta"');
+  });
+
+  it("fails with a named template error for an unknown template id", async () => {
+    await expect(
+      staticSiteGenerator.generate([section()], {
+        staticSiteSettings: {
+          templateId: "does-not-exist",
+          theme: "calm",
+          density: "comfortable",
+          heroLayout: "split",
+          accent: "tide",
+          showCtas: true,
+          sectionStyle: "cards",
+        },
+      })
+    ).rejects.toMatchObject({
+      name: "StaticSiteTemplateError",
+      code: "STATIC_SITE_TEMPLATE_INVALID",
+      message: expect.stringContaining("does-not-exist"),
+    });
+  });
+
+  it("fails with a named settings error for unsupported settings", async () => {
+    await expect(
+      staticSiteGenerator.generate([section()], {
+        staticSiteSettings: {
+          theme: "neon",
+          density: "comfortable",
+          heroLayout: "split",
+          accent: "tide",
+          showCtas: true,
+          sectionStyle: "cards",
+        },
+      })
+    ).rejects.toMatchObject({
+      name: "StaticSiteSettingsError",
+      code: "STATIC_SITE_SETTINGS_INVALID",
+      message: expect.stringContaining("theme"),
+    });
+  });
+});
+
 describe("static-site generator — draft gate (fail-safe)", () => {
   it("renders only status === 'published'", async () => {
     const doc = await html([

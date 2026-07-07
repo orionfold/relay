@@ -265,6 +265,12 @@ export interface HeroSlot {
 export interface SecondarySlot {
   id: string;
   title?: string;
+  /**
+   * Primitive family for section-specific grouping on pack detail pages. Kits
+   * should set this for declared pack primitives so unlike card families do not
+   * collapse into one mixed masonry surface.
+   */
+  primitiveKind?: "workflow" | "funnel" | "gallery" | "chart" | "table" | "generic";
   /** Render this slot as its own full-width row before/among normal cards. */
   fullWidth?: boolean;
   content: ReactNode;

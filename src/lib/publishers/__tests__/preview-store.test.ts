@@ -22,6 +22,7 @@ describe("preview artifact store", () => {
     const metadata = await storePreviewArtifact({
       appId: "app-1",
       generatorType: "static-site",
+      generatorConfig: { siteTitle: "Preview" },
       sourceTable: "web-sections",
       sourceFingerprint: "fingerprint-1",
       artifact: {
@@ -47,6 +48,7 @@ describe("preview artifact store", () => {
     const metadata = await storePreviewArtifact({
       appId: "app-1",
       generatorType: "static-site",
+      generatorConfig: { siteTitle: "Preview" },
       sourceTable: "web-sections",
       sourceFingerprint: "fingerprint-1",
       artifact: {
@@ -69,6 +71,7 @@ describe("preview artifact store", () => {
     const expired = await storePreviewArtifact({
       appId: "app-1",
       generatorType: "static-site",
+      generatorConfig: { siteTitle: "Preview" },
       sourceTable: "web-sections",
       sourceFingerprint: "fingerprint-1",
       now: old,
@@ -85,6 +88,7 @@ describe("preview artifact store", () => {
     const fresh = await storePreviewArtifact({
       appId: "app-1",
       generatorType: "static-site",
+      generatorConfig: { siteTitle: "Preview" },
       sourceTable: "web-sections",
       sourceFingerprint: "fingerprint-1",
       artifact: {

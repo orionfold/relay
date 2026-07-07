@@ -42,27 +42,27 @@ const STARTERS: StarterTemplate[] = [
 ];
 
 describe("WelcomeLanding", () => {
-  it("shows the apps-first CTA cluster and starter row when starters exist", () => {
+  it("shows the packs-first CTA cluster and starter row when starters exist", () => {
     render(<WelcomeLanding starters={STARTERS} />);
 
-    // Apps-first CTA is the primary entry point
-    expect(screen.getByRole("link", { name: /build your first app/i })).toHaveAttribute("href", "/chat");
+    // Packs-first CTA is the primary entry point
+    expect(screen.getByRole("link", { name: /build your first pack/i })).toHaveAttribute("href", "/chat");
     // Secondary CTA still routes into the workspace
     expect(screen.getByRole("link", { name: /browse the workspace/i })).toHaveAttribute("href", "/tasks");
     // Starter cards render
     expect(screen.getByText(/finance pack/i)).toBeInTheDocument();
     expect(screen.getByText(/habit tracker/i)).toBeInTheDocument();
     expect(screen.getByText(/research digest/i)).toBeInTheDocument();
-    // "Browse all" routes to /apps
-    expect(screen.getByRole("link", { name: /browse all/i })).toHaveAttribute("href", "/apps");
-    // Apps-first pillar copy reframes the marquee feature
-    expect(screen.getByText(/apps from a sentence/i)).toBeInTheDocument();
+    // "Browse packs" routes to the pack browser
+    expect(screen.getByRole("link", { name: /browse packs/i })).toHaveAttribute("href", "/packs");
+    // Packs-first pillar copy reframes the marquee feature
+    expect(screen.getByText(/packs from a sentence/i)).toBeInTheDocument();
   });
 
   it("renders a usable hero even when no starters are available", () => {
     render(<WelcomeLanding />);
     // Primary CTA still visible — starter row hides cleanly
-    expect(screen.getByRole("link", { name: /build your first app/i })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /browse all/i })).toBeNull();
+    expect(screen.getByRole("link", { name: /build your first pack/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /browse packs/i })).toBeNull();
   });
 });

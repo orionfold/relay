@@ -20,9 +20,10 @@ import {
 // The Arena app bar as a PERMANENT TWO-TIER bar (replaces the sliding
 // accordion). Tier 1 lists every top-level section; tier 2 shows the children
 // of whichever section owns the current route — always visible, no toggle, no
-// per-group width cap. Apps is a top-level section whose tier-2 row is built
-// from live composed-app instances (+ a leading "All apps" link); instances
-// beyond APPS_INLINE_MAX fold into a "+N more" pill that links to /apps. Active
+// per-group width cap. Packs is a top-level section whose tier-2 row is built
+// from the bundled pack browser, installed-pack list, and live installed pack
+// instances; instances beyond APPS_INLINE_MAX fold into a "+N more" pill that
+// links to /apps. Active
 // = cyan fill, the bar's single action color.
 
 // Max app instances shown inline in the Apps tier-2 row before the rest fold
@@ -79,16 +80,17 @@ export function AppBar({ apps }: { apps: AppInstance[] }) {
   const activeGroup = NAV_GROUPS.find((g) => g.id === activeId) ?? NAV_GROUPS[0];
   const settingsActive = pathname.startsWith("/settings");
 
-  // Tier-2 children of the active section. Apps is dynamic (live instances);
-  // every other section uses its static items.
+  // Tier-2 children of the active section. Packs is dynamic (live installed
+  // pack instances); every other section uses its static items.
   let tierTwo: NavItem[];
   let overflowCount = 0;
   if (activeGroup.id === "apps") {
-    const all = appsNavItems(apps); // [All apps, ...instances]
-    const instances = all.slice(1);
+    const all = appsNavItems(apps); // [Browse packs, Installed, ...instances]
+    const staticItems = all.slice(0, 2);
+    const instances = all.slice(2);
     const shown = instances.slice(0, APPS_INLINE_MAX);
     overflowCount = instances.length - shown.length;
-    tierTwo = [all[0], ...shown];
+    tierTwo = [...staticItems, ...shown];
   } else {
     tierTwo = activeGroup.items;
   }
@@ -193,7 +195,7 @@ export function AppBar({ apps }: { apps: AppInstance[] }) {
             <li className="flex">
               <Link
                 href="/apps"
-                title={`${overflowCount} more app${overflowCount === 1 ? "" : "s"}`}
+                title={`${overflowCount} more installed pack${overflowCount === 1 ? "" : "s"}`}
                 className="flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 <MoreHorizontal className="h-4 w-4 shrink-0" aria-hidden />

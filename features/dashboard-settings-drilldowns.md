@@ -1,6 +1,6 @@
 ---
 title: Dashboard and Settings drill-down affordances
-status: planned
+status: completed
 priority: P1
 milestone: post-mvp
 source: output/operator-walkthrough-feedback-2026-07-07.md
@@ -34,12 +34,21 @@ that I can move from signal to action in one click.
 
 ## Acceptance Criteria
 
-- [ ] Dashboard telemetry cards that imply a route navigate to the correct view.
-- [ ] `Projects` telemetry opens Projects; equivalent task, workflow, inbox, cost, and failure
+- [x] Dashboard telemetry cards that imply a route navigate to the correct view.
+- [x] `Projects` telemetry opens Projects; equivalent task, workflow, inbox, cost, and failure
       telemetry map to their matching views where available.
-- [ ] Settings rail key-value rows open `/settings` and focus/scroll the corresponding setting.
-- [ ] Navigable summary elements are visually distinguishable from inert readouts.
-- [ ] Keyboard and screen-reader behavior is covered by tests or browser verification.
+- [x] Settings rail key-value rows open `/settings` and focus/scroll the corresponding setting.
+- [x] Navigable summary elements are visually distinguishable from inert readouts.
+- [x] Keyboard and screen-reader behavior is covered by tests or browser verification.
+
+## Verification
+
+- Unit: `npx vitest run src/components/shell/__tests__/telemetry-rail.test.tsx src/components/shell/__tests__/glance-rail.test.tsx`
+- Typecheck: `npx tsc --noEmit`
+- Build: `npm run build` passed with known `workspace/fix-data-dir` Turbopack/NFT warnings.
+- Browser: Playwright verified telemetry link hrefs, `/tasks?status=failed` seeding the task status
+  filter, settings-glance hash links, and `/settings#settings-budget` focusing and scrolling the
+  target section into view.
 
 ## Scope Boundaries
 

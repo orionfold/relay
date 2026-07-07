@@ -19,7 +19,7 @@ export interface AppMaterializedCardProps {
 }
 
 /**
- * Inline chat card rendered when the assistant composes a new app.
+ * Inline chat card rendered when the assistant composes a new pack instance.
  *
  * Self-extension "accept" surface per TDR-037 — no modal, capability
  * display is informational, copy is present-tense ("is live") to
@@ -87,7 +87,7 @@ export function AppMaterializedCard({
         <Button asChild size="sm" variant="default" disabled={status !== "running"}>
           <Link href={`/apps/${appId}`} aria-label={`Open ${name}`}>
             <ExternalLink className="h-3 w-3 mr-1.5" aria-hidden="true" />
-            Open app
+            Open pack
           </Link>
         </Button>
         {files.length > 0 && (

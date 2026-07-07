@@ -682,6 +682,7 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
       final_url TEXT,
       commit_sha TEXT,
       artifact_hash TEXT,
+      generator_config TEXT,
       started_at INTEGER NOT NULL,
       finished_at INTEGER,
       error TEXT,
@@ -692,6 +693,7 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_deployments_target ON deployments(target_id);
   `);
   addColumnIfMissing(`ALTER TABLE deployments ADD COLUMN final_url TEXT;`);
+  addColumnIfMissing(`ALTER TABLE deployments ADD COLUMN generator_config TEXT;`);
 
   // ── Agent Async Handoffs ──────────────────────────────────────────────
   sqlite.exec(`

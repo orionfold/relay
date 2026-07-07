@@ -3,6 +3,8 @@
 // live-host metrics. The telemetry rail's scope is locked at 10 cells.
 
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sparkline } from "@/components/charts/sparkline";
 
@@ -25,6 +27,8 @@ export function RailCell({
   spark,
   sparkColor = "var(--chart-1)",
   sparkLabel,
+  href,
+  ariaLabel,
 }: {
   label: string;
   icon?: ReactNode;
@@ -39,9 +43,12 @@ export function RailCell({
   sparkColor?: string;
   /** Accessible label for the sparkline. */
   sparkLabel?: string;
+  /** Optional drill-down target for navigable rail summaries. */
+  href?: string;
+  ariaLabel?: string;
 }) {
-  return (
-    <div className="flex min-w-[8.5rem] flex-none flex-col gap-0.5 border-r border-border px-4 py-2.5">
+  const content = (
+    <>
       <div className="flex items-center gap-1.5 font-mono text-[0.6rem] font-medium uppercase tracking-[0.08em] text-muted-foreground">
         {icon && (
           <span className="flex h-3 w-3 items-center justify-center text-muted-foreground [&_svg]:h-3 [&_svg]:w-3">
@@ -49,6 +56,12 @@ export function RailCell({
           </span>
         )}
         {label}
+        {href && (
+          <ArrowUpRight
+            aria-hidden
+            className="h-2.5 w-2.5 text-muted-foreground/70"
+          />
+        )}
       </div>
       <div className="flex items-baseline gap-2">
         {/* Value LEADS the cell (FEAT-9): text-base is the most-scanned figure,
@@ -82,6 +95,26 @@ export function RailCell({
           {sub}
         </div>
       )}
+    </>
+  );
+
+  const className = cn(
+    "flex min-w-[8.5rem] flex-none flex-col gap-0.5 border-r border-border px-4 py-2.5",
+    href &&
+      "transition-colors hover:bg-accent/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
+  );
+
+  if (href) {
+    return (
+      <Link href={href} aria-label={ariaLabel ?? `Open ${label}`} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={className}>
+      {content}
     </div>
   );
 }

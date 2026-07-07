@@ -1,0 +1,35 @@
+id: relay-web-templates
+version: "0.1.0"
+name: Relay Web Templates
+description: >
+  Manage reusable, declarative static-site templates for Web Designer previews
+  and publish flows.
+persona: >
+  A web designer selecting safe, versioned layouts for client landing pages.
+author: Orionfold
+
+tables:
+  - id: web_templates
+    columns: [id, version, name, description, provenance, compatibility, supportedSectionKinds, allowedControls, previewFixtures, layout]
+    seed: seed/tables/web_templates.json
+
+view:
+  kit: tracker
+  bindings:
+    hero:
+      table: web_templates
+    kpis:
+      - id: template-count
+        label: Templates
+        source:
+          kind: tableCount
+          table: web_templates
+        format: int
+    galleries:
+      - id: template-gallery
+        title: Website templates
+        table: web_templates
+        titleColumn: name
+        subtitleColumn: description
+        metaColumn: version
+        limit: 12

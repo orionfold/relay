@@ -1,0 +1,23 @@
+id: relay-web-templates
+version: "0.1.0"
+name: Relay Web Templates
+author: Orionfold
+description: >
+  Versioned, declarative static-site templates for Relay Web Designer and Relay
+  Web Publisher. Templates are safe data records with supported section roles,
+  controls, preview fixtures, compatibility metadata, and synthetic provenance.
+relayCore: ">=0.35.0"
+entitlement: product:orionfold-relay
+price:
+  intro: "$349/year"
+  list: "$499/year"
+  note: "Reusable static-site templates for the Web Designer line. One license unlocks every paid Relay pack."
+purchaseUrl: https://orionfold.com/relay/
+icon: panels-top-left
+related:
+  text: "Use with Relay Web Designer to select a template before preview and publish."
+  href: "/packs?filter=premium"
+changelog:
+  "0.1.0": >-
+    Adds the first offline, synthetic static-site template catalog for Relay Web
+    Designer and Publisher.

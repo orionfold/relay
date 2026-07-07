@@ -50,6 +50,11 @@ describe("Workflow Hub kit — KitView integration", () => {
     });
     expect(screen.getByText(/runs \(7d\)/i)).toBeInTheDocument();
     expect(container.querySelectorAll('[data-kit-slot="secondary"]').length).toBeGreaterThanOrEqual(1);
+    const workflows = container.querySelector('[data-kit-slot-section="workflow"]');
+    expect(workflows).toBeInTheDocument();
+    expect(workflows).toHaveTextContent("Workflows");
+    expect(workflows).toHaveTextContent("Each card below is a workflow this app can run.");
+    expect(workflows).toHaveTextContent("Pick a workflow below.");
   });
 
   it("renders the funnel flow as a full-width secondary row before workflow cards", () => {

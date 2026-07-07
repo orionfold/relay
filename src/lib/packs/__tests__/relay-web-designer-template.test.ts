@@ -42,7 +42,7 @@ async function saveEntitledLicense() {
 }
 
 describe("relay-web-designer — catalog contract", () => {
-  it("lists the Web Designer bundle and both standalone children", async () => {
+  it("lists the Web Designer bundle, template pack, and both standalone children", async () => {
     const { listPackTemplates } = await import("../catalog");
     const { isBundle } = await import("../format");
     const all = listPackTemplates();
@@ -57,7 +57,7 @@ describe("relay-web-designer — catalog contract", () => {
     ]);
     expect(bundle!.meta!.entitlement).toBe("product:orionfold-relay");
 
-    for (const id of ["relay-web-assets", "relay-web-publisher"]) {
+    for (const id of ["relay-web-assets", "relay-web-publisher", "relay-web-templates"]) {
       const child = all.find((t) => t.id === id);
       expect(child, `${id} must be in the catalog`).toBeDefined();
       expect(child!.error).toBeUndefined();
@@ -71,6 +71,7 @@ describe("relay-web-designer — catalog contract", () => {
       path.join(root, "relay-web-assets"),
       path.join(root, "relay-web-publisher"),
       path.join(root, "relay-web-designer"),
+      path.join(root, "relay-web-templates"),
     ];
     const forbidden = [
       /\/Users\/manavsehgal\/orionfold/i,

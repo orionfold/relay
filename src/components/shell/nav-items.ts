@@ -23,10 +23,9 @@ import {
 // Single source of truth for the navigation IA, consumed by the permanent
 // two-tier bar (app-bar.tsx). Tier 1 shows every top-level section; tier 2
 // shows the children of whichever section owns the current route — always
-// visible, no sliding, no accordion. Apps is a top-level section (promoted from
-// under Compose) whose tier-2 children are DYNAMIC app instances built at render
-// time from listAppsCached(); its static `items` list is therefore empty. There
-// is no per-group width cap anymore — each tier gets its own row.
+// visible, no sliding, no accordion. Packs is a top-level section whose tier-2
+// children are the bundled pack browser, installed pack list, and dynamic
+// installed pack instances built at render time from listAppsCached().
 
 export interface NavItem {
   title: string;
@@ -69,12 +68,7 @@ const homeItems: NavItem[] = [
   { title: "Chat", href: "/chat", icon: MessageCircle, description: "Talk directly with agents" },
 ];
 
-// Apps is now a top-level section. Its tier-2 children are the composed app
-// instances (from listAppsCached), not a static list, so `items` is empty and
-// the bar builds the row via appsNavItems(). Packs stays under Compose as the
-// soft-gate discovery surface (PLG D6).
 const composeItems: NavItem[] = [
-  { title: "Packs", href: "/packs", icon: Boxes, description: "Install vertical content bundles", alsoMatches: ["/packs/"] },
   { title: "Projects", href: "/projects", icon: FolderKanban, description: "Group work by project", alsoMatches: ["/projects/"] },
   { title: "Workflows", href: "/workflows", icon: Workflow, description: "Multi-step agent pipelines", alsoMatches: ["/workflows/"] },
   { title: "Blueprints", href: "/blueprints", icon: Layers, description: "Reusable workflow templates", alsoMatches: ["/blueprints/"] },
@@ -103,8 +97,8 @@ const observeItems: NavItem[] = [
 
 export const NAV_GROUPS: NavGroup[] = [
   { id: "home", label: "Home", icon: Home, href: "/", items: homeItems },
-  { id: "apps", label: "Apps", icon: Sparkles, href: "/apps", items: [], alsoMatches: ["/apps", "/apps/"] },
-  { id: "compose", label: "Compose", icon: Package, href: "/packs", items: composeItems },
+  { id: "apps", label: "Packs", icon: Boxes, href: "/packs", items: [], alsoMatches: ["/packs", "/packs/", "/apps", "/apps/"] },
+  { id: "compose", label: "Compose", icon: Package, href: "/projects", items: composeItems },
   { id: "data", label: "Data", icon: FileText, href: "/customers", items: dataItems },
   { id: "observe", label: "Observe", icon: Activity, href: "/monitor", items: observeItems },
 ];
@@ -116,17 +110,22 @@ export interface AppInstance {
 }
 
 /**
- * Build the Apps section's tier-2 children from live app instances. Leads with
- * an "All apps" link to the /apps grid, then one item per instance (→
- * /apps/[id]). The caller decides how many instances to show inline vs. fold
- * into a "+N more" pill (see app-bar.tsx).
+ * Build the Packs section's tier-2 children from the bundled pack browser plus
+ * live installed pack instances. `/apps` remains the compatible installed-pack
+ * route; user-facing labels do not expose that storage term.
  */
 export function appsNavItems(apps: AppInstance[]): NavItem[] {
-  const allApps: NavItem = {
-    title: "All apps",
+  const browsePacks: NavItem = {
+    title: "Browse packs",
+    href: "/packs",
+    icon: Boxes,
+    description: "Bundled packs ready to install",
+  };
+  const installedPacks: NavItem = {
+    title: "Installed",
     href: "/apps",
     icon: Sparkles,
-    description: "Every composed app",
+    description: "Packs installed in this Relay instance",
   };
   const instances: NavItem[] = apps.map((app) => ({
     title: app.name,
@@ -134,7 +133,7 @@ export function appsNavItems(apps: AppInstance[]): NavItem[] {
     icon: Package,
     description: app.name,
   }));
-  return [allApps, ...instances];
+  return [browsePacks, installedPacks, ...instances];
 }
 
 export function isItemActive(item: NavItem, pathname: string): boolean {

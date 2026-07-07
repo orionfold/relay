@@ -35,6 +35,7 @@ export const BUNDLED_PACK_IDS = [
   "relay-web-assets",
   "relay-web-designer",
   "relay-web-publisher",
+  "relay-web-templates",
 ] as const;
 
 export type BundledPackId = (typeof BUNDLED_PACK_IDS)[number];

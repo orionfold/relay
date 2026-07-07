@@ -1,6 +1,6 @@
 ---
 title: Web Templates pack — reusable static-site templates for Web Designer
-status: planned
+status: built
 priority: P1
 milestone: post-mvp
 source: output/operator-walkthrough-feedback-2026-07-07.md
@@ -41,15 +41,29 @@ multiple polished sites without every design being hardcoded into Relay.
 
 ## Acceptance Criteria
 
-- [ ] `relay-web-templates` exists as a bundled pack with synthetic template rows and preview
+- [x] `relay-web-templates` exists as a bundled pack with synthetic template rows and preview
       fixtures.
-- [ ] Web Designer can select a template and preview the selected output before publishing.
-- [ ] Template schema validation rejects unsupported slots, unsafe code, and incompatible generator
+- [x] Web Designer can select a template and preview the selected output before publishing.
+- [x] Template schema validation rejects unsupported slots, unsafe code, and incompatible generator
       versions with named errors.
-- [ ] Template provenance is visible in the UI and included in preview/deployment metadata.
-- [ ] The current hardcoded generator look is represented as a default template-compatible path.
-- [ ] Tests cover schema validation, template selection, compatibility refusal, and private-data
+- [x] Template provenance is visible in the UI and included in preview/deployment metadata.
+- [x] The current hardcoded generator look is represented as a default template-compatible path.
+- [x] Tests cover schema validation, template selection, compatibility refusal, and private-data
       guardrails.
+
+## Build Notes
+
+- Built 2026-07-07. Added the premium bundled `relay-web-templates` pack with three synthetic
+  declarative template rows: `relay-default`, `editorial-proof`, and `launch-system`.
+- Added `StaticSiteTemplateSchema` and named `StaticSiteTemplateError` validation for unsupported
+  section slots, unsafe extra fields, incompatible template versions, unknown template ids, and
+  template-control incompatibilities.
+- Added `templateId` to app-scoped static-site settings. Preview/publish generator config now
+  records the selected settings plus compact template provenance metadata.
+- Web Designer/Web Publisher publish panels now list server-provided templates in Site controls and
+  show bundled synthetic provenance before preview/publish.
+- Verification: focused template/generator/API/publish-panel/publisher/pack/taxonomy tests 64/64,
+  `npx tsc --noEmit`, `npm run check:pack-taxonomy`, and `npm run check:pack-tarball`.
 
 ## Scope Boundaries
 

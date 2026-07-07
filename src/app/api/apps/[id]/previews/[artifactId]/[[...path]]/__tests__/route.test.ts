@@ -18,6 +18,7 @@ describe("GET /api/apps/[id]/previews/[artifactId]/[[...path]]", () => {
     const metadata = await storePreviewArtifact({
       appId: "app-1",
       generatorType: "static-site",
+      generatorConfig: { siteTitle: "Preview" },
       sourceTable: "web-sections",
       sourceFingerprint: "fingerprint-1",
       artifact: {
@@ -49,6 +50,7 @@ describe("GET /api/apps/[id]/previews/[artifactId]/[[...path]]", () => {
     const metadata = await storePreviewArtifact({
       appId: "app-1",
       generatorType: "static-site",
+      generatorConfig: { siteTitle: "Preview" },
       sourceTable: "web-sections",
       sourceFingerprint: "fingerprint-1",
       artifact: {

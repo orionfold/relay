@@ -120,6 +120,8 @@ export const trackerKit: KitDefinition = {
           {
             id: "funnel-flow",
             title: runtime.funnelData.title ?? undefined,
+            primitiveKind: "funnel" as const,
+            fullWidth: true,
             content: createElement(FunnelFlowView, {
               bands: runtime.funnelData.bands,
             }),
@@ -133,6 +135,7 @@ export const trackerKit: KitDefinition = {
     const chartSlots = (runtime.chartData ?? []).map((chart) => ({
       id: `chart-${chart.spec.id}`,
       title: chart.spec.title,
+      primitiveKind: "chart" as const,
       // The slot renders the title; pass "" to TableChartView so its internal
       // <h3> doesn't duplicate it.
       content: createElement(TableChartView, {
@@ -150,6 +153,7 @@ export const trackerKit: KitDefinition = {
     const gallerySlots = (runtime.galleryData ?? []).map((gallery) => ({
       id: `gallery-${gallery.spec.id}`,
       title: gallery.spec.title,
+      primitiveKind: "gallery" as const,
       fullWidth: true,
       content: createElement(GalleryPreviewView, { gallery }),
     }));

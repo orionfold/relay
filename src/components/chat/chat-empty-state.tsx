@@ -97,9 +97,9 @@ export function ChatEmptyState({
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
           <Bot className="h-6 w-6 text-primary" />
         </div>
-        <h2 className="text-lg font-semibold">Describe an app. Relay builds it.</h2>
+        <h2 className="text-lg font-semibold">Describe a pack. Relay builds it.</h2>
         <p className="text-sm text-muted-foreground text-center max-w-md">
-          One prompt builds the whole app: profiles, blueprints, tables, and
+          One prompt builds the whole pack: profiles, blueprints, tables, and
           schedules. Or ask anything about your workspace.
         </p>
       </div>
@@ -107,7 +107,7 @@ export function ChatEmptyState({
       {/* Input slot */}
       {children && <div className="w-full max-w-2xl mb-4">{children}</div>}
 
-      {/* App composer affordance — starter cards + example prompts. Uses
+      {/* Pack composer affordance — starter cards + example prompts. Uses
           onSeedComposer (fill-only) instead of onSuggestionClick (click-to-
           send) because these are long compositional prompts the user should
           review before sending. Falls back to onSuggestionClick when no seed

@@ -3,9 +3,12 @@ import { db } from "@/lib/db";
 import {
   deployments,
   publishTargets,
+  settings,
   userTableRows,
   userTables,
 } from "@/lib/db/schema";
+import { setAppStaticSiteSettings } from "@/lib/generators/app-static-site-settings";
+import { staticSiteSettingsKey } from "@/lib/generators/static-site-settings";
 import { eq } from "drizzle-orm";
 import {
   createAppPreview,
@@ -85,6 +88,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   db.delete(deployments).where(eq(deployments.appId, APP_ID)).run();
   db.delete(publishTargets).where(eq(publishTargets.appId, APP_ID)).run();
+  db.delete(settings).where(eq(settings.key, staticSiteSettingsKey(APP_ID))).run();
   db.delete(userTableRows).where(eq(userTableRows.tableId, TABLE_ID)).run();
   db.delete(userTables).where(eq(userTables.id, TABLE_ID)).run();
 
@@ -182,6 +186,22 @@ describe("createAppPreview", () => {
     const stored = await loadPreviewArtifact(APP_ID, preview.artifactId);
     expect(String(stored.artifact.files[0]!.content)).toContain("Preview me");
     expect(stored.metadata.sourceFingerprint).toMatch(/^[a-f0-9]{64}$/);
+    expect(stored.metadata.generatorConfig).toMatchObject({
+      siteTitle: "Publish App",
+      staticSiteSettings: {
+        templateId: "relay-default",
+        theme: "calm",
+        density: "comfortable",
+        heroLayout: "split",
+        accent: "tide",
+        showCtas: true,
+        sectionStyle: "cards",
+      },
+      staticSiteTemplate: {
+        id: "relay-default",
+        provenance: { source: "orionfold-bundled", synthetic: true },
+      },
+    });
   });
 });
 
@@ -221,6 +241,46 @@ describe("getAppPreviewStatus", () => {
       })
       .where(eq(userTableRows.id, "publish-row-preview-status"))
       .run();
+
+    await expect(getAppPreviewStatus(APP_ID, preview.artifactId)).resolves.toMatchObject({
+      artifactId: preview.artifactId,
+      stale: true,
+    });
+  });
+
+  it("marks an existing preview stale when static-site settings change", async () => {
+    mockApp();
+    const now = new Date();
+    db.insert(userTableRows)
+      .values({
+        id: "publish-row-preview-settings-status",
+        tableId: TABLE_ID,
+        data: JSON.stringify({
+          kind: "hero",
+          heading: "Before",
+          status: "published",
+        }),
+        position: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+
+    const preview = await createAppPreview(APP_ID);
+    await expect(getAppPreviewStatus(APP_ID, preview.artifactId)).resolves.toMatchObject({
+      artifactId: preview.artifactId,
+      stale: false,
+    });
+
+    await setAppStaticSiteSettings(APP_ID, {
+      templateId: "editorial-proof",
+      theme: "contrast",
+      density: "compact",
+      heroLayout: "stacked",
+      accent: "indigo",
+      showCtas: false,
+      sectionStyle: "ruled",
+    });
 
     await expect(getAppPreviewStatus(APP_ID, preview.artifactId)).resolves.toMatchObject({
       artifactId: preview.artifactId,
@@ -269,6 +329,9 @@ describe("runDeployment", () => {
     expect(finished.finalUrl).toBe("https://www.acme.test/");
     expect(finished.commit).toBe("abc123");
     expect(finished.artifactHash).toMatch(/^[a-f0-9]{64}$/);
+    expect(JSON.parse(finished.generatorConfig ?? "{}")).toMatchObject({
+      staticSiteSettings: { theme: "calm" },
+    });
     expect(finished.error).toBeNull();
     expect(publish).toHaveBeenCalledWith(
       expect.objectContaining({ entryPoint: "index.html" }),
@@ -325,6 +388,9 @@ describe("runDeployment", () => {
 
     expect(finished.status).toBe("success");
     expect(finished.artifactHash).toBe(preview.hash);
+    expect(JSON.parse(finished.generatorConfig ?? "{}")).toMatchObject({
+      staticSiteSettings: { theme: "calm" },
+    });
     expect(publish).toHaveBeenCalledWith(
       expect.objectContaining({ hash: preview.hash }),
       expect.objectContaining({ githubToken: "ghp_secret1234" })

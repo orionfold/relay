@@ -4,7 +4,14 @@ import { db } from "@/lib/db";
 import { deployments, publishTargets, type DeploymentRow, type PublishTargetRow } from "@/lib/db/schema";
 import { getApp, type AppDetail, type ViewConfig } from "@/lib/apps/registry";
 import { getTable, listRows } from "@/lib/data/tables";
+import { getAppStaticSiteSettings } from "@/lib/generators/app-static-site-settings";
 import { getGeneratorAdapter } from "@/lib/generators/registry";
+import { StaticSiteSettingsError } from "@/lib/generators/static-site-settings";
+import {
+  StaticSiteTemplateError,
+  getStaticSiteTemplate,
+  staticSiteTemplateSummary,
+} from "@/lib/generators/static-site-templates";
 import { getPublisherAdapter } from "@/lib/publishers/registry";
 import { maskPublishTarget } from "@/lib/publishers/types";
 import {
@@ -22,6 +29,7 @@ export type AppPublishErrorCode =
   | "PUBLISH_TARGET_CONFIG_INVALID"
   | "GENERATE_TABLE_NOT_FOUND"
   | "GENERATE_ROW_INVALID"
+  | "GENERATE_CONFIG_INVALID"
   | "PREVIEW_NOT_FOUND"
   | "PREVIEW_EXPIRED"
   | "PREVIEW_APP_MISMATCH"
@@ -113,8 +121,17 @@ function appPublishErrorFromPreviewStore(err: PreviewStoreError): AppPublishErro
   return new AppPublishError(err.code, err.message, status);
 }
 
+function appPublishErrorFromStaticSiteSettings(err: StaticSiteSettingsError): AppPublishError {
+  return new AppPublishError("GENERATE_CONFIG_INVALID", err.message, 400);
+}
+
+function appPublishErrorFromStaticSiteTemplate(err: StaticSiteTemplateError): AppPublishError {
+  return new AppPublishError("GENERATE_CONFIG_INVALID", err.message, 400);
+}
+
 function sourceFingerprint(input: {
   generate: GenerateBinding;
+  generatorConfig: Record<string, unknown>;
   rows: Record<string, unknown>[];
 }): string {
   return createHash("sha256")
@@ -123,18 +140,41 @@ function sourceFingerprint(input: {
         generatorType: input.generate.generatorType,
         table: input.generate.table,
         siteTitle: input.generate.siteTitle ?? null,
+        generatorConfig: input.generatorConfig,
         rows: input.rows,
       })
     )
     .digest("hex");
 }
 
-async function generateArtifactForBinding(generate: GenerateBinding) {
+async function loadGeneratorConfig(appId: string, generate: GenerateBinding) {
+  try {
+    const staticSiteSettings = await getAppStaticSiteSettings(appId);
+    const staticSiteTemplate = getStaticSiteTemplate(staticSiteSettings.templateId);
+    return {
+      siteTitle: generate.siteTitle,
+      staticSiteSettings,
+      staticSiteTemplate: staticSiteTemplateSummary(staticSiteTemplate),
+    };
+  } catch (err) {
+    if (err instanceof StaticSiteSettingsError) {
+      throw appPublishErrorFromStaticSiteSettings(err);
+    }
+    if (err instanceof StaticSiteTemplateError) {
+      throw appPublishErrorFromStaticSiteTemplate(err);
+    }
+    throw err;
+  }
+}
+
+async function generateArtifactForBinding(appId: string, generate: GenerateBinding) {
   const rows = await loadGenerateRows(generate.table);
   const generator = getGeneratorAdapter(generate.generatorType);
+  const generatorConfig = await loadGeneratorConfig(appId, generate);
   return {
     rows,
-    artifact: await generator.generate(rows, { siteTitle: generate.siteTitle }),
+    generatorConfig,
+    artifact: await generator.generate(rows, generatorConfig),
   };
 }
 
@@ -263,12 +303,13 @@ export async function createAppPreview(appId: string): Promise<CreatePreviewResu
     );
   }
 
-  const { rows, artifact } = await generateArtifactForBinding(generate);
+  const { rows, generatorConfig, artifact } = await generateArtifactForBinding(appId, generate);
   const metadata = await storePreviewArtifact({
     appId,
     generatorType: generate.generatorType,
+    generatorConfig,
     sourceTable: generate.table,
-    sourceFingerprint: sourceFingerprint({ generate, rows }),
+    sourceFingerprint: sourceFingerprint({ generate, generatorConfig, rows }),
     artifact,
   });
   const encodedId = encodeURIComponent(appId);
@@ -308,7 +349,8 @@ export async function getAppPreviewStatus(
     }
 
     const rows = await loadGenerateRows(generate.table);
-    const currentFingerprint = sourceFingerprint({ generate, rows });
+    const generatorConfig = await loadGeneratorConfig(appId, generate);
+    const currentFingerprint = sourceFingerprint({ generate, generatorConfig, rows });
     return {
       artifactId: preview.metadata.artifactId,
       hash: preview.metadata.hash,
@@ -392,6 +434,7 @@ export async function runDeployment(
     }
 
     let artifact;
+    let generatorConfig: Record<string, unknown>;
     if (artifactId) {
       try {
         const preview = await loadPreviewArtifact(deployment.appId, artifactId);
@@ -405,7 +448,8 @@ export async function runDeployment(
           );
         }
         const rows = await loadGenerateRows(generate.table);
-        const currentFingerprint = sourceFingerprint({ generate, rows });
+        generatorConfig = await loadGeneratorConfig(deployment.appId, generate);
+        const currentFingerprint = sourceFingerprint({ generate, generatorConfig, rows });
         if (preview.metadata.sourceFingerprint !== currentFingerprint) {
           throw new AppPublishError(
             "PREVIEW_STALE",
@@ -414,6 +458,7 @@ export async function runDeployment(
           );
         }
         artifact = preview.artifact;
+        generatorConfig = preview.metadata.generatorConfig;
       } catch (err) {
         if (err instanceof PreviewStoreError) {
           throw appPublishErrorFromPreviewStore(err);
@@ -421,7 +466,9 @@ export async function runDeployment(
         throw err;
       }
     } else {
-      artifact = (await generateArtifactForBinding(generate)).artifact;
+      const generated = await generateArtifactForBinding(deployment.appId, generate);
+      artifact = generated.artifact;
+      generatorConfig = generated.generatorConfig;
     }
     const publisher = getPublisherAdapter(target.targetType);
     const result = await publisher.publish(artifact, parseTargetConfig(target));
@@ -442,6 +489,7 @@ export async function runDeployment(
         finalUrl: result.finalUrl ?? null,
         commit: result.commit ?? null,
         artifactHash: artifact.hash,
+        generatorConfig: JSON.stringify(generatorConfig),
         finishedAt,
         error: null,
       })

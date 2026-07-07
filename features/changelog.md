@@ -1,5 +1,40 @@
 # Feature Changelog
 
+## 2026-07-07 — Packs-first IA built
+
+### Built
+- `packs-first-ia`: primary nav now presents Packs as the top-level surface with `Browse packs`,
+  `Installed`, and live installed-pack instance links. `/apps` remains the compatible installed
+  route but is labeled `Installed packs`, Chat/welcome/generated-result copy now says pack, and
+  `/apps/[id]` adds a `Pack composition` panel with primitive counts plus expandable owned-table
+  drill-through links. App detail secondary slots now render as primitive-specific sections, with
+  workflow guidance inside the Workflows section and section-appropriate grid/full-width layouts.
+
+## 2026-07-07 — Dashboard and settings drill-downs built
+
+### Built
+- `dashboard-settings-drilldowns`: telemetry rail cells now expose keyboard-accessible drill-down
+  links for tasks, failures, review, projects, workflows, spend, and runtime settings. Settings
+  glance values deep-link to stable `/settings#...` anchors, the Settings page focuses and scrolls
+  hash targets after async layout settles, and `/tasks?status=running|completed|failed` seeds the
+  existing task status filter.
+
+## 2026-07-07 — Web Templates pack built
+
+### Built
+- `web-templates-pack`: added a bundled `relay-web-templates` pack with synthetic declarative
+  static-site template rows, a typed template schema, template selection in Web Designer site
+  controls, named validation for unsafe/incompatible template data, and preview/deployment metadata
+  provenance for the selected template.
+
+## 2026-07-07 — Web Designer site controls built
+
+### Built
+- `web-designer-site-controls`: Web Designer publish surfaces now expose typed static-site controls
+  for theme, density, hero layout, accent, CTA visibility, and section style. Preview and publish
+  load the same app-scoped settings object, preview fingerprints include settings changes, preview
+  metadata records generator config, and deployments persist `generator_config`.
+
 ## 2026-07-07 — App-detail row cache invalidation built
 
 ### Built

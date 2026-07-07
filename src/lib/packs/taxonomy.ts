@@ -261,6 +261,23 @@ export const TAXONOMY: Taxonomy = {
       ],
       note: "The ordered static-site section table read by the static-site generator.",
     },
+    web_templates: {
+      owner: "relay-web-templates",
+      kind: "functional",
+      columns: [
+        "id",
+        "version",
+        "name",
+        "description",
+        "provenance",
+        "compatibility",
+        "supportedSectionKinds",
+        "allowedControls",
+        "previewFixtures",
+        "layout",
+      ],
+      note: "The declarative static-site template catalog used by Web Designer and Web Publisher.",
+    },
   },
   schedules: {
     "month-end-close": {

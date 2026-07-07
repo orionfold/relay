@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { TaskDetailSheet } from "@/components/tasks/task-detail-sheet";
 import { KanbanBoard, type SortOrder, SORT_OPTIONS } from "@/components/tasks/kanban-board";
 import { TaskTableView } from "@/components/tasks/task-table-view";
@@ -39,10 +39,11 @@ export function TaskSurface({
   projects,
 }: TaskSurfaceProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [view, setView] = useTaskView();
   const [sheetTaskId, setSheetTaskId] = useState<string | null>(null);
   const [projectFilter, setProjectFilter] = usePersistedState("ainative-project-filter", "all");
-  const [statusFilter, setStatusFilter] = usePersistedState("ainative-status-filter", "all");
+  const [statusFilter, setStatusFilter] = usePersistedState<string>("ainative-status-filter", "all");
   const [sortOrder, setSortOrder] = usePersistedState<SortOrder>("ainative-sort-order", "priority");
   const [density, setDensity] = usePersistedState<Density>("ainative-table-density", "comfortable");
 
@@ -52,6 +53,17 @@ export function TaskSurface({
       setProjectFilter("all");
     }
   }, [projectFilter, projects, setProjectFilter]);
+
+  useEffect(() => {
+    const requestedStatus = searchParams.get("status");
+    if (
+      requestedStatus &&
+      (requestedStatus === "all" || COLUMN_ORDER.includes(requestedStatus as typeof COLUMN_ORDER[number])) &&
+      requestedStatus !== statusFilter
+    ) {
+      setStatusFilter(requestedStatus);
+    }
+  }, [searchParams, setStatusFilter, statusFilter]);
 
   const newTaskHref = projectFilter !== "all"
     ? `/tasks/new?project=${projectFilter}`

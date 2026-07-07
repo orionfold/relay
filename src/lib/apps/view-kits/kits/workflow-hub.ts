@@ -99,6 +99,7 @@ export const workflowHubKit: KitDefinition = {
     );
     const cardSlots = ordered.map((card) => ({
       id: `blueprint-${card.id}`,
+      primitiveKind: "workflow" as const,
       content: createElement(RunnableBlueprintCard, {
         card,
         lastRun: lastRuns[card.id] ?? null,
@@ -116,6 +117,7 @@ export const workflowHubKit: KitDefinition = {
           {
             id: "funnel-flow",
             title: runtime.funnelData.title ?? undefined,
+            primitiveKind: "funnel" as const,
             fullWidth: true,
             content: createElement(FunnelFlowView, {
               bands: runtime.funnelData.bands,

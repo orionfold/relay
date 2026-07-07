@@ -1,0 +1,143 @@
+[
+  {
+    "id": "relay-default",
+    "version": "0.1.0",
+    "name": "Relay Default",
+    "description": "A calm operational landing-page template with a strong hero, ruled sections, proof cards, and a final CTA.",
+    "provenance": {
+      "source": "orionfold-bundled",
+      "synthetic": true,
+      "note": "Authored as synthetic template data for the bundled Web Designer pack family."
+    },
+    "compatibility": {
+      "generator": "static-site",
+      "version": "static-site-template/v1"
+    },
+    "supportedSectionKinds": ["hero", "features", "text", "cta"],
+    "allowedControls": {},
+    "previewFixtures": [
+      {
+        "kind": "hero",
+        "heading": "Launch a sharper service page",
+        "body": "A concise synthetic example for a web studio packaging strategy, build, and publishing support.",
+        "order": 1,
+        "ctaLabel": "Start a brief",
+        "ctaUrl": "#brief",
+        "status": "published"
+      },
+      {
+        "kind": "features",
+        "heading": "Positioning, proof, and publish flow",
+        "body": "Reusable rows keep the client offer clear from draft through approved artifact.",
+        "order": 2,
+        "status": "published"
+      },
+      {
+        "kind": "cta",
+        "heading": "Review the preview, then publish",
+        "body": "Nothing leaves the local instance until the operator explicitly sends the approved artifact.",
+        "order": 3,
+        "ctaLabel": "Review",
+        "ctaUrl": "#content",
+        "status": "published"
+      }
+    ],
+    "layout": {
+      "bodyClass": "template-relay-default",
+      "sectionLabels": {
+        "hero": "Opening",
+        "features": "Capability",
+        "text": "Control",
+        "cta": "Release"
+      }
+    }
+  },
+  {
+    "id": "editorial-proof",
+    "version": "0.1.0",
+    "name": "Editorial Proof",
+    "description": "A more editorial static-site template for expert services, case summaries, proof notes, and high-trust calls to action.",
+    "provenance": {
+      "source": "orionfold-bundled",
+      "synthetic": true,
+      "note": "Synthetic template route; not copied from private local projects, customers, or peer workspaces."
+    },
+    "compatibility": {
+      "generator": "static-site",
+      "version": "static-site-template/v1"
+    },
+    "supportedSectionKinds": ["hero", "features", "text", "cta"],
+    "allowedControls": {},
+    "previewFixtures": [
+      {
+        "kind": "hero",
+        "heading": "A considered page for a complex offer",
+        "body": "Use structured sections to turn expertise into an inspectable, publish-ready site.",
+        "order": 1,
+        "ctaLabel": "Read the brief",
+        "ctaUrl": "#brief",
+        "status": "published"
+      },
+      {
+        "kind": "text",
+        "heading": "Proof before polish",
+        "body": "The template favors clear arguments, concise proof blocks, and visible editorial hierarchy.",
+        "order": 2,
+        "status": "published"
+      }
+    ],
+    "layout": {
+      "bodyClass": "template-editorial-proof",
+      "sectionLabels": {
+        "hero": "Thesis",
+        "features": "Proof",
+        "text": "Editorial",
+        "cta": "Next step"
+      }
+    }
+  },
+  {
+    "id": "launch-system",
+    "version": "0.1.0",
+    "name": "Launch System",
+    "description": "A compact launch template for offers that need capability blocks, direct CTAs, and fast scanning.",
+    "provenance": {
+      "source": "orionfold-bundled",
+      "synthetic": true,
+      "note": "Synthetic launch-page layout authored for offline Relay examples."
+    },
+    "compatibility": {
+      "generator": "static-site",
+      "version": "static-site-template/v1"
+    },
+    "supportedSectionKinds": ["hero", "features", "cta"],
+    "allowedControls": {},
+    "previewFixtures": [
+      {
+        "kind": "hero",
+        "heading": "Ship the launch page loop",
+        "body": "Plan, preview, approve, and publish the exact artifact from one local workflow.",
+        "order": 1,
+        "ctaLabel": "Open the plan",
+        "ctaUrl": "#plan",
+        "status": "published"
+      },
+      {
+        "kind": "features",
+        "heading": "One table becomes one site",
+        "body": "Sections, order, CTAs, and status fields stay structured so preview behavior is predictable.",
+        "order": 2,
+        "status": "published"
+      }
+    ],
+    "layout": {
+      "bodyClass": "template-launch-system",
+      "sectionLabels": {
+        "hero": "Launch",
+        "features": "System",
+        "text": "Detail",
+        "cta": "Action"
+      }
+    }
+  }
+]

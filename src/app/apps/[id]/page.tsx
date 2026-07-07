@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { PageShell } from "@/components/shared/page-shell";
 import { AppDetailActions } from "@/components/apps/app-detail-actions";
+import { AppDetailEntryFocus } from "@/components/apps/app-detail-entry-focus";
 import { AppPublishPanel } from "@/components/apps/app-publish-panel";
+import { PackCompositionStrip } from "@/components/apps/pack-composition-strip";
 import { KitView } from "@/components/apps/kit-view/kit-view";
 import { getApp } from "@/lib/apps/registry";
 import { loadColumnSchemas, pickKit } from "@/lib/apps/view-kits";
@@ -47,9 +49,13 @@ export default async function AppDetailPage({
   );
 
   return (
-    <PageShell backHref="/apps" backLabel="All apps">
+    <PageShell backHref="/apps" backLabel="Installed packs">
+      <AppDetailEntryFocus targetId="pack-detail-heading" />
       <div className="space-y-6">
-        <KitView model={model} />
+        <div id="pack-detail-heading" tabIndex={-1} className="scroll-mt-[calc(var(--chrome-header)+1rem)] focus:outline-none">
+          <KitView model={model} />
+        </div>
+        <PackCompositionStrip manifest={app.manifest} />
         {generateBinding && publishBinding?.targetType === "github-pages" && (
           <AppPublishPanel
             appId={app.id}

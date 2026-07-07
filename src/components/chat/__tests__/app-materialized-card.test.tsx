@@ -23,7 +23,7 @@ describe("AppMaterializedCard", () => {
     ).toBeInTheDocument();
   });
 
-  it("Open app link deeplinks to /apps/[id]", () => {
+  it("Open pack link deeplinks to /apps/[id]", () => {
     render(<AppMaterializedCard {...baseProps} />);
     const link = screen.getByRole("link", { name: /Open Wealth Tracker/i });
     expect(link).toHaveAttribute("href", "/apps/wealth-tracker");

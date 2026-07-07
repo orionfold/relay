@@ -10,6 +10,7 @@ export type PreviewArtifactMetadata = {
   artifactId: string;
   appId: string;
   generatorType: string;
+  generatorConfig: Record<string, unknown>;
   sourceTable: string;
   hash: string;
   entryPoint: string;
@@ -93,7 +94,15 @@ async function readMetadata(artifactId: string): Promise<PreviewArtifactMetadata
     if (!parsed || typeof parsed !== "object" || parsed.artifactId !== artifactId) {
       throw new Error("metadata does not match artifact");
     }
-    return parsed;
+    return {
+      ...parsed,
+      generatorConfig:
+        parsed.generatorConfig &&
+        typeof parsed.generatorConfig === "object" &&
+        !Array.isArray(parsed.generatorConfig)
+          ? parsed.generatorConfig
+          : {},
+    };
   } catch (err) {
     if (err instanceof PreviewStoreError) throw err;
     throw new PreviewStoreError(
@@ -150,6 +159,7 @@ export async function cleanupExpiredPreviews(now = new Date()): Promise<void> {
 export async function storePreviewArtifact(input: {
   appId: string;
   generatorType: string;
+  generatorConfig: Record<string, unknown>;
   sourceTable: string;
   sourceFingerprint: string;
   artifact: Artifact;
@@ -176,6 +186,7 @@ export async function storePreviewArtifact(input: {
     artifactId,
     appId: input.appId,
     generatorType: input.generatorType,
+    generatorConfig: input.generatorConfig,
     sourceTable: input.sourceTable,
     hash: input.artifact.hash,
     entryPoint: cleanArtifactPath(input.artifact.entryPoint),

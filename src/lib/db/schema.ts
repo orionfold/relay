@@ -806,6 +806,7 @@ export const deployments = sqliteTable(
     finalUrl: text("final_url"),
     commit: text("commit_sha"),
     artifactHash: text("artifact_hash"),
+    generatorConfig: text("generator_config"),
     startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
     finishedAt: integer("finished_at", { mode: "timestamp" }),
     error: text("error"),

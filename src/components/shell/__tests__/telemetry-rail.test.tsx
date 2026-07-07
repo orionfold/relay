@@ -93,6 +93,23 @@ describe("TelemetryRail spend cells", () => {
   });
 });
 
+describe("TelemetryRail drill-down links", () => {
+  it("maps navigable telemetry cells to their owning routes", () => {
+    stubTelemetry(snapshot());
+    render(<TelemetryRail />);
+
+    expect(screen.getByRole("link", { name: "Open running tasks" })).toHaveAttribute(
+      "href",
+      "/tasks?status=running",
+    );
+    expect(screen.getByRole("link", { name: "Open active projects" })).toHaveAttribute(
+      "href",
+      "/projects",
+    );
+    expect(screen.getAllByRole("link", { name: "Open cost dashboard" })).toHaveLength(2);
+  });
+});
+
 describe("TelemetryRail runtime cell (FEAT-10)", () => {
   it("leads the RUNTIME cell with the active model, provider + sdk in the sub", () => {
     stubIdentity({ activeModel: "claude-opus-4-8" });

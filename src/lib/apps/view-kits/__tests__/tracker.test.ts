@@ -211,6 +211,7 @@ describe("trackerKit.buildModel", () => {
     const slot = model.secondary?.find((s) => s.id === "chart-spend");
     expect(slot).toBeDefined();
     expect(slot?.title).toBe("Spend by category");
+    expect(slot?.primitiveKind).toBe("chart");
     // The chart element carries the resolved rows + typed config.
     expect((slot!.content as any).props.rows).toHaveLength(1);
     expect((slot!.content as any).props.config.type).toBe("bar");

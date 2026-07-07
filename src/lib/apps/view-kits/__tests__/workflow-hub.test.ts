@@ -190,6 +190,7 @@ describe("workflowHubKit.buildModel", () => {
     const model = workflowHubKit.buildModel(proj, runtime);
     expect(model.secondary).toHaveLength(2);
     expect(model.secondary?.[0].id).toBe("blueprint-bp-1");
+    expect(model.secondary?.[0].primitiveKind).toBe("workflow");
     expect(model.secondary?.[1].id).toBe("blueprint-bp-2");
   });
 

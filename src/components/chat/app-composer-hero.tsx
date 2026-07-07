@@ -14,23 +14,23 @@ interface AppComposerHeroProps {
 
 const EXAMPLE_PROMPTS: { label: string; prompt: string }[] = [
   {
-    label: "Build me a reading log…",
+    label: "Build me a reading-log pack…",
     prompt:
-      "Build me a reading log. Track each book with title, author, date finished, and a rating from 1 to 5. Every Friday at 5pm, summarize what I read this week.",
+      "Build me a reading-log pack. Track each book with title, author, date finished, and a rating from 1 to 5. Every Friday at 5pm, summarize what I read this week.",
   },
   {
-    label: "Build me an expense tracker for my contractors…",
+    label: "Build me a contractor-expense pack…",
     prompt:
-      "Build me an expense tracker for my contractors. Track each invoice with contractor name, amount, category, due date, and paid status. On the 1st of every month, summarize totals by contractor and flag anything overdue.",
+      "Build me a contractor-expense pack. Track each invoice with contractor name, amount, category, due date, and paid status. On the 1st of every month, summarize totals by contractor and flag anything overdue.",
   },
 ];
 
 /**
- * AppComposerHero — surfaces ainative's app-composition capability on first
+ * AppComposerHero — surfaces Relay's pack-composition capability on first
  * paint of the chat hero. Three starter cards (read from
  * `.claude/apps/starters/`), two example prompts, and a "Browse all" link to
- * `/apps`. Designed for new users who otherwise wouldn't know the system can
- * compose entire apps from a single sentence.
+ * `/packs`. Designed for new users who otherwise wouldn't know the system can
+ * compose entire packs from a single sentence.
  */
 export function AppComposerHero({ starters, onSeedPrompt }: AppComposerHeroProps) {
   if (starters.length === 0) return null;
@@ -46,13 +46,13 @@ export function AppComposerHero({ starters, onSeedPrompt }: AppComposerHeroProps
           id="app-composer-hero-heading"
           className="text-xs font-medium text-muted-foreground"
         >
-          Or start from a ready-made app
+          Or start from a ready-made pack
         </h3>
         <Link
-          href="/apps"
+          href="/packs"
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          Browse all
+          Browse packs
           <ArrowRight className="h-3 w-3" aria-hidden="true" />
         </Link>
       </div>

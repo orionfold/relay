@@ -50,6 +50,7 @@ describe("publish substrate bootstrap (fresh-DB path)", () => {
         "url",
         "commit_sha",
         "artifact_hash",
+        "generator_config",
         "started_at",
         "finished_at",
         "error",
