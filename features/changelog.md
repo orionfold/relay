@@ -1,5 +1,14 @@
 # Feature Changelog
 
+## 2026-07-07 — Publish preview artifact specified
+
+### Groomed
+- Added **`publish-preview-artifacts`** (P1) as the preview-first follow-up to TDR-039 Phase 3+4:
+  generate a local static-site artifact, serve it from Relay's existing Next server, then publish
+  that exact artifact to GitHub Pages via `artifactId`. This makes the Web Designer Phase 5 smoke
+  safer by enforcing "what you preview is what gets published" and avoids a second local server or
+  a second generation path.
+
 ## 2026-07-06 — Packs Publish groomed (R1–R7 → 7 feature specs)
 
 ### Groomed

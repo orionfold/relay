@@ -568,6 +568,7 @@ which R7 **shares** with the Web Designer ticket.
 | [pack-standard-versioning](pack-standard-versioning.md) | P2 | planned | pack-canonical-index |
 | [pack-app-exporter](pack-app-exporter.md) | P3 | planned | pack-provenance-tiers |
 | [pack-community-publish](pack-community-publish.md) | P3 | planned | pack-app-exporter |
+| [publish-preview-artifacts](publish-preview-artifacts.md) | P1 | planned | generator-publisher-substrate |
 
 **Fences held (§2, §11):** every install path is a **READ** from a canonical Orionfold source
 (promise-clean, the `prebuilt-download.ts` egress-row-#1 shape); the one **SEND** (R7 community
@@ -575,6 +576,12 @@ publish) is a user-owned, consented push to the *customer's own* GitHub — neve
 install-state telemetry. The no-marketplace fence opens only along its permitted axis (git/git-URL
 install, already shipped); no registry service, no review pipeline, no creator portal, no ratings.
 The bundle-child fence (`install.ts:143-149`) stays shut — only top-level install resolves remotely.
+
+**Web Designer publish follow-up (2026-07-07):** `publish-preview-artifacts` is a Phase-5 prerequisite
+for the Web Designer live publish smoke: preview locally from the exact generated artifact, then publish
+that same artifact to the user's GitHub Pages target. It keeps the TDR-039 SEND honest without adding a
+second local server or a separate generation path.
+
 **4 open decisions** (`packs-publish.md §12`) need `strategy/relay/_RELAY.md` coordination: canonical
 index URL+versioning (R1), slim-default cut (R4), community trust ceiling (R3/R7), partner-key
 onboarding (R3). **R7 sequences behind the TDR-039 substrate build** (shares the GitHub publisher adapter).

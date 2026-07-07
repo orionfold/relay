@@ -1,16 +1,16 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-07 (pt: **TDR-039 Phase 3+4 BUILT + COMMITTED, UNRELEASED — API publish seam +
-app publish panel.** Phase 3 `28f17d77`: `src/lib/publishers/app-publish.ts`, app publish/publish-target/
-deployment routes, row JSON parsing before `static-site`, masked target responses, durable
-`pending → publishing → success|failed` deployment rows, named `APP_*`/`PUBLISH_*`/`GENERATE_*` errors,
-and `docs/trust/data-flow.md` row 12 for user-owned GitHub Pages SEND. Phase 4 `19bc6f70`: gated app-detail
-publish panel for apps with `view.bindings.generate` + `publish.targetType: github-pages`; create/test target,
-target selection, publish action, active-deployment double-click guard, polling deployments, and visible
-failed-deployment errors. Verification: focused tests 14/14 pass; `npm run build` passes and includes new
-routes; build still emits the pre-existing Turbopack dynamic-trace warnings around `workspace/fix-data-dir` /
-plugin transport dispatch. Untracked before/session: `.agents/`, `.codex/` left untouched. Prior release tail
-detail in git + CHANGELOG + memory `generator-publisher-substrate-tdr039`.)_
+_Last updated: 2026-07-07 (pt: **TDR-039 Phase 3+4 BUILT + COMMITTED, UNRELEASED; preview-first follow-up
+SPECIFIED.** Phase 3 `28f17d77`: app publish/publish-target/deployment routes, row JSON parsing before
+`static-site`, masked target responses, durable `pending → publishing → success|failed` deployment rows, named
+`APP_*`/`PUBLISH_*`/`GENERATE_*` errors, and trust-doc row 12 for user-owned GitHub Pages SEND. Phase 4
+`19bc6f70`: gated app-detail publish panel for manifest generate+github-pages publish bindings; create/test
+target, target selection, publish action, active-deployment double-click guard, polling deployments, and visible
+failed-deployment errors. Added `features/publish-preview-artifacts.md` + roadmap/changelog entry: local
+preview stores the exact generated `Artifact`, serves it from Relay's existing Next server, then publish accepts
+`artifactId` so "what you preview is what gets published." Verification for built code: focused tests 14/14
+pass; `npm run build` passes with the known Turbopack dynamic-trace warnings around `workspace/fix-data-dir` /
+plugin transport dispatch. Untracked before/session: `.agents/`, `.codex/` left untouched.)_
 
 ## ▶️ NEXT SESSION — substrate Phase 5 bundle + live publish smoke
 
@@ -26,13 +26,15 @@ detail in git + CHANGELOG + memory `generator-publisher-substrate-tdr039`.)_
   issuer owner). `_IDEAS/packs-publish.md` = durable source thesis; memory `packs-publish-authored` carries
   all build findings + reuse anchors.
 - **Web Designer substrate — Phase 1+2 RELEASED in 0.35.0/0.35.1; Phase 3+4 BUILT in `28f17d77` +
-  `19bc6f70`, UNRELEASED.** Next = Phase 5: author `pack-web-designer.md` against the real generate/publish
-  seam, include a standalone-useful `gallery` primitive, run a live GitHub Pages smoke through the new UI
-  (real generate+deploy, not sync-only), then move TDR-039 proposed→accepted. If any API contract changes
-  before release, grep `scripts/npx-prod-smoke.mjs` first. Phase 4 intentionally shipped create/test target,
-  deployment polling, publish action, double-click/slow-network guard, and visible failure errors; delete target
-  remains a later enhancement because no DELETE route exists yet. Build findings + anchors: spec verification-run
-  section + memory `generator-publisher-substrate-tdr039`.
+  `19bc6f70`, UNRELEASED; preview-first feature SPECIFIED in `features/publish-preview-artifacts.md`.**
+  Next build should insert Preview before the live GitHub Pages smoke: `POST /api/apps/:id/preview` generates
+  and stores a local `Artifact`, `GET /api/apps/:id/previews/:artifactId/:path*` serves it from the existing
+  Next server, and `POST /publish` accepts `artifactId` to publish that exact artifact (same hash in UI +
+  deployment row). Then Phase 5 = author `pack-web-designer.md` against the real generate/preview/publish seam,
+  include a standalone-useful `gallery` primitive, run a live GitHub Pages smoke through the new UI, and move
+  TDR-039 proposed→accepted. If any API contract changes before release, grep `scripts/npx-prod-smoke.mjs`
+  first. Delete target remains a later enhancement because no DELETE route exists yet. Build findings + anchors:
+  spec verification-run section + memory `generator-publisher-substrate-tdr039`.
 - **`pack-depth-next-wave` arc — other tickets still open:** **Video Creator** (harvest source `tbd` — under-
   specified, needs a north-star named) and **Retail Investor** (`relay-portfolio`+`relay-technical-analyst`:
   value-heatmap + radar; §9 ICP prosumer-first). `decisions_open`: when-dependsOn-earns-weight (P3 trigger).
