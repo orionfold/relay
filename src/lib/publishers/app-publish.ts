@@ -390,6 +390,7 @@ export async function runDeployment(
       .set({
         status: "success",
         url: result.url ?? null,
+        finalUrl: result.finalUrl ?? null,
         commit: result.commit ?? null,
         artifactHash: artifact.hash,
         finishedAt,

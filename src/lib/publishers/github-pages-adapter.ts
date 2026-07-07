@@ -15,6 +15,14 @@ interface GitHubPagesConfig {
   branch: string;
 }
 
+type GitHubRepoResponse = {
+  permissions?: {
+    admin?: boolean;
+    maintain?: boolean;
+    push?: boolean;
+  };
+};
+
 function parseConfig(config: Record<string, unknown>): GitHubPagesConfig | { error: string } {
   const { owner, repo, githubToken } = config;
   const missing = [
@@ -45,6 +53,22 @@ function githubHeaders(token: string): Record<string, string> {
   };
 }
 
+function hasContentsWritePermission(body: GitHubRepoResponse): boolean {
+  return Boolean(body.permissions?.admin || body.permissions?.maintain || body.permissions?.push);
+}
+
+async function resolveFinalUrl(url: string): Promise<string | undefined> {
+  try {
+    const res = await fetch(url, { method: "HEAD", redirect: "follow" });
+    if (res && typeof res.url === "string" && res.url !== "" && res.url !== url) {
+      return res.url;
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
+}
+
 export const githubPagesAdapter: PublisherAdapter = {
   targetType: "github-pages",
 
@@ -59,6 +83,14 @@ export const githubPagesAdapter: PublisherAdapter = {
       });
       if (!res.ok) {
         return { ok: false, error: `GitHub repo check failed: ${res.status}` };
+      }
+      const body = (await res.json()) as GitHubRepoResponse;
+      if (!hasContentsWritePermission(body)) {
+        return {
+          ok: false,
+          error:
+            "GitHub token needs Contents: Read and write permission for this repository before Relay can publish.",
+        };
       }
       return { ok: true };
     } catch (err) {
@@ -113,9 +145,13 @@ export const githubPagesAdapter: PublisherAdapter = {
         lastCommit = putBody.commit?.sha ?? lastCommit;
       }
 
+      const url = `https://${owner}.github.io/${repo}/`;
+      const finalUrl = await resolveFinalUrl(url);
+
       return {
         success: true,
-        url: `https://${owner}.github.io/${repo}/`,
+        url,
+        finalUrl,
         commit: lastCommit,
       };
     } catch (err) {

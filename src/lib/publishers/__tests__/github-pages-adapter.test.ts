@@ -45,7 +45,12 @@ describe("githubPagesAdapter", () => {
 
   describe("testConnection", () => {
     it("returns ok on a reachable, authorized repo", async () => {
-      fetchMock.mockResolvedValueOnce(jsonResponse(200, { full_name: "acme/acme-site" }));
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse(200, {
+          full_name: "acme/acme-site",
+          permissions: { push: true },
+        })
+      );
 
       const result = await githubPagesAdapter.testConnection(config);
 
@@ -55,6 +60,20 @@ describe("githubPagesAdapter", () => {
       expect((init.headers as Record<string, string>).Authorization).toBe(
         `Bearer ${TOKEN}`
       );
+    });
+
+    it("fails visibly when the token cannot write repository contents", async () => {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse(200, {
+          full_name: "acme/acme-site",
+          permissions: { push: false },
+        })
+      );
+
+      const result = await githubPagesAdapter.testConnection(config);
+
+      expect(result.ok).toBe(false);
+      expect(result.error).toContain("Contents: Read and write");
     });
 
     it("returns ok:false with the status on auth failure", async () => {
@@ -159,6 +178,24 @@ describe("githubPagesAdapter", () => {
       const [, putInit] = fetchMock.mock.calls[1] as [string, RequestInit];
       const body = JSON.parse(putInit.body as string) as Record<string, unknown>;
       expect(body.branch).toBe("main");
+    });
+
+    it("returns a final URL when GitHub Pages redirects to a custom domain", async () => {
+      const finalResponse = new Response(null, { status: 200 });
+      Object.defineProperty(finalResponse, "url", {
+        value: "https://www.acme.test/",
+      });
+      fetchMock
+        .mockResolvedValueOnce(jsonResponse(404, { message: "Not Found" }))
+        .mockResolvedValueOnce(jsonResponse(201, { commit: { sha: "c1" } }))
+        .mockResolvedValueOnce(finalResponse);
+
+      const oneFile: Artifact = { ...artifact, files: [artifact.files[0]] };
+      const result = await githubPagesAdapter.publish(oneFile, config);
+
+      expect(result.success).toBe(true);
+      expect(result.url).toBe("https://acme.github.io/acme-site/");
+      expect(result.finalUrl).toBe("https://www.acme.test/");
     });
   });
 });

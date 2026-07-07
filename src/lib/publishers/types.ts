@@ -23,6 +23,7 @@ export interface ArtifactFile {
 export interface PublishResult {
   success: boolean;
   url?: string;
+  finalUrl?: string;
   commit?: string;
   error?: string;
 }

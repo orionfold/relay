@@ -34,6 +34,7 @@ type Deployment = {
   targetId: string;
   status: "pending" | "publishing" | "success" | "failed";
   url: string | null;
+  finalUrl: string | null;
   commit: string | null;
   artifactHash: string | null;
   startedAt: string;
@@ -138,6 +139,7 @@ export function AppPublishPanel({
   const [testingId, setTestingId] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [previewing, setPreviewing] = useState(false);
+  const [previewFrameLoading, setPreviewFrameLoading] = useState(false);
   const [preview, setPreview] = useState<PreviewArtifact | null>(null);
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
 
@@ -234,7 +236,7 @@ export function AppPublishPanel({
       ).then((res) => readJson<{ testStatus: "ok" | "failed"; error?: string }>(res));
       const next = { status: result.testStatus, error: result.error };
       setTestResults((prev) => ({ ...prev, [targetId]: next }));
-      if (next.status === "ok") toast.success("GitHub Pages target is reachable");
+      if (next.status === "ok") toast.success("GitHub Pages target is reachable and writable");
       else toast.error(next.error ?? "GitHub Pages target test failed");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Publish target test failed";
@@ -254,8 +256,8 @@ export function AppPublishPanel({
       const result = await fetch(`/api/apps/${encodeURIComponent(appId)}/preview`, {
         method: "POST",
       }).then((res) => readJson<PreviewArtifact>(res));
+      setPreviewFrameLoading(true);
       setPreview(result);
-      window.open(result.url, "_blank", "noopener,noreferrer");
       toast.success("Preview generated");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Preview generation failed";
@@ -374,7 +376,7 @@ export function AppPublishPanel({
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
                   >
-                    Open preview
+                    View without chrome
                     <ExternalLink className="h-3 w-3" aria-hidden="true" />
                   </a>
                 </div>
@@ -398,6 +400,24 @@ export function AppPublishPanel({
                 )}
                 Publish this preview
               </Button>
+            </div>
+            <div className="mt-3 overflow-hidden rounded-lg border bg-background">
+              <div className="relative aspect-[16/10] min-h-[320px] w-full">
+                {previewFrameLoading && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-background text-xs text-muted-foreground">
+                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                    Loading preview…
+                  </div>
+                )}
+                <iframe
+                  key={preview.artifactId}
+                  title="Local generated site preview"
+                  src={preview.url}
+                  className="h-full w-full bg-white"
+                  sandbox="allow-same-origin"
+                  onLoad={() => setPreviewFrameLoading(false)}
+                />
+              </div>
             </div>
           </section>
         )}
@@ -520,6 +540,9 @@ export function AppPublishPanel({
                   onChange={(event) => setForm((prev) => ({ ...prev, githubToken: event.target.value }))}
                   placeholder="ghp_..."
                 />
+                <p className="text-xs text-muted-foreground">
+                  Token requires GitHub Contents: Read and write permission for this repo.
+                </p>
               </div>
               <Button
                 type="button"
@@ -566,9 +589,27 @@ export function AppPublishPanel({
                           rel="noreferrer"
                           className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
                         >
-                          Open
+                          GitHub Pages
                           <ExternalLink className="h-3 w-3" aria-hidden="true" />
                         </a>
+                      )}
+                      {deployment.finalUrl && deployment.finalUrl !== deployment.url ? (
+                        <a
+                          href={deployment.finalUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                        >
+                          Final URL
+                          <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                        </a>
+                      ) : (
+                        deployment.status === "success" &&
+                        deployment.url && (
+                          <span className="text-xs text-muted-foreground">
+                            No custom-domain redirect detected
+                          </span>
+                        )
                       )}
                     </div>
                     {deployment.error && (

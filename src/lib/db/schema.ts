@@ -803,6 +803,7 @@ export const deployments = sqliteTable(
       enum: ["pending", "publishing", "success", "failed"],
     }).default("pending").notNull(),
     url: text("url"),
+    finalUrl: text("final_url"),
     commit: text("commit_sha"),
     artifactHash: text("artifact_hash"),
     startedAt: integer("started_at", { mode: "timestamp" }).notNull(),

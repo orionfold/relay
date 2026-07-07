@@ -190,6 +190,7 @@ describe("runDeployment", () => {
     const publish = vi.fn().mockResolvedValue({
       success: true,
       url: "https://acme.github.io/site/",
+      finalUrl: "https://www.acme.test/",
       commit: "abc123",
     });
     vi.mocked(getPublisherAdapter).mockReturnValue({
@@ -220,6 +221,7 @@ describe("runDeployment", () => {
     const finished = await runDeployment(deployment.id);
     expect(finished.status).toBe("success");
     expect(finished.url).toBe("https://acme.github.io/site/");
+    expect(finished.finalUrl).toBe("https://www.acme.test/");
     expect(finished.commit).toBe("abc123");
     expect(finished.artifactHash).toMatch(/^[a-f0-9]{64}$/);
     expect(finished.error).toBeNull();

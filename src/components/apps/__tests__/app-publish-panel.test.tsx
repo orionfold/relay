@@ -239,7 +239,12 @@ describe("AppPublishPanel", () => {
 
     expect(await screen.findByText("Local preview")).toBeInTheDocument();
     expect(screen.getByText("abcdef123456")).toBeInTheDocument();
-    expect(openSpy).toHaveBeenCalledWith(preview.url, "_blank", "noopener,noreferrer");
+    expect(screen.getByTitle("Local generated site preview")).toHaveAttribute("src", preview.url);
+    expect(screen.getByRole("link", { name: /View without chrome/i })).toHaveAttribute(
+      "href",
+      preview.url
+    );
+    expect(openSpy).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: /Publish this preview/i }));
 
