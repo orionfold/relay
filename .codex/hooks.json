@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 '/Users/manavsehgal/orionfold/relay/.codex/hooks/secrets-guard.py'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 '/Users/manavsehgal/orionfold/relay/.codex/hooks/handoff-nudge.py'"
+          }
+        ]
+      }
+    ]
+  }
+}
