@@ -1,20 +1,18 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-06 (pt: **AUTHORED the Phase-1 substrate spec + committed the packs-publish paper
-trail.** Committed the grooming record left uncommitted from the prior session — packs-publish roadmap/changelog
-+ the regenerated TDR-039 integration report + R6/R7 specs (`c8d11283`). Then authored + committed
-`features/generator-publisher-substrate.md` (`c323e0ca`) — a self-contained **Phase-1** spec grounded in 3
-parallel read-agent verifications. It **corrects the report's wrong paths** (real pack code is `src/lib/packs/`,
-NOT `src/lib/apps/` — full correction table in the spec + memory), **resolves both open design Qs** (`generate:`
-goes in `view.bindings` with `table`-named refs → free UUID rewrite, because `rewriteViewRefs` is name-keyed;
-generator-registry shape deferred to Phase 2), and **surfaces a 4th storage wiring point** (dual
-bootstrap+migration — a table in only one path 500s on the other environment). `pack-web-designer.md` NOT
-authored — it's the Phase-5 consumer, speculative before the manifest seam exists. Operator chose
-clear-then-implement-fresh for Phase 1. Prior tail: Packs Publish R5+R4-mech (`f6b1029d`/`b7f3b3d1`), R1/R2/R3
-READ-trio (`e6dde729`/`92d5a808`/`bf7619b8`), packs-robustify R1+R3 (`b43f1b69`), 0.34.0 funnel-flow
-(`cab55bd1`) — full detail in git + CHANGELOG.)_
+_Last updated: 2026-07-06 (pt: **BUILT substrate Phase 1 (TDR-039) — `b9fcb674`, unreleased.** TDD
+end-to-end per the spec: `src/lib/publishers/{types,registry,github-pages-adapter}.ts` (ChannelAdapter
+mirror + GitHub Contents-API adapter, mocked-fetch tests) + minimal `src/lib/generators/types.ts` +
+`publish_targets`/`deployments` wired at all FOUR storage points (schema / bootstrap+`LEGACY_DATA_TABLES` /
+`0029` / clear.ts). 26 new tests + the required dev-boot smoke on an isolated `RELAY_DATA_DIR` (tables exist
+via bootstrap, `/api/data/clear` 200, FK live); full suite = only the 8 known pre-existing failures. Build
+findings in memory `generator-publisher-substrate-tdr039`: `commit`→`commit_sha` column (SQLite keyword);
+`0029` NOT journaled per 0028 precedent (bootstrap-on-every-open is the executable path, journal pinned at
+12); `appId` plain text, no SQL FK. Spec flipped to `built` + verification-run section. Prior tail: Phase-1
+spec authored (`c323e0ca`/`c8d11283`), packs-publish R1/R2/R3/R5/R4-mech (`e6dde729`…`b7f3b3d1`), 0.34.0
+funnel-flow — full detail in git + CHANGELOG.)_
 
-## ▶️ NEXT SESSION — implement substrate Phase 1 (spec is READY, clear-then-implement)
+## ▶️ NEXT SESSION — substrate Phase 2 (manifest seam), or bundle a release of the unreleased tail
 
 - **Packs Publish — P1 READ trio (R1/R2/R3) + R5 + R4-mechanism ALL BUILT, unreleased (`e6dde729`,
   `92d5a808`, `bf7619b8`, `f6b1029d`, `b7f3b3d1`).** No version bump — a future release bundles them
@@ -28,28 +26,16 @@ READ-trio (`e6dde729`/`92d5a808`/`bf7619b8`), packs-robustify R1+R3 (`b43f1b69`)
   (R3 seam built / R7), partner-key onboarding (R3 `of-packs-official-2026` key — coordinate w/ licensing
   issuer owner). `_IDEAS/packs-publish.md` = durable source thesis; memory `packs-publish-authored` carries
   all build findings + reuse anchors.
-- **Web Designer substrate — Phase-1 spec READY, implement it (`features/generator-publisher-substrate.md`).**
-  Spec is self-contained + anchor-verified (this session, 3 parallel read agents). **Just build it, TDD:**
-  1. `src/lib/publishers/{types,registry}.ts` — mirror `channels/{types.ts:5-17,registry.ts:9-24}`;
-     `PublisherAdapter { targetType, publish(artifact,config), testConnection }` + `Artifact`/`PublishResult` +
-     `maskPublishTarget()` (mirror masking `channels/types.ts:33-63`, `SENSITIVE_PUBLISH_KEYS`).
-  2. `src/lib/publishers/github-pages-adapter.ts` — Contents API (fetch, NOT `git`); mocked-fetch tests.
-  3. `src/lib/generators/types.ts` — minimal `GeneratorAdapter` interface only (registry → Phase 2).
-  4. **Storage = FOUR points** (dual mechanism): `schema.ts` (`publishTargets`+`deployments`, JSON-in-TEXT
-     `config`, FK `deployments→publishTargets`) + `bootstrap.ts` (CREATE-IF-NOT-EXISTS + append names to
-     `LEGACY_DATA_TABLES` at `:4`) + `migrations/0029_add_publish_substrate.sql` (next # after 0028) +
-     `clear.ts` (FK-safe order `deployments`→`publishTargets`→parent + summary keys).
-  - **End-to-end check = a real `npm run dev` boot smoke** (tables exist + `/api/data/clear` succeeds) — the
-    storage change is runtime-registry-adjacent (CLAUDE.md budget); unit tests alone don't catch the npx-vs-dev
-    table-creation split. Phase-1 fences: NO manifest arms / API routes / UI / Web Designer packs / `data-flow.md`
-    row #11 (all Phases 2-5). Anchor CORRECTIONS + design-Q resolutions live in the spec + memory
-    `generator-publisher-substrate-tdr039` (report paths were `src/lib/apps/` — WRONG, use `src/lib/packs/`).
-- **Phase 2+ discipline (when Phase 1 lands):** `generate:`/`publish:` arms go in `ViewSchema.bindings` `.strict()`
-  (`apps/registry.ts:228`), table-ref fields named `table` (free `rewriteViewRefs` UUID rewrite); AND add both
-  keys to the `mergeBundle` allowlist — read `bundle.ts:122-133` + write `152-159` — or they vanish in a bundle
-  (funnel shadow-path). Then `pack-web-designer.md` (the bundle) is authored against the real seam. TDR-039
-  promotes proposed→accepted after a live GitHub Pages publish smoke (Phase 5). Operator locks: Web Publisher
-  does real generate+deploy (not sync-only); the `gallery` primitive is standalone-useful.
+- **Web Designer substrate — Phase 1 BUILT (`b9fcb674`, unreleased); next = Phase 2, the manifest seam.**
+  `generate:`/`publish:` arms go in `ViewSchema.bindings` `.strict()` (`apps/registry.ts:228`), table-ref
+  fields named `table` (free `rewriteViewRefs` UUID rewrite); AND add both keys to the `mergeBundle`
+  allowlist — read `bundle.ts:122-133` + write `152-159` — or they vanish in a bundle (funnel shadow-path).
+  Settle the generator-registry shape with the first real generator (deferred design Q). Then Phase 3 (API
+  routes, 202 + polling off `deployments`; **`data-flow.md` row #11 lands here — release-gating**), Phase 4
+  (UI), Phase 5 (`pack-web-designer.md` bundle authored against the real seam + live GitHub Pages smoke →
+  TDR-039 proposed→accepted). Operator locks: Web Publisher does real generate+deploy (not sync-only); the
+  `gallery` primitive is standalone-useful. Build findings + anchors: spec verification-run section + memory
+  `generator-publisher-substrate-tdr039`.
 - **`pack-depth-next-wave` arc — other tickets still open:** **Video Creator** (harvest source `tbd` — under-
   specified, needs a north-star named) and **Retail Investor** (`relay-portfolio`+`relay-technical-analyst`:
   value-heatmap + radar; §9 ICP prosumer-first). `decisions_open`: when-dependsOn-earns-weight (P3 trigger).
@@ -145,12 +131,12 @@ Prod build likely moots the class; if they persist, repro cross-machine via Mode
 - **Check git history for prior art**; **verify field reports before fixing** (memories).
 
 ## Recently shipped
-**Substrate Phase-1 spec + packs-publish paper trail (2026-07-06, docs-only — `c8d11283`, `c323e0ca`):**
-`c8d11283` committed the grooming record left uncommitted from the prior session (packs-publish
-roadmap/changelog + TDR-039 integration report + R6 `pack-app-exporter` + R7 `pack-community-publish` specs).
-`c323e0ca` authored `features/generator-publisher-substrate.md` — the Phase-1 spec (verified anchors, corrected
-`src/lib/apps/`→`src/lib/packs/` paths, resolved both design Qs, 4th storage wiring point). Memory
-`generator-publisher-substrate-tdr039` updated with the corrections. No code change.
+**Substrate Phase 1 (TDR-039) BUILT (2026-07-06, `b9fcb674`, UNRELEASED — bundles with the packs-publish
+tail in a future release):** PublisherAdapter registry + `github-pages` Contents-API adapter + minimal
+`GeneratorAdapter` + `publish_targets`/`deployments` at all four storage points; 26 TDD tests + isolated
+dev-boot smoke. Same-day docs commits: `c8d11283` (packs-publish paper trail + R6/R7 specs) + `c323e0ca`
+(the Phase-1 spec — anchor-corrected `src/lib/apps/`→`src/lib/packs/`, both design Qs resolved). Memory
+`generator-publisher-substrate-tdr039` carries the build findings.
 
 **Packs Publish P1 READ-trio + R5 + R4-mechanism (BUILT 2026-07-06, UNRELEASED — no version bump; a future
 release bundles them, packs-publish is READ-only / no apiVersion bump):** R1 index-schema (`e6dde729`), R2
