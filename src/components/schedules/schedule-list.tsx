@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { ScheduleCreateSheet } from "./schedule-create-sheet";
 import { ScheduleDetailSheet } from "./schedule-detail-sheet";
 import { ScheduleEditSheet } from "./schedule-edit-sheet";
-import { ScheduleStatusBadge } from "./schedule-status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { describeCron } from "@/lib/schedules/interval-parser";
 import { PackPill } from "@/components/shared/pack-pill";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 import { packOf } from "@/lib/apps/pack-of";
 import { Clock, Heart, Pause, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -205,7 +205,7 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
               tone="schedule"
               watermark={sched.type === "heartbeat" ? Heart : Clock}
               interactive
-              className="elevation-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
+              className="elevation-1 gap-0 overflow-hidden rounded-xl py-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => setSelectedScheduleId(sched.id)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -214,21 +214,18 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
                 }
               }}
             >
-              <CardHeader className="pb-2">
+              <CardHeader className="p-4 pb-2">
                 <div className="flex items-center justify-between gap-2 min-w-0">
                   <CardTitle className="min-w-0 truncate text-base font-medium flex items-center gap-1.5">
                     {sched.name}
                   </CardTitle>
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    {(() => {
-                      const packName = packNameForSchedule(sched.id);
-                      return packName ? <PackPill packName={packName} /> : null;
-                    })()}
-                    <ScheduleStatusBadge status={sched.status} />
-                  </div>
+                  {(() => {
+                    const packName = packNameForSchedule(sched.id);
+                    return packName ? <PackPill packName={packName} /> : null;
+                  })()}
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-4 pb-3">
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <span>{describeCron(sched.cronExpression)}</span>
                   <span>·</span>
@@ -239,7 +236,7 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
                   {sched.type === "heartbeat" && sched.suppressionCount > 0 && (
                     <>
                       <span>·</span>
-                      <span className="text-emerald-600">
+                      <span className="text-status-completed">
                         {sched.suppressionCount} suppressed
                       </span>
                     </>
@@ -262,12 +259,22 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
                     {sched.agentProfile ? ` · Profile: ${sched.agentProfile}` : ""}
                   </p>
                 )}
-                {sched.status === "active" && sched.nextFireAt && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Next: {formatRelative(sched.nextFireAt)}
-                  </p>
-                )}
-                <div className="flex items-center gap-1 mt-3">
+              </CardContent>
+              <CardStatusToolbar
+                status={sched.status}
+                family="schedule"
+                meta={
+                  sched.status === "active" && sched.nextFireAt ? (
+                    <span>Next: {formatRelative(sched.nextFireAt)}</span>
+                  ) : (
+                    <span>
+                      {sched.firingCount} firing
+                      {sched.firingCount !== 1 ? "s" : ""}
+                    </span>
+                  )
+                }
+                actions={
+                <>
                   {(sched.status === "active" || sched.status === "paused") && (
                     <Button
                       variant="ghost"
@@ -302,8 +309,9 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
-                </div>
-              </CardContent>
+                </>
+                }
+              />
             </Card>
           ))}
         </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Play } from "lucide-react";
+import { Play, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { VariableInput } from "@/components/workflows/variable-input";
 import { validateVariables } from "@/lib/workflows/blueprints/validate-variables";
+import { cn } from "@/lib/utils";
 import { toastDraftCreated, toastRunStarted } from "./run-now-toast";
 import { instantiateAndMaybeExecute, type RunNowMode } from "./run-now-actions";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
@@ -25,6 +26,8 @@ interface RunNowSheetProps {
   mode?: RunNowMode;
   /** Button variant for the trigger — "outline" for the secondary Create verb. */
   buttonVariant?: "default" | "outline";
+  /** Compact trigger styling for card toolbars. */
+  triggerClassName?: string;
 }
 
 /**
@@ -43,6 +46,7 @@ export function RunNowSheet({
   label = "Run",
   mode = "run",
   buttonVariant = "default",
+  triggerClassName,
 }: RunNowSheetProps) {
   const [open, setOpen] = useState(false);
   const initialValues = Object.fromEntries(
@@ -80,11 +84,13 @@ export function RunNowSheet({
     }
   }
 
+  const TriggerIcon = mode === "create" ? Plus : Play;
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button size="sm" variant={buttonVariant} className="gap-1.5">
-          <Play className="h-3.5 w-3.5" />
+        <Button size="sm" variant={buttonVariant} className={cn("gap-1.5", triggerClassName)}>
+          <TriggerIcon className="h-3.5 w-3.5" />
           {label}
         </Button>
       </SheetTrigger>

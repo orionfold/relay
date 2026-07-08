@@ -2,12 +2,13 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Download, Sparkles, UserCheck } from "lucide-react";
+import { ArrowRight, Bot, Download, Sparkles, UserCheck } from "lucide-react";
 import type { AgentRuntimeId } from "@/lib/agents/runtime/catalog";
 import { getSupportedRuntimes } from "@/lib/agents/profiles/compatibility";
 import { getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
 import { PackPill } from "@/components/shared/pack-pill";
 import { FlagshipBadge } from "@/components/shared/flagship-card";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
 interface ProfileCardProps {
@@ -46,7 +47,7 @@ export function ProfileCard({ profile, isBuiltin = false, packName = null, onCli
       watermark={ProfileIcon}
       watermarkColor={profileColors.icon}
       interactive
-      className="surface-card rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+      className="surface-card gap-0 overflow-hidden rounded-xl py-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -55,7 +56,7 @@ export function ProfileCard({ profile, isBuiltin = false, packName = null, onCli
         }
       }}
     >
-      <CardHeader className="pb-2">
+      <CardHeader className="p-4 pb-2">
         <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
             <CardTitle className="min-w-0 truncate text-base font-semibold">
@@ -70,7 +71,7 @@ export function ProfileCard({ profile, isBuiltin = false, packName = null, onCli
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 px-4 pb-3">
         <p className="line-clamp-2 text-sm text-muted-foreground">
           {profile.description}
         </p>
@@ -93,46 +94,61 @@ export function ProfileCard({ profile, isBuiltin = false, packName = null, onCli
           ))}
         </div>
 
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          {/* Pack provenance outranks every other origin: a pack-installed
-              profile is never "Custom"/"Discovered" — it belongs to its pack. */}
-          {packName ? (
-            <PackPill packName={packName} />
-          ) : profile.importMeta ? (
-            <span className="flex items-center gap-1.5">
-              <FlagshipBadge icon={Download} tone="primary">
-                Imported
-              </FlagshipBadge>
-              <span className="text-muted-foreground">
-                {profile.importMeta.repoOwner}/{profile.importMeta.repoName}
-              </span>
-            </span>
-          ) : profile.origin === "environment" ? (
-            <FlagshipBadge icon={UserCheck} tone="success">
-              Discovered
-            </FlagshipBadge>
-          ) : profile.origin === "ai-assist" ? (
-            <FlagshipBadge icon={Sparkles} tone="primary">
-              AI Generated
-            </FlagshipBadge>
-          ) : isBuiltin ? (
-            <FlagshipBadge icon={Bot} tone="primary">
-              Built-in
-            </FlagshipBadge>
-          ) : (
-            <FlagshipBadge icon={UserCheck} tone="muted">
-              Custom
-            </FlagshipBadge>
-          )}
-          {profile.version && <span>v{profile.version}</span>}
-          {profile.allowedTools && profile.allowedTools.length > 0 && (
-            <span>
-              {profile.allowedTools.length} tool
-              {profile.allowedTools.length !== 1 ? "s" : ""}
-            </span>
-          )}
-        </div>
       </CardContent>
+      <CardStatusToolbar
+        status="ready"
+        family="lifecycle"
+        tone="neutral"
+        contentClassName="gap-1.5"
+        metaClassName="text-[11px]"
+        meta={
+          <>
+            {/* Pack provenance outranks every other origin: a pack-installed
+                profile is never "Custom"/"Discovered" — it belongs to its pack. */}
+            {packName ? (
+              <PackPill packName={packName} />
+            ) : profile.importMeta ? (
+              <span className="flex min-w-0 items-center gap-1.5">
+                <FlagshipBadge icon={Download} tone="primary">
+                  Imported
+                </FlagshipBadge>
+                <span className="truncate">
+                  {profile.importMeta.repoOwner}/{profile.importMeta.repoName}
+                </span>
+              </span>
+            ) : profile.origin === "environment" ? (
+              <FlagshipBadge icon={UserCheck} tone="success">
+                Discovered
+              </FlagshipBadge>
+            ) : profile.origin === "ai-assist" ? (
+              <FlagshipBadge icon={Sparkles} tone="primary">
+                AI Generated
+              </FlagshipBadge>
+            ) : isBuiltin ? (
+              <FlagshipBadge icon={Bot} tone="primary">
+                Built-in
+              </FlagshipBadge>
+            ) : (
+              <FlagshipBadge icon={UserCheck} tone="muted">
+                Custom
+              </FlagshipBadge>
+            )}
+            {profile.version && <span>v{profile.version}</span>}
+            {profile.allowedTools && profile.allowedTools.length > 0 && (
+              <span>
+                {profile.allowedTools.length} tool
+                {profile.allowedTools.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </>
+        }
+        actions={
+          <span className="inline-flex h-6 items-center gap-1 rounded-md border border-primary/20 bg-primary/10 px-1.5 text-[11px] font-medium text-primary">
+            <ArrowRight className="h-3 w-3" aria-hidden="true" />
+            Open
+          </span>
+        }
+      />
     </Card>
   );
 }

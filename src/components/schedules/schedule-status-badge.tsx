@@ -1,16 +1,11 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { scheduleStatusVariant } from "@/lib/constants/status-colors";
+import { StatusChip } from "@/components/shared/status-chip";
 
 interface ScheduleStatusBadgeProps {
   status: string;
 }
 
 export function ScheduleStatusBadge({ status }: ScheduleStatusBadgeProps) {
-  return (
-    <Badge variant={scheduleStatusVariant[status] ?? "secondary"}>
-      {status}
-    </Badge>
-  );
+  return <StatusChip status={status} family="schedule" />;
 }

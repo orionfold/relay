@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, FilePlus } from "lucide-react";
+import { Play, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { RunNowSheet } from "./run-now-sheet";
 import { toastDraftCreated, toastRunStarted } from "./run-now-toast";
 import { instantiateAndMaybeExecute } from "./run-now-actions";
+import { cn } from "@/lib/utils";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
 
 interface RunNowButtonProps {
@@ -22,6 +23,8 @@ interface RunNowButtonProps {
    * domain-specific verb; the secondary "Create workflow" button is fixed.
    */
   label?: string;
+  /** Compact button treatment for card status toolbars. */
+  compact?: boolean;
 }
 
 /**
@@ -38,6 +41,7 @@ export function RunNowButton({
   blueprintId,
   variables,
   label = "Run",
+  compact = false,
 }: RunNowButtonProps) {
   const [pending, setPending] = useState<"run" | "create" | null>(null);
 
@@ -46,20 +50,23 @@ export function RunNowButton({
   // Delegate to the sheet when the blueprint declares variables — it collects
   // inputs, then runs or creates per the button the user pressed.
   if (variables && variables.length > 0) {
+    const triggerClassName = compact ? "h-6 gap-1 px-1.5 text-[11px]" : undefined;
     return (
-      <div className="flex flex-wrap items-center gap-2">
+      <div className={cn("flex items-center", compact ? "gap-1" : "flex-wrap gap-2")}>
         <RunNowSheet
           blueprintId={blueprintId}
           variables={variables}
           label={label}
           mode="run"
+          triggerClassName={triggerClassName}
         />
         <RunNowSheet
           blueprintId={blueprintId}
           variables={variables}
-          label="Create workflow"
+          label={compact ? "Create" : "Create workflow"}
           mode="create"
           buttonVariant="outline"
+          triggerClassName={triggerClassName}
         />
       </div>
     );
@@ -82,15 +89,15 @@ export function RunNowButton({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className={cn("flex items-center", compact ? "gap-1" : "flex-wrap gap-2")}>
       <Button
         type="button"
         size="sm"
         onClick={() => act("run")}
         disabled={pending !== null}
-        className="gap-1.5"
+        className={cn("gap-1.5", compact && "h-6 gap-1 px-1.5 text-[11px]")}
       >
-        <Play className="h-3.5 w-3.5" />
+        <Play className={cn("h-3.5 w-3.5", compact && "h-3 w-3")} />
         {label}
       </Button>
       <Button
@@ -99,10 +106,11 @@ export function RunNowButton({
         variant="outline"
         onClick={() => act("create")}
         disabled={pending !== null}
-        className="gap-1.5"
+        aria-label="Create workflow"
+        className={cn("gap-1.5", compact && "h-6 gap-1 px-1.5 text-[11px]")}
       >
-        <FilePlus className="h-3.5 w-3.5" />
-        Create workflow
+        <Plus className={cn("h-3.5 w-3.5", compact && "h-3 w-3")} />
+        {compact ? "Create" : "Create workflow"}
       </Button>
     </div>
   );

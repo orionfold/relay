@@ -207,6 +207,30 @@ Reads as a toolbar/control-strip. Height ~46px vs 56px stacked. Buttons fit 2×2
 
 Recommended chips: `Badge variant="outline"` with icon prefix. Configured chips: filled variants (`AuthStatusBadge`, etc.). Visual grammar — outline = suggestion, filled = committed.
 
+### Card status toolbar
+
+Operational cards with status or user actions should end with `CardStatusToolbar`.
+The toolbar owns the bottom status/action area: left side shows a `StatusChip`
+with icon + label, optional timestamp/count/provenance metadata, and the right
+side holds compact actions such as Run, Re-run, Stop, Edit, Delete, Open, or
+Install.
+
+Rules:
+- Card bodies stay neutral in light and dark themes; type/state color belongs in
+  watermarks, borders, status chips, icons, and the toolbar wash.
+- Footer wash follows state first (`running`, `completed`, `failed`, `waiting`,
+  `paused`, `locked`, `installed`), otherwise a neutral/type-level wash.
+- Default/ready card toolbars use the neutral slate wash; in dark theme this
+  must be a visibly distinct muted surface, not a low-alpha tint that disappears
+  into the card body.
+- If two cards trigger the same action, use the same verb: `Run`, `Re-run`,
+  `Stop`, `Open`, `Install`. Do not mix `Restart`, `Retry`, and `Re-run` for the
+  same workflow-level execution action.
+- Keep state or priority icons left of the title only when they carry live
+  semantics, such as task priority or running/waiting state. Do not duplicate a
+  card type icon beside the title when the watermark already provides type
+  identity.
+
 ### Flex truncation chain (DD-023)
 
 For reliable `truncate` inside flex containers, every ancestor needs `min-w-0`:

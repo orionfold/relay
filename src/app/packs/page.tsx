@@ -23,7 +23,7 @@ import { packUpdateAvailability } from "@/lib/packs/update";
 import { changelogWindow } from "@/lib/licensing/recap";
 import { PackInstallButton } from "@/components/packs/pack-install-button";
 import { PackUpdateButton } from "@/components/packs/pack-update-button";
-import { FlagshipCardActionRow } from "@/components/shared/flagship-card";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 
 export const dynamic = "force-dynamic";
 
@@ -361,9 +361,9 @@ function PackCard({
     <Card
       tone="pack"
       watermark={Icon}
-      className="relative h-full hover:border-primary/50 transition-colors"
+      className="relative h-full gap-0 overflow-hidden py-0 transition-colors hover:border-primary/50"
     >
-      <CardContent className="relative flex h-full flex-col gap-3 p-3">
+      <CardContent className="relative flex h-full flex-col gap-3 p-3 pb-3">
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1 space-y-1">
             <span className="block truncate text-sm font-medium">{meta.name}</span>
@@ -400,35 +400,35 @@ function PackCard({
         {meta.related && <RelatedNote related={meta.related} />}
         <PackTrustLine />
 
-        <div className="mt-auto">
-          {installed ? (
-            <InstalledActions template={template} />
-          ) : (
-            <FlagshipCardActionRow
-              context={premium ? "License-gated pack" : "Ready to install"}
-              action={
-                <span className="flex items-end gap-2">
-                  <PackInstallButton
-                    packId={template.id}
-                    packName={meta.name}
-                    premium={premium}
-                  />
-                  {premium && meta.purchaseUrl && (
-                    <a
-                      href={meta.purchaseUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="shrink-0 text-xs font-medium text-foreground underline underline-offset-2 hover:text-primary"
-                    >
-                      Get license →
-                    </a>
-                  )}
-                </span>
-              }
-            />
-          )}
-        </div>
       </CardContent>
+      {installed ? (
+        <InstalledActions template={template} />
+      ) : (
+        <CardStatusToolbar
+          status={premium ? "locked" : "ready"}
+          family="lifecycle"
+          meta={premium ? "License-gated pack" : "Ready to install"}
+          actions={
+            <span className="flex items-end gap-2">
+              <PackInstallButton
+                packId={template.id}
+                packName={meta.name}
+                premium={premium}
+              />
+              {premium && meta.purchaseUrl && (
+                <a
+                  href={meta.purchaseUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 text-xs font-medium text-foreground underline underline-offset-2 hover:text-primary"
+                >
+                  Get license →
+                </a>
+              )}
+            </span>
+          }
+        />
+      )}
     </Card>
   );
 }
@@ -439,23 +439,23 @@ function InstalledActions({ template }: { template: PackTemplate }) {
   const avail = packUpdateAvailability(template.id);
 
   return (
-    <div className="space-y-1.5">
-      <FlagshipCardActionRow
-        context={
-          <span className="inline-flex items-center gap-1">
-            <Check className="h-3.5 w-3.5" aria-hidden="true" /> Installed
-            {avail.installedVersion ? ` v${avail.installedVersion}` : ""}
-          </span>
-        }
-        action={
-          <Link href={`/apps/${template.id}`} className="hover:text-primary">
+    <>
+      <CardStatusToolbar
+        status="installed"
+        family="lifecycle"
+        meta={avail.installedVersion ? `v${avail.installedVersion}` : undefined}
+        actions={
+          <Link
+            href={`/apps/${template.id}`}
+            className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary"
+          >
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             Open pack
           </Link>
         }
-        icon={ArrowRight}
       />
       {avail.updateAvailable && avail.availableVersion && (
-        <>
+        <div className="space-y-1.5 border-t border-border/40 p-3 pt-2">
           <PackUpdateButton
             packId={template.id}
             packName={template.meta!.name}
@@ -472,9 +472,9 @@ function InstalledActions({ template }: { template: PackTemplate }) {
               v{p.version} — {p.note}
             </p>
           ))}
-        </>
+        </div>
       )}
-    </div>
+    </>
   );
 }
 

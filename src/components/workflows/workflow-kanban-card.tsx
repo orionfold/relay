@@ -6,7 +6,7 @@ import { Loader2, FileText } from "lucide-react";
 import { patternLabels } from "@/lib/constants/status-colors";
 import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import { FlagshipBadge } from "@/components/shared/flagship-card";
-import { StatusChip } from "@/components/shared/status-chip";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 import { Button } from "@/components/ui/button";
 import { Play, RotateCcw, Square } from "lucide-react";
 import { getWorkflowExecutionInfo } from "@/lib/workflows/execution-status";
@@ -34,17 +34,6 @@ interface WorkflowKanbanCardProps {
   onRun?: (workflow: WorkflowKanbanItem) => void;
   onStop?: (workflow: WorkflowKanbanItem) => void;
 }
-
-const statusStripBg: Record<string, string> = {
-  draft: "bg-muted/40 border-t-border/30",
-  active: "bg-status-running/8 border-t-status-running/15",
-  running: "bg-status-running/8 border-t-status-running/15",
-  waiting: "bg-status-warning/8 border-t-status-warning/15",
-  stalled: "bg-muted/40 border-t-border/30",
-  completed: "bg-status-completed/10 border-t-status-completed/20",
-  failed: "bg-status-failed/10 border-t-status-failed/20",
-  paused: "bg-status-warning/8 border-t-status-warning/15",
-};
 
 export function WorkflowKanbanCard({ workflow, onRun, onStop }: WorkflowKanbanCardProps) {
   const router = useRouter();
@@ -139,20 +128,18 @@ export function WorkflowKanbanCard({ workflow, onRun, onStop }: WorkflowKanbanCa
           </div>
         </div>
 
-        {/* Status strip */}
-        <div className={`flex items-center min-h-7 px-3 py-1 border-t transition-colors ${statusStripBg[execution.status] ?? statusStripBg.draft}`}>
-          <StatusChip
-            status={execution.status}
-            family="lifecycle"
-            className="h-5 text-[11px] font-medium"
-          />
-          {workflow.outputDocCount != null && workflow.outputDocCount > 0 && (
-            <span className="ml-1.5 flex items-center gap-0.5 text-[11px] font-medium text-muted-foreground">
+        <CardStatusToolbar
+          status={execution.status}
+          family="lifecycle"
+          meta={
+            workflow.outputDocCount != null && workflow.outputDocCount > 0 ? (
+            <span className="flex items-center gap-0.5">
               <FileText className="h-3 w-3" />
               {workflow.outputDocCount}
             </span>
-          )}
-          <div className="flex-1" />
+            ) : null
+          }
+          actions={
           <div
             className="flex items-center gap-1"
             onClick={(event) => event.stopPropagation()}
@@ -192,7 +179,8 @@ export function WorkflowKanbanCard({ workflow, onRun, onStop }: WorkflowKanbanCa
               </span>
             )}
           </div>
-        </div>
+          }
+        />
       </Card>
   );
 }

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, Bot, ArrowUp, ArrowDown, Minus, Trash2, Check, X, Loader2, Square, CheckSquare, Pencil, FileText, Clock } from "lucide-react";
 import { formatCompactDateTime } from "@/lib/utils/format-timestamp";
-import { StatusChip } from "@/components/shared/status-chip";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 
 export interface TaskItem {
   id: string;
@@ -61,13 +61,6 @@ const priorityConfig: Record<number, { color: string; label: string; Icon: typeo
   3: { color: "text-priority-low", label: "Low", Icon: ArrowDown },
 };
 
-const priorityStripBg: Record<number, string> = {
-  0: "bg-priority-critical/10 border-t-priority-critical/20",
-  1: "bg-priority-high/10 border-t-priority-high/20",
-  2: "bg-priority-medium/8 border-t-priority-medium/15",
-  3: "bg-priority-low/6 border-t-priority-low/10",
-};
-
 export function TaskCard({
   task,
   onClick,
@@ -104,7 +97,6 @@ export function TaskCard({
   const isFailed = task.status === "failed";
   const isRunning = task.status === "running";
   const priority = priorityConfig[task.priority] ?? priorityConfig[3];
-  const showFooterStatus = task.status === "running" || task.status === "completed" || task.status === "failed";
 
   function handleTrashClick(e: React.MouseEvent) {
     e.stopPropagation();
@@ -197,111 +189,89 @@ export function TaskCard({
         </div>
       </div>
 
-      {/* Priority strip toolbar */}
-      <div className={`flex items-center h-7 px-3 border-t transition-colors ${
-        priorityStripBg[task.priority] ?? priorityStripBg[3]
-      }`}>
-        {selectionMode ? (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onSelect?.(task.id, !selected); }}
-            className={`p-0.5 rounded cursor-pointer transition-colors ${
-              selected
-                ? "text-primary"
-                : "text-muted-foreground/70 hover:text-foreground"
-            }`}
-            aria-label={`Select ${task.title}`}
+      <CardStatusToolbar
+        status={task.status}
+        family="lifecycle"
+        meta={
+          <span
+            className="flex min-w-0 items-center gap-1 truncate tabular-nums"
+            title={new Date(relevantDate).toLocaleString()}
           >
-            {selected ? (
-              <CheckSquare className="h-4 w-4" />
-            ) : (
-              <Square className="h-4 w-4" />
-            )}
-          </button>
-        ) : (showDeleteButton || isEditable) ? (
-          confirmingDelete ? (
-            <div className="flex items-center gap-1.5 text-xs w-full">
-              <span className="text-destructive font-medium">Delete?</span>
-              <div className="flex-1" />
-              <button
-                type="button"
-                onClick={handleConfirmDelete}
-                disabled={deleting}
-                className="p-0.5 rounded hover:bg-destructive/10 text-destructive cursor-pointer"
-                aria-label="Confirm delete"
-              >
-                {deleting ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Check className="h-3.5 w-3.5" />
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={handleCancelDelete}
-                className="p-0.5 rounded hover:bg-muted text-muted-foreground cursor-pointer"
-                aria-label="Cancel delete"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ) : (
-            <>
-              {isEditable && (
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); onEdit!(task); }}
-                  className="p-0.5 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-opacity cursor-pointer"
-                  aria-label={`Edit ${task.title}`}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
-              )}
-              <span
-                className="flex min-w-0 flex-1 items-center gap-1 truncate text-[11px] font-medium tabular-nums text-muted-foreground"
-                title={new Date(relevantDate).toLocaleString()}
-              >
-                <Clock className="h-3 w-3 shrink-0" />
-                {formatCompactDateTime(relevantDate)}
-              </span>
-              {showFooterStatus && (
-                <StatusChip
-                  status={task.status}
-                  family="lifecycle"
-                  className="h-5 shrink-0 text-[11px] font-medium"
-                />
-              )}
-              {showDeleteButton && (
-                <button
-                  type="button"
-                  onClick={handleTrashClick}
-                  className="p-0.5 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-opacity cursor-pointer"
-                  aria-label={`Delete ${task.title}`}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </>
-          )
-        ) : (
-          <>
-            <span
-              className="flex min-w-0 flex-1 items-center gap-1 truncate text-[11px] font-medium tabular-nums text-muted-foreground"
-              title={new Date(relevantDate).toLocaleString()}
+            <Clock className="h-3 w-3 shrink-0" />
+            {formatCompactDateTime(relevantDate)}
+          </span>
+        }
+        actions={
+          selectionMode ? (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onSelect?.(task.id, !selected); }}
+              className={`p-0.5 rounded cursor-pointer transition-colors ${
+                selected
+                  ? "text-primary"
+                  : "text-muted-foreground/70 hover:text-foreground"
+              }`}
+              aria-label={`Select ${task.title}`}
             >
-              <Clock className="h-3 w-3 shrink-0" />
-              {formatCompactDateTime(relevantDate)}
-            </span>
-            {showFooterStatus && (
-              <StatusChip
-                status={task.status}
-                family="lifecycle"
-                className="h-5 shrink-0 text-[11px] font-medium"
-              />
-            )}
-          </>
-        )}
-      </div>
+              {selected ? (
+                <CheckSquare className="h-4 w-4" />
+              ) : (
+                <Square className="h-4 w-4" />
+              )}
+            </button>
+          ) : (showDeleteButton || isEditable) ? (
+            confirmingDelete ? (
+              <>
+                <span className="text-xs font-medium text-destructive">Delete?</span>
+                <button
+                  type="button"
+                  onClick={handleConfirmDelete}
+                  disabled={deleting}
+                  className="p-0.5 rounded hover:bg-destructive/10 text-destructive cursor-pointer"
+                  aria-label="Confirm delete"
+                >
+                  {deleting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Check className="h-3.5 w-3.5" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelDelete}
+                  className="p-0.5 rounded hover:bg-muted text-muted-foreground cursor-pointer"
+                  aria-label="Cancel delete"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </>
+            ) : (
+              <>
+                {isEditable && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onEdit!(task); }}
+                    className="p-0.5 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-opacity cursor-pointer"
+                    aria-label={`Edit ${task.title}`}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                )}
+                {showDeleteButton && (
+                  <button
+                    type="button"
+                    onClick={handleTrashClick}
+                    className="p-0.5 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-opacity cursor-pointer"
+                    aria-label={`Delete ${task.title}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </>
+            )
+          ) : null
+        }
+      />
     </Card>
   );
 }

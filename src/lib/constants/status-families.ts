@@ -28,6 +28,7 @@ import {
   Timer,
   CalendarX,
   CalendarCheck,
+  Lock,
 } from "lucide-react";
 
 export type StatusFamily = "lifecycle" | "governance" | "runtime" | "risk" | "schedule";
@@ -59,6 +60,18 @@ export const lifecycleStatuses: Record<string, StatusDefinition> = {
     label: "Ready",
     icon: CheckCircle2,
     colorToken: MUTED,
+    badgeVariant: "outline",
+  },
+  installed: {
+    label: "Installed",
+    icon: CheckCircle2,
+    colorToken: "status-completed",
+    badgeVariant: "success",
+  },
+  locked: {
+    label: "Locked",
+    icon: Lock,
+    colorToken: "status-warning",
     badgeVariant: "outline",
   },
   queued: {

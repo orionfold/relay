@@ -8,8 +8,8 @@ import { StarterTemplateCard } from "@/components/apps/starter-template-card";
 import { AppCardDeleteButton } from "@/components/apps/app-card-delete-button";
 import {
   FlagshipBadge,
-  FlagshipCardActionRow,
 } from "@/components/shared/flagship-card";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 
 export const dynamic = "force-dynamic";
 
@@ -35,14 +35,14 @@ export default function AppsPage() {
                   tone="app"
                   watermark={Package}
                   interactive
-                  className="relative h-full"
+                  className="relative h-full gap-0 overflow-hidden py-0"
                 >
                   <Link
                     href={`/apps/${app.id}`}
                     aria-label={`Open pack ${app.name}`}
                     className="absolute inset-0 z-0 rounded-[inherit] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   />
-                  <CardContent className="pointer-events-none relative flex h-full flex-col gap-3 p-4">
+                  <CardContent className="pointer-events-none relative flex h-full flex-col gap-3 p-4 pb-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex min-w-0 items-start gap-3">
                         <div className="min-w-0 space-y-1">
@@ -74,12 +74,19 @@ export default function AppsPage() {
                         {app.primitivesSummary}
                       </p>
                     )}
-                    <FlagshipCardActionRow
-                      context="Workflows, tables, and outputs"
-                      action="Open pack"
-                      icon={ArrowRight}
-                    />
                   </CardContent>
+                  <CardStatusToolbar
+                    status="ready"
+                    family="lifecycle"
+                    className="pointer-events-none relative"
+                    meta="Workflows, tables, and outputs"
+                    actions={
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                        <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                        Open pack
+                      </span>
+                    }
+                  />
                 </Card>
               ))}
             </div>

@@ -64,8 +64,11 @@ describe("StarterTemplateCard", () => {
       ...STARTER,
       preview: { profiles: 0, blueprints: 0, tables: 0, schedules: 0 },
     };
-    const { container } = render(<StarterTemplateCard starter={empty} />);
-    // Check no pill icons rendered
-    expect(container.querySelectorAll(".text-muted-foreground svg")).toHaveLength(0);
+    render(<StarterTemplateCard starter={empty} />);
+    expect(screen.queryByText("Agent")).toBeNull();
+    expect(screen.queryByText("Blueprint")).toBeNull();
+    expect(screen.queryByText("1 table")).toBeNull();
+    expect(screen.queryByText("Schedule")).toBeNull();
+    expect(screen.getByText("Ready")).toBeInTheDocument();
   });
 });

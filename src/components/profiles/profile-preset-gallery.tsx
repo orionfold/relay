@@ -7,10 +7,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Bot, Copy, Sparkles, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
-import {
-  FlagshipBadge,
-  FlagshipCardActionRow,
-} from "@/components/shared/flagship-card";
+import { FlagshipBadge } from "@/components/shared/flagship-card";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
 interface ProfilePresetGalleryProps {
@@ -72,7 +70,7 @@ export function ProfilePresetGallery({
               key={p.id}
               type="button"
               className={cn(
-                "surface-card flagship-card-tone flagship-card-tone-preset flagship-card-interactive group relative flex min-h-[190px] flex-col gap-3 overflow-hidden rounded-xl border p-4 text-left @container/card",
+                "surface-card flagship-card-tone flagship-card-tone-preset flagship-card-interactive group relative flex min-h-[190px] flex-col gap-0 overflow-hidden rounded-xl border p-0 text-left @container/card",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               )}
               onClick={() => {
@@ -85,47 +83,58 @@ export function ProfilePresetGallery({
                 className="pointer-events-none absolute right-3 top-3 h-[clamp(3.25rem,25cqw,6.5rem)] w-[clamp(3.25rem,25cqw,6.5rem)] select-none"
                 style={{ color: profileColors.icon, opacity: 0.1 }}
               />
-              <div className="relative flex min-w-0 items-start gap-3">
-                <div className="min-w-0 space-y-1">
-                  <p className="min-w-0 truncate text-sm font-semibold leading-tight">
-                    {p.name}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <FlagshipBadge icon={Sparkles} tone="primary">
-                      Preset
-                    </FlagshipBadge>
-                    <FlagshipBadge
-                      icon={domainIcon}
-                      tone={p.domain === "work" ? "primary" : "warning"}
-                    >
-                      {p.domain}
-                    </FlagshipBadge>
+              <div className="relative flex flex-1 flex-col gap-3 p-4 pb-3">
+                <div className="flex min-w-0 items-start gap-3">
+                  <div className="min-w-0 space-y-1">
+                    <p className="min-w-0 truncate text-sm font-semibold leading-tight">
+                      {p.name}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <FlagshipBadge icon={Sparkles} tone="primary">
+                        Preset
+                      </FlagshipBadge>
+                      <FlagshipBadge
+                        icon={domainIcon}
+                        tone={p.domain === "work" ? "primary" : "warning"}
+                      >
+                        {p.domain}
+                      </FlagshipBadge>
+                    </div>
                   </div>
                 </div>
+                <p className="line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+                  {p.description}
+                </p>
+
+                {visibleTags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {visibleTags.map((tag) => (
+                      <Badge key={tag} variant="outline" className="text-[10px]">
+                        {tag}
+                      </Badge>
+                    ))}
+                    {extraTagCount > 0 && (
+                      <Badge variant="outline" className="text-[10px]">
+                        +{extraTagCount}
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </div>
-              <p className="relative line-clamp-3 text-xs leading-relaxed text-muted-foreground">
-                {p.description}
-              </p>
 
-              {visibleTags.length > 0 && (
-                <div className="relative flex flex-wrap gap-1">
-                  {visibleTags.map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-[10px]">
-                      {tag}
-                    </Badge>
-                  ))}
-                  {extraTagCount > 0 && (
-                    <Badge variant="outline" className="text-[10px]">
-                      +{extraTagCount}
-                    </Badge>
-                  )}
-                </div>
-              )}
-
-              <FlagshipCardActionRow
-                context="Built-in agent starter"
-                action="Use preset"
-                icon={Copy}
+              <CardStatusToolbar
+                status="ready"
+                family="lifecycle"
+                tone="neutral"
+                contentClassName="gap-1.5"
+                metaClassName="text-[11px]"
+                meta="Built-in agent starter"
+                actions={
+                  <span className="inline-flex h-6 items-center gap-1 rounded-md border border-primary/20 bg-primary/10 px-1.5 text-[11px] font-medium text-primary">
+                    <Copy className="h-3 w-3" aria-hidden="true" />
+                    Use preset
+                  </span>
+                }
               />
             </button>
           );

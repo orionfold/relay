@@ -15,6 +15,7 @@ import { PackPill } from "@/components/shared/pack-pill";
 import { RunNowButton } from "@/components/apps/run-now-button";
 import { packOf } from "@/lib/apps/pack-of";
 import { FlagshipBadge } from "@/components/shared/flagship-card";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 import type { WorkflowBlueprint } from "@/lib/workflows/blueprints/types";
 
 /** {id, name} of an installed pack — fetched from /api/apps for provenance. */
@@ -168,7 +169,7 @@ export function BlueprintGallery() {
               watermark={wfIcon.icon}
               watermarkColor={wfIcon.colors.icon}
               interactive
-              className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
+              className="gap-0 overflow-hidden rounded-xl py-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => router.push(`/blueprints/${bp.id}`)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -177,7 +178,7 @@ export function BlueprintGallery() {
                 }
               }}
             >
-              <CardHeader className="pb-1">
+              <CardHeader className="p-4 pb-2">
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
                   <div className="flex min-w-0 items-start gap-3">
                     <div className="min-w-0 space-y-1">
@@ -209,7 +210,7 @@ export function BlueprintGallery() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-4 pb-3">
                 <p className="text-xs text-muted-foreground line-clamp-2">
                   {bp.description}
                 </p>
@@ -222,30 +223,37 @@ export function BlueprintGallery() {
                     </div>
                   ) : null;
                 })()}
-                <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
-                  <span>{patternLabels[bp.pattern] ?? bp.pattern}</span>
-                  <span>&middot;</span>
-                  <span>{bp.steps.length} steps</span>
-                  {bp.estimatedDuration && (
-                    <>
-                      <span>&middot;</span>
-                      <span>{bp.estimatedDuration}</span>
-                    </>
-                  )}
-                </div>
-                {/* FEAT-6: the two-verb Run / Create workflow control the operator
-                    asked for on EVERY blueprint card. Wrapped so its clicks and
-                    keystrokes don't bubble to the card's navigate-to-detail
-                    handler — a bare button inside the clickable card would fire
-                    both the run and the navigation. */}
-                <div
-                  className="mt-3"
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
-                >
-                  <RunNowButton blueprintId={bp.id} variables={bp.variables} label="Run" />
-                </div>
               </CardContent>
+              <CardStatusToolbar
+                status="ready"
+                family="lifecycle"
+                tone="neutral"
+                contentClassName="gap-1.5"
+                metaClassName="text-[11px]"
+                meta={
+                  <>
+                    <span className="shrink-0">{bp.steps.length} step{bp.steps.length !== 1 ? "s" : ""}</span>
+                    {bp.estimatedDuration && (
+                      <span className="hidden shrink-0 sm:inline">
+                        {bp.estimatedDuration}
+                      </span>
+                    )}
+                  </>
+                }
+                actions={
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  >
+                    <RunNowButton
+                      blueprintId={bp.id}
+                      variables={bp.variables}
+                      label="Run"
+                      compact
+                    />
+                  </div>
+                }
+              />
             </Card>
               );
             })()

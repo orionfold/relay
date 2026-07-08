@@ -1,11 +1,10 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-08 (pt: **Card system pivot applied.** Typed cards now use neutral light/dark bodies, proportional watermarks, no duplicated identity icon wells, and icon-backed status chips/action naming on task/workflow cards.)_
+_Last updated: 2026-07-08 (pt: **Card status toolbar pass applied.** `CardStatusToolbar` is now the shared footer pattern across the main Relay card grids, with neutral light/dark card bodies, proportional watermarks, icon-backed status chips, and compact action naming.)_
 
 ## ▶️ NEXT SESSION — Post-release backlog
 
 - **P0 NEXT — Web Publisher preview/gallery polish.** The page registry is built; remaining operator-guided feedback is to keep web-pack previews inside Relay chrome with a separate raw-view action, make blank gallery thumbnails meaningful or omit them, and normalize section-card click behavior.
-- **P0 NEXT — finish shared card status/toolbar primitive.** Kanban/task/workflow cards are normalized; the remaining broad pass is to extract a reusable status/toolbar footer and migrate Projects, Packs, Apps, Schedules, Tables, Profiles/Agents, Blueprints, Presets, and dashboard cards where they expose status/time/action metadata.
 - **P0 strategy-doc loose end:** `_SPECS/cards-design-system.md` exists through the `_SPECS` symlink as an untracked strategy-repo file (`relay/_SPECS/cards-design-system.md`). Do not commit/push the strategy repo unless the operator explicitly asks.
 - **P0 Codex browser runbook is authoritative.** Use `docs/codex-browser-runbook.md`: in-app Browser/Browser plugin first for unauthenticated localhost/file/public pages; Codex Chrome extension for signed-in/profile state; Computer Use for GUI-only desktop flows; Chrome DevTools MCP only for isolated CDP debugging. Do not treat `open -a "Google Chrome" <url>` as sufficient verification.
 - **P0 Codex handoff behavior:** `.codex/hooks.json` intentionally has no `Stop` handoff nudge. Use auto compact or operator-initiated `handoff`; do not re-enable the Stop hook unless asked.
@@ -16,6 +15,7 @@ _Last updated: 2026-07-08 (pt: **Card system pivot applied.** Typed cards now us
 - **Operator-guided feedback tasks (UNGROOMED, source `output/operator-walkthrough-feedback-2026-07-07.md`):** Web-pack preview/gallery polish remains open after the page-registry pass.
 
 Standing candidates (LOW / reactive):
+- Card-system follow-up: audit residual detail/table/dashboard cards that still use local raw-badge/status/action layouts, but the main card grids now use the shared footer.
 - F5 follow-up: lift dense analytics dashboards `costs/cost-dashboard.tsx` + `apps/ledger-hero-panel.tsx` to the card recipe.
 - Not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4 `create_trigger` `appId` gap.
 - #29 retry-with-backoff hardening; held-issue retests (#5/#6/#11/#12).
@@ -52,7 +52,9 @@ Standing candidates (LOW / reactive):
 
 ## Recently shipped / groomed
 
-**Card system neutral-surface pivot (BUILT 2026-07-08, working tree):** Shared typed cards now keep neutral light/dark card bodies while preserving type color in border accents, watermarks, pills, icons, and footer/status-toolbar washes. Watermarks are proportional and padded top-right; duplicated left-of-title identity icon wells were removed from watermarked card families. Task/workflow kanban cards now show icon-backed lifecycle chips (`Waiting`, `Running`, `Completed`, `Failed`, `Stalled`) and use `Run` vs `Re-run` consistently; workflow list/detail status badges were partially aligned. Verification: `npx tsc --noEmit`, focused card/workflow/task vitest suite (5 files / 29 tests), `git diff --check`, and in-app Browser checks on `/tasks` + `/agents` with no console errors.
+**Card system status toolbar pass (BUILT 2026-07-08, current HEAD):** Added `src/components/shared/card-status-toolbar.tsx` as the shared card footer/status/action primitive. Migrated tasks, workflow Kanban/list cards, blueprints, agents/profiles, presets, projects, schedules, apps, packs, starter templates, and last-run cards to the shared toolbar. Default/ready cards use the slate/gray neutral toolbar wash in both light and dark themes, with visible separation from the card body; create actions use the app-wide `Plus` icon. `_SPECS/cards-design-system.md` was updated through the strategy symlink but remains outside Relay commit scope unless explicitly requested. Verification: `npx tsc --noEmit`, focused Vitest card suite (3 files / 17 tests after final tweaks; broader 6 files / 32 tests earlier in the pass), `git diff --check`, and in-app Browser checks on `/blueprints`, `/agents`, `/presets`, `/tasks`, `/projects`, `/schedules`, `/apps`, and `/packs` with no visible runtime errors.
+
+**Card system neutral-surface pivot (BUILT 2026-07-08, commit 04aaeb6e):** Shared typed cards now keep neutral light/dark card bodies while preserving type color in border accents, watermarks, pills, icons, and footer/status-toolbar washes. Watermarks are proportional and padded top-right; duplicated left-of-title identity icon wells were removed from watermarked card families. Task/workflow kanban cards now show icon-backed lifecycle chips (`Waiting`, `Running`, `Completed`, `Failed`, `Stalled`) and use `Run` vs `Re-run` consistently; workflow list/detail status badges were partially aligned. Verification: `npx tsc --noEmit`, focused card/workflow/task vitest suite (5 files / 29 tests), `git diff --check`, and in-app Browser checks on `/tasks` + `/agents` with no console errors.
 
 **Workflow execution state + Run/Stop controls (BUILT 2026-07-08, current branch before card pass):** Added effective workflow execution state so persisted `active` rows with live child tasks show `running`/Stop, approval waits show `waiting`, and stale active rows show `stalled` rather than implying live work. Workflow cards/list/Kanban/detail expose explicit Run/Re-run/Stop actions; card clicks navigate only.
 

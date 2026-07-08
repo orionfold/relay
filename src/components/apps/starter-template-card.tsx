@@ -17,7 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { FlagshipCardActionRow } from "@/components/shared/flagship-card";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 import { cn } from "@/lib/utils";
 import type { StarterTemplate } from "@/lib/apps/starters";
 
@@ -92,11 +92,11 @@ export function StarterTemplateCard({ starter, className, onClick }: Props) {
       aria-label={`Start ${starter.name} in chat`}
       data-starter-id={starter.id}
       className={cn(
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "gap-0 overflow-hidden py-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         className
       )}
     >
-      <CardContent className="relative flex h-full flex-col gap-3 p-4">
+      <CardContent className="relative flex h-full flex-col gap-3 p-4 pb-3">
         <div className="min-w-0 space-y-1">
           <p className="text-sm font-medium leading-tight">{starter.name}</p>
           {starter.description && (
@@ -106,12 +106,18 @@ export function StarterTemplateCard({ starter, className, onClick }: Props) {
           )}
         </div>
         <PreviewRow preview={starter.preview} />
-        <FlagshipCardActionRow
-          context="Custom pack starter"
-          action="Start in chat"
-          icon={MessageSquareText}
-        />
       </CardContent>
+      <CardStatusToolbar
+        status="ready"
+        family="lifecycle"
+        meta="Custom pack starter"
+        actions={
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+            <MessageSquareText className="h-3.5 w-3.5" aria-hidden="true" />
+            Start in chat
+          </span>
+        }
+      />
     </Card>
   );
 }

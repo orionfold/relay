@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,7 +14,7 @@ import { toast } from "sonner";
 import { patternLabels } from "@/lib/constants/status-colors";
 import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import { FlagshipBadge } from "@/components/shared/flagship-card";
-import { StatusChip } from "@/components/shared/status-chip";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 import { getWorkflowExecutionInfo } from "@/lib/workflows/execution-status";
 
 interface Workflow {
@@ -187,9 +186,9 @@ export function WorkflowList({ projects }: WorkflowListProps) {
               stepStates: parsedState,
             });
             const runLabel =
-              execution.status === "draft" ? "Run workflow" : "Re-run";
+              execution.status === "draft" ? "Run" : "Re-run";
             const runAriaLabel =
-              runLabel === "Run workflow"
+              runLabel === "Run"
                 ? `Run workflow ${wf.name}`
                 : `${runLabel} workflow ${wf.name}`;
             return (
@@ -200,11 +199,11 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                 watermark={wfIcon.icon}
                 watermarkColor={wfIcon.colors.icon}
                 interactive
-                className="elevation-1 rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="elevation-1 gap-0 overflow-hidden rounded-xl py-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 onClick={() => router.push(`/workflows/${wf.id}`)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/workflows/${wf.id}`); } }}
               >
-                <CardHeader className="pb-2">
+                <CardHeader className="p-4 pb-2">
                   <div className="flex min-w-0 items-start gap-3">
                     <div className="min-w-0 space-y-1">
                       <CardTitle className="min-w-0 truncate text-base font-semibold">
@@ -214,16 +213,11 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                         <FlagshipBadge icon={FileCog} tone={execution.status === "draft" ? "muted" : "primary"}>
                           {patternLabels[pattern] ?? pattern}
                         </FlagshipBadge>
-                        <StatusChip
-                          status={execution.status}
-                          family="lifecycle"
-                          className="h-5 text-[11px] font-medium"
-                        />
                       </div>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-4 pb-3">
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span>{stepCount} step{stepCount !== 1 ? "s" : ""}</span>
                     {wf.taskCount != null && wf.taskCount > 0 && (
@@ -244,14 +238,16 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                       {promptPreview}
                     </p>
                   )}
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center gap-2">
-                      {wf.runNumber != null && wf.runNumber > 0 && (
-                        <Badge variant="outline" className="text-[10px] font-normal">
-                          Run #{wf.runNumber}
-                        </Badge>
-                      )}
-                    </div>
+                </CardContent>
+                <CardStatusToolbar
+                  status={execution.status}
+                  family="lifecycle"
+                  meta={
+                    wf.runNumber != null && wf.runNumber > 0 ? (
+                      <span className="tabular-nums">Run #{wf.runNumber}</span>
+                    ) : null
+                  }
+                  actions={
                     <TooltipProvider>
                       <div
                         className="flex flex-wrap items-center justify-end gap-1"
@@ -336,8 +332,8 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                         )}
                       </div>
                     </TooltipProvider>
-                  </div>
-                </CardContent>
+                  }
+                />
               </Card>
             );
           })}

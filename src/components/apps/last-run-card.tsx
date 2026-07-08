@@ -17,6 +17,8 @@ import { ChevronDown, AlertCircle, Sparkles, RefreshCw } from "lucide-react";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { RunNowButton } from "@/components/apps/run-now-button";
 import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
+import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
+import { StatusChip } from "@/components/shared/status-chip";
 import type { TaskStatus } from "@/lib/constants/task-status";
 import type { BlueprintCard, RuntimeTaskSummary } from "@/lib/apps/view-kits/types";
 
@@ -43,18 +45,6 @@ type HeroProps = {
 
 export type LastRunCardProps = CompactProps | HeroProps;
 
-const statusVariant: Record<
-  TaskStatus,
-  "default" | "success" | "secondary" | "destructive" | "outline"
-> = {
-  running: "default",
-  completed: "success",
-  queued: "secondary",
-  failed: "destructive",
-  planned: "outline",
-  cancelled: "outline",
-};
-
 /**
  * LastRunCard — two variants:
  *  - "compact" (default): one-line blueprint label + last status + run count.
@@ -70,29 +60,27 @@ export function LastRunCard(props: LastRunCardProps) {
 function CompactVariant({ blueprintLabel, lastRun, runCount30d }: CompactProps) {
   const wfIcon = getWorkflowIconFromName(blueprintLabel, "sequence");
   return (
-    <Card tone="blueprint" watermark={wfIcon.icon} watermarkColor={wfIcon.colors.icon}>
-      <CardHeader className="pb-2">
+    <Card
+      tone="blueprint"
+      watermark={wfIcon.icon}
+      watermarkColor={wfIcon.colors.icon}
+      className="gap-0 overflow-hidden py-0"
+    >
+      <CardHeader className="p-4 pb-2">
         <CardTitle className="text-sm font-medium truncate">
           {blueprintLabel}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
-        {lastRun ? (
-          <div className="flex items-center gap-2">
-            <Badge variant={statusVariant[lastRun.status]}>
-              {lastRun.status}
-            </Badge>
-            <span className="text-xs text-muted-foreground">
-              {formatAgo(lastRun.createdAt)}
-            </span>
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground">never run</p>
-        )}
+      <CardContent className="space-y-2 px-4 pb-3">
         <p className="text-xs text-muted-foreground">
           {runCount30d} {runCount30d === 1 ? "run" : "runs"} · last 30d
         </p>
       </CardContent>
+      <CardStatusToolbar
+        status={lastRun?.status ?? "ready"}
+        family="lifecycle"
+        meta={lastRun ? formatAgo(lastRun.createdAt) : "Never run"}
+      />
     </Card>
   );
 }
@@ -153,8 +141,9 @@ export function RunnableBlueprintCard({
       emphasis={card.isPrimary ? "featured" : "none"}
       watermark={wfIcon.icon}
       watermarkColor={wfIcon.colors.icon}
+      className="gap-0 overflow-hidden py-0"
     >
-      <CardHeader className="pb-2 space-y-1.5">
+      <CardHeader className="space-y-1.5 p-4 pb-2">
         {card.isPrimary && (
           <Badge className="w-fit gap-1">
             <Sparkles className="h-3 w-3" />
@@ -168,24 +157,7 @@ export function RunnableBlueprintCard({
           </p>
         )}
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          {lastRun ? (
-            <>
-              <Badge variant={statusVariant[lastRun.status]}>
-                {lastRun.status}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                {formatAgo(lastRun.createdAt)}
-              </span>
-            </>
-          ) : (
-            <span className="text-xs text-muted-foreground">never run</span>
-          )}
-          <span className="text-xs text-muted-foreground">
-            · {runCount30d} {runCount30d === 1 ? "run" : "runs"} · 30d
-          </span>
-        </div>
+      <CardContent className="space-y-3 px-4 pb-3">
         {isRowInsert ? (
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <RefreshCw className="h-3.5 w-3.5" />
@@ -193,27 +165,34 @@ export function RunnableBlueprintCard({
             {card.trigger?.tableName ?? "linked"} table
           </p>
         ) : (
-          <div className="space-y-1.5">
+          <p className="text-xs text-muted-foreground">
+            {card.isPrimary
+              ? card.variables.length > 0
+                ? "Run asks a few questions, then starts a workflow you can watch. Create workflow saves a draft to run later."
+                : "Run starts a workflow you can watch. Create workflow saves a draft to run later."
+              : "Run starts it now. Create workflow saves a draft."}
+          </p>
+        )}
+      </CardContent>
+      <CardStatusToolbar
+        status={lastRun?.status ?? "ready"}
+        family="lifecycle"
+        meta={
+          <span>
+            {lastRun ? formatAgo(lastRun.createdAt) : "Never run"} · {runCount30d}{" "}
+            {runCount30d === 1 ? "run" : "runs"} · 30d
+          </span>
+        }
+        actions={
+          !isRowInsert ? (
             <RunNowButton
               blueprintId={card.id}
               variables={card.variables}
               label="Run"
             />
-            {/* CF-FEAT-5: name both verbs on EVERY card, not just the primary,
-                so no card leaves the two buttons unexplained. The "Start here"
-                card carries the fuller sentence (it may also mention the
-                variable prompt); the rest carry a compact one-liner so the grid
-                stays scannable (progressive disclosure). */}
-            <p className="text-xs text-muted-foreground">
-              {card.isPrimary
-                ? card.variables.length > 0
-                  ? "Run asks a few questions, then starts a workflow you can watch. Create workflow saves a draft to run later."
-                  : "Run starts a workflow you can watch. Create workflow saves a draft to run later."
-                : "Run starts it now. Create workflow saves a draft."}
-            </p>
-          </div>
-        )}
-      </CardContent>
+          ) : null
+        }
+      />
     </Card>
   );
 }
@@ -264,7 +243,7 @@ function HeroVariant({ task, previousRuns }: HeroProps) {
         </div>
       </ErrorBoundary>
       <div className="flex items-center justify-between border-t pt-3">
-        <Badge variant={statusVariant[task.status]}>{task.status}</Badge>
+        <StatusChip status={task.status} family="lifecycle" />
         <span className="text-xs text-muted-foreground">
           {new Date(task.createdAt).toLocaleString()}
         </span>
@@ -306,9 +285,7 @@ function PreviousRunsSheet({
             <div key={r.id} className="surface-card rounded-lg p-3 border">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium text-sm">{r.title}</span>
-                <Badge variant="outline" className="text-xs">
-                  {r.status}
-                </Badge>
+                <StatusChip status={r.status} family="lifecycle" />
               </div>
               <pre className="text-xs text-muted-foreground whitespace-pre-wrap line-clamp-4">
                 {r.result ?? "(no output)"}
