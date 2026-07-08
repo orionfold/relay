@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Copy } from "lucide-react";
+import { Bot, Copy, Sparkles, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { cardVariants } from "@/components/ui/card";
 import { getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
+import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
 interface ProfilePresetGalleryProps {
@@ -46,7 +46,7 @@ export function ProfilePresetGallery({
   }
 
   return (
-    <div className="surface-panel rounded-2xl p-4 space-y-3">
+    <div className="surface-panel space-y-3 rounded-xl p-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium">
           Use a preset agent as a starting point
@@ -57,17 +57,20 @@ export function ProfilePresetGallery({
           </Button>
         )}
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {presets.map((p) => {
           const Glyph = getProfileIcon(p.id);
-          const glyphColor = getDomainColors(p.domain).icon;
+          const profileColors = getDomainColors(p.domain);
+          const domainIcon = p.domain === "work" ? Bot : UserCheck;
+          const visibleTags = p.tags.slice(0, 3);
+          const extraTagCount = Math.max(0, p.tags.length - visibleTags.length);
           return (
             <button
               key={p.id}
               type="button"
               className={cn(
-                cardVariants({ tone: "preset" }),
-                "gap-1.5 overflow-hidden rounded-xl p-3 py-3 text-left cursor-pointer transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                "surface-card group relative flex min-h-[190px] cursor-pointer flex-col gap-3 overflow-hidden rounded-xl border p-4 text-left transition-[background-color,border-color,box-shadow]",
+                "hover:border-primary/35 hover:bg-accent/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               )}
               onClick={() => {
                 onClose?.();
@@ -77,20 +80,55 @@ export function ProfilePresetGallery({
               <Glyph
                 aria-hidden
                 className="pointer-events-none absolute -right-3 -top-3 h-[9.6rem] w-[9.6rem] select-none"
-                style={{ color: glyphColor, opacity: 0.12 }}
+                style={{ color: profileColors.icon, opacity: 0.1 }}
               />
-              <p className="relative text-sm font-medium truncate">{p.name}</p>
-              <p className="relative text-xs text-muted-foreground line-clamp-2">
+              <div className="relative flex min-w-0 items-start gap-3">
+                <FlagshipIconWell icon={Glyph} color={profileColors.icon} />
+                <div className="min-w-0 space-y-1">
+                  <p className="min-w-0 truncate text-sm font-semibold leading-tight">
+                    {p.name}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <FlagshipBadge icon={Sparkles} tone="primary">
+                      Preset
+                    </FlagshipBadge>
+                    <FlagshipBadge
+                      icon={domainIcon}
+                      tone={p.domain === "work" ? "primary" : "warning"}
+                    >
+                      {p.domain}
+                    </FlagshipBadge>
+                  </div>
+                </div>
+              </div>
+              <p className="relative line-clamp-3 text-xs leading-relaxed text-muted-foreground">
                 {p.description}
               </p>
-              {p.domain && (
-                <Badge
-                  variant="secondary"
-                  className="relative w-fit text-[10px] font-normal capitalize"
-                >
-                  {p.domain}
-                </Badge>
+
+              {visibleTags.length > 0 && (
+                <div className="relative flex flex-wrap gap-1">
+                  {visibleTags.map((tag) => (
+                    <Badge key={tag} variant="outline" className="text-[10px]">
+                      {tag}
+                    </Badge>
+                  ))}
+                  {extraTagCount > 0 && (
+                    <Badge variant="outline" className="text-[10px]">
+                      +{extraTagCount}
+                    </Badge>
+                  )}
+                </div>
               )}
+
+              <div className="relative mt-auto flex items-center justify-between gap-3 border-t border-border pt-3">
+                <span className="text-[11px] text-muted-foreground">
+                  Built-in agent starter
+                </span>
+                <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-primary">
+                  <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                  Use preset
+                </span>
+              </div>
             </button>
           );
         })}

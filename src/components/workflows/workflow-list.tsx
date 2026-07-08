@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import { workflowStatusVariant, patternLabels } from "@/lib/constants/status-colors";
 import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
-import { StatusChip } from "@/components/shared/status-chip";
+import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
 
 interface Workflow {
   id: string;
@@ -89,14 +89,14 @@ export function WorkflowList({ projects }: WorkflowListProps) {
     }
   }
 
-  async function handleRerun(id: string) {
+  async function handleRunWorkflow(id: string) {
     const res = await fetch(`/api/workflows/${id}/execute`, { method: "POST" });
     if (res.ok) {
-      toast.success("Workflow re-started");
+      toast.success("Workflow started");
       router.push(`/workflows/${id}`);
     } else {
       const data = await res.json().catch(() => null);
-      toast.error(data?.error ?? "Failed to re-run workflow");
+      toast.error(data?.error ?? "Failed to run workflow");
     }
   }
 
@@ -167,17 +167,30 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                 tone="blueprint"
                 watermark={wfIcon.icon}
                 watermarkColor={wfIcon.colors.icon}
-                className="elevation-1 cursor-pointer transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
+                className="elevation-1 cursor-pointer rounded-xl transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 onClick={() => router.push(`/workflows/${wf.id}`)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/workflows/${wf.id}`); } }}
               >
                 <CardHeader className="pb-2">
-                  <CardTitle className="min-w-0 truncate text-base font-medium">{wf.name}</CardTitle>
+                  <div className="flex min-w-0 items-start gap-3">
+                    <FlagshipIconWell icon={wfIcon.icon} color={wfIcon.colors.icon} />
+                    <div className="min-w-0 space-y-1">
+                      <CardTitle className="min-w-0 truncate text-base font-semibold">
+                        {wf.name}
+                      </CardTitle>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <FlagshipBadge icon={FileCog} tone={wf.status === "draft" ? "muted" : "primary"}>
+                          {patternLabels[pattern] ?? pattern}
+                        </FlagshipBadge>
+                        <Badge variant={workflowStatusVariant[wf.status] ?? "secondary"}>
+                          {wf.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>{patternLabels[pattern] ?? pattern}</span>
-                    <span>&middot;</span>
                     <span>{stepCount} step{stepCount !== 1 ? "s" : ""}</span>
                     {wf.taskCount != null && wf.taskCount > 0 && (
                       <>
@@ -199,9 +212,6 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                   )}
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center gap-2">
-                      <Badge variant={workflowStatusVariant[wf.status] ?? "secondary"}>
-                        {wf.status}
-                      </Badge>
                       {wf.runNumber != null && wf.runNumber > 0 && (
                         <Badge variant="outline" className="text-[10px] font-normal">
                           Run #{wf.runNumber}
@@ -209,7 +219,30 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                       )}
                     </div>
                     <TooltipProvider>
-                      <div className="flex items-center gap-1">
+                      <div
+                        className="flex flex-wrap items-center justify-end gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      >
+                        {["draft", "paused", "completed", "failed"].includes(wf.status) && (
+                          <Button
+                            type="button"
+                            variant={wf.status === "draft" || wf.status === "paused" ? "default" : "outline"}
+                            size="sm"
+                            className="h-7 gap-1.5 px-2 text-xs"
+                            aria-label={`${wf.status === "completed" || wf.status === "failed" ? "Re-run" : "Run"} workflow ${wf.name}`}
+                            onClick={() => handleRunWorkflow(wf.id)}
+                          >
+                            {wf.status === "completed" || wf.status === "failed" ? (
+                              <RotateCcw className="h-3.5 w-3.5" />
+                            ) : (
+                              <Play className="h-3.5 w-3.5" />
+                            )}
+                            {wf.status === "completed" || wf.status === "failed"
+                              ? "Re-run"
+                              : "Run workflow"}
+                          </Button>
+                        )}
                         {(wf.status === "draft" || wf.status === "completed" || wf.status === "failed") && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -218,7 +251,7 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                                 size="icon"
                                 className="h-7 w-7"
                                 aria-label="Edit workflow"
-                                onClick={(e) => { e.stopPropagation(); router.push(`/workflows/${wf.id}/edit`); }}
+                                onClick={() => router.push(`/workflows/${wf.id}/edit`)}
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
@@ -233,29 +266,13 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                               size="icon"
                               className="h-7 w-7"
                               aria-label="Clone workflow"
-                              onClick={(e) => { e.stopPropagation(); router.push(`/workflows/${wf.id}/edit?clone=true`); }}
+                              onClick={() => router.push(`/workflows/${wf.id}/edit?clone=true`)}
                             >
                               <Copy className="h-3.5 w-3.5" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>Clone</TooltipContent>
                         </Tooltip>
-                        {(wf.status === "completed" || wf.status === "failed") && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                aria-label="Re-run workflow"
-                                onClick={(e) => { e.stopPropagation(); handleRerun(wf.id); }}
-                              >
-                                <RotateCcw className="h-3.5 w-3.5" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Re-run</TooltipContent>
-                          </Tooltip>
-                        )}
                         {wf.status !== "active" && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -264,7 +281,7 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                                 size="icon"
                                 className="h-7 w-7 text-destructive"
                                 aria-label="Delete workflow"
-                                onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(wf.id); }}
+                                onClick={() => setConfirmDeleteId(wf.id)}
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </Button>

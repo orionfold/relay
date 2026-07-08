@@ -2,11 +2,12 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download } from "lucide-react";
+import { Bot, Download, Sparkles, UserCheck } from "lucide-react";
 import type { AgentRuntimeId } from "@/lib/agents/runtime/catalog";
 import { getSupportedRuntimes } from "@/lib/agents/profiles/compatibility";
 import { getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
 import { PackPill } from "@/components/shared/pack-pill";
+import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
 interface ProfileCardProps {
@@ -34,14 +35,16 @@ const RUNTIME_SHORT_LABEL: Record<AgentRuntimeId, string> = {
 };
 
 export function ProfileCard({ profile, isBuiltin = false, packName = null, onClick }: ProfileCardProps) {
+  const ProfileIcon = getProfileIcon(profile.id);
+  const profileColors = getDomainColors(profile.domain, isBuiltin);
 
   return (
     <Card
       tabIndex={0}
       role="button"
       tone="agent"
-      watermark={getProfileIcon(profile.id)}
-      watermarkColor={getDomainColors(profile.domain, isBuiltin).icon}
+      watermark={ProfileIcon}
+      watermarkColor={profileColors.icon}
       className="surface-card cursor-pointer rounded-xl transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
       onClick={onClick}
       onKeyDown={(e) => {
@@ -52,13 +55,21 @@ export function ProfileCard({ profile, isBuiltin = false, packName = null, onCli
       }}
     >
       <CardHeader className="pb-2">
-        <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
-          <CardTitle className="min-w-0 truncate text-base font-medium">{profile.name}</CardTitle>
-          <Badge
-            variant={profile.domain === "work" ? "default" : "secondary"}
-          >
-            {profile.domain}
-          </Badge>
+        <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-3">
+            <FlagshipIconWell icon={ProfileIcon} color={profileColors.icon} />
+            <div className="min-w-0 space-y-1">
+              <CardTitle className="min-w-0 truncate text-base font-semibold">
+                {profile.name}
+              </CardTitle>
+              <FlagshipBadge
+                icon={profile.domain === "work" ? Bot : UserCheck}
+                tone={profile.domain === "work" ? "primary" : "warning"}
+              >
+                {profile.domain}
+              </FlagshipBadge>
+            </div>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -91,30 +102,29 @@ export function ProfileCard({ profile, isBuiltin = false, packName = null, onCli
             <PackPill packName={packName} />
           ) : profile.importMeta ? (
             <span className="flex items-center gap-1.5">
-              <Badge variant="outline" className="border-purple-200 text-purple-600 dark:border-purple-800 dark:text-purple-400">
-                <Download className="mr-1 h-3 w-3" />
+              <FlagshipBadge icon={Download} tone="primary">
                 Imported
-              </Badge>
+              </FlagshipBadge>
               <span className="text-muted-foreground">
                 {profile.importMeta.repoOwner}/{profile.importMeta.repoName}
               </span>
             </span>
           ) : profile.origin === "environment" ? (
-            <Badge variant="outline" className="border-emerald-200 text-emerald-600 dark:border-emerald-800 dark:text-emerald-400">
+            <FlagshipBadge icon={UserCheck} tone="success">
               Discovered
-            </Badge>
+            </FlagshipBadge>
           ) : profile.origin === "ai-assist" ? (
-            <Badge variant="outline" className="border-violet-200 text-violet-600 dark:border-violet-800 dark:text-violet-400">
+            <FlagshipBadge icon={Sparkles} tone="primary">
               AI Generated
-            </Badge>
+            </FlagshipBadge>
           ) : isBuiltin ? (
-            <Badge variant="outline" className="border-blue-200 text-blue-600 dark:border-blue-800 dark:text-blue-400">
+            <FlagshipBadge icon={Bot} tone="primary">
               Built-in
-            </Badge>
+            </FlagshipBadge>
           ) : (
-            <Badge variant="outline" className="border-gray-200 text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            <FlagshipBadge icon={UserCheck} tone="muted">
               Custom
-            </Badge>
+            </FlagshipBadge>
           )}
           {profile.version && <span>v{profile.version}</span>}
           {profile.allowedTools && profile.allowedTools.length > 0 && (

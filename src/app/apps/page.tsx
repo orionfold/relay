@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { PageShell } from "@/components/shared/page-shell";
-import { StatusChip } from "@/components/shared/status-chip";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Package } from "lucide-react";
+import { Sparkles, Package, Layers3 } from "lucide-react";
 import { listApps } from "@/lib/apps/registry";
 import { listStarters } from "@/lib/apps/starters";
 import { StarterTemplateCard } from "@/components/apps/starter-template-card";
 import { AppCardDeleteButton } from "@/components/apps/app-card-delete-button";
+import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
 
 export const dynamic = "force-dynamic";
 
@@ -31,16 +31,26 @@ export default function AppsPage() {
                   key={app.id}
                   tone="app"
                   watermark={Package}
-                  className="relative hover:border-primary/50 transition-colors h-full"
+                  className="relative h-full transition-colors hover:border-primary/50 hover:shadow-sm"
                 >
                   <Link
                     href={`/apps/${app.id}`}
                     aria-label={`Open pack ${app.name}`}
                     className="absolute inset-0 z-0 rounded-[inherit] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   />
-                  <CardContent className="pointer-events-none relative p-3 space-y-1.5">
+                  <CardContent className="pointer-events-none relative p-4 space-y-3">
                     <div className="flex items-start justify-between gap-2">
-                      <span className="text-sm font-medium truncate">{app.name}</span>
+                      <div className="flex min-w-0 items-start gap-3">
+                        <FlagshipIconWell icon={Package} />
+                        <div className="min-w-0 space-y-1">
+                          <span className="block truncate text-sm font-semibold leading-tight">
+                            {app.name}
+                          </span>
+                          <FlagshipBadge icon={Layers3} tone="primary">
+                            Installed pack
+                          </FlagshipBadge>
+                        </div>
+                      </div>
                       <div className="pointer-events-auto -my-1 -mr-1">
                         <AppCardDeleteButton
                           appId={app.id}
@@ -61,9 +71,6 @@ export default function AppsPage() {
                         {app.primitivesSummary}
                       </p>
                     )}
-                    <div className="flex justify-end">
-                      <StatusChip status="running" size="sm" />
-                    </div>
                   </CardContent>
                 </Card>
               ))}

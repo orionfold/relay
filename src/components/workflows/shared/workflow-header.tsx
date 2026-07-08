@@ -110,8 +110,8 @@ export function WorkflowHeader({
 
   return (
     <CardHeader>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
           <IconCircle
             icon={getWorkflowIconFromName(data.name, data.pattern).icon}
             colors={getWorkflowIconFromName(data.name, data.pattern).colors}
@@ -140,7 +140,7 @@ export function WorkflowHeader({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Badge variant={workflowStatusVariant[data.status] ?? "secondary"}>
             {data.status}
           </Badge>
@@ -148,7 +148,7 @@ export function WorkflowHeader({
           {canExecute && (data.status === "draft" || data.status === "paused") && (
             <Button size="sm" onClick={onExecute} disabled={executing}>
               <Play className="h-3 w-3 mr-1" />
-              {executing ? "Starting..." : "Execute"}
+              {executing ? "Starting..." : "Run workflow"}
             </Button>
           )}
 

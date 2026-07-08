@@ -3,18 +3,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
-import { Search, Layers, Plus } from "lucide-react";
+import { Briefcase, Gauge, Layers, Plus, Search, User } from "lucide-react";
 import { patternLabels } from "@/lib/constants/status-colors";
 import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import { PackPill } from "@/components/shared/pack-pill";
 import { RunNowButton } from "@/components/apps/run-now-button";
 import { packOf } from "@/lib/apps/pack-of";
+import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
 import type { WorkflowBlueprint } from "@/lib/workflows/blueprints/types";
 
 /** {id, name} of an installed pack — fetched from /api/apps for provenance. */
@@ -23,10 +23,10 @@ interface InstalledPack {
   name: string;
 }
 
-const difficultyColors: Record<string, string> = {
-  beginner: "border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400",
-  intermediate: "border-yellow-500/30 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
-  advanced: "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-400",
+const difficultyTone: Record<string, "success" | "warning" | "danger"> = {
+  beginner: "success",
+  intermediate: "warning",
+  advanced: "danger",
 };
 
 export function BlueprintGallery() {
@@ -158,12 +158,15 @@ export function BlueprintGallery() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((bp) => (
+            (() => {
+              const wfIcon = getWorkflowIconFromName(bp.name, bp.pattern);
+              return (
             <Card
               key={bp.id}
               tabIndex={0}
               tone="blueprint"
-              watermark={getWorkflowIconFromName(bp.name, bp.pattern).icon}
-              watermarkColor={getWorkflowIconFromName(bp.name, bp.pattern).colors.icon}
+              watermark={wfIcon.icon}
+              watermarkColor={wfIcon.colors.icon}
               className="cursor-pointer transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
               onClick={() => router.push(`/blueprints/${bp.id}`)}
               onKeyDown={(e) => {
@@ -174,18 +177,34 @@ export function BlueprintGallery() {
               }}
             >
               <CardHeader className="pb-1">
-                <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
-                  <CardTitle className="min-w-0 truncate text-sm font-medium">
-                    {bp.name}
-                  </CardTitle>
+                <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <FlagshipIconWell icon={wfIcon.icon} color={wfIcon.colors.icon} />
+                    <div className="min-w-0 space-y-1">
+                      <CardTitle className="min-w-0 truncate text-sm font-semibold">
+                        {bp.name}
+                      </CardTitle>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <FlagshipBadge
+                          icon={bp.domain === "work" ? Briefcase : User}
+                          tone={bp.domain === "work" ? "primary" : "warning"}
+                        >
+                          {bp.domain}
+                        </FlagshipBadge>
+                        <FlagshipBadge icon={Layers} tone="muted">
+                          {patternLabels[bp.pattern] ?? bp.pattern}
+                        </FlagshipBadge>
+                      </div>
+                    </div>
+                  </div>
                   <div className="flex shrink-0 items-center gap-1.5">
-                    <Badge variant={bp.domain === "work" ? "default" : "secondary"}>
-                      {bp.domain}
-                    </Badge>
                     {bp.difficulty && (
-                      <Badge variant="outline" className={`text-xs ${difficultyColors[bp.difficulty] ?? ""}`}>
+                      <FlagshipBadge
+                        icon={Gauge}
+                        tone={difficultyTone[bp.difficulty] ?? "muted"}
+                      >
                         {bp.difficulty}
-                      </Badge>
+                      </FlagshipBadge>
                     )}
                   </div>
                 </div>
@@ -228,6 +247,8 @@ export function BlueprintGallery() {
                 </div>
               </CardContent>
             </Card>
+              );
+            })()
           ))}
         </div>
       )}

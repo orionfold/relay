@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Workflow, Loader2, FileText } from "lucide-react";
+import { Loader2, FileText } from "lucide-react";
 import { workflowStatusVariant, patternLabels } from "@/lib/constants/status-colors";
+import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
+import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
 
 export interface WorkflowKanbanItem {
   type: "workflow";
@@ -36,6 +38,7 @@ const statusStripBg: Record<string, string> = {
 export function WorkflowKanbanCard({ workflow }: WorkflowKanbanCardProps) {
   const isActive = workflow.status === "active";
   const isFailed = workflow.status === "failed";
+  const wfIcon = getWorkflowIconFromName(workflow.name, workflow.pattern);
   const progressPct =
     workflow.stepProgress.total > 0
       ? (workflow.stepProgress.current / workflow.stepProgress.total) * 100
@@ -45,8 +48,11 @@ export function WorkflowKanbanCard({ workflow }: WorkflowKanbanCardProps) {
     <Link href={`/workflows/${workflow.id}`} className="block">
       <Card
         role="button"
+        tone="blueprint"
+        watermark={wfIcon.icon}
+        watermarkColor={wfIcon.colors.icon}
         aria-label={`${workflow.name}, ${patternLabels[workflow.pattern] ?? workflow.pattern}, ${workflow.status}`}
-        className={`surface-card cursor-pointer transition-shadow hover:shadow-md group overflow-hidden py-0 gap-0 ${
+        className={`surface-card group cursor-pointer gap-0 overflow-hidden py-0 transition-shadow hover:shadow-md ${
           isFailed
             ? "border-l-4 border-l-destructive"
             : isActive
@@ -56,23 +62,18 @@ export function WorkflowKanbanCard({ workflow }: WorkflowKanbanCardProps) {
       >
         <div className="p-3">
           <div className="flex items-start gap-2">
-            <Workflow
-              className={`mt-0.5 h-4 w-4 shrink-0 ${
-                isFailed ? "text-destructive" : "text-primary"
-              }`}
-              aria-hidden="true"
-            />
+            <FlagshipIconWell icon={wfIcon.icon} color={wfIcon.colors.icon} className="h-7 w-7" />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium line-clamp-2">{workflow.name}</p>
+              <p className="line-clamp-2 text-sm font-semibold">{workflow.name}</p>
               {workflow.projectName && (
                 <p className="text-xs text-muted-foreground mt-0.5 truncate">
                   {workflow.projectName}
                 </p>
               )}
               <div className="flex items-center gap-2 mt-1.5">
-                <Badge variant="outline" className="text-xs gap-1">
+                <FlagshipBadge tone={isFailed ? "danger" : isActive ? "primary" : "muted"}>
                   {patternLabels[workflow.pattern] ?? workflow.pattern}
-                </Badge>
+                </FlagshipBadge>
                 {workflow.stepProgress.total > 0 && (
                   <span className="text-xs text-muted-foreground">
                     {workflow.stepProgress.current}/{workflow.stepProgress.total}
