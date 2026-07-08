@@ -30,6 +30,8 @@
 //      CLI boundary.
 //   C. Broken artifact URL: loud "Could not set up the production build"
 //      warning and a working dev-mode fallback (the status-quo floor).
+//   P/T/TC/TB. Publish gates: price drift, pack taxonomy drift, pack compat
+//      drift, and pack tarball allowlist/size.
 //
 // Prereqs: `npm run build && node scripts/build-prebuilt-artifact.mjs`
 // (CI runs both). The script runs `npm run build:cli` + `npm pack` itself.
@@ -58,6 +60,10 @@ import { checkPriceDrift } from "./check-price-drift.mjs";
 // table/schedule ids must reconcile against the codified owned-primitive
 // registry (src/lib/packs/taxonomy.ts → taxonomy.json). LOCAL check, fail-CLOSED.
 import { runCheck as runTaxonomyCheck } from "./check-pack-taxonomy.mjs";
+// Publish-gate pack-compat check (R5): current bundled pack manifests must stay
+// backward-compatible with the last published baseline unless a pack raises its
+// relayCore major. LOCAL git-baseline check, fail-CLOSED.
+import { runCheck as runCompatCheck } from "./check-pack-compat.mjs";
 // Publish-gate pack-tarball check (R4, features/pack-tarball-diet.md): the
 // declared BUNDLED_PACK_IDS allowlist must equal what physically ships under
 // templates/, and the unpacked template size must stay under budget (the
@@ -408,6 +414,25 @@ async function main() {
     }
   }
 
+  // ---- Case TC: pack-compat drift — current manifests vs last published baseline ----
+  // LOCAL, fail-CLOSED: a pack update may add tables/columns/blueprints/schedules
+  // but may not remove customer-visible contracts unless it raises relayCore's
+  // major. The default baseline is origin/main; release CI can override it with
+  // RELAY_PACK_COMPAT_BASE_REF when a tag is the sharper "last published" ref.
+  console.log("\n[smoke] Case TC: pack-compat drift (current manifests vs baseline)");
+  {
+    const compat = runCompatCheck();
+    if (compat.findings.length > 0) {
+      for (const f of compat.findings) console.error(`  - ${f}`);
+      assert(false, "Case TC: a pack manifest introduced a breaking change without a relayCore major bump (see findings above)");
+    } else {
+      console.log(
+        `[smoke] Case TC: OK — ${compat.candidatePackCount} current packs vs ${compat.baselinePackCount} baseline packs at ${compat.baselineRef}; no breaking manifest drift.`,
+      );
+      for (const item of compat.allowed) console.log(`[smoke] Case TC allowed: ${item}`);
+    }
+  }
+
   // ---- Case TB: pack-tarball allowlist + size budget ----
   // LOCAL, fail-CLOSED: the bundled-pack allowlist (BUNDLED_PACK_IDS, mirrored
   // to bundled.json) must equal the physical templates/ set — a pack present
@@ -430,7 +455,7 @@ async function main() {
   await fs.rm(workDir, { recursive: true, force: true });
   rmSync(tarballPath, { force: true });
   console.log(
-    "\n[smoke] npx production smoke passed: A (prod first run), B (cached + LAN), L (license lifecycle + staging gate), L2 (bundle flatten), C (loud fallback), P (price drift), T (pack-taxonomy drift), TB (pack-tarball allowlist + size).",
+    "\n[smoke] npx production smoke passed: A (prod first run), B (cached + LAN), L (license lifecycle + staging gate), L2 (bundle flatten), C (loud fallback), P (price drift), T (pack-taxonomy drift), TC (pack-compat drift), TB (pack-tarball allowlist + size).",
   );
 }
 

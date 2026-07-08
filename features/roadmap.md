@@ -536,16 +536,19 @@ when-dependsOn-earns-weight, bundle-pricing) need operator + Website calls durin
 | [pack-depth-next-wave](pack-depth-next-wave.md) | P2 | planned | pack-primitive-resurface, pack-bundle-model |
 | [pack-taxonomy-codified](pack-taxonomy-codified.md) | P1 | shipped | — |
 | [pack-taxonomy-ci-gate](pack-taxonomy-ci-gate.md) | P1 | shipped | pack-taxonomy-codified |
+| [pack-compat-diff-gate](pack-compat-diff-gate.md) | P1 | shipped | pack-taxonomy-codified, pack-taxonomy-ci-gate |
 | [pack-dependson-foundation](pack-dependson-foundation.md) | P3 | planned | pack-bundle-model |
 
-**Packs Robustify (governance layer, 2026-07-06):** `_IDEAS/packs-robustify.md` §10 R1+R3 **BUILT
+**Packs Robustify (governance layer, 2026-07-06/08):** `_IDEAS/packs-robustify.md` §10 R1+R3+R5 **BUILT
 2026-07-06** — the codified taxonomy data file (`pack-taxonomy-codified`, R1: `src/lib/packs/taxonomy.ts`
 + `taxonomy.json` + pure loader) + the CI gate that fails the build on ownership drift
 (`pack-taxonomy-ci-gate`, R3: `scripts/check-pack-taxonomy.mjs`, wired into the npx-prod-smoke publish
-gate as Case T + `check:pack-taxonomy` npm alias). Gates-before-features (§11): a one-time gate makes
-every future pack safe at author time. R2 (install-time check), R5 (compat-diff gate), R7 (integration),
-R8 (dependsOn), R9 (distribution) remain in the idea doc, ungroomed — groom the next tranche (R5 pairs
-with R3) when this lands.
+gate as Case T + `check:pack-taxonomy` npm alias). R5 (`pack-compat-diff-gate`) was built 2026-07-08:
+`scripts/check-pack-compat.mjs` compares current bundled manifests to a git baseline (`origin/main` by
+default, override with `RELAY_PACK_COMPAT_BASE_REF`) and fails release smoke Case TC on breaking
+version-to-version drift unless `relayCore` majors. Gates-before-features (§11): one-time gates make
+future packs safe at author time. R2 (install-time check), R7 (integration), R8 (dependsOn), R9
+(distribution) remain in the idea doc, ungroomed.
 
 ### Packs Publish — distribution & community (2026-07-06)
 

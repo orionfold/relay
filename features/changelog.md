@@ -1,5 +1,17 @@
 # Feature Changelog
 
+## 2026-07-08 — Pack compat diff gate built
+
+### Built
+- `pack-compat-diff-gate`: added `scripts/check-pack-compat.mjs` plus
+  `npm run check:pack-compat` and npx-prod-smoke **Case TC**. The gate compares current bundled
+  pack manifests against a git baseline (`origin/main` by default; override with
+  `RELAY_PACK_COMPAT_BASE_REF`) and fails on breaking pack updates unless the pack raises its
+  `relayCore` major. Covered removed packs, tables, columns, blueprints, row-insert triggers,
+  schedules, and existing view bindings.
+- `0.36.0` release prep: plugin `apiVersion` current window moved to `0.36`, retained `0.35`
+  compatibility, and refreshed the three example plugin manifests.
+
 ## 2026-07-07 — Flagship card polish built
 
 ### Built

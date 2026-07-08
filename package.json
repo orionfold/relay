@@ -1,6 +1,6 @@
 {
   "name": "orionfold-relay",
-  "version": "0.35.2",
+  "version": "0.36.0",
   "description": "Orionfold Relay — a local-first, multi-agent orchestration runtime and builder scaffold for AI-native work.",
   "keywords": [
     "ai",
@@ -71,6 +71,7 @@
     "validate:tokens": "npx tsx design-system/validate-tokens.ts",
     "check:price-drift": "node scripts/check-price-drift.mjs",
     "check:pack-taxonomy": "node scripts/check-pack-taxonomy.mjs",
+    "check:pack-compat": "node scripts/check-pack-compat.mjs",
     "check:pack-tarball": "node scripts/check-pack-tarball.mjs",
     "sync-worktree": "bash bin/sync-worktree.sh",
     "prepublishOnly": "npm run build:cli"
