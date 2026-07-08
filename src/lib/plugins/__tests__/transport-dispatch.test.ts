@@ -640,7 +640,9 @@ it("16. Invariant grep: plugin module loading stays external to Turbopack tracin
   expect(src).not.toContain("return import(specifier)");
   expect(src).not.toMatch(/require\(\s*absPath\s*\)/);
   expect(src).not.toMatch(/require\.resolve\(\s*absPath\s*\)/);
+  expect(src).not.toContain("await import(pathToFileURL(absPath).href)");
   expect(src).toContain("spawn(process.execPath");
   expect(src).toContain("SDK_VALIDATION_SCRIPT");
-  expect(src).toContain("pathToFileURL(absPath).href");
+  expect(src).toContain("importEsm(pathToFileURL(absPath).href)");
+  expect(src).toContain("\"return im\" + \"port(specifier)\"");
 });

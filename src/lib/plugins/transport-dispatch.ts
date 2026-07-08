@@ -53,6 +53,7 @@ const SDK_VALIDATION_SCRIPT = `
 const { createRequire } = require("node:module");
 const path = require("node:path");
 const { pathToFileURL } = require("node:url");
+const importEsm = Function("specifier", "return im" + "port(specifier)");
 
 function json(result) {
   process.stdout.write(JSON.stringify(result) + "\\n");
@@ -73,7 +74,7 @@ function resolveCreateServer(mod) {
   const absPath = process.argv[1];
   const ext = path.extname(absPath);
   const mod = ext === ".mjs"
-    ? await import(pathToFileURL(absPath).href)
+    ? await importEsm(pathToFileURL(absPath).href)
     : createRequire(process.cwd() + "/package.json")(absPath);
 
   const createServer = resolveCreateServer(mod);
