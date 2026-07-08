@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, Bot, ArrowUp, ArrowDown, Minus, Trash2, Check, X, Loader2, Square, CheckSquare, Pencil, FileText, Clock } from "lucide-react";
 import { formatCompactDateTime } from "@/lib/utils/format-timestamp";
-import type { TaskStatus } from "@/lib/constants/task-status";
+import { StatusChip } from "@/components/shared/status-chip";
 
 export interface TaskItem {
   id: string;
@@ -104,6 +104,7 @@ export function TaskCard({
   const isFailed = task.status === "failed";
   const isRunning = task.status === "running";
   const priority = priorityConfig[task.priority] ?? priorityConfig[3];
+  const showFooterStatus = task.status === "running" || task.status === "completed" || task.status === "failed";
 
   function handleTrashClick(e: React.MouseEvent) {
     e.stopPropagation();
@@ -257,12 +258,19 @@ export function TaskCard({
                 </button>
               )}
               <span
-                className="flex items-center gap-1 text-xs text-muted-foreground tabular-nums truncate min-w-0 flex-1"
+                className="flex min-w-0 flex-1 items-center gap-1 truncate text-[11px] font-medium tabular-nums text-muted-foreground"
                 title={new Date(relevantDate).toLocaleString()}
               >
                 <Clock className="h-3 w-3 shrink-0" />
                 {formatCompactDateTime(relevantDate)}
               </span>
+              {showFooterStatus && (
+                <StatusChip
+                  status={task.status}
+                  family="lifecycle"
+                  className="h-5 shrink-0 text-[11px] font-medium"
+                />
+              )}
               {showDeleteButton && (
                 <button
                   type="button"
@@ -276,13 +284,22 @@ export function TaskCard({
             </>
           )
         ) : (
-          <span
-            className="flex items-center gap-1 text-xs text-muted-foreground tabular-nums truncate min-w-0 flex-1"
-            title={new Date(relevantDate).toLocaleString()}
-          >
-            <Clock className="h-3 w-3 shrink-0" />
-            {formatCompactDateTime(relevantDate)}
-          </span>
+          <>
+            <span
+              className="flex min-w-0 flex-1 items-center gap-1 truncate text-[11px] font-medium tabular-nums text-muted-foreground"
+              title={new Date(relevantDate).toLocaleString()}
+            >
+              <Clock className="h-3 w-3 shrink-0" />
+              {formatCompactDateTime(relevantDate)}
+            </span>
+            {showFooterStatus && (
+              <StatusChip
+                status={task.status}
+                family="lifecycle"
+                className="h-5 shrink-0 text-[11px] font-medium"
+              />
+            )}
+          </>
         )}
       </div>
     </Card>

@@ -7,7 +7,7 @@ import type { AgentRuntimeId } from "@/lib/agents/runtime/catalog";
 import { getSupportedRuntimes } from "@/lib/agents/profiles/compatibility";
 import { getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
 import { PackPill } from "@/components/shared/pack-pill";
-import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
+import { FlagshipBadge } from "@/components/shared/flagship-card";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
 interface ProfileCardProps {
@@ -57,19 +57,16 @@ export function ProfileCard({ profile, isBuiltin = false, packName = null, onCli
     >
       <CardHeader className="pb-2">
         <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
-          <div className="flex min-w-0 items-start gap-3">
-            <FlagshipIconWell icon={ProfileIcon} color={profileColors.icon} />
-            <div className="min-w-0 space-y-1">
-              <CardTitle className="min-w-0 truncate text-base font-semibold">
-                {profile.name}
-              </CardTitle>
-              <FlagshipBadge
-                icon={profile.domain === "work" ? Bot : UserCheck}
-                tone={profile.domain === "work" ? "primary" : "warning"}
-              >
-                {profile.domain}
-              </FlagshipBadge>
-            </div>
+          <div className="min-w-0 space-y-1">
+            <CardTitle className="min-w-0 truncate text-base font-semibold">
+              {profile.name}
+            </CardTitle>
+            <FlagshipBadge
+              icon={profile.domain === "work" ? Bot : UserCheck}
+              tone={profile.domain === "work" ? "primary" : "warning"}
+            >
+              {profile.domain}
+            </FlagshipBadge>
           </div>
         </div>
       </CardHeader>

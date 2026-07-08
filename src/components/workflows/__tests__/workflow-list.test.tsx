@@ -69,7 +69,7 @@ describe("WorkflowList card interactions", () => {
     expect(push).toHaveBeenCalledWith("/workflows/wf-1");
   });
 
-  it("runs the workflow from the explicit button without bubbling a second card click", async () => {
+  it("runs the draft workflow from the explicit button without bubbling a second card click", async () => {
     render(<WorkflowList projects={[]} />);
 
     const runButton = await screen.findByRole("button", {

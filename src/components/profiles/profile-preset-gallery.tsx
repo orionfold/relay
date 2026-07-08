@@ -10,7 +10,6 @@ import { getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
 import {
   FlagshipBadge,
   FlagshipCardActionRow,
-  FlagshipIconWell,
 } from "@/components/shared/flagship-card";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
@@ -73,7 +72,7 @@ export function ProfilePresetGallery({
               key={p.id}
               type="button"
               className={cn(
-                "surface-card flagship-card-tone flagship-card-tone-preset flagship-card-interactive group relative flex min-h-[190px] flex-col gap-3 overflow-hidden rounded-xl border p-4 text-left",
+                "surface-card flagship-card-tone flagship-card-tone-preset flagship-card-interactive group relative flex min-h-[190px] flex-col gap-3 overflow-hidden rounded-xl border p-4 text-left @container/card",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               )}
               onClick={() => {
@@ -83,11 +82,10 @@ export function ProfilePresetGallery({
             >
               <Glyph
                 aria-hidden
-                className="pointer-events-none absolute -right-3 -top-3 h-[9.6rem] w-[9.6rem] select-none"
+                className="pointer-events-none absolute right-3 top-3 h-[clamp(3.25rem,25cqw,6.5rem)] w-[clamp(3.25rem,25cqw,6.5rem)] select-none"
                 style={{ color: profileColors.icon, opacity: 0.1 }}
               />
               <div className="relative flex min-w-0 items-start gap-3">
-                <FlagshipIconWell icon={Glyph} color={profileColors.icon} />
                 <div className="min-w-0 space-y-1">
                   <p className="min-w-0 truncate text-sm font-semibold leading-tight">
                     {p.name}

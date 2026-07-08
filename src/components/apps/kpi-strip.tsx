@@ -49,14 +49,14 @@ export function KPIStrip({ tiles }: KPIStripProps) {
             key={tile.id}
             className={cn(
               cardVariants({ tone: "metric" }),
-              "gap-1.5 overflow-hidden p-3 py-3"
+              "gap-1.5 overflow-hidden p-3 py-3 @container/card"
             )}
             data-kit-primitive="kpi-tile"
           >
             {Watermark && (
               <Watermark
                 aria-hidden
-                className="pointer-events-none absolute -right-3 -top-3 h-[9.6rem] w-[9.6rem] select-none text-foreground/[0.07]"
+                className="pointer-events-none absolute right-3 top-3 h-[clamp(3.25rem,25cqw,6.5rem)] w-[clamp(3.25rem,25cqw,6.5rem)] select-none text-foreground/[0.07]"
               />
             )}
             <div className="relative font-mono text-[0.65rem] uppercase tracking-wider text-muted-foreground">

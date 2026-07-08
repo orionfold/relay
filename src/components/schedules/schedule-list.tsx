@@ -217,9 +217,6 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between gap-2 min-w-0">
                   <CardTitle className="min-w-0 truncate text-base font-medium flex items-center gap-1.5">
-                    {sched.type === "heartbeat" && (
-                      <Heart className="h-3.5 w-3.5 text-rose-500 shrink-0" />
-                    )}
                     {sched.name}
                   </CardTitle>
                   <div className="flex shrink-0 items-center gap-1.5">

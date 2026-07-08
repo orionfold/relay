@@ -9,7 +9,6 @@ import { AppCardDeleteButton } from "@/components/apps/app-card-delete-button";
 import {
   FlagshipBadge,
   FlagshipCardActionRow,
-  FlagshipIconWell,
 } from "@/components/shared/flagship-card";
 
 export const dynamic = "force-dynamic";
@@ -46,7 +45,6 @@ export default function AppsPage() {
                   <CardContent className="pointer-events-none relative flex h-full flex-col gap-3 p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex min-w-0 items-start gap-3">
-                        <FlagshipIconWell icon={Package} />
                         <div className="min-w-0 space-y-1">
                           <span className="block truncate text-sm font-semibold leading-tight">
                             {app.name}

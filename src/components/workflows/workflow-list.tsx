@@ -12,9 +12,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { GitBranch, Pencil, Copy, RotateCcw, Trash2, FileCog, Play, Square } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { workflowStatusVariant, patternLabels } from "@/lib/constants/status-colors";
+import { patternLabels } from "@/lib/constants/status-colors";
 import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
-import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
+import { FlagshipBadge } from "@/components/shared/flagship-card";
+import { StatusChip } from "@/components/shared/status-chip";
 import { getWorkflowExecutionInfo } from "@/lib/workflows/execution-status";
 
 interface Workflow {
@@ -186,11 +187,11 @@ export function WorkflowList({ projects }: WorkflowListProps) {
               stepStates: parsedState,
             });
             const runLabel =
-              wf.status === "completed" || wf.status === "failed"
-                ? "Re-run"
-                : wf.status === "active"
-                  ? "Restart"
-                  : "Run workflow";
+              execution.status === "draft" ? "Run workflow" : "Re-run";
+            const runAriaLabel =
+              runLabel === "Run workflow"
+                ? `Run workflow ${wf.name}`
+                : `${runLabel} workflow ${wf.name}`;
             return (
               <Card
                 key={wf.id}
@@ -205,7 +206,6 @@ export function WorkflowList({ projects }: WorkflowListProps) {
               >
                 <CardHeader className="pb-2">
                   <div className="flex min-w-0 items-start gap-3">
-                    <FlagshipIconWell icon={wfIcon.icon} color={wfIcon.colors.icon} />
                     <div className="min-w-0 space-y-1">
                       <CardTitle className="min-w-0 truncate text-base font-semibold">
                         {wf.name}
@@ -214,9 +214,11 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                         <FlagshipBadge icon={FileCog} tone={execution.status === "draft" ? "muted" : "primary"}>
                           {patternLabels[pattern] ?? pattern}
                         </FlagshipBadge>
-                        <Badge variant={workflowStatusVariant[execution.status] ?? "secondary"}>
-                          {execution.label}
-                        </Badge>
+                        <StatusChip
+                          status={execution.status}
+                          family="lifecycle"
+                          className="h-5 text-[11px] font-medium"
+                        />
                       </div>
                     </div>
                   </div>
@@ -275,10 +277,10 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                             variant={wf.status === "draft" || wf.status === "paused" ? "default" : "outline"}
                             size="sm"
                             className="h-7 gap-1.5 px-2 text-xs"
-                            aria-label={`${runLabel} workflow ${wf.name}`}
+                            aria-label={runAriaLabel}
                             onClick={() => handleRunWorkflow(wf.id)}
                           >
-                            {runLabel === "Re-run" || runLabel === "Restart" ? (
+                            {runLabel === "Re-run" ? (
                               <RotateCcw className="h-3.5 w-3.5" />
                             ) : (
                               <Play className="h-3.5 w-3.5" />

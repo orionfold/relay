@@ -17,8 +17,9 @@ import {
   Loader2,
   Square,
 } from "lucide-react";
-import { workflowStatusVariant, patternLabels } from "@/lib/constants/status-colors";
+import { patternLabels } from "@/lib/constants/status-colors";
 import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
+import { StatusChip } from "@/components/shared/status-chip";
 import type { WorkflowStatusResponse } from "@/lib/workflows/types";
 import { getWorkflowExecutionInfoFromStatusResponse } from "@/lib/workflows/execution-status";
 
@@ -66,7 +67,7 @@ export function computeSignpost(data: WorkflowStatusResponse): Signpost {
       return {
         tone: "wait",
         icon: "arrow",
-        text: "No live task is running. Restart this workflow when you are ready.",
+        text: "No live task is running. Re-run this workflow when you are ready.",
       };
     }
     return {
@@ -130,7 +131,7 @@ export function WorkflowHeader({
   const execution = getWorkflowExecutionInfoFromStatusResponse(data);
   const primaryRunLabel =
     data.status === "active"
-      ? "Restart workflow"
+      ? "Re-run workflow"
       : data.status === "paused"
         ? "Resume workflow"
         : "Run workflow";
@@ -168,9 +169,7 @@ export function WorkflowHeader({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={workflowStatusVariant[execution.status] ?? "secondary"}>
-            {execution.label}
-          </Badge>
+          <StatusChip status={execution.status} family="lifecycle" />
 
           {canExecute && execution.canRun && !["completed", "failed"].includes(data.status) && (
             <Button size="sm" onClick={onExecute} disabled={executing}>

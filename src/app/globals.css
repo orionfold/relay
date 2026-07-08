@@ -477,7 +477,7 @@
   transition: border-color 0.15s ease;
 }
 
-/* Flagship card foundation — type wash + shared eased motion. */
+/* Flagship card foundation — neutral body + type accents + shared eased motion. */
 .flagship-card-tone-blueprint {
   --flagship-card-tone: var(--card-tone-blueprint);
 }
@@ -505,13 +505,13 @@
 
 [data-slot="card"].flagship-card-tone,
 .flagship-card-tone {
-  background: color-mix(in oklch, var(--flagship-card-tone) 5%, var(--card));
+  background: var(--card);
   border-color: color-mix(in oklch, var(--flagship-card-tone) 22%, var(--border));
 }
 
 [data-slot="card"].flagship-card-featured,
 .flagship-card-featured {
-  background: color-mix(in oklch, var(--primary) 7%, var(--card));
+  background: var(--card);
   border-color: color-mix(in oklch, var(--primary) 42%, var(--border));
 }
 

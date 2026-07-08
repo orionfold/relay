@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Loader2, FileText } from "lucide-react";
-import { workflowStatusVariant, patternLabels } from "@/lib/constants/status-colors";
+import { patternLabels } from "@/lib/constants/status-colors";
 import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
-import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
+import { FlagshipBadge } from "@/components/shared/flagship-card";
+import { StatusChip } from "@/components/shared/status-chip";
 import { Button } from "@/components/ui/button";
 import { Play, RotateCcw, Square } from "lucide-react";
 import { getWorkflowExecutionInfo } from "@/lib/workflows/execution-status";
@@ -63,11 +63,7 @@ export function WorkflowKanbanCard({ workflow, onRun, onStop }: WorkflowKanbanCa
 
   const openWorkflow = () => router.push(`/workflows/${workflow.id}`);
   const runLabel =
-    workflow.status === "completed" || workflow.status === "failed"
-      ? "Re-run"
-      : workflow.status === "active"
-        ? "Restart"
-        : "Run";
+    execution.status === "draft" ? "Run" : "Re-run";
 
   return (
       <Card
@@ -95,7 +91,6 @@ export function WorkflowKanbanCard({ workflow, onRun, onStop }: WorkflowKanbanCa
       >
         <div className="p-3">
           <div className="flex items-start gap-2">
-            <FlagshipIconWell icon={wfIcon.icon} color={wfIcon.colors.icon} className="h-7 w-7" />
             <div className="min-w-0 flex-1">
               <p className="line-clamp-2 text-sm font-semibold">{workflow.name}</p>
               {workflow.projectName && (
@@ -146,14 +141,13 @@ export function WorkflowKanbanCard({ workflow, onRun, onStop }: WorkflowKanbanCa
 
         {/* Status strip */}
         <div className={`flex items-center min-h-7 px-3 py-1 border-t transition-colors ${statusStripBg[execution.status] ?? statusStripBg.draft}`}>
-          <Badge
-            variant={workflowStatusVariant[execution.status] ?? "secondary"}
-            className="text-[11px] h-5"
-          >
-            {execution.label}
-          </Badge>
+          <StatusChip
+            status={execution.status}
+            family="lifecycle"
+            className="h-5 text-[11px] font-medium"
+          />
           {workflow.outputDocCount != null && workflow.outputDocCount > 0 && (
-            <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+            <span className="ml-1.5 flex items-center gap-0.5 text-[11px] font-medium text-muted-foreground">
               <FileText className="h-3 w-3" />
               {workflow.outputDocCount}
             </span>
@@ -185,7 +179,7 @@ export function WorkflowKanbanCard({ workflow, onRun, onStop }: WorkflowKanbanCa
                 onClick={() => onRun(workflow)}
                 aria-label={`${runLabel} workflow ${workflow.name}`}
               >
-                {runLabel === "Re-run" || runLabel === "Restart" ? (
+                {runLabel === "Re-run" ? (
                   <RotateCcw className="h-3 w-3" />
                 ) : (
                   <Play className="h-3 w-3" />

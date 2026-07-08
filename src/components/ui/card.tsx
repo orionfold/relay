@@ -11,8 +11,8 @@ import { cn } from "@/lib/utils"
 // original shadcn Card byte-for-byte (tone: "neutral", emphasis: "none"), so
 // existing call sites are untouched until they opt in.
 //
-//   tone      — per-primitive-kind bg/border tint. The tone IS the type cue
-//               (F1): a blueprint card reads teal, an agent card violet, etc.
+//   tone      — per-primitive-kind accent identity. The tone feeds watermark,
+//               border, pill, and footer accents; the card body stays neutral.
 //   emphasis  — "featured" is the accent/payoff variant ("Start here"): a
 //               primary-tinted surface + ring. Replaces the ad-hoc
 //               `border-primary ring-1` pattern that lived in last-run-card.
@@ -26,9 +26,8 @@ const cardVariants = cva(
     variants: {
       tone: {
         neutral: "bg-card",
-        // Faint hue washes — the primitive-type cue. These route through
-        // CSS tokens so light/dark themes can tune each card family without
-        // hardcoding Tailwind color scales into the primitive.
+        // Type accent hooks. These route through CSS tokens so light/dark
+        // themes can tune identity accents without coloring the card body.
         blueprint: "flagship-card-tone flagship-card-tone-blueprint",
         app: "flagship-card-tone flagship-card-tone-app",
         agent: "flagship-card-tone flagship-card-tone-agent",
@@ -41,8 +40,8 @@ const cardVariants = cva(
       },
       emphasis: {
         none: "",
-        // The North Star payoff card — token-swap over whatever tone, so a
-        // featured blueprint still reads teal but pops via the primary ring.
+        // The North Star payoff card — neutral body with a stronger primary
+        // border/ring instead of a tinted background.
         featured: "flagship-card-featured ring-1 ring-primary/20",
       },
     },
@@ -92,7 +91,7 @@ function Card({
       data-slot="card"
       className={cn(
         cardVariants({ tone, emphasis }),
-        Watermark && "overflow-hidden",
+        Watermark && "overflow-hidden @container/card",
         interactive && "flagship-card-interactive",
         className
       )}
@@ -101,17 +100,15 @@ function Card({
       {Watermark && (
         <Watermark
           aria-hidden
-          // +20% over the prior h-32 (→ 9.6rem) and shifted inward from the
-          // corner so the glyph reads as a crafted part of every card rather
-          // than hanging off the edge. Uniform on ALL cards — the watermark is
-          // a consistent polish layer, not the featured cue.
+          // Proportional watermark: roughly a quarter of the card width, with
+          // comfortable inset so it reads as identity, not edge decoration.
           //
           // When a watermarkColor is given, the glyph carries that type-color
           // (at low opacity, so it's a wash not a mark) — the same per-type
           // color the left IconCircle used to. Otherwise it falls back to a
           // neutral foreground tint.
           className={cn(
-            "pointer-events-none absolute -right-3 -top-3 h-[9.6rem] w-[9.6rem] select-none",
+            "pointer-events-none absolute right-3 top-3 h-[clamp(3.25rem,25cqw,6.5rem)] w-[clamp(3.25rem,25cqw,6.5rem)] select-none",
             !watermarkColor && "text-foreground/[0.07]"
           )}
           style={

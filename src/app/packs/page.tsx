@@ -270,9 +270,6 @@ function FeaturedPackCard({ template }: { template: PackTemplate }) {
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
           <div className="min-w-0 space-y-3">
             <div className="flex items-center gap-3">
-              <div className="surface-card-muted flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border">
-                <Icon className="h-6 w-6 text-primary" aria-hidden="true" />
-              </div>
               <div className="min-w-0">
                 <h2 className="truncate text-base font-semibold">
                   {meta.name}
@@ -368,9 +365,6 @@ function PackCard({
     >
       <CardContent className="relative flex h-full flex-col gap-3 p-3">
         <div className="flex items-start gap-3">
-          <div className="surface-card-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border">
-            <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
-          </div>
           <div className="min-w-0 flex-1 space-y-1">
             <span className="block truncate text-sm font-medium">{meta.name}</span>
             <div className="flex flex-wrap items-center gap-1.5">

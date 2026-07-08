@@ -14,7 +14,7 @@ import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import { PackPill } from "@/components/shared/pack-pill";
 import { RunNowButton } from "@/components/apps/run-now-button";
 import { packOf } from "@/lib/apps/pack-of";
-import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
+import { FlagshipBadge } from "@/components/shared/flagship-card";
 import type { WorkflowBlueprint } from "@/lib/workflows/blueprints/types";
 
 /** {id, name} of an installed pack — fetched from /api/apps for provenance. */
@@ -180,7 +180,6 @@ export function BlueprintGallery() {
               <CardHeader className="pb-1">
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
                   <div className="flex min-w-0 items-start gap-3">
-                    <FlagshipIconWell icon={wfIcon.icon} color={wfIcon.colors.icon} />
                     <div className="min-w-0 space-y-1">
                       <CardTitle className="min-w-0 truncate text-sm font-semibold">
                         {bp.name}

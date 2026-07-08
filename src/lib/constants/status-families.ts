@@ -67,6 +67,12 @@ export const lifecycleStatuses: Record<string, StatusDefinition> = {
     colorToken: "muted-foreground",
     badgeVariant: "secondary",
   },
+  waiting: {
+    label: "Waiting",
+    icon: MessageSquare,
+    colorToken: "status-warning",
+    badgeVariant: "outline",
+  },
   running: {
     label: "Running",
     icon: Loader2,
@@ -97,6 +103,12 @@ export const lifecycleStatuses: Record<string, StatusDefinition> = {
     label: "Paused",
     icon: Pause,
     colorToken: "status-warning",
+    badgeVariant: "secondary",
+  },
+  stalled: {
+    label: "Stalled",
+    icon: Timer,
+    colorToken: "muted-foreground",
     badgeVariant: "secondary",
   },
   cancelled: {

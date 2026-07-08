@@ -18,7 +18,7 @@ import {
   ShieldCheck,
   Zap,
 } from "lucide-react";
-import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
+import { FlagshipBadge } from "@/components/shared/flagship-card";
 import { cn } from "@/lib/utils";
 
 interface PresetInfo {
@@ -118,13 +118,12 @@ export function PresetsSection({ onPresetChange }: { onPresetChange?: () => void
                     "group relative flex min-h-[248px] flex-col gap-3 overflow-hidden rounded-xl border p-4 transition-[background-color,border-color,box-shadow]",
                     "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
                     preset.active
-                      ? "border-primary/50 bg-primary/8 shadow-[var(--shadow-raised)] ring-1 ring-primary/20"
-                      : "border-border bg-card hover:border-primary/30 hover:bg-accent/35"
+                      ? "border-primary/50 bg-card shadow-[var(--shadow-raised)] ring-1 ring-primary/20"
+                      : "border-border bg-card hover:border-primary/30"
                   )}
                 >
                   <div className="flex min-w-0 items-start justify-between gap-3">
                     <div className="flex min-w-0 items-start gap-3">
-                      <FlagshipIconWell icon={Icon} color={config.color} />
                       <div className="min-w-0 space-y-1">
                         <h3 className="min-w-0 truncate text-sm font-semibold leading-tight">
                           {preset.name}
