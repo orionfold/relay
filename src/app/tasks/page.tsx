@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { tasks, projects, workflows } from "@/lib/db/schema";
 import { desc, getTableColumns, isNull, sql } from "drizzle-orm";
 import { parseWorkflowState } from "@/lib/workflows/engine";
+import { getWorkflowExecutionInfo } from "@/lib/workflows/execution-status";
 import { TaskSurface } from "@/components/tasks/task-surface";
 import { SkeletonBoard } from "@/components/tasks/skeleton-board";
 import type { TaskItem } from "@/components/tasks/task-card";
@@ -31,7 +32,10 @@ async function BoardContent() {
 
   // Fetch all workflows for kanban display
   const allWorkflows = await db
-    .select()
+    .select({
+      ...getTableColumns(workflows),
+      liveTaskCount: sql<number>`(SELECT COUNT(*) FROM tasks t WHERE t.workflow_id = "workflows"."id" AND t.status IN ('running', 'queued'))`.as("liveTaskCount"),
+    })
     .from(workflows)
     .orderBy(desc(workflows.updatedAt));
 
@@ -47,6 +51,8 @@ async function BoardContent() {
   const serializedWorkflows: WorkflowKanbanItem[] = allWorkflows.map((w) => {
     let stepProgress = { current: 0, total: 0 };
     let currentStepName: string | undefined;
+    let waitingStepName: string | undefined;
+    let effectiveStatus: string | undefined;
 
     try {
       const { definition, state } = parseWorkflowState(w.definition);
@@ -62,17 +68,35 @@ async function BoardContent() {
               (step) => step.id === running.stepId
             )?.name;
           }
+          const waiting = state.stepStates.find((s) => s.status === "waiting_approval");
+          if (waiting) {
+            waitingStepName = definition.steps.find(
+              (step) => step.id === waiting.stepId
+            )?.name;
+          }
+          effectiveStatus = getWorkflowExecutionInfo({
+            status: w.status,
+            liveTaskCount: w.liveTaskCount,
+            stepStates: state.stepStates,
+          }).status;
         }
       }
     } catch {
       /* skip parse errors */
     }
 
+    effectiveStatus ??= getWorkflowExecutionInfo({
+      status: w.status,
+      liveTaskCount: w.liveTaskCount,
+    }).status;
+
     return {
       type: "workflow" as const,
       id: w.id,
       name: w.name,
       status: w.status,
+      effectiveStatus,
+      liveTaskCount: w.liveTaskCount,
       pattern: (() => {
         try {
           return JSON.parse(w.definition).pattern ?? "sequence";
@@ -84,6 +108,7 @@ async function BoardContent() {
       projectName: w.projectId ? projectMap.get(w.projectId) ?? undefined : undefined,
       stepProgress,
       currentStepName,
+      waitingStepName,
       createdAt: w.createdAt.toISOString(),
       updatedAt: w.updatedAt.toISOString(),
     };

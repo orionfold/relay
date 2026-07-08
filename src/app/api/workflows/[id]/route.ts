@@ -9,7 +9,7 @@ import {
   learnedContext,
   usageLedger,
 } from "@/lib/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import type { WorkflowDefinition } from "@/lib/workflows/types";
 import { validateWorkflowDefinitionAssignments } from "@/lib/agents/profiles/assignment-validation";
 import { validateWorkflowDefinition } from "@/lib/workflows/definition-validation";
@@ -142,10 +142,24 @@ export async function DELETE(
   }
 
   if (workflow.status === "active") {
-    return NextResponse.json(
-      { error: "Cannot delete an active workflow — pause or wait for completion" },
-      { status: 409 }
-    );
+    const liveTasks = await db
+      .select({ id: tasks.id })
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.workflowId, id),
+          inArray(tasks.status, ["running", "queued"])
+        )
+      );
+
+    if (liveTasks.length > 0) {
+      return NextResponse.json(
+        { error: "Cannot delete an active workflow — pause or wait for completion" },
+        { status: 409 }
+      );
+    }
+    // Recover from old/stale active rows by letting ordinary delete cleanup
+    // proceed. Truly running workflows are still protected above.
   }
 
   try {

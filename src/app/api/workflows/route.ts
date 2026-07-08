@@ -18,6 +18,7 @@ export async function GET() {
       createdAt: workflows.createdAt,
       updatedAt: workflows.updatedAt,
       taskCount: sql<number>`(SELECT COUNT(*) FROM tasks t WHERE t.workflow_id = "workflows"."id")`.as("taskCount"),
+      liveTaskCount: sql<number>`(SELECT COUNT(*) FROM tasks t WHERE t.workflow_id = "workflows"."id" AND t.status IN ('running', 'queued'))`.as("liveTaskCount"),
       outputDocCount: sql<number>`(SELECT COUNT(*) FROM documents d WHERE d.task_id IN (SELECT t2.id FROM tasks t2 WHERE t2.workflow_id = "workflows"."id") AND d.direction = 'output')`.as("outputDocCount"),
     })
     .from(workflows)

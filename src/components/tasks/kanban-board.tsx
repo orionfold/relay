@@ -22,6 +22,7 @@ import { EmptyBoard } from "./empty-board";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { COLUMN_ORDER, isValidDragTransition, type TaskStatus } from "@/lib/constants/task-status";
 import type { WorkflowKanbanItem } from "@/components/workflows/workflow-kanban-card";
+import { getWorkflowExecutionInfo } from "@/lib/workflows/execution-status";
 
 export type SortOrder = "priority" | "created-desc" | "created-asc" | "title-asc";
 
@@ -59,6 +60,31 @@ function workflowStatusToColumn(status: string): TaskStatus {
       return "failed";
     default:
       return "planned";
+  }
+}
+
+function workflowToColumn(workflow: WorkflowKanbanItem): TaskStatus {
+  const effectiveStatus =
+    workflow.effectiveStatus ??
+    getWorkflowExecutionInfo({
+      status: workflow.status,
+      liveTaskCount: workflow.liveTaskCount,
+    }).status;
+
+  switch (effectiveStatus) {
+    case "running":
+      return "running";
+    case "completed":
+      return "completed";
+    case "failed":
+      return "failed";
+    case "draft":
+    case "paused":
+    case "waiting":
+    case "stalled":
+      return "planned";
+    default:
+      return workflowStatusToColumn(workflow.status);
   }
 }
 
@@ -101,7 +127,7 @@ export function KanbanBoard({
       return initialTasks;
     }
   });
-  const [workflowItems] = useState<WorkflowKanbanItem[]>(initialWorkflows);
+  const [workflowItems, setWorkflowItems] = useState<WorkflowKanbanItem[]>(initialWorkflows);
   const [exitingIds, setExitingIds] = useState<Set<string>>(new Set());
   const [activeTask, setActiveTask] = useState<TaskItem | null>(null);
 
@@ -162,6 +188,10 @@ export function KanbanBoard({
     setTasks(initialTasks);
   }, [initialTasks]);
 
+  useEffect(() => {
+    setWorkflowItems(initialWorkflows);
+  }, [initialWorkflows]);
+
   // Filter tasks by project and status
   const filteredTasks = tasks.filter((t) => {
     if (projectFilter !== "all" && t.projectId !== projectFilter) return false;
@@ -172,7 +202,7 @@ export function KanbanBoard({
   // Filter workflows by project and status (mapped to column)
   const filteredWorkflows = workflowItems.filter((w) => {
     if (projectFilter !== "all" && w.projectId !== projectFilter) return false;
-    if (statusFilter !== "all" && workflowStatusToColumn(w.status) !== statusFilter) return false;
+    if (statusFilter !== "all" && workflowToColumn(w) !== statusFilter) return false;
     return true;
   });
 
@@ -355,6 +385,42 @@ export function KanbanBoard({
     }
   }, [tasks, refresh]);
 
+  const handleRunWorkflow = useCallback(async (workflow: WorkflowKanbanItem) => {
+    const res = await fetch(`/api/workflows/${workflow.id}/execute`, { method: "POST" });
+    if (res.ok) {
+      toast.success(
+        workflow.status === "completed" || workflow.status === "failed" || workflow.status === "active"
+          ? "Workflow restarted"
+          : "Workflow started"
+      );
+      router.refresh();
+    } else {
+      const data = await res.json().catch(() => null);
+      toast.error(data?.error ?? "Failed to run workflow");
+    }
+  }, [router]);
+
+  const handleStopWorkflow = useCallback(async (workflow: WorkflowKanbanItem) => {
+    const prevItems = workflowItems;
+    setWorkflowItems((prev) =>
+      prev.map((item) =>
+        item.id === workflow.id
+          ? { ...item, status: "failed", effectiveStatus: "failed", liveTaskCount: 0 }
+          : item
+      )
+    );
+
+    const res = await fetch(`/api/workflows/${workflow.id}/stop`, { method: "POST" });
+    if (res.ok) {
+      toast.success("Workflow stopped");
+      router.refresh();
+    } else {
+      setWorkflowItems(prevItems);
+      const data = await res.json().catch(() => null);
+      toast.error(data?.error ?? "Failed to stop workflow");
+    }
+  }, [router, workflowItems]);
+
   function handleTaskClick(task: TaskItem) {
     onTaskSelect ? onTaskSelect(task.id) : router.push(`/tasks/${task.id}`);
   }
@@ -374,7 +440,7 @@ export function KanbanBoard({
   const groupedWorkflows = COLUMN_ORDER.reduce(
     (acc, status) => {
       acc[status] = filteredWorkflows.filter(
-        (w) => workflowStatusToColumn(w.status) === status
+        (w) => workflowToColumn(w) === status
       );
       return acc;
     },
@@ -436,6 +502,8 @@ export function KanbanBoard({
                 onBulkDelete={(ids) => setBulkDeleteIds(ids)}
                 onBulkStatusChange={handleBulkStatusChange}
                 onBulkExecute={handleBulkExecute}
+                onRunWorkflow={handleRunWorkflow}
+                onStopWorkflow={handleStopWorkflow}
               />
             ))}
           </div>

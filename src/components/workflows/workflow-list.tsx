@@ -9,12 +9,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
-import { GitBranch, Pencil, Copy, RotateCcw, Trash2, FileCog, Play } from "lucide-react";
+import { GitBranch, Pencil, Copy, RotateCcw, Trash2, FileCog, Play, Square } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { workflowStatusVariant, patternLabels } from "@/lib/constants/status-colors";
 import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
+import { getWorkflowExecutionInfo } from "@/lib/workflows/execution-status";
 
 interface Workflow {
   id: string;
@@ -25,6 +26,7 @@ interface Workflow {
   createdAt: string;
   updatedAt: string;
   taskCount?: number;
+  liveTaskCount?: number;
   outputDocCount?: number;
   runNumber?: number;
 }
@@ -100,6 +102,17 @@ export function WorkflowList({ projects }: WorkflowListProps) {
     }
   }
 
+  async function handleStopWorkflow(id: string) {
+    const res = await fetch(`/api/workflows/${id}/stop`, { method: "POST" });
+    if (res.ok) {
+      toast.success("Workflow stopped");
+      refresh();
+    } else {
+      const data = await res.json().catch(() => null);
+      toast.error(data?.error ?? "Failed to stop workflow");
+    }
+  }
+
   const templates = workflows.filter((wf) => wf.status === "draft");
   const runs = workflows.filter((wf) => wf.status !== "draft");
 
@@ -160,6 +173,24 @@ export function WorkflowList({ projects }: WorkflowListProps) {
             const stepCount = getStepCount(wf.definition);
             const promptPreview = getPromptPreview(wf.definition);
             const wfIcon = getWorkflowIconFromName(wf.name, pattern);
+            const parsedState = (() => {
+              try {
+                return JSON.parse(wf.definition)._state?.stepStates as Array<{ status: string }> | undefined;
+              } catch {
+                return undefined;
+              }
+            })();
+            const execution = getWorkflowExecutionInfo({
+              status: wf.status,
+              liveTaskCount: wf.liveTaskCount,
+              stepStates: parsedState,
+            });
+            const runLabel =
+              wf.status === "completed" || wf.status === "failed"
+                ? "Re-run"
+                : wf.status === "active"
+                  ? "Restart"
+                  : "Run workflow";
             return (
               <Card
                 key={wf.id}
@@ -180,11 +211,11 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                         {wf.name}
                       </CardTitle>
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <FlagshipBadge icon={FileCog} tone={wf.status === "draft" ? "muted" : "primary"}>
+                        <FlagshipBadge icon={FileCog} tone={execution.status === "draft" ? "muted" : "primary"}>
                           {patternLabels[pattern] ?? pattern}
                         </FlagshipBadge>
-                        <Badge variant={workflowStatusVariant[wf.status] ?? "secondary"}>
-                          {wf.status}
+                        <Badge variant={workflowStatusVariant[execution.status] ?? "secondary"}>
+                          {execution.label}
                         </Badge>
                       </div>
                     </div>
@@ -225,23 +256,34 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
                       >
-                        {["draft", "paused", "completed", "failed"].includes(wf.status) && (
+                        {execution.canStop && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-7 gap-1.5 px-2 text-xs text-destructive hover:text-destructive"
+                            aria-label={`Stop workflow ${wf.name}`}
+                            onClick={() => handleStopWorkflow(wf.id)}
+                          >
+                            <Square className="h-3.5 w-3.5" />
+                            Stop
+                          </Button>
+                        )}
+                        {execution.canRun && !execution.canStop && (
                           <Button
                             type="button"
                             variant={wf.status === "draft" || wf.status === "paused" ? "default" : "outline"}
                             size="sm"
                             className="h-7 gap-1.5 px-2 text-xs"
-                            aria-label={`${wf.status === "completed" || wf.status === "failed" ? "Re-run" : "Run"} workflow ${wf.name}`}
+                            aria-label={`${runLabel} workflow ${wf.name}`}
                             onClick={() => handleRunWorkflow(wf.id)}
                           >
-                            {wf.status === "completed" || wf.status === "failed" ? (
+                            {runLabel === "Re-run" || runLabel === "Restart" ? (
                               <RotateCcw className="h-3.5 w-3.5" />
                             ) : (
                               <Play className="h-3.5 w-3.5" />
                             )}
-                            {wf.status === "completed" || wf.status === "failed"
-                              ? "Re-run"
-                              : "Run workflow"}
+                            {runLabel}
                           </Button>
                         )}
                         {(wf.status === "draft" || wf.status === "completed" || wf.status === "failed") && (
@@ -274,7 +316,7 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                           </TooltipTrigger>
                           <TooltipContent>Clone</TooltipContent>
                         </Tooltip>
-                        {wf.status !== "active" && (
+                        {!execution.canStop && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button

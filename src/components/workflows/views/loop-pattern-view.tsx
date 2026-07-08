@@ -71,6 +71,22 @@ export function LoopPatternView({
     }
   }, [data.id, onRefresh]);
 
+  const handleStop = useCallback(async () => {
+    setExecuting(true);
+    try {
+      const res = await fetch(`/api/workflows/${data.id}/stop`, { method: "POST" });
+      if (res.ok) {
+        toast.success("Workflow stopped");
+        await onRefresh();
+      } else {
+        const err = await res.json().catch(() => null);
+        toast.error(err?.error ?? "Failed to stop workflow");
+      }
+    } finally {
+      setExecuting(false);
+    }
+  }, [data.id, onRefresh]);
+
   // Loop workflows expose their completed outputs as `loopState.iterations[]`
   // rather than `steps[].state`. Map each completed iteration to the shape
   // `WorkflowFullOutput` expects. This is the bug fix — previously the Full
@@ -103,6 +119,7 @@ export function LoopPatternView({
           canExecute={false}
           onExecute={handleExecute}
           onRerun={handleRerun}
+          onStop={handleStop}
           onDelete={onRequestDelete}
         />
         <CardContent>

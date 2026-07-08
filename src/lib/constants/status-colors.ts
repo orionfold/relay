@@ -21,6 +21,9 @@ export const projectStatusVariant: Record<string, "default" | "secondary" | "out
 export const workflowStatusVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   draft: "outline",
   active: "default",
+  running: "default",
+  waiting: "secondary",
+  stalled: "secondary",
   paused: "secondary",
   completed: "default",
   failed: "destructive",

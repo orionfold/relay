@@ -1,6 +1,6 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-08 (pt: **Web Publisher page registry built.** Web Publisher now has durable pages backed by `web_pages`, section page binding, page-scoped preview/publish/deployments, and inline create/rename/delete controls in the pages list.)_
+_Last updated: 2026-07-08 (pt: **Workflow execution state clarified.** Workflow cards/detail now distinguish persisted active rows from live execution, restore explicit Run/Restart/Stop controls, and avoid treating card navigation as a run action.)_
 
 ## ▶️ NEXT SESSION — Post-release backlog
 
@@ -50,6 +50,8 @@ Standing candidates (LOW / reactive):
 - Check git history for prior art; verify field reports before fixing.
 
 ## Recently shipped / groomed
+
+**Workflow execution state + Run/Stop controls (BUILT 2026-07-08, this commit):** Added an effective workflow execution helper so `active` rows with live child tasks show `running`/Stop, approval waits show `waiting`/Restart, and stale persisted-active rows show `stalled`/Restart instead of implying work is running. Workflow cards, the workflows list, Kanban board, and workflow detail headers now expose explicit Run/Restart/Stop actions; card clicks only navigate. The status APIs return `liveTaskCount`, stale active workflows can be deleted when no live tasks exist, and `/api/workflows/[id]/stop` cancels live child tasks while marking the workflow definition failed. Verification: focused execution/header vitest coverage, `npx tsc --noEmit`, `npm run build`, direct DB live-task check (`18 active rows`, `3 with live tasks`), and in-app Browser checks for `/tasks`, stale workflow detail, live workflow detail, and `/workflows`.
 
 **Packs-first IA copy cleanup (CONFIRMED COMPLETE 2026-07-08, working tree):** `features/packs-first-ia.md` was already `status: completed`; live `/packs`, `/apps`, `/chat`, and `/apps/relay-web-designer` checks confirmed the core IA is built. Cleaned residual visible copy from Apps-first wording: delete actions now say `Delete pack`, API delete errors say pack, `/packs` describes pack instances, README leads with `Describe a pack`, and chat extension fallback says `Compose a pack without a plugin`. Verification: `npx vitest run src/components/apps/__tests__/app-detail-actions.test.tsx src/components/apps/__tests__/app-card-delete-button.test.tsx 'src/app/api/apps/[id]/__tests__/route.test.ts' src/components/chat/__tests__/chat-message-extension-fallback.test.tsx src/lib/chat/__tests__/engine-planner.test.ts`.
 

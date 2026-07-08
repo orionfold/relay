@@ -15,10 +15,12 @@ import {
   Inbox as InboxIcon,
   Clock3,
   Loader2,
+  Square,
 } from "lucide-react";
 import { workflowStatusVariant, patternLabels } from "@/lib/constants/status-colors";
 import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import type { WorkflowStatusResponse } from "@/lib/workflows/types";
+import { getWorkflowExecutionInfoFromStatusResponse } from "@/lib/workflows/execution-status";
 
 /**
  * FEAT-7/8: a status-aware signpost telling the user what to do next. After a
@@ -51,6 +53,22 @@ export function computeSignpost(data: WorkflowStatusResponse): Signpost {
   // A live workflow is `active` at the top level (`running` is a step/run-state
   // value; the loop arm may report it too — accept both).
   if (status === "active" || status === "running") {
+    const execution = getWorkflowExecutionInfoFromStatusResponse(data);
+    if (execution.status === "waiting") {
+      return {
+        tone: "wait",
+        icon: "inbox",
+        href: "/inbox",
+        text: "Waiting for approval. This workflow is not actively running.",
+      };
+    }
+    if (execution.status === "stalled") {
+      return {
+        tone: "wait",
+        icon: "arrow",
+        text: "No live task is running. Restart this workflow when you are ready.",
+      };
+    }
     return {
       tone: "info",
       icon: "spinner",
@@ -95,6 +113,7 @@ export function WorkflowHeader({
   canExecute,
   onExecute,
   onRerun,
+  onStop,
   onDelete,
 }: {
   data: WorkflowStatusResponse;
@@ -103,10 +122,18 @@ export function WorkflowHeader({
   canExecute: boolean;
   onExecute: () => void;
   onRerun: () => void;
+  onStop: () => void;
   onDelete: () => void;
 }) {
   const router = useRouter();
   const hasDefinition = !!data.definition;
+  const execution = getWorkflowExecutionInfoFromStatusResponse(data);
+  const primaryRunLabel =
+    data.status === "active"
+      ? "Restart workflow"
+      : data.status === "paused"
+        ? "Resume workflow"
+        : "Run workflow";
 
   return (
     <CardHeader>
@@ -141,14 +168,27 @@ export function WorkflowHeader({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={workflowStatusVariant[data.status] ?? "secondary"}>
-            {data.status}
+          <Badge variant={workflowStatusVariant[execution.status] ?? "secondary"}>
+            {execution.label}
           </Badge>
 
-          {canExecute && (data.status === "draft" || data.status === "paused") && (
+          {canExecute && execution.canRun && !["completed", "failed"].includes(data.status) && (
             <Button size="sm" onClick={onExecute} disabled={executing}>
               <Play className="h-3 w-3 mr-1" />
-              {executing ? "Starting..." : "Run workflow"}
+              {executing ? "Starting..." : primaryRunLabel}
+            </Button>
+          )}
+
+          {execution.canStop && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:text-destructive"
+              onClick={onStop}
+              disabled={executing}
+            >
+              <Square className="h-3.5 w-3.5 mr-1.5" />
+              Stop
             </Button>
           )}
 
@@ -186,7 +226,7 @@ export function WorkflowHeader({
             </Button>
           )}
 
-          {data.status !== "active" && (
+          {!execution.canStop && (
             <Button
               variant="outline"
               size="sm"

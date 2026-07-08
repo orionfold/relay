@@ -146,6 +146,22 @@ export function SequencePatternView({
     }
   }, [data.id, onRefresh]);
 
+  const handleStop = useCallback(async () => {
+    setExecuting(true);
+    try {
+      const res = await fetch(`/api/workflows/${data.id}/stop`, { method: "POST" });
+      if (res.ok) {
+        toast.success("Workflow stopped");
+        await onRefresh();
+      } else {
+        const err = await res.json().catch(() => null);
+        toast.error(err?.error ?? "Failed to stop workflow");
+      }
+    } finally {
+      setExecuting(false);
+    }
+  }, [data.id, onRefresh]);
+
   // At this point on the non-loop arm, `state` is guaranteed present — no
   // optional chaining needed. This is the AC that PR #6's optional chaining
   // patched; the discriminated union makes the patch unnecessary.
@@ -174,6 +190,7 @@ export function SequencePatternView({
           canExecute={true}
           onExecute={handleExecute}
           onRerun={handleRerun}
+          onStop={handleStop}
           onDelete={onRequestDelete}
         />
         <CardContent>

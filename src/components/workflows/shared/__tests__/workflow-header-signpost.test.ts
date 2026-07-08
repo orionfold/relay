@@ -11,7 +11,8 @@ import type { WorkflowStatusResponse } from "@/lib/workflows/types";
  */
 function makeNonLoop(
   status: string,
-  resumeAt: number | null = null
+  resumeAt: number | null = null,
+  liveTaskCount = 0
 ): WorkflowStatusResponse {
   return {
     pattern: "sequence",
@@ -19,6 +20,7 @@ function makeNonLoop(
     name: "Demo",
     status,
     resumeAt,
+    liveTaskCount,
     steps: [],
     workflowState: null,
   } as WorkflowStatusResponse;
@@ -32,10 +34,16 @@ describe("computeSignpost", () => {
     expect(s?.href).toBeUndefined();
   });
 
-  it("points to the steps below while active (the top-level running status)", () => {
-    const s = computeSignpost(makeNonLoop("active"));
+  it("points to the steps below while active with live child tasks", () => {
+    const s = computeSignpost(makeNonLoop("active", null, 1));
     expect(s?.icon).toBe("spinner");
     expect(s?.text).toMatch(/watch/i);
+  });
+
+  it("does not describe a stale active workflow as working", () => {
+    const s = computeSignpost(makeNonLoop("active"));
+    expect(s?.icon).toBe("arrow");
+    expect(s?.text).toMatch(/no live task/i);
   });
 
   it("also treats the step-level 'running' status as working", () => {

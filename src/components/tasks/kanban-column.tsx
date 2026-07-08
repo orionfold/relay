@@ -72,6 +72,8 @@ export function KanbanColumn({
   onBulkDelete,
   onBulkStatusChange,
   onBulkExecute,
+  onRunWorkflow,
+  onStopWorkflow,
 }: {
   status: TaskStatus;
   tasks: TaskItem[];
@@ -85,6 +87,8 @@ export function KanbanColumn({
   onBulkDelete?: (taskIds: string[]) => void;
   onBulkStatusChange?: (taskIds: string[], newStatus: TaskStatus) => void;
   onBulkExecute?: (taskIds: string[]) => void;
+  onRunWorkflow?: (workflow: WorkflowKanbanItem) => void;
+  onStopWorkflow?: (workflow: WorkflowKanbanItem) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
   const label = columnLabels[status] ?? status;
@@ -240,7 +244,12 @@ export function KanbanColumn({
               <>
                 {mergedItems(tasks, workflows, sortOrder).map((item) =>
                   item.kind === "workflow" ? (
-                    <WorkflowKanbanCard key={item.data.id} workflow={item.data} />
+                    <WorkflowKanbanCard
+                      key={item.data.id}
+                      workflow={item.data}
+                      onRun={onRunWorkflow}
+                      onStop={onStopWorkflow}
+                    />
                   ) : (
                     <div
                       key={item.data.id}

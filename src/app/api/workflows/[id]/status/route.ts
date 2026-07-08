@@ -98,6 +98,16 @@ export async function GET(
     .groupBy(tasks.workflowRunNumber)
     .orderBy(desc(tasks.workflowRunNumber));
 
+  const [{ liveTaskCount = 0 } = { liveTaskCount: 0 }] = await db
+    .select({ liveTaskCount: count(tasks.id) })
+    .from(tasks)
+    .where(
+      and(
+        eq(tasks.workflowId, id),
+        inArray(tasks.status, ["running", "queued"])
+      )
+    );
+
   const { definition, state, loopState } = parseWorkflowState(workflow.definition);
   const sourceTaskId: string | undefined = definition.sourceTaskId;
   const { stepDocuments, parentDocuments } = await getWorkflowDocuments(state, sourceTaskId);
@@ -117,6 +127,7 @@ export async function GET(
       loopConfig: definition.loopConfig,
       swarmConfig: definition.swarmConfig,
       loopState,
+      liveTaskCount,
       steps: definition.steps,
       stepDocuments,
       parentDocuments,
@@ -143,6 +154,7 @@ export async function GET(
       state: state?.stepStates[i] ?? { stepId: step.id, status: "pending" },
     })),
     workflowState: state,
+    liveTaskCount,
     stepDocuments,
     parentDocuments,
     runNumber: workflow.runNumber,

@@ -283,6 +283,7 @@ export type WorkflowStatusResponse =
       definition?: string;
       loopConfig?: LoopConfig;
       loopState: LoopState | null;
+      liveTaskCount?: number;
       swarmConfig?: SwarmConfig;
       /** Raw step definitions — no `.state` on this arm. Reading from the
        *  iteration stream (`loopState.iterations[]`) is the correct path. */
@@ -305,6 +306,7 @@ export type WorkflowStatusResponse =
       /** Each step wrapped with `.state` — always present on this arm. */
       steps: StepWithState[];
       workflowState: WorkflowState | null;
+      liveTaskCount?: number;
       stepDocuments?: Record<string, WorkflowStatusDocument[]>;
       parentDocuments?: WorkflowStatusDocument[];
       runNumber?: number;

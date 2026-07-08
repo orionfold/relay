@@ -1,23 +1,29 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, FileText } from "lucide-react";
 import { workflowStatusVariant, patternLabels } from "@/lib/constants/status-colors";
 import { getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
+import { Button } from "@/components/ui/button";
+import { Play, RotateCcw, Square } from "lucide-react";
+import { getWorkflowExecutionInfo } from "@/lib/workflows/execution-status";
 
 export interface WorkflowKanbanItem {
   type: "workflow";
   id: string;
   name: string;
   status: string;
+  effectiveStatus?: string;
+  liveTaskCount?: number;
   pattern: string;
   projectId?: string | null;
   projectName?: string;
   stepProgress: { current: number; total: number };
   currentStepName?: string;
+  waitingStepName?: string;
   outputDocCount?: number;
   createdAt: string;
   updatedAt?: string;
@@ -25,18 +31,29 @@ export interface WorkflowKanbanItem {
 
 interface WorkflowKanbanCardProps {
   workflow: WorkflowKanbanItem;
+  onRun?: (workflow: WorkflowKanbanItem) => void;
+  onStop?: (workflow: WorkflowKanbanItem) => void;
 }
 
 const statusStripBg: Record<string, string> = {
   draft: "bg-muted/40 border-t-border/30",
   active: "bg-status-running/8 border-t-status-running/15",
+  running: "bg-status-running/8 border-t-status-running/15",
+  waiting: "bg-status-warning/8 border-t-status-warning/15",
+  stalled: "bg-muted/40 border-t-border/30",
   completed: "bg-status-completed/10 border-t-status-completed/20",
   failed: "bg-status-failed/10 border-t-status-failed/20",
   paused: "bg-status-warning/8 border-t-status-warning/15",
 };
 
-export function WorkflowKanbanCard({ workflow }: WorkflowKanbanCardProps) {
-  const isActive = workflow.status === "active";
+export function WorkflowKanbanCard({ workflow, onRun, onStop }: WorkflowKanbanCardProps) {
+  const router = useRouter();
+  const execution = getWorkflowExecutionInfo({
+    status: workflow.status,
+    liveTaskCount: workflow.liveTaskCount,
+    stepStates: workflow.effectiveStatus === "waiting" ? [{ status: "waiting_approval" }] : [],
+  });
+  const isActive = execution.status === "running";
   const isFailed = workflow.status === "failed";
   const wfIcon = getWorkflowIconFromName(workflow.name, workflow.pattern);
   const progressPct =
@@ -44,15 +61,30 @@ export function WorkflowKanbanCard({ workflow }: WorkflowKanbanCardProps) {
       ? (workflow.stepProgress.current / workflow.stepProgress.total) * 100
       : 0;
 
+  const openWorkflow = () => router.push(`/workflows/${workflow.id}`);
+  const runLabel =
+    workflow.status === "completed" || workflow.status === "failed"
+      ? "Re-run"
+      : workflow.status === "active"
+        ? "Restart"
+        : "Run";
+
   return (
-    <Link href={`/workflows/${workflow.id}`} className="block">
       <Card
         role="button"
+        tabIndex={0}
         tone="blueprint"
         watermark={wfIcon.icon}
         watermarkColor={wfIcon.colors.icon}
         interactive
-        aria-label={`${workflow.name}, ${patternLabels[workflow.pattern] ?? workflow.pattern}, ${workflow.status}`}
+        aria-label={`${workflow.name}, ${patternLabels[workflow.pattern] ?? workflow.pattern}, ${execution.label}`}
+        onClick={openWorkflow}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openWorkflow();
+          }
+        }}
         className={`surface-card group gap-0 overflow-hidden py-0 ${
           isFailed
             ? "border-l-4 border-l-destructive"
@@ -103,17 +135,22 @@ export function WorkflowKanbanCard({ workflow }: WorkflowKanbanCardProps) {
                   </span>
                 </div>
               )}
+              {execution.status === "waiting" && workflow.waitingStepName && (
+                <p className="mt-1.5 truncate text-xs text-status-warning">
+                  Waiting: {workflow.waitingStepName}
+                </p>
+              )}
             </div>
           </div>
         </div>
 
         {/* Status strip */}
-        <div className={`flex items-center h-7 px-3 border-t transition-colors ${statusStripBg[workflow.status] ?? statusStripBg.draft}`}>
+        <div className={`flex items-center min-h-7 px-3 py-1 border-t transition-colors ${statusStripBg[execution.status] ?? statusStripBg.draft}`}>
           <Badge
-            variant={workflowStatusVariant[workflow.status] ?? "secondary"}
+            variant={workflowStatusVariant[execution.status] ?? "secondary"}
             className="text-[11px] h-5"
           >
-            {workflow.status}
+            {execution.label}
           </Badge>
           {workflow.outputDocCount != null && workflow.outputDocCount > 0 && (
             <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
@@ -122,11 +159,46 @@ export function WorkflowKanbanCard({ workflow }: WorkflowKanbanCardProps) {
             </span>
           )}
           <div className="flex-1" />
-          <span className="text-[11px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-            View →
-          </span>
+          <div
+            className="flex items-center gap-1"
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            {execution.canStop && onStop ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-6 gap-1 px-1.5 text-[11px] text-destructive hover:text-destructive"
+                onClick={() => onStop(workflow)}
+                aria-label={`Stop workflow ${workflow.name}`}
+              >
+                <Square className="h-3 w-3" />
+                Stop
+              </Button>
+            ) : execution.canRun && onRun ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-6 gap-1 px-1.5 text-[11px]"
+                onClick={() => onRun(workflow)}
+                aria-label={`${runLabel} workflow ${workflow.name}`}
+              >
+                {runLabel === "Re-run" || runLabel === "Restart" ? (
+                  <RotateCcw className="h-3 w-3" />
+                ) : (
+                  <Play className="h-3 w-3" />
+                )}
+                {runLabel}
+              </Button>
+            ) : (
+              <span className="text-[11px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                View →
+              </span>
+            )}
+          </div>
         </div>
       </Card>
-    </Link>
   );
 }
