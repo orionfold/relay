@@ -12,6 +12,7 @@ import { staticSiteSettingsKey } from "@/lib/generators/static-site-settings";
 import { eq } from "drizzle-orm";
 import {
   createAppPreview,
+  deletePublishTarget,
   getAppPreviewStatus,
   loadGenerateRows,
   runDeployment,
@@ -286,6 +287,50 @@ describe("getAppPreviewStatus", () => {
       artifactId: preview.artifactId,
       stale: true,
     });
+  });
+});
+
+describe("deletePublishTarget", () => {
+  it("removes the target and finished deployment rows in FK-safe order", () => {
+    mockApp();
+    const now = new Date();
+    db.insert(deployments)
+      .values({
+        id: "dep-delete-finished",
+        appId: APP_ID,
+        targetId: TARGET_ID,
+        status: "success",
+        url: "https://acme.github.io/site/",
+        startedAt: now,
+        finishedAt: now,
+      })
+      .run();
+
+    expect(deletePublishTarget(APP_ID, TARGET_ID)).toEqual({
+      id: TARGET_ID,
+      deletedDeployments: 1,
+    });
+    expect(db.select().from(deployments).where(eq(deployments.appId, APP_ID)).all()).toEqual([]);
+    expect(db.select().from(publishTargets).where(eq(publishTargets.appId, APP_ID)).all()).toEqual([]);
+  });
+
+  it("refuses to delete a target with an active deployment", () => {
+    mockApp();
+    db.insert(deployments)
+      .values({
+        id: "dep-delete-active",
+        appId: APP_ID,
+        targetId: TARGET_ID,
+        status: "publishing",
+        startedAt: new Date(),
+      })
+      .run();
+
+    expect(() => deletePublishTarget(APP_ID, TARGET_ID)).toThrow(
+      "Publish target has an active deployment; wait for it to finish before deleting"
+    );
+    expect(db.select().from(publishTargets).where(eq(publishTargets.id, TARGET_ID)).get()).toBeTruthy();
+    expect(db.select().from(deployments).where(eq(deployments.id, "dep-delete-active")).get()).toBeTruthy();
   });
 });
 

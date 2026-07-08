@@ -13,12 +13,14 @@ import {
   Rocket,
   Save,
   ShieldCheck,
+  Trash2,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -175,6 +177,8 @@ export function AppPublishPanel({
   const [saving, setSaving] = useState(false);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [deletingTargetId, setDeletingTargetId] = useState<string | null>(null);
+  const [targetPendingDelete, setTargetPendingDelete] = useState<PublishTarget | null>(null);
   const [previewing, setPreviewing] = useState(false);
   const [previewFrameLoading, setPreviewFrameLoading] = useState(false);
   const [preview, setPreview] = useState<PreviewArtifact | null>(null);
@@ -194,7 +198,9 @@ export function AppPublishPanel({
       cache: "no-store",
     }).then((res) => readJson<PublishTarget[]>(res));
     setTargets(rows);
-    setSelectedTargetId((current) => current ?? rows[0]?.id ?? null);
+    setSelectedTargetId((current) =>
+      current && rows.some((row) => row.id === current) ? current : rows[0]?.id ?? null
+    );
   }
 
   async function loadDeployments() {
@@ -299,6 +305,31 @@ export function AppPublishPanel({
       toast.error(message);
     } finally {
       setTestingId(null);
+    }
+  }
+
+  async function handleDeleteTarget(target: PublishTarget) {
+    setDeletingTargetId(target.id);
+    setError(null);
+    try {
+      await fetch(
+        `/api/apps/${encodeURIComponent(appId)}/publish-targets/${encodeURIComponent(target.id)}`,
+        { method: "DELETE" }
+      ).then((res) => readJson<{ id: string; deletedDeployments: number }>(res));
+      setTestResults((prev) => {
+        const next = { ...prev };
+        delete next[target.id];
+        return next;
+      });
+      await Promise.all([loadTargets(), loadDeployments()]);
+      setTargetPendingDelete(null);
+      toast.success("Publish target deleted");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Publish target delete failed";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setDeletingTargetId(null);
     }
   }
 
@@ -425,6 +456,9 @@ export function AppPublishPanel({
   const selectedTemplate = templates.find(
     (template) => template.id === siteSettingsDraft.templateId
   );
+  const targetPendingDeleteConfig = targetPendingDelete
+    ? readTargetConfig(targetPendingDelete)
+    : null;
 
   function updateSiteSetting<K extends keyof StaticSiteSettings>(
     key: K,
@@ -754,6 +788,11 @@ export function AppPublishPanel({
                   const config = readTargetConfig(target);
                   const selected = target.id === selectedTargetId;
                   const testResult = testResults[target.id];
+                  const targetHasActiveDeployment = deployments.some(
+                    (deployment) =>
+                      deployment.targetId === target.id &&
+                      (deployment.status === "pending" || deployment.status === "publishing")
+                  );
                   return (
                     <div
                       key={target.id}
@@ -784,7 +823,7 @@ export function AppPublishPanel({
                             <span>{config.githubToken || "token saved"}</span>
                           </div>
                         </button>
-                        <div className="flex shrink-0 items-center gap-2">
+                        <div className="flex shrink-0 flex-wrap items-center gap-2">
                           {testResult && (
                             <Badge variant={testResult.status === "ok" ? "success" : "destructive"}>
                               {testResult.status === "ok" ? "Reachable" : "Failed"}
@@ -804,8 +843,28 @@ export function AppPublishPanel({
                             )}
                             Test
                           </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setTargetPendingDelete(target)}
+                            disabled={deletingTargetId === target.id || targetHasActiveDeployment}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            {deletingTargetId === target.id ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                            ) : (
+                              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                            )}
+                            Delete
+                          </Button>
                         </div>
                       </div>
+                      {targetHasActiveDeployment && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Finish the active deployment before deleting this target.
+                        </p>
+                      )}
                       {testResult?.status === "failed" && testResult.error && (
                         <p className="mt-2 text-xs text-destructive">{testResult.error}</p>
                       )}
@@ -941,6 +1000,23 @@ export function AppPublishPanel({
           )}
         </section>
       </CardContent>
+      <ConfirmDialog
+        open={Boolean(targetPendingDelete)}
+        onOpenChange={(open) => {
+          if (!open && !deletingTargetId) setTargetPendingDelete(null);
+        }}
+        title="Delete publish target?"
+        description={
+          targetPendingDeleteConfig
+            ? `This removes ${targetPendingDeleteConfig.owner}/${targetPendingDeleteConfig.repo} and its finished deployment records from Relay. This cannot be undone.`
+            : "This cannot be undone."
+        }
+        confirmLabel={deletingTargetId ? "Deleting..." : "Delete target"}
+        destructive
+        onConfirm={() => {
+          if (targetPendingDelete) void handleDeleteTarget(targetPendingDelete);
+        }}
+      />
     </Card>
   );
 }

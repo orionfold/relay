@@ -40,8 +40,8 @@ project provenance or private workspace references.
 ## Scope Notes
 
 The first pass keeps the generator row contract from Phase 2: one ordered section
-table emits a single `index.html`. Theme controls, custom domains, delete-target,
-and multiple generate arms are later enhancements.
+table emits a single `index.html`. Theme controls and target deletion are built.
+Custom domains and multiple generate arms remain later enhancements.
 
 ## Verification
 
@@ -54,3 +54,7 @@ and multiple generate arms are later enhancements.
   `981b9074823d77978dd81f9307ecb7d3b418f5c875c648cd2c79bb52e9f7f9cc`.
   The public Pages URL now serves the polished masthead, numbered section
   labels, signal cards, and footer.
+- 2026-07-08: publish targets can be deleted from the Web Designer publish panel.
+  Active deployments block deletion; finished deployment rows for that target are
+  removed before the credential-bearing target row to satisfy the existing
+  foreign key.

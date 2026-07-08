@@ -192,6 +192,74 @@ describe("AppPublishPanel", () => {
     expect(toastError).toHaveBeenCalledWith("GitHub repo check failed: 404");
   });
 
+  it("deletes a target after confirmation and clears its deployment rows", async () => {
+    fetchSpy
+      .mockResolvedValueOnce(ok([target]))
+      .mockResolvedValueOnce(
+        ok([
+          {
+            id: "dep-target-1",
+            appId: "app-1",
+            targetId: "target-1",
+            status: "success",
+            url: "https://acme.github.io/site/",
+            finalUrl: null,
+            commit: "abc123",
+            artifactHash: "hash",
+            startedAt: "2026-07-07T00:00:00.000Z",
+            finishedAt: "2026-07-07T00:00:01.000Z",
+            error: null,
+          },
+        ])
+      )
+      .mockResolvedValueOnce(ok(siteSettingsResponse))
+      .mockResolvedValueOnce(ok({ id: "target-1", deletedDeployments: 1 }))
+      .mockResolvedValueOnce(ok([]))
+      .mockResolvedValueOnce(ok([]));
+
+    renderPanel();
+    fireEvent.click(await screen.findByRole("button", { name: /Delete/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /Delete target/i }));
+
+    await waitFor(() => expect(toastSuccess).toHaveBeenCalledWith("Publish target deleted"));
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "/api/apps/app-1/publish-targets/target-1",
+      expect.objectContaining({ method: "DELETE" })
+    );
+    expect(screen.queryByText("acme/site")).toBeNull();
+  });
+
+  it("blocks deleting a target while that target has an active deployment", async () => {
+    fetchSpy
+      .mockResolvedValueOnce(ok([target]))
+      .mockResolvedValueOnce(
+        ok([
+          {
+            id: "dep-active",
+            appId: "app-1",
+            targetId: "target-1",
+            status: "publishing",
+            url: null,
+            finalUrl: null,
+            commit: null,
+            artifactHash: null,
+            startedAt: "2026-07-07T00:00:00.000Z",
+            finishedAt: null,
+            error: null,
+          },
+        ])
+      )
+      .mockResolvedValueOnce(ok(siteSettingsResponse));
+
+    renderPanel();
+
+    const deleteButton = await screen.findByRole("button", { name: /Delete/i });
+    expect(deleteButton).toBeDisabled();
+    expect(
+      screen.getByText("Finish the active deployment before deleting this target.")
+    ).toBeInTheDocument();
+  });
+
   it("starts a publish and shows failed deployment errors from polling", async () => {
     fetchSpy
       .mockResolvedValueOnce(ok([target]))

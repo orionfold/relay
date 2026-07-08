@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { desc, eq, and } from "drizzle-orm";
+import { desc, eq, and, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { deployments, publishTargets, type DeploymentRow, type PublishTargetRow } from "@/lib/db/schema";
 import { getApp, type AppDetail, type ViewConfig } from "@/lib/apps/registry";
@@ -25,6 +25,7 @@ export type AppPublishErrorCode =
   | "APP_GENERATE_NOT_CONFIGURED"
   | "APP_PUBLISH_NOT_CONFIGURED"
   | "PUBLISH_TARGET_NOT_FOUND"
+  | "PUBLISH_TARGET_HAS_ACTIVE_DEPLOYMENT"
   | "PUBLISH_TARGET_TYPE_MISMATCH"
   | "PUBLISH_TARGET_CONFIG_INVALID"
   | "GENERATE_TABLE_NOT_FOUND"
@@ -65,6 +66,11 @@ export interface CreatePreviewResult {
   hash: string;
   createdAt: string;
   expiresAt: string;
+}
+
+export interface DeletePublishTargetResult {
+  id: string;
+  deletedDeployments: number;
 }
 
 export interface PreviewStatusResult {
@@ -221,6 +227,50 @@ export function createPublishTarget(
     );
   }
   return maskPublishTarget(created);
+}
+
+export function deletePublishTarget(
+  appId: string,
+  targetId: string
+): DeletePublishTargetResult {
+  requireApp(appId);
+  const target = getPublishTargetForApp(appId, targetId);
+  const activeDeployment = db
+    .select({ id: deployments.id })
+    .from(deployments)
+    .where(
+      and(
+        eq(deployments.appId, appId),
+        eq(deployments.targetId, targetId),
+        inArray(deployments.status, ["pending", "publishing"])
+      )
+    )
+    .get();
+
+  if (activeDeployment) {
+    throw new AppPublishError(
+      "PUBLISH_TARGET_HAS_ACTIVE_DEPLOYMENT",
+      "Publish target has an active deployment; wait for it to finish before deleting",
+      409
+    );
+  }
+
+  return db.transaction(() => {
+    const deletedDeployments = db
+      .delete(deployments)
+      .where(and(eq(deployments.appId, appId), eq(deployments.targetId, targetId)))
+      .run().changes;
+    const deletedTargets = db
+      .delete(publishTargets)
+      .where(and(eq(publishTargets.appId, appId), eq(publishTargets.id, target.id)))
+      .run().changes;
+
+    if (deletedTargets === 0) {
+      throw new AppPublishError("PUBLISH_TARGET_NOT_FOUND", "Publish target not found", 404);
+    }
+
+    return { id: target.id, deletedDeployments };
+  });
 }
 
 function getPublishTargetForApp(appId: string, targetId: string): PublishTargetRow {

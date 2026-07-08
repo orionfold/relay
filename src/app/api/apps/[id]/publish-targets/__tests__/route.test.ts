@@ -14,15 +14,19 @@ vi.mock("@/lib/publishers/app-publish", () => {
   return {
     AppPublishError,
     createPublishTarget: vi.fn(),
+    deletePublishTarget: vi.fn(),
     listPublishTargets: vi.fn(),
   };
 });
 
 import { GET, POST } from "../route";
 import {
+  AppPublishError,
   createPublishTarget,
+  deletePublishTarget,
   listPublishTargets,
 } from "@/lib/publishers/app-publish";
+import { DELETE } from "../[targetId]/route";
 
 function req(body: unknown) {
   return new Request("http://localhost/api/apps/app-1/publish-targets", {
@@ -96,5 +100,43 @@ describe("/api/apps/[id]/publish-targets", () => {
     );
     expect(res.status).toBe(400);
     expect(createPublishTarget).not.toHaveBeenCalled();
+  });
+
+  it("deletes a target by app and target id", async () => {
+    vi.mocked(deletePublishTarget).mockReturnValue({
+      id: "target-1",
+      deletedDeployments: 2,
+    });
+
+    const res = await DELETE({} as import("next/server").NextRequest, {
+      params: Promise.resolve({ id: "app-1", targetId: "target-1" }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(deletePublishTarget).toHaveBeenCalledWith("app-1", "target-1");
+    await expect(res.json()).resolves.toEqual({
+      id: "target-1",
+      deletedDeployments: 2,
+    });
+  });
+
+  it("returns a named conflict when a target has an active deployment", async () => {
+    vi.mocked(deletePublishTarget).mockImplementation(() => {
+      throw new AppPublishError(
+        "PUBLISH_TARGET_HAS_ACTIVE_DEPLOYMENT",
+        "Publish target has an active deployment; wait for it to finish before deleting",
+        409
+      );
+    });
+
+    const res = await DELETE({} as import("next/server").NextRequest, {
+      params: Promise.resolve({ id: "app-1", targetId: "target-1" }),
+    });
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: "Publish target has an active deployment; wait for it to finish before deleting",
+      code: "PUBLISH_TARGET_HAS_ACTIVE_DEPLOYMENT",
+    });
   });
 });
