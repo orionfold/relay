@@ -391,11 +391,11 @@
   background: var(--background);
 }
 
-/* Bounded page shell with border */
+/* Page shell: flush primary route container, matching the Home dashboard. */
 .surface-page-shell {
   background: var(--surface-1);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-raised);
+  border: 0;
+  box-shadow: none;
 }
 
 /* Toolbar / filter bar */

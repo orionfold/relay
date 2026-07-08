@@ -100,8 +100,8 @@ async function BoardContent() {
 
 export default function TasksPage() {
   return (
-    <div className="bg-background min-h-screen p-4 sm:p-6">
-      <div className="surface-page-shell rounded-xl p-5 sm:p-6">
+    <div className="bg-background min-h-screen">
+      <div className="surface-page-shell min-h-screen p-5 sm:p-6 lg:p-7">
         <Suspense fallback={<SkeletonBoard />}>
           <BoardContent />
         </Suspense>

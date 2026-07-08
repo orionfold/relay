@@ -102,8 +102,8 @@ export function PageShell({
   }
 
   return (
-    <div className={cn("bg-background min-h-screen p-4 sm:p-6", className)}>
-      <div className={cn("surface-page-shell rounded-xl p-5 sm:p-6", maxWidth, maxWidth && "mx-auto")}>
+    <div className={cn("bg-background min-h-screen", className)}>
+      <div className={cn("surface-page-shell min-h-screen p-5 sm:p-6 lg:p-7", maxWidth, maxWidth && "mx-auto")}>
         {content}
       </div>
     </div>

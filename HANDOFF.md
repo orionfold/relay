@@ -1,6 +1,6 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-08 (pt: **0.36.0 released; operator-guided feedback tasks added.** Published `orionfold-relay@0.36.0` from `v0.36.0` / `15dfa445`; npm + GitHub Release assets verified. Latest operator notes from `output/operator-walkthrough-feedback-2026-07-07.md` are promoted below as live tasks.)_
+_Last updated: 2026-07-08 (pt: **Primary route containers standardized; Chat intentionally untouched.** `PageShell`, Tasks, and `.surface-page-shell` now match Home's flush/square/no-border treatment. Verified with `npx tsc --noEmit`, `npm run validate:tokens`, and in-app Browser checks on `/`, `/tasks`, `/packs`, `/settings`, `/apps/relay-marketing` plus 390px mobile checks on `/`, `/tasks`, `/packs`.)_
 
 ## ▶️ NEXT SESSION — Post-release backlog
 
@@ -13,9 +13,6 @@ _Last updated: 2026-07-08 (pt: **0.36.0 released; operator-guided feedback tasks
 - **`pack-depth-next-wave` arc:** Video Creator still needs a clean synthetic reference model before build. Retail Investor remains open: value-heatmap + radar, prosumer-first ICP.
 - **`_IDEAS/packs-robustify.md`:** R1+R3+R5 built. Next gate tranche: R2 install-time cross-pack collision check, then R7 integration/`joinKeys`, R4 provenanceOf API, R8 dependsOn when it earns weight.
 - **Operator-guided feedback tasks (UNGROOMED, source `output/operator-walkthrough-feedback-2026-07-07.md`):**
-  - Chat: match Home/main-view container treatment so the app grid no longer shows through the chat surface.
-  - Chat: keep the prompt composer sticky just above the browser bottom while conversations render/scroll.
-  - Main containers: make all primary screen/view containers match Home's size, top padding, square corners, and no visible border.
   - Settings: remove expanded settings rail; keep only collapsed rail and migrate any expanded-only settings cards into it.
   - Telemetry/settings affordances: dashboard metric cards and settings rail values should drill down to their matching views/settings entries.
   - App/pack shell IA: expose owned tables via progressive disclosure; split primitives into sections with section-appropriate card dimensions.
@@ -59,6 +56,8 @@ Standing candidates (LOW / reactive):
 - Check git history for prior art; verify field reports before fixing.
 
 ## Recently shipped / groomed
+
+**Primary container standardization (BUILT 2026-07-08, working tree):** `src/components/shared/page-shell.tsx`, `src/app/tasks/page.tsx`, and `src/app/globals.css` now align non-Chat primary route shells with Home's `surface-page-shell min-h-screen p-5 sm:p-6 lg:p-7` treatment and remove shell border/radius/shadow. Chat was not changed per the `c06abcc3` rollback note. Verification: `npx tsc --noEmit`, `npm run validate:tokens`, in-app Browser geometry checks for `/`, `/tasks`, `/packs`, `/settings`, `/apps/relay-marketing` (0px border/radius, no shadow), 390px mobile checks for `/`, `/tasks`, `/packs` (no horizontal overflow), browser console warnings/errors `[]`.
 
 **0.36.0 release (SHIPPED 2026-07-08, `15dfa445`, npm + GitHub):** Minor release for the Web Designer/publisher arc, pack-first IA/card-system work, publish-target deletion, public web-pack samples, and pack governance. Added `scripts/check-pack-compat.mjs`, `check:pack-compat`, npx-prod-smoke Case TC, `0.36` plugin `apiVersion` with `0.35` compatibility, and publish checkout `fetch-depth: 0` so tag CI can read the `origin/main` baseline. Verification: local `check:pack-taxonomy`, `check:pack-compat`, `check:pack-tarball`, focused pack/API-window tests 12/12, `npx tsc --noEmit`, `npm run build`, local `node scripts/npx-prod-smoke.mjs`, GitHub publish run `28915462795`, npm `orionfold-relay@0.36.0`, GitHub Release assets (`relay-next-build-0.36.0.tgz` 39,143,638 bytes, checksum, SBOM). npm package tarball is 2.4 MB / 7,320,771 bytes unpacked.
 
