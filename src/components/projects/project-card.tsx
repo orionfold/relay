@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, FolderKanban, FolderOpen, Pencil } from "lucide-react";
+import { FlagshipMetadataPill } from "@/components/shared/flagship-card";
 import { projectStatusVariant } from "@/lib/constants/status-colors";
 
 interface ProjectCardProps {
@@ -56,24 +57,26 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
               {project.description}
             </p>
           )}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <FolderKanban className="h-3 w-3" />
-              {project.taskCount} tasks
-            </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <FlagshipMetadataPill icon={FolderKanban} tone="primary">
+              {project.taskCount} task{project.taskCount !== 1 ? "s" : ""}
+            </FlagshipMetadataPill>
             {project.docCount > 0 && (
-              <span className="flex items-center gap-1">
-                <FileText className="h-3 w-3" />
-                {project.docCount} docs
-              </span>
+              <FlagshipMetadataPill icon={FileText} tone="success">
+                {project.docCount} doc{project.docCount !== 1 ? "s" : ""}
+              </FlagshipMetadataPill>
+            )}
+            {project.workingDirectory && (
+              <FlagshipMetadataPill
+                icon={FolderOpen}
+                tone="muted"
+                className="max-w-full"
+                title={project.workingDirectory}
+              >
+                {project.workingDirectory}
+              </FlagshipMetadataPill>
             )}
           </div>
-          {project.workingDirectory && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <FolderOpen className="h-3 w-3" />
-              <span className="truncate">{project.workingDirectory}</span>
-            </div>
-          )}
         </CardContent>
       </Card>
     </Link>

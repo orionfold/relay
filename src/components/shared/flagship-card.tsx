@@ -94,10 +94,37 @@ export function FlagshipCardActionRow({
         {context}
       </span>
       <div className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-primary">
-        <span className="sr-only"> </span>
         {Icon && <Icon className="h-3.5 w-3.5" aria-hidden="true" />}
         {action}
       </div>
     </div>
+  );
+}
+
+export function FlagshipMetadataPill({
+  icon: Icon,
+  tone = "muted",
+  children,
+  className,
+  title,
+}: {
+  icon?: LucideIcon;
+  tone?: FlagshipBadgeTone;
+  children: React.ReactNode;
+  className?: string;
+  title?: string;
+}) {
+  return (
+    <span
+      title={title}
+      className={cn(
+        "flagship-metadata-pill inline-flex min-w-0 max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+        badgeToneClass[tone],
+        className
+      )}
+    >
+      {Icon && <Icon className="h-3 w-3 shrink-0" aria-hidden="true" />}
+      <span className="truncate">{children}</span>
+    </span>
   );
 }
