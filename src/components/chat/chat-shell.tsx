@@ -245,117 +245,124 @@ export function ChatShell({
   );
 
   return (
-    <div className="flex h-[calc(100dvh-49px)] overflow-hidden">
-      {/* Main chat area */}
-      <div className="relative flex flex-1 flex-col min-w-0">
-        {/* Mobile header */}
-        <div className="flex items-center gap-2 border-b border-border px-4 py-2 lg:hidden">
-          <span className="flex-1 text-sm font-medium truncate">
-            {activeConversation?.title ?? "New Chat"}
-          </span>
-          <Sheet open={mobileListOpen} onOpenChange={setMobileListOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <PanelRightOpen className="h-4 w-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] p-0">
-              {conversationListContent}
-            </SheetContent>
-          </Sheet>
+    <div className="bg-background">
+      <div className="surface-page-shell flex h-[calc(100dvh-var(--chrome-header)-var(--chrome-rail)-6.25rem)] min-h-[30rem] flex-col gap-4 rounded-none border-0 p-5 shadow-none sm:p-6 lg:p-7">
+        <div className="mx-auto w-full max-w-6xl">
+          <h1 className="text-xl font-semibold tracking-tight">Chat</h1>
         </div>
-
-        {messages.length === 0 ? (
-          /* Hero mode: vertically centered greeting + input + chips */
-          <div className="flex-1 flex items-center justify-center overflow-hidden">
-            <ChatEmptyState
-              promptCategories={promptCategories}
-              starters={starters}
-              onSuggestionClick={handleSuggestionClick}
-              onSeedComposer={seedComposer}
-              onHoverPreview={setHoverPreview}
-            >
-              <ChatInput
-                onSend={sendMessage}
-                onStop={stopStreaming}
-                isStreaming={isStreaming}
-                isHeroMode
-                previewText={hoverPreview}
-                modelId={modelId}
-                savedDefaultModel={savedDefaultModel}
-                onModelChange={setModelId}
-                availableModels={availableModels}
-                projectId={activeConversation?.projectId}
-                conversationId={activeId}
-                seedSignal={seedSignal}
-              />
-              <div className="mt-3 flex justify-center">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs gap-1.5"
-                  onClick={() => setTemplatePickerOpen(true)}
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Start from template
-                </Button>
-              </div>
-            </ChatEmptyState>
-          </div>
-        ) : (
-          <>
-            {/* Messages */}
-            <div className="flex-1 overflow-hidden">
-              <ChatMessageList
-                messages={messages}
-                isStreaming={isStreaming}
-                conversationId={activeId ?? undefined}
-                onMessageStatusChange={handleMessageStatusChange}
-              />
+        <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 overflow-hidden rounded-xl border border-border bg-[var(--surface-1)] shadow-[var(--shadow-subtle)]">
+          {/* Main chat area */}
+          <div className="relative flex min-w-0 flex-1 flex-col">
+            {/* Mobile header */}
+            <div className="flex items-center gap-2 border-b border-border px-4 py-2 lg:hidden">
+              <span className="flex-1 truncate text-sm font-medium">
+                {activeConversation?.title ?? "New Chat"}
+              </span>
+              <Sheet open={mobileListOpen} onOpenChange={setMobileListOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <PanelRightOpen className="h-4 w-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[280px] p-0">
+                  {conversationListContent}
+                </SheetContent>
+              </Sheet>
             </div>
 
-            {/* Background activity indicator */}
-            {spawnedTaskIds.length > 0 && (
-              <ChatActivityIndicator taskIds={spawnedTaskIds} />
+            {messages.length === 0 ? (
+              /* Hero mode: vertically centered greeting + input + chips */
+              <div className="flex flex-1 items-center justify-center overflow-hidden">
+                <ChatEmptyState
+                  promptCategories={promptCategories}
+                  starters={starters}
+                  onSuggestionClick={handleSuggestionClick}
+                  onSeedComposer={seedComposer}
+                  onHoverPreview={setHoverPreview}
+                >
+                  <ChatInput
+                    onSend={sendMessage}
+                    onStop={stopStreaming}
+                    isStreaming={isStreaming}
+                    isHeroMode
+                    previewText={hoverPreview}
+                    modelId={modelId}
+                    savedDefaultModel={savedDefaultModel}
+                    onModelChange={setModelId}
+                    availableModels={availableModels}
+                    projectId={activeConversation?.projectId}
+                    conversationId={activeId}
+                    seedSignal={seedSignal}
+                  />
+                  <div className="mt-3 flex justify-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1.5 text-xs"
+                      onClick={() => setTemplatePickerOpen(true)}
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Start from template
+                    </Button>
+                  </div>
+                </ChatEmptyState>
+              </div>
+            ) : (
+              <>
+                {/* Messages */}
+                <div className="min-h-0 flex-1 overflow-hidden">
+                  <ChatMessageList
+                    messages={messages}
+                    isStreaming={isStreaming}
+                    conversationId={activeId ?? undefined}
+                    onMessageStatusChange={handleMessageStatusChange}
+                  />
+                </div>
+
+                {/* Background activity indicator */}
+                {spawnedTaskIds.length > 0 && (
+                  <ChatActivityIndicator taskIds={spawnedTaskIds} />
+                )}
+
+                {/* Docked input */}
+                <ChatInput
+                  onSend={sendMessage}
+                  onStop={stopStreaming}
+                  isStreaming={isStreaming}
+                  isHeroMode={false}
+                  modelId={modelId}
+                  savedDefaultModel={savedDefaultModel}
+                  onModelChange={setModelId}
+                  availableModels={availableModels}
+                  projectId={activeConversation?.projectId}
+                  conversationId={activeId}
+                />
+              </>
             )}
+          </div>
 
-            {/* Docked input */}
-            <ChatInput
-              onSend={sendMessage}
-              onStop={stopStreaming}
-              isStreaming={isStreaming}
-              isHeroMode={false}
-              modelId={modelId}
-              savedDefaultModel={savedDefaultModel}
-              onModelChange={setModelId}
-              availableModels={availableModels}
-              projectId={activeConversation?.projectId}
-              conversationId={activeId}
-            />
-          </>
-        )}
-      </div>
+          <ConversationTemplatePicker
+            open={templatePickerOpen}
+            onOpenChange={setTemplatePickerOpen}
+          />
 
-      <ConversationTemplatePicker
-        open={templatePickerOpen}
-        onOpenChange={setTemplatePickerOpen}
-      />
+          <BranchesTreeDialog
+            open={branchesDialogId != null}
+            onOpenChange={(o) => {
+              if (!o) setBranchesDialogId(null);
+            }}
+            conversationId={branchesDialogId}
+            onSelect={(id) => {
+              setActiveConversation(id);
+              setBranchesDialogId(null);
+            }}
+          />
 
-      <BranchesTreeDialog
-        open={branchesDialogId != null}
-        onOpenChange={(o) => {
-          if (!o) setBranchesDialogId(null);
-        }}
-        conversationId={branchesDialogId}
-        onSelect={(id) => {
-          setActiveConversation(id);
-          setBranchesDialogId(null);
-        }}
-      />
-
-      {/* Desktop conversation list — right side */}
-      <div className="hidden lg:flex lg:w-[280px] lg:flex-col lg:border-l border-border">
-        {conversationListContent}
+          {/* Desktop conversation list — right side */}
+          <div className="hidden border-border lg:flex lg:w-[280px] lg:flex-col lg:border-l">
+            {conversationListContent}
+          </div>
+        </div>
       </div>
     </div>
   );

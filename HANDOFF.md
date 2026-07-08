@@ -1,6 +1,6 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-08 (pt: **0.36.0 released.** Published `orionfold-relay@0.36.0` from `v0.36.0` / `15dfa445` after operator corrected the release class from patch to MINOR. Added the pack compat-diff gate, bumped plugin `apiVersion` to `0.36` with `0.35` still supported, fixed publish checkout to fetch baseline refs, and verified npm + GitHub Release assets. Local Chrome is open on `http://localhost:3000/chat` with dev server running.)_
+_Last updated: 2026-07-08 (pt: **0.36.0 released; operator-guided feedback tasks added.** Published `orionfold-relay@0.36.0` from `v0.36.0` / `15dfa445`; npm + GitHub Release assets verified. Latest operator notes from `output/operator-walkthrough-feedback-2026-07-07.md` are promoted below as live tasks.)_
 
 ## ▶️ NEXT SESSION — Post-release backlog
 
@@ -12,9 +12,19 @@ _Last updated: 2026-07-08 (pt: **0.36.0 released.** Published `orionfold-relay@0
 - **Packs Publish:** READ trio + R5 + R4-mechanism are built/released in 0.35.0. R4 CUT remains deferred until the tarball size trigger and open decision #2 (most-installed boundary + Website coordination) are answered. R6/R7 community SEND loop stays last, behind TDR-039 substrate.
 - **`pack-depth-next-wave` arc:** Video Creator still needs a clean synthetic reference model before build. Retail Investor remains open: value-heatmap + radar, prosumer-first ICP.
 - **`_IDEAS/packs-robustify.md`:** R1+R3+R5 built. Next gate tranche: R2 install-time cross-pack collision check, then R7 integration/`joinKeys`, R4 provenanceOf API, R8 dependsOn when it earns weight.
-- **F5 follow-up (deferred):** lift dense analytics dashboards `costs/cost-dashboard.tsx` + `apps/ledger-hero-panel.tsx` to the card recipe. Reactive/optional.
+- **Operator-guided feedback tasks (UNGROOMED, source `output/operator-walkthrough-feedback-2026-07-07.md`):**
+  - Chat: match Home/main-view container treatment so the app grid no longer shows through the chat surface.
+  - Chat: keep the prompt composer sticky just above the browser bottom while conversations render/scroll.
+  - Main containers: make all primary screen/view containers match Home's size, top padding, square corners, and no visible border.
+  - Settings: remove expanded settings rail; keep only collapsed rail and migrate any expanded-only settings cards into it.
+  - Telemetry/settings affordances: dashboard metric cards and settings rail values should drill down to their matching views/settings entries.
+  - App/pack shell IA: expose owned tables via progressive disclosure; split primitives into sections with section-appropriate card dimensions.
+  - Apps/Packs IA: reconcile around Packs-first naming/copy/routes while preserving installed-vs-bundled clarity.
+  - Build/runtime: investigate repeated Turbopack `<dynamic>` warning from `src/lib/plugins/transport-dispatch.ts`; verify scheduled dispatch failure logging does not record failed fires as successful.
+  - Web-pack preview/gallery polish: preview should stay inside Relay chrome with separate raw-view action; blank gallery thumbnails should become meaningful thumbnails or be omitted; section-card click behavior must be consistent.
 
 Standing candidates (LOW / reactive):
+- F5 follow-up: lift dense analytics dashboards `costs/cost-dashboard.tsx` + `apps/ledger-hero-panel.tsx` to the card recipe.
 - Not-filed backlog `fix-pricing-bundled-stale-coldstart.md` + R2-4 `create_trigger` `appId` gap.
 - #29 retry-with-backoff hardening; held-issue retests (#5/#6/#11/#12).
 - Other staging R-runs (one R-run per session; harness ready).

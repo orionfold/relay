@@ -304,7 +304,7 @@ export function ChatInput({
       className={cn(
         isHeroMode
           ? "w-full"
-          : "sticky bottom-0 bg-background pb-[env(safe-area-inset-bottom)]"
+          : "sticky bottom-0 bg-transparent pb-[env(safe-area-inset-bottom)]"
       )}
     >
       <div
@@ -315,8 +315,9 @@ export function ChatInput({
       >
         <div
           className={cn(
-            "flex flex-col elevation-2 border border-border bg-background",
-            isHeroMode ? "rounded-2xl" : "rounded-xl"
+            "flex flex-col elevation-2 border border-border",
+            isHeroMode ? "rounded-2xl" : "rounded-xl",
+            isHeroMode ? "bg-background" : "bg-[var(--surface-1)]"
           )}
         >
           {/* Textarea */}
