@@ -1,10 +1,11 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-08 (pt: **Default card toolbar wash aligned.** `CardStatusToolbar` now uses the Projects reference wash for default/ready card footers; the release gate taxonomy drift was fixed and the patch is being released as 0.36.2.)_
+_Last updated: 2026-07-08 (pt: **Assets/doc-consolidation task added.** Next session should create the strategy-owned `_ASSETS` surface for product screenshots, journeys, guides, articles, and a release-history feature catalog.)_
 
 ## ▶️ NEXT SESSION — Post-release backlog
 
 - **P0 NEXT — Web Publisher preview/gallery polish.** The page registry is built; remaining operator-guided feedback is to keep web-pack previews inside Relay chrome with a separate raw-view action, make blank gallery thumbnails meaningful or omit them, and normalize section-card click behavior.
+- **P0 NEXT — Strategy-owned `_ASSETS` corpus for Relay product docs.** Create `~/orionfold/strategy/relay/_ASSETS/`, symlink it into this repo as local `_ASSETS/`, and keep `_ASSETS/` gitignored here. Seed the corpus with `screenshots/light/`, `screenshots/dark/`, `journeys/`, `docs/`, `articles/`, and root `features-catalog.md`. `features-catalog.md` should be a running release-history feature log from the start of Orionfold Relay. Then brainstorm with the operator to: consolidate existing journey material into comprehensive ICP-aligned journeys for agency, solo-founder, and SMB personas; define high-fidelity screenshot coverage for every feature and an efficient future update policy tied to changed/new features; create step-by-step user guides from the feature catalog; and outline the first tranche of long-form operator-guided articles using the asset corpus.
 - **P0 strategy-doc loose end:** `_SPECS/cards-design-system.md` exists through the `_SPECS` symlink as an untracked strategy-repo file (`relay/_SPECS/cards-design-system.md`). Do not commit/push the strategy repo unless the operator explicitly asks.
 - **P0 Codex browser runbook is authoritative.** Use `docs/codex-browser-runbook.md`: in-app Browser/Browser plugin first for unauthenticated localhost/file/public pages; Codex Chrome extension for signed-in/profile state; Computer Use for GUI-only desktop flows; Chrome DevTools MCP only for isolated CDP debugging. Do not treat `open -a "Google Chrome" <url>` as sufficient verification.
 - **P0 Codex handoff behavior:** `.codex/hooks.json` intentionally has no `Stop` handoff nudge. Use auto compact or operator-initiated `handoff`; do not re-enable the Stop hook unless asked.
