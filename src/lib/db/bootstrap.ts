@@ -683,6 +683,7 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
       commit_sha TEXT,
       artifact_hash TEXT,
       generator_config TEXT,
+      page_slug TEXT,
       started_at INTEGER NOT NULL,
       finished_at INTEGER,
       error TEXT,
@@ -694,6 +695,8 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
   `);
   addColumnIfMissing(`ALTER TABLE deployments ADD COLUMN final_url TEXT;`);
   addColumnIfMissing(`ALTER TABLE deployments ADD COLUMN generator_config TEXT;`);
+  addColumnIfMissing(`ALTER TABLE deployments ADD COLUMN page_slug TEXT;`);
+  sqlite.exec(`CREATE INDEX IF NOT EXISTS idx_deployments_app_page ON deployments(app_id, page_slug);`);
 
   // ── Agent Async Handoffs ──────────────────────────────────────────────
   sqlite.exec(`

@@ -8,7 +8,8 @@
     "ctaUrl": "#contact",
     "imageUrl": "https://images.pexels.com/photos/10375901/pexels-photo-10375901.jpeg?cs=tinysrgb&dpr=1&w=1200",
     "status": "published",
-    "notes": "Synthetic example using a Pexels License sample image; do not imply depicted-person endorsement."
+    "notes": "Synthetic example using a Pexels License sample image; do not imply depicted-person endorsement.",
+    "pageSlug": "home"
   },
   {
     "kind": "features",
@@ -19,7 +20,8 @@
     "ctaUrl": "",
     "imageUrl": "",
     "status": "published",
-    "notes": "Synthetic example"
+    "notes": "Synthetic example",
+    "pageSlug": "home"
   },
   {
     "kind": "text",
@@ -30,7 +32,8 @@
     "ctaUrl": "",
     "imageUrl": "",
     "status": "published",
-    "notes": "Synthetic example"
+    "notes": "Synthetic example",
+    "pageSlug": "home"
   },
   {
     "kind": "cta",
@@ -41,6 +44,7 @@
     "ctaUrl": "#brief",
     "imageUrl": "",
     "status": "published",
-    "notes": "Synthetic example"
+    "notes": "Synthetic example",
+    "pageSlug": "home"
   }
 ]

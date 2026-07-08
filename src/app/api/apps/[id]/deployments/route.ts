@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { AppPublishError, listDeployments } from "@/lib/publishers/app-publish";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const pageSlug = req.nextUrl.searchParams.get("pageSlug");
   try {
-    return NextResponse.json(listDeployments(id));
+    return NextResponse.json(listDeployments(id, pageSlug));
   } catch (err) {
     if (err instanceof AppPublishError) {
       return NextResponse.json(

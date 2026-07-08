@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -6,13 +8,27 @@ import {
   FileText,
   Filter,
   RadioTower,
+  Save,
+  Trash2,
   TriangleAlert,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import type { AppDetail } from "@/lib/apps/registry";
-import { listRows } from "@/lib/data/tables";
+import { getApp } from "@/lib/apps/registry";
+import {
+  DEFAULT_WEB_PAGE_SLUG,
+  createWebPublisherPage,
+  deleteWebPublisherPage,
+  ensureWebPageRegistry,
+  filterSectionsForPage,
+  renameWebPublisherPage,
+  selectWebPage,
+  type ParsedTableRow,
+  type WebPageRecord,
+} from "@/lib/apps/web-pages";
 import { listDeployments } from "@/lib/publishers/app-publish";
 import type { DeploymentRow } from "@/lib/db/schema";
 
@@ -21,31 +37,92 @@ type PageStatus = "all" | "published" | "draft" | "stale" | "failed";
 interface WebPublisherPagesPanelProps {
   app: AppDetail;
   pageStatus?: string;
+  selectedPageSlug?: string | null;
 }
 
-interface ParsedRow {
-  id: string;
-  data: Record<string, unknown>;
-  updatedAt: Date;
+interface PageView {
+  page: WebPageRecord;
+  title: string;
+  subtitle: string;
+  status: Exclude<PageStatus, "all">;
+  sectionCount: number;
+  publishedSectionCount: number;
+  hasHero: boolean;
+  hasCta: boolean;
+  imageCount: number;
+  latestDeployment: DeploymentRow | null;
+  latestFailure: DeploymentRow | null;
+  liveUrl: string | null;
+}
+
+export async function createPublisherPageAction(formData: FormData) {
+  "use server";
+
+  const appId = String(formData.get("appId") ?? "");
+  const app = appId ? getApp(appId) : null;
+  if (!app) return;
+
+  const page = await createWebPublisherPage(app);
+  revalidatePath(`/apps/${encodeURIComponent(app.id)}`);
+  redirect(`/apps/${encodeURIComponent(app.id)}?page=${encodeURIComponent(page.slug)}`);
+}
+
+export async function deletePublisherPageAction(formData: FormData) {
+  "use server";
+
+  const appId = String(formData.get("appId") ?? "");
+  const pageSlug = String(formData.get("pageSlug") ?? "");
+  const currentPageSlug = String(formData.get("currentPageSlug") ?? "");
+  const app = appId ? getApp(appId) : null;
+  if (!app || !pageSlug) return;
+
+  const result = await deleteWebPublisherPage(app, pageSlug);
+  const nextPageSlug =
+    currentPageSlug && currentPageSlug !== result.deletedPageSlug
+      ? currentPageSlug
+      : result.nextPageSlug;
+  revalidatePath(`/apps/${encodeURIComponent(app.id)}`);
+  redirect(`/apps/${encodeURIComponent(app.id)}?page=${encodeURIComponent(nextPageSlug)}`);
+}
+
+export async function renamePublisherPageAction(formData: FormData) {
+  "use server";
+
+  const appId = String(formData.get("appId") ?? "");
+  const pageSlug = String(formData.get("pageSlug") ?? "");
+  const title = String(formData.get("title") ?? "");
+  const app = appId ? getApp(appId) : null;
+  if (!app || !pageSlug) return;
+
+  await renameWebPublisherPage(app, pageSlug, title);
+  revalidatePath(`/apps/${encodeURIComponent(app.id)}`);
+  redirect(`/apps/${encodeURIComponent(app.id)}?page=${encodeURIComponent(pageSlug)}`);
 }
 
 export async function WebPublisherPagesPanel({
   app,
   pageStatus,
+  selectedPageSlug,
 }: WebPublisherPagesPanelProps) {
   const selectedStatus = parsePageStatus(pageStatus);
-  const sourceTableId = app.manifest.view?.bindings.generate?.table ?? null;
-  const [sections, deployments] = await Promise.all([
-    sourceTableId ? loadParsedRows(sourceTableId) : Promise.resolve([]),
-    Promise.resolve(listDeployments(app.id)),
-  ]);
-
-  const latestSuccess = deployments.find((deployment) => deployment.status === "success") ?? null;
-  const latestDeployment = deployments[0] ?? null;
-  const latestFailure = deployments.find((deployment) => deployment.status === "failed") ?? null;
-  const page = buildImplicitPage({ app, sourceTableId, sections, latestSuccess, latestDeployment });
-  const visible = selectedStatus === "all" || selectedStatus === page.status;
-  const sectionHref = sourceTableId ? `/tables/${encodeURIComponent(sourceTableId)}` : "#";
+  const registry = await ensureWebPageRegistry(app);
+  const selectedPage = selectWebPage(registry, selectedPageSlug);
+  const deployments = listDeployments(app.id);
+  const pageViews = registry.pages.map((page) =>
+    buildPageView({
+      app,
+      page,
+      sections: filterSectionsForPage(registry.sections, page.slug),
+      deployments: deployments.filter((deployment) => deploymentPageSlug(deployment) === page.slug),
+    })
+  );
+  const selectedView =
+    pageViews.find((view) => view.page.slug === selectedPage.slug) ?? pageViews[0] ?? null;
+  const visible = pageViews.filter(
+    (view) => selectedStatus === "all" || selectedStatus === view.status
+  );
+  const sectionHref = `/tables/${encodeURIComponent(registry.sectionsTableId)}`;
+  const pagesHref = `/tables/${encodeURIComponent(registry.pagesTableId)}`;
 
   return (
     <section className="surface-panel rounded-lg border p-4" aria-labelledby="publisher-pages-heading">
@@ -53,7 +130,7 @@ export async function WebPublisherPagesPanel({
         <div className="min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline">Publisher workspace</Badge>
-            <StatusBadge status={page.status} />
+            {selectedView && <StatusBadge status={selectedView.status} />}
           </div>
           <h2 id="publisher-pages-heading" className="text-base font-medium">
             Pages
@@ -63,9 +140,18 @@ export async function WebPublisherPagesPanel({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" disabled title="Multi-page creation requires the upcoming web_pages registry.">
-            <FilePlus2 aria-hidden="true" />
-            New page
+          <form action={createPublisherPageAction}>
+            <input type="hidden" name="appId" value={app.id} />
+            <Button type="submit" variant="outline" size="sm">
+              <FilePlus2 aria-hidden="true" />
+              New page
+            </Button>
+          </form>
+          <Button asChild variant="outline" size="sm">
+            <Link href={pagesHref}>
+              <FileText aria-hidden="true" />
+              Pages table
+            </Link>
           </Button>
           <Button asChild variant="outline" size="sm">
             <Link href={sectionHref}>
@@ -88,140 +174,195 @@ export async function WebPublisherPagesPanel({
             variant={selectedStatus === status ? "secondary" : "ghost"}
             size="xs"
           >
-            <Link href={`/apps/${encodeURIComponent(app.id)}?pageStatus=${status}`}>
+            <Link
+              href={publisherHref(app.id, {
+                page: selectedPage.slug,
+                pageStatus: status,
+              })}
+            >
               {statusLabel(status)}
             </Link>
           </Button>
         ))}
       </div>
 
-      <div className="mt-4">
-        {visible ? (
-          <Card className="border-primary/25">
-            <CardHeader className="pb-3">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <StatusBadge status={page.status} />
-                    <Badge variant="outline">{page.sectionCount} sections</Badge>
-                    <Badge variant="outline">{page.publishedSectionCount} published rows</Badge>
+      <div className="mt-4 grid gap-3">
+        {visible.length > 0 ? (
+          visible.map((view) => {
+            const selected = view.page.slug === selectedPage.slug;
+            const canDelete = registry.pages.length > 1;
+            return (
+              <Card key={view.page.slug} className={selected ? "border-primary/50" : undefined}>
+                <CardHeader className="pb-3">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <StatusBadge status={view.status} />
+                        <Badge variant="outline">{view.sectionCount} sections</Badge>
+                        <Badge variant="outline">{view.publishedSectionCount} published rows</Badge>
+                        {selected && <Badge variant="outline">Selected</Badge>}
+                      </div>
+                      <CardTitle className="sr-only">{view.title}</CardTitle>
+                      <form
+                        action={renamePublisherPageAction}
+                        className="mt-3 flex max-w-2xl flex-col gap-2 sm:flex-row"
+                      >
+                        <input type="hidden" name="appId" value={app.id} />
+                        <input type="hidden" name="pageSlug" value={view.page.slug} />
+                        <Input
+                          aria-label={`Page title for ${view.page.slug}`}
+                          name="title"
+                          defaultValue={view.title}
+                          className="h-8 text-sm font-medium"
+                        />
+                        <Button type="submit" variant="outline" size="sm" className="shrink-0">
+                          <Save aria-hidden="true" />
+                          Save name
+                        </Button>
+                      </form>
+                      <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+                        {view.subtitle}
+                      </p>
+                      <p className="mt-1 font-mono text-xs text-muted-foreground">
+                        /{view.page.slug}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      {view.liveUrl && (
+                        <Button asChild size="sm">
+                          <a href={view.liveUrl} target="_blank" rel="noreferrer">
+                            <ArrowUpRight aria-hidden="true" />
+                            Open live
+                          </a>
+                        </Button>
+                      )}
+                      <Button asChild variant={selected ? "default" : "outline"} size="sm">
+                        <Link href={`${publisherHref(app.id, { page: view.page.slug })}#site-publish-panel`}>
+                          <RadioTower aria-hidden="true" />
+                          {selected ? "Publish controls" : "Select page"}
+                        </Link>
+                      </Button>
+                      <form action={deletePublisherPageAction}>
+                        <input type="hidden" name="appId" value={app.id} />
+                        <input type="hidden" name="pageSlug" value={view.page.slug} />
+                        <input type="hidden" name="currentPageSlug" value={selectedPage.slug} />
+                        <Button
+                          type="submit"
+                          variant="outline"
+                          size="sm"
+                          disabled={!canDelete}
+                          title={
+                            canDelete
+                              ? `Delete ${view.title}`
+                              : "Create another page before deleting this one."
+                          }
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 aria-hidden="true" />
+                          Delete page
+                        </Button>
+                      </form>
+                    </div>
                   </div>
-                  <CardTitle className="mt-3 truncate text-base">{page.title}</CardTitle>
-                  <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-                    {page.subtitle}
-                  </p>
-                </div>
-                <div className="flex shrink-0 flex-wrap gap-2">
-                  {page.liveUrl && (
-                    <Button asChild size="sm">
-                      <a href={page.liveUrl} target="_blank" rel="noreferrer">
-                        <ArrowUpRight aria-hidden="true" />
-                        Open live
-                      </a>
-                    </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                    <ReadinessCell label="Hero" ok={view.hasHero} />
+                    <ReadinessCell label="CTA" ok={view.hasCta} />
+                    <ReadinessCell label="Images" ok={view.imageCount > 0} />
+                    <ReadinessCell label="Target" ok={Boolean(view.latestDeployment)} />
+                  </div>
+                  {view.latestFailure?.error && (
+                    <p className="mt-3 line-clamp-2 text-xs text-status-failed">
+                      {view.latestFailure.error}
+                    </p>
                   )}
-                  <Button asChild variant="outline" size="sm">
-                    <Link href="#site-publish-panel">
-                      <RadioTower aria-hidden="true" />
-                      Publish controls
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-4">
-                <ReadinessCell label="Hero" ok={page.hasHero} />
-                <ReadinessCell label="CTA" ok={page.hasCta} />
-                <ReadinessCell label="Images" ok={page.imageCount > 0} />
-                <ReadinessCell label="Target" ok={Boolean(page.latestDeployment)} />
-              </div>
-              {latestFailure?.error && (
-                <p className="mt-3 line-clamp-2 text-xs text-status-failed">
-                  {latestFailure.error}
-                </p>
-              )}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            );
+          })
         ) : (
           <div className="rounded-lg border border-dashed bg-[var(--surface-2)] p-4 text-sm text-muted-foreground">
             No pages match {statusLabel(selectedStatus).toLowerCase()}.
           </div>
         )}
       </div>
-
-      <p className="mt-3 text-xs text-muted-foreground">
-        This pack currently publishes one implicit page from the section table. Multi-page creation needs a page registry so each page has its own slug, section set, preview, and publish state.
-      </p>
     </section>
   );
 }
 
-function buildImplicitPage(input: {
+function buildPageView(input: {
   app: AppDetail;
-  sourceTableId: string | null;
-  sections: ParsedRow[];
-  latestSuccess: DeploymentRow | null;
-  latestDeployment: DeploymentRow | null;
-}) {
+  page: WebPageRecord;
+  sections: ParsedTableRow[];
+  deployments: DeploymentRow[];
+}): PageView {
   const sorted = [...input.sections].sort(
     (a, b) => numberValue(a.data.order) - numberValue(b.data.order)
   );
   const hero = sorted.find((row) => stringValue(row.data.kind) === "hero") ?? sorted[0];
   const cta = sorted.find((row) => stringValue(row.data.kind) === "cta");
+  const latestSuccess = input.deployments.find((deployment) => deployment.status === "success") ?? null;
+  const latestDeployment = input.deployments[0] ?? null;
+  const latestFailure = input.deployments.find((deployment) => deployment.status === "failed") ?? null;
   const latestSourceUpdate = sorted.reduce<Date | null>(
     (latest, row) => (!latest || row.updatedAt > latest ? row.updatedAt : latest),
     null
   );
   const sourceChangedAfterPublish =
-    Boolean(latestSourceUpdate && input.latestSuccess?.finishedAt) &&
-    latestSourceUpdate!.getTime() > input.latestSuccess!.finishedAt!.getTime();
-  const failedLatest = input.latestDeployment?.status === "failed";
+    Boolean(latestSourceUpdate && latestSuccess?.finishedAt) &&
+    latestSourceUpdate!.getTime() > latestSuccess!.finishedAt!.getTime();
+  const failedLatest = latestDeployment?.status === "failed";
   const status: Exclude<PageStatus, "all"> = failedLatest
     ? "failed"
     : sourceChangedAfterPublish
       ? "stale"
-      : input.latestSuccess
+      : latestSuccess
         ? "published"
         : "draft";
 
   return {
+    page: input.page,
     title:
+      input.page.title ||
       stringValue(hero?.data.heading) ||
       input.app.manifest.view?.bindings.generate?.siteTitle ||
       input.app.name,
     subtitle:
+      input.page.description ||
       stringValue(hero?.data.body) ||
       "Structured page sections ready for preview and publish.",
-    sourceTableId: input.sourceTableId,
     status,
     sectionCount: sorted.length,
     publishedSectionCount: sorted.filter((row) => stringValue(row.data.status) === "published").length,
     hasHero: Boolean(hero),
     hasCta: Boolean(cta || sorted.some((row) => stringValue(row.data.ctaLabel) || stringValue(row.data.ctaUrl))),
     imageCount: sorted.filter((row) => stringValue(row.data.imageUrl)).length,
-    latestDeployment: input.latestDeployment,
-    liveUrl: input.latestSuccess?.finalUrl ?? input.latestSuccess?.url ?? null,
+    latestDeployment,
+    latestFailure,
+    liveUrl: latestSuccess?.finalUrl ?? latestSuccess?.url ?? null,
   };
-}
-
-async function loadParsedRows(tableId: string): Promise<ParsedRow[]> {
-  const rows = await listRows(tableId, { limit: 100 });
-  return rows.flatMap((row) => {
-    try {
-      const data = JSON.parse(row.data) as unknown;
-      if (!data || typeof data !== "object" || Array.isArray(data)) return [];
-      return [{ id: row.id, data: data as Record<string, unknown>, updatedAt: row.updatedAt }];
-    } catch {
-      return [];
-    }
-  });
 }
 
 function parsePageStatus(value: string | undefined): PageStatus {
   return value === "published" || value === "draft" || value === "stale" || value === "failed"
     ? value
     : "all";
+}
+
+function publisherHref(
+  appId: string,
+  input: { page?: string | null; pageStatus?: PageStatus | null }
+) {
+  const params = new URLSearchParams();
+  if (input.page) params.set("page", input.page);
+  if (input.pageStatus) params.set("pageStatus", input.pageStatus);
+  const query = params.toString();
+  return `/apps/${encodeURIComponent(appId)}${query ? `?${query}` : ""}`;
+}
+
+function deploymentPageSlug(deployment: DeploymentRow) {
+  return deployment.pageSlug || DEFAULT_WEB_PAGE_SLUG;
 }
 
 function statusLabel(status: PageStatus) {

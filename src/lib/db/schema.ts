@@ -807,6 +807,7 @@ export const deployments = sqliteTable(
     commit: text("commit_sha"),
     artifactHash: text("artifact_hash"),
     generatorConfig: text("generator_config"),
+    pageSlug: text("page_slug"),
     startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
     finishedAt: integer("finished_at", { mode: "timestamp" }),
     error: text("error"),
@@ -814,6 +815,7 @@ export const deployments = sqliteTable(
   (table) => [
     index("idx_deployments_app").on(table.appId),
     index("idx_deployments_target").on(table.targetId),
+    index("idx_deployments_app_page").on(table.appId, table.pageSlug),
   ]
 );
 

@@ -55,6 +55,7 @@ type Deployment = {
   finalUrl: string | null;
   commit: string | null;
   artifactHash: string | null;
+  pageSlug: string | null;
   startedAt: string;
   finishedAt: string | null;
   error: string | null;
@@ -96,6 +97,8 @@ interface AppPublishPanelProps {
   targetType: "github-pages";
   generatorType: string;
   sourceTable: string;
+  pageSlug?: string | null;
+  pageTitle?: string | null;
 }
 
 const EMPTY_FORM = {
@@ -167,6 +170,8 @@ export function AppPublishPanel({
   targetType,
   generatorType,
   sourceTable,
+  pageSlug,
+  pageTitle,
 }: AppPublishPanelProps) {
   const [targets, setTargets] = useState<PublishTarget[]>([]);
   const [deployments, setDeployments] = useState<Deployment[]>([]);
@@ -204,9 +209,13 @@ export function AppPublishPanel({
   }
 
   async function loadDeployments() {
-    const rows = await fetch(`/api/apps/${encodeURIComponent(appId)}/deployments`, {
-      cache: "no-store",
-    }).then((res) => readJson<Deployment[]>(res));
+    const query = pageSlug ? `?pageSlug=${encodeURIComponent(pageSlug)}` : "";
+    const rows = await fetch(
+      `/api/apps/${encodeURIComponent(appId)}/deployments${query}`,
+      {
+        cache: "no-store",
+      }
+    ).then((res) => readJson<Deployment[]>(res));
     setDeployments(rows);
   }
 
@@ -232,7 +241,7 @@ export function AppPublishPanel({
     return () => {
       cancelled = true;
     };
-  }, [appId]);
+  }, [appId, pageSlug]);
 
   const hasActiveDeployment = deployments.some(
     (deployment) =>
@@ -255,7 +264,7 @@ export function AppPublishPanel({
       );
     }, 3000);
     return () => window.clearInterval(timer);
-  }, [appId, deployments]);
+  }, [appId, pageSlug, deployments]);
 
   async function handleCreateTarget() {
     setSaving(true);
@@ -342,7 +351,7 @@ export function AppPublishPanel({
     const res = await fetch(
       `/api/apps/${encodeURIComponent(appId)}/preview?artifactId=${encodeURIComponent(
         current.artifactId
-      )}`,
+      )}${pageSlug ? `&pageSlug=${encodeURIComponent(pageSlug)}` : ""}`,
       { cache: "no-store" }
     );
     const body = (await res.json().catch(() => ({}))) as {
@@ -383,13 +392,14 @@ export function AppPublishPanel({
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [appId, preview]);
+  }, [appId, pageSlug, preview]);
 
   async function handlePreview() {
     setPreviewing(true);
     setError(null);
     try {
-      const result = await fetch(`/api/apps/${encodeURIComponent(appId)}/preview`, {
+      const query = pageSlug ? `?pageSlug=${encodeURIComponent(pageSlug)}` : "";
+      const result = await fetch(`/api/apps/${encodeURIComponent(appId)}/preview${query}`, {
         method: "POST",
       }).then((res) => readJson<PreviewArtifact>(res));
       setPreviewFrameLoading(true);
@@ -436,7 +446,7 @@ export function AppPublishPanel({
       const result = await fetch(`/api/apps/${encodeURIComponent(appId)}/publish`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetId: selectedTargetId, artifactId }),
+        body: JSON.stringify({ targetId: selectedTargetId, artifactId, pageSlug }),
       }).then((res) => readJson<{ deployment: Deployment }>(res));
       setDeployments((prev) => [result.deployment, ...prev.filter((d) => d.id !== result.deployment.id)]);
       toast.success(artifactId ? "Preview publish started" : "Publish started");
@@ -477,6 +487,12 @@ export function AppPublishPanel({
               Publish
             </CardTitle>
             <p className="mt-1 text-xs text-muted-foreground">
+              {pageTitle ? (
+                <>
+                  Targeting <span className="font-medium text-foreground">{pageTitle}</span>{" "}
+                  <span className="font-mono">/{pageSlug}</span>.{" "}
+                </>
+              ) : null}
               <span className="font-mono">{generatorType}</span> from{" "}
               <span className="font-mono">{sourceTable}</span> to GitHub Pages.
             </p>

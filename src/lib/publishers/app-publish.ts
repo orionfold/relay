@@ -1,9 +1,15 @@
 import { createHash } from "node:crypto";
-import { desc, eq, and, inArray } from "drizzle-orm";
+import { desc, eq, and, inArray, isNull, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { deployments, publishTargets, type DeploymentRow, type PublishTargetRow } from "@/lib/db/schema";
 import { getApp, type AppDetail, type ViewConfig } from "@/lib/apps/registry";
 import { getTable, listRows } from "@/lib/data/tables";
+import {
+  DEFAULT_WEB_PAGE_SLUG,
+  ensureWebPageRegistry,
+  selectWebPage,
+  type WebPageRecord,
+} from "@/lib/apps/web-pages";
 import { getAppStaticSiteSettings } from "@/lib/generators/app-static-site-settings";
 import { getGeneratorAdapter } from "@/lib/generators/registry";
 import { StaticSiteSettingsError } from "@/lib/generators/static-site-settings";
@@ -31,6 +37,7 @@ export type AppPublishErrorCode =
   | "GENERATE_TABLE_NOT_FOUND"
   | "GENERATE_ROW_INVALID"
   | "GENERATE_CONFIG_INVALID"
+  | "PAGE_NOT_FOUND"
   | "PREVIEW_NOT_FOUND"
   | "PREVIEW_EXPIRED"
   | "PREVIEW_APP_MISMATCH"
@@ -68,6 +75,10 @@ export interface CreatePreviewResult {
   expiresAt: string;
 }
 
+export interface PagePublishOptions {
+  pageSlug?: string | null;
+}
+
 export interface DeletePublishTargetResult {
   id: string;
   deletedDeployments: number;
@@ -82,6 +93,7 @@ export interface PreviewStatusResult {
 }
 
 type GenerateBinding = NonNullable<ViewConfig["bindings"]["generate"]>;
+type PageContext = Pick<WebPageRecord, "slug" | "title"> | null;
 
 function requireApp(appId: string): AppDetail {
   const app = getApp(appId);
@@ -139,12 +151,14 @@ function sourceFingerprint(input: {
   generate: GenerateBinding;
   generatorConfig: Record<string, unknown>;
   rows: Record<string, unknown>[];
+  pageSlug?: string | null;
 }): string {
   return createHash("sha256")
     .update(
       JSON.stringify({
         generatorType: input.generate.generatorType,
         table: input.generate.table,
+        pageSlug: input.pageSlug ?? null,
         siteTitle: input.generate.siteTitle ?? null,
         generatorConfig: input.generatorConfig,
         rows: input.rows,
@@ -153,12 +167,17 @@ function sourceFingerprint(input: {
     .digest("hex");
 }
 
-async function loadGeneratorConfig(appId: string, generate: GenerateBinding) {
+async function loadGeneratorConfig(
+  appId: string,
+  generate: GenerateBinding,
+  page: PageContext = null
+) {
   try {
     const staticSiteSettings = await getAppStaticSiteSettings(appId);
     const staticSiteTemplate = getStaticSiteTemplate(staticSiteSettings.templateId);
     return {
-      siteTitle: generate.siteTitle,
+      siteTitle: page?.title ?? generate.siteTitle,
+      pageSlug: page?.slug ?? null,
       staticSiteSettings,
       staticSiteTemplate: staticSiteTemplateSummary(staticSiteTemplate),
     };
@@ -173,10 +192,28 @@ async function loadGeneratorConfig(appId: string, generate: GenerateBinding) {
   }
 }
 
-async function generateArtifactForBinding(appId: string, generate: GenerateBinding) {
-  const rows = await loadGenerateRows(generate.table);
+async function resolvePageContext(app: AppDetail, pageSlug?: string | null): Promise<PageContext> {
+  if (!pageSlug) return null;
+  const registry = await ensureWebPageRegistry(app);
+  const selected = selectWebPage(registry, pageSlug);
+  if (selected.slug !== pageSlug) {
+    throw new AppPublishError(
+      "PAGE_NOT_FOUND",
+      `Page not found: ${pageSlug}`,
+      404
+    );
+  }
+  return selected;
+}
+
+async function generateArtifactForBinding(
+  app: AppDetail,
+  generate: GenerateBinding,
+  page: PageContext = null
+) {
+  const rows = await loadGenerateRows(generate.table, page?.slug ?? null);
   const generator = getGeneratorAdapter(generate.generatorType);
-  const generatorConfig = await loadGeneratorConfig(appId, generate);
+  const generatorConfig = await loadGeneratorConfig(app.id, generate, page);
   return {
     rows,
     generatorConfig,
@@ -292,12 +329,20 @@ export async function testPublishTarget(appId: string, targetId: string) {
   return adapter.testConnection(parseTargetConfig(target));
 }
 
-export function listDeployments(appId: string): DeploymentRow[] {
+export function listDeployments(appId: string, pageSlug?: string | null): DeploymentRow[] {
   requireApp(appId);
+  const where = pageSlug
+    ? pageSlug === DEFAULT_WEB_PAGE_SLUG
+      ? and(
+          eq(deployments.appId, appId),
+          or(eq(deployments.pageSlug, pageSlug), isNull(deployments.pageSlug))
+        )
+      : and(eq(deployments.appId, appId), eq(deployments.pageSlug, pageSlug))
+    : eq(deployments.appId, appId);
   return db
     .select()
     .from(deployments)
-    .where(eq(deployments.appId, appId))
+    .where(where)
     .orderBy(desc(deployments.startedAt))
     .all();
 }
@@ -313,7 +358,10 @@ export function getDeployment(appId: string, deploymentId: string): DeploymentRo
   );
 }
 
-export async function loadGenerateRows(tableId: string): Promise<Record<string, unknown>[]> {
+export async function loadGenerateRows(
+  tableId: string,
+  pageSlug?: string | null
+): Promise<Record<string, unknown>[]> {
   const table = await getTable(tableId);
   if (!table) {
     throw new AppPublishError(
@@ -324,13 +372,21 @@ export async function loadGenerateRows(tableId: string): Promise<Record<string, 
   }
 
   const rows = await listRows(tableId, { limit: 10_000 });
-  return rows.map((row) => {
+  return rows.flatMap((row) => {
     try {
       const parsed = JSON.parse(row.data) as unknown;
       if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
         throw new Error("row data is not an object");
       }
-      return parsed as Record<string, unknown>;
+      const data = parsed as Record<string, unknown>;
+      if (pageSlug) {
+        const rowPageSlug =
+          typeof data.pageSlug === "string" && data.pageSlug.trim()
+            ? data.pageSlug.trim()
+            : DEFAULT_WEB_PAGE_SLUG;
+        if (rowPageSlug !== pageSlug) return [];
+      }
+      return [data];
     } catch (err) {
       throw new AppPublishError(
         "GENERATE_ROW_INVALID",
@@ -343,7 +399,10 @@ export async function loadGenerateRows(tableId: string): Promise<Record<string, 
   });
 }
 
-export async function createAppPreview(appId: string): Promise<CreatePreviewResult> {
+export async function createAppPreview(
+  appId: string,
+  options: PagePublishOptions = {}
+): Promise<CreatePreviewResult> {
   const app = requireApp(appId);
   const generate = app.manifest.view?.bindings.generate;
   if (!generate) {
@@ -353,13 +412,20 @@ export async function createAppPreview(appId: string): Promise<CreatePreviewResu
     );
   }
 
-  const { rows, generatorConfig, artifact } = await generateArtifactForBinding(appId, generate);
+  const page = await resolvePageContext(app, options.pageSlug ?? null);
+  const { rows, generatorConfig, artifact } = await generateArtifactForBinding(app, generate, page);
   const metadata = await storePreviewArtifact({
     appId,
     generatorType: generate.generatorType,
     generatorConfig,
     sourceTable: generate.table,
-    sourceFingerprint: sourceFingerprint({ generate, generatorConfig, rows }),
+    pageSlug: page?.slug ?? null,
+    sourceFingerprint: sourceFingerprint({
+      generate,
+      generatorConfig,
+      rows,
+      pageSlug: page?.slug ?? null,
+    }),
     artifact,
   });
   const encodedId = encodeURIComponent(appId);
@@ -375,7 +441,8 @@ export async function createAppPreview(appId: string): Promise<CreatePreviewResu
 
 export async function getAppPreviewStatus(
   appId: string,
-  artifactId: string
+  artifactId: string,
+  options: PagePublishOptions = {}
 ): Promise<PreviewStatusResult> {
   const app = requireApp(appId);
   const generate = app.manifest.view?.bindings.generate;
@@ -387,10 +454,12 @@ export async function getAppPreviewStatus(
   }
 
   try {
+    const page = await resolvePageContext(app, options.pageSlug ?? null);
     const preview = await loadPreviewArtifact(appId, artifactId);
     if (
       preview.metadata.generatorType !== generate.generatorType ||
-      preview.metadata.sourceTable !== generate.table
+      preview.metadata.sourceTable !== generate.table ||
+      (page?.slug ?? null) !== (preview.metadata.pageSlug ?? null)
     ) {
       throw new AppPublishError(
         "PREVIEW_APP_MISMATCH",
@@ -398,9 +467,14 @@ export async function getAppPreviewStatus(
       );
     }
 
-    const rows = await loadGenerateRows(generate.table);
-    const generatorConfig = await loadGeneratorConfig(appId, generate);
-    const currentFingerprint = sourceFingerprint({ generate, generatorConfig, rows });
+    const rows = await loadGenerateRows(generate.table, page?.slug ?? null);
+    const generatorConfig = await loadGeneratorConfig(appId, generate, page);
+    const currentFingerprint = sourceFingerprint({
+      generate,
+      generatorConfig,
+      rows,
+      pageSlug: page?.slug ?? null,
+    });
     return {
       artifactId: preview.metadata.artifactId,
       hash: preview.metadata.hash,
@@ -416,7 +490,11 @@ export async function getAppPreviewStatus(
   }
 }
 
-function createDeploymentRow(appId: string, targetId: string): DeploymentRow {
+function createDeploymentRow(
+  appId: string,
+  targetId: string,
+  pageSlug?: string | null
+): DeploymentRow {
   const id = crypto.randomUUID();
   const now = new Date();
   db.insert(deployments)
@@ -424,6 +502,7 @@ function createDeploymentRow(appId: string, targetId: string): DeploymentRow {
       id,
       appId,
       targetId,
+      pageSlug: pageSlug ?? null,
       status: "pending",
       startedAt: now,
     })
@@ -483,6 +562,7 @@ export async function runDeployment(
       );
     }
 
+    const page = await resolvePageContext(app, deployment.pageSlug);
     let artifact;
     let generatorConfig: Record<string, unknown>;
     if (artifactId) {
@@ -490,16 +570,22 @@ export async function runDeployment(
         const preview = await loadPreviewArtifact(deployment.appId, artifactId);
         if (
           preview.metadata.generatorType !== generate.generatorType ||
-          preview.metadata.sourceTable !== generate.table
+          preview.metadata.sourceTable !== generate.table ||
+          (page?.slug ?? null) !== (preview.metadata.pageSlug ?? null)
         ) {
           throw new AppPublishError(
             "PREVIEW_APP_MISMATCH",
             "Preview artifact does not match the app generate binding"
           );
         }
-        const rows = await loadGenerateRows(generate.table);
-        generatorConfig = await loadGeneratorConfig(deployment.appId, generate);
-        const currentFingerprint = sourceFingerprint({ generate, generatorConfig, rows });
+        const rows = await loadGenerateRows(generate.table, page?.slug ?? null);
+        generatorConfig = await loadGeneratorConfig(deployment.appId, generate, page);
+        const currentFingerprint = sourceFingerprint({
+          generate,
+          generatorConfig,
+          rows,
+          pageSlug: page?.slug ?? null,
+        });
         if (preview.metadata.sourceFingerprint !== currentFingerprint) {
           throw new AppPublishError(
             "PREVIEW_STALE",
@@ -516,7 +602,7 @@ export async function runDeployment(
         throw err;
       }
     } else {
-      const generated = await generateArtifactForBinding(deployment.appId, generate);
+      const generated = await generateArtifactForBinding(app, generate, page);
       artifact = generated.artifact;
       generatorConfig = generated.generatorConfig;
     }
@@ -565,10 +651,11 @@ export async function runDeployment(
 
 export function triggerAppPublish(
   appId: string,
-  targetId: string
+  targetId: string,
+  options: PagePublishOptions = {}
 ): TriggerPublishResult {
   requireApp(appId);
   getPublishTargetForApp(appId, targetId);
-  const deployment = createDeploymentRow(appId, targetId);
+  const deployment = createDeploymentRow(appId, targetId, options.pageSlug ?? null);
   return { deployment };
 }

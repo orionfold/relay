@@ -23,12 +23,13 @@ export default async function AppDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ period?: string; row?: string; pageStatus?: string }>;
+  searchParams: Promise<{ period?: string; row?: string; pageStatus?: string; page?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
   const period = PeriodSchema.parse(sp.period ?? "mtd");
   const rowParam = typeof sp.row === "string" ? sp.row : null;
+  const selectedPageSlug = typeof sp.page === "string" ? sp.page : null;
   const app = getApp(id);
   if (!app) notFound();
 
@@ -64,12 +65,16 @@ export default async function AppDetailPage({
           </div>
         ) : (
           <>
-            {isWebPublisher && (
-              <WebPublisherPagesPanel app={app} pageStatus={sp.pageStatus} />
-            )}
             <div id="pack-detail-heading" tabIndex={-1} className="scroll-mt-[calc(var(--chrome-header)+1rem)] focus:outline-none">
               <KitView model={model} />
             </div>
+            {isWebPublisher && (
+              <WebPublisherPagesPanel
+                app={app}
+                pageStatus={sp.pageStatus}
+                selectedPageSlug={selectedPageSlug}
+              />
+            )}
           </>
         )}
         {isWebDesignerBundle ? (
@@ -102,6 +107,8 @@ export default async function AppDetailPage({
                   targetType={publishBinding.targetType}
                   generatorType={generateBinding.generatorType}
                   sourceTable={generateBinding.table}
+                  pageSlug={isWebPublisher ? selectedPageSlug ?? "home" : null}
+                  pageTitle={isWebPublisher ? selectedPageSlug ?? "Home" : null}
                 />
               </div>
             )}

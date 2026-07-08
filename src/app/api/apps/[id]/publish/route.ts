@@ -10,6 +10,7 @@ const triggerPublishSchema = z
   .object({
     targetId: z.string().min(1),
     artifactId: z.string().min(1).optional(),
+    pageSlug: z.string().min(1).optional(),
   })
   .strict();
 
@@ -43,7 +44,9 @@ export async function POST(
   }
 
   try {
-    const result = triggerAppPublish(id, parsed.data.targetId);
+    const result = parsed.data.pageSlug
+      ? triggerAppPublish(id, parsed.data.targetId, { pageSlug: parsed.data.pageSlug })
+      : triggerAppPublish(id, parsed.data.targetId);
     runDeployment(result.deployment.id, parsed.data.artifactId).catch((err) => {
       console.error("[apps/publish] background deployment failed:", err);
     });

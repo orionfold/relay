@@ -18,8 +18,11 @@ blueprints:
     source: $AINATIVE_DATA_DIR/blueprints/relay-web-publisher--section-draft.yaml
 
 tables:
+  - id: web_pages
+    columns: [slug, title, description, status, sortOrder, notes]
+    seed: seed/tables/web_pages.json
   - id: web_sections
-    columns: [kind, heading, body, order, ctaLabel, ctaUrl, imageUrl, status, notes]
+    columns: [pageSlug, kind, heading, body, order, ctaLabel, ctaUrl, imageUrl, status, notes]
     seed: seed/tables/web_sections.json
 
 view:
@@ -35,6 +38,12 @@ view:
         source:
           kind: tableCount
           table: web_sections
+        format: int
+      - id: page-count
+        label: Pages
+        source:
+          kind: tableCount
+          table: web_pages
         format: int
       - id: published-sections
         label: Published rows

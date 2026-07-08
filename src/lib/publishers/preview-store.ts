@@ -12,6 +12,7 @@ export type PreviewArtifactMetadata = {
   generatorType: string;
   generatorConfig: Record<string, unknown>;
   sourceTable: string;
+  pageSlug?: string | null;
   hash: string;
   entryPoint: string;
   createdAt: string;
@@ -161,6 +162,7 @@ export async function storePreviewArtifact(input: {
   generatorType: string;
   generatorConfig: Record<string, unknown>;
   sourceTable: string;
+  pageSlug?: string | null;
   sourceFingerprint: string;
   artifact: Artifact;
   now?: Date;
@@ -188,6 +190,7 @@ export async function storePreviewArtifact(input: {
     generatorType: input.generatorType,
     generatorConfig: input.generatorConfig,
     sourceTable: input.sourceTable,
+    pageSlug: input.pageSlug ?? null,
     hash: input.artifact.hash,
     entryPoint: cleanArtifactPath(input.artifact.entryPoint),
     createdAt: createdAt.toISOString(),
