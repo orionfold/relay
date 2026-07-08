@@ -120,7 +120,7 @@ function inferScaffoldPlan(
   return {
     plugin,
     rationale: `Matched integration noun '${noun}' — composition alone can't call external APIs, so scaffolding a plugin.`,
-    composeAltPrompt: `Compose an app without a plugin for: ${message}`,
+    composeAltPrompt: `Compose a pack without a plugin for: ${message}`,
     explanation: `${noun} access requires an external API call — composition primitives (profile + blueprint + table + schedule) can't make network requests on their own.`,
   };
 }

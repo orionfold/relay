@@ -42,17 +42,17 @@ const baseProps = {
 };
 
 async function openDeleteConfirm() {
-  // The toolbar renders "Delete app" as a direct button (no kebab menu).
-  // Clicking it opens the confirm dialog, which has its own "Delete app"
+  // The toolbar renders "Delete pack" as a direct button (no kebab menu).
+  // Clicking it opens the confirm dialog, which has its own "Delete pack"
   // confirm button — so before opening there is exactly one such button.
-  const trigger = screen.getByRole("button", { name: /^Delete app$/i });
+  const trigger = screen.getByRole("button", { name: /^Delete pack$/i });
   fireEvent.click(trigger);
 }
 
 describe("AppDetailActions — delete button", () => {
-  it("renders the Delete app button directly, not behind a kebab menu", () => {
+  it("renders the Delete pack button directly, not behind a kebab menu", () => {
     render(<AppDetailActions {...baseProps} />);
-    expect(screen.getByRole("button", { name: /^Delete app$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Delete pack$/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /App actions/i })).toBeNull();
   });
 });
@@ -115,7 +115,7 @@ describe("AppDetailActions — toast paths", () => {
     render(<AppDetailActions {...baseProps} />);
     await openDeleteConfirm();
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete app$/, hidden: false })
+      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
     );
 
     await waitFor(() => {
@@ -132,7 +132,7 @@ describe("AppDetailActions — toast paths", () => {
 
   it("on server error: shows toast.error with the server message", async () => {
     fetchSpy.mockResolvedValue(
-      new Response(JSON.stringify({ error: "Failed to delete app" }), {
+      new Response(JSON.stringify({ error: "Failed to delete pack" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       })
@@ -141,11 +141,11 @@ describe("AppDetailActions — toast paths", () => {
     render(<AppDetailActions {...baseProps} />);
     await openDeleteConfirm();
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete app$/, hidden: false })
+      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
     );
 
     await waitFor(() => {
-      expect(toastError).toHaveBeenCalledWith("Failed to delete app");
+      expect(toastError).toHaveBeenCalledWith("Failed to delete pack");
     });
     expect(pushSpy).not.toHaveBeenCalled();
     expect(toastSuccess).not.toHaveBeenCalled();
@@ -157,7 +157,7 @@ describe("AppDetailActions — toast paths", () => {
     render(<AppDetailActions {...baseProps} />);
     await openDeleteConfirm();
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete app$/, hidden: false })
+      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
     );
 
     await waitFor(() => {

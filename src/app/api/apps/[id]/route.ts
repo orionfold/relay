@@ -7,7 +7,7 @@ export async function GET(
 ) {
   const { id } = await params;
   const app = getApp(id);
-  if (!app) return NextResponse.json({ error: "App not found" }, { status: 404 });
+  if (!app) return NextResponse.json({ error: "Pack not found" }, { status: 404 });
   return NextResponse.json(app);
 }
 
@@ -17,7 +17,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (!id) {
-    return NextResponse.json({ error: "App id is required" }, { status: 400 });
+    return NextResponse.json({ error: "Pack id is required" }, { status: 400 });
   }
 
   try {
@@ -28,7 +28,7 @@ export async function DELETE(
       result.profilesRemoved > 0 ||
       result.blueprintsRemoved > 0;
     if (!removedAnything) {
-      return NextResponse.json({ error: "App not found" }, { status: 404 });
+      return NextResponse.json({ error: "Pack not found" }, { status: 404 });
     }
     return NextResponse.json({
       success: true,
@@ -38,9 +38,9 @@ export async function DELETE(
       blueprintsRemoved: result.blueprintsRemoved,
     });
   } catch (err) {
-    console.error("App delete failed:", err);
+    console.error("Pack delete failed:", err);
     return NextResponse.json(
-      { error: "Failed to delete app" },
+      { error: "Failed to delete pack" },
       { status: 500 }
     );
   }

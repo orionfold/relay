@@ -41,7 +41,7 @@ export function AppDetailActions({
     .join(", ");
 
   const description =
-    `This will remove ${appName} and ${summary || "its manifest"}. ` +
+    `This will remove the installed pack ${appName} and ${summary || "its manifest"}. ` +
     `Profiles and blueprints stay available for reuse. This cannot be undone.`;
 
   // The AlertDialog blocks pointer events while open, and `onOpenChange` is
@@ -77,7 +77,7 @@ export function AppDetailActions({
         className="text-destructive hover:text-destructive"
       >
         <Trash2 className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
-        Delete app
+        Delete pack
       </Button>
 
       <ConfirmDialog
@@ -85,7 +85,7 @@ export function AppDetailActions({
         onOpenChange={(open) => !pending && setConfirmOpen(open)}
         title={`Delete ${appName}?`}
         description={description}
-        confirmLabel={pending ? "Deleting…" : "Delete app"}
+        confirmLabel={pending ? "Deleting…" : "Delete pack"}
         destructive
         onConfirm={handleConfirm}
       />

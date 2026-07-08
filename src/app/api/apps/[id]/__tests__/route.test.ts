@@ -102,7 +102,7 @@ describe("DELETE /api/apps/[id]", () => {
       params: Promise.resolve({ id: "ghost" }),
     });
     expect(res.status).toBe(404);
-    expect(await res.json()).toEqual({ error: "App not found" });
+    expect(await res.json()).toEqual({ error: "Pack not found" });
   });
 
   it("returns 500 with a sanitized message when the cascade throws", async () => {
@@ -117,7 +117,7 @@ describe("DELETE /api/apps/[id]", () => {
     });
     expect(res.status).toBe(500);
     const body = await res.json();
-    expect(body.error).toBe("Failed to delete app");
+    expect(body.error).toBe("Failed to delete pack");
     expect(body.error).not.toMatch(/\/Users\//);
     // Diagnostic detail still goes to the server log.
     expect(consoleErrorSpy).toHaveBeenCalled();
@@ -129,7 +129,7 @@ describe("DELETE /api/apps/[id]", () => {
       params: Promise.resolve({ id: "" }),
     });
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: "App id is required" });
+    expect(await res.json()).toEqual({ error: "Pack id is required" });
     expect(deleteAppCascade).not.toHaveBeenCalled();
   });
 });

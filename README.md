@@ -18,17 +18,17 @@ Relay is the **third** product in the Orionfold line — **Proof** answers *"whi
 
 ---
 
-## Describe an app — Relay builds it
+## Describe a pack — Relay builds it
 
-The proof is in what Relay composes, not what it benchmarks. You describe a client module in plain language, and Relay assembles it from its primitives — an agent profile, a workflow blueprint, a schedule, and a table or two — into one running app. No new code, no deploy.
+The proof is in what Relay composes, not what it benchmarks. You describe a client module in plain language, and Relay assembles it from its primitives — an agent profile, a workflow blueprint, a schedule, and a table or two — into one installed pack. No new code, no deploy.
 
-A "receipt photo → bookkeeping" module for a property-management client is one prompt away; the next client who needs the same thing reuses it in minutes. The composed app runs as a first-class instance with its own KPIs, and every agent run under it meters real cost back to that customer — the hardcoded billing line is gone, replaced by live per-client attribution from the usage ledger.
+A "receipt photo → bookkeeping" module for a property-management client is one prompt away; the next client who needs the same thing reuses it in minutes. The installed pack runs as a first-class instance with its own KPIs, and every agent run under it meters real cost back to that customer — the hardcoded billing line is gone, replaced by live per-client attribution from the usage ledger.
 
-<img src="https://raw.githubusercontent.com/orionfold/relay/main/public/readme/apps-starter-to-chat.png" alt="Describe an app in plain language and Relay composes it from a profile, blueprint, schedule, and tables — no code, no deploy" width="1200" />
+<img src="https://raw.githubusercontent.com/orionfold/relay/main/public/readme/apps-starter-to-chat.png" alt="Describe a pack in plain language and Relay composes it from a profile, blueprint, schedule, and tables — no code, no deploy" width="1200" />
 
-| Compose an app | Apps gallery | Inside a composed app |
+| Compose a pack | Packs gallery | Inside an installed pack |
 |:-:|:-:|:-:|
-| Plain-language prompt → a profile + blueprint + schedule + tables, wired into one running module | Composed apps run as first-class instances alongside ready-made starters | Live KPI tiles plus every service workflow as a one-click run — a whole vertical, composed not coded |
+| Plain-language prompt → a profile + blueprint + schedule + tables, wired into one running module | Installed packs run as first-class instances alongside ready-made starters | Live KPI tiles plus every service workflow as a one-click run — a whole vertical, composed not coded |
 
 ---
 
@@ -218,7 +218,7 @@ All 14 MVP features shipped (CLI bootstrap, database schema, app shell, project 
 | **Runtime Quality** (2) | SDK runtime hardening, E2E test automation |
 | **Governance** (3) | Usage metering ledger, spend budget guardrails, cost & usage dashboard |
 | **Chat** (12) | 5-tier context engine + CRUD tools, SSE streaming, tool catalog, skill composition, `#key:value` filters, saved searches, conversation branching/rewind (`⌘Z`/`⌘⇧Z`), chat-driven app builder |
-| **Composed Apps** (10) | `/apps` surface, starters showcase, 6 layout kits (Tracker, Coach, Ledger, Inbox, Research, Workflow Hub), manifest authoring tools, atomic writes, KPI ratio composition |
+| **Packs** (10) | `/packs` browser, compatible `/apps` installed-pack surface, starters showcase, 6 layout kits (Tracker, Coach, Ledger, Inbox, Research, Workflow Hub), manifest authoring tools, atomic writes, KPI ratio composition |
 | **Onboarding** (2) | First-launch runtime preference modal (Best quality / Balanced / Lowest cost / Best privacy), instance bootstrap with dev-mode gate |
 | **Customers** (first-class) | Hard `customers` table, write-time cost attribution, per-customer rollup, `/customers` list + detail |
 | **Plugin Platform** (5) | Chat-tools plugin kind, MCP plugin spec, plugin tools registry, plugin spec tools, schedule spec tools |

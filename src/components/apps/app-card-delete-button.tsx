@@ -41,7 +41,7 @@ export function AppCardDeleteButton({
     .join(", ");
 
   const description =
-    `This will remove ${appName} and ${summary || "its manifest"}. ` +
+    `This will remove the installed pack ${appName} and ${summary || "its manifest"}. ` +
     `Profiles and blueprints stay available for reuse. This cannot be undone.`;
 
   function handleConfirm() {
@@ -87,7 +87,7 @@ export function AppCardDeleteButton({
         onOpenChange={(open) => !pending && setConfirmOpen(open)}
         title={`Delete ${appName}?`}
         description={description}
-        confirmLabel={pending ? "Deleting…" : "Delete app"}
+        confirmLabel={pending ? "Deleting…" : "Delete pack"}
         destructive
         onConfirm={handleConfirm}
       />

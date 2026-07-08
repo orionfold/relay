@@ -85,7 +85,7 @@ export default async function PacksPage({
   return (
     <PageShell
       title="Packs"
-      description="Vertical content bundles. An app, profiles, blueprints, tables, and seed data installed in one step."
+      description="Vertical content bundles. Each pack installs profiles, blueprints, tables, seed data, and a runnable pack instance in one step."
       filters={
         templates.length > 1 ? (
           <FilterChips active={filter} counts={counts} />

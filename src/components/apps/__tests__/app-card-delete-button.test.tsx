@@ -90,7 +90,7 @@ describe("AppCardDeleteButton — click behavior + toast paths", () => {
       screen.getByRole("button", { name: /Delete Wealth Tracker/i })
     );
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete app$/, hidden: false })
+      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
     );
 
     await waitFor(() => {
@@ -106,7 +106,7 @@ describe("AppCardDeleteButton — click behavior + toast paths", () => {
 
   it("on server error: shows toast.error with the server message", async () => {
     fetchSpy.mockResolvedValue(
-      new Response(JSON.stringify({ error: "Failed to delete app" }), {
+      new Response(JSON.stringify({ error: "Failed to delete pack" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       })
@@ -117,11 +117,11 @@ describe("AppCardDeleteButton — click behavior + toast paths", () => {
       screen.getByRole("button", { name: /Delete Wealth Tracker/i })
     );
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete app$/, hidden: false })
+      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
     );
 
     await waitFor(() => {
-      expect(toastError).toHaveBeenCalledWith("Failed to delete app");
+      expect(toastError).toHaveBeenCalledWith("Failed to delete pack");
     });
     expect(refreshSpy).not.toHaveBeenCalled();
     expect(toastSuccess).not.toHaveBeenCalled();
@@ -144,7 +144,7 @@ describe("AppCardDeleteButton — click behavior + toast paths", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: /Delete Weird/i }));
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete app$/, hidden: false })
+      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
     );
 
     await waitFor(() => {

@@ -1,6 +1,6 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-08 (pt: **Settings rail collapsed to one row; telemetry/settings drill-downs confirmed complete.** Removed the expandable settings-glance panel, migrated expanded-only execution/runtime/permission cells into the always-visible collapsed rail, and cleared the already-built telemetry/settings drill-down item from the pending operator-feedback list.)_
+_Last updated: 2026-07-08 (pt: **Packs-first copy cleanup complete; handoff pruned.** Confirmed `features/packs-first-ia.md` is completed, cleaned remaining visible Apps-first copy on pack delete, `/packs`, README, and chat fallback surfaces, and removed the already-built App/pack shell IA + Apps/Packs IA items from the live operator-feedback list.)_
 
 ## ▶️ NEXT SESSION — Post-release backlog
 
@@ -13,8 +13,6 @@ _Last updated: 2026-07-08 (pt: **Settings rail collapsed to one row; telemetry/s
 - **`pack-depth-next-wave` arc:** Video Creator still needs a clean synthetic reference model before build. Retail Investor remains open: value-heatmap + radar, prosumer-first ICP.
 - **`_IDEAS/packs-robustify.md`:** R1+R3+R5 built. Next gate tranche: R2 install-time cross-pack collision check, then R7 integration/`joinKeys`, R4 provenanceOf API, R8 dependsOn when it earns weight.
 - **Operator-guided feedback tasks (UNGROOMED, source `output/operator-walkthrough-feedback-2026-07-07.md`):**
-  - App/pack shell IA: expose owned tables via progressive disclosure; split primitives into sections with section-appropriate card dimensions.
-  - Apps/Packs IA: reconcile around Packs-first naming/copy/routes while preserving installed-vs-bundled clarity.
   - Build/runtime: investigate repeated Turbopack `<dynamic>` warning from `src/lib/plugins/transport-dispatch.ts`; verify scheduled dispatch failure logging does not record failed fires as successful.
   - Web-pack preview/gallery polish: preview should stay inside Relay chrome with separate raw-view action; blank gallery thumbnails should become meaningful thumbnails or be omitted; section-card click behavior must be consistent.
 
@@ -54,6 +52,8 @@ Standing candidates (LOW / reactive):
 - Check git history for prior art; verify field reports before fixing.
 
 ## Recently shipped / groomed
+
+**Packs-first IA copy cleanup (CONFIRMED COMPLETE 2026-07-08, working tree):** `features/packs-first-ia.md` was already `status: completed`; live `/packs`, `/apps`, `/chat`, and `/apps/relay-web-designer` checks confirmed the core IA is built. Cleaned residual visible copy from Apps-first wording: delete actions now say `Delete pack`, API delete errors say pack, `/packs` describes pack instances, README leads with `Describe a pack`, and chat extension fallback says `Compose a pack without a plugin`. Verification: `npx vitest run src/components/apps/__tests__/app-detail-actions.test.tsx src/components/apps/__tests__/app-card-delete-button.test.tsx 'src/app/api/apps/[id]/__tests__/route.test.ts' src/components/chat/__tests__/chat-message-extension-fallback.test.tsx src/lib/chat/__tests__/engine-planner.test.ts`.
 
 **Telemetry/settings drill-down affordances (CONFIRMED COMPLETE 2026-07-08):** Cleared from the pending operator-feedback list after code/doc verification. `features/dashboard-settings-drilldowns.md` is `status: completed`, `features/changelog.md` records the 2026-07-07 build, `src/components/shell/telemetry-rail.tsx` links telemetry cells to tasks, inbox, projects, workflows, costs, and runtime settings, and `src/components/shell/glance-rail.tsx` links settings rail values to focused `/settings#...` anchors.
 

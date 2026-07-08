@@ -46,7 +46,7 @@ describe("ChatMessage — extensionFallback metadata", () => {
           tools: [{ name: "fetch_items", description: "d" }],
         },
         rationale: "Matched integration noun 'github'",
-        composeAltPrompt: "Compose an app without a plugin for: ...",
+        composeAltPrompt: "Compose a pack without a plugin for: ...",
         explanation: "github access requires an external API call",
       },
     });
