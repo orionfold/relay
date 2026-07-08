@@ -2,18 +2,18 @@
   {
     "kind": "hero",
     "heading": "Launch a sharper service page in one focused week",
-    "body": "A synthetic web-studio offer for operators who already know the service they need to sell.",
+    "body": "A synthetic web-studio offer for founder-led operators who already know the service they need to sell.",
     "order": 1,
     "ctaLabel": "Book a working session",
     "ctaUrl": "#contact",
-    "imageUrl": "",
+    "imageUrl": "https://images.pexels.com/photos/10375901/pexels-photo-10375901.jpeg?cs=tinysrgb&dpr=1&w=1200",
     "status": "published",
-    "notes": "Synthetic example"
+    "notes": "Synthetic example using a Pexels License sample image; do not imply depicted-person endorsement."
   },
   {
     "kind": "features",
-    "heading": "Strategy, build, and publishing in one loop",
-    "body": "Position the offer, structure the page, review the preview, then publish to the owner's GitHub Pages target.",
+    "heading": "Positioning, build, and publishing in one loop",
+    "body": "Clarify the offer, structure the page, review the local preview, then publish the approved artifact to the owner's GitHub Pages target.",
     "order": 2,
     "ctaLabel": "",
     "ctaUrl": "",
@@ -24,7 +24,7 @@
   {
     "kind": "text",
     "heading": "What the client needs ready",
-    "body": "A clear offer, a short proof library, and one accountable reviewer. The pack keeps those materials organized before publish.",
+    "body": "A clear offer, a short proof library, a few approved visuals, and one accountable reviewer. The pack keeps those materials organized before publish.",
     "order": 3,
     "ctaLabel": "",
     "ctaUrl": "",

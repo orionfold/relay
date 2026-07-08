@@ -65,7 +65,7 @@ describe("relay-web-designer — catalog contract", () => {
     }
   });
 
-  it("ships synthetic seed data only — no local private peer references", () => {
+  it("ships public-safe seed data only — no private peer or restricted pack references", () => {
     const root = path.join(process.cwd(), "src/lib/packs/templates");
     const templateRoots = [
       path.join(root, "relay-web-assets"),
@@ -82,6 +82,7 @@ describe("relay-web-designer — catalog contract", () => {
       /north-star/i,
       /harvested from/i,
       /manavsehgal/i,
+      /undraw\.co/i,
     ];
 
     const files = (dir: string): string[] =>

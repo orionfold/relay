@@ -1,22 +1,22 @@
 [
   {
-    "title": "One-week launch proof",
-    "asset_type": "proof",
+    "title": "Local operator hero photo",
+    "asset_type": "visual",
     "page_role": "hero",
-    "audience": "Founder-led service business",
-    "summary": "A synthetic proof block for a studio that moves from kickoff to a publishable first draft in one week.",
+    "audience": "Founder-led service businesses and local operators",
+    "summary": "A warm owner-at-work image direction for service pages that need to feel specific without claiming a real client result.",
     "status": "active",
-    "source_note": "Synthetic example",
-    "image_url": "",
-    "reference_url": "",
+    "source_note": "Pexels License; free commercial use with stock-library restrictions. Do not imply endorsement by depicted people or brands.",
+    "image_url": "https://images.pexels.com/photos/10375901/pexels-photo-10375901.jpeg?cs=tinysrgb&dpr=1&w=900",
+    "reference_url": "https://www.pexels.com/search/business%20owner%20laptop/",
     "sort_order": 1
   },
   {
-    "title": "Offer comparison block",
+    "title": "Offer comparison section",
     "asset_type": "section",
     "page_role": "features",
-    "audience": "Prospects comparing done-with-you and done-for-you website help",
-    "summary": "A three-column section that separates strategy, build, and publishing support.",
+    "audience": "Expert services, web studios, and agency prospects comparing engagement models",
+    "summary": "A three-part section pattern that separates positioning, build support, and publish handoff so buyers can choose the right level of help.",
     "status": "active",
     "source_note": "Synthetic example",
     "image_url": "",
@@ -24,7 +24,7 @@
     "sort_order": 2
   },
   {
-    "title": "Book a working session CTA",
+    "title": "Working-session CTA",
     "asset_type": "cta",
     "page_role": "conversion",
     "audience": "Operators with a site refresh already scoped",
@@ -34,5 +34,29 @@
     "image_url": "",
     "reference_url": "",
     "sort_order": 3
+  },
+  {
+    "title": "Proof review workspace",
+    "asset_type": "visual",
+    "page_role": "proof",
+    "audience": "Agencies and studios showing a collaborative review loop",
+    "summary": "A neutral laptop-and-notes workspace image for proof, process, or review sections where the copy should carry the actual claim.",
+    "status": "active",
+    "source_note": "Pixabay Content License; free use with standalone-redistribution, trademark, endorsement, and recognizable-person restrictions.",
+    "image_url": "https://cdn.pixabay.com/photo/2015/01/09/11/11/office-594132_640.jpg",
+    "reference_url": "https://pixabay.com/images/search/business%20laptop/",
+    "sort_order": 4
+  },
+  {
+    "title": "Studio workspace background",
+    "asset_type": "visual",
+    "page_role": "process",
+    "audience": "Web studios, expert services, and app-builders explaining a focused delivery system",
+    "summary": "A clean workspace image direction for process sections, suitable when the page needs a professional non-stocky texture.",
+    "status": "active",
+    "source_note": "Unsplash License; free commercial use. Attribution is appreciated; do not compile into a competing image library.",
+    "image_url": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80",
+    "reference_url": "https://unsplash.com/s/photos/design-studio-workspace",
+    "sort_order": 5
   }
 ]
