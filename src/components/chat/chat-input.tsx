@@ -304,7 +304,7 @@ export function ChatInput({
       className={cn(
         isHeroMode
           ? "w-full"
-          : "sticky bottom-0 bg-transparent pb-[env(safe-area-inset-bottom)]"
+          : "sticky bottom-0 z-20 border-t border-border bg-[var(--surface-1)] pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_0_var(--border-subtle)]"
       )}
     >
       <div

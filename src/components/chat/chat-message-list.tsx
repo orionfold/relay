@@ -19,7 +19,6 @@ export function ChatMessageList({
   conversationId,
   onMessageStatusChange,
 }: ChatMessageListProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
@@ -31,13 +30,13 @@ export function ChatMessageList({
     }
   }, [messages, userScrolledUp]);
 
-  // Detect scroll position
+  // Detect page scroll position. The chat route uses viewport/page scrolling so
+  // the composer can stay docked above the browser bottom.
   useEffect(() => {
-    const container = scrollRef.current;
-    if (!container) return;
-
     const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
+      const scrollTop = window.scrollY;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = window.innerHeight;
       const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
       const isNearBottom = distanceFromBottom < 100;
 
@@ -45,8 +44,13 @@ export function ChatMessageList({
       setUserScrolledUp(!isNearBottom);
     };
 
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
   }, []);
 
   const scrollToBottom = () => {
@@ -55,8 +59,8 @@ export function ChatMessageList({
   };
 
   return (
-    <div ref={scrollRef} className="relative h-full overflow-y-auto">
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+    <div className="relative">
+      <div className="mx-auto max-w-3xl space-y-4 px-4 py-6">
         {messages.map((msg) => (
           <ChatMessage
             key={msg.id}
@@ -71,7 +75,7 @@ export function ChatMessageList({
 
       {/* Scroll to bottom FAB */}
       {showScrollButton && (
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
+        <div className="fixed bottom-36 left-1/2 z-20 -translate-x-1/2">
           <Button
             variant="outline"
             size="icon"

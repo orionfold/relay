@@ -246,13 +246,13 @@ export function ChatShell({
 
   return (
     <div className="bg-background">
-      <div className="surface-page-shell flex h-[calc(100dvh-var(--chrome-header)-var(--chrome-rail)-6.25rem)] min-h-[30rem] flex-col gap-4 rounded-none border-0 p-5 shadow-none sm:p-6 lg:p-7">
+      <div className="surface-page-shell flex min-h-[calc(100dvh-var(--chrome-header)-var(--chrome-rail)-3.5rem)] flex-col gap-4 rounded-none !border-0 p-5 pb-0 !shadow-none sm:p-6 sm:pb-0 lg:p-7 lg:pb-0">
         <div className="mx-auto w-full max-w-6xl">
           <h1 className="text-xl font-semibold tracking-tight">Chat</h1>
         </div>
-        <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 overflow-hidden rounded-xl border border-border bg-[var(--surface-1)] shadow-[var(--shadow-subtle)]">
+        <div className="mx-auto grid w-full max-w-6xl flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
           {/* Main chat area */}
-          <div className="relative flex min-w-0 flex-1 flex-col">
+          <div className="relative flex min-w-0 flex-col">
             {/* Mobile header */}
             <div className="flex items-center gap-2 border-b border-border px-4 py-2 lg:hidden">
               <span className="flex-1 truncate text-sm font-medium">
@@ -272,7 +272,7 @@ export function ChatShell({
 
             {messages.length === 0 ? (
               /* Hero mode: vertically centered greeting + input + chips */
-              <div className="flex flex-1 items-center justify-center overflow-hidden">
+              <div className="flex flex-1 items-center justify-center">
                 <ChatEmptyState
                   promptCategories={promptCategories}
                   starters={starters}
@@ -310,7 +310,7 @@ export function ChatShell({
             ) : (
               <>
                 {/* Messages */}
-                <div className="min-h-0 flex-1 overflow-hidden">
+                <div className="min-h-0 flex-1">
                   <ChatMessageList
                     messages={messages}
                     isStreaming={isStreaming}
@@ -359,8 +359,10 @@ export function ChatShell({
           />
 
           {/* Desktop conversation list — right side */}
-          <div className="hidden border-border lg:flex lg:w-[280px] lg:flex-col lg:border-l">
-            {conversationListContent}
+          <div className="hidden min-h-0 border-l border-border lg:block">
+            <div className="sticky top-[calc(var(--chrome-glance-top)+1.75rem)] flex max-h-[calc(100dvh-var(--chrome-glance-top)-3.5rem)] flex-col overflow-hidden">
+              {conversationListContent}
+            </div>
           </div>
         </div>
       </div>
