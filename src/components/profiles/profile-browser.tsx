@@ -121,7 +121,7 @@ export function ProfileBrowser({
   return (
     <div className="space-y-6">
       {/* Action buttons (title now provided by PageShell) */}
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
         <Button variant="outline" onClick={() => setShowTemplates(!showTemplates)}>
           <Copy className="mr-2 h-4 w-4" />
           Start from a preset
