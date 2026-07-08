@@ -6,6 +6,16 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.36.1] — 2026-07-08
+
+### Changed
+
+- **Default card toolbars now match the Projects reference in dark mode.**
+  Ready/default cards across Blueprints, Agents, Presets, and other shared card
+  surfaces now use the same subtle status-toolbar wash as Projects cards, so the
+  bottom status/action row no longer shifts between muted gray and cyan-tinted
+  treatments from page to page.
+
 ## [0.35.2] — 2026-07-07
 
 ### Fixed

@@ -13,7 +13,7 @@ type CardStatusToolbarTone =
   | "primary";
 
 const toneClass: Record<CardStatusToolbarTone, string> = {
-  neutral: "bg-muted/70 border-t-border/60 dark:bg-muted dark:border-t-border",
+  neutral: "bg-status-running/8 border-t-status-running/15",
   running: "bg-status-running/8 border-t-status-running/15",
   completed: "bg-status-completed/10 border-t-status-completed/20",
   failed: "bg-status-failed/10 border-t-status-failed/20",

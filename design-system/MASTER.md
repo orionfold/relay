@@ -219,10 +219,12 @@ Rules:
 - Card bodies stay neutral in light and dark themes; type/state color belongs in
   watermarks, borders, status chips, icons, and the toolbar wash.
 - Footer wash follows state first (`running`, `completed`, `failed`, `waiting`,
-  `paused`, `locked`, `installed`), otherwise a neutral/type-level wash.
-- Default/ready card toolbars use the neutral slate wash; in dark theme this
-  must be a visibly distinct muted surface, not a low-alpha tint that disappears
-  into the card body.
+  `paused`, `locked`, `installed`), otherwise the default Projects reference
+  wash.
+- Default/ready card toolbars use the Projects reference wash:
+  `bg-status-running/8 border-t-status-running/15`. In dark theme this renders
+  as approximately `#0d2229` over the `surface-1` card body; keep this tokenized
+  rather than hardcoding the hex.
 - If two cards trigger the same action, use the same verb: `Run`, `Re-run`,
   `Stop`, `Open`, `Install`. Do not mix `Restart`, `Retry`, and `Re-run` for the
   same workflow-level execution action.
