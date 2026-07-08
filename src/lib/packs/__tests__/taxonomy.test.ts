@@ -19,7 +19,7 @@ describe("loadTaxonomy", () => {
   it("round-trips the shipped registry through TaxonomySchema.parse", () => {
     expect(() => loadTaxonomy()).not.toThrow();
     const t = loadTaxonomy();
-    expect(Object.keys(t.tables)).toHaveLength(17);
+    expect(Object.keys(t.tables)).toHaveLength(18);
     expect(Object.keys(t.schedules)).toHaveLength(3);
   });
 
@@ -62,6 +62,7 @@ describe("lookups", () => {
     expect(ownerOfTable("rent_roll")).toBe("relay-cre");
     expect(ownerOfTable("leads")).toBe("relay-crm");
     expect(ownerOfTable("campaigns")).toBe("relay-social");
+    expect(ownerOfTable("web_pages")).toBe("relay-web-publisher");
     expect(ownerOfTable("web_sections")).toBe("relay-web-publisher");
     expect(ownerOfTable("web_templates")).toBe("relay-web-templates");
   });

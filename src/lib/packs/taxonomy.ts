@@ -245,10 +245,17 @@ export const TAXONOMY: Taxonomy = {
       ],
       note: "The reusable web-design asset library. Rendered through the gallery preview primitive.",
     },
+    web_pages: {
+      owner: "relay-web-publisher",
+      kind: "functional",
+      columns: ["slug", "title", "description", "status", "sortOrder", "notes"],
+      note: "The page registry for generated static sites; sections attach by pageSlug.",
+    },
     web_sections: {
       owner: "relay-web-publisher",
       kind: "functional",
       columns: [
+        "pageSlug",
         "kind",
         "heading",
         "body",
