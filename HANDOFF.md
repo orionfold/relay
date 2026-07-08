@@ -1,10 +1,10 @@
 # Relay — HANDOFF
 
-_Last updated: 2026-07-08 (pt: **Primary route containers standardized; Chat intentionally untouched.** `PageShell`, Tasks, and `.surface-page-shell` now match Home's flush/square/no-border treatment. Verified with `npx tsc --noEmit`, `npm run validate:tokens`, and in-app Browser checks on `/`, `/tasks`, `/packs`, `/settings`, `/apps/relay-marketing` plus 390px mobile checks on `/`, `/tasks`, `/packs`.)_
+_Last updated: 2026-07-08 (pt: **Settings rail collapsed to one row; telemetry/settings drill-downs confirmed complete.** Removed the expandable settings-glance panel, migrated expanded-only execution/runtime/permission cells into the always-visible collapsed rail, and cleared the already-built telemetry/settings drill-down item from the pending operator-feedback list.)_
 
 ## ▶️ NEXT SESSION — Post-release backlog
 
-- **P0 START HERE — post-release sanity.** `0.36.0` is published on npm and GitHub Release assets are uploaded. If continuing release QA, do a fresh `npx orionfold-relay@0.36.0` customer smoke. Otherwise pick the next backlog item below.
+- **P0 NEXT — pick backlog.** `0.36.0` is published on npm and GitHub Release assets are uploaded; the fresh published-package customer smoke passed on 2026-07-08. Pick the next backlog item below.
 - **P0 strategy-doc loose end:** `_SPECS/cards-design-system.md` exists through the `_SPECS` symlink as an untracked strategy-repo file (`relay/_SPECS/cards-design-system.md`). Do not commit/push the strategy repo unless the operator explicitly asks.
 - **P0 Codex browser runbook is authoritative.** Use `docs/codex-browser-runbook.md`: in-app Browser/Browser plugin first for unauthenticated localhost/file/public pages; Codex Chrome extension for signed-in/profile state; Computer Use for GUI-only desktop flows; Chrome DevTools MCP only for isolated CDP debugging. Do not treat `open -a "Google Chrome" <url>` as sufficient verification.
 - **P0 Codex handoff behavior:** `.codex/hooks.json` intentionally has no `Stop` handoff nudge. Use auto compact or operator-initiated `handoff`; do not re-enable the Stop hook unless asked.
@@ -13,8 +13,6 @@ _Last updated: 2026-07-08 (pt: **Primary route containers standardized; Chat int
 - **`pack-depth-next-wave` arc:** Video Creator still needs a clean synthetic reference model before build. Retail Investor remains open: value-heatmap + radar, prosumer-first ICP.
 - **`_IDEAS/packs-robustify.md`:** R1+R3+R5 built. Next gate tranche: R2 install-time cross-pack collision check, then R7 integration/`joinKeys`, R4 provenanceOf API, R8 dependsOn when it earns weight.
 - **Operator-guided feedback tasks (UNGROOMED, source `output/operator-walkthrough-feedback-2026-07-07.md`):**
-  - Settings: remove expanded settings rail; keep only collapsed rail and migrate any expanded-only settings cards into it.
-  - Telemetry/settings affordances: dashboard metric cards and settings rail values should drill down to their matching views/settings entries.
   - App/pack shell IA: expose owned tables via progressive disclosure; split primitives into sections with section-appropriate card dimensions.
   - Apps/Packs IA: reconcile around Packs-first naming/copy/routes while preserving installed-vs-bundled clarity.
   - Build/runtime: investigate repeated Turbopack `<dynamic>` warning from `src/lib/plugins/transport-dispatch.ts`; verify scheduled dispatch failure logging does not record failed fires as successful.
@@ -56,6 +54,12 @@ Standing candidates (LOW / reactive):
 - Check git history for prior art; verify field reports before fixing.
 
 ## Recently shipped / groomed
+
+**Telemetry/settings drill-down affordances (CONFIRMED COMPLETE 2026-07-08):** Cleared from the pending operator-feedback list after code/doc verification. `features/dashboard-settings-drilldowns.md` is `status: completed`, `features/changelog.md` records the 2026-07-07 build, `src/components/shell/telemetry-rail.tsx` links telemetry cells to tasks, inbox, projects, workflows, costs, and runtime settings, and `src/components/shell/glance-rail.tsx` links settings rail values to focused `/settings#...` anchors.
+
+**Settings rail simplification (BUILT 2026-07-08, working tree):** Removed the expand/collapse state and expanded `.glance-panel` from `src/components/shell/glance-rail.tsx`; kept only the collapsed rail and migrated expanded-only cells (`Configured`, `Timeout`, `Max turns`, `Preset`) into the always-visible horizontal rail with their focused `/settings#...` links. Updated `src/components/shell/__tests__/glance-rail.test.tsx` to assert migrated drill-down links are visible without expansion and that the expand button is gone. Verification: `npx vitest run src/components/shell/__tests__/glance-rail.test.tsx`, `npx tsc --noEmit`, in-app Browser `/settings` desktop check (no expand button/panel, no body overflow), and 390px check (no expand button/panel, no body overflow, rail scrolls internally).
+
+**0.36.0 published-package customer smoke (PASSED 2026-07-08):** Installed `orionfold-relay@0.36.0` from npm into `/tmp/relay-npm-0.36.0.pqrIXF`; launched `node node_modules/orionfold-relay/dist/cli.js --no-open --port 3198` with `RELAY_DATA_DIR=/tmp/relay-npm-0.36.0.pqrIXF/data` and empty `RELAY_DEV_MODE`/`RELAY_INSTANCE_MODE`; confirmed release artifact download from GitHub, `Mode: production`, `Community Edition`, `bootstrap skipped: no_git`, and route HTTP 200s for `/`, `/chat`, `/tasks`, `/workflows`, `/packs`, `/settings`, plus HTTP 200 for `/_next/static/chunks/066jf0nk75nic.css`. The smoke server was stopped with Ctrl-C.
 
 **Primary container standardization (BUILT 2026-07-08, working tree):** `src/components/shared/page-shell.tsx`, `src/app/tasks/page.tsx`, and `src/app/globals.css` now align non-Chat primary route shells with Home's `surface-page-shell min-h-screen p-5 sm:p-6 lg:p-7` treatment and remove shell border/radius/shadow. Chat was not changed per the `c06abcc3` rollback note. Verification: `npx tsc --noEmit`, `npm run validate:tokens`, in-app Browser geometry checks for `/`, `/tasks`, `/packs`, `/settings`, `/apps/relay-marketing` (0px border/radius, no shadow), 390px mobile checks for `/`, `/tasks`, `/packs` (no horizontal overflow), browser console warnings/errors `[]`.
 

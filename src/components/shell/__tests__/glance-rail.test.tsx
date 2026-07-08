@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { GlanceRail } from "../glance-rail";
 import * as useSettingsGlanceModule from "../use-settings-glance";
@@ -31,7 +31,7 @@ function stubGlance(data: SettingsGlanceResponse) {
 }
 
 describe("GlanceRail drill-down links", () => {
-  it("links resolved settings values to focused settings anchors", () => {
+  it("links resolved settings values to focused settings anchors from the collapsed rail", () => {
     stubGlance(glance());
     render(<GlanceRail />);
 
@@ -43,8 +43,6 @@ describe("GlanceRail drill-down links", () => {
       "href",
       "/settings#settings-web-search",
     );
-
-    fireEvent.click(screen.getByRole("button", { name: "Expand settings" }));
     expect(screen.getByRole("link", { name: "Open Timeout settings" })).toHaveAttribute(
       "href",
       "/settings#settings-runtime",
@@ -53,5 +51,6 @@ describe("GlanceRail drill-down links", () => {
       "href",
       "/settings#settings-permissions",
     );
+    expect(screen.queryByRole("button", { name: "Expand settings" })).not.toBeInTheDocument();
   });
 });
