@@ -31,7 +31,8 @@ export default function AppsPage() {
                   key={app.id}
                   tone="app"
                   watermark={Package}
-                  className="relative h-full transition-colors hover:border-primary/50 hover:shadow-sm"
+                  interactive
+                  className="relative h-full"
                 >
                   <Link
                     href={`/apps/${app.id}`}

@@ -29,7 +29,8 @@ export function TableGrid({
           key={t.id}
           tone="schema"
           watermark={Table2}
-          className="cursor-pointer hover:border-primary/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          interactive
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           tabIndex={0}
           onClick={() => onSelect(t.id)}
           onDoubleClick={() => onOpen(t.id)}

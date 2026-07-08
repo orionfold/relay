@@ -165,6 +165,16 @@
   --status-failed: oklch(0.55 0.22 25);
   --status-warning: oklch(0.65 0.18 75);
 
+  /* Flagship card type tones — subtle washes, not state colors. */
+  --card-tone-blueprint: var(--primary);
+  --card-tone-app: oklch(0.52 0.15 292);
+  --card-tone-agent: oklch(0.56 0.13 238);
+  --card-tone-preset: oklch(0.58 0.16 322);
+  --card-tone-schedule: oklch(0.62 0.15 72);
+  --card-tone-schema: oklch(0.52 0.14 174);
+  --card-tone-pack: oklch(0.50 0.16 266);
+  --card-tone-template: oklch(0.52 0.14 152);
+
   /* Priority tokens */
   --priority-critical: oklch(0.55 0.22 25);
   --priority-high: oklch(0.65 0.18 55);
@@ -316,6 +326,16 @@
   --status-failed: oklch(0.65 0.22 25);      /* Derivation: light L0.55 + 0.10 */
   --status-warning: oklch(0.75 0.18 75);     /* Derivation: light L0.65 + 0.10 */
 
+  /* Brighter dark-mode tones preserve the same card identities over charcoal. */
+  --card-tone-blueprint: var(--primary);
+  --card-tone-app: oklch(0.74 0.14 292);
+  --card-tone-agent: oklch(0.74 0.12 238);
+  --card-tone-preset: oklch(0.76 0.14 322);
+  --card-tone-schedule: oklch(0.78 0.13 72);
+  --card-tone-schema: oklch(0.72 0.13 174);
+  --card-tone-pack: oklch(0.72 0.15 266);
+  --card-tone-template: oklch(0.72 0.13 152);
+
   /* Priority */
   --priority-critical: oklch(0.65 0.22 25);
   --priority-high: oklch(0.75 0.18 55);
@@ -455,6 +475,89 @@
 [data-slot="card"][data-slot="card"]:hover {
   border-color: var(--border-strong);
   transition: border-color 0.15s ease;
+}
+
+/* Flagship card foundation — type wash + shared eased motion. */
+.flagship-card-tone-blueprint {
+  --flagship-card-tone: var(--card-tone-blueprint);
+}
+.flagship-card-tone-app {
+  --flagship-card-tone: var(--card-tone-app);
+}
+.flagship-card-tone-agent {
+  --flagship-card-tone: var(--card-tone-agent);
+}
+.flagship-card-tone-preset {
+  --flagship-card-tone: var(--card-tone-preset);
+}
+.flagship-card-tone-schedule {
+  --flagship-card-tone: var(--card-tone-schedule);
+}
+.flagship-card-tone-schema {
+  --flagship-card-tone: var(--card-tone-schema);
+}
+.flagship-card-tone-pack {
+  --flagship-card-tone: var(--card-tone-pack);
+}
+.flagship-card-tone-template {
+  --flagship-card-tone: var(--card-tone-template);
+}
+
+[data-slot="card"].flagship-card-tone,
+.flagship-card-tone {
+  background: color-mix(in oklch, var(--flagship-card-tone) 5%, var(--card));
+  border-color: color-mix(in oklch, var(--flagship-card-tone) 22%, var(--border));
+}
+
+[data-slot="card"].flagship-card-featured,
+.flagship-card-featured {
+  background: color-mix(in oklch, var(--primary) 7%, var(--card));
+  border-color: color-mix(in oklch, var(--primary) 42%, var(--border));
+}
+
+[data-slot="card"].flagship-card-interactive,
+.flagship-card-interactive {
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+[data-slot="card"].flagship-card-interactive:hover,
+.flagship-card-interactive:hover {
+  border-color: color-mix(in oklch, var(--primary) 42%, var(--border));
+  box-shadow: var(--shadow-raised);
+  transform: translateY(-2px);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+[data-slot="card"].flagship-card-interactive:active,
+.flagship-card-interactive:active {
+  transform: translateY(0) scale(0.99);
+  transition-duration: 75ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="card"].flagship-card-interactive,
+  .flagship-card-interactive {
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      box-shadow 120ms ease;
+  }
+
+  [data-slot="card"].flagship-card-interactive:hover,
+  [data-slot="card"].flagship-card-interactive:active,
+  .flagship-card-interactive:hover,
+  .flagship-card-interactive:active {
+    transform: none;
+  }
 }
 
 /* Sidebar — opaque */

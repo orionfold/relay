@@ -167,7 +167,8 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                 tone="blueprint"
                 watermark={wfIcon.icon}
                 watermarkColor={wfIcon.colors.icon}
-                className="elevation-1 cursor-pointer rounded-xl transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                interactive
+                className="elevation-1 rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 onClick={() => router.push(`/workflows/${wf.id}`)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/workflows/${wf.id}`); } }}
               >

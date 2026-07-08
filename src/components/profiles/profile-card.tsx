@@ -45,7 +45,8 @@ export function ProfileCard({ profile, isBuiltin = false, packName = null, onCli
       tone="agent"
       watermark={ProfileIcon}
       watermarkColor={profileColors.icon}
-      className="surface-card cursor-pointer rounded-xl transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+      interactive
+      className="surface-card rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {

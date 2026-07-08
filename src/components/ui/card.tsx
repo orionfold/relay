@@ -26,25 +26,24 @@ const cardVariants = cva(
     variants: {
       tone: {
         neutral: "bg-card",
-        // Faint hue washes — the primitive-type cue. Each is a ~4% tint +
-        // ~20% border so cards read as different *types* at a glance without
-        // competing with content. Dark-mode tints are handled by the /NN
-        // alpha compositing over the themed --card behind them.
-        blueprint: "bg-primary/[0.04] border-primary/20",
-        app: "bg-violet-500/[0.04] border-violet-500/20 dark:bg-violet-400/[0.05]",
-        agent: "bg-blue-500/[0.04] border-blue-500/20 dark:bg-blue-400/[0.05]",
-        preset: "bg-fuchsia-500/[0.04] border-fuchsia-500/20 dark:bg-fuchsia-400/[0.05]",
-        schedule: "bg-amber-500/[0.04] border-amber-500/20 dark:bg-amber-400/[0.05]",
-        schema: "bg-teal-500/[0.04] border-teal-500/20 dark:bg-teal-400/[0.05]",
-        pack: "bg-indigo-500/[0.04] border-indigo-500/20 dark:bg-indigo-400/[0.05]",
-        template: "bg-emerald-500/[0.04] border-emerald-500/20 dark:bg-emerald-400/[0.05]",
+        // Faint hue washes — the primitive-type cue. These route through
+        // CSS tokens so light/dark themes can tune each card family without
+        // hardcoding Tailwind color scales into the primitive.
+        blueprint: "flagship-card-tone flagship-card-tone-blueprint",
+        app: "flagship-card-tone flagship-card-tone-app",
+        agent: "flagship-card-tone flagship-card-tone-agent",
+        preset: "flagship-card-tone flagship-card-tone-preset",
+        schedule: "flagship-card-tone flagship-card-tone-schedule",
+        schema: "flagship-card-tone flagship-card-tone-schema",
+        pack: "flagship-card-tone flagship-card-tone-pack",
+        template: "flagship-card-tone flagship-card-tone-template",
         metric: "bg-card",
       },
       emphasis: {
         none: "",
         // The North Star payoff card — token-swap over whatever tone, so a
         // featured blueprint still reads teal but pops via the primary ring.
-        featured: "border-primary/40 bg-primary/[0.06] ring-1 ring-primary/20",
+        featured: "flagship-card-featured ring-1 ring-primary/20",
       },
     },
     defaultVariants: {
@@ -71,6 +70,11 @@ interface CardProps
    * opacity so it stays a background wash, not a foreground mark.
    */
   watermarkColor?: string
+  /**
+   * Applies the shared flagship hover/click motion contract. Keep explicit so
+   * static informational cards do not move just because they have a tone.
+   */
+  interactive?: boolean
 }
 
 function Card({
@@ -79,6 +83,7 @@ function Card({
   emphasis,
   watermark: Watermark,
   watermarkColor,
+  interactive = false,
   children,
   ...props
 }: CardProps) {
@@ -88,6 +93,7 @@ function Card({
       className={cn(
         cardVariants({ tone, emphasis }),
         Watermark && "overflow-hidden",
+        interactive && "flagship-card-interactive",
         className
       )}
       {...props}

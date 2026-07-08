@@ -51,8 +51,9 @@ export function WorkflowKanbanCard({ workflow }: WorkflowKanbanCardProps) {
         tone="blueprint"
         watermark={wfIcon.icon}
         watermarkColor={wfIcon.colors.icon}
+        interactive
         aria-label={`${workflow.name}, ${patternLabels[workflow.pattern] ?? workflow.pattern}, ${workflow.status}`}
-        className={`surface-card group cursor-pointer gap-0 overflow-hidden py-0 transition-shadow hover:shadow-md ${
+        className={`surface-card group gap-0 overflow-hidden py-0 ${
           isFailed
             ? "border-l-4 border-l-destructive"
             : isActive

@@ -84,12 +84,12 @@ export function StarterTemplateCard({ starter, className, onClick }: Props) {
       tabIndex={0}
       tone="template"
       watermark={Icon}
+      interactive
       onClick={onPick}
       onKeyDown={onKey}
       aria-label={`Start ${starter.name} in chat`}
       data-starter-id={starter.id}
       className={cn(
-        "cursor-pointer transition-colors hover:border-primary/50",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         className
       )}

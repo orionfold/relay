@@ -167,7 +167,8 @@ export function BlueprintGallery() {
               tone="blueprint"
               watermark={wfIcon.icon}
               watermarkColor={wfIcon.colors.icon}
-              className="cursor-pointer transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
+              interactive
+              className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
               onClick={() => router.push(`/blueprints/${bp.id}`)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {

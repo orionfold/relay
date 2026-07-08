@@ -69,8 +69,8 @@ export function ProfilePresetGallery({
               key={p.id}
               type="button"
               className={cn(
-                "surface-card group relative flex min-h-[190px] cursor-pointer flex-col gap-3 overflow-hidden rounded-xl border p-4 text-left transition-[background-color,border-color,box-shadow]",
-                "hover:border-primary/35 hover:bg-accent/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                "surface-card flagship-card-tone flagship-card-tone-preset flagship-card-interactive group relative flex min-h-[190px] flex-col gap-3 overflow-hidden rounded-xl border p-4 text-left",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               )}
               onClick={() => {
                 onClose?.();
