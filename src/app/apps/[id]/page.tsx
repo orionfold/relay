@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { ChevronRight } from "lucide-react";
 import { PageShell } from "@/components/shared/page-shell";
 import { AppDetailActions } from "@/components/apps/app-detail-actions";
 import { AppDetailEntryFocus } from "@/components/apps/app-detail-entry-focus";
 import { AppPublishPanel } from "@/components/apps/app-publish-panel";
 import { PackCompositionStrip } from "@/components/apps/pack-composition-strip";
+import { WebDesignerShell } from "@/components/apps/web-designer-shell";
+import { WebPublisherPagesPanel } from "@/components/apps/web-publisher-pages-panel";
 import { KitView } from "@/components/apps/kit-view/kit-view";
 import { getApp } from "@/lib/apps/registry";
 import { loadColumnSchemas, pickKit } from "@/lib/apps/view-kits";
@@ -20,7 +23,7 @@ export default async function AppDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ period?: string; row?: string }>;
+  searchParams: Promise<{ period?: string; row?: string; pageStatus?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -37,8 +40,10 @@ export default async function AppDetailPage({
   const model = kit.buildModel(projection, runtime);
   const generateBinding = app.manifest.view?.bindings.generate;
   const publishBinding = app.manifest.view?.bindings.publish;
+  const isWebDesignerBundle = app.id === "relay-web-designer";
+  const isWebPublisher = app.id === "relay-web-publisher";
 
-  model.header.actions = (
+  const headerActions = (
     <AppDetailActions
       appId={app.id}
       appName={app.name}
@@ -47,22 +52,60 @@ export default async function AppDetailPage({
       fileCount={app.files.length}
     />
   );
+  model.header.actions = headerActions;
 
   return (
     <PageShell backHref="/apps" backLabel="Installed packs">
       <AppDetailEntryFocus targetId="pack-detail-heading" />
       <div className="space-y-6">
-        <div id="pack-detail-heading" tabIndex={-1} className="scroll-mt-[calc(var(--chrome-header)+1rem)] focus:outline-none">
-          <KitView model={model} />
-        </div>
-        <PackCompositionStrip manifest={app.manifest} />
-        {generateBinding && publishBinding?.targetType === "github-pages" && (
-          <AppPublishPanel
-            appId={app.id}
-            targetType={publishBinding.targetType}
-            generatorType={generateBinding.generatorType}
-            sourceTable={generateBinding.table}
-          />
+        {isWebDesignerBundle ? (
+          <div id="pack-detail-heading" tabIndex={-1} className="scroll-mt-[calc(var(--chrome-header)+1rem)] focus:outline-none">
+            <WebDesignerShell app={app} actions={headerActions} />
+          </div>
+        ) : (
+          <>
+            {isWebPublisher && (
+              <WebPublisherPagesPanel app={app} pageStatus={sp.pageStatus} />
+            )}
+            <div id="pack-detail-heading" tabIndex={-1} className="scroll-mt-[calc(var(--chrome-header)+1rem)] focus:outline-none">
+              <KitView model={model} />
+            </div>
+          </>
+        )}
+        {isWebDesignerBundle ? (
+          <>
+            <details className="group rounded-lg border bg-[var(--surface-1)]">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium">Bundle primitives</span>
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    Agents, workflows, tables, and schedules installed by this bundle
+                  </span>
+                </span>
+                <ChevronRight
+                  className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-90"
+                  aria-hidden="true"
+                />
+              </summary>
+              <div className="border-t p-4">
+                <PackCompositionStrip manifest={app.manifest} />
+              </div>
+            </details>
+          </>
+        ) : (
+          <>
+            <PackCompositionStrip manifest={app.manifest} />
+            {generateBinding && publishBinding?.targetType === "github-pages" && (
+              <div id="site-publish-panel" className="scroll-mt-[calc(var(--chrome-header)+1rem)]">
+                <AppPublishPanel
+                  appId={app.id}
+                  targetType={publishBinding.targetType}
+                  generatorType={generateBinding.generatorType}
+                  sourceTable={generateBinding.table}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
     </PageShell>
