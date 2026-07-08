@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { PageShell } from "@/components/shared/page-shell";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Package, Layers3 } from "lucide-react";
+import { ArrowRight, Sparkles, Package, Layers3 } from "lucide-react";
 import { listApps } from "@/lib/apps/registry";
 import { listStarters } from "@/lib/apps/starters";
 import { StarterTemplateCard } from "@/components/apps/starter-template-card";
 import { AppCardDeleteButton } from "@/components/apps/app-card-delete-button";
-import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
+import {
+  FlagshipBadge,
+  FlagshipCardActionRow,
+  FlagshipIconWell,
+} from "@/components/shared/flagship-card";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +43,7 @@ export default function AppsPage() {
                     aria-label={`Open pack ${app.name}`}
                     className="absolute inset-0 z-0 rounded-[inherit] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   />
-                  <CardContent className="pointer-events-none relative p-4 space-y-3">
+                  <CardContent className="pointer-events-none relative flex h-full flex-col gap-3 p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex min-w-0 items-start gap-3">
                         <FlagshipIconWell icon={Package} />
@@ -72,6 +76,11 @@ export default function AppsPage() {
                         {app.primitivesSummary}
                       </p>
                     )}
+                    <FlagshipCardActionRow
+                      context="Workflows, tables, and outputs"
+                      action="Open pack"
+                      icon={ArrowRight}
+                    />
                   </CardContent>
                 </Card>
               ))}

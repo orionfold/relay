@@ -13,9 +13,11 @@ import {
   Clock,
   Wallet,
   CheckCircle,
+  MessageSquareText,
   type LucideIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { FlagshipCardActionRow } from "@/components/shared/flagship-card";
 import { cn } from "@/lib/utils";
 import type { StarterTemplate } from "@/lib/apps/starters";
 
@@ -94,7 +96,7 @@ export function StarterTemplateCard({ starter, className, onClick }: Props) {
         className
       )}
     >
-      <CardContent className="relative p-4 space-y-3">
+      <CardContent className="relative flex h-full flex-col gap-3 p-4">
         <div className="min-w-0 space-y-1">
           <p className="text-sm font-medium leading-tight">{starter.name}</p>
           {starter.description && (
@@ -104,6 +106,11 @@ export function StarterTemplateCard({ starter, className, onClick }: Props) {
           )}
         </div>
         <PreviewRow preview={starter.preview} />
+        <FlagshipCardActionRow
+          context="Custom pack starter"
+          action="Start in chat"
+          icon={MessageSquareText}
+        />
       </CardContent>
     </Card>
   );

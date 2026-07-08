@@ -3,6 +3,7 @@ import { PageShell } from "@/components/shared/page-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  ArrowRight,
   Boxes,
   Briefcase,
   Building2,
@@ -22,6 +23,7 @@ import { packUpdateAvailability } from "@/lib/packs/update";
 import { changelogWindow } from "@/lib/licensing/recap";
 import { PackInstallButton } from "@/components/packs/pack-install-button";
 import { PackUpdateButton } from "@/components/packs/pack-update-button";
+import { FlagshipCardActionRow } from "@/components/shared/flagship-card";
 
 export const dynamic = "force-dynamic";
 
@@ -408,23 +410,28 @@ function PackCard({
           {installed ? (
             <InstalledActions template={template} />
           ) : (
-            <div className="flex items-end justify-between gap-2 pt-1">
-              <PackInstallButton
-                packId={template.id}
-                packName={meta.name}
-                premium={premium}
-              />
-              {premium && meta.purchaseUrl && (
-                <a
-                  href={meta.purchaseUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs font-medium text-foreground underline underline-offset-2 hover:text-primary shrink-0"
-                >
-                  Get license →
-                </a>
-              )}
-            </div>
+            <FlagshipCardActionRow
+              context={premium ? "License-gated pack" : "Ready to install"}
+              action={
+                <span className="flex items-end gap-2">
+                  <PackInstallButton
+                    packId={template.id}
+                    packName={meta.name}
+                    premium={premium}
+                  />
+                  {premium && meta.purchaseUrl && (
+                    <a
+                      href={meta.purchaseUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 text-xs font-medium text-foreground underline underline-offset-2 hover:text-primary"
+                    >
+                      Get license →
+                    </a>
+                  )}
+                </span>
+              }
+            />
           )}
         </div>
       </CardContent>
@@ -438,19 +445,21 @@ function InstalledActions({ template }: { template: PackTemplate }) {
   const avail = packUpdateAvailability(template.id);
 
   return (
-    <div className="space-y-1.5 pt-1">
-      <div className="flex items-center justify-between">
-        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-          <Check className="h-3.5 w-3.5" aria-hidden="true" /> Installed
-          {avail.installedVersion ? ` v${avail.installedVersion}` : ""}
-        </span>
-        <Link
-          href={`/apps/${template.id}`}
-          className="text-xs font-medium text-foreground hover:text-primary"
-        >
-          Open pack →
-        </Link>
-      </div>
+    <div className="space-y-1.5">
+      <FlagshipCardActionRow
+        context={
+          <span className="inline-flex items-center gap-1">
+            <Check className="h-3.5 w-3.5" aria-hidden="true" /> Installed
+            {avail.installedVersion ? ` v${avail.installedVersion}` : ""}
+          </span>
+        }
+        action={
+          <Link href={`/apps/${template.id}`} className="hover:text-primary">
+            Open pack
+          </Link>
+        }
+        icon={ArrowRight}
+      />
       {avail.updateAvailable && avail.availableVersion && (
         <>
           <PackUpdateButton

@@ -7,7 +7,11 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Bot, Copy, Sparkles, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
-import { FlagshipBadge, FlagshipIconWell } from "@/components/shared/flagship-card";
+import {
+  FlagshipBadge,
+  FlagshipCardActionRow,
+  FlagshipIconWell,
+} from "@/components/shared/flagship-card";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 
 interface ProfilePresetGalleryProps {
@@ -120,15 +124,11 @@ export function ProfilePresetGallery({
                 </div>
               )}
 
-              <div className="relative mt-auto flex items-center justify-between gap-3 border-t border-border pt-3">
-                <span className="text-[11px] text-muted-foreground">
-                  Built-in agent starter
-                </span>
-                <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-primary">
-                  <Copy className="h-3.5 w-3.5" aria-hidden="true" />
-                  Use preset
-                </span>
-              </div>
+              <FlagshipCardActionRow
+                context="Built-in agent starter"
+                action="Use preset"
+                icon={Copy}
+              />
             </button>
           );
         })}

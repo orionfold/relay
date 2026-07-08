@@ -71,3 +71,33 @@ export function FlagshipIconWell({
     </span>
   );
 }
+
+export function FlagshipCardActionRow({
+  context,
+  action,
+  icon: Icon,
+  className,
+}: {
+  context: React.ReactNode;
+  action: React.ReactNode;
+  icon?: LucideIcon;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flagship-card-action-row relative mt-auto flex items-center justify-between gap-3 border-t border-border pt-3",
+        className
+      )}
+    >
+      <span className="min-w-0 text-[11px] text-muted-foreground">
+        {context}
+      </span>
+      <div className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-primary">
+        <span className="sr-only"> </span>
+        {Icon && <Icon className="h-3.5 w-3.5" aria-hidden="true" />}
+        {action}
+      </div>
+    </div>
+  );
+}
