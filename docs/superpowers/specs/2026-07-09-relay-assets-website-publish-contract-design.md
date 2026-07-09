@@ -166,6 +166,69 @@ docs/api (we chose product-scoped `/relay/docs`, not `/docs`), and compete for t
 with the buy path. Memos may earn a global/footer slot **only if** it proves out (YAGNI on nav
 real estate until there's a body of memos).
 
+## 4.5 Conversion mechanism INSIDE each rendered asset
+
+§4 governs CTAs *on the `/relay/` landing that point at the assets*. This section governs the
+inverse: the **conversion CTAs baked into the published assets themselves**, pointing readers/
+viewers back to *buy Relay / learn more*. Every asset is a marketing/CTA surface — but the site
+already has a house standard for *which* mechanism fits *which* surface, and we match it rather
+than invent. **Restraint rule: one dominant conversion mechanism per asset, matched to reader
+intent + dwell; never stack all three on one surface.**
+
+The site's three conversion primitives (confirmed in the live repo):
+
+- **Interstitial panel** — mid-content block. Mechanism: a `::directive` in markdown emits a mount
+  point. `::proof-cta` emits only a *slot* and needs a per-slug code-map for its copy (`PROOF_CTA`
+  in `story/[slug]/index.astro`); `::asciinema` is **fully attribute-driven, no code edit**
+  (`remark-asciinema.mjs`). Component precedent: `story/ProofCTA.astro`.
+- **Footer CTA panel** — end-of-content stack, **hardcoded per page-type** (not frontmatter-
+  driven). `ui/OfferSlot.astro` (email capture; `offer` is a free string key, no registry) +
+  `product/ProductBand.astro` (product cross-sell; `bandForPage()` auto-picks product; mode
+  `checkout` on detail, `link` on story/receipt; **flag-degrades to link**).
+- **Sticky buy strip** — `position:fixed;bottom:0` bar revealed by an `IntersectionObserver` on a
+  `#hero-cta-sentinel`, `live`-gated `data-checkout` button wired by `wireCheckoutButtons()`.
+  **Used ONLY on landing + product-detail pages, deliberately absent from story/receipts.**
+  `product/LandingStickyCta.astro` (plain props) is the model; `StickyCtaBar.astro` is the
+  ProductView-driven detail variant.
+
+### The mapping (which mechanism per asset, and why)
+
+| Asset | Rail | Primary mechanism | Secondary | Explicitly NOT | Why |
+|---|---|---|---|---|---|
+| **Demo** | A | **Sticky buy strip** (Relay builds it into the bundle) | — | no interstitial | Immersive, high-intent, long dwell; the demo *behaves like a landing/detail page*, which is exactly where sticky strips belong. Interstitials would break the "real app" illusion. |
+| **Memos** | B | **1 mid-essay interstitial** (via directive) | footer CTA panel | no sticky | Editorial/nurture read = a *story*; sticky is deliberately absent from stories. One `::`-panel + an end-of-read offer mirrors the proven story pattern. |
+| **Docs** | B | **Footer CTA panel only** | — | no interstitial, no sticky | Task-focused reading ("can I operate this?"); interrupting a how-to with a mid-page buy panel is hostile. One quiet end-of-page CTA. |
+| **API** | B | **Footer CTA panel only** (lightest) | — | no interstitial, no sticky | Developer lookup; devs resent interruption most. At most one quiet footer CTA. |
+
+### Who renders each — the Rail split decides the lever
+
+- **Rail A (demo):** the CTA is **Relay's to build into the bundle**, replicating `LandingStickyCta`
+  to site standard: `position:fixed;bottom:0;z-40` bar, `#hero-cta-sentinel` +
+  `IntersectionObserver` reveal, a `data-checkout="<relay-lookupKey>"` button (no Stripe key in the
+  bundle) + a `wireCheckoutButtons()`-equivalent POSTing the lookup key to the edge function.
+  Vendored into the demo's `_design-system`; the behavioral verifier gains a check that the strip
+  renders + the sentinel toggles it.
+- **Rail B (memos/docs/api):** the CTA chrome is **the website's to render** (its collection
+  layout owns it). Relay's only levers are (a) emit a `::directive` the site understands, or (b) a
+  frontmatter field the layout reads. Relay ships *content + an intent marker*, never CTA HTML.
+  - **Preferred for memos:** an **attribute-driven interstitial directive** (the `::asciinema`
+    model, not the code-map `::proof-cta` model) so a memo is self-sufficient — its CTA copy
+    travels in the markdown, no per-slug website code edit. This is a small ask in Handoff A
+    (§5.5): the website adds one attribute-driven `::cta` directive (or generalizes `::proof-cta`
+    to take attributes) so single-source memos need zero code edits to carry their own CTA.
+  - **Docs/API footer CTA:** hardcoded once per collection layout (like story/receipt footers) —
+    no per-page Relay input needed; a single ask in Handoff A.
+
+### The buy-state flag rule (non-negotiable, applies to the demo bundle)
+
+Buy CTAs are **build-time flag-gated** (`ORIONFOLD_RELAY_LIVE`); OFF → render `<a href="#anchor">
+"See pricing"` instead of a `data-checkout` button, so no one reaches Stripe before fulfillment
+exists. **Relay's demo bundle must never hardcode a live buy state** — it carries `live` as an
+input and renders the "See pricing" variant when off, mirroring `LandingStickyCta`. (Also: the
+checkout edge function is CORS-locked to `orionfold.com`, so the demo's buy button only truly runs
+on the live domain and degrades gracefully elsewhere — do not treat a non-functional localhost
+checkout as a defect.)
+
 ## 5. Which website pages/sections change, and why
 
 These are changes the **website team** makes (Relay never writes the site). This is the
@@ -175,7 +238,7 @@ coordination contract the website consumes via `_RELAY`.
 
 | # | New surface | Files (website side) | Why |
 |---|---|---|---|
-| N1 | `/relay/demo/` static route | copy `_ASSETS/demo/dist/relay/demo/` → `public/relay/demo/` | No Relay demo; Arena demo is the precedent. Rail A. |
+| N1 | `/relay/demo/` static route | copy `_ASSETS/demo/dist/relay/demo/` → `public/relay/demo/` | No Relay demo; Arena demo is the precedent. Rail A. Bundle includes the Relay-built **sticky buy strip** (§4.5), `live`-gated. |
 | N2 | `memos` collection + `/relay/memos/` routes | `src/content.config.ts`; `src/content/memos/*.md`; `src/pages/relay/memos/{index,[slug]/index}.astro`; `src/assets/memos/<slug>/` | Memos have no home. Mirrors `story`/`receipts`. Rail B. |
 | N3 | `relay-docs` collection + `/relay/docs/` routes | new collection; `src/content/relay-docs/*.md`; `src/pages/relay/docs/{index,[slug]/index}.astro` | No user-guide surface exists. 9 guides → permalinks + index. Rail B. |
 | N4 | `relay-api` collection + `/relay/api/` routes | new collection; `src/content/relay-api/*.md`; `src/pages/relay/api/{index,[slug]/index}.astro` | No API-reference surface exists. 8 groups → permalinks + index. Rail B. |
@@ -272,9 +335,18 @@ Ask (schemas-first — Relay vendors + verifies against these before producing c
 - `relay-docs` collection → routes /relay/docs/{index,[slug]}    (net-new user-guide surface)
 - `relay-api`  collection → routes /relay/api/{index,[slug]}     (net-new API-reference surface)
 
-Just the `src/content.config.ts` schema definitions for now (fields + route stubs). Relay copies
-in schema-valid .md + assets later, per-asset, only after our at-source gate is green — you do a
-verbatim copy, no re-skin. Reply with the final field names so we vendor the exact schema.
+Plus, so single-source memos carry their own conversion CTA with no per-slug code edit:
+- ONE attribute-driven interstitial directive for memos — either a new `::cta{...}` or generalize
+  `::proof-cta` to take attributes (heading/blurb/label/href), following the `::asciinema` model
+  (attribute-driven, no PROOF_CTA-style code map). Memos = editorial reads, so: interstitial +
+  footer CTA, NO sticky strip (match the story/receipts standard).
+- Confirm the docs + api collection layouts render ONE quiet footer CTA panel (OfferSlot / a Relay
+  ProductBand link-mode), hardcoded per-collection — no per-page input from us.
+
+Just the `src/content.config.ts` schema definitions + those CTA hooks for now (fields + route
+stubs). Relay copies in schema-valid .md + assets later, per-asset, only after our at-source gate
+is green — you do a verbatim copy, no re-skin. Reply with the final field names + the directive
+name so we vendor the exact schema and emit the right marker.
 — Relay-side (dev), <date>
 ```
 
@@ -300,6 +372,8 @@ Nothing downstream re-checks fidelity — it's enforced at our source. Confirm l
 | Demo false-green | Bundle passes existence checks but is a mock / mutations don't change the DOM | A "working demo" that lies | `verify-relay-demo.mjs` B1–B5 behavioral gate (real shim, stream replay, mutation → visible DOM change, all persona lanes). Copy on green only. |
 | Docs/API claim rot | Product evolves; a claim is now false but structural checks still pass | Customer-facing lie (the "false green") | Per-claim accuracy pass vs live source + `features-catalog.md` boundary; extend `verify-*.mjs` toward claim-attribution. Untraceable claim = fail. |
 | CTA cannibalization | An asset CTA promoted into a Tier-1 surface | Buy-funnel conversion drop | Tier discipline (§4) documented as contract; hero/LicenseBand/RelayBox/sticky/email off-limits. Promotion is a deliberate measured decision, not a default. |
+| Asset CTA overdone | An asset stacks all three mechanisms (sticky + interstitial + footer), or docs/api get a mid-page buy panel | Reads as spammy; erodes trust of a task-focused reader | §4.5 restraint rule: one dominant mechanism per asset (demo=sticky, memos=interstitial+footer, docs/api=footer only). Enforced in the vendored contract per asset. |
+| Hardcoded live buy state (demo) | Demo bundle ships a `data-checkout` buy button while `ORIONFOLD_RELAY_LIVE` is off | Reader reaches Stripe before fulfillment exists | Demo carries `live` as an input; OFF → renders `<a href="#anchor">"See pricing"` (mirrors `LandingStickyCta`). Behavioral verifier asserts the strip + its flag-degrade. Edge-function CORS-lock to orionfold.com is expected, not a bug. |
 | Relay writes website (or reverse) | A session commits generated output into the website, or website writes into `_ASSETS` | Ownership broken; SSOT ambiguity; two-way drift | One-direction rule pinned in `_ASSETS/README.md` + HANDOFF + memory; Relay git scope excludes the website; coordination via `_RELAY`, human-gated. |
 | Number/prose desync (memos) | A memo cites a metric absent from its `metrics.json` | Unverifiable claim | Field-notes gate: every prose number ∈ `metrics.json` or verifier fails. |
 | Orphaned asset | Website route deleted/renamed but `_ASSETS` keeps producing (or reverse) | Dead content / 404s / wasted production | `features-catalog.md` is the live-product boundary; schemas-first order + `_RELAY` keep route ownership synced; retirement is an explicit `_RELAY` message, never silent. |
