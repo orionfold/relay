@@ -25,6 +25,9 @@ other platform's entries — this doc is a shared ledger, not a scratchpad.
 | 15 "shared" skills | ⚠️ Architecturally forked | reconcile only genuine stale-content cases (below) |
 | Removed Codex frontend skills | ✅ Intentionally removed | do not recreate `frontend-design`, `frontend-designer`, or `taste` |
 | Codex browser/handoff settings | ✅ Codex-only | preserve browser runbook and disabled Stop hook |
+| `_ASSETS` strategy corpus | ⚠️ Strategy-owned via symlink | read/write only; do not commit from Relay unless explicitly asked |
+| `_ASSETS` catalog stage-1 sync | ✅ Now drift-guarded (2026-07-09 `[CC]`) | `derive`+`verify-feature-catalog.mjs` enforce; catalog no longer hand-pinned prose |
+| Static demo foundation | ⚠️ Mock, not simulation; behavioral verifier now RED on it | rebuild via Option C hybrid; verifier is the gate (no more false green) |
 
 **Key finding (2026-07-06):** the 18 "shared" skills are **not** symmetrically synced
 copies. The pattern is deliberate: **Claude holds the fat, authoritative skill body;
@@ -147,6 +150,40 @@ Standing rule: `package.json` ships `src/`, so `src/lib/packs/templates/**` is p
 package surface. Use synthetic seed data only. If a pack needs an existing project as
 reference material, wait for a clean synthetic clone and cite that clone explicitly.
 
+## `_ASSETS` Strategy Corpus And Static Demo Caveat
+
+Codex picked up the post-`0.36.2` asset-corpus workstream after commit `8b6d3c0a`
+(`docs(handoff): add assets corpus workstream`). The current state spans two repos:
+
+- Relay repo tracked changes: `.gitignore` ignores `_ASSETS`, and `HANDOFF.md`
+  carries the live `_ASSETS` pipeline status.
+- Strategy repo content: `_ASSETS` in the Relay repo is a symlink to
+  `~/orionfold/strategy/relay/_ASSETS`. Codex generated or edited corpus files there
+  for features, journeys, seed, screenshots, API docs, user guides, stats, static-demo
+  specs, demo source/dist, and flow reports.
+- Commit boundary: do **not** stage/commit/push `_ASSETS` through the Relay repo.
+  Treat it like `_SPECS`/`_IDEAS`: read/write strategy-owned material only when the
+  operator asks, and commit the strategy repo only on explicit request.
+
+Important live caveat: the static demo work under `_ASSETS/demo/` is only a foundation.
+It has a generated static shell, fixtures, route/link/leak/coverage reports, browser
+boot/API/EventSource shims, and a few local mutations, but the operator flagged that it
+does **not** capture the intended simulation requirements. Before Claude Code uses the
+demo as launch-ready source material, it must address or formally rescope the gap in
+`HANDOFF.md`: lane completion, realistic state machines, Web Publisher preview/publish,
+workflow/HITL progression, route-specific mutable data, license/pack update behavior,
+and all-lane scripted smoke.
+
+Use `_ASSETS/flow/README.md`, `_ASSETS/README.md`, and `HANDOFF.md` as the pickup
+contract. The current pipeline order is:
+
+```
+features-catalog -> journeys -> seed -> screenshots -> api -> docs -> stats -> demo -> articles
+```
+
+Launch-assets/articles remain blocked until the demo simulation gap is resolved or the
+operator approves a reduced-scope demo contract.
+
 ---
 
 ## Sync Log
@@ -171,3 +208,35 @@ _Newest at bottom. One signed, timestamped entry per update from either platform
   Chrome remote-debugging guidance. Mirrored the new rule through `AGENTS.md`,
   `CLAUDE.md`, `MEMORY.md`, and this ledger so future Codex sessions pick the right
   browser tool instead of retrying brittle Chrome paths.
+- **2026-07-09 — `[CODEX]`:** Looked up repo history since the prior Codex
+  coordination entry (`086cd984`) and current handoff state. Added the `_ASSETS`
+  strategy-corpus contract and static-demo caveat so Claude Code does not mistake
+  symlinked strategy output for Relay-tracked source or treat the partial static demo
+  as launch-ready. Key facts: `_ASSETS` is strategy-owned and ignored by Relay; Codex
+  generated seed/screenshot/docs/API/stats/demo assets there; launch-assets/articles
+  are blocked until the demo simulation gap is fixed or explicitly rescoped.
+- **2026-07-09 — `[CC]` (Claude Code, Opus 4.8):** Reviewed `_ASSETS` from first
+  principles against the operator's two bars (`~/orionfold/books/` narrative content
+  factory; `~/ainative-business.github.io/arena-app/` Arena real-app-bundle demo).
+  Diagnosed why the operator is unhappy: the demo is a from-scratch card-grid MOCK
+  (bare `{ok:true}` for every `/api/`, single-event streams, no state machines) not
+  the Arena pattern its own `technical-spec.md` demands; "always in sync" was an
+  unenforced promise; a file-existence verifier false-greened both. **Built two gates
+  (strategy-owned, under `_ASSETS/`, both runnable by either platform):** (1) catalog
+  drift-guard — NEW `_ASSETS/catalog/scripts/derive-feature-catalog.mjs` +
+  `verify-feature-catalog.mjs` + `pack-aliases.json`, wired into
+  `flow/pipeline-manifest.json` + supervisor `--strict`; fails CLOSED on undeclared
+  pack / phantom feature / stale baseline. (2) demo BEHAVIORAL verifier — rewrote
+  `_ASSETS/demo/scripts/verify-relay-demo.mjs` to drive Playwright (bare-ok shim,
+  stream cadence, visible-DOM mutation, lane completion); proven RED on the current
+  mock. **Two facts for Codex:** (a) `_ASSETS` scripts importing playwright must run
+  `node --preserve-symlinks --preserve-symlinks-main …` (symlink realpath). (b) The
+  flow supervisor checks file EXISTENCE only — it does NOT execute the verifiers; a
+  forthcoming Claude-only `assets-` skill family (`assets-flow` etc., `.claude/skills/`)
+  will RUN them and gate on exit code. These `assets-` skills are Claude-authored and
+  need NO Codex shim (same partition as staging); the SCRIPTS they invoke are shared in
+  `_ASSETS/` and Codex may run them directly. Next: demo Option C rebuild (seeded-
+  prerender + Arena `boot.js` network shim), consolidation of `.refresh-pipeline/` +
+  marketing scripts into `_ASSETS/`, and authoring the skill family. Full design:
+  `~/.claude/plans/review-the-current-assets-expressive-bird.md`. No Relay-tracked files
+  changed except `HANDOFF.md` + `CODEX-CC.md`; `_ASSETS` stays strategy-owned/uncommitted.

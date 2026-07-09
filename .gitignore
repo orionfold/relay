@@ -41,6 +41,10 @@ _IDEAS
 # orionfold/strategy repo (_SPECS -> ../strategy/relay/_SPECS); never ship here
 _SPECS
 
+# strategy channel symlink — product-doc asset corpus lives in the private
+# orionfold/strategy repo (_ASSETS -> ../strategy/relay/_ASSETS); never ship here
+_ASSETS
+
 # Claude Code self-improvement reference docs (local only — playbook + Opus 4.8
 # best-practices standard; see _REFER/cc-self-improve-all-projects.md)
 _REFER/
