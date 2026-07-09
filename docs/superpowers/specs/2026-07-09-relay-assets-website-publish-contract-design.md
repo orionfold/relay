@@ -225,6 +225,72 @@ The website's collection **schemas must exist first** (N2/N3/N4 config), because
 frontmatter schemas; Relay then vendors those and produces conformant content. **Demo (N1) is
 independent** — it ships the moment its behavioral verifier is green.
 
+## 5.5 Website-side handoff via `_RELAY` (the cross-repo coordination step)
+
+Relay never writes the website, so every website-side change (N1–N5, M1–M5) is requested — not
+performed — via the peer channel. Channel + conventions (house format):
+
+- **Channel:** `~/orionfold/strategy/orionfold-website/_RELAY.md` (the **publish-target** website's
+  channel — *not* `ainative-business.github.io`). Dated `## YYYY-MM-DD — Relay→Website — <title>
+  [status]`, prose body, signed `— Relay-side (dev), <date>`, **newest-at-bottom, edit-only**.
+- **Git rule:** the strategy repo is **read/write only** — Relay *edits* the `_RELAY.md` file but
+  **never commits/pushes/merges** there; the owner's CC instance owns git ops on the strategy repo.
+  Posting the message is therefore an **operator-gated outward comm**, not a silent side effect.
+
+**Where this sits in the sequence:** the `_RELAY` handoff is authored **once the Relay-side
+producer for an asset is real and its at-source gate is green** — never as a speculative ask ahead
+of having something to hand over. Order per asset:
+
+```
+1. Relay builds the asset in _ASSETS + its at-source gate exits 0
+        (memos/docs/api additionally: vendor the site schema + drift-check green)
+2. Relay AUTHORS the _RELAY handoff (drafted below) — operator posts it
+3. Website implements N#/M# (schemas first for Rail-B assets), copies the verified output
+4. Website confirms live on _RELAY; Relay marks the handoff [done]
+```
+
+Two staged handoffs (avoids one giant ask, matches the schemas-first order):
+
+- **Handoff A — Rail-B schemas (blocks nothing Relay-side; unblocks memos/docs/api production).**
+  Asks the website to define the three collection schemas (N2/N3/N4 config only) so Relay can
+  vendor + verify against real schemas. Sent early, because Relay's content production *depends on
+  it*.
+- **Handoff B — per-asset publish (one per asset, as each goes green).** Asks the website to add
+  the routes/sub-nav/CTAs (remaining N#/M#) and copy the specific verified output. Demo (N1) can
+  be its own Handoff B the moment `verify-relay-demo.mjs` is green, independent of A.
+
+**Drafted Handoff A (post when Rail-B production is about to begin):**
+
+```
+## <date> — Relay→Website — Define 3 Relay collection schemas for the _ASSETS publish contract [open]
+
+Relay is standardizing how _ASSETS deliverables land on orionfold.com: single-source,
+copy-verbatim. Full contract: relay repo docs/superpowers/specs/2026-07-09-relay-assets-website-publish-contract-design.md.
+
+Ask (schemas-first — Relay vendors + verifies against these before producing content):
+- `memos`     collection → routes /relay/memos/{index,[slug]}   (mirror the `story`/`receipts` shape)
+- `relay-docs` collection → routes /relay/docs/{index,[slug]}    (net-new user-guide surface)
+- `relay-api`  collection → routes /relay/api/{index,[slug]}     (net-new API-reference surface)
+
+Just the `src/content.config.ts` schema definitions for now (fields + route stubs). Relay copies
+in schema-valid .md + assets later, per-asset, only after our at-source gate is green — you do a
+verbatim copy, no re-skin. Reply with the final field names so we vendor the exact schema.
+— Relay-side (dev), <date>
+```
+
+**Drafted Handoff B (template, one per asset as it goes green):**
+
+```
+## <date> — Relay→Website — Publish Relay <asset> (verbatim) [open]
+
+<asset> is built + its at-source gate is green (<verifier> exits 0). Please:
+- <Rail A:> copy _ASSETS/demo/dist/relay/demo/ → public/relay/demo/  (served as-is; do not re-skin)
+- <Rail B:> copy _ASSETS/<area>/<slug>/*.md → src/content/<collection>/, assets → src/assets/<...>/
+- Add routes/sub-nav/CTAs per N#/M# in the contract spec (Tier-3 EXPLORE; do not touch the buy-funnel)
+Nothing downstream re-checks fidelity — it's enforced at our source. Confirm live and I'll mark [done].
+— Relay-side (dev), <date>
+```
+
 ## 6. Error & Rescue Registry (HOLD mode)
 
 | Error | Trigger | Impact | Rescue |
@@ -247,7 +313,7 @@ re-checks.
 | Deferred item | Why deferred |
 |---|---|
 | Building any of the assets | This is the IA + contract spec. Asset production stays on the existing `_ASSETS` priority ladder; this spec shapes the target, it does not move work up the queue. |
-| The website-side implementation (collections, routes, sub-nav, copy step) | Peer repo, strategy-owned. This is the coordination contract the website consumes via `_RELAY`; the website team implements N1–N5. Relay never writes it. |
+| The website-side implementation (collections, routes, sub-nav, copy step) | Peer repo, strategy-owned. Relay never writes it — it is **requested** via the staged `_RELAY` handoffs in §5.5 (operator-posted); the website team implements N1–N5 / M1–M5. |
 | Global-nav promotion for Memos | YAGNI until a body of memos exists. Footer + `/relay/` strip first. |
 | Cross-listing memos into site-wide `/story/` | Possible later discovery nicety; not required for launch. |
 | Machine-readable API spec feed (`/relay/api.json`, OpenAPI-style) | The `/relay/pricing.json` precedent exists, but the human-readable reference is the deliverable now; a spec feed is a later add. |
@@ -288,6 +354,9 @@ This contract is "working" when, for any one asset:
    orionfold.com **with no re-skin and no website-side edit to the content**.
 3. Removing the source's fidelity guarantee (delete a mined number, mock the demo, drift the
    schema) makes the at-source gate **exit non-zero** — the copy is never offered.
+4. The website receives the request through the §5.5 `_RELAY` handoff (operator-posted) and does
+   a verbatim copy; Relay never wrote the website directly.
 
 That proves the single-source, copy-verbatim contract end-to-end: fidelity enforced where the
-content is authored, the website a dumb faithful publisher.
+content is authored, coordination flowing one direction through `_RELAY`, the website a dumb
+faithful publisher.
