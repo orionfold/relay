@@ -6,6 +6,18 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.36.4] — 2026-07-10
+
+### Fixed
+
+- **The Customer dropdown now shows your customers when you create a project.**
+  Opening the Customer dropdown in the Create Project panel looked blank even
+  when customers existed. The list was actually opening, but it was drawn
+  underneath the panel, so you could not see it. The same problem hid other
+  menus, dropdowns, and confirmation dialogs opened from inside any side panel,
+  such as the delete confirmation when editing a project. All of these now
+  appear on top of the panel and work as expected.
+
 ## [0.36.3] — 2026-07-10
 
 ### Fixed
