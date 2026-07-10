@@ -143,5 +143,8 @@
     "jsdom": "^28.1.0",
     "tsup": "^8.5",
     "vitest": "^4.0.18"
+  },
+  "allowScripts": {
+    "better-sqlite3": true
   }
 }

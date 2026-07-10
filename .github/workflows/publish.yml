@@ -32,21 +32,41 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       # npm >= 11.5.1 is required for OIDC trusted publishing. The Node 22 image
-      # ships an older npm, so pin a known-good version explicitly.
+      # ships an older npm, so install a newer one explicitly.
+      #
+      # Pinned to major 11, NOT @latest: npm 12.0.0 (released 2026-07-08, 84
+      # minutes after the 0.36.2 publish) blocks dependency install scripts by
+      # default unless listed in package.json `allowScripts` — and both
+      # `npm ci` and `npm rebuild` skip them SILENTLY (exit 0), which broke
+      # four 0.36.3 publish runs with "Could not locate the bindings file"
+      # (better-sqlite3's .node binary was never compiled). @latest means a
+      # release-day npm major can change publish behavior with zero diff in
+      # this repo. package.json now carries the `allowScripts` approval for
+      # better-sqlite3, so moving to npm@12 later is a deliberate one-line
+      # bump here, verified by the binding check below.
       - name: Ensure npm supports trusted publishing
-        run: npm install -g npm@latest
+        run: |
+          npm install -g npm@11
+          npm --version
 
       - name: Install dependencies
         run: npm ci
 
-      # `npm install -g npm@latest` above can float npm to a new major whose
-      # prebuild/lifecycle defaults leave better-sqlite3's native .node binary
-      # unbuilt after `npm ci` — the `next build` step below then dies with
-      # "Could not locate the bindings file" when it collects page data for a
-      # DB-importing route. Rebuild the native addon explicitly so the binary
-      # is always present regardless of npm's prebuild behavior.
+      # Belt-and-braces: make sure better-sqlite3's native .node binary exists
+      # before anything imports src/lib/db. Under npm 12+ a rebuild can be
+      # silently skipped (exit 0, "rebuilt dependencies successfully") when the
+      # package isn't covered by `allowScripts` — that silent no-op cost four
+      # publish runs. So never trust the rebuild's exit code: stat the binding
+      # itself and fail loudly if it's absent.
       - name: Rebuild native modules (better-sqlite3)
-        run: npm rebuild better-sqlite3
+        run: |
+          npm rebuild better-sqlite3
+          BINDING="node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+          if [ ! -f "$BINDING" ]; then
+            echo "::error::better-sqlite3 native binding missing after rebuild ($BINDING). npm likely blocked its install script (npm 12+ allowScripts) — check the npm version pin and package.json allowScripts."
+            exit 1
+          fi
+          echo "better-sqlite3 binding present: $(ls -la "$BINDING")"
 
       - name: Guard — tag version matches package.json
         run: |
