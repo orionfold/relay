@@ -1,7 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { tasks, projects, workflows, schedules, usageLedger, documents } from "@/lib/db/schema";
-import { eq, sum, min, max } from "drizzle-orm";
+import {
+  tasks,
+  projects,
+  workflows,
+  schedules,
+  usageLedger,
+  documents,
+  agentLogs,
+  notifications,
+  agentMessages,
+  agentMemory,
+  learnedContext,
+  taskTableInputs,
+  scheduleFiringMetrics,
+} from "@/lib/db/schema";
+import { eq, sum, min, max, or } from "drizzle-orm";
 import { updateTaskSchema } from "@/lib/validators/task";
 import { isValidTransition, type TaskStatus } from "@/lib/constants/task-status";
 import { validateRuntimeProfileAssignment } from "@/lib/agents/profiles/assignment-validation";
@@ -158,6 +172,69 @@ export async function DELETE(
   const [existing] = await db.select().from(tasks).where(eq(tasks.id, id));
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  await db.delete(tasks).where(eq(tasks.id, id));
+  // Foreign keys are enforced (db/index.ts: `foreign_keys = ON`) and NO table
+  // declares `onDelete: cascade`, so a bare `db.delete(tasks)` throws a SQLite
+  // FOREIGN KEY constraint failure the moment the task has ANY child row. A task
+  // that reached `failed` (or any executed state) always has agentLogs +
+  // usageLedger rows, so the delete reliably 500s — the exact symptom of #46
+  // (modal delete looks dead) and #51 (card delete toasts "Failed to delete").
+  //
+  // Clean up every referencing row in one transaction, children before parent.
+  // Execution artifacts (logs, usage, notifications, messages, table inputs,
+  // firing metrics) are meaningless without their task → delete. User-facing or
+  // derived rows that can outlive the task → null the back-reference instead:
+  //   - documents: a user's uploaded/generated file must survive task deletion.
+  //   - learnedContext / agentMemory: derived knowledge keeps standalone value.
+  // (taskTableInputs.taskId is NOT NULL, so it must be deleted, not nulled.)
+  // better-sqlite3 is synchronous, so Drizzle's transaction callback must be
+  // synchronous too (an async callback throws "Transaction function cannot
+  // return a promise"). Each statement ends in `.run()`; FK checks fire per
+  // statement, so children are deleted before the parent.
+  try {
+    db.transaction((tx) => {
+      tx.delete(agentLogs).where(eq(agentLogs.taskId, id)).run();
+      tx.delete(usageLedger).where(eq(usageLedger.taskId, id)).run();
+      tx.delete(notifications).where(eq(notifications.taskId, id)).run();
+      tx
+        .delete(agentMessages)
+        .where(
+          or(eq(agentMessages.taskId, id), eq(agentMessages.targetTaskId, id)),
+        )
+        .run();
+      tx.delete(taskTableInputs).where(eq(taskTableInputs.taskId, id)).run();
+      tx
+        .delete(scheduleFiringMetrics)
+        .where(eq(scheduleFiringMetrics.taskId, id))
+        .run();
+
+      tx
+        .update(documents)
+        .set({ taskId: null })
+        .where(eq(documents.taskId, id))
+        .run();
+      tx
+        .update(learnedContext)
+        .set({ sourceTaskId: null })
+        .where(eq(learnedContext.sourceTaskId, id))
+        .run();
+      tx
+        .update(agentMemory)
+        .set({ sourceTaskId: null })
+        .where(eq(agentMemory.sourceTaskId, id))
+        .run();
+
+      tx.delete(tasks).where(eq(tasks.id, id)).run();
+    });
+  } catch (err) {
+    // Zero silent failures (engineering principle #1): surface the real reason
+    // instead of an opaque 500 so the client toast + logs are actionable.
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[tasks] delete failed:", message);
+    return NextResponse.json(
+      { error: `Failed to delete task: ${message}` },
+      { status: 500 },
+    );
+  }
+
   return NextResponse.json({ success: true });
 }
