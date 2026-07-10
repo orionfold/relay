@@ -58,8 +58,28 @@ jobs:
       # build ships as a GitHub Release asset (below), not inside the package.
       - name: Guard — npm tarball stays small (< 10 MB)
         run: |
-          SIZE=$(npm pack --dry-run --json | node -p "JSON.parse(require('fs').readFileSync(0,'utf8'))[0].size")
+          # npm can print warnings (e.g. `npm warn Unknown user config ...`) to
+          # STDOUT ahead of the --json payload, which crashed a naive
+          # `JSON.parse(stdin)[0].size` and failed the whole publish on a false
+          # positive. Capture the output and extract only the JSON array (the
+          # first `[` onward), so a leading warn line can never break parsing.
+          npm pack --dry-run --json > pack.out 2>pack.err || { cat pack.err; exit 1; }
+          SIZE=$(node -e '
+            const s = require("fs").readFileSync("pack.out", "utf8");
+            // npm --json prints the array on its own line; anchor on a line that
+            // STARTS with "[" so a warn line containing a bracket cannot fool us.
+            const start = s.search(/^\s*\[/m);
+            const src = start >= 0 ? s.slice(start) : s;
+            let info;
+            try { info = JSON.parse(src)[0]; }
+            catch (e) { console.error("could not parse npm pack --json output:\n" + s); process.exit(1); }
+            process.stdout.write(String(info.size));
+          ')
           echo "npm tarball size: $SIZE bytes"
+          if [ -z "$SIZE" ] || ! [ "$SIZE" -eq "$SIZE" ] 2>/dev/null; then
+            echo "::error::could not determine npm tarball size (parsed '$SIZE')"
+            exit 1
+          fi
           if [ "$SIZE" -gt 10485760 ]; then
             echo "::error::npm tarball is $SIZE bytes (> 10 MB) — build output is leaking into the package"
             exit 1
