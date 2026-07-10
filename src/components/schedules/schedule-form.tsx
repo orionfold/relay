@@ -27,6 +27,7 @@ import {
   profileSupportsRuntime,
 } from "@/lib/agents/profiles/compatibility";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
+import { randomId } from "@/lib/utils/uuid";
 
 type ProfileOption = Pick<AgentProfile, "id" | "name" | "supportedRuntimes">;
 
@@ -407,7 +408,7 @@ export function ScheduleForm({
                 setHeartbeatChecklist([
                   ...heartbeatChecklist,
                   {
-                    id: crypto.randomUUID().slice(0, 8),
+                    id: randomId().slice(0, 8),
                     instruction: "",
                     priority: "medium",
                   },

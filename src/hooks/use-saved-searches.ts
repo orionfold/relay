@@ -11,6 +11,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { randomId } from "@/lib/utils/uuid";
 
 export type SavedSearchSurface =
   | "task"
@@ -89,10 +90,7 @@ export function useSavedSearches(): UseSavedSearchesReturn {
     (entry: Omit<SavedSearch, "id" | "createdAt">): SavedSearch => {
       const full: SavedSearch = {
         ...entry,
-        id:
-          typeof crypto !== "undefined" && "randomUUID" in crypto
-            ? crypto.randomUUID()
-            : `ss-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        id: randomId(),
         createdAt: new Date().toISOString(),
       };
       setSearches((prev) => {

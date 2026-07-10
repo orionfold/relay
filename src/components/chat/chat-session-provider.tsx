@@ -46,6 +46,7 @@ import {
   type ChatModelOption,
 } from "@/lib/chat/types";
 import type { MentionReference } from "@/hooks/use-chat-autocomplete";
+import { randomId } from "@/lib/utils/uuid";
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -489,7 +490,7 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
   // ── Branching: rewind / redo / branch ──────────────────────────────
   // After a successful rewind/redo we re-fetch messages from the server.
   // The optimistic user message inserted by `sendMessage` keeps its
-  // client-side `crypto.randomUUID()` even after the SSE `done` event
+  // client-side `randomId()` even after the SSE `done` event
   // (only the assistant id is reconciled to the server id). The server's
   // markPair/restoreLatestRewoundPair return server-assigned ids; doing a
   // pure client-side optimistic update by id misses the user message,
@@ -599,7 +600,7 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
 
       // Optimistic user message
       const userMsg: ChatMessageRow = {
-        id: crypto.randomUUID(),
+        id: randomId(),
         conversationId,
         role: "user",
         content,
@@ -610,7 +611,7 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
       };
 
       // Placeholder assistant message
-      const assistantMsgId = crypto.randomUUID();
+      const assistantMsgId = randomId();
       const assistantMsg: ChatMessageRow = {
         id: assistantMsgId,
         conversationId,

@@ -58,6 +58,7 @@ import {
   MAX_SWARM_WORKERS,
   MIN_SWARM_WORKERS,
 } from "@/lib/workflows/swarm";
+import { randomId } from "@/lib/utils/uuid";
 
 interface WorkflowData {
   id: string;
@@ -75,7 +76,7 @@ interface WorkflowFormViewProps {
 
 function createEmptyStep(): WorkflowStep {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     name: "",
     prompt: "",
     requiresApproval: false,
@@ -84,7 +85,7 @@ function createEmptyStep(): WorkflowStep {
 
 function createEmptyDelayStep(): WorkflowStep {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     name: "Wait",
     prompt: "",
     requiresApproval: false,
@@ -102,7 +103,7 @@ function parseDefinition(json: string): WorkflowDefinition | null {
 
 function createParallelBranchStep(index: number): WorkflowStep {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     name: `Research Branch ${index}`,
     prompt: "",
   };
@@ -110,7 +111,7 @@ function createParallelBranchStep(index: number): WorkflowStep {
 
 function createParallelSynthesisStep(branchIds: string[]): WorkflowStep {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     name: "Synthesize findings",
     prompt: "",
     dependsOn: branchIds,
@@ -167,14 +168,14 @@ function normalizeParallelSteps(
 
   const normalizedBranches = branches.map((branch, index) => ({
     ...branch,
-    id: options?.cloneIds ? crypto.randomUUID() : (branch.id || crypto.randomUUID()),
+    id: options?.cloneIds ? randomId() : (branch.id || randomId()),
     name: branch.name || `Research Branch ${index + 1}`,
   }));
 
   const normalizedSynthesis = rawSynthesis
     ? {
         ...rawSynthesis,
-        id: options?.cloneIds ? crypto.randomUUID() : (rawSynthesis.id || crypto.randomUUID()),
+        id: options?.cloneIds ? randomId() : (rawSynthesis.id || randomId()),
         name: rawSynthesis.name || "Synthesize findings",
       }
     : undefined;
@@ -191,7 +192,7 @@ function getParallelParts(steps: WorkflowStep[]) {
 
 function createSwarmMayorStep(): WorkflowStep {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     name: "Mayor plan",
     prompt:
       "Break the goal into a concise swarm plan. Assign a distinct focus area to each worker by name, call out dependencies or overlap risks, and define what the refinery should merge at the end.",
@@ -200,7 +201,7 @@ function createSwarmMayorStep(): WorkflowStep {
 
 function createSwarmWorkerStep(index: number): WorkflowStep {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     name: `Worker ${index}`,
     prompt:
       "Own one slice of the mayor plan. Produce concrete findings, decisions, or deliverables the refinery can merge with sibling worker output.",
@@ -209,7 +210,7 @@ function createSwarmWorkerStep(index: number): WorkflowStep {
 
 function createSwarmRefineryStep(): WorkflowStep {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     name: "Refine and merge",
     prompt:
       "Merge the mayor plan and worker outputs into one final result. Resolve overlaps, call out conflicts, and produce the final deliverable with a short rationale.",
@@ -268,8 +269,8 @@ function normalizeSwarmSteps(
     ...(mayorStep ?? createSwarmMayorStep()),
     id:
       options?.cloneIds && mayorStep
-        ? crypto.randomUUID()
-        : (mayorStep?.id || crypto.randomUUID()),
+        ? randomId()
+        : (mayorStep?.id || randomId()),
     name: mayorStep?.name || "Mayor plan",
   };
 
@@ -280,7 +281,7 @@ function normalizeSwarmSteps(
 
   const normalizedWorkers = nextWorkers.map((worker, index) => ({
     ...worker,
-    id: options?.cloneIds ? crypto.randomUUID() : (worker.id || crypto.randomUUID()),
+    id: options?.cloneIds ? randomId() : (worker.id || randomId()),
     name: worker.name || `Worker ${index + 1}`,
   }));
 
@@ -288,8 +289,8 @@ function normalizeSwarmSteps(
     ...(refineryStep ?? createSwarmRefineryStep()),
     id:
       options?.cloneIds && refineryStep
-        ? crypto.randomUUID()
-        : (refineryStep?.id || crypto.randomUUID()),
+        ? randomId()
+        : (refineryStep?.id || randomId()),
     name: refineryStep?.name || "Refine and merge",
   };
 
@@ -479,12 +480,12 @@ export function WorkflowFormView({
               ? normalizeParallelSteps(def.steps, { cloneIds: true })
               : def.pattern === "swarm"
                 ? normalizeSwarmSteps(def.steps, { cloneIds: true })
-              : def.steps.map((s) => ({ ...s, id: crypto.randomUUID() }))
+              : def.steps.map((s) => ({ ...s, id: randomId() }))
             : def.pattern === "parallel"
               ? normalizeParallelSteps(def.steps)
               : def.pattern === "swarm"
                 ? normalizeSwarmSteps(def.steps)
-              : def.steps.map((s) => ({ ...s, id: s.id || crypto.randomUUID() }))
+              : def.steps.map((s) => ({ ...s, id: s.id || randomId() }))
         );
       }
     }
@@ -805,7 +806,7 @@ export function WorkflowFormView({
             pattern,
             steps: [
               {
-                id: crypto.randomUUID(),
+                id: randomId(),
                 name: "Loop",
                 prompt: loopPrompt.trim(),
               },
