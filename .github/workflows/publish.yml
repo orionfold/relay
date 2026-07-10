@@ -39,6 +39,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # `npm install -g npm@latest` above can float npm to a new major whose
+      # prebuild/lifecycle defaults leave better-sqlite3's native .node binary
+      # unbuilt after `npm ci` — the `next build` step below then dies with
+      # "Could not locate the bindings file" when it collects page data for a
+      # DB-importing route. Rebuild the native addon explicitly so the binary
+      # is always present regardless of npm's prebuild behavior.
+      - name: Rebuild native modules (better-sqlite3)
+        run: npm rebuild better-sqlite3
+
       - name: Guard — tag version matches package.json
         run: |
           TAG="${GITHUB_REF_NAME#v}"
