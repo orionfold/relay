@@ -1,10 +1,25 @@
+import { existsSync } from "node:fs";
 import { db } from "@/lib/db";
 import { settings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { encrypt, decrypt } from "@/lib/utils/crypto";
+import { getClaudeOAuthCredentialsPath } from "@/lib/utils/ainative-paths";
 import { SETTINGS_KEYS, type AuthMethod, type ApiKeySource } from "@/lib/constants/settings";
 import type { UpdateAuthSettingsInput } from "@/lib/validators/settings";
 import { getSetting, setSetting } from "./helpers";
+
+/**
+ * True when a Claude OAuth credential is actually usable — either injected via
+ * CLAUDE_CODE_OAUTH_TOKEN or cached on disk by `claude login`. Selecting "oauth"
+ * as the auth method is NOT sufficient; a blank install has the method defaulted
+ * to oauth with no token, and must report disconnected rather than "connected".
+ */
+function hasClaudeOAuthCredential(): boolean {
+  return (
+    !!process.env.CLAUDE_CODE_OAUTH_TOKEN ||
+    existsSync(getClaudeOAuthCredentialsPath())
+  );
+}
 
 export interface AuthSettings {
   method: AuthMethod;
@@ -30,7 +45,7 @@ export async function getAuthSettings(): Promise<AuthSettings> {
     apiKeySource = "db";
   } else if (hasEnvKey) {
     apiKeySource = "env";
-  } else if (method === "oauth") {
+  } else if (method === "oauth" && hasClaudeOAuthCredential()) {
     apiKeySource = "oauth";
   } else {
     apiKeySource = "unknown";

@@ -1,4 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { writeFileSync, rmSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+
+// Point the Claude OAuth credential-path helper at a temp file we control, so
+// the real existsSync in auth.ts is exercised against a path we can create and
+// delete per test. Mocking our own narrow path-helper avoids mocking node:fs
+// wholesale (which would break app-root's readFileSync).
+const oauthCredPath = join(tmpdir(), "relay-auth-test-credentials.json");
+vi.mock("@/lib/utils/ainative-paths", () => ({
+  getClaudeOAuthCredentialsPath: () => oauthCredPath,
+}));
 
 // Mock the DB and crypto modules
 const mockSelect = vi.fn();
@@ -65,6 +77,12 @@ describe("auth settings", () => {
     vi.resetModules();
     mockWhere.mockReturnValue([]);
     vi.unstubAllEnvs();
+    delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
+    rmSync(oauthCredPath, { force: true });
+  });
+
+  afterEach(() => {
+    rmSync(oauthCredPath, { force: true });
   });
 
   describe("getAuthSettings", () => {
@@ -101,8 +119,27 @@ describe("auth settings", () => {
       expect(result.apiKeySource).toBe("db");
     });
 
-    it("returns apiKeySource=oauth when method is oauth and no keys", async () => {
-      // method=oauth, no apiKey, no stored source
+    it("returns apiKeySource=unknown when oauth is selected but no OAuth token exists (blank install)", async () => {
+      // method=oauth, no apiKey, no stored source, no env key, no OAuth
+      // credential on disk, no CLAUDE_CODE_OAUTH_TOKEN. Selecting OAuth as the
+      // method must NOT report "connected" until a token is actually present.
+      mockGetSettingSequence(["oauth", null, null]);
+      const { getAuthSettings } = await import("../auth");
+      const result = await getAuthSettings();
+      expect(result.apiKeySource).toBe("unknown");
+      expect(result.hasKey).toBe(false);
+    });
+
+    it("returns apiKeySource=oauth when CLAUDE_CODE_OAUTH_TOKEN is set", async () => {
+      vi.stubEnv("CLAUDE_CODE_OAUTH_TOKEN", "oauth-token-abc");
+      mockGetSettingSequence(["oauth", null, null]);
+      const { getAuthSettings } = await import("../auth");
+      const result = await getAuthSettings();
+      expect(result.apiKeySource).toBe("oauth");
+    });
+
+    it("returns apiKeySource=oauth when a Claude OAuth credentials file exists", async () => {
+      writeFileSync(oauthCredPath, "{}");
       mockGetSettingSequence(["oauth", null, null]);
       const { getAuthSettings } = await import("../auth");
       const result = await getAuthSettings();

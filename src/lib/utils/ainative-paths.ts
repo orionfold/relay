@@ -1,6 +1,18 @@
+import { homedir } from "os";
 import { join } from "path";
 import { getAppRoot } from "@/lib/utils/app-root";
 import { dataDir, dbPath } from "@/lib/config/env";
+
+// The Claude Agent SDK / `claude login` stores its cached OAuth credentials
+// under the Claude config home, NOT Relay's data dir. Honor CLAUDE_CONFIG_DIR
+// the same way the SDK resolves it, defaulting to ~/.claude.
+export function getClaudeConfigDir(): string {
+  return process.env.CLAUDE_CONFIG_DIR || join(homedir(), ".claude");
+}
+
+export function getClaudeOAuthCredentialsPath(): string {
+  return join(getClaudeConfigDir(), ".credentials.json");
+}
 
 // Canonical data-dir + db-path resolution now lives in @/lib/config/env (the
 // single RELAY_* accessor). These helpers delegate so the resolver exists in
