@@ -6,6 +6,29 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.36.3] — 2026-07-10
+
+### Fixed
+
+- **Creating a workflow no longer crashes when you run Relay on a remote
+  machine.** Opening the New Workflow screen over a plain `http://` address (for
+  example a VM reached by its IP) failed with a `crypto.randomUUID is not a
+  function` error. Relay now generates ids in a way that works outside secure
+  (HTTPS or localhost) contexts, so workflow creation works on remote hosts.
+- **Chat now works with Ollama.** The chat model picker only listed cloud models,
+  so even with Ollama connected and tested, chat had no local model to use and
+  produced no response. Relay now lists the models you have pulled into your
+  Ollama server, so you can pick one and chat with it. Newly pulled models can
+  take a few minutes to appear.
+- **Failed tasks can be deleted again.** Deleting a task that had already run was
+  rejected because its run logs and usage records still pointed at it, so failed
+  tasks could not be removed from the card or the detail panel. Deleting a task
+  now clears its run history in one safe step. Documents you attached to the task
+  are kept and simply unlinked.
+- **Settings no longer shows Anthropic as connected on a blank install.** A fresh
+  install with no credentials reported the Anthropic API as connected. It now
+  reads Disconnected until a real credential is present.
+
 ## [0.36.2] — 2026-07-08
 
 ### Changed
