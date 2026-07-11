@@ -28,6 +28,11 @@ export async function setSetting(key: string, value: string): Promise<void> {
   }
 }
 
+/** Delete a single setting. Missing keys are already in the desired state. */
+export async function deleteSetting(key: string): Promise<void> {
+  await db.delete(settings).where(eq(settings.key, key));
+}
+
 // ---------------------------------------------------------------------------
 // TDR-037 plugin trust model setting
 // ---------------------------------------------------------------------------

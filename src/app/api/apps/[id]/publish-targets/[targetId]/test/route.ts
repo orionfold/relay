@@ -25,6 +25,7 @@ export async function POST(
     return NextResponse.json({
       testStatus: result.ok ? "ok" : "failed",
       error: result.error,
+      details: result.details,
     });
   } catch (err) {
     return errorResponse(err);

@@ -780,10 +780,11 @@ export const publishTargets = sqliteTable(
     // Logical app/project id — apps are file-based, so no SQL FK.
     appId: text("app_id").notNull(),
     targetType: text("target_type", { enum: ["github-pages", "github-repo"] }).notNull(),
-    // SECURITY: The config JSON contains credentials (githubToken) stored as
-    // plaintext. All API responses MUST mask sensitive fields via
-    // maskPublishConfig() before returning.
-    config: text("config").notNull(), // JSON: { owner?, repo?, branch?, githubToken? }
+    // New GitHub targets store repository coordinates only. Credentials live
+    // once, encrypted, in Settings. Legacy rows may still contain a token, so
+    // every API response remains masked and the resolver keeps a fallback
+    // only until the operator explicitly adopts/disconnects shared setup.
+    config: text("config").notNull(), // JSON: { owner?, repo?, branch?, directory? }
     createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   },
   (table) => [

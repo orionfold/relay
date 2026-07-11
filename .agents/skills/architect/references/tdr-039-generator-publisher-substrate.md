@@ -151,6 +151,12 @@ The pack-format law forces a two-part answer:
 
 ### 3. Credential + status storage (reuse, don't fork)
 
+> **Evolution — 2026-07-11 (TDR-040):** `publishTargets` remains the
+> app-specific destination store, but GitHub authentication is now one
+> encrypted Settings connection shared by the Pages and Pack adapters. New
+> targets contain repository coordinates only. Masking remains mandatory for
+> legacy rows that may still contain embedded credentials.
+
 - **Publish-target credentials** persist exactly like channel configs: a
   `publishTargets` table (new), `config` as JSON-in-TEXT, sensitive keys
   (`githubToken`, etc.) in a `SENSITIVE_PUBLISH_KEYS` list, masked by
@@ -262,9 +268,10 @@ substrate types + registries + storage + `github-pages` adapter behind tests;
 
 ### Security notes
 
-- **Credential masking is the invariant** — a leaked `githubToken` is the worst
-  failure. Every API boundary masks; a drift check enforces it; adapters see
-  unmasked config only server-side at publish time.
+- **Credential non-disclosure is the invariant** — a leaked `githubToken` is
+  the worst failure. The shared token is encrypted and never returned; every
+  target API still masks legacy embedded secrets; adapters resolve the token
+  only server-side at publish time.
 - **`child_process` git usage** (if the adapter shells out to git rather than
   the GitHub API) activates TDR-037's `child_process` capability — prefer the
   GitHub Contents API over shelling `git` where possible to avoid the heavier

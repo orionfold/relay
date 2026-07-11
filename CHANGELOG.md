@@ -6,6 +6,30 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.37.0] — 2026-07-11
+
+### Added
+
+- **Build reusable Relay Packs from a working app.** Chat can compose an app
+  from Relay-native profiles, workflows, tables, schedules, and views; the Pack
+  panel then previews the exact portable files, sample-data policy, and artifact
+  hash before exporting them as a download or publishing them to GitHub.
+- **Connect GitHub once and reuse it across Relay publishing.** A single
+  encrypted, verified GitHub connection in Settings now powers both Pack and
+  GitHub Pages publishing. Public and private writable repositories appear in
+  the same neutral picker and use the same preview, test, and publish journey.
+- **Submit creator-owned Packs for Relay Community review.** After an exact
+  successful publish to a public repository's default branch and root, Relay
+  prepares a structured review request for the community index. The index links
+  to the creator's repository; Relay does not copy or centrally host the Pack.
+
+### Security
+
+- GitHub tokens remain server-side, are never accepted by chat tools, and are
+  omitted from new publish targets. Disconnecting the shared connection also
+  disables legacy per-target credential fallback so publishing cannot continue
+  silently with an older stored token.
+
 ## [0.36.5] — 2026-07-10
 
 ### Fixed

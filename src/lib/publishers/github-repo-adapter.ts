@@ -1,4 +1,9 @@
 import type { Artifact, PublisherAdapter, PublishResult } from "./types";
+import {
+  githubHeaders,
+  inspectGitHubRepository,
+  resolveGitHubToken,
+} from "./github-connection";
 
 const GITHUB_API = "https://api.github.com";
 const FILES_MARKER = ".relay-pack-files.json";
@@ -6,7 +11,6 @@ const FILES_MARKER = ".relay-pack-files.json";
 interface GitHubRepoConfig {
   owner: string;
   repo: string;
-  githubToken: string;
   branch: string;
   directory: string;
 }
@@ -31,11 +35,10 @@ function normalizeDirectory(value: unknown): string | { error: string } {
 function parseConfig(
   config: Record<string, unknown>
 ): GitHubRepoConfig | { error: string } {
-  const { owner, repo, githubToken } = config;
+  const { owner, repo } = config;
   const missing = [
     ["owner", owner],
     ["repo", repo],
-    ["githubToken", githubToken],
   ]
     .filter(([, value]) => typeof value !== "string" || value.length === 0)
     .map(([key]) => key);
@@ -63,7 +66,6 @@ function parseConfig(
   return {
     owner: owner as string,
     repo: repo as string,
-    githubToken: githubToken as string,
     branch,
     directory,
   };
@@ -75,16 +77,6 @@ function isPackPath(filePath: string): boolean {
   return !filePath
     .split("/")
     .some((part) => part === "" || part === "." || part === "..");
-}
-
-function headers(token: string): Record<string, string> {
-  return {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/vnd.github+json",
-    "Content-Type": "application/json",
-    "User-Agent": "orionfold-relay",
-    "X-GitHub-Api-Version": "2026-03-10",
-  };
 }
 
 function canPush(repo: GitHubRepoResponse): boolean {
@@ -153,18 +145,18 @@ export const githubRepoAdapter: PublisherAdapter = {
     const parsed = parseConfig(config);
     if ("error" in parsed) return { ok: false, error: parsed.error };
     try {
-      const repo = await githubJson<GitHubRepoResponse>(
-        `${GITHUB_API}/repos/${parsed.owner}/${parsed.repo}`,
-        { headers: headers(parsed.githubToken) }
-      );
-      if (!canPush(repo)) {
+      const details = await inspectGitHubRepository(config);
+      if (!details.canPush) {
         return {
           ok: false,
           error:
-            "GitHub token needs Contents: Read and write permission for this private repository.",
+            "GitHub token needs Contents: Read and write permission for this repository.",
         };
       }
-      return { ok: true };
+      return {
+        ok: true,
+        details: { visibility: details.visibility, fullName: details.fullName },
+      };
     } catch (error) {
       return { ok: false, error: error instanceof Error ? error.message : String(error) };
     }
@@ -173,10 +165,11 @@ export const githubRepoAdapter: PublisherAdapter = {
   async publish(artifact: Artifact, config): Promise<PublishResult> {
     const parsed = parseConfig(config);
     if ("error" in parsed) return { success: false, error: parsed.error };
-    const requestHeaders = headers(parsed.githubToken);
     const base = `${GITHUB_API}/repos/${parsed.owner}/${parsed.repo}`;
 
     try {
+      const resolved = await resolveGitHubToken(config);
+      const requestHeaders = githubHeaders(resolved.githubToken);
       if (
         artifact.entryPoint !== "pack.yaml" ||
         artifact.files.length === 0 ||
@@ -195,7 +188,7 @@ export const githubRepoAdapter: PublisherAdapter = {
         return {
           success: false,
           error:
-            "GitHub token needs Contents: Read and write permission for this private repository.",
+            "GitHub token needs Contents: Read and write permission for this repository.",
         };
       }
 

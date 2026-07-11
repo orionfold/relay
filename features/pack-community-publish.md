@@ -16,19 +16,30 @@ now supports the user-owned loop: chat composes an app from profiles,
 blueprints, tables, schedules, and a typed view; the user can download the
 portable pack; the Pack repository panel previews the exact file tree, sizes,
 sample-row count, and artifact hash; and an explicit confirmation publishes
-those bytes to a configured private GitHub repository.
+those bytes to a configured public or private GitHub repository.
 
 `github-repo` is a shipped `PublisherAdapter` sibling to `github-pages`. It
 creates one atomic Git tree/commit/ref update, preserves unrelated repository
 files, and removes only stale paths recorded by Relay's prior pack-publish
-marker. Credentials reuse masked `publishTargets`; attempts and named failures
-reuse durable `deployments`. Chat discovers target ids but never accepts a
-GitHub token. Publish refuses when the app changed after preview.
+marker. A single encrypted GitHub connection in Settings is reused by Pack and
+Pages publishers; new `publishTargets` hold repository coordinates only.
+Attempts and named failures reuse durable `deployments`. Chat discovers target
+ids but never accepts a GitHub token. Publish refuses when the app changed
+after preview.
 
 Relay deliberately does not write an Orionfold-owned index. The repository is
 immediately installable by Git URL and honestly classified
 `community · unverified`; a maintainer may later add its `repo:` pointer and a
 trusted signature to `orionfold.packs/v1`. The index links, never hosts.
+
+Public and private are equal first-class creator-owned destinations. GitHub
+owns the visibility setting; Relay displays it but does not create or change
+it. After an exact successful public publish, **Submit to Relay Community**
+prepares a structured review request. Maintainers may then validate and add the
+creator repository's pointer/signature to the canonical index. Relay never
+writes Pack files into an Orionfold-owned community repository.
+Community submission additionally requires `pack.yaml` at repository root on
+the default branch, matching the current shallow-clone Git installer contract.
 
 ## Pre-build source trace (superseded 2026-07-11)
 
@@ -119,9 +130,11 @@ A sibling to the shipped `github-pages` adapter, reusing every mechanic:
   API** (`architect-report.md:76` — "prefer the Contents API over shelling git"; also avoids the
   heavier `child_process` capability). A community-pack push is the same Contents-API call with a
   pack tree (`pack.yaml` + `base/` + `pack.sig`) instead of a website file set.
-- **Credential masking** — the customer's GitHub token lives in a `publishTargets` config row,
-  masked at every boundary (`maskPublishTarget()`); "a GitHub token fits the existing pattern — no
-  new secrets vault." **Never returned unmasked** (the drift-check discipline, HANDOFF / TDR-039).
+- **Shared credential boundary** — the customer's GitHub token lives once,
+  encrypted, in Settings and is resolved server-side by both GitHub publishers.
+  New `publishTargets` store owner/repo/branch/directory only. Legacy rows with
+  embedded tokens remain masked and readable as a compatibility fallback only
+  until the operator explicitly adopts or disconnects shared setup.
 - **`deployments` status surface** — fire-and-forget-with-a-durable-status-row (TDR-003): the
   customer sees success + the repo URL, or a named error (Principle #1 — a failed publish is
   visible).
@@ -171,8 +184,9 @@ success + URL, the token is masked at every surface, and the payload carries no 
       (`pack.yaml` + `base/`) to the **customer's own** repo in one atomic Git commit.
 - [x] The adapter consumes the common `Artifact` contract, so app-exported and hand-authored
       artifact producers share one transport.
-- [x] The GitHub token is stored in a `publishTargets` row and **masked at every boundary** — a
-      test asserts it is never returned unmasked (drift check).
+- [x] The GitHub token is stored once, encrypted, in Settings; APIs return only
+      login/source/hint metadata. New targets contain no credential, while
+      legacy target secrets remain masked.
 - [x] The publish payload contains **only** the pack tree + Relay-owned path marker — tests assert
       scoped writes/deletes and no instance id, license id, or install-count telemetry.
 - [x] The consent ceremony previews **exactly** what leaves the machine (file tree + target repo)
@@ -181,6 +195,10 @@ success + URL, the token is masked at every surface, and the payload carries no 
 - [x] `docs/trust/data-flow.md` gains the user-owned-SEND egress row; it is code-true.
 - [ ] **Live publish smoke** to a test repo passes (real dev-server SEND, not just unit tests).
 - [x] Targeted exporter/install/chat/publisher tests and TypeScript verification are green.
+- [x] Public and private repositories appear in one neutral selector and share
+      the same target/test/preview/publish flow.
+- [x] Community submission requires a successful exact-hash public publish and
+      prepares a review request that links to the creator repository.
 
 ## Scope Boundaries
 
@@ -188,7 +206,8 @@ success + URL, the token is masked at every surface, and the payload carries no 
 - The `github-repo` PublisherAdapter (reuse TDR-039 transport + masking + `deployments`).
 - The in-product consent ceremony + the leave-the-machine preview.
 - The `data-flow.md` user-owned-SEND egress row.
-- Linking the published pack into the community index (`repo:` pointer).
+- Preparing the public-repository review request used to link the Pack into the
+  community index (`repo:` pointer); maintainer review/signing remains explicit.
 - The live publish smoke.
 
 **Excluded (separate requirements / gated / fenced):**

@@ -1,9 +1,16 @@
 import type { PublisherAdapter, PublishResult } from "./types";
+import {
+  githubHeaders,
+  inspectGitHubRepository,
+  resolveGitHubToken,
+} from "./github-connection";
 
 /**
  * Publishes an Artifact to the customer's own GitHub Pages repo via the
  * GitHub Contents API (per-file PUT — no git binary, no child_process).
- * Config: { owner, repo, githubToken, branch? } — branch defaults to gh-pages.
+ * Config: { owner, repo, branch? } — branch defaults to gh-pages. The token
+ * resolves from the shared encrypted GitHub connection (legacy target fallback
+ * is handled centrally during migration).
  */
 
 const GITHUB_API = "https://api.github.com";
@@ -11,24 +18,14 @@ const GITHUB_API = "https://api.github.com";
 interface GitHubPagesConfig {
   owner: string;
   repo: string;
-  githubToken: string;
   branch: string;
 }
 
-type GitHubRepoResponse = {
-  permissions?: {
-    admin?: boolean;
-    maintain?: boolean;
-    push?: boolean;
-  };
-};
-
 function parseConfig(config: Record<string, unknown>): GitHubPagesConfig | { error: string } {
-  const { owner, repo, githubToken } = config;
+  const { owner, repo } = config;
   const missing = [
     ["owner", owner],
     ["repo", repo],
-    ["githubToken", githubToken],
   ]
     .filter(([, val]) => typeof val !== "string" || val === "")
     .map(([key]) => key);
@@ -40,21 +37,8 @@ function parseConfig(config: Record<string, unknown>): GitHubPagesConfig | { err
   return {
     owner: owner as string,
     repo: repo as string,
-    githubToken: githubToken as string,
     branch,
   };
-}
-
-function githubHeaders(token: string): Record<string, string> {
-  return {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/vnd.github+json",
-    "User-Agent": "relay",
-  };
-}
-
-function hasContentsWritePermission(body: GitHubRepoResponse): boolean {
-  return Boolean(body.permissions?.admin || body.permissions?.maintain || body.permissions?.push);
 }
 
 async function resolveFinalUrl(url: string): Promise<string | undefined> {
@@ -78,21 +62,18 @@ export const githubPagesAdapter: PublisherAdapter = {
       return { ok: false, error: parsed.error };
     }
     try {
-      const res = await fetch(`${GITHUB_API}/repos/${parsed.owner}/${parsed.repo}`, {
-        headers: githubHeaders(parsed.githubToken),
-      });
-      if (!res.ok) {
-        return { ok: false, error: `GitHub repo check failed: ${res.status}` };
-      }
-      const body = (await res.json()) as GitHubRepoResponse;
-      if (!hasContentsWritePermission(body)) {
+      const details = await inspectGitHubRepository(config);
+      if (!details.canPush) {
         return {
           ok: false,
           error:
             "GitHub token needs Contents: Read and write permission for this repository before Relay can publish.",
         };
       }
-      return { ok: true };
+      return {
+        ok: true,
+        details: { visibility: details.visibility, fullName: details.fullName },
+      };
     } catch (err) {
       return { ok: false, error: err instanceof Error ? err.message : String(err) };
     }
@@ -104,10 +85,11 @@ export const githubPagesAdapter: PublisherAdapter = {
       return { success: false, error: parsed.error };
     }
     const { owner, repo, branch } = parsed;
-    const headers = githubHeaders(parsed.githubToken);
     let lastCommit: string | undefined;
 
     try {
+      const resolved = await resolveGitHubToken(config);
+      const headers = githubHeaders(resolved.githubToken);
       for (const file of artifact.files) {
         const contentsUrl = `${GITHUB_API}/repos/${owner}/${repo}/contents/${file.path}`;
 

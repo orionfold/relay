@@ -5,6 +5,11 @@ import {
   createPublishTarget,
   listPublishTargets,
 } from "@/lib/publishers/app-publish";
+import {
+  connectGitHub,
+  getGitHubToken,
+  GitHubConnectionError,
+} from "@/lib/publishers/github-connection";
 
 const githubName = z.string().min(1).max(100).regex(/^[A-Za-z0-9_.-]+$/);
 const githubBranch = z
@@ -16,7 +21,7 @@ const githubBranch = z
 const githubBaseConfig = {
   owner: githubName,
   repo: githubName,
-  githubToken: z.string().min(1).max(1000),
+  githubToken: z.string().min(1).max(1000).optional(),
 };
 const createPublishTargetSchema = z.discriminatedUnion("targetType", [
   z
@@ -51,6 +56,9 @@ const createPublishTargetSchema = z.discriminatedUnion("targetType", [
 ]);
 
 function errorResponse(err: unknown) {
+  if (err instanceof GitHubConnectionError) {
+    return NextResponse.json({ error: err.message }, { status: err.statusCode });
+  }
   if (err instanceof AppPublishError) {
     return NextResponse.json(
       { error: err.message, code: err.code },
@@ -92,7 +100,20 @@ export async function POST(
   }
 
   try {
-    return NextResponse.json(createPublishTarget(id, parsed.data), { status: 201 });
+    const config = { ...parsed.data.config };
+    if (config.githubToken) {
+      await connectGitHub(config.githubToken);
+      delete config.githubToken;
+    } else if (!(await getGitHubToken())) {
+      return NextResponse.json(
+        { error: "Connect GitHub in Settings before adding a repository." },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json(
+      createPublishTarget(id, { targetType: parsed.data.targetType, config }),
+      { status: 201 }
+    );
   } catch (err) {
     return errorResponse(err);
   }

@@ -14,13 +14,22 @@ vi.mock("@/lib/publishers/pack-publish", () => ({
   runPackDeployment: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("@/lib/publishers/community-pack-submission", () => ({
+  CommunityPackSubmissionError: class CommunityPackSubmissionError extends Error {
+    statusCode = 409;
+  },
+  prepareCommunityPackSubmission: vi.fn(),
+}));
+
 import { POST as inspect } from "../inspect/route";
 import { POST as publish } from "../publish/route";
+import { POST as communitySubmission } from "../community-submission/route";
 import { buildAppPackArtifact } from "@/lib/packs/app-exporter";
 import {
   runPackDeployment,
   triggerPackPublish,
 } from "@/lib/publishers/pack-publish";
+import { prepareCommunityPackSubmission } from "@/lib/publishers/community-pack-submission";
 
 function request(body: unknown) {
   return new Request("http://localhost/api/apps/app-1/pack", {
@@ -91,5 +100,24 @@ describe("app pack API routes", () => {
       expectedHash: "b".repeat(64),
     });
     expect(runPackDeployment).toHaveBeenCalledWith("deployment-1");
+  });
+
+  it("prepares a community review URL only for a specific published hash", async () => {
+    vi.mocked(prepareCommunityPackSubmission).mockResolvedValue({
+      url: "https://github.com/orionfold/relay/issues/new?title=pack",
+      repositoryUrl: "https://github.com/maker/pack",
+      packId: "app-1",
+      version: "0.1.0",
+    });
+    const response = await communitySubmission(
+      request({ targetId: "target-1", expectedHash: "c".repeat(64) }),
+      { params: Promise.resolve({ id: "app-1" }) }
+    );
+    expect(response.status).toBe(200);
+    expect(prepareCommunityPackSubmission).toHaveBeenCalledWith(
+      "app-1",
+      "target-1",
+      "c".repeat(64)
+    );
   });
 });

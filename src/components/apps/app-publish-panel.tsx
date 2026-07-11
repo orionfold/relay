@@ -21,8 +21,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GitHubRepositoryTargetForm } from "@/components/publishers/github-repository-target-form";
 import {
   Select,
   SelectContent,
@@ -61,7 +61,7 @@ type Deployment = {
   error: string | null;
 };
 
-type TestResult = { status: "ok" | "failed"; error?: string };
+type TestResult = { status: "ok" | "failed"; error?: string; visibility?: "public" | "private" };
 
 type PreviewArtifact = {
   artifactId: string;
@@ -101,13 +101,6 @@ interface AppPublishPanelProps {
   pageTitle?: string | null;
 }
 
-const EMPTY_FORM = {
-  owner: "",
-  repo: "",
-  branch: "gh-pages",
-  githubToken: "",
-};
-
 function readTargetConfig(target: PublishTarget) {
   try {
     const parsed = JSON.parse(target.config) as Record<string, unknown>;
@@ -115,10 +108,9 @@ function readTargetConfig(target: PublishTarget) {
       owner: typeof parsed.owner === "string" ? parsed.owner : "",
       repo: typeof parsed.repo === "string" ? parsed.repo : "",
       branch: typeof parsed.branch === "string" ? parsed.branch : "gh-pages",
-      githubToken: typeof parsed.githubToken === "string" ? parsed.githubToken : "",
     };
   } catch {
-    return { owner: "", repo: "", branch: "gh-pages", githubToken: "" };
+    return { owner: "", repo: "", branch: "gh-pages" };
   }
 }
 
@@ -176,10 +168,8 @@ export function AppPublishPanel({
   const [targets, setTargets] = useState<PublishTarget[]>([]);
   const [deployments, setDeployments] = useState<Deployment[]>([]);
   const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
-  const [form, setForm] = useState(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [deletingTargetId, setDeletingTargetId] = useState<string | null>(null);
@@ -269,36 +259,6 @@ export function AppPublishPanel({
     return () => window.clearInterval(timer);
   }, [appId, pageSlug, deployments]);
 
-  async function handleCreateTarget() {
-    setSaving(true);
-    setError(null);
-    try {
-      const created = await fetch(`/api/apps/${encodeURIComponent(appId)}/publish-targets`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          targetType,
-          config: {
-            owner: form.owner.trim(),
-            repo: form.repo.trim(),
-            branch: form.branch.trim() || "gh-pages",
-            githubToken: form.githubToken.trim(),
-          },
-        }),
-      }).then((res) => readJson<PublishTarget>(res));
-      setTargets((prev) => [created, ...prev]);
-      setSelectedTargetId(created.id);
-      setForm(EMPTY_FORM);
-      toast.success("Publish target saved");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Publish target save failed";
-      setError(message);
-      toast.error(message);
-    } finally {
-      setSaving(false);
-    }
-  }
-
   async function handleTestTarget(targetId: string) {
     setTestingId(targetId);
     setError(null);
@@ -306,8 +266,8 @@ export function AppPublishPanel({
       const result = await fetch(
         `/api/apps/${encodeURIComponent(appId)}/publish-targets/${encodeURIComponent(targetId)}/test`,
         { method: "POST" }
-      ).then((res) => readJson<{ testStatus: "ok" | "failed"; error?: string }>(res));
-      const next = { status: result.testStatus, error: result.error };
+      ).then((res) => readJson<{ testStatus: "ok" | "failed"; error?: string; details?: { visibility?: "public" | "private" } }>(res));
+      const next = { status: result.testStatus, error: result.error, visibility: result.details?.visibility };
       setTestResults((prev) => ({ ...prev, [targetId]: next }));
       if (next.status === "ok") toast.success("GitHub Pages target is reachable and writable");
       else toast.error(next.error ?? "GitHub Pages target test failed");
@@ -839,7 +799,8 @@ export function AppPublishPanel({
                               <GitBranch className="h-3 w-3" aria-hidden="true" />
                               {config.branch}
                             </span>
-                            <span>{config.githubToken || "token saved"}</span>
+                            <span>Shared GitHub connection</span>
+                            {testResult?.visibility && <span className="capitalize">{testResult.visibility}</span>}
                           </div>
                         </button>
                         <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -894,62 +855,16 @@ export function AppPublishPanel({
             )}
           </section>
 
-          <section className="surface-card-muted rounded-lg border p-3">
-            <h3 className="text-sm font-medium">New GitHub Pages Target</h3>
-            <div className="mt-3 space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label htmlFor="publish-owner">Owner</Label>
-                  <Input
-                    id="publish-owner"
-                    value={form.owner}
-                    onChange={(event) => setForm((prev) => ({ ...prev, owner: event.target.value }))}
-                    placeholder="acme"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="publish-repo">Repo</Label>
-                  <Input
-                    id="publish-repo"
-                    value={form.repo}
-                    onChange={(event) => setForm((prev) => ({ ...prev, repo: event.target.value }))}
-                    placeholder="site"
-                  />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="publish-branch">Branch</Label>
-                <Input
-                  id="publish-branch"
-                  value={form.branch}
-                  onChange={(event) => setForm((prev) => ({ ...prev, branch: event.target.value }))}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="publish-token">GitHub token</Label>
-                <Input
-                  id="publish-token"
-                  type="password"
-                  value={form.githubToken}
-                  onChange={(event) => setForm((prev) => ({ ...prev, githubToken: event.target.value }))}
-                  placeholder="ghp_..."
-                />
-                <p className="text-xs text-muted-foreground">
-                  Token requires GitHub Contents: Read and write permission for this repo.
-                </p>
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                className="w-full"
-                onClick={handleCreateTarget}
-                disabled={saving || !form.owner.trim() || !form.repo.trim() || !form.githubToken.trim()}
-              >
-                {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />}
-                Save target
-              </Button>
-            </div>
-          </section>
+          <GitHubRepositoryTargetForm
+            appId={appId}
+            targetType="github-pages"
+            defaultBranch="gh-pages"
+            title="New GitHub Pages repository"
+            onCreated={(created) => {
+              setTargets((current) => [created, ...current]);
+              setSelectedTargetId(created.id);
+            }}
+          />
         </div>
 
         <section className="space-y-3">

@@ -580,6 +580,12 @@ install-state telemetry. The no-marketplace fence opens only along its permitted
 install, already shipped); no registry service, no review pipeline, no creator portal, no ratings.
 The bundle-child fence (`install.ts:143-149`) stays shut — only top-level install resolves remotely.
 
+**Journey refinement (2026-07-11):** GitHub authentication is connected once
+in Settings and reused by Pages + Pack publishers. Public/private repository
+visibility is neutral creator policy. Relay Community is an explicit
+post-publish review request for an exact public artifact; the index links to
+the creator repository and never mirrors it.
+
 **Web Designer publish follow-up (2026-07-07):** `publish-preview-artifacts` is a Phase-5 prerequisite
 for the Web Designer live publish smoke: preview locally from the exact generated artifact, then publish
 that same artifact to the user's GitHub Pages target. It keeps the TDR-039 SEND honest without adding a

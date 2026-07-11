@@ -5,62 +5,80 @@ mode: integration
 
 # Architect Report
 
-## Integration Design — Community Pack authoring and private repository publish
+## Integration Design — Shared GitHub connection and Pack distribution journeys
 
 ### Capability
 
-Issue #45 closes Relay's missing inverse path: a chat-composed app can become a
-portable Relay Pack and be saved to a user-owned private Git repository. The
-integration keeps the public Packs thesis intact: the Pack is the owned,
-multi-primitive application layer; profiles/Skills and MCP remain ingredients,
-not competing packaging units.
+Generalize the customer N=1 private-repository request into three balanced
+outcomes: publish a Pack to a creator-owned private repository, publish it to a
+creator-owned public repository, or submit an exact public publication for
+Relay Community review. GitHub setup happens once and is reused by both Pack
+and GitHub Pages publishers.
 
-### Pattern alignment
+### Decision
 
-| Core pattern | Alignment |
-|---|---|
-| AppManifest inside pack wrapper | Export emits `pack.yaml` around a clean `base/manifest.yaml`; distribution metadata never enters the app manifest. |
-| Generator/Publisher split (TDR-039) | App state becomes the common `Artifact` contract with zero egress; `github-repo` alone owns the SEND. |
-| Adapter registry | `github-repo` is a sibling `PublisherAdapter`, leaving future Git providers additive. |
-| Masked JSON-in-TEXT credentials | Reuses `publishTargets` and `maskPublishTarget`; chat handles target ids, never tokens. |
-| Durable external effects | Reuses `deployments` for pending/publishing/success/failed, commit SHA, URL, hash, and named errors. |
-| Idempotent install / logical ids | Export reverses runtime UUIDs to community-namespaced logical ids; install rewrites table, schedule, view, trigger, and relation refs back to real ids. |
-| Trust tiers | Direct Git without a trusted index signature is `community · unverified`; bundled/local operator input remains the implicit trusted path. |
+```text
+Settings: encrypted GitHub connection
+                 │
+        ┌────────┴─────────┐
+        ▼                  ▼
+GitHub Pages target   Pack repository target
+(owner/repo/branch)   (owner/repo/branch/directory)
+                           │
+                 public exact-hash publish
+                           ▼
+              Community review request
+              (index links; never hosts)
+```
+
+- Credentials belong to the GitHub account connection, not individual apps.
+- Publish targets remain app-specific and credential-free.
+- Public/private visibility is read from GitHub and displayed neutrally; Relay
+  does not create or change repository visibility.
+- Community submission requires the same target, successful deployment, and
+  artifact hash as the preview. It generates a structured review request and
+  does not write into an Orionfold-owned Pack repository.
+- Existing targets containing `githubToken` remain supported and masked as a
+  pre-adoption compatibility fallback. A newly supplied legacy token is
+  verified and migrated into the shared encrypted connection; explicit shared
+  adoption or disconnect disables silent legacy fallback.
 
 ### Blast radius
 
-**High — five layers:** pack format/install, app-state export, publisher
-transport/status, chat planning/tools, and app-detail UI/trust documentation.
-No database migration is required because SQLite stores `target_type` as text;
-the Drizzle enum was widened additively.
+**High — four layers, approximately 20 files:** encrypted settings and API;
+publisher credential resolution; two app-detail publishing surfaces; Pack
+community review plus trust/spec/TDR documentation. No schema migration is
+required because the existing settings key/value table holds the encrypted
+connection and target config is JSON-in-TEXT.
 
-### Key safeguards
+### Safeguards
 
-- Live table rows are excluded by default; explicit samples are capped at 25
-  rows/table and shown in the consent preview.
-- Licensed premium pack content refuses export.
-- Portable schedules must name blueprints, and row/schedule variable shadow
-  paths fail before export.
-- Publish confirmation binds to an exact artifact hash and refuses stale
-  previews.
-- Git publishing uses one atomic tree/commit/ref update. A Relay-owned marker
-  scopes stale-file deletion; unrelated repo content is untouched.
-- The canonical index remains a READ/curation surface. Relay does not write an
-  Orionfold-owned repo and emits no install-state telemetry.
+- The raw token is never returned to the browser or chat; Settings exposes only
+  connected/login/source/last-four metadata.
+- Repository listing returns only repositories the credential can push to and
+  labels both public and private visibility.
+- Adapters resolve credentials server-side immediately before test/publish.
+- Community review is unavailable for private repositories and stale or
+  unpublished artifacts.
+- Community review sends metadata and a repository link only; Pack files stay
+  creator-owned and install-state telemetry remains absent.
+- Named failures remain visible at Settings, target-test, publish, deployment,
+  and community-submission boundaries.
 
 ### TDR result
 
-- TDR-039 moved from proposed to accepted because both generator/publisher
-  halves now have shipped consumers.
-- TDR-040 records community id namespacing, data boundaries, portable schedule
-  semantics, atomic repository publish, and direct-Git trust classification.
+TDR-039 gains an evolution note for shared credentials. TDR-040 now records
+repository-visibility neutrality and the public-publish-then-review community
+model. A new TDR is unnecessary because these changes refine, rather than
+replace, the accepted publisher and community-Pack decisions.
 
 ### Verification requirement
 
-TypeScript and focused unit/integration/round-trip tests are required for every
-change. Before release, run a real task under `npm run dev` and a credentialed
-publish smoke against a disposable private repository to verify GitHub's live
-API/permission behavior and the durable deployment surface.
+Run connection/API/adapter/community tests, the existing Pages and Pack
+publisher regression suites, TypeScript, production build, a real runtime task
+because chat tools remain in the runtime graph, and browser checks of Settings,
+Pack repository selection, and GitHub Pages target creation. Before release,
+run a credentialed smoke using both a public and private disposable repository.
 
 ---
 

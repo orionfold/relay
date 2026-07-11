@@ -12,6 +12,7 @@ import { EnvironmentSection } from "@/components/settings/environment-section";
 import { LearningContextSection } from "@/components/settings/learning-context-section";
 import { OllamaSection } from "@/components/settings/ollama-section";
 import { ChannelsSection } from "@/components/settings/channels-section";
+import { GitHubSection } from "@/components/settings/github-section";
 import { InstanceSection } from "@/components/instance/instance-section";
 import { LicenseSection } from "@/components/settings/license-section";
 import { SettingsHashFocus } from "@/components/settings/settings-hash-focus";
@@ -73,6 +74,9 @@ export default function SettingsPage() {
         </SettingsAnchor>
         <SettingsAnchor id="settings-channels">
           <ChannelsSection />
+        </SettingsAnchor>
+        <SettingsAnchor id="settings-github">
+          <GitHubSection />
         </SettingsAnchor>
         <SettingsAnchor id="settings-budget">
           <BudgetGuardrailsSection />

@@ -6,7 +6,11 @@
 export interface PublisherAdapter {
   targetType: string;
   publish(artifact: Artifact, config: Record<string, unknown>): Promise<PublishResult>;
-  testConnection(config: Record<string, unknown>): Promise<{ ok: boolean; error?: string }>;
+  testConnection(config: Record<string, unknown>): Promise<{
+    ok: boolean;
+    error?: string;
+    details?: Record<string, string>;
+  }>;
 }
 
 export interface Artifact {

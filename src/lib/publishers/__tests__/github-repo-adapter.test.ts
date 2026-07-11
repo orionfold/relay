@@ -143,7 +143,14 @@ describe("githubRepoAdapter", () => {
 
   it("surfaces missing write permission", async () => {
     fetchMock.mockResolvedValueOnce(
-      response(200, { default_branch: "main", permissions: { push: false } })
+      response(200, {
+        name: "pack",
+        full_name: "acme/pack",
+        private: true,
+        default_branch: "main",
+        owner: { login: "acme" },
+        permissions: { push: false },
+      })
     );
     const result = await githubRepoAdapter.testConnection(config);
     expect(result.ok).toBe(false);

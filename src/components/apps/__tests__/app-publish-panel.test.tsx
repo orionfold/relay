@@ -12,6 +12,23 @@ vi.mock("sonner", () => ({
   },
 }));
 
+vi.mock("@/components/publishers/github-repository-target-form", () => ({
+  GitHubRepositoryTargetForm: ({ onCreated }: { onCreated: (target: unknown) => void }) => (
+    <button
+      type="button"
+      onClick={() => onCreated({
+        id: "target-2",
+        appId: "app-1",
+        targetType: "github-pages",
+        config: JSON.stringify({ owner: "orion", repo: "launch", branch: "gh-pages" }),
+        createdAt: "2026-07-11T00:00:00.000Z",
+      })}
+    >
+      Add repository fixture
+    </button>
+  ),
+}));
+
 const fetchSpy = vi.fn();
 
 const target = {
@@ -142,40 +159,21 @@ describe("AppPublishPanel", () => {
     renderPanel();
 
     expect(await screen.findByText("acme/site")).toBeInTheDocument();
-    expect(screen.getByText("****1234")).toBeInTheDocument();
+    expect(screen.getByText("Shared GitHub connection")).toBeInTheDocument();
+    expect(screen.queryByText("****1234")).toBeNull();
     expect(screen.getByRole("button", { name: /Publishing/i })).toBeDisabled();
   });
 
-  it("creates a target, selects it, and never echoes the raw token", async () => {
-    const createdTarget = {
-      ...target,
-      id: "target-2",
-      config: JSON.stringify({ owner: "orion", repo: "launch", branch: "main", githubToken: "****5678" }),
-    };
+  it("selects a newly created credential-free repository target", async () => {
     fetchSpy
       .mockResolvedValueOnce(ok([]))
       .mockResolvedValueOnce(ok([]))
-      .mockResolvedValueOnce(ok(siteSettingsResponse))
-      .mockResolvedValueOnce(created(createdTarget));
+      .mockResolvedValueOnce(ok(siteSettingsResponse));
 
     renderPanel();
-    fireEvent.change(await screen.findByLabelText(/Owner/i), { target: { value: "orion" } });
-    fireEvent.change(screen.getByLabelText(/Repo/i), { target: { value: "launch" } });
-    fireEvent.change(screen.getByLabelText(/Branch/i), { target: { value: "main" } });
-    fireEvent.change(screen.getByLabelText(/GitHub token/i), { target: { value: "ghp_secret5678" } });
-    fireEvent.click(screen.getByRole("button", { name: /Save target/i }));
-
-    await waitFor(() => expect(toastSuccess).toHaveBeenCalledWith("Publish target saved"));
-    expect(fetchSpy).toHaveBeenLastCalledWith(
-      "/api/apps/app-1/publish-targets",
-      expect.objectContaining({
-        method: "POST",
-        body: expect.stringContaining("ghp_secret5678"),
-      })
-    );
+    fireEvent.click(await screen.findByRole("button", { name: /Add repository fixture/i }));
     expect(screen.getByText("orion/launch")).toBeInTheDocument();
-    expect(screen.getByText("****5678")).toBeInTheDocument();
-    expect(screen.queryByText("ghp_secret5678")).toBeNull();
+    expect(screen.getByText("Shared GitHub connection")).toBeInTheDocument();
   });
 
   it("tests a target and surfaces a failed test inline", async () => {

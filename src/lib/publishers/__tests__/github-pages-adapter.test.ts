@@ -47,14 +47,21 @@ describe("githubPagesAdapter", () => {
     it("returns ok on a reachable, authorized repo", async () => {
       fetchMock.mockResolvedValueOnce(
         jsonResponse(200, {
+          name: "acme-site",
           full_name: "acme/acme-site",
+          private: false,
+          default_branch: "main",
+          owner: { login: "acme" },
           permissions: { push: true },
         })
       );
 
       const result = await githubPagesAdapter.testConnection(config);
 
-      expect(result).toEqual({ ok: true });
+      expect(result).toEqual({
+        ok: true,
+        details: { visibility: "public", fullName: "acme/acme-site" },
+      });
       const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
       expect(url).toBe("https://api.github.com/repos/acme/acme-site");
       expect((init.headers as Record<string, string>).Authorization).toBe(
@@ -65,7 +72,11 @@ describe("githubPagesAdapter", () => {
     it("fails visibly when the token cannot write repository contents", async () => {
       fetchMock.mockResolvedValueOnce(
         jsonResponse(200, {
+          name: "acme-site",
           full_name: "acme/acme-site",
+          private: true,
+          default_branch: "main",
+          owner: { login: "acme" },
           permissions: { push: false },
         })
       );

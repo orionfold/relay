@@ -6,10 +6,12 @@ import {
   Download,
   ExternalLink,
   GitBranch,
+  Globe2,
+  LockKeyhole,
   Loader2,
   Package,
-  Save,
   ShieldCheck,
+  Users,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -17,9 +19,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { GitHubRepositoryTargetForm } from "@/components/publishers/github-repository-target-form";
 
 type PublishTarget = {
   id: string;
@@ -31,6 +33,7 @@ type PublishTarget = {
 
 type Deployment = {
   id: string;
+  targetId: string;
   status: "pending" | "publishing" | "success" | "failed";
   url: string | null;
   commit: string | null;
@@ -44,14 +47,6 @@ type PackPreview = {
   hash: string;
   sampleRowsIncluded: number;
   files: Array<{ path: string; bytes: number }>;
-};
-
-const EMPTY_FORM = {
-  owner: "",
-  repo: "",
-  branch: "main",
-  directory: "",
-  githubToken: "",
 };
 
 async function readJson<T>(response: Response): Promise<T> {
@@ -88,10 +83,8 @@ export function PackRepositoryPanel({
 }) {
   const [targets, setTargets] = useState<PublishTarget[]>([]);
   const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
-  const [form, setForm] = useState(EMPTY_FORM);
   const [includeSampleData, setIncludeSampleData] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
@@ -100,6 +93,9 @@ export function PackRepositoryPanel({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deployment, setDeployment] = useState<Deployment | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [repositoryVisibility, setRepositoryVisibility] = useState<"public" | "private" | null>(null);
+  const [preparingCommunity, setPreparingCommunity] = useState(false);
+  const [communitySubmissionUrl, setCommunitySubmissionUrl] = useState<string | null>(null);
 
   async function loadTargets() {
     const rows = await fetch(`/api/apps/${encodeURIComponent(appId)}/publish-targets`, {
@@ -151,27 +147,10 @@ export function PackRepositoryPanel({
     [selectedTargetId, targets]
   );
 
-  async function saveTarget() {
-    setSaving(true);
-    setError(null);
-    try {
-      const created = await fetch(`/api/apps/${encodeURIComponent(appId)}/publish-targets`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetType: "github-repo", config: form }),
-      }).then((response) => readJson<PublishTarget>(response));
-      setTargets((current) => [created, ...current]);
-      setSelectedTargetId(created.id);
-      setForm(EMPTY_FORM);
-      toast.success("Private repository target saved");
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : "Target save failed";
-      setError(message);
-      toast.error(message);
-    } finally {
-      setSaving(false);
-    }
-  }
+  useEffect(() => {
+    setRepositoryVisibility(null);
+    setCommunitySubmissionUrl(null);
+  }, [selectedTargetId]);
 
   async function testTarget() {
     if (!selectedTargetId) return;
@@ -182,10 +161,11 @@ export function PackRepositoryPanel({
         `/api/apps/${encodeURIComponent(appId)}/publish-targets/${encodeURIComponent(selectedTargetId)}/test`,
         { method: "POST" }
       ).then((response) =>
-        readJson<{ testStatus: "ok" | "failed"; error?: string }>(response)
+        readJson<{ testStatus: "ok" | "failed"; error?: string; details?: { visibility?: "public" | "private" } }>(response)
       );
       if (result.testStatus !== "ok") throw new Error(result.error ?? "Repository test failed");
-      toast.success("Repository is reachable and writable");
+      setRepositoryVisibility(result.details?.visibility ?? null);
+      toast.success(`${result.details?.visibility === "public" ? "Public" : result.details?.visibility === "private" ? "Private" : "GitHub"} repository is reachable and writable`);
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Repository test failed";
       setError(message);
@@ -246,6 +226,30 @@ export function PackRepositoryPanel({
     }
   }
 
+  async function prepareCommunitySubmission() {
+    if (!selectedTargetId || !preview) return;
+    setPreparingCommunity(true);
+    setError(null);
+    try {
+      const result = await fetch(
+        `/api/apps/${encodeURIComponent(appId)}/pack/community-submission`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ targetId: selectedTargetId, expectedHash: preview.hash }),
+        }
+      ).then((response) => readJson<{ url: string }>(response));
+      setCommunitySubmissionUrl(result.url);
+      toast.success("Community review request is ready");
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : "Community submission failed";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setPreparingCommunity(false);
+    }
+  }
+
   async function publishPack() {
     if (!selectedTargetId) return;
     setConfirmOpen(false);
@@ -283,7 +287,7 @@ export function PackRepositoryPanel({
               Pack repository
             </CardTitle>
             <p className="mt-1 text-xs text-muted-foreground">
-              Export this app as a portable Relay Pack or publish it to a private GitHub repository you control.
+              Export this app as a portable Relay Pack, publish it to your own public or private GitHub repository, or submit a public release for Relay Community review.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -330,6 +334,24 @@ export function PackRepositoryPanel({
             {error}
           </div>
         )}
+
+        <section className="grid gap-3 md:grid-cols-3">
+          <div className="surface-card-muted rounded-lg border p-3">
+            <LockKeyhole className="h-4 w-4 text-primary" />
+            <h3 className="mt-2 text-sm font-medium">Private repository</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Share the Pack only with collaborators you authorize in GitHub.</p>
+          </div>
+          <div className="surface-card-muted rounded-lg border p-3">
+            <Globe2 className="h-4 w-4 text-primary" />
+            <h3 className="mt-2 text-sm font-medium">Public repository</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Anyone can inspect and install it by URL as community-unverified.</p>
+          </div>
+          <div className="surface-card-muted rounded-lg border p-3">
+            <Users className="h-4 w-4 text-primary" />
+            <h3 className="mt-2 text-sm font-medium">Relay Community</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Publish publicly first, then submit the creator-owned repository for review and indexing.</p>
+          </div>
+        </section>
 
         <section className="surface-card-muted rounded-lg border p-3">
           <div className="flex items-center justify-between gap-3">
@@ -383,12 +405,13 @@ export function PackRepositoryPanel({
                 Saved repository
               </h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                Tokens are stored locally and masked at every API boundary; they never enter chat.
+                The repository uses your shared GitHub connection from Settings; credentials never enter chat.
               </p>
             </div>
             {selectedTarget && (
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="font-mono">{targetLabel(selectedTarget)}</Badge>
+                {repositoryVisibility && <Badge variant={repositoryVisibility === "public" ? "success" : "secondary"} className="capitalize">{repositoryVisibility}</Badge>}
                 <Button size="sm" variant="outline" onClick={testTarget} disabled={testing}>
                   {testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Test"}
                 </Button>
@@ -411,37 +434,18 @@ export function PackRepositoryPanel({
           )}
         </section>
 
-        <section className="rounded-lg border p-3">
-          <h3 className="text-sm font-medium">Add a private GitHub repository</h3>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor={`pack-owner-${appId}`}>Owner</Label>
-              <Input id={`pack-owner-${appId}`} value={form.owner} onChange={(event) => setForm((current) => ({ ...current, owner: event.target.value }))} placeholder="your-org" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor={`pack-repo-${appId}`}>Repository</Label>
-              <Input id={`pack-repo-${appId}`} value={form.repo} onChange={(event) => setForm((current) => ({ ...current, repo: event.target.value }))} placeholder="my-relay-pack" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor={`pack-branch-${appId}`}>Branch</Label>
-              <Input id={`pack-branch-${appId}`} value={form.branch} onChange={(event) => setForm((current) => ({ ...current, branch: event.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor={`pack-directory-${appId}`}>Directory (optional)</Label>
-              <Input id={`pack-directory-${appId}`} value={form.directory} onChange={(event) => setForm((current) => ({ ...current, directory: event.target.value }))} placeholder="packs/my-pack" />
-            </div>
-            <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor={`pack-token-${appId}`}>Fine-grained token</Label>
-              <Input id={`pack-token-${appId}`} type="password" value={form.githubToken} onChange={(event) => setForm((current) => ({ ...current, githubToken: event.target.value }))} placeholder="Contents: Read and write" autoComplete="off" />
-            </div>
-          </div>
-          <div className="mt-3 flex justify-end">
-            <Button size="sm" onClick={saveTarget} disabled={saving || !form.owner || !form.repo || !form.githubToken} className="gap-1.5">
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              Save target
-            </Button>
-          </div>
-        </section>
+        <GitHubRepositoryTargetForm
+          appId={appId}
+          targetType="github-repo"
+          defaultBranch="main"
+          allowDirectory
+          title="Add your GitHub repository"
+          onCreated={(created) => {
+            setTargets((current) => [created, ...current]);
+            setSelectedTargetId(created.id);
+            setRepositoryVisibility(null);
+          }}
+        />
 
         {deployment && (
           <section className="surface-card-muted rounded-lg border p-3">
@@ -463,6 +467,42 @@ export function PackRepositoryPanel({
             {deployment.error && <p className="mt-2 text-xs text-destructive">{deployment.error}</p>}
           </section>
         )}
+
+        <section className="surface-card-muted rounded-lg border p-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="flex items-center gap-2 text-sm font-medium"><Users className="h-4 w-4 text-primary" />Submit to Relay Community</h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Community review requires this exact Pack in a public repository at pack.yaml on its default branch. Relay submits a link; ownership and hosting stay with you.
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={prepareCommunitySubmission}
+                disabled={
+                  preparingCommunity ||
+                  repositoryVisibility !== "public" ||
+                  !preview ||
+                  deployment?.status !== "success" ||
+                  deployment.targetId !== selectedTargetId ||
+                  deployment.artifactHash !== preview.hash
+                }
+              >
+                {preparingCommunity ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Users className="h-3.5 w-3.5" />}
+                Prepare submission
+              </Button>
+              {communitySubmissionUrl && (
+                <Button asChild size="sm">
+                  <a href={communitySubmissionUrl} target="_blank" rel="noreferrer">Open review request <ExternalLink className="h-3.5 w-3.5" /></a>
+                </Button>
+              )}
+            </div>
+          </div>
+          {repositoryVisibility === "private" && <p className="mt-2 text-xs text-status-warning">This repository remains private. Choose or create a public repository to submit the Pack to Relay Community.</p>}
+          {!repositoryVisibility && selectedTarget && <p className="mt-2 text-xs text-muted-foreground">Test the selected repository to confirm whether it is public or private.</p>}
+        </section>
       </CardContent>
 
       <ConfirmDialog

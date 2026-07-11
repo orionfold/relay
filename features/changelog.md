@@ -1,6 +1,20 @@
 # Feature Changelog
 
-## 2026-07-11 — Community Pack authoring + private Git publish built (#45)
+## 2026-07-11 — Shared GitHub setup + public/private/community Pack journeys
+
+### Built
+- Added one encrypted GitHub connection in Settings, shared by GitHub Pages and Pack publishing.
+  New app targets store repository coordinates only; legacy embedded tokens remain a masked
+  compatibility fallback.
+- Added a reusable repository picker that lists writable public and private repositories equally,
+  displays visibility, uses the repository's default branch for Packs, and retains manual entry.
+- Added the “Submit to Relay Community” follow-on: after an exact successful public-repository
+  publish, Relay prepares a structured review request with pack id/version, repository URL,
+  commit, and artifact hash. The canonical index continues to link; it never hosts or mirrors.
+- Updated trust disclosure and TDR-040 to distinguish creator-owned publishing from community
+  review and to record the shared-credential boundary.
+
+## 2026-07-11 — Community Pack authoring + user-owned Git publish built (#45)
 
 ### Built
 - Chat now recognizes “build me a pack/app to do X” as composition, materializes Relay-native
@@ -10,7 +24,7 @@
   round-trip (including relation refs), trigger/schedule preflight, premium-content refusal, and
   privacy-safe seed handling (zero rows by default; explicit samples capped at 25 rows/table).
 - Added the `github-repo` PublisherAdapter, exact file-tree/hash preview, explicit confirmation,
-  masked target credentials, durable deployment status, stale-preview refusal, and one atomic Git
+  shared encrypted credentials, durable deployment status, stale-preview refusal, and one atomic Git
   commit that preserves unrelated repository files.
 - Direct Git pack sources now classify as `community · unverified` unless a trusted canonical-index
   signature attests them. Added TDR-040 and the data-flow egress row.

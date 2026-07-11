@@ -19,6 +19,11 @@ vi.mock("@/lib/publishers/app-publish", () => {
   };
 });
 
+vi.mock("@/lib/publishers/github-connection", () => ({
+  connectGitHub: vi.fn().mockResolvedValue({ connected: true, login: "acme" }),
+  getGitHubToken: vi.fn().mockResolvedValue({ token: "shared", source: "settings" }),
+}));
+
 import { GET, POST } from "../route";
 import {
   AppPublishError,
@@ -27,6 +32,7 @@ import {
   listPublishTargets,
 } from "@/lib/publishers/app-publish";
 import { DELETE } from "../[targetId]/route";
+import { connectGitHub } from "@/lib/publishers/github-connection";
 
 function req(body: unknown) {
   return new Request("http://localhost/api/apps/app-1/publish-targets", {
@@ -69,7 +75,7 @@ describe("/api/apps/[id]/publish-targets", () => {
       id: "target-1",
       appId: "app-1",
       targetType: "github-pages",
-      config: JSON.stringify({ githubToken: "****1234", owner: "acme" }),
+      config: JSON.stringify({ owner: "acme", repo: "site" }),
       createdAt: new Date("2026-07-07T00:00:00Z"),
     });
 
@@ -83,10 +89,11 @@ describe("/api/apps/[id]/publish-targets", () => {
     expect(res.status).toBe(201);
     expect(createPublishTarget).toHaveBeenCalledWith("app-1", {
       targetType: "github-pages",
-      config: { owner: "acme", repo: "site", githubToken: "ghp_secret1234" },
+      config: { owner: "acme", repo: "site" },
     });
+    expect(connectGitHub).toHaveBeenCalledWith("ghp_secret1234");
     const body = await res.json();
-    expect(body.config).toBe("{\"githubToken\":\"****1234\",\"owner\":\"acme\"}");
+    expect(body.config).toBe("{\"owner\":\"acme\",\"repo\":\"site\"}");
   });
 
   it("rejects unknown keys on create", async () => {
