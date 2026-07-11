@@ -1,11 +1,16 @@
+import { execFile } from "node:child_process";
 import { SETTINGS_KEYS } from "@/lib/constants/settings";
 import { deleteSetting, getSetting, setSetting } from "@/lib/settings/helpers";
 import { decrypt, encrypt } from "@/lib/utils/crypto";
 
 const GITHUB_API = "https://api.github.com";
 
-export type GitHubConnectionSource = "settings" | "environment";
+export type GitHubConnectionSource = "settings" | "environment" | "github-cli";
 export type GitHubRepositoryVisibility = "public" | "private";
+
+export interface GitHubCliStatus {
+  installed: boolean;
+}
 
 export interface GitHubConnectionStatus {
   connected: boolean;
@@ -13,6 +18,7 @@ export interface GitHubConnectionStatus {
   source: GitHubConnectionSource | null;
   tokenHint: string | null;
   verifiedAt: string | null;
+  error: string | null;
 }
 
 export interface GitHubRepositoryOption {
@@ -47,12 +53,70 @@ export class GitHubConnectionError extends Error {
   }
 }
 
+export class GitHubCliConnectionError extends GitHubConnectionError {
+  readonly unavailable: boolean;
+
+  constructor(message: string, statusCode: number, unavailable = false) {
+    super(message, statusCode);
+    this.name = "GitHubCliConnectionError";
+    this.unavailable = unavailable;
+  }
+}
+
 function nonEmpty(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
 function hint(token: string): string {
   return `••••${token.slice(-4)}`;
+}
+
+function runGitHubCli(args: string[]): Promise<string> {
+  return new Promise((resolve, reject) => {
+    execFile(
+      "gh",
+      args,
+      { encoding: "utf8", timeout: 5_000, maxBuffer: 16_384 },
+      (error, stdout) => {
+        if (error) {
+          const unavailable = (error as NodeJS.ErrnoException).code === "ENOENT";
+          reject(
+            new GitHubCliConnectionError(
+              unavailable
+                ? "GitHub CLI is not installed or is not available to Relay."
+                : "GitHub CLI is not authenticated for github.com. Run gh auth login, then try again.",
+              unavailable ? 409 : 401,
+              unavailable
+            )
+          );
+          return;
+        }
+        resolve(stdout);
+      }
+    );
+  });
+}
+
+async function githubCliToken(): Promise<string> {
+  const token = (await runGitHubCli(["auth", "token", "--hostname", "github.com"])).trim();
+  if (!token) {
+    throw new GitHubCliConnectionError(
+      "GitHub CLI returned no credential. Run gh auth login, then try again.",
+      401
+    );
+  }
+  return token;
+}
+
+export async function getGitHubCliStatus(): Promise<GitHubCliStatus> {
+  try {
+    await runGitHubCli(["--version"]);
+    return { installed: true };
+  } catch (error) {
+    return {
+      installed: !(error instanceof GitHubCliConnectionError && error.unavailable),
+    };
+  }
 }
 
 export function githubHeaders(token: string): Record<string, string> {
@@ -95,6 +159,16 @@ export async function getGitHubToken(): Promise<{
   token: string;
   source: GitHubConnectionSource;
 } | null> {
+  const method = await getSetting(SETTINGS_KEYS.GITHUB_CONNECTION_METHOD);
+  if (method === "github-cli") {
+    return { token: await githubCliToken(), source: "github-cli" };
+  }
+  if (method === "disconnected") {
+    if (nonEmpty(process.env.GITHUB_TOKEN)) {
+      return { token: process.env.GITHUB_TOKEN, source: "environment" };
+    }
+    return null;
+  }
   const saved = await storedToken();
   if (saved) return { token: saved, source: "settings" };
   if (nonEmpty(process.env.GITHUB_TOKEN)) {
@@ -104,8 +178,33 @@ export async function getGitHubToken(): Promise<{
 }
 
 export async function getGitHubConnectionStatus(): Promise<GitHubConnectionStatus> {
-  const credential = await getGitHubToken();
-  if (!credential) return { connected: false, login: null, source: null, tokenHint: null, verifiedAt: null };
+  const method = await getSetting(SETTINGS_KEYS.GITHUB_CONNECTION_METHOD);
+  let credential: Awaited<ReturnType<typeof getGitHubToken>>;
+  try {
+    credential = await getGitHubToken();
+  } catch (error) {
+    if (method === "github-cli" && error instanceof GitHubCliConnectionError) {
+      return {
+        connected: false,
+        login: (await getSetting(SETTINGS_KEYS.GITHUB_LOGIN)) || null,
+        source: "github-cli",
+        tokenHint: null,
+        verifiedAt: null,
+        error: error.message,
+      };
+    }
+    throw error;
+  }
+  if (!credential) {
+    return {
+      connected: false,
+      login: null,
+      source: null,
+      tokenHint: null,
+      verifiedAt: null,
+      error: null,
+    };
+  }
   const [savedLogin, verifiedAt] = await Promise.all([
     getSetting(SETTINGS_KEYS.GITHUB_LOGIN),
     getSetting(SETTINGS_KEYS.GITHUB_VERIFIED_AT),
@@ -114,8 +213,9 @@ export async function getGitHubConnectionStatus(): Promise<GitHubConnectionStatu
     connected: true,
     login: savedLogin || null,
     source: credential.source,
-    tokenHint: hint(credential.token),
+    tokenHint: credential.source === "github-cli" ? null : hint(credential.token),
     verifiedAt: verifiedAt || null,
+    error: null,
   };
 }
 
@@ -127,14 +227,50 @@ export async function connectGitHub(tokenInput: string): Promise<GitHubConnectio
     throw new GitHubConnectionError("GitHub returned no account login for this token.", 502);
   }
   await setSetting(SETTINGS_KEYS.GITHUB_TOKEN, encrypt(token));
+  await setSetting(SETTINGS_KEYS.GITHUB_CONNECTION_METHOD, "settings");
   await setSetting(SETTINGS_KEYS.GITHUB_LOGIN, user.login);
   const verifiedAt = new Date().toISOString();
   await setSetting(SETTINGS_KEYS.GITHUB_VERIFIED_AT, verifiedAt);
   await setSetting(SETTINGS_KEYS.GITHUB_CONNECTION_INITIALIZED, "true");
-  return { connected: true, login: user.login, source: "settings", tokenHint: hint(token), verifiedAt };
+  return {
+    connected: true,
+    login: user.login,
+    source: "settings",
+    tokenHint: hint(token),
+    verifiedAt,
+    error: null,
+  };
+}
+
+export async function connectGitHubCli(): Promise<GitHubConnectionStatus> {
+  const token = await githubCliToken();
+  const user = await githubFetch<GitHubUserResponse>("/user", token);
+  if (!nonEmpty(user.login)) {
+    throw new GitHubCliConnectionError(
+      "GitHub returned no account login for the GitHub CLI credential.",
+      502
+    );
+  }
+  await setSetting(SETTINGS_KEYS.GITHUB_CONNECTION_METHOD, "github-cli");
+  await deleteSetting(SETTINGS_KEYS.GITHUB_TOKEN);
+  await setSetting(SETTINGS_KEYS.GITHUB_LOGIN, user.login);
+  const verifiedAt = new Date().toISOString();
+  await setSetting(SETTINGS_KEYS.GITHUB_VERIFIED_AT, verifiedAt);
+  await setSetting(SETTINGS_KEYS.GITHUB_CONNECTION_INITIALIZED, "true");
+  return {
+    connected: true,
+    login: user.login,
+    source: "github-cli",
+    tokenHint: null,
+    verifiedAt,
+    error: null,
+  };
 }
 
 export async function disconnectGitHub(): Promise<void> {
+  // Fail closed first: if Relay stops between these idempotent writes, neither
+  // a saved token nor a selected CLI provider can silently remain active.
+  await setSetting(SETTINGS_KEYS.GITHUB_CONNECTION_METHOD, "disconnected");
   await deleteSetting(SETTINGS_KEYS.GITHUB_TOKEN);
   await deleteSetting(SETTINGS_KEYS.GITHUB_LOGIN);
   await deleteSetting(SETTINGS_KEYS.GITHUB_VERIFIED_AT);
@@ -150,14 +286,14 @@ export async function verifyGitHubConnection(): Promise<GitHubConnectionStatus> 
   try {
     user = await githubFetch<GitHubUserResponse>("/user", credential.token);
   } catch (error) {
-    if (credential.source === "settings") {
+    if (credential.source !== "environment") {
       await setSetting(SETTINGS_KEYS.GITHUB_VERIFIED_AT, "");
     }
     throw error;
   }
   if (!nonEmpty(user.login)) throw new GitHubConnectionError("GitHub returned no account login.", 502);
   const verifiedAt = new Date().toISOString();
-  if (credential.source === "settings") {
+  if (credential.source !== "environment") {
     await setSetting(SETTINGS_KEYS.GITHUB_LOGIN, user.login);
     await setSetting(SETTINGS_KEYS.GITHUB_VERIFIED_AT, verifiedAt);
   }
@@ -165,8 +301,9 @@ export async function verifyGitHubConnection(): Promise<GitHubConnectionStatus> 
     connected: true,
     login: user.login,
     source: credential.source,
-    tokenHint: hint(credential.token),
+    tokenHint: credential.source === "github-cli" ? null : hint(credential.token),
     verifiedAt,
+    error: null,
   };
 }
 

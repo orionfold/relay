@@ -5,7 +5,7 @@ mode: integration
 
 # Architect Report
 
-## Integration Design — Shared GitHub connection and Pack distribution journeys
+## Integration Design — Explicit GitHub credential providers and Pack distribution journeys
 
 ### Capability
 
@@ -13,13 +13,21 @@ Generalize the customer N=1 private-repository request into three balanced
 outcomes: publish a Pack to a creator-owned private repository, publish it to a
 creator-owned public repository, or submit an exact public publication for
 Relay Community review. GitHub setup happens once and is reused by both Pack
-and GitHub Pages publishers.
+and GitHub Pages publishers. Customers with an existing authenticated GitHub
+CLI can explicitly reuse it without copying its token into Relay.
 
 ### Decision
 
 ```text
-Settings: encrypted GitHub connection
-                 │
+Settings: explicit GitHub connection provider
+       ┌────────────┼────────────┐
+       ▼            ▼            ▼
+ encrypted token  GitHub CLI   GITHUB_TOKEN
+ (Relay stores)   (gh stores)  (environment)
+       └────────────┼────────────┘
+                    ▼
+       server-side credential resolver
+                    │
         ┌────────┴─────────┐
         ▼                  ▼
 GitHub Pages target   Pack repository target
@@ -32,6 +40,12 @@ GitHub Pages target   Pack repository target
 ```
 
 - Credentials belong to the GitHub account connection, not individual apps.
+- GitHub CLI is a provider, not a token-import path: Relay invokes
+  `gh auth token` server-side per operation and never persists or returns the
+  result. The active CLI identity is never adopted silently.
+- Settings discovery checks only whether the local `gh` executable exists.
+  Credential access and GitHub validation occur only after the
+  user clicks **Use GitHub CLI**, preserving the no-background-egress promise.
 - Publish targets remain app-specific and credential-free.
 - Public/private visibility is read from GitHub and displayed neutrally; Relay
   does not create or change repository visibility.
@@ -45,7 +59,7 @@ GitHub Pages target   Pack repository target
 
 ### Blast radius
 
-**High — four layers, approximately 20 files:** encrypted settings and API;
+**High — four layers, approximately 20 files:** credential-provider settings and API;
 publisher credential resolution; two app-detail publishing surfaces; Pack
 community review plus trust/spec/TDR documentation. No schema migration is
 required because the existing settings key/value table holds the encrypted
@@ -53,8 +67,13 @@ connection and target config is JSON-in-TEXT.
 
 ### Safeguards
 
-- The raw token is never returned to the browser or chat; Settings exposes only
-  connected/login/source/last-four metadata.
+- The raw token is never returned to the browser or chat. Saved tokens are
+  encrypted; CLI tokens remain owned by `gh` and exist in Relay process memory
+  only for the operation that needs them. Settings exposes safe provider,
+  connected, login, verification, and optional saved-token hint metadata.
+- Missing CLI, expired login, absent PATH, network failure, and revoked
+  credentials produce named visible states with token setup retained as the
+  fallback.
 - Repository listing returns only repositories the credential can push to and
   labels both public and private visibility.
 - Adapters resolve credentials server-side immediately before test/publish.
@@ -67,9 +86,9 @@ connection and target config is JSON-in-TEXT.
 
 ### TDR result
 
-TDR-039 gains an evolution note for shared credentials. TDR-040 now records
+TDR-039 gains an evolution note for shared credential providers. TDR-040 now records
 repository-visibility neutrality and the public-publish-then-review community
-model. A new TDR is unnecessary because these changes refine, rather than
+model plus explicit GitHub CLI selection. A new TDR is unnecessary because these changes refine, rather than
 replace, the accepted publisher and community-Pack decisions.
 
 ### Verification requirement

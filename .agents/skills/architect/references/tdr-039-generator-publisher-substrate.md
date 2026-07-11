@@ -153,7 +153,9 @@ The pack-format law forces a two-part answer:
 
 > **Evolution — 2026-07-11 (TDR-040):** `publishTargets` remains the
 > app-specific destination store, but GitHub authentication is now one
-> encrypted Settings connection shared by the Pages and Pack adapters. New
+> explicit Settings connection shared by the Pages and Pack adapters. It may
+> use an encrypted token or an explicitly selected GitHub CLI credential
+> provider; CLI tokens are resolved per operation and never persisted by Relay. New
 > targets contain repository coordinates only. Masking remains mandatory for
 > legacy rows that may still contain embedded credentials.
 
@@ -163,7 +165,9 @@ The pack-format law forces a two-part answer:
   `maskPublishTarget()` at **every** API boundary. Adapters receive the parsed
   unmasked config only server-side at publish time. A new architect drift check
   enforces the invariant: *"publishTargets.config never returned unmasked."*
-  A GitHub token fits this pattern with **no new storage primitive**.
+  A saved GitHub token fits this pattern with **no new storage primitive**.
+  GitHub CLI instead acts as a local credential provider and stores no secret
+  in Relay; selecting that provider is itself persisted as non-secret state.
 
 - **Publish is NOT fire-and-forget** (the one place it diverges from channels).
   It needs a durable result surface: a `deployments` table (new) — `{ id,

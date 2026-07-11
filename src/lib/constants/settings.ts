@@ -10,6 +10,7 @@ export const SETTINGS_KEYS = {
   OPENAI_AUTH_ACCOUNT: "openai.account",
   OPENAI_AUTH_RATE_LIMITS: "openai.rateLimits",
   GITHUB_TOKEN: "github.token",
+  GITHUB_CONNECTION_METHOD: "github.connectionMethod",
   GITHUB_LOGIN: "github.login",
   GITHUB_VERIFIED_AT: "github.verifiedAt",
   GITHUB_CONNECTION_INITIALIZED: "github.connectionInitialized",

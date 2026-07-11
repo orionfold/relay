@@ -2,14 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import {
   connectGitHub,
+  connectGitHubCli,
   disconnectGitHub,
+  getGitHubCliStatus,
   getGitHubConnectionStatus,
   GitHubConnectionError,
   verifyGitHubConnection,
 } from "@/lib/publishers/github-connection";
 
 const connectSchema = z.object({ token: z.string().min(1).max(1000) }).strict();
+const connectCliSchema = z.object({ method: z.literal("github-cli") }).strict();
 const verifySchema = z.object({ verify: z.literal(true) }).strict();
+
+async function responsePayload(connection: Awaited<ReturnType<typeof getGitHubConnectionStatus>>) {
+  return { ...connection, cli: await getGitHubCliStatus() };
+}
 
 function errorResponse(error: unknown) {
   if (error instanceof GitHubConnectionError) {
@@ -21,7 +28,7 @@ function errorResponse(error: unknown) {
 
 export async function GET() {
   try {
-    return NextResponse.json(await getGitHubConnectionStatus());
+    return NextResponse.json(await responsePayload(await getGitHubConnectionStatus()));
   } catch (error) {
     return errorResponse(error);
   }
@@ -37,7 +44,15 @@ export async function POST(request: NextRequest) {
   const verifyRequest = verifySchema.safeParse(body);
   if (verifyRequest.success) {
     try {
-      return NextResponse.json(await verifyGitHubConnection());
+      return NextResponse.json(await responsePayload(await verifyGitHubConnection()));
+    } catch (error) {
+      return errorResponse(error);
+    }
+  }
+  const cliRequest = connectCliSchema.safeParse(body);
+  if (cliRequest.success) {
+    try {
+      return NextResponse.json(await responsePayload(await connectGitHubCli()));
     } catch (error) {
       return errorResponse(error);
     }
@@ -45,7 +60,7 @@ export async function POST(request: NextRequest) {
   const parsed = connectSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   try {
-    return NextResponse.json(await connectGitHub(parsed.data.token));
+    return NextResponse.json(await responsePayload(await connectGitHub(parsed.data.token)));
   } catch (error) {
     return errorResponse(error);
   }
@@ -54,7 +69,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE() {
   try {
     await disconnectGitHub();
-    return NextResponse.json(await getGitHubConnectionStatus());
+    return NextResponse.json(await responsePayload(await getGitHubConnectionStatus()));
   } catch (error) {
     return errorResponse(error);
   }

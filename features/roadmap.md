@@ -581,7 +581,10 @@ install, already shipped); no registry service, no review pipeline, no creator p
 The bundle-child fence (`install.ts:143-149`) stays shut — only top-level install resolves remotely.
 
 **Journey refinement (2026-07-11):** GitHub authentication is connected once
-in Settings and reused by Pages + Pack publishers. Public/private repository
+in Settings and reused by Pages + Pack publishers. Users can explicitly reuse
+an authenticated GitHub CLI session without Relay storing its token, or connect
+a fine-grained token. CLI discovery checks only whether `gh` is installed and
+never silently selects an account or reads its credential. Public/private repository
 visibility is neutral creator policy. Relay Community is an explicit
 post-publish review request for an exact public artifact; the index links to
 the creator repository and never mirrors it.

@@ -38,8 +38,12 @@ without turning live customer data or credentials into incidental payload.
    Profile-only schedule bindings are valid local schedules but are rejected by
    pack export because they cannot round-trip through the pack installer.
 5. **Publishing is a distinct, consented SEND.** The exporter has zero egress.
-   The `github-repo` PublisherAdapter uses one encrypted GitHub connection from
-   Settings plus credential-free app targets and durable `deployments` rows. The operator
+   The `github-repo` PublisherAdapter uses one explicitly selected GitHub
+   connection from Settings plus credential-free app targets and durable
+   `deployments` rows. The connection provider may be an encrypted fine-grained
+   token or the user's existing GitHub CLI session; `GITHUB_TOKEN` remains an
+   environment-managed option. GitHub CLI credentials are requested server-side
+   per operation and are never copied into Relay storage. The operator
    must preview the exact file tree and artifact hash, then confirm publish;
    deployment refuses if the app changed after preview.
 6. **One atomic Git commit, scoped ownership.** Publishing uses Git blobs,
@@ -76,7 +80,9 @@ without turning live customer data or credentials into incidental payload.
 - Community packs remain unverified until a trusted index signature attests
   them. Local hand-authored folders remain trusted as operator-owned input.
 - GitHub setup happens once in Settings and is reused by Pack and Pages
-  publishers. Existing target-embedded tokens remain a masked compatibility
+  publishers. Relay may locally detect that `gh` has a credential, but it never
+  adopts that account or contacts GitHub until the user explicitly chooses
+  **Use GitHub CLI**. Existing target-embedded tokens remain a masked compatibility
   fallback only until shared setup is explicitly adopted or disconnected; new
   targets never duplicate credentials.
 
@@ -88,6 +94,10 @@ without turning live customer data or credentials into incidental payload.
 - **Put GitHub tokens in chat or every publish target:** rejected because tool
   arguments become conversation history and per-app secrets create setup drift.
   One encrypted Settings connection is resolved only on the server.
+- **Silently adopt an authenticated GitHub CLI account:** rejected because a
+  machine may have multiple identities and mere Settings navigation must not
+  authorize or trigger authenticated egress. CLI use requires an explicit
+  selection; discovery checks only whether the local `gh` executable exists.
 - **Upload community Packs into an Orionfold-owned repository:** rejected
   because creator-owned repositories preserve ownership and make the index a
   reviewable discovery/trust layer rather than a hosting monopoly.

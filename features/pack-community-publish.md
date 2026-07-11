@@ -21,8 +21,10 @@ those bytes to a configured public or private GitHub repository.
 `github-repo` is a shipped `PublisherAdapter` sibling to `github-pages`. It
 creates one atomic Git tree/commit/ref update, preserves unrelated repository
 files, and removes only stale paths recorded by Relay's prior pack-publish
-marker. A single encrypted GitHub connection in Settings is reused by Pack and
-Pages publishers; new `publishTargets` hold repository coordinates only.
+marker. A single explicit GitHub connection in Settings is reused by Pack and
+Pages publishers. Users may select an existing GitHub CLI session without
+copying its token into Relay, or save an encrypted fine-grained token; new
+`publishTargets` hold repository coordinates only.
 Attempts and named failures reuse durable `deployments`. Chat discovers target
 ids but never accepts a GitHub token. Publish refuses when the app changed
 after preview.
@@ -130,8 +132,10 @@ A sibling to the shipped `github-pages` adapter, reusing every mechanic:
   API** (`architect-report.md:76` — "prefer the Contents API over shelling git"; also avoids the
   heavier `child_process` capability). A community-pack push is the same Contents-API call with a
   pack tree (`pack.yaml` + `base/` + `pack.sig`) instead of a website file set.
-- **Shared credential boundary** — the customer's GitHub token lives once,
-  encrypted, in Settings and is resolved server-side by both GitHub publishers.
+- **Shared credential boundary** — the customer selects one GitHub connection
+  method in Settings. A fine-grained token lives once, encrypted; an explicitly
+  selected GitHub CLI token remains owned by `gh` and is resolved server-side
+  per operation without Relay persistence. Both publishers share the provider.
   New `publishTargets` store owner/repo/branch/directory only. Legacy rows with
   embedded tokens remain masked and readable as a compatibility fallback only
   until the operator explicitly adopts or disconnects shared setup.
@@ -184,9 +188,10 @@ success + URL, the token is masked at every surface, and the payload carries no 
       (`pack.yaml` + `base/`) to the **customer's own** repo in one atomic Git commit.
 - [x] The adapter consumes the common `Artifact` contract, so app-exported and hand-authored
       artifact producers share one transport.
-- [x] The GitHub token is stored once, encrypted, in Settings; APIs return only
-      login/source/hint metadata. New targets contain no credential, while
-      legacy target secrets remain masked.
+- [x] GitHub is connected once in Settings. A saved token is encrypted; an
+      explicitly selected GitHub CLI credential is never persisted by Relay.
+      APIs return only safe provider/login/hint metadata. New targets contain no
+      credential, while legacy target secrets remain masked.
 - [x] The publish payload contains **only** the pack tree + Relay-owned path marker — tests assert
       scoped writes/deletes and no instance id, license id, or install-count telemetry.
 - [x] The consent ceremony previews **exactly** what leaves the machine (file tree + target repo)

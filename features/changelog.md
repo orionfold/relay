@@ -3,6 +3,10 @@
 ## 2026-07-11 — Shared GitHub setup + public/private/community Pack journeys
 
 ### Built
+- Added explicit **Use GitHub CLI** setup. Settings detects only the local `gh`
+  executable without reading its credential or contacting GitHub, waits for user selection, then
+  validates the account. Relay never persists or returns the CLI token; token
+  setup remains available for customers without `gh`.
 - Added one encrypted GitHub connection in Settings, shared by GitHub Pages and Pack publishing.
   New app targets store repository coordinates only; legacy embedded tokens remain a masked
   compatibility fallback.

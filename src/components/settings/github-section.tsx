@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ExternalLink, Github, Loader2, PlugZap, Unplug } from "lucide-react";
+import { ExternalLink, Github, Loader2, PlugZap, Terminal, Unplug } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,27 @@ import { Label } from "@/components/ui/label";
 type Connection = {
   connected: boolean;
   login: string | null;
-  source: "settings" | "environment" | null;
+  source: "settings" | "environment" | "github-cli" | null;
   tokenHint: string | null;
   verifiedAt: string | null;
+  error: string | null;
 };
 
-const DISCONNECTED: Connection = { connected: false, login: null, source: null, tokenHint: null, verifiedAt: null };
+type CliStatus = {
+  installed: boolean;
+};
+
+type GitHubSettingsResponse = Connection & { cli: CliStatus };
+
+const DISCONNECTED: Connection = {
+  connected: false,
+  login: null,
+  source: null,
+  tokenHint: null,
+  verifiedAt: null,
+  error: null,
+};
+const CLI_UNKNOWN: CliStatus = { installed: false };
 
 async function readJson<T>(response: Response): Promise<T> {
   const body = (await response.json().catch(() => ({}))) as T & { error?: unknown };
@@ -27,20 +42,31 @@ async function readJson<T>(response: Response): Promise<T> {
 
 export function GitHubSection() {
   const [connection, setConnection] = useState<Connection>(DISCONNECTED);
+  const [cli, setCli] = useState<CliStatus>(CLI_UNKNOWN);
   const [token, setToken] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const applyResponse = useCallback((result: GitHubSettingsResponse) => {
+    const { cli: nextCli, ...nextConnection } = result;
+    setConnection(nextConnection);
+    setCli(nextCli);
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setConnection(await fetch("/api/settings/github", { cache: "no-store" }).then((r) => readJson<Connection>(r)));
+      applyResponse(
+        await fetch("/api/settings/github", { cache: "no-store" }).then((r) =>
+          readJson<GitHubSettingsResponse>(r)
+        )
+      );
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "GitHub connection failed to load");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [applyResponse]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -51,12 +77,30 @@ export function GitHubSection() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ token }),
-      }).then((r) => readJson<Connection>(r));
-      setConnection(result);
+      }).then((r) => readJson<GitHubSettingsResponse>(r));
+      applyResponse(result);
       setToken("");
       toast.success(`GitHub connected${result.login ? ` as ${result.login}` : ""}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "GitHub connection failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function connectCli() {
+    setSaving(true);
+    try {
+      const result = await fetch("/api/settings/github", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ method: "github-cli" }),
+      }).then((r) => readJson<GitHubSettingsResponse>(r));
+      applyResponse(result);
+      setToken("");
+      toast.success(`GitHub CLI connected${result.login ? ` as ${result.login}` : ""}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "GitHub CLI connection failed");
     } finally {
       setSaving(false);
     }
@@ -69,8 +113,8 @@ export function GitHubSection() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ verify: true }),
-      }).then((r) => readJson<Connection>(r));
-      setConnection(result);
+      }).then((r) => readJson<GitHubSettingsResponse>(r));
+      applyResponse(result);
       toast.success("GitHub connection verified");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "GitHub verification failed");
@@ -82,9 +126,11 @@ export function GitHubSection() {
   async function disconnect() {
     setSaving(true);
     try {
-      await fetch("/api/settings/github", { method: "DELETE" }).then((r) => readJson<Connection>(r));
-      setConnection(DISCONNECTED);
-      toast.success("Saved GitHub connection removed");
+      const result = await fetch("/api/settings/github", { method: "DELETE" }).then((r) =>
+        readJson<GitHubSettingsResponse>(r)
+      );
+      applyResponse(result);
+      toast.success("GitHub connection removed");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "GitHub disconnect failed");
     } finally {
@@ -110,22 +156,52 @@ export function GitHubSection() {
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {connection.connected
-                  ? `${connection.login ? `@${connection.login}` : "GitHub account"} · ${connection.tokenHint ?? "credential available"} · ${connection.source === "environment" ? "GITHUB_TOKEN environment variable" : "encrypted in Relay settings"}${connection.verifiedAt ? ` · verified ${new Date(connection.verifiedAt).toLocaleString()}` : " · verification required"}`
-                  : "Relay will never return the token to the browser or expose it to chat."}
+                  ? `${connection.login ? `@${connection.login}` : "GitHub account"} · ${connection.source === "github-cli" ? "GitHub CLI session; no token stored by Relay" : connection.source === "environment" ? "GITHUB_TOKEN environment variable" : `${connection.tokenHint ?? "credential available"} · encrypted in Relay settings`}${connection.verifiedAt ? ` · verified ${new Date(connection.verifiedAt).toLocaleString()}` : " · verification required"}`
+                  : connection.error ?? "Relay will never return the token to the browser or expose it to chat."}
               </p>
             </div>
-            {connection.connected && (
+            {(connection.connected || connection.source === "github-cli") && (
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={verify} disabled={saving}>Verify</Button>
-                {connection.source === "settings" && <Button size="sm" variant="outline" onClick={disconnect} disabled={saving}><Unplug className="h-3.5 w-3.5" />Disconnect</Button>}
+                {connection.connected && <Button size="sm" variant="outline" onClick={verify} disabled={saving}>Verify</Button>}
+                {connection.source !== "environment" && <Button size="sm" variant="outline" onClick={disconnect} disabled={saving}><Unplug className="h-3.5 w-3.5" />Disconnect</Button>}
               </div>
             )}
           </div>
         </div>
 
         {connection.source !== "environment" && (
+          <div className="surface-card-muted rounded-lg border p-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Terminal className="h-4 w-4" /> GitHub CLI
+                  {cli.installed && <Badge variant="outline">Installed</Badge>}
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {cli.installed
+                    ? "Use the active account configured with gh. Relay accesses and validates its credential only after you choose this method, and never stores it."
+                    : "GitHub CLI was not found in Relay's PATH. You can still connect with a fine-grained token below."}
+                </p>
+              </div>
+              {connection.source !== "github-cli" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={connectCli}
+                  disabled={saving || !cli.installed}
+                  className="shrink-0"
+                >
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Terminal className="h-4 w-4" />}
+                  Use GitHub CLI
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {connection.source !== "environment" && (
           <div className="space-y-2">
-            <Label htmlFor="github-token">{connection.connected ? "Replace fine-grained token" : "Fine-grained token"}</Label>
+            <Label htmlFor="github-token">{connection.connected ? "Switch to a fine-grained token" : "Fine-grained token"}</Label>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Input id="github-token" type="password" value={token} onChange={(event) => setToken(event.target.value)} placeholder="Contents: Read and write" autoComplete="off" />
               <Button onClick={connect} disabled={saving || !token.trim()} className="shrink-0">

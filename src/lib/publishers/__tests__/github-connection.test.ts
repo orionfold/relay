@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({ settings: new Map<string, string>() }));
+const cli = vi.hoisted(() => ({ execFile: vi.fn() }));
+
+vi.mock("node:child_process", () => ({
+  default: { execFile: cli.execFile },
+  execFile: cli.execFile,
+}));
 
 vi.mock("@/lib/settings/helpers", () => ({
   getSetting: vi.fn(async (key: string) => state.settings.get(key) ?? null),
@@ -15,7 +21,9 @@ vi.mock("@/lib/utils/crypto", () => ({
 
 import {
   connectGitHub,
+  connectGitHubCli,
   disconnectGitHub,
+  getGitHubCliStatus,
   getGitHubConnectionStatus,
   inspectGitHubRepository,
   listGitHubRepositories,
@@ -33,6 +41,7 @@ function response(body: unknown, status = 200) {
 describe("shared GitHub connection", () => {
   beforeEach(() => {
     state.settings.clear();
+    cli.execFile.mockReset();
     vi.unstubAllGlobals();
     delete process.env.GITHUB_TOKEN;
   });
@@ -45,6 +54,7 @@ describe("shared GitHub connection", () => {
       login: "maker",
       source: "settings",
       tokenHint: "••••1234",
+      error: null,
     });
     expect(result.verifiedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     expect(state.settings.get("github.token")).toBe("encrypted:example-token-1234");
@@ -84,12 +94,14 @@ describe("shared GitHub connection", () => {
     await expect(inspectGitHubRepository({ owner: "maker", repo: "pack" }))
       .resolves.toMatchObject({ visibility: "private", canPush: true });
     await disconnectGitHub();
+    expect(state.settings.get("github.connectionMethod")).toBe("disconnected");
     await expect(getGitHubConnectionStatus()).resolves.toEqual({
       connected: false,
       login: null,
       source: null,
       tokenHint: null,
       verifiedAt: null,
+      error: null,
     });
     await expect(resolveGitHubToken({ githubToken: "legacy-1234" }))
       .rejects.toThrow("Connect GitHub in Settings");
@@ -101,5 +113,57 @@ describe("shared GitHub connection", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ message: "Bad credentials" }, 401)));
     await expect(verifyGitHubConnection()).rejects.toThrow("401");
     expect(state.settings.get("github.verifiedAt")).toBe("");
+  });
+
+  it("uses an explicitly selected GitHub CLI credential without storing its token", async () => {
+    cli.execFile.mockImplementation((...args: unknown[]) => {
+      const commandArgs = args[1] as string[];
+      const callback = args[3] as (error: Error | null, stdout: string, stderr: string) => void;
+      if (commandArgs[1] === "token") callback(null, "cli-secret-5678\n", "");
+      return undefined as never;
+    });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ login: "maker" })));
+
+    await expect(connectGitHubCli()).resolves.toMatchObject({
+      connected: true,
+      login: "maker",
+      source: "github-cli",
+      tokenHint: null,
+      error: null,
+    });
+    expect(state.settings.get("github.connectionMethod")).toBe("github-cli");
+    expect(state.settings.has("github.token")).toBe(false);
+    expect(JSON.stringify(await getGitHubConnectionStatus())).not.toContain("cli-secret-5678");
+    await expect(resolveGitHubToken({ owner: "maker" })).resolves.toMatchObject({
+      githubToken: "cli-secret-5678",
+    });
+  });
+
+  it("detects only the GitHub CLI executable without reading a credential", async () => {
+    cli.execFile.mockImplementation((...args: unknown[]) => {
+      expect(args[1]).toEqual(["--version"]);
+      const callback = args[3] as (error: Error | null, stdout: string, stderr: string) => void;
+      callback(null, "gh version 2.79.0\n", "");
+      return undefined as never;
+    });
+    await expect(getGitHubCliStatus()).resolves.toEqual({ installed: true });
+  });
+
+  it("reports an expired selected CLI session as a visible disconnected state", async () => {
+    state.settings.set("github.connectionMethod", "github-cli");
+    state.settings.set("github.login", "maker");
+    cli.execFile.mockImplementation((...args: unknown[]) => {
+      const callback = args[3] as (error: NodeJS.ErrnoException, stdout: string, stderr: string) => void;
+      const error = Object.assign(new Error("not logged in"), { code: "AUTH" });
+      callback(error, "", "");
+      return undefined as never;
+    });
+    await expect(getGitHubConnectionStatus()).resolves.toMatchObject({
+      connected: false,
+      login: "maker",
+      source: "github-cli",
+      verifiedAt: null,
+      error: expect.stringContaining("not authenticated"),
+    });
   });
 });
