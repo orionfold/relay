@@ -97,8 +97,10 @@ function runGitHubCli(args: string[]): Promise<string> {
   });
 }
 
-async function githubCliToken(): Promise<string> {
-  const token = (await runGitHubCli(["auth", "token", "--hostname", "github.com"])).trim();
+async function githubCliToken(user?: string): Promise<string> {
+  const args = ["auth", "token", "--hostname", "github.com"];
+  if (user) args.push("--user", user);
+  const token = (await runGitHubCli(args)).trim();
   if (!token) {
     throw new GitHubCliConnectionError(
       "GitHub CLI returned no credential. Run gh auth login, then try again.",
@@ -161,7 +163,14 @@ export async function getGitHubToken(): Promise<{
 } | null> {
   const method = await getSetting(SETTINGS_KEYS.GITHUB_CONNECTION_METHOD);
   if (method === "github-cli") {
-    return { token: await githubCliToken(), source: "github-cli" };
+    const login = await getSetting(SETTINGS_KEYS.GITHUB_LOGIN);
+    if (!nonEmpty(login)) {
+      throw new GitHubCliConnectionError(
+        "The selected GitHub CLI account is missing. Reconnect GitHub CLI in Settings.",
+        409
+      );
+    }
+    return { token: await githubCliToken(login), source: "github-cli" };
   }
   if (method === "disconnected") {
     if (nonEmpty(process.env.GITHUB_TOKEN)) {

@@ -43,7 +43,9 @@ without turning live customer data or credentials into incidental payload.
    `deployments` rows. The connection provider may be an encrypted fine-grained
    token or the user's existing GitHub CLI session; `GITHUB_TOKEN` remains an
    environment-managed option. GitHub CLI credentials are requested server-side
-   per operation and are never copied into Relay storage. The operator
+   per operation for the username selected during connection and are never
+   copied into Relay storage. Later `gh auth switch` changes do not silently
+   change Relay's publishing identity. The operator
    must preview the exact file tree and artifact hash, then confirm publish;
    deployment refuses if the app changed after preview.
 6. **One atomic Git commit, scoped ownership.** Publishing uses Git blobs,

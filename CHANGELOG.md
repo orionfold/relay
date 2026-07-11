@@ -19,7 +19,8 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
   publishing. Reuse an existing GitHub CLI session without Relay storing its
   token, or save an encrypted fine-grained token. Public and private writable
   repositories appear in the same neutral picker and use the same preview,
-  test, and publish journey.
+  test, and publish journey. Relay pins the CLI username selected during setup,
+  so switching the active `gh` account later cannot silently change publishing identity.
 - **Submit creator-owned Packs for Relay Community review.** After an exact
   successful publish to a public repository's default branch and root, Relay
   prepares a structured review request for the community index. The index links

@@ -137,6 +137,12 @@ describe("shared GitHub connection", () => {
     await expect(resolveGitHubToken({ owner: "maker" })).resolves.toMatchObject({
       githubToken: "cli-secret-5678",
     });
+    expect(cli.execFile).toHaveBeenCalledWith(
+      "gh",
+      ["auth", "token", "--hostname", "github.com", "--user", "maker"],
+      expect.any(Object),
+      expect.any(Function)
+    );
   });
 
   it("detects only the GitHub CLI executable without reading a credential", async () => {
