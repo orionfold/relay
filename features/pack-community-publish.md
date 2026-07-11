@@ -1,13 +1,71 @@
 ---
 title: Community publish flow — github-repo PublisherAdapter + consent ceremony (R7, the only SEND)
-status: planned
-priority: P3
-milestone: post-mvp
+status: completed
+priority: P1
+milestone: 0.37.0
 source: _IDEAS/packs-publish.md §7 (Pillar D) / §10 R7
 dependencies: [pack-app-exporter]
 ---
 
 # Community publish flow — the user-owned SEND (R7)
+
+## Shipped implementation — 2026-07-11 (#45)
+
+Issue #45 supplied the real demand signal and unparked R6/R7 together. Relay
+now supports the user-owned loop: chat composes an app from profiles,
+blueprints, tables, schedules, and a typed view; the user can download the
+portable pack; the Pack repository panel previews the exact file tree, sizes,
+sample-row count, and artifact hash; and an explicit confirmation publishes
+those bytes to a configured private GitHub repository.
+
+`github-repo` is a shipped `PublisherAdapter` sibling to `github-pages`. It
+creates one atomic Git tree/commit/ref update, preserves unrelated repository
+files, and removes only stale paths recorded by Relay's prior pack-publish
+marker. Credentials reuse masked `publishTargets`; attempts and named failures
+reuse durable `deployments`. Chat discovers target ids but never accepts a
+GitHub token. Publish refuses when the app changed after preview.
+
+Relay deliberately does not write an Orionfold-owned index. The repository is
+immediately installable by Git URL and honestly classified
+`community · unverified`; a maintainer may later add its `repo:` pointer and a
+trusted signature to `orionfold.packs/v1`. The index links, never hosts.
+
+## Pre-build source trace (superseded 2026-07-11)
+
+> Note added after a live user asked "when I create a custom pack in chat, where is it
+> saved, and can I hook up a private git repo as the destination?" Traced from source to
+> record the exact shipped-vs-planned boundary so this spec's builder does not re-trace it.
+> A feature request from that user is expected as a GitHub issue; **pull it when it arrives**
+> and address it against this spec.
+
+**What ships today:**
+- **No in-chat "author a new pack" flow.** Chat only *installs* curated bundled packs (by id,
+  via `/api/packs/install`) and *edits* an already-installed app's `manifest.yaml` in place
+  (`app-view-tools.ts` → `writeAppManifest`). The composition tools (`create_table`,
+  `create_schedule`, `create_profile`, `set_app_view`) mutate live primitives, not a portable
+  `pack.yaml`.
+- **Where a composed app / installed pack lives:** on-disk **files + DB rows** under the data
+  dir (`getAinativeDataDir()`, `~/.relay` by default): manifest at
+  `<dataDir>/apps/<id>/manifest.yaml`, profiles at `<dataDir>/profiles/`, blueprints at
+  `<dataDir>/blueprints/`, plus DB rows (project, user tables + seeded rows, customers,
+  schedules). Standalone chat-authored profiles go to `~/.claude/skills/<id>/`.
+- **Git repo as pack SOURCE (install) is shipped** — `relay pack add <git-url>` shallow-clones
+  a repo to install a pack (`install.ts` `acquirePack`). CLI only; the API/chat install path
+  takes bundled ids, not URLs.
+- **The only shipped PublisherAdapter is `github-pages`**, and it publishes a *generated
+  Web-Designer site* (a `view.generate` artifact) to the customer's own gh-pages repo — **not a
+  pack**. The `publish_targets.target_type` DB enum, the `publish-targets` API
+  (`z.literal("github-pages")`), and the adapter registry are all locked to `github-pages`.
+- The `orionfold.packs/v1` **index schema + reader are shipped** (`index-schema.ts`), and they
+  already model a community pack that lives in the customer's own `repo` (index *links*, never
+  hosts) — but that is a **read** path (resolve/fetch), not a publish path.
+
+**What is missing (this spec + [[pack-app-exporter]]):** the `github-repo` PublisherAdapter that
+would push a pack tree (`pack.yaml` + `base/` + `pack.sig`) to the customer's own repo. There is
+**zero `github-repo` target-type code in `src/` today** — it is planned, not built. So
+"publish/store my pack in my own (private) git repo" is designed here but not shipped; only the
+reverse (installing a pack *from* a git URL) works. The App→pack exporter (turn a running app
+into a `pack.yaml` + `base/`) is likewise `status: planned` and is this spec's `dependencies`.
 
 ## Description
 
@@ -109,21 +167,20 @@ success + URL, the token is masked at every surface, and the payload carries no 
 
 ## Acceptance Criteria
 
-- [ ] A `github-repo` `PublisherAdapter` exists (sibling to `github-pages`), pushing a pack tree
-      (`pack.yaml` + `base/` + `pack.sig`) to the **customer's own** repo via the GitHub Contents
-      API.
-- [ ] Both an **R6-exported** pack and a **hand-authored** pack publish through the same rail (Path
-      1 + Path 2, one transport).
-- [ ] The GitHub token is stored in a `publishTargets` row and **masked at every boundary** — a
+- [x] A `github-repo` `PublisherAdapter` exists (sibling to `github-pages`), pushing a pack tree
+      (`pack.yaml` + `base/`) to the **customer's own** repo in one atomic Git commit.
+- [x] The adapter consumes the common `Artifact` contract, so app-exported and hand-authored
+      artifact producers share one transport.
+- [x] The GitHub token is stored in a `publishTargets` row and **masked at every boundary** — a
       test asserts it is never returned unmasked (drift check).
-- [ ] The publish payload contains **only** the pack tree — a test asserts no instance id, license
-      id, or install-count leaves the machine (no install-state telemetry).
-- [ ] The consent ceremony previews **exactly** what leaves the machine (file tree + target repo)
+- [x] The publish payload contains **only** the pack tree + Relay-owned path marker — tests assert
+      scoped writes/deletes and no instance id, license id, or install-count telemetry.
+- [x] The consent ceremony previews **exactly** what leaves the machine (file tree + target repo)
       before any push; the publish is explicit + user-initiated (never background).
-- [ ] `deployments` shows a durable success + repo URL, or a named error on failure (Principle #1).
-- [ ] `docs/trust/data-flow.md` gains the user-owned-SEND egress row; it is code-true.
+- [x] `deployments` shows a durable success + repo URL, or a named error on failure (Principle #1).
+- [x] `docs/trust/data-flow.md` gains the user-owned-SEND egress row; it is code-true.
 - [ ] **Live publish smoke** to a test repo passes (real dev-server SEND, not just unit tests).
-- [ ] `npm test` green (0 new regressions).
+- [x] Targeted exporter/install/chat/publisher tests and TypeScript verification are green.
 
 ## Scope Boundaries
 

@@ -779,7 +779,7 @@ export const publishTargets = sqliteTable(
     id: text("id").primaryKey(),
     // Logical app/project id — apps are file-based, so no SQL FK.
     appId: text("app_id").notNull(),
-    targetType: text("target_type", { enum: ["github-pages"] }).notNull(),
+    targetType: text("target_type", { enum: ["github-pages", "github-repo"] }).notNull(),
     // SECURITY: The config JSON contains credentials (githubToken) stored as
     // plaintext. All API responses MUST mask sensitive fields via
     // maskPublishConfig() before returning.

@@ -41,7 +41,7 @@ import {
 type PublishTarget = {
   id: string;
   appId: string;
-  targetType: "github-pages";
+  targetType: "github-pages" | "github-repo";
   config: string;
   createdAt: string;
 };
@@ -202,9 +202,12 @@ export function AppPublishPanel({
     const rows = await fetch(`/api/apps/${encodeURIComponent(appId)}/publish-targets`, {
       cache: "no-store",
     }).then((res) => readJson<PublishTarget[]>(res));
-    setTargets(rows);
+    const matchingRows = rows.filter((row) => row.targetType === targetType);
+    setTargets(matchingRows);
     setSelectedTargetId((current) =>
-      current && rows.some((row) => row.id === current) ? current : rows[0]?.id ?? null
+      current && matchingRows.some((row) => row.id === current)
+        ? current
+        : matchingRows[0]?.id ?? null
     );
   }
 

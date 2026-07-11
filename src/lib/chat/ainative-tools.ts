@@ -27,6 +27,7 @@ import { skillTools } from "./tools/skill-tools";
 import { scheduleSpecTools } from "./tools/schedule-spec-tools";
 import { pluginSpecTools } from "./tools/plugin-spec-tools";
 import { appViewTools } from "./tools/app-view-tools";
+import { packTools } from "./tools/pack-tools";
 
 
 // ── Tool server types ────────────────────────────────────────────────
@@ -69,6 +70,7 @@ function collectAllTools(ctx: ToolContext): ToolDefinition[] {
     ...skillTools(ctx),
     ...scheduleSpecTools(ctx),
     ...appViewTools(ctx),
+    ...packTools(ctx),
   ];
 }
 
@@ -130,4 +132,3 @@ export function createToolServer(
     definitions: allTools,
   };
 }
-

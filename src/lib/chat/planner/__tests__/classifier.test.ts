@@ -5,6 +5,17 @@ import type { PlannerContext } from "../types";
 const ctx: PlannerContext = { projectId: null, history: [] };
 
 describe("classifyMessage — compose path", () => {
+  it("routes build-me-a-pack with repository output through composition", () => {
+    const verdict = classifyMessage(
+      "Build me a pack to track renewals and save it in my private GitHub repo",
+      { projectId: null, history: [] }
+    );
+    expect(verdict.kind).toBe("compose");
+    if (verdict.kind === "compose") {
+      expect(verdict.plan.packIntent).toBe(true);
+      expect(verdict.plan.repositoryPublishIntent).toBe(true);
+    }
+  });
   it("classifies 'build me a weekly portfolio check-in' as compose", () => {
     const v = classifyMessage("build me a weekly portfolio check-in", ctx);
     expect(v.kind).toBe("compose");

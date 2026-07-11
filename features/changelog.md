@@ -1,5 +1,22 @@
 # Feature Changelog
 
+## 2026-07-11 — Community Pack authoring + private Git publish built (#45)
+
+### Built
+- Chat now recognizes “build me a pack/app to do X” as composition, materializes Relay-native
+  profiles/blueprints/tables/schedules/views, exports a portable `pack.yaml` + `base/`, and can
+  publish through an already-configured repository target without putting credentials in chat.
+- Added the inverse-of-install exporter with stable community-namespaced ids, typed table/schema
+  round-trip (including relation refs), trigger/schedule preflight, premium-content refusal, and
+  privacy-safe seed handling (zero rows by default; explicit samples capped at 25 rows/table).
+- Added the `github-repo` PublisherAdapter, exact file-tree/hash preview, explicit confirmation,
+  masked target credentials, durable deployment status, stale-preview refusal, and one atomic Git
+  commit that preserves unrelated repository files.
+- Direct Git pack sources now classify as `community · unverified` unless a trusted canonical-index
+  signature attests them. Added TDR-040 and the data-flow egress row.
+- Verified with TypeScript, focused chat/export/install/publisher tests, and an export→delete→fresh
+  install round-trip.
+
 ## 2026-07-08 — Pack compat diff gate built
 
 ### Built

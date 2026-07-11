@@ -1,7 +1,7 @@
 ---
 id: TDR-039
 title: Generator/Publisher Substrate — Packs That Emit and Publish Artifacts
-status: proposed
+status: accepted
 date: 2026-07-06
 category: infrastructure
 ---

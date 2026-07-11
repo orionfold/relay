@@ -14,6 +14,7 @@ import {
   Sparkles,
   Table2,
   Zap,
+  Package,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -22,6 +23,7 @@ import type { LucideIcon } from "lucide-react";
 export type ToolGroup =
   | "Tasks"
   | "Projects"
+  | "Apps"
   | "Workflows"
   | "Schedules"
   | "Documents"
@@ -55,6 +57,7 @@ export const TOOL_GROUP_ICONS: Record<ToolGroup, LucideIcon> = {
   Session: Zap,
   Tasks: ListTodo,
   Projects: FolderKanban,
+  Apps: Package,
   Workflows: GitBranch,
   Schedules: Clock,
   Documents: FileText,
@@ -118,6 +121,10 @@ const AINATIVE_TOOLS: ToolCatalogEntry[] = [
   { name: "instantiate_blueprint", description: "Create a workflow from a blueprint", group: "Workflows", paramHint: "blueprintId, variables" },
   { name: "create_blueprint", description: "Create a custom workflow blueprint", group: "Workflows", paramHint: "yaml" },
   { name: "delete_blueprint", description: "Delete a custom blueprint", group: "Workflows", paramHint: "blueprintId" },
+
+  { name: "export_app_as_pack", description: "Export a composed app as a portable Relay Pack", group: "Apps", paramHint: "appId, includeSampleData" },
+  { name: "list_pack_publish_targets", description: "List configured pack repository targets", group: "Apps", paramHint: "appId" },
+  { name: "publish_app_as_pack", description: "Publish a pack to a configured Git repository", group: "Apps", paramHint: "appId, targetId, confirm" },
 
   // ── Schedules ──
   { name: "list_schedules", description: "List scheduled prompt loops", group: "Schedules", paramHint: "status" },

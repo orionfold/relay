@@ -3,6 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { execFileSync } from "node:child_process";
 import yaml from "js-yaml";
 
 let dataDir: string;
@@ -153,6 +154,27 @@ function installOpts() {
 }
 
 describe("installPack", () => {
+  it("classifies an unsigned direct Git source as community/unverified", async () => {
+    buildFixturePack();
+    execFileSync("git", ["init"], { cwd: packDir, stdio: "ignore" });
+    execFileSync("git", ["config", "user.email", "relay-test@example.invalid"], {
+      cwd: packDir,
+    });
+    execFileSync("git", ["config", "user.name", "Relay Test"], { cwd: packDir });
+    execFileSync("git", ["add", "."], { cwd: packDir });
+    execFileSync("git", ["commit", "-m", "fixture"], { cwd: packDir, stdio: "ignore" });
+    const bareRepo = path.join(dataDir, "community-pack.git");
+    execFileSync("git", ["clone", "--bare", packDir, bareRepo], { stdio: "ignore" });
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { installPack } = await loadModules();
+
+    const report = await installPack(bareRepo, installOpts());
+
+    expect(report.tier).toBe("community");
+    expect(report.tierVerified).toBe(false);
+    expect(warning).toHaveBeenCalledWith(expect.stringMatching(/direct git sources/i));
+  });
+
   it("creates the project, tables, customers, files, and reports counts", async () => {
     buildFixturePack();
     const { installPack, registry, tables, db, customers, projects } =

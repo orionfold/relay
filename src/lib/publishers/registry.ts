@@ -1,8 +1,10 @@
 import type { PublisherAdapter } from "./types";
 import { githubPagesAdapter } from "./github-pages-adapter";
+import { githubRepoAdapter } from "./github-repo-adapter";
 
 const adapters: Record<string, PublisherAdapter> = {
   "github-pages": githubPagesAdapter,
+  "github-repo": githubRepoAdapter,
 };
 
 /**

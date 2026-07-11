@@ -14,6 +14,8 @@ export interface ComposePlan {
   schedule?: { cron: string; description: string };
   rationale: string;
   integrationNoun?: string;
+  packIntent?: boolean;
+  repositoryPublishIntent?: boolean;
 }
 
 export interface ScaffoldPlan {

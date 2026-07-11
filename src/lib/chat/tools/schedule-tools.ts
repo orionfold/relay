@@ -76,6 +76,11 @@ When creating a schedule as part of an app composition, pass appId so the schedu
           .describe(
             "App composition ID — the app's slug, e.g. 'wealth-tracker'. Must NOT contain '--'. If you have an artifact id like 'wealth-tracker--coach', the appId is everything before '--' (i.e. 'wealth-tracker'). When provided, the schedule is linked to the app's project and added to the app manifest."
           ),
+        blueprintId: z
+          .string()
+          .min(1)
+          .optional()
+          .describe("For an app composition, the namespaced blueprint this schedule runs. Required for a portable pack schedule."),
         assignedAgent: z.string().optional().describe("Runtime ID (e.g. 'claude')"),
         agentProfile: z.string().optional().describe("Agent profile ID to use"),
         maxFirings: z
@@ -200,9 +205,7 @@ When creating a schedule as part of an app composition, pass appId so the schedu
               kind: "schedule",
               id,
               cron: cronExpression,
-              runs: args.agentProfile
-                ? `profile:${args.agentProfile}`
-                : undefined,
+              runs: args.blueprintId ?? (args.agentProfile ? `profile:${args.agentProfile}` : undefined),
             });
           }
 

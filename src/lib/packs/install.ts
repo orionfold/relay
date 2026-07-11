@@ -210,6 +210,22 @@ export async function installPack(
             `or partner key. Install only if you trust the source.`
         );
       }
+    } else if (isGitUrl(source)) {
+      // A direct git URL is user-selected third-party content, not bundled
+      // Orionfold content. Without an index signature there is no trusted
+      // author claim, so classify it honestly as community/unverified.
+      provenance = { tier: "community", verified: false };
+      const decision = packInstallPolicy(provenance.tier, provenance.verified, {
+        allowCommunity: options.allowCommunity,
+      });
+      if (decision === "refuse") {
+        throw new PackValidationError(
+          `Pack ${pack.meta.id}@${pack.meta.version} is ${packTierBadge("community")} and the trust ceiling refuses it. Re-run with --allow-community to install it anyway.`
+        );
+      }
+      console.warn(
+        `⚠ Installing ${pack.meta.id}@${pack.meta.version} as ${packTierBadge("community")} — direct git sources have no trusted index signature. Install only if you trust the repository.`
+      );
     } else {
       provenance = { tier: "official", verified: true, label: "Orionfold" };
     }
@@ -324,10 +340,35 @@ export async function installPack(
     // standalone child install), so it is skipped.
     assertRowTriggerVarsFillable(pack, resolved);
 
+    const declaredTableIds = new Set(pack.manifest.tables.map((table) => table.id));
+    for (const table of pack.manifest.tables) {
+      if (table.columnDefinitions) {
+        const logicalColumns = table.columns ?? [];
+        const definedColumns = table.columnDefinitions.map((column) => column.name);
+        if (
+          logicalColumns.length !== definedColumns.length ||
+          logicalColumns.some((name, index) => name !== definedColumns[index])
+        ) {
+          throw new PackValidationError(
+            `Table "${table.id}" columnDefinitions must match columns exactly and in order. ` +
+              `columns=[${logicalColumns.join(", ")}], definitions=[${definedColumns.join(", ")}].`
+          );
+        }
+      }
+      for (const column of table.columnDefinitions ?? []) {
+        const relationTarget = column.config?.targetTableId;
+        if (typeof relationTarget === "string" && !declaredTableIds.has(relationTarget)) {
+          throw new PackValidationError(
+            `Relation column "${column.name}" on table "${table.id}" targets undeclared table "${relationTarget}".`
+          );
+        }
+      }
+    }
+
     // 3. DB-write boundary (bounded, reuses existing seams).
     const { ensureAppProject } = await import("@/lib/apps/compose-integration");
     const { ensureCustomer } = await import("@/lib/customers");
-    const { createTable, addRows, listTables } = await import(
+    const { createTable, addRows, listTables, getColumns, updateColumn } = await import(
       "@/lib/data/tables"
     );
 
@@ -350,7 +391,7 @@ export async function installPack(
     let tablesCreated = 0;
     for (const tableRef of pack.manifest.tables) {
       const logicalId = tableRef.id;
-      const tableName = titleCase(logicalId);
+      const tableName = tableRef.name ?? titleCase(logicalId);
       const columnNames = (tableRef.columns as string[] | undefined) ?? [];
 
       const existingId = existingByName.get(tableName);
@@ -363,14 +404,20 @@ export async function installPack(
       tablesCreated += 1;
       const created = await createTable({
         name: tableName,
+        description: tableRef.description ?? null,
         projectId: pack.meta.id,
         source: "template",
-        columns: columnNames.map((name, i) => ({
-          name,
-          displayName: titleCase(name),
-          dataType: "text" as const,
-          position: i,
-        })),
+        columns: tableRef.columnDefinitions?.length
+          ? tableRef.columnDefinitions.map((column, i) => ({
+              ...column,
+              position: i,
+            }))
+          : columnNames.map((name, i) => ({
+              name,
+              displayName: titleCase(name),
+              dataType: "text" as const,
+              position: i,
+            })),
       });
       logicalToReal.set(logicalId, created.id);
 
@@ -382,6 +429,30 @@ export async function installPack(
           rows.map((data) => ({ data, createdBy: "user" as const }))
         );
         rowsSeeded += ids.length;
+      }
+    }
+
+    // Relation configs reference logical table ids in an authored pack. All
+    // real UUIDs exist only after the first pass, so rewrite relation targets
+    // in a second pass rather than persisting dangling logical handles.
+    for (const tableRef of pack.manifest.tables) {
+      const realTableId = logicalToReal.get(tableRef.id);
+      if (!realTableId || !tableRef.columnDefinitions) continue;
+      const installedColumns = await getColumns(realTableId);
+      for (const definition of tableRef.columnDefinitions) {
+        const logicalTarget = definition.config?.targetTableId;
+        if (typeof logicalTarget !== "string") continue;
+        const realTarget = logicalToReal.get(logicalTarget);
+        if (!realTarget) {
+          throw new PackValidationError(
+            `Relation column "${definition.name}" on table "${tableRef.id}" targets undeclared table "${logicalTarget}".`
+          );
+        }
+        const installed = installedColumns.find((column) => column.name === definition.name);
+        if (!installed) continue;
+        await updateColumn(installed.id, {
+          config: { ...definition.config, targetTableId: realTarget },
+        });
       }
     }
 

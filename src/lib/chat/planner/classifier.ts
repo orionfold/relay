@@ -31,6 +31,7 @@ const INTEGRATION_NOUNS = [
 
 const APP_INTENT_WORDS = [
   "app",
+  "pack",
   "tracker",
   "dashboard",
   "workflow",
@@ -140,12 +141,14 @@ function hasAppIntent(normalized: string): boolean {
 
 function genericComposePlan(
   triggerPhrase: string,
-  integrationNoun: string | null
+  integrationNoun: string | null,
+  flags: Pick<ComposePlan, "packIntent" | "repositoryPublishIntent">
 ): ComposePlan {
   return {
     kind: "generic",
     rationale: `Matched compose trigger '${triggerPhrase}' with no known primitive — generic composition`,
     ...(integrationNoun ? { integrationNoun } : {}),
+    ...flags,
   };
 }
 
@@ -164,6 +167,11 @@ export function classifyMessage(
 
   const noun = findIntegrationNoun(normalized);
   const appIntent = hasAppIntent(normalized);
+  const packIntent = /\bpack\b/.test(normalized);
+  const repositoryPublishIntent =
+    packIntent &&
+    /\b(git|github|gitlab|bitbucket|repo|repository)\b/.test(normalized) &&
+    /\b(save|publish|push|store|commit|export)\b/.test(normalized);
 
   // Noun + compose-trigger short-circuits to scaffold ONLY when the user
   // hasn't named an app-y artifact. "build me a github habit tracker" reads
@@ -185,10 +193,21 @@ export function classifyMessage(
     if (plan) {
       return {
         kind: "compose",
-        plan: noun ? { ...plan, integrationNoun: noun } : plan,
+        plan: {
+          ...plan,
+          ...(noun ? { integrationNoun: noun } : {}),
+          ...(packIntent ? { packIntent: true } : {}),
+          ...(repositoryPublishIntent ? { repositoryPublishIntent: true } : {}),
+        },
       };
     }
-    return { kind: "compose", plan: genericComposePlan(composeTrigger, noun) };
+    return {
+      kind: "compose",
+      plan: genericComposePlan(composeTrigger, noun, {
+        ...(packIntent ? { packIntent: true } : {}),
+        ...(repositoryPublishIntent ? { repositoryPublishIntent: true } : {}),
+      }),
+    };
   }
 
   return { kind: "conversation" };

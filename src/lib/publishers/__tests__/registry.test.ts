@@ -9,6 +9,11 @@ describe("publisher registry", () => {
     expect(typeof adapter.testConnection).toBe("function");
   });
 
+  it("resolves the github-repo pack publisher", () => {
+    const adapter = getPublisherAdapter("github-repo");
+    expect(adapter.targetType).toBe("github-repo");
+  });
+
   it("throws a named error on an unknown target type", () => {
     expect(() => getPublisherAdapter("nope")).toThrow(
       "Unknown publish target type: nope"

@@ -569,8 +569,8 @@ which R7 **shares** with the Web Designer ticket.
 | [pack-provenance-tiers](pack-provenance-tiers.md) | P1 | planned | pack-canonical-index |
 | [pack-tarball-diet](pack-tarball-diet.md) | P2 | planned | pack-remote-resolver |
 | [pack-standard-versioning](pack-standard-versioning.md) | P2 | planned | pack-canonical-index |
-| [pack-app-exporter](pack-app-exporter.md) | P3 | planned | pack-provenance-tiers |
-| [pack-community-publish](pack-community-publish.md) | P3 | planned | pack-app-exporter |
+| [pack-app-exporter](pack-app-exporter.md) | P1 | completed | pack-provenance-tiers |
+| [pack-community-publish](pack-community-publish.md) | P1 | completed | pack-app-exporter |
 | [publish-preview-artifacts](publish-preview-artifacts.md) | P1 | planned | generator-publisher-substrate |
 
 **Fences held (§2, §11):** every install path is a **READ** from a canonical Orionfold source
@@ -696,8 +696,8 @@ pack-canonical-index (P1, KEYSTONE — orionfold.packs/v1 index; every pillar re
     ├── pack-remote-resolver (P1, one branch at the resolve seam → fetch → acquirePack)
     │       └── pack-tarball-diet (P2, slim bundled + fetch-on-install; gated on a size measurement)
     ├── pack-provenance-tiers (P1, offline Ed25519 verify — official/partner/community)
-    │       └── pack-app-exporter (P3, app→pack GeneratorAdapter; needs TDR-039 substrate)
-    │               └── pack-community-publish (P3, the SEND — github-repo PublisherAdapter; needs TDR-039)
+    │       └── pack-app-exporter (P1, completed — app→pack inverse-of-install artifact)
+    │               └── pack-community-publish (P1, completed — github-repo user-owned SEND)
     └── pack-standard-versioning (P2, three axes → one release checklist + early relayCore skip)
 ```
 

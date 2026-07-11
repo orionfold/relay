@@ -286,7 +286,38 @@ export type ViewConfig = z.infer<typeof ViewSchema>;
 const AppTableRefSchema = z
   .object({
     id: z.string(),
+    name: z.string().min(1).optional(),
+    description: z.string().optional(),
     columns: z.array(z.string()).optional(),
+    /**
+     * Additive v1 authoring detail used by community exports. `columns` stays
+     * the canonical logical contract/taxonomy surface; columnDefinitions
+     * preserves the running table's types and validation hints on round-trip.
+     */
+    columnDefinitions: z
+      .array(
+        z
+          .object({
+            name: z.string().min(1),
+            displayName: z.string().min(1),
+            dataType: z.enum([
+              "text",
+              "number",
+              "date",
+              "boolean",
+              "select",
+              "url",
+              "email",
+              "relation",
+              "computed",
+            ]),
+            required: z.boolean().optional(),
+            defaultValue: z.string().nullable().optional(),
+            config: z.record(z.string(), z.unknown()).nullable().optional(),
+          })
+          .strict()
+      )
+      .optional(),
     seed: z.string().optional(),
   })
   .passthrough();

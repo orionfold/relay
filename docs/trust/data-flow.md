@@ -1,7 +1,7 @@
 ---
 title: "Data flow: what leaves your machine, and when"
 category: "trust"
-lastUpdated: "2026-07-07"
+lastUpdated: "2026-07-11"
 ---
 
 # Data flow: what leaves your machine, and when
@@ -41,6 +41,7 @@ flowchart LR
         chan["Slack / Telegram /<br/>webhooks you configure"]
         tools["Web search & browser tools<br/>granted to agents"]
         pages["GitHub Pages repo<br/>you configure"]
+        packrepo["Private GitHub pack repo<br/>you configure"]
     end
 
     relay -->|"download only"| gh
@@ -50,6 +51,7 @@ flowchart LR
     relay -.-> chan
     relay -.-> tools
     relay -.->|"generated static-site files"| pages
+    relay -.->|"previewed Relay Pack files"| packrepo
 ```
 
 ## The short version
@@ -63,7 +65,10 @@ read **only** when you run `relay pack add <name>` for a pack that did not
 ship with your install (a bare, sha256-verified GET that sends nothing about
 you; row 11), and GitHub Pages publishing, which sends generated site files
 only after you create a target with your own GitHub credential and click
-publish (row 12). There is **no telemetry, no analytics, no crash reporting,
+publish (row 12). Community pack publishing likewise sends only the exact
+previewed `pack.yaml` + `base/` tree to your own repository after explicit
+confirmation; live table rows remain local unless you deliberately include a
+bounded sample (row 13). There is **no telemetry, no analytics, no crash reporting,
 no update check, and no license activation server** anywhere in the codebase.
 
 ## Complete egress inventory
@@ -82,6 +87,7 @@ no update check, and no license activation server** anywhere in the codebase.
 | 10 | Upstream `git fetch` (contributors only) | Hourly, **only when the launch directory is a git clone** — never for npm/npx installs | Your clone's own `origin` remote | Standard git fetch; compares SHAs locally, uploads nothing | Absent `.git` = never runs ([`upgrade-poller.ts`](../../src/lib/instance/upgrade-poller.ts)) |
 | 11 | Non-bundled pack fetch | You run `relay pack add <name>` for a pack that did **not** ship in your install | Canonical Orionfold pack index + pack `.tgz` (`orionfold.com/relay/packs`) | Nothing — bare GET; the index and each pack are sha256-verified before use ([`remote.ts`](../../src/lib/packs/remote.ts)) | Bundled packs never reach this path (install offline); `RELAY_PACK_INDEX_URL` (mirror or `file://` for air-gap) |
 | 12 | GitHub Pages publish | You click publish for an app that declares `view.bindings.generate`/`publish` and select a GitHub Pages target | `api.github.com` for the repo you configured | Generated static-site artifact files plus GitHub Contents API metadata, authenticated with your stored GitHub token ([`publish/route.ts`](../../src/app/api/apps/%5Bid%5D/publish/route.ts), [`github-pages-adapter.ts`](../../src/lib/publishers/github-pages-adapter.ts)) | Do not create a publish target or click publish; delete the target/token |
+| 13 | Relay Pack repository publish | You preview the pack file tree, select a private GitHub target, and explicitly confirm **Publish pack** | `api.github.com` for the repo you configured | The previewed `pack.yaml` + `base/` files, an artifact hash/file marker used to make updates atomic, and optional sample rows only when you enable that switch. No instance id, license id, install counts, or telemetry ([`pack/publish/route.ts`](../../src/app/api/apps/%5Bid%5D/pack/publish/route.ts), [`github-repo-adapter.ts`](../../src/lib/publishers/github-repo-adapter.ts)) | Do not create a pack repository target or confirm publish. Local `.tgz` export has zero egress. |
 
 (`npm`/`npx` itself contacts the npm registry to install the package — that
 is npm's standard behavior before any Relay code runs, and it's covered by

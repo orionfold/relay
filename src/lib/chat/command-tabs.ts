@@ -23,6 +23,7 @@ export const GROUP_TO_TAB = {
   Session: "actions",
   Tasks: "actions",
   Projects: "actions",
+  Apps: "actions",
   Workflows: "actions",
   Schedules: "actions",
   Documents: "actions",

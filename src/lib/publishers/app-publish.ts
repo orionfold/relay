@@ -59,7 +59,7 @@ export class AppPublishError extends Error {
 }
 
 export interface CreatePublishTargetInput {
-  targetType: "github-pages";
+  targetType: "github-pages" | "github-repo";
   config: Record<string, unknown>;
 }
 
@@ -339,12 +339,26 @@ export function listDeployments(appId: string, pageSlug?: string | null): Deploy
         )
       : and(eq(deployments.appId, appId), eq(deployments.pageSlug, pageSlug))
     : eq(deployments.appId, appId);
-  return db
+  const rows = db
     .select()
     .from(deployments)
     .where(where)
     .orderBy(desc(deployments.startedAt))
     .all();
+  // Pack publishes share the durable deployments table but have their own
+  // panel and per-deployment polling. Keep them out of the generated-site
+  // history surface when no page filter is supplied.
+  return pageSlug
+    ? rows
+    : rows.filter((row) => {
+        if (!row.generatorConfig) return true;
+        try {
+          const config = JSON.parse(row.generatorConfig) as { kind?: unknown };
+          return config.kind !== "relay-pack";
+        } catch {
+          return true;
+        }
+      });
 }
 
 export function getDeployment(appId: string, deploymentId: string): DeploymentRow | null {

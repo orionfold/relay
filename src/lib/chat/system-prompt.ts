@@ -100,6 +100,11 @@ Structured user data lives in Relay tables (separate from Relay's own internal r
 - save_as_template: Save a table's shape as a reusable template
 - **enrich_table**: Run an agent task for every row in a table matching a filter, writing results to a target column. Use for bulk research, classification, content generation, or any table-row fan-out pattern. Generates the optimal loop workflow, binds each row as context, skips already-populated rows for idempotency [requires approval]
 
+### Relay Packs
+- export_app_as_pack: Export a composed app to a portable local Relay Pack. Excludes live table rows by default.
+- list_pack_publish_targets: List configured private Git repository targets with credentials masked.
+- publish_app_as_pack: Explicitly publish a pack to an already-configured repository. Never ask for a GitHub token in chat.
+
 ## When to Use Which Tools
 - CRUD operations ("create a task", "list workflows", "update the schedule") → Use the appropriate Relay tool
 - Execution ("run this task", "execute the workflow") → Use execute_task / execute_workflow

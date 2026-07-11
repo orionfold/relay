@@ -6,12 +6,49 @@ import {
   listPublishTargets,
 } from "@/lib/publishers/app-publish";
 
-const createPublishTargetSchema = z
-  .object({
-    targetType: z.literal("github-pages"),
-    config: z.record(z.string(), z.unknown()),
-  })
-  .strict();
+const githubName = z.string().min(1).max(100).regex(/^[A-Za-z0-9_.-]+$/);
+const githubBranch = z
+  .string()
+  .min(1)
+  .max(255)
+  .regex(/^[A-Za-z0-9._/-]+$/)
+  .refine((value) => !value.includes("..") && !value.includes("@{") && !value.endsWith(".lock"));
+const githubBaseConfig = {
+  owner: githubName,
+  repo: githubName,
+  githubToken: z.string().min(1).max(1000),
+};
+const createPublishTargetSchema = z.discriminatedUnion("targetType", [
+  z
+    .object({
+      targetType: z.literal("github-pages"),
+      config: z.object({ ...githubBaseConfig, branch: githubBranch.optional() }).strict(),
+    })
+    .strict(),
+  z
+    .object({
+      targetType: z.literal("github-repo"),
+      config: z
+        .object({
+          ...githubBaseConfig,
+          branch: githubBranch.optional(),
+          directory: z
+            .string()
+            .max(500)
+            .refine(
+              (value) =>
+                value === "" ||
+                (!value.startsWith("/") &&
+                  !value.endsWith("/") &&
+                  value.split("/").every((part) => part !== "" && part !== "." && part !== "..")),
+              "directory must be a safe repository-relative path"
+            )
+            .optional(),
+        })
+        .strict(),
+    })
+    .strict(),
+]);
 
 function errorResponse(err: unknown) {
   if (err instanceof AppPublishError) {
