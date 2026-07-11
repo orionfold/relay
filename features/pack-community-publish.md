@@ -198,7 +198,10 @@ success + URL, the token is masked at every surface, and the payload carries no 
       before any push; the publish is explicit + user-initiated (never background).
 - [x] `deployments` shows a durable success + repo URL, or a named error on failure (Principle #1).
 - [x] `docs/trust/data-flow.md` gains the user-owned-SEND egress row; it is code-true.
-- [ ] **Live publish smoke** to a test repo passes (real dev-server SEND, not just unit tests).
+- [x] **Live publish smoke** passes against disposable public and private repositories under a
+      real dev server: empty-repo bootstrap, exact-hash publish + republish, unrelated-file
+      preservation, root/default-branch install, public-review preparation, private-review
+      refusal, shared Pages credential reuse, and disconnect cutoff.
 - [x] Targeted exporter/install/chat/publisher tests and TypeScript verification are green.
 - [x] Public and private repositories appear in one neutral selector and share
       the same target/test/preview/publish flow.

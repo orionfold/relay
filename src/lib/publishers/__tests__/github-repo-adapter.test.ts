@@ -109,7 +109,6 @@ describe("githubRepoAdapter", () => {
       .mockResolvedValueOnce(response(200, { default_branch: "main", permissions: { push: true } }))
       .mockResolvedValueOnce(response(409, { message: "Git Repository is empty." }))
       .mockResolvedValueOnce(response(201, { commit: { sha: "init-commit" } }))
-      .mockResolvedValueOnce(response(200, { object: { sha: "init-commit" } }))
       .mockResolvedValueOnce(response(200, { tree: { sha: "init-tree" } }))
       .mockResolvedValueOnce(response(200, { tree: [{ path: ".relay-pack-init" }] }))
       .mockResolvedValueOnce(response(404, { message: "Not Found" }))

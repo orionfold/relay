@@ -71,10 +71,20 @@ function hint(token: string): string {
   return `••••${token.slice(-4)}`;
 }
 
-function runGitHubCli(args: string[]): Promise<string> {
+const GITHUB_CLI_EXECUTABLES = process.platform === "win32"
+  ? ["gh.exe"]
+  : [
+      "gh",
+      "/opt/homebrew/bin/gh",
+      "/usr/local/bin/gh",
+      "/opt/local/bin/gh",
+      "/home/linuxbrew/.linuxbrew/bin/gh",
+    ];
+
+function runGitHubCliExecutable(executable: string, args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
     execFile(
-      "gh",
+      executable,
       args,
       { encoding: "utf8", timeout: 5_000, maxBuffer: 16_384 },
       (error, stdout) => {
@@ -95,6 +105,21 @@ function runGitHubCli(args: string[]): Promise<string> {
       }
     );
   });
+}
+
+async function runGitHubCli(args: string[]): Promise<string> {
+  for (const executable of GITHUB_CLI_EXECUTABLES) {
+    try {
+      return await runGitHubCliExecutable(executable, args);
+    } catch (error) {
+      if (!(error instanceof GitHubCliConnectionError) || !error.unavailable) throw error;
+    }
+  }
+  throw new GitHubCliConnectionError(
+    "GitHub CLI is not installed or is not available to Relay.",
+    409,
+    true
+  );
 }
 
 async function githubCliToken(user?: string): Promise<string> {

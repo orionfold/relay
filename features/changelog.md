@@ -17,6 +17,12 @@
   commit, and artifact hash. The canonical index continues to link; it never hosts or mirrors.
 - Updated trust disclosure and TDR-040 to distinguish creator-owned publishing from community
   review and to record the shared-credential boundary.
+- Live release smoke passed against `orionfold/relay-packs-smoke-public` and
+  `orionfold/relay-packs-smoke-private`: equal visibility/write checks, empty-repository
+  initialization, exact-hash publish and republish, unrelated-file preservation, public
+  community-review preparation, private-review refusal, root/default-branch install, shared
+  Pages target reuse, and disconnect cutoff. The run also hardened macOS app discovery of
+  Homebrew-installed `gh` and GitHub's first-commit consistency window.
 
 ## 2026-07-11 — Community Pack authoring + user-owned Git publish built (#45)
 

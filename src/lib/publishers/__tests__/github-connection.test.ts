@@ -155,6 +155,30 @@ describe("shared GitHub connection", () => {
     await expect(getGitHubCliStatus()).resolves.toEqual({ installed: true });
   });
 
+  it("finds Homebrew GitHub CLI when the app PATH omits Homebrew", async () => {
+    cli.execFile.mockImplementation((...args: unknown[]) => {
+      const executable = args[0] as string;
+      const callback = args[3] as (error: NodeJS.ErrnoException | null, stdout: string, stderr: string) => void;
+      if (executable === "gh") {
+        callback(Object.assign(new Error("not found"), { code: "ENOENT" }), "", "");
+      } else if (executable === "/opt/homebrew/bin/gh") {
+        callback(null, "gh version 2.79.0\n", "");
+      } else {
+        throw new Error(`Unexpected executable: ${executable}`);
+      }
+      return undefined as never;
+    });
+
+    await expect(getGitHubCliStatus()).resolves.toEqual({ installed: true });
+    expect(cli.execFile).toHaveBeenNthCalledWith(
+      2,
+      "/opt/homebrew/bin/gh",
+      ["--version"],
+      expect.any(Object),
+      expect.any(Function)
+    );
+  });
+
   it("reports an expired selected CLI session as a visible disconnected state", async () => {
     state.settings.set("github.connectionMethod", "github-cli");
     state.settings.set("github.login", "maker");

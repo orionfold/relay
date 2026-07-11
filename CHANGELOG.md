@@ -34,6 +34,16 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
   silently with an older stored token. Relay never silently adopts a GitHub CLI
   account or contacts GitHub merely because Settings was opened.
 
+### Fixed
+
+- **GitHub CLI works when Relay is launched as a macOS app.** Relay now checks
+  standard Homebrew, MacPorts, and Linuxbrew locations when the app process does
+  not inherit the terminal's `PATH`.
+- **The first Pack publish can initialize an empty GitHub repository.** Relay
+  uses the commit returned by GitHub's initialization request, avoiding a brief
+  GitHub consistency window that previously left only a temporary init file.
+  Retrying also removes any Relay-owned init marker while preserving unrelated files.
+
 ## [0.36.5] — 2026-07-10
 
 ### Fixed

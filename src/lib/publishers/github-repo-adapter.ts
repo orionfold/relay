@@ -226,7 +226,7 @@ export const githubRepoAdapter: PublisherAdapter = {
             `Empty GitHub repositories must publish first to their default branch (${repo.default_branch}); configured branch is ${parsed.branch}.`
           );
         }
-        await githubJson(
+        const initialization = await githubJson<{ commit?: { sha?: string } }>(
           `${base}/contents/.relay-pack-init`,
           {
             method: "PUT",
@@ -237,11 +237,11 @@ export const githubRepoAdapter: PublisherAdapter = {
             }),
           }
         );
-        const initializedRef = await githubJson<{ object?: { sha?: string } }>(
-          `${base}/git/ref/heads/${encodeURIComponent(parsed.branch)}`,
-          { headers: requestHeaders }
-        );
-        baseCommitSha = initializedRef.object?.sha;
+        // The Contents API returns the initialization commit directly. Use it
+        // instead of immediately re-reading the ref: GitHub can return 409 for
+        // that ref for a short window after creating an empty repository's
+        // first commit, even though the commit and branch already exist.
+        baseCommitSha = initialization.commit?.sha;
         branchExists = true;
         initializedEmptyRepo = true;
         if (!baseCommitSha) {
@@ -322,7 +322,9 @@ export const githubRepoAdapter: PublisherAdapter = {
           });
         }
       }
-      if (initializedEmptyRepo) {
+      // Also clean up a bootstrap marker left by an earlier interrupted or
+      // failed publish. This filename is Relay-owned and never pack content.
+      if (initializedEmptyRepo || existingPaths.has(".relay-pack-init")) {
         treeEntries.push({
           path: ".relay-pack-init",
           mode: "100644",
