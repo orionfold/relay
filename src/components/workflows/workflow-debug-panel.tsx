@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { ChevronDown, ChevronUp, AlertTriangle, RefreshCw, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -177,10 +178,10 @@ export function WorkflowDebugPanel({ workflowId }: WorkflowDebugPanelProps) {
                   Re-run Workflow
                 </Button>
                 <Button size="sm" variant="outline" asChild>
-                  <a href={`/workflows?id=${workflowId}&tab=logs`}>
+                  <Link href={`/workflows?id=${workflowId}&tab=logs`}>
                     <FileText className="h-3.5 w-3.5 mr-1.5" />
                     View Full Logs
-                  </a>
+                  </Link>
                 </Button>
               </div>
             </>

@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { db } from "@/lib/db";
 import { settings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -8,16 +8,45 @@ import { SETTINGS_KEYS, type AuthMethod, type ApiKeySource } from "@/lib/constan
 import type { UpdateAuthSettingsInput } from "@/lib/validators/settings";
 import { getSetting, setSetting } from "./helpers";
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+/** True when the Claude credential file contains a token the SDK can use. */
+function hasClaudeOAuthCredentialFile(): boolean {
+  try {
+    const parsed = JSON.parse(readFileSync(getClaudeOAuthCredentialsPath(), "utf8")) as {
+      claudeAiOauth?: {
+        accessToken?: unknown;
+        refreshToken?: unknown;
+        expiresAt?: unknown;
+      };
+    };
+    const oauth = parsed.claudeAiOauth;
+    if (!oauth) return false;
+
+    // A refresh token remains usable when the short-lived access token expires.
+    if (isNonEmptyString(oauth.refreshToken)) return true;
+    if (!isNonEmptyString(oauth.accessToken)) return false;
+
+    // Older credential files may not carry an expiry. When they do, reject an
+    // expired access-token-only file rather than painting a ghost green state.
+    return typeof oauth.expiresAt !== "number" || oauth.expiresAt > Date.now();
+  } catch {
+    return false;
+  }
+}
+
 /**
- * True when a Claude OAuth credential is actually usable — either injected via
+ * True when a Claude OAuth credential is actually present — either injected via
  * CLAUDE_CODE_OAUTH_TOKEN or cached on disk by `claude login`. Selecting "oauth"
- * as the auth method is NOT sufficient; a blank install has the method defaulted
- * to oauth with no token, and must report disconnected rather than "connected".
+ * as the auth method, persisting a prior source, or leaving an empty credential
+ * file behind is NOT proof of authentication.
  */
 function hasClaudeOAuthCredential(): boolean {
   return (
-    !!process.env.CLAUDE_CODE_OAUTH_TOKEN ||
-    existsSync(getClaudeOAuthCredentialsPath())
+    isNonEmptyString(process.env.CLAUDE_CODE_OAUTH_TOKEN) ||
+    hasClaudeOAuthCredentialFile()
   );
 }
 
@@ -34,18 +63,22 @@ export async function getAuthSettings(): Promise<AuthSettings> {
   const method = ((await getSetting(SETTINGS_KEYS.AUTH_METHOD)) as AuthMethod) ?? "oauth";
   const encryptedKey = await getSetting(SETTINGS_KEYS.AUTH_API_KEY);
   const storedSource = (await getSetting(SETTINGS_KEYS.AUTH_API_KEY_SOURCE)) as ApiKeySource | null;
+  const oauthVerifiedAt = await getSetting(SETTINGS_KEYS.AUTH_OAUTH_VERIFIED_AT);
 
   const hasDbKey = encryptedKey !== null;
-  const hasEnvKey = !!process.env.ANTHROPIC_API_KEY;
+  const hasEnvKey = isNonEmptyString(process.env.ANTHROPIC_API_KEY);
+  const hasVerifiedSdkOAuth =
+    storedSource === "oauth" && isNonEmptyString(oauthVerifiedAt);
 
   let apiKeySource: ApiKeySource;
-  if (storedSource && storedSource !== "unknown") {
-    apiKeySource = storedSource;
-  } else if (hasDbKey) {
+  if (hasDbKey) {
     apiKeySource = "db";
   } else if (hasEnvKey) {
     apiKeySource = "env";
-  } else if (method === "oauth" && hasClaudeOAuthCredential()) {
+  } else if (
+    method === "oauth" &&
+    (hasClaudeOAuthCredential() || hasVerifiedSdkOAuth)
+  ) {
     apiKeySource = "oauth";
   } else {
     apiKeySource = "unknown";
@@ -79,7 +112,10 @@ export async function setAuthSettings(input: UpdateAuthSettingsInput): Promise<v
       await db.delete(settings)
         .where(eq(settings.key, SETTINGS_KEYS.AUTH_API_KEY));
     }
-    await setSetting(SETTINGS_KEYS.AUTH_API_KEY_SOURCE, "oauth");
+    // The method is a preference, not proof of a completed Claude login. Keep
+    // the observed source unknown until the SDK confirms a real connection.
+    await setSetting(SETTINGS_KEYS.AUTH_API_KEY_SOURCE, "unknown");
+    await setSetting(SETTINGS_KEYS.AUTH_OAUTH_VERIFIED_AT, "");
   }
 
   if (input.model !== undefined) {
@@ -115,8 +151,12 @@ export async function getAuthEnv(): Promise<Record<string, string> | undefined> 
 }
 
 /**
- * Update the last-known API key source after SDK initialization.
+ * Update the last-known API key source after a verified SDK result.
  */
 export async function updateAuthStatus(source: ApiKeySource): Promise<void> {
   await setSetting(SETTINGS_KEYS.AUTH_API_KEY_SOURCE, source);
+  await setSetting(
+    SETTINGS_KEYS.AUTH_OAUTH_VERIFIED_AT,
+    source === "oauth" ? new Date().toISOString() : "",
+  );
 }

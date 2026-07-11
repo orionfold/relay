@@ -81,8 +81,10 @@ export function AuthConfigSection() {
     const data = await res.json();
     setConnected(data.connected);
     if (data.connected) {
-      const source = settings.method === "oauth" ? "oauth" : (data.apiKeySource || "unknown");
+      const source = data.apiKeySource || "unknown";
       setSettings((prev) => ({ ...prev, apiKeySource: source as ApiKeySource }));
+    } else {
+      setSettings((prev) => ({ ...prev, apiKeySource: "unknown" }));
     }
     return data;
   }

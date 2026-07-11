@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 '/Users/manavsehgal/orionfold/relay/.codex/hooks/secrets-guard.py'"
+            "command": "python3 '.codex/hooks/secrets-guard.py'"
           }
         ]
       }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Square } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -59,6 +60,7 @@ export function ChatInput({
   conversationId,
   seedSignal,
 }: ChatInputProps) {
+  const router = useRouter();
   const [value, setValue] = useState("");
 
   // External seed: starter cards / example chips set this to fill the
@@ -163,13 +165,13 @@ export function ChatInput({
         window.dispatchEvent(new CustomEvent("ainative.chat.help"));
         return;
       case "settings":
-        window.location.href = "/settings";
+        router.push("/settings");
         return;
       case "new-from-template":
         window.dispatchEvent(new CustomEvent("ainative.chat.openTemplatePicker"));
         return;
     }
-  }, []);
+  }, [router]);
 
   // Auto-resize textarea
   const handleInput = useCallback(() => {

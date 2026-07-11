@@ -2,7 +2,7 @@ import { query } from "@anthropic-ai/claude-agent-sdk";
 import { db } from "@/lib/db";
 import { tasks } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { updateAuthStatus, getAuthEnv } from "@/lib/settings/auth";
+import { updateAuthStatus, getAuthEnv, getAuthSettings } from "@/lib/settings/auth";
 import { getExecution, removeExecution } from "@/lib/agents/execution-manager";
 import { getProfile, listProfiles } from "@/lib/agents/profiles/registry";
 import { resolveProfileRuntimePayload } from "@/lib/agents/profiles/compatibility";
@@ -26,6 +26,7 @@ import {
   recordUsageLedgerEntry,
   type UsageSnapshot,
 } from "@/lib/usage/ledger";
+import { readClaudeConnectionProbe } from "./claude-connection-probe";
 
 /**
  * The model alias to pass to the Claude Agent SDK's `query()`.
@@ -654,7 +655,10 @@ async function testClaudeConnection(): Promise<RuntimeConnectionResult> {
   const timeout = setTimeout(() => abortController.abort(), 10_000);
 
   try {
-    const authEnv = await getAuthEnv();
+    const [authEnv, authSettings] = await Promise.all([
+      getAuthEnv(),
+      getAuthSettings(),
+    ]);
     const response = query({
       prompt: "Reply with exactly: OK",
       options: {
@@ -667,30 +671,21 @@ async function testClaudeConnection(): Promise<RuntimeConnectionResult> {
       },
     });
 
-    for await (const raw of response as AsyncIterable<Record<string, unknown>>) {
-      const message = raw as {
-        type?: string;
-        subtype?: string;
-        api_key_source?: string;
-      };
-
-      if (message.type === "system" && message.subtype === "init") {
-        const source = (message.api_key_source ?? "unknown") as RuntimeConnectionResult["apiKeySource"];
-        await updateAuthStatus(source ?? "unknown");
-        abortController.abort();
-        return { connected: true, apiKeySource: source ?? "unknown" };
-      }
-    }
-
-    return { connected: true, apiKeySource: "unknown" };
+    const result = await readClaudeConnectionProbe(
+      response as AsyncIterable<Record<string, unknown>>,
+      authSettings.apiKeySource,
+    );
+    await updateAuthStatus(result.connected ? (result.apiKeySource ?? "unknown") : "unknown");
+    return result;
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-
-    if (abortController.signal.aborted && !message.includes("auth")) {
-      return { connected: true, apiKeySource: "unknown" };
-    }
-
-    return { connected: false, error: message };
+    await updateAuthStatus("unknown");
+    return {
+      connected: false,
+      error: abortController.signal.aborted
+        ? "Claude connection test timed out before authentication was verified."
+        : message,
+    };
   } finally {
     clearTimeout(timeout);
   }

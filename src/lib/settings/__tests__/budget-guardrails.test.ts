@@ -243,12 +243,13 @@ describe("budget guardrails", () => {
   });
 
   it("exposes metered spend separately from the plan-priced budget basis under subscription billing", async () => {
-    // Default auth is oauth → claude-code bills as a flat subscription. The
+    // A verified OAuth connection means claude-code bills as a flat subscription. The
     // guardrail statuses may use the plan price as the budget basis, but the
     // snapshot must also expose REAL metered spend (usage_ledger sums) so
     // display surfaces never present the plan price as cost.
-    const { getBudgetGuardrailSnapshot, setAuthSettings } = await loadModules();
+    const { getBudgetGuardrailSnapshot, setAuthSettings, updateAuthStatus } = await loadModules();
     await setAuthSettings({ method: "oauth" });
+    await updateAuthStatus("oauth");
 
     const snapshot = await getBudgetGuardrailSnapshot();
 

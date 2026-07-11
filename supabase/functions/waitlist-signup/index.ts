@@ -1,8 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = [
-  "https://stagent.io",
-  "https://stagent.github.io",
+  "https://orionfold.com",
+  "https://www.orionfold.com",
 ];
 
 function getCorsHeaders(req: Request) {
@@ -152,7 +152,11 @@ async function sendConfirmationEmail(email: string, token: string) {
     throw new Error("RESEND_API_KEY not configured");
   }
 
-  const confirmUrl = `https://stagent.supabase.co/functions/v1/confirm-email?token=${token}`;
+  const confirmEmailUrl = Deno.env.get("CONFIRM_EMAIL_URL");
+  if (!confirmEmailUrl) {
+    throw new Error("CONFIRM_EMAIL_URL not configured");
+  }
+  const confirmUrl = `${confirmEmailUrl}?token=${encodeURIComponent(token)}`;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -161,9 +165,9 @@ async function sendConfirmationEmail(email: string, token: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Stagent <team@stagent.io>",
+      from: "Orionfold <team@orionfold.com>",
       to: [email],
-      subject: "Confirm your Stagent waitlist spot",
+      subject: "Confirm your Orionfold Relay waitlist spot",
       text: confirmationEmailText(confirmUrl),
     }),
   });
@@ -178,8 +182,8 @@ async function sendConfirmationEmail(email: string, token: string) {
 function confirmationEmailText(confirmUrl: string): string {
   return `Hi,
 
-You requested early access to Stagent -- the operating system
-for AI-native business. Stagent orchestrates AI agents
+You requested early access to Orionfold Relay -- the operating system
+for AI-native business. Relay orchestrates AI agents
 across your entire business with governance, visibility, and cost controls
 that keep you in charge.
 
@@ -193,7 +197,7 @@ This link expires in 7 days. If you didn't request this,
 you can safely ignore this email.
 
 --
-Stagent | stagent.io
+Orionfold Relay | orionfold.com/relay
 The operating system for the agentic economy
 `;
 }

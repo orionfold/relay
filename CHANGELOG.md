@@ -6,6 +6,26 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.36.5] — 2026-07-10
+
+### Fixed
+
+- **A blank machine can no longer appear authenticated to Claude Code.** Relay
+  now distinguishes selecting Claude Max/Pro from completing a real login. Old
+  persisted OAuth labels, empty or malformed credential files, SDK startup,
+  failed login checks, and connection-test timeouts all remain disconnected.
+  A successful SDK result records a separate verification marker, including
+  for Claude credentials stored in the macOS keychain.
+- **Opening an internal page no longer performs a full document reload.** Chat's
+  Settings command, workflow-run toast actions, license links, and workflow log
+  links now stay inside Next.js client navigation, preserving the current app
+  shell and avoiding disruptive flashes.
+- **The repository's Codex hook works from any clone path.** Its secret guard no
+  longer points at one developer's absolute filesystem path. The legacy
+  waitlist function also uses current Orionfold Relay origins and branding and
+  reads its confirmation endpoint from configuration instead of a retired
+  hardcoded project URL.
+
 ## [0.36.4] — 2026-07-10
 
 ### Fixed

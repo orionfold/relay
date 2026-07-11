@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import {
   BadgeCheck,
   KeyRound,
@@ -210,9 +211,9 @@ export function LicenseSection() {
           <p className="text-sm text-muted-foreground">
             No license on this machine — you&apos;re running the free engine
             (Community Edition). Premium packs on the{" "}
-            <a href="/packs" className="font-medium text-foreground hover:text-primary underline underline-offset-2">
+            <Link href="/packs" className="font-medium text-foreground hover:text-primary underline underline-offset-2">
               Packs
-            </a>{" "}
+            </Link>{" "}
             page show what a license unlocks.
           </p>
         ) : (

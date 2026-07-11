@@ -236,6 +236,7 @@ async function processAgentStream(
   launchProgress?: RuntimeLaunchProgress
 ): Promise<void> {
   let sessionId: string | null = null;
+  let sessionAuthSource: "db" | "env" | "oauth" | "unknown" | null = null;
   let receivedResult = false;
   let turnCount = 0;
 
@@ -258,9 +259,10 @@ async function processAgentStream(
         .set({ sessionId, updatedAt: new Date() })
         .where(eq(tasks.id, taskId));
 
-      // Capture auth source from init message
+      // SDK init only proves the process started. Remember the claimed source,
+      // then persist it only after a successful terminal result.
       if (message.api_key_source) {
-        updateAuthStatus(message.api_key_source as "db" | "env" | "oauth" | "unknown");
+        sessionAuthSource = message.api_key_source as "db" | "env" | "oauth" | "unknown";
       }
 
       // Update execution manager with sessionId
@@ -372,6 +374,9 @@ async function processAgentStream(
         return;
       }
       receivedResult = true;
+      if (!raw.is_error && sessionAuthSource) {
+        await updateAuthStatus(sessionAuthSource);
+      }
       if (launchProgress) {
         launchProgress.hasResult = true;
       }

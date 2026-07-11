@@ -4,6 +4,11 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 const mockRewind = vi.fn();
 const mockRestore = vi.fn();
 const mockBranchingEnabled = { current: true };
+const mockPush = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
 
 vi.mock("../chat-session-provider", () => ({
   useChatSession: () => ({

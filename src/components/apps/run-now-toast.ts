@@ -1,5 +1,11 @@
 import { toast } from "sonner";
 
+function navigateWithinApp(href: string): void {
+  // Next App Router observes native history mutations. This keeps the current
+  // document mounted instead of forcing a full reload with location.assign().
+  window.history.pushState(null, "", href);
+}
+
 /**
  * BUG-4: "Run now" POSTs the blueprint instantiate endpoint, which creates a
  * `draft` workflow and does NOT dispatch it. The old toast said "Run started",
@@ -20,7 +26,7 @@ export function toastDraftCreated(workflowId: string | undefined): void {
     action: {
       label: "Open workflow",
       onClick: () => {
-        window.location.assign(`/workflows/${workflowId}`);
+        navigateWithinApp(`/workflows/${workflowId}`);
       },
     },
   });
@@ -44,7 +50,7 @@ export function toastRunStarted(workflowId: string | undefined): void {
     action: {
       label: "Open run",
       onClick: () => {
-        window.location.assign(`/workflows/${workflowId}`);
+        navigateWithinApp(`/workflows/${workflowId}`);
       },
     },
   });

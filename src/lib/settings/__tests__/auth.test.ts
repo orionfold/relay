@@ -101,18 +101,18 @@ describe("auth settings", () => {
       expect(result.apiKeySource).toBe("env");
     });
 
-    it("uses stored source when present", async () => {
-      // getSetting calls: method, apiKey, apiKeySource
-      mockGetSettingSequence(["api_key", null, "db"]);
+    it("ignores a stale stored OAuth source when no credential exists", async () => {
+      mockGetSettingSequence(["oauth", null, "oauth", null]);
       const { getAuthSettings } = await import("../auth");
       const result = await getAuthSettings();
-      expect(result.method).toBe("api_key");
-      expect(result.apiKeySource).toBe("db");
+      expect(result.method).toBe("oauth");
+      expect(result.hasKey).toBe(false);
+      expect(result.apiKeySource).toBe("unknown");
     });
 
     it("detects db key source when no stored source", async () => {
       // method=api_key, apiKey=encrypted value, no stored source
-      mockGetSettingSequence(["api_key", "encrypted:sk-ant-key", null]);
+      mockGetSettingSequence(["api_key", "encrypted:sk-ant-key", null, null]);
       const { getAuthSettings } = await import("../auth");
       const result = await getAuthSettings();
       expect(result.hasKey).toBe(true);
@@ -123,7 +123,7 @@ describe("auth settings", () => {
       // method=oauth, no apiKey, no stored source, no env key, no OAuth
       // credential on disk, no CLAUDE_CODE_OAUTH_TOKEN. Selecting OAuth as the
       // method must NOT report "connected" until a token is actually present.
-      mockGetSettingSequence(["oauth", null, null]);
+      mockGetSettingSequence(["oauth", null, null, null]);
       const { getAuthSettings } = await import("../auth");
       const result = await getAuthSettings();
       expect(result.apiKeySource).toBe("unknown");
@@ -132,15 +132,50 @@ describe("auth settings", () => {
 
     it("returns apiKeySource=oauth when CLAUDE_CODE_OAUTH_TOKEN is set", async () => {
       vi.stubEnv("CLAUDE_CODE_OAUTH_TOKEN", "oauth-token-abc");
-      mockGetSettingSequence(["oauth", null, null]);
+      mockGetSettingSequence(["oauth", null, null, null]);
       const { getAuthSettings } = await import("../auth");
       const result = await getAuthSettings();
       expect(result.apiKeySource).toBe("oauth");
     });
 
-    it("returns apiKeySource=oauth when a Claude OAuth credentials file exists", async () => {
-      writeFileSync(oauthCredPath, "{}");
-      mockGetSettingSequence(["oauth", null, null]);
+    it("returns apiKeySource=oauth when a Claude OAuth credentials file contains a refresh token", async () => {
+      writeFileSync(oauthCredPath, JSON.stringify({
+        claudeAiOauth: { refreshToken: "refresh-token-abc" },
+      }));
+      mockGetSettingSequence(["oauth", null, null, null]);
+      const { getAuthSettings } = await import("../auth");
+      const result = await getAuthSettings();
+      expect(result.apiKeySource).toBe("oauth");
+    });
+
+    it.each([
+      ["empty JSON", "{}"],
+      ["empty OAuth object", JSON.stringify({ claudeAiOauth: {} })],
+      ["blank tokens", JSON.stringify({ claudeAiOauth: { accessToken: " ", refreshToken: "" } })],
+      ["malformed JSON", "not-json"],
+      ["expired access token without refresh", JSON.stringify({
+        claudeAiOauth: { accessToken: "expired", expiresAt: Date.now() - 1_000 },
+      })],
+    ])("returns unknown for an unusable credential file: %s", async (_label, contents) => {
+      writeFileSync(oauthCredPath, contents);
+      mockGetSettingSequence(["oauth", null, "oauth", null]);
+      const { getAuthSettings } = await import("../auth");
+      const result = await getAuthSettings();
+      expect(result.apiKeySource).toBe("unknown");
+    });
+
+    it("accepts an unexpired access-token-only credential file", async () => {
+      writeFileSync(oauthCredPath, JSON.stringify({
+        claudeAiOauth: { accessToken: "access-token-abc", expiresAt: Date.now() + 60_000 },
+      }));
+      mockGetSettingSequence(["oauth", null, null, null]);
+      const { getAuthSettings } = await import("../auth");
+      const result = await getAuthSettings();
+      expect(result.apiKeySource).toBe("oauth");
+    });
+
+    it("accepts OAuth previously verified by a successful SDK result (keychain path)", async () => {
+      mockGetSettingSequence(["oauth", null, "oauth", "2026-07-10T20:00:00.000Z"]);
       const { getAuthSettings } = await import("../auth");
       const result = await getAuthSettings();
       expect(result.apiKeySource).toBe("oauth");
@@ -148,7 +183,7 @@ describe("auth settings", () => {
 
     it("returns apiKeySource=unknown when api_key method with no keys", async () => {
       // method=api_key, no apiKey in DB, no stored source, no env key
-      mockGetSettingSequence(["api_key", null, null]);
+      mockGetSettingSequence(["api_key", null, null, null]);
       delete process.env.ANTHROPIC_API_KEY;
       const { getAuthSettings } = await import("../auth");
       const result = await getAuthSettings();
@@ -168,7 +203,7 @@ describe("auth settings", () => {
       // Flow: setSetting(method,"oauth") calls getSetting(method) [call 1]
       //       then the oauth branch: getSetting(AUTH_API_KEY) [call 2] → returns key
       //       → db.delete().where()
-      //       then setSetting(AUTH_API_KEY_SOURCE,"oauth") calls getSetting(source) [call 3]
+      //       then the source + verification marker are cleared
       let callIndex = 0;
       mockWhere.mockImplementation(() => {
         callIndex++;
@@ -183,13 +218,14 @@ describe("auth settings", () => {
       expect(mockDeleteWhere).toHaveBeenCalled();
     });
 
-    it("sets oauth source when switching to OAuth without existing key", async () => {
+    it("keeps source unknown when switching to OAuth without a completed login", async () => {
       // All getSetting calls return empty
       mockWhere.mockReturnValue([]);
       const { setAuthSettings } = await import("../auth");
       await setAuthSettings({ method: "oauth" });
-      // Should still set the source to "oauth"
-      expect(mockValues).toHaveBeenCalled();
+      expect(mockValues).toHaveBeenCalledWith(
+        expect.objectContaining({ value: "unknown" }),
+      );
     });
   });
 
@@ -252,6 +288,14 @@ describe("auth settings", () => {
       const { updateAuthStatus } = await import("../auth");
       await updateAuthStatus("db");
       expect(mockValues).toHaveBeenCalled();
+    });
+
+    it("records a verification marker for confirmed OAuth", async () => {
+      const { updateAuthStatus } = await import("../auth");
+      await updateAuthStatus("oauth");
+      expect(mockValues).toHaveBeenCalledWith(
+        expect.objectContaining({ key: "auth.oauthVerifiedAt" }),
+      );
     });
   });
 });

@@ -26,7 +26,7 @@ describe("auth config section", () => {
             json: async () => ({
               method: "oauth",
               hasKey: false,
-              apiKeySource: "oauth",
+              apiKeySource: "unknown",
             }),
           };
         }
@@ -48,7 +48,7 @@ describe("auth config section", () => {
             json: async () => ({
               method: body.method ?? "oauth",
               hasKey: false,
-              apiKeySource: body.method === "oauth" ? "oauth" : "unknown",
+              apiKeySource: "unknown",
             }),
           };
         }
@@ -89,7 +89,7 @@ describe("auth config section", () => {
             json: async () => ({
               method: "oauth",
               hasKey: false,
-              apiKeySource: "oauth",
+              apiKeySource: "unknown",
             }),
           };
         }
@@ -111,7 +111,7 @@ describe("auth config section", () => {
             json: async () => ({
               method: body.method ?? "oauth",
               hasKey: false,
-              apiKeySource: body.method === "oauth" ? "oauth" : "unknown",
+              apiKeySource: "unknown",
             }),
           };
         }
@@ -126,6 +126,7 @@ describe("auth config section", () => {
 
     await waitFor(() => {
       expect(screen.getByText("OAuth token expired")).toBeInTheDocument();
+      expect(screen.getByText("Not configured")).toBeInTheDocument();
     });
   });
 
