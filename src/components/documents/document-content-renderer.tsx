@@ -1,8 +1,6 @@
 "use client";
 
 import { memo } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { Loader2, Download, FileQuestion } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +8,7 @@ import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ImageZoomView } from "./image-zoom-view";
 import { SmartExtractedText } from "./smart-extracted-text";
+import { EmbeddedMarkdown } from "@/components/shared/embedded-markdown";
 import {
   isMarkdown,
   isCode,
@@ -50,13 +49,7 @@ function DocumentContentRendererInner({ doc }: DocumentContentRendererProps) {
 
   // Tier 1: Markdown — full render, no truncation
   if (isMarkdown(doc.mimeType) && doc.extractedText) {
-    return (
-      <div className={PROSE_READER}>
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {doc.extractedText}
-        </ReactMarkdown>
-      </div>
-    );
+    return <EmbeddedMarkdown content={doc.extractedText} hierarchy="document" />;
   }
 
   // Tier 1: Code — monospace with language label

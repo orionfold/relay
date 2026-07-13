@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { NotificationItem } from "@/components/notifications/notification-item";
@@ -102,5 +102,50 @@ describe("notification item", () => {
         body: "Batch summary",
       })
     );
+  });
+
+  it("renders completion markdown, Insight callouts, and generated-document navigation", () => {
+    push.mockClear();
+    render(
+      <NotificationItem
+        notification={{
+          id: "notif-completed",
+          taskId: "task-1",
+          type: "task_completed",
+          title: "Research completed",
+          body: "truncated notification body",
+          completionResultPreview: `# Research answer\n\n\`★ Insight ─────────\`\n- Evidence is current.\n\`────────────────────\`\n\n${"More detail. ".repeat(20)}`,
+          read: false,
+          toolName: null,
+          toolInput: null,
+          response: null,
+          respondedAt: null,
+          createdAt: "2026-07-12T20:00:00.000Z",
+          outputDocuments: [{
+            id: "doc-1",
+            originalName: "research.md",
+            mimeType: "text/markdown",
+            size: 1024,
+            version: 1,
+            direction: "output",
+          }],
+        }}
+        onUpdated={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { level: 5, name: "Research answer" })).toBeInTheDocument();
+    expect(screen.getByRole("note", { name: "Insight" })).toHaveTextContent("Evidence is current.");
+    expect(screen.getByRole("link", { name: "View research.md" })).toHaveAttribute(
+      "href",
+      "/documents/doc-1",
+    );
+    const showMore = screen.getByRole("button", { name: "Show more" });
+    fireEvent.click(showMore);
+    expect(screen.getByRole("button", { name: "Show less" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    expect(push).not.toHaveBeenCalled();
   });
 });

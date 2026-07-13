@@ -23,9 +23,7 @@ export function TaskResultRenderer({ description, result, status }: TaskResultRe
             {result}
           </pre>
         ) : (
-          <div className="max-h-[70vh] overflow-y-auto">
-            <ExpandableResult result={result} />
-          </div>
+          <ExpandableResult result={result} />
         )
       )}
     </div>

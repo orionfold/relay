@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { NotificationItem } from "./notification-item";
 import { EmptyState } from "@/components/shared/empty-state";
 import { filterDefaultVisibleNotifications } from "@/lib/notifications/visibility";
+import type { NotificationOutputDocument } from "@/lib/notifications/completion-context";
 
 interface Notification {
   id: string;
@@ -21,6 +22,8 @@ interface Notification {
   response: string | null;
   respondedAt: string | null;
   createdAt: string;
+  outputDocuments?: NotificationOutputDocument[];
+  completionResultPreview?: string | null;
 }
 
 export function InboxList({

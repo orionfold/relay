@@ -4,6 +4,7 @@ import { notifications } from "@/lib/db/schema";
 import { eq, and, desc, count } from "drizzle-orm";
 
 import { buildDefaultNotificationVisibilityCondition } from "@/lib/notifications/visibility";
+import { attachCompletionContext } from "@/lib/notifications/completion-context";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
@@ -32,5 +33,5 @@ export async function GET(req: NextRequest) {
     .orderBy(desc(notifications.createdAt))
     .limit(100);
 
-  return NextResponse.json(result);
+  return NextResponse.json(await attachCompletionContext(result));
 }

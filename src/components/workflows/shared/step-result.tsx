@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { FileText } from "lucide-react";
-import { PROSE_NOTIFICATION } from "@/lib/constants/prose-styles";
+import { EmbeddedMarkdown } from "@/components/shared/embedded-markdown";
 import type { WorkflowStatusDocument } from "@/lib/workflows/types";
 
 /**
@@ -22,21 +20,22 @@ export function ExpandableResult({ result }: { result: string }) {
   return (
     <div className="mt-2">
       <div
-        className={`${PROSE_NOTIFICATION} ${
+        className={
           expanded
-            ? "max-h-96 overflow-auto"
+            ? "surface-scroll max-h-[48rem] overflow-auto rounded-lg p-3"
             : result.length > 200
               ? "max-h-20 overflow-hidden mask-fade-bottom"
               : ""
-        }`}
+        }
       >
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
+        <EmbeddedMarkdown content={result} hierarchy="embedded" />
       </div>
       {result.length > 200 && (
         <button
           type="button"
           className="mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
           onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
         >
           {expanded ? "Show less" : "Show more"}
         </button>

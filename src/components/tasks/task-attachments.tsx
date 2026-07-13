@@ -1,15 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Trash2, Image, FileCode, File } from "lucide-react";
+import { FileText, Download, Trash2, Image, FileCode, File, Eye } from "lucide-react";
 import { toast } from "sonner";
 import type { DocumentRow } from "@/lib/db/schema";
 
+export type TaskDocumentSummary = Pick<
+  DocumentRow,
+  "id" | "originalName" | "mimeType" | "size" | "version" | "direction"
+>;
+
 interface TaskAttachmentsProps {
-  documents: DocumentRow[];
+  documents: TaskDocumentSummary[];
   title?: string;
   onDeleted?: () => void;
+  showDelete?: boolean;
 }
 
 function formatSize(bytes: number): string {
@@ -35,7 +43,9 @@ export function TaskAttachments({
   documents,
   title = "Attachments",
   onDeleted,
+  showDelete = true,
 }: TaskAttachmentsProps) {
+  const router = useRouter();
   const [deleting, setDeleting] = useState<string | null>(null);
 
   async function handleDelete(docId: string) {
@@ -57,54 +67,94 @@ export function TaskAttachments({
 
   if (documents.length === 0) return null;
 
+  function openOutput(doc: TaskDocumentSummary) {
+    if (doc.direction !== "output") return;
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && selection.toString().trim()) return;
+    router.push(`/documents/${doc.id}`);
+  }
+
   return (
-    <div>
+    <div className="min-w-0">
       <h4 className="text-sm font-medium mb-2">{title}</h4>
-      <div className="space-y-1.5">
+      <div className="min-w-0 space-y-1.5">
         {documents.map((doc) => {
           const Icon = getFileIcon(doc.mimeType);
           return (
             <div
               key={doc.id}
-              className="flex items-center gap-2 text-sm group"
+              className={`group flex min-w-0 items-center gap-2 overflow-hidden rounded-md px-2 py-1.5 text-sm focus-within:ring-2 focus-within:ring-ring ${
+                doc.direction === "output" ? "cursor-pointer hover:bg-accent/50" : ""
+              }`}
+              onClick={() => openOutput(doc)}
             >
               <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              <span className="flex-1 truncate">{doc.originalName}</span>
+              {doc.direction === "output" ? (
+                <Link
+                  href={`/documents/${doc.id}`}
+                  className="min-w-0 flex-1 truncate rounded-sm font-medium hover:text-primary focus-visible:outline-none"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  {doc.originalName}
+                </Link>
+              ) : (
+                <span className="min-w-0 flex-1 truncate">{doc.originalName}</span>
+              )}
               {doc.direction === "output" && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                <span className="hidden rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline">
                   v{doc.version}
                 </span>
               )}
-              <span className="text-xs text-muted-foreground">
+              <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">
                 {formatSize(doc.size)}
               </span>
-              <a
-                href={`/api/documents/${doc.id}/file`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              <div
+                className="relative z-10 flex shrink-0 items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+                onClick={(event) => event.stopPropagation()}
               >
+                {doc.direction === "output" && (
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    asChild
+                  >
+                    <Link
+                      href={`/documents/${doc.id}`}
+                      aria-label={`View ${doc.originalName}`}
+                      title="View document"
+                    >
+                      <Eye className="h-3 w-3" />
+                    </Link>
+                  </Button>
+                )}
                 <Button
-                  type="button"
                   variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  aria-label={`Download ${doc.originalName}`}
+                  size="icon-xs"
+                  asChild
                 >
-                  <Download className="h-3 w-3" />
+                  <a
+                    href={`/api/documents/${doc.id}/file`}
+                    download
+                    aria-label={`Download ${doc.originalName}`}
+                    title="Download document"
+                  >
+                    <Download className="h-3 w-3" />
+                  </a>
                 </Button>
-              </a>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => handleDelete(doc.id)}
-                disabled={deleting === doc.id}
-                aria-label={`Delete ${doc.originalName}`}
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
+                {showDelete && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => handleDelete(doc.id)}
+                    disabled={deleting === doc.id}
+                    aria-label={`Delete ${doc.originalName}`}
+                    title="Delete document"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
             </div>
           );
         })}

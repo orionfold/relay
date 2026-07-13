@@ -8,6 +8,7 @@ import {
   buildDefaultNotificationVisibilityCondition,
   filterDefaultVisibleNotifications,
 } from "@/lib/notifications/visibility";
+import { attachCompletionContext } from "@/lib/notifications/completion-context";
 
 export const dynamic = "force-dynamic";
 
@@ -58,8 +59,9 @@ export default async function InboxPage() {
     ]);
 
   // Serialize Date objects for client component consumption
+  const rowsWithOutputs = await attachCompletionContext(rows);
   const initialNotifications = filterDefaultVisibleNotifications(
-    rows.map((n) => ({
+    rowsWithOutputs.map((n) => ({
       ...n,
       createdAt: n.createdAt.toISOString(),
       respondedAt: n.respondedAt?.toISOString() ?? null,

@@ -4,9 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Shield, MessageCircle, CheckCircle, XCircle, Eye, EyeOff, Trash2, Wallet, Brain, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { PROSE_NOTIFICATION } from "@/lib/constants/prose-styles";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PermissionAction } from "./permission-action";
@@ -20,6 +17,9 @@ import {
 } from "@/lib/notifications/permissions";
 import { ContextProposalReview } from "@/components/profiles/context-proposal-review";
 import { BatchProposalReview } from "./batch-proposal-review";
+import { EmbeddedMarkdown } from "@/components/shared/embedded-markdown";
+import { TaskAttachments } from "@/components/tasks/task-attachments";
+import type { NotificationOutputDocument } from "@/lib/notifications/completion-context";
 
 interface Notification {
   id: string;
@@ -33,6 +33,8 @@ interface Notification {
   response: string | null;
   respondedAt: string | null;
   createdAt: string;
+  outputDocuments?: NotificationOutputDocument[];
+  completionResultPreview?: string | null;
 }
 
 interface NotificationItemProps {
@@ -134,6 +136,7 @@ export function NotificationItem({
   const hasResponse = !!notification.response;
   const parsedToolInput = parseNotificationToolInput(notification.toolInput);
   const isNavigable = !!notification.taskId && navigableTypes.has(notification.type);
+  const renderedBody = notification.completionResultPreview ?? notification.body;
 
   function handleNavigate() {
     if (!isNavigable) return;
@@ -221,7 +224,7 @@ export function NotificationItem({
               </Badge>
               {parsedToolInput && (
                 <div className="text-sm text-muted-foreground bg-muted/60 p-2 rounded mt-1">
-                  <p className="mb-1 font-medium text-foreground">
+                  <p className="mb-1 break-all font-medium text-foreground">
                     {buildPermissionSummary(notification.toolName, parsedToolInput)}
                   </p>
                   {formatToolInput(notification.toolName, parsedToolInput)}
@@ -231,30 +234,40 @@ export function NotificationItem({
           )}
 
           {/* Body for non-tool notifications */}
-          {notification.body &&
+          {(renderedBody || (notification.outputDocuments?.length ?? 0) > 0) &&
             notification.type !== "permission_required" &&
             notification.type !== "agent_message" &&
             notification.type !== "context_proposal" &&
             notification.type !== "context_proposal_batch" && (
               <div className="mt-1" onClick={(e) => e.stopPropagation()}>
-                <div
-                  className={`${PROSE_NOTIFICATION} ${
-                    expanded
-                      ? "max-h-96 overflow-auto"
-                      : notification.body.length > 200
-                        ? "max-h-20 overflow-hidden mask-fade-bottom"
-                        : ""
-                  }`}
-                >
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {notification.body}
-                  </ReactMarkdown>
-                </div>
-                {notification.body.length > 200 && (
+                {renderedBody && (
+                  <div
+                    className={
+                      expanded
+                        ? "surface-scroll max-h-[48rem] overflow-auto rounded-lg p-3"
+                        : renderedBody.length > 200
+                          ? "max-h-20 overflow-hidden mask-fade-bottom"
+                          : ""
+                    }
+                  >
+                    <EmbeddedMarkdown content={renderedBody} hierarchy="compact" />
+                  </div>
+                )}
+                {(notification.outputDocuments?.length ?? 0) > 0 && (
+                  <div className="mt-3 rounded-lg border border-border p-3">
+                    <TaskAttachments
+                      documents={notification.outputDocuments ?? []}
+                      title={`Generated Outputs (${notification.outputDocuments?.length ?? 0})`}
+                      showDelete={false}
+                    />
+                  </div>
+                )}
+                {renderedBody && renderedBody.length > 200 && (
                   <button
                     type="button"
                     className="mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                     onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+                    aria-expanded={expanded}
                   >
                     {expanded ? "Show less" : "Show more"}
                   </button>
