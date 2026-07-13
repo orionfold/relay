@@ -134,7 +134,12 @@ export function createKpiContext(): KpiContext {
         const since = windowStart(window);
         conditions.push(gte(userTableRows.createdAt, since));
 
-        const bucket = sql<string>`date(${userTableRows.createdAt} / 1000, 'unixepoch')`;
+        // Drizzle's SQLite `timestamp` mode persists epoch seconds. Dividing
+        // by 1000 here collapsed every real date into January 1970, so a
+        // multi-day pack ledger produced a one-point series and the KPI tile
+        // silently omitted its trend/spark. Bucket the stored seconds
+        // directly, matching SQLite's `unixepoch` contract.
+        const bucket = sql<string>`date(${userTableRows.createdAt}, 'unixepoch')`;
         const rows = db
           .select({
             date: bucket,

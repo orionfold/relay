@@ -1,6 +1,6 @@
 ---
 title: Resurface primitives (wave 1) — declarable table charts, wire the heatmap, feed KPI trend/spark
-status: in-progress
+status: completed
 priority: P1
 milestone: post-mvp
 source: internal pack-evolution strategy §6 + §8.2
@@ -89,8 +89,10 @@ each resurfaced primitive and renders it, not just unit tests.
       capability is a typed Zod arm with an evaluator/kit binding. **DELIVERED** —
       `ChartSpecSchema` is `.strict()` and enumerated; rejects an unknown `type` and a
       `component:` escape-hatch field (view-schema tests).
-- [ ] An end-to-end dev-server smoke installs a pack exercising all three resurfaced primitives
-      and renders them correctly (per the runtime-registry smoke budget). **IN PROGRESS.**
+- [x] An end-to-end dev-server smoke installs a pack exercising all three resurfaced primitives
+      and renders them correctly (per the runtime-registry smoke budget). **DELIVERED** — isolated
+      Tracker and Coach installs of the synthetic bundled Agency fixture rendered the promoted chart,
+      labeled KPI sparklines, and the 84-cell cadence heatmap under real `npm run dev` instances.
 - [x] Every existing pack still installs and renders; no regression to current view kits.
       **DELIVERED** — full `src/lib/apps` + charts + tables suites green (397).
 
@@ -113,6 +115,25 @@ each resurfaced primitive and renders it, not just unit tests.
   and are `pack-depth-next-wave`'s "build only when a selected pack needs it" scope (§6).
 - Exposing the cost/monitor dashboard widgets to kits (deferred; lower leverage this wave).
 - Any pack content changes — this is engine-side resurfacing shared by all packs.
+
+## Verification run — 2026-07-12
+
+- Installed two isolated local copies of the bundled synthetic Relay Agency pack through the real
+  `relay pack add <path>` CLI path: Tracker mode declared the table chart and windowed KPIs; Coach
+  mode exercised the cadence slot. Each install created 4 tables, seeded 35 rows and 6 customers,
+  and installed 7 profiles plus 7 blueprints.
+- The first real render exposed a timestamp-unit defect: Drizzle persists SQLite `timestamp` values
+  as epoch seconds, but `tableSumWindowedSeries` divided them by 1000 before daily bucketing. That
+  collapsed all history into 1970 and silently suppressed trends. The query now buckets stored epoch
+  seconds directly, with a regression test proving two persisted days remain two series points.
+- Added a concrete initial dimension to Recharts' `ResponsiveContainer`, while retaining responsive
+  width/height, so the promoted chart no longer logs a `-1` server/hydration size warning.
+- Fresh browser evidence: Tracker rendered `Engagements by category` as a live Recharts surface plus
+  accessible `Billed (MTD) trend` and `Costs (MTD) trend` sparklines; Coach rendered `Run cadence`
+  with all 84 heatmap cells. Both fresh tabs had zero browser warnings/errors, and both server runs
+  loaded without module-registry errors.
+- Final checks: 136 focused tests passed across schema, evaluator, data context, Tracker/Coach kits,
+  heatmap, integration, and pack-install coverage; `npx tsc --noEmit` and `git diff --check` passed.
 
 ## References
 

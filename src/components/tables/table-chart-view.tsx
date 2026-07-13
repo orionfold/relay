@@ -93,7 +93,12 @@ export function TableChartView({ config, title, rows }: TableChartViewProps) {
     <div className="space-y-2">
       <h3 className="text-sm font-medium">{title}</h3>
       <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={0}
+          initialDimension={{ width: 800, height: 300 }}
+        >
           {config.type === "bar" ? (
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />

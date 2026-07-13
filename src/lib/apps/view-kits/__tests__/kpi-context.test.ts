@@ -162,6 +162,30 @@ describe("createKpiContext().tableSumWindowedSeries", () => {
     expect(series.length).toBeGreaterThanOrEqual(1);
   });
 
+  it("keeps rows from distinct persisted days in distinct buckets", async () => {
+    const now = new Date();
+    const dayOne = new Date(now.getFullYear(), now.getMonth(), 1, 12);
+    const dayTwo = new Date(now.getFullYear(), now.getMonth(), 2, 12);
+
+    db.update(userTableRows)
+      .set({ createdAt: dayOne, updatedAt: dayOne })
+      .where(eq(userTableRows.id, "r3"))
+      .run();
+    db.update(userTableRows)
+      .set({ createdAt: dayTwo, updatedAt: dayTwo })
+      .where(eq(userTableRows.id, "r1"))
+      .run();
+    db.update(userTableRows)
+      .set({ createdAt: dayTwo, updatedAt: dayTwo })
+      .where(eq(userTableRows.id, "r2"))
+      .run();
+
+    const ctx = createKpiContext();
+    await expect(
+      ctx.tableSumWindowedSeries(TEST_TABLE, "amount", undefined, "mtd")
+    ).resolves.toEqual([200, 50]);
+  });
+
   it("returns [] for a table with no rows in the window", async () => {
     const ctx = createKpiContext();
     const series = await ctx.tableSumWindowedSeries(
