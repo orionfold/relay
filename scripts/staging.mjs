@@ -1,5 +1,5 @@
 // PLG-S staging driver — one command for a customer-identical Relay first-run
-// (spec: strategy _SPECS/relay-staging-harness.md, S1).
+// (spec: strategy _SPECS/2026-07-02-105210_relay-staging-harness.md, S1).
 //
 // Unlike scripts/npx-prod-smoke.mjs (ephemeral mkdtemp, assert-then-exit), this
 // is a PERSISTENT, operator-drivable environment: setup packs + installs into a

@@ -45,6 +45,10 @@ _SPECS
 # orionfold/strategy repo (_ASSETS -> ../strategy/relay/_ASSETS); never ship here
 _ASSETS
 
+# strategy co-development flows live in the private strategy repo
+# (_FLOWS -> ../strategy/relay/_FLOWS); never ship here
+_FLOWS
+
 # Claude Code self-improvement reference docs (local only — playbook + Opus 4.8
 # best-practices standard; see _REFER/cc-self-improve-all-projects.md)
 _REFER/

@@ -3,7 +3,7 @@ title: License lifecycle core — persist, verb, banner, ceremony (PLG-1)
 status: shipped
 priority: P1
 milestone: mvp
-source: _SPECS/plg-refine.md §5 PLG-1 (program decision record D1–D7)
+source: _SPECS/2026-07-01-200629_plg-refine.md §5 PLG-1 (program decision record D1–D7)
 dependencies: [feat-ship-production-build-for-npx]
 ---
 
@@ -183,7 +183,7 @@ upsell/nag text; issuer-side changes (payload already carries everything).
 
 ## References
 
-- Program spec: `_SPECS/plg-refine.md` §4 (D1–D7), §5 PLG-1, §7 anti-patterns.
+- Program spec: `_SPECS/2026-07-01-200629_plg-refine.md` §4 (D1–D7), §5 PLG-1, §7 anti-patterns.
 - Verifier internals: `src/lib/licensing/{verify,gate,load,canonicalize}.ts`.
 - Fulfilment capture facts: Website `supabase/functions/stripe-webhook/index.ts`
   + `_shared/license-payload.ts` (email always, name usually, org never).

@@ -1,4 +1,4 @@
-// FROZEN SCOPE (_SPECS/feature-cut-freeze.md Target 4 · _IDEAS/reprioritze.md §4)
+// FROZEN SCOPE (_SPECS/2026-06-29-211534_feature-cut-freeze.md Target 4 · _IDEAS/reprioritze.md §4)
 // Frozen aggregate shape; no new trend series or live-host metrics without
 // revisiting reprioritze §4. The telemetry cockpit is maintain-only.
 

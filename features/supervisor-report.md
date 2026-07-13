@@ -1,50 +1,34 @@
 ---
-generated: 2026-04-09
+generated: 2026-07-12
 mode: next-steps
 ---
 
 # Supervisor Report
 
-## Next Steps — 2026-04-09
+## Next Steps — 2026-07-12
 
 ### Recommendation
 
-**Do this:** Build `workflow-step-delays` — the smaller, lower-risk half of the Growth-Enabling Primitives pair, track-locked as "first" in the 2026-04-08 grooming entry.
+**Do this:** Complete G-042, `Make task outputs readable and directly navigable`.
 
-**Why:**
-- P1, post-mvp, `planned` with all dependencies met (`workflow-engine` and `scheduled-prompt-loops` are both `completed`).
-- The 2026-04-08 changelog explicitly locks track order: **"Workflow Step Delays first, Bulk Row Enrichment second."** That decision stands.
-- Thematic continuity with today's work — you just merged PR manavsehgal/ainative#6 and groomed `workflow-status-view-pattern-router`. Three workflow-layer touchpoints in a row compound your context.
-- **Three-deep unblock chain:** `workflow-step-delays` → `bulk-row-enrichment` → `workflow-status-view-pattern-router` (your newly groomed spec lists `bulk-row-enrichment` as a dependency). Building delays first walks the chain toward the architectural cleanup you advocated for this morning.
-- The spec calls out reusable surface area already in place: the `"paused"` workflow status enum and the `PATCH /api/workflows/[id]` pause transition. Less new code than the spec originally implied.
+**Why:** G-042 was the highest ready P1 goal and directly addressed the output-rendering and
+document-navigation findings from the live G-006 walkthrough after G-041 stabilized run evidence.
 
-**Invoke:** `/frontend-designer` first (12 UX-testable ACs were added during grooming — timezone clarity, compact duration format, Execute-button pattern reuse), then `/frontend-design` for the build, then `/quality-manager` for tests.
+**Priority category:** Phase advancement — highest ready goal in the canonical backlog with all
+dependencies and operator gates satisfied.
 
-**Priority category:** Phase advancement — next planned feature with all dependencies met, in a track with an already-locked order.
+### Result
 
-### Context
+G-042 completed on 2026-07-12. Task detail, task-summary, Inbox completion previews, and rendered
+documents now share safe markdown hierarchy, semantic Insight callouts, a 2× expanded reading area,
+and direct generated-document navigation. Focused tests, TypeScript, production build, real-result
+browser replay, desktop/390px checks, and fresh review passed.
 
-**In-progress (5 features — WIP is high):**
-- `chat-settings-tool` (P1), `database-snapshot-backup` (P1), `dynamic-slash-commands` (P2), `runtime-validation-hardening` (P1), `profile-environment-sync` (P1)
+### Next ready goal
 
-**Planned and ready (deps met):**
-- `workflow-step-delays` (P1) ← recommended
-- `instance-bootstrap` (P1, no deps) — but dev-mode gate friction; building in main repo requires `AINATIVE_INSTANCE_MODE=true` overrides (per MEMORY.md)
-- `workflow-document-pool` (P1) — 6 deps, all met
-- `workflow-run-history` (P1) — `workflow-editing` status unclear, verify before starting
-- `direct-runtime-prompt-caching`, `direct-runtime-advanced-capabilities` (both P2)
-
-**Pipeline depth:** Healthy — 8+ `planned` features with met dependencies, plus the `ideas/` backlog.
-
-**Latent signal (not a blocker, worth a glance):** Session-start diagnostics flagged `Cannot find module '@/lib/db'` in ~10 scheduler test files (`reconcile.test.ts`, `tick-scheduler.test.ts`, `slot-claim.test.ts`, etc.). These are likely TypeScript-server cache artifacts from the recent schedule-orchestration-v2 merge (`df9a7cb`, `aeeded1`, `d895484`) — but if `npm test` actually fails on them, that's a real blocker and should be fixed before starting new work. Worth running `npm test` once before committing to `workflow-step-delays`.
-
-### If You Have More Time
-
-1. **Close one in-progress feature before starting new work.** `database-snapshot-backup` (P1, no deps) is the cheapest WIP to retire — no dependency context to re-page in. Invoke `/product-manager` ship verify mode to see what's actually left. WIP of 5 is high; retiring one brings you to a healthier 4.
-
-2. **Run `/architect` drift detection on the Clone Lifecycle & Self-Upgrade track.** `instance-bootstrap` is P1 planned with no deps, unblocks 3 downstream features (`upgrade-detection`, `upgrade-session`, `instance-license-metering`), but the dev-mode gate means you'd be building against a partially-mocked surface. Drift detection would tell you whether the track is ready to pull or still needs prep.
-
-3. **Verify the latent test-import signal.** If `npm test` fails on the scheduler tests, that blocks every other recommendation. 30-second check: `npm test -- --listTests` or similar to see if module resolution is actually broken.
+G-043, `Make task-summary and Inbox navigation match their visual affordances`, is now the highest
+ready backlog goal. It closes the remaining walkthrough navigation gaps around full-card Inbox
+activation, side-panel identity, and the explicit task-detail action.
 
 ---
 

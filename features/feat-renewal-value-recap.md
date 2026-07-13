@@ -3,7 +3,7 @@ title: Renewal value-recap loop (PLG-4a)
 status: planned
 priority: P1
 milestone: post-mvp
-source: _SPECS/plg-refine.md §5 PLG-4 + S7 operator gate (2026-07-02 — value-recap chosen; reverse trial KILLED per §4)
+source: _SPECS/2026-07-01-200629_plg-refine.md §5 PLG-4 + S7 operator gate (2026-07-02 — value-recap chosen; reverse trial KILLED per §4)
 dependencies: [feat-pack-update-workflow, feat-license-lifecycle]
 ---
 
@@ -33,7 +33,7 @@ buys. That lever needs data, and this feature wires it.
 
 Operator context: this is the first PLG-4 loop, gated and chosen 2026-07-02.
 The reverse-trial loop was killed the same day (re-lock = D4 violation,
-recorded in `_SPECS/plg-refine.md` §4) — nothing here may drift toward it.
+recorded in `_SPECS/2026-07-01-200629_plg-refine.md` §4) — nothing here may drift toward it.
 
 ## User Story
 
@@ -194,7 +194,7 @@ to add a renewal-reminder email (suggest T-30) built on:
 
 ## References
 
-- Source: `_SPECS/plg-refine.md` §5 PLG-4 (loop definition), §4 D4/D5/D7 +
+- Source: `_SPECS/2026-07-01-200629_plg-refine.md` §5 PLG-4 (loop definition), §4 D4/D5/D7 +
   the 2026-07-02 reverse-trial kill record, §7 anti-patterns
 - Code anchors: `src/lib/licensing/cli.ts:118-167` (status verb, D4 warning,
   D4_PROMISE wording), `src/lib/packs/update.ts:78` (packUpdateAvailability),

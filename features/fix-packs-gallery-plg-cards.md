@@ -166,7 +166,7 @@ Information architecture the design must satisfy (creative execution belongs to 
 - `output/staging/2026-07-02/EVALUATION.md` F3/F4 — note F3's "website likely stale" line
   predates the operator's reframe; the issues carry the corrected framing (**website is
   CORRECT**, the product lacks the mechanic).
-- `_SPECS/plg-refine.md` §2 (PLG-2 graduation surface) — program context (strategy repo,
+- `_SPECS/2026-07-01-200629_plg-refine.md` §2 (PLG-2 graduation surface) — program context (strategy repo,
   edit-only).
 - Related features: `feat-graduation-surface.md` (the surface this refines),
   `feat-renewal-value-recap.md` (the `changelog:` recap lines the installed card renders).

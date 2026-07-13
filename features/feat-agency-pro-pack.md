@@ -3,7 +3,7 @@ title: Agency Pro — first premium pack (PLG-2b)
 status: planned
 priority: P0
 milestone: mvp
-source: _SPECS/plg-refine.md §5 PLG-2b + Agency Pro brainstorm (2026-07-01 session)
+source: _SPECS/2026-07-01-200629_plg-refine.md §5 PLG-2b + Agency Pro brainstorm (2026-07-01 session)
 dependencies: [feat-graduation-surface, feat-license-lifecycle]
 ---
 
@@ -218,7 +218,7 @@ paths), the Mode C acceptance run.
 
 ## References
 
-- Program decision record: `_SPECS/plg-refine.md` §1 (Naya), §4 (D4/D5/D6/D7), §5 PLG-2b.
+- Program decision record: `_SPECS/2026-07-01-200629_plg-refine.md` §1 (Naya), §4 (D4/D5/D6/D7), §5 PLG-2b.
 - Pack format: `src/lib/packs/format.ts` (PackManifestSchema, overrides layering);
   primitive palette: `src/lib/apps/registry.ts` (triggers, schedules, ledger kit,
   tableSumWindowed/ratio KPIs).

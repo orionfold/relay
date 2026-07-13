@@ -1,4 +1,4 @@
-// FROZEN SCOPE (_SPECS/feature-cut-freeze.md Target 4 · _IDEAS/reprioritze.md §4)
+// FROZEN SCOPE (_SPECS/2026-06-29-211534_feature-cut-freeze.md Target 4 · _IDEAS/reprioritze.md §4)
 // Frozen RailCell API; extend only to serve the Operations Receipt, not new
 // live-host metrics. The telemetry rail's scope is locked at 10 cells.
 

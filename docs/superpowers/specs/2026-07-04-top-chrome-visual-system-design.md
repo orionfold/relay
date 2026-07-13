@@ -9,7 +9,7 @@ blast_radius: medium — ~9 files across shell components, one API route, global
   telemetry trend series, no new rail cells.
 references:
   - _IDEAS/backlog.md (the FEAT-9/10/11/11b/12/14/15/16 initiative line)
-  - _SPECS/feature-cut-freeze.md Target 4 (the rail FREEZE this design amends — edit-only)
+  - _SPECS/2026-06-29-211534_feature-cut-freeze.md Target 4 (the rail FREEZE this design amends — edit-only)
   - src/components/shell/app-shell.tsx · app-bar.tsx · telemetry-rail.tsx · rail-cell.tsx
   - src/app/api/instance/config (the endpoint the identity read extends)
   - src/app/api/license/route.ts · src/lib/licensing/store.ts (getLicensedIdentity precedence)
@@ -303,7 +303,7 @@ text label** — the specific FEAT-12 fix (it is a bare unlabeled dot today).
 
 ## Freeze-doc amendment (edit-only — strategy repo owner commits)
 
-`_SPECS/feature-cut-freeze.md` is a symlink into the strategy repo (`../strategy/relay/_SPECS`) —
+`_SPECS/2026-06-29-211534_feature-cut-freeze.md` is a symlink into the strategy repo (`../strategy/relay/_SPECS`) —
 **edit-only** per project policy; the strategy-repo owner commits it, never this instance. Target 4
 gains an amendment permitting a **presentation-only** rail type/hierarchy re-scale while preserving
 the anti-expansion intent (no new cells, no new trend series, no new live-host metrics). The
@@ -363,4 +363,4 @@ does the right thing.
 99 tests green across the touched scopes; the 8 suite-wide failures are the pre-existing set (handoff
 `router.test.ts` ×6 + heatmap/settings validator ×2), none in the redesign's diff. `RailCell` prop
 signature + `TelemetrySnapshot` shape verified unchanged (freeze amendment held). Freeze-doc amendment
-already present in `_SPECS/feature-cut-freeze.md` Target 4 — strategy-repo owner commits it.
+already present in `_SPECS/2026-06-29-211534_feature-cut-freeze.md` Target 4 — strategy-repo owner commits it.

@@ -3,7 +3,7 @@ title: Graduation surface — /packs gallery, Settings → License, name-based i
 status: completed
 priority: P1
 milestone: mvp
-source: _SPECS/plg-refine.md §5 PLG-2 (D6/D7) + features/fix-pack-install-discoverability.md (absorbed)
+source: _SPECS/2026-07-01-200629_plg-refine.md §5 PLG-2 (D6/D7) + features/fix-pack-install-discoverability.md (absorbed)
 dependencies: [feat-license-lifecycle, fix-pack-core-version-resolution]
 ---
 
@@ -158,7 +158,7 @@ apps-gallery nudge, install API, license API, Settings → License section, Mode
 
 ## References
 
-- Program decision record: `_SPECS/plg-refine.md` §4 (D2, D4, D6, D7), §5 PLG-2, §9.
+- Program decision record: `_SPECS/2026-07-01-200629_plg-refine.md` §4 (D2, D4, D6, D7), §5 PLG-2, §9.
 - Absorbed: `features/fix-pack-install-discoverability.md` (its ACs live on here as the
   free-pack slice).
 - Store API: `src/lib/licensing/store.ts` (`listLicenses`, `saveLicense`,

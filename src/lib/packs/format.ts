@@ -11,7 +11,7 @@ import { AppManifestSchema, type AppManifest } from "@/lib/apps/registry";
  *
  * Keeping `pack.yaml` separate from the inner manifest keeps the AppManifest
  * contract pristine — the pack format extends AROUND it, not INTO it. See
- * _SPECS/relay-pack-format.md.
+ * _SPECS/2026-06-30-132118-01_relay-pack-format.md.
  *
  * The on-disk layout is pre-split into `base/` (upstream-authored, managed in
  * a future release) + `overrides/` (user-owned, shadows base at load time).

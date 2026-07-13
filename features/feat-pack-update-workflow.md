@@ -3,7 +3,7 @@ title: Pack update workflow + Agency Pro v0.2.0 (nonprofit deep chapter)
 status: shipped
 priority: P0
 milestone: mvp
-source: _SPECS/plg-refine.md §4 D4 + feat-agency-pro-pack.md (excluded scope: "the update *workflow* is future work tied to the first paid update") + S6 operator gate (2026-07-01)
+source: _SPECS/2026-07-01-200629_plg-refine.md §4 D4 + feat-agency-pro-pack.md (excluded scope: "the update *workflow* is future work tied to the first paid update") + S6 operator gate (2026-07-01)
 dependencies: [feat-agency-pro-pack]
 ---
 
@@ -148,8 +148,8 @@ as specced above (backup to `apps/<id>/backup/<oldVersion>/`, loud report).
 - Machinery map (2026-07-01 exploration): install flow `src/lib/packs/install.ts:104-359`,
   overrides precedence `format.ts:187-212`, gate `src/lib/licensing/gate.ts:46-83`,
   stub `cli.ts:188-200`, /packs card `src/app/packs/page.tsx:39-139`.
-- D4 text: `_SPECS/plg-refine.md:116-119`; public copies README.md:140,
+- D4 text: `_SPECS/2026-07-01-200629_plg-refine.md:116-119`; public copies README.md:140,
   `docs/trust/license-terms.md:35`, orionfold.com/promise/.
 - Prior art: `features/app-updates-dependencies.md` (dropped marketplace-era
   spec; additive-only invariant + backup/rollback shape reused).
-- Managed-base intent: `_SPECS/relay-pack-format.md:97,131,175-177`.
+- Managed-base intent: `_SPECS/2026-06-30-132118-01_relay-pack-format.md:97,131,175-177`.

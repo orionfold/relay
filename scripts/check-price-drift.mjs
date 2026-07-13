@@ -4,7 +4,7 @@
 // src/lib/packs/templates/relay-agency-pro/pack.yaml (`price:` block). The
 // Website owns the canonical price and publishes it as a machine-readable
 // source at https://orionfold.com/relay/pricing.json (operator ruling
-// 2026-07-02, §7 of _SPECS/plg-refine.md). Those two can silently contradict
+// 2026-07-02, §7 of _SPECS/2026-07-01-200629_plg-refine.md). Those two can silently contradict
 // each other — the $349-vs-$499 class found in the 2026-07-02 persona smoke
 // (F3/#20). This check reads the canonical JSON and fails a release when the
 // pack disagrees, structurally killing the drift class.

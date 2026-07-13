@@ -1,5 +1,11 @@
 # Product Roadmap
 
+> **Live priority source:** `_IDEAS/backlog.md` is the single ordered queue of incomplete Relay
+> goals. This roadmap remains the feature catalog, dependency/history view, and source for
+> individual feature links; its legacy sprint order is not a competing instruction about what to
+> build next. Remove accepted goals from the backlog when their durable feature/changelog record is
+> updated.
+
 ## MVP
 
 ### Foundation Layer
@@ -54,7 +60,7 @@ app-single-file-format, app-updates-dependencies, curated-collections, marketpla
 marketplace-local-first-discovery, marketplace-reviews.
 
 The **telemetry cockpit** and **plugin fall-through** are **frozen (maintain-only)** — scope-locked
-via marker comments, not dropped. See `_SPECS/feature-cut-freeze.md` Target 4.
+via marker comments, not dropped. See `_SPECS/2026-06-29-211534_feature-cut-freeze.md` Target 4.
 
 ### Document Management
 
@@ -528,7 +534,7 @@ when-dependsOn-earns-weight, bundle-pricing) need operator + Website calls durin
 | Feature | Priority | Status | Dependencies |
 |---------|----------|--------|--------------|
 | [pack-generalize-agency](pack-generalize-agency.md) | P0 | planned | — |
-| [pack-primitive-resurface](pack-primitive-resurface.md) | P1 | planned | — |
+| [pack-primitive-resurface](pack-primitive-resurface.md) | P1 | completed | — |
 | [pack-bundle-model](pack-bundle-model.md) | P1 | planned | pack-generalize-agency |
 | [pack-agency-bundle](pack-agency-bundle.md) | P1 | planned | pack-generalize-agency, pack-bundle-model |
 | [pack-entitlement-per-line](pack-entitlement-per-line.md) | P2 | planned | pack-bundle-model, pack-agency-bundle |

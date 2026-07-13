@@ -38,7 +38,7 @@ export interface EnsureCustomerResult {
  *
  * Semantics: create-if-absent, NOT upsert-all-fields — a second call with the
  * same slug returns the existing row untouched (re-seeding must not clobber edits
- * the operator made to a seeded customer). See _SPECS/customer-dimension.md.
+ * the operator made to a seeded customer). See _SPECS/2026-06-30-132039_customer-dimension.md.
  */
 export async function ensureCustomer(
   input: EnsureCustomerInput

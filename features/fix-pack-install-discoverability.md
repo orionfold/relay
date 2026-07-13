@@ -11,7 +11,7 @@ dependencies: [fix-pack-core-version-resolution]
 
 > **2026-07-01 — absorbed into the PLG refinement program (PLG-2a).** The `/packs` gallery this
 > spec proposes is being widened to also show premium packs visible-but-locked (soft-gate
-> discovery), plus a Settings → License page. Program decision record: `_SPECS/plg-refine.md`
+> discovery), plus a Settings → License page. Program decision record: `_SPECS/2026-07-01-200629_plg-refine.md`
 > (private strategy channel). Groom the combined scope there before implementing; the acceptance
 > criteria below still hold as the free-pack slice.
 

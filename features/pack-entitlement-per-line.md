@@ -98,6 +98,6 @@ and as an existing single-license holder, I keep everything I already paid for.
 - Anchors: `src/lib/packs/format.ts` (entitlement = version/pack-id-agnostic unit),
   `scripts/check-price-drift.mjs`, `packPrice()` normalizer, the offline Ed25519 verifier +
   402 soft-gate install path.
-- Constraints: `_SPECS/plg-refine.md` D4 (never re-lock) / D5 (capabilities stay free).
+- Constraints: `_SPECS/2026-07-01-200629_plg-refine.md` D4 (never re-lock) / D5 (capabilities stay free).
 - Depends on: `pack-bundle-model`, `pack-agency-bundle` (a per-line price needs a shipped bundle
   line — the Agency bundle is the first, per the 2026-07-05 operator decision).

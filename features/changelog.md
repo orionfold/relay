@@ -1,5 +1,159 @@
 # Feature Changelog
 
+## 2026-07-12 — G-042 readable and navigable task outputs
+
+### Completed
+
+- Task detail, task-summary, Inbox completion previews, workflow step results, and rendered markdown
+  documents now use one safe markdown renderer. Source H1/H2/H3 hierarchy is shifted beneath its
+  containing page or card title, raw HTML stays inert, unsafe URL schemes are stripped, and normal
+  blockquotes remain distinct from supported `★ Insight ─…` callouts.
+- Long results retain their compact preview and expand into a 48rem reading area—twice the prior
+  24rem cap—with explicit `aria-expanded` state and no nested outer scroll clamp.
+- Generated output rows now navigate to the rendered document view from their primary label or
+  row whitespace and include a dedicated `View document` icon beside Download. Download, Delete,
+  text selection, and nested Inbox actions remain isolated from row/task navigation; narrow screens
+  keep actions visible and hide secondary size/version metadata before truncating the filename.
+- Inbox completion reads batch a bounded 4,000-character result preview and every current output
+  document for up to 100 visible notifications. This repairs previously stored 500-character bodies
+  that cut Insight syntax mid-block without changing runtime writers or duplicating per-card fetches.
+- Live evidence replayed the G-006 research task `a4a1e018-1539-440a-b967-e1d215692f4d` and the
+  delegated accounting task `eb386c39-37ff-464f-bf70-7c90dad057b7`: task detail, task-summary, and
+  Inbox rendered Insight correctly; the AI briefing opened through its explicit View action; its
+  document retained one page H1 and subordinate internal headings.
+- Verification: 17 focused tests, TypeScript, diff checks, production build, fresh code review, and
+  in-app browser checks at desktop and 390px. The expanded real result measured 672px versus the
+  prior 336px cap; task, side-panel, Inbox, and document routes had zero horizontal overflow and no
+  browser console errors.
+
+## 2026-07-12 — G-041 compact shared task run history
+
+### Completed
+
+- Full task detail and the task-summary side panel now render the same task run-history component
+  and share one abortable polling lifecycle. Closing the panel, switching tasks, or leaving a
+  running task stops its pending request and interval instead of leaving background refresh work.
+- Provider stream chatter (`message_start`, `content_block_start`, `content_block_delta`, and direct
+  runtime `stream` rows) is aggregated into ordered `Response ×N` events. Tool calls, runtime
+  routing/fallbacks, permission decisions, failures, and terminal events remain distinct; Monitor
+  retains the untouched raw diagnostic stream.
+- History responses are explicitly bounded to 20 attempts, 160 semantic events, and 2,000-character
+  source payloads. Any event or payload trimming is visible and hands the operator to filtered
+  Monitor diagnostics rather than silently discarding evidence.
+- Real-task evidence: the live delegated Opus+subagent research task
+  `eb386c39-37ff-464f-bf70-7c90dad057b7` rendered 20 semantic events from hundreds of raw stream
+  fragments, with ordered Agent/WebFetch tools, the denied Bash permission, terminal completion,
+  complete usage, and a working filtered-Monitor handoff.
+- Verification: 14 focused route/component/hook tests, TypeScript, diff checks, production build,
+  desktop and 390px browser checks, keyboard disclosures, side-panel/full-page parity, zero
+  horizontal overflow, and clean browser console. The build retained only the pre-existing broad
+  `fix-data-dir` file-trace warnings.
+
+## 2026-07-12 — G-040 complete delegated usage receipts
+
+### Completed
+
+- Claude Code task runs now consume the Agent SDK terminal result's authoritative
+  `modelUsage` and `total_cost_usd` fields, so parent and subagent work lands in one durable task
+  receipt instead of preserving the first parent-message fragment.
+- Usage rows now record `complete`, `partial`, or `unavailable` accounting plus their runtime source
+  and provider evidence. Provider-reported cost wins over local token-price estimates; malformed or
+  missing cumulative data remains visibly partial rather than silently masquerading as the full run.
+- Task detail, run history, budget settings, and Cost & Usage now share that truth contract. Complete
+  SDK receipts say `Reported Cost`; partial task/audit rows show known-minimum qualifiers; budget and
+  dashboard pacing warn when historical or current spend is incomplete.
+- Live delegated-task evidence: task `eb386c39-37ff-464f-bf70-7c90dad057b7` invoked an `Agent`
+  subagent and persisted 19,925 input + 5,848 output = 25,773 tokens across Opus and Haiku, with the
+  SDK-reported $1.199163 cost. The task row, ledger, task API, run-history API, and browser UI agreed.
+- Verification: 67 focused tests, TypeScript, production build, database bootstrap/migration checks,
+  real runtime smoke under `npm run dev`, and in-app browser checks on task detail and Cost & Usage.
+  The production build retained the repository's pre-existing broad NFT trace warnings.
+
+## 2026-07-12 — G-006 task run history completed
+
+### Completed
+
+- Added bounded, newest-first execution history to task detail by joining durable task execution
+  rows from `usage_ledger` with their `agent_logs`, while synthesizing the current attempt until its
+  terminal ledger row exists. Each attempt exposes status, timestamps, duration, runtime/model,
+  token count, and expandable recorded events without duplicating Monitor's live-stream console.
+- Added explicit never-run, terminal-history-unavailable, per-run pruned-log, truncated-history, and
+  visible refresh-error states. The current attempt refreshes every five seconds and links to Monitor
+  with that task already selected.
+- Verification: 7 isolated SQLite route/component tests and TypeScript passed. A real isolated Relay
+  preview verified running, completed, failed, multiple-run, never-run, and pruned fixtures; desktop
+  and 390px layouts had no horizontal overflow; the filtered Monitor handoff worked; and final
+  browser/server diagnostics were clean.
+
+## 2026-07-12 — Backlog goals G-001–G-005 closed
+
+### Closed by operator
+
+- Removed G-001 (fresh-VM customer acceptance), G-002 (customer logo issue #43), and G-003
+  (Relay→website asset delivery loop) from the live backlog as-is. No product implementation or
+  additional verification was requested for these closures.
+
+### Accepted from shipped code
+
+- Closed G-004 after confirming the July 7 Web Publisher polish already satisfies the goal: previews
+  stay inside Relay chrome with a separate standalone-artifact action; preview publish uses the
+  exact stored artifact and hash; empty gallery media slots are omitted; and every section card
+  opens its source row while CTA links remain explicit secondary actions.
+- Acceptance evidence: 36 focused preview/publish/store/route/gallery tests passed, including stale,
+  traversal, cross-app, mutation, and exact-hash cases. A live Web Publisher walkthrough rendered
+  the generated page in the iframe and standalone tab, showed zero blank media frames across four
+  section cards, navigated a whole card to its exact row, and produced no browser warnings/errors.
+
+### Completed G-005
+
+- Accepted `pack-primitive-resurface` after real isolated Tracker and Coach pack installs rendered
+  the manifest-declared chart, two accessible KPI trend sparklines, and the 84-cell run-cadence
+  heatmap under `npm run dev` with clean final browser/server diagnostics.
+- The acceptance run found and fixed two runtime-only gaps: daily KPI series now bucket Drizzle's
+  persisted epoch seconds without an erroneous `/ 1000`, and promoted Recharts surfaces receive an
+  initial 800×300 measurement so SSR/hydration no longer emits `-1` size warnings.
+- Evidence: 136 focused tests, TypeScript, and diff checks passed. The feature spec and roadmap are
+  synchronized to `completed`; the deliberately deferred undeclared-chart empty-state remains
+  trigger-gated and is not part of this accepted manifest-declarability goal.
+
+### Groomed walkthrough triage
+
+- Promoted TRIAGE-003 to P1 goal G-037: make KPI icon, watermark, color, label, and sparkline
+  communicate a truthful named comparison, recent momentum, and metric favorability.
+- Promoted TRIAGE-002 to P2 goal G-038. The shipped prompt persists Confirm/Skip actions; this goal
+  adds the stronger requested contract that merely displaying it once prevents future automatic
+  appearances for the same Relay instance.
+- Promoted TRIAGE-001 to P2 goal G-039: make the fixed 84-cell Run cadence visualization and its
+  heading form a compact responsive section without stretching the data display decoratively.
+- Merged TRIAGE-004 into G-009 so visible `Coach view`/`Tracker view` identity, resolved-kit
+  explanation, and copy-as-explicit-view form one coherent app-orientation outcome.
+- Reset `_IDEAS/triage.md` to empty intake after recording every disposition. The prioritized
+  backlog now contains 34 incomplete goals; no product implementation occurred in this grooming.
+
+## 2026-07-11 — Strategy backlog consolidated into goal contracts
+
+### Groomed
+
+- Replaced the walkthrough-era `_IDEAS/backlog.md` and the duplicate `_SPECS/backlog.md` with one
+  priority-ordered queue of 36 incomplete goals. Every goal now names an observable outcome,
+  constraints, verification, and operator gate; shipped findings are omitted instead of retained as
+  historical backlog.
+- Moved every live `HANDOFF.md` task into the canonical backlog, including customer retests,
+  website delivery waits, Web Publisher polish, `_ASSETS` consolidation, pack follow-ups, staging
+  cadence, and reactive debt. `HANDOFF.md` now carries only recovery anchors and points to the queue.
+- Promoted two missing high-leverage goals from the strategy audit: Proof/Arena verified-model
+  import into Relay and Operations Receipts for unattended runs.
+
+### Audited
+
+- Verified seven strategy specs as implemented from code and implementation commits; kept the card
+  system as a living partial spec with one residual convergence goal. The PLG program retains only
+  its explicitly trigger-gated free-registration option.
+- Timestamp-prefixed all eight `_SPECS` files by first implementation commit so directory order
+  reflects delivery sequence, with same-commit pack specs ordered by dependency.
+- Declared `_IDEAS/backlog.md` the live priority source; `features/roadmap.md` remains the catalog and
+  dependency/history view rather than a second queue.
+
 ## 2026-07-11 — Shared GitHub setup + public/private/community Pack journeys
 
 ### Built
@@ -325,7 +479,7 @@ Operator ruled on the two remaining PLG-4 loop candidates (AskUserQuestion gate,
 - **Free registration key tier — DEFERRED** (not killed): still a strong recommendation, but
   brand-timing isn't right and it depends on Website issuer participation + a decision on which
   2–3 community niceties gate behind the key. Held for a future session. Recorded in
-  `_SPECS/plg-refine.md` §4/§5 so the door stays ajar (distinct from KILLED reverse trial).
+  `_SPECS/2026-07-01-200629_plg-refine.md` §4/§5 so the door stays ajar (distinct from KILLED reverse trial).
 - **Founding-supporter identity — DROPPED**: $349 tier felt identical to $499 and the work is
   mostly Website/community surface with thin product code — not worth a product loop. Recorded
   as dropped in §4/§5; any differentiation is a Website/community decision, out of scope here.
@@ -384,7 +538,7 @@ Groomed the open-issue list (operator request, S8 open). Findings:
 
 S7 operator gate ran (AskUserQuestion, 2026-07-02): of the four PLG-4 loop candidates, the
 **renewal value-recap** was chosen — the only one that became honest with 0.21.0 (Agency Pro
-v0.2.0 is a real paid update to recap). Groomed `_SPECS/plg-refine.md` §5 PLG-4 into
+v0.2.0 is a real paid update to recap). Groomed `_SPECS/2026-07-01-200629_plg-refine.md` §5 PLG-4 into
 `features/feat-renewal-value-recap.md`: an optional `changelog:` field in pack.yaml (the missing
 per-version "what's new" source), ONE recap helper reusing `packUpdateAvailability` (D7), three
 explicit-invocation surfaces (`license status`, the 402 update refusal, the /packs one-liner),
@@ -421,7 +575,7 @@ chose to ship installer schedule support in this scope (0b) rather than defer to
 
 ## 2026-07-01 — groomed feat-agency-pro-pack (PLG-2b) for 0.19.0
 
-Groomed `_SPECS/plg-refine.md` §5 PLG-2b ("author the first real premium pack") into
+Groomed `_SPECS/2026-07-01-200629_plg-refine.md` §5 PLG-2b ("author the first real premium pack") into
 `features/feat-agency-pro-pack.md` from the Agency Pro brainstorm. Positioning: the free pack
 sells the verbs (click-to-run blueprints), Pro sells the operating system — five chapters, all
 pure composition of existing primitives: (1) finance cockpit (ledger kit + tableSumWindowed/ratio
@@ -452,7 +606,7 @@ the first REAL premium pack is S4 (PLG-2b).
 
 ## 2026-07-01 — groomed feat-graduation-surface (PLG-2a) for 0.18.0
 
-Groomed `_SPECS/plg-refine.md` §5 PLG-2 UI slice into `features/feat-graduation-surface.md`,
+Groomed `_SPECS/2026-07-01-200629_plg-refine.md` §5 PLG-2 UI slice into `features/feat-graduation-surface.md`,
 absorbing `fix-pack-install-discoverability` (status → absorbed; its ACs carry forward as the
 free-pack slice). Scope: bundled-pack catalog (`listPackTemplates`), optional `price`/`purchaseUrl`
 manifest fields, name-based install (`pack add relay-agency`, path-precedence rule), `/packs`
@@ -474,7 +628,7 @@ pack stays installed).
 
 ## 2026-07-01 — groomed feat-license-lifecycle (PLG-1) for 0.17.0
 
-Groomed `_SPECS/plg-refine.md` §5 PLG-1 into `features/feat-license-lifecycle.md`. Operator gates
+Groomed `_SPECS/2026-07-01-200629_plg-refine.md` §5 PLG-1 into `features/feat-license-lifecycle.md`. Operator gates
 resolved during grooming: banner identity = `Licensed to <name → email>` (confirmed against the
 Website Stripe webhook — fulfilment captures email always, billing name usually, org never);
 D4 perpetual-fallback public wording approved verbatim from the program spec; ships as **0.17.0**.
