@@ -6,6 +6,32 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+## [0.38.0] — 2026-07-12
+
+### Added
+
+- **Inspect a task's execution history without leaving task detail.** Full task
+  pages and task-summary panels now share a bounded, refreshable run timeline
+  with attempts, runtime/model details, semantic events, permission decisions,
+  visible truncation states, and a direct handoff to filtered Monitor logs.
+- **See complete delegated usage receipts when runtimes provide them.** Claude
+  Code terminal receipts now include parent and subagent usage and reported
+  cost. Task detail, run history, budgets, and Cost & Usage distinguish complete,
+  partial, and unavailable accounting instead of presenting partial totals as
+  authoritative.
+- **Read and navigate generated task output more easily.** Task detail, Inbox,
+  workflow results, and rendered documents share safe Markdown hierarchy and
+  Insight callouts. Long results expand into a larger reading area, while output
+  rows provide explicit View and Download actions and navigate to the rendered
+  document without interfering with selection, deletion, or nested actions.
+
+### Fixed
+
+- **Pack KPI trends retain distinct persisted days.** SQLite date bucketing now
+  uses the stored epoch-second value directly, restoring multi-day trend series
+  and sparklines. Promoted charts also receive a stable initial measurement so
+  server rendering and hydration no longer emit invalid-size warnings.
+
 ## [0.37.0] — 2026-07-11
 
 ### Added

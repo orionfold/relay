@@ -1,6 +1,6 @@
 id: echo-server
 version: 0.1.0
-apiVersion: "0.37"
+apiVersion: "0.38"
 kind: chat-tools
 name: Echo Server
 description: |

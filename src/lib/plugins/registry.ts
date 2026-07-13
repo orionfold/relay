@@ -1,6 +1,6 @@
 // src/lib/plugins/registry.ts
 //
-// FROZEN SCOPE (_SPECS/feature-cut-freeze.md Target 4 · _IDEAS/reprioritze.md §4)
+// FROZEN SCOPE (_SPECS/2026-06-29-211534_feature-cut-freeze.md Target 4 · _IDEAS/reprioritze.md §4)
 // Plugin fall-through is the config-over-code *escape hatch*, not a first-class
 // path. Maintain-only: do not invest in DX that makes plugins the easy default —
 // the moment plugins feel first-class, the config-over-code promise erodes.
@@ -53,7 +53,7 @@ import type { ScheduleSpec } from "@/lib/validators/schedule-spec";
 // unfixed from 0.15.0 through 0.16.0 — treat the window test's failure as
 // a release blocker, not noise). The 0.13→0.14 three-MINOR bridge is over;
 // this is the standard 2-MINOR window now.
-const SUPPORTED_API_VERSIONS = new Set([CURRENT_PLUGIN_API_VERSION, "0.36"]);
+const SUPPORTED_API_VERSIONS = new Set([CURRENT_PLUGIN_API_VERSION, "0.37"]);
 
 /** Test-helper export so the window-enforcement test can read state. */
 export function isSupportedApiVersion(apiVersion: string): boolean {
