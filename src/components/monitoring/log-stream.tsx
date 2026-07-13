@@ -19,13 +19,14 @@ interface LogEntryData {
 
 interface LogStreamProps {
   tasks: { id: string; title: string }[];
+  initialTaskId?: string;
 }
 
-export function LogStream({ tasks }: LogStreamProps) {
+export function LogStream({ tasks, initialTaskId }: LogStreamProps) {
   const [entries, setEntries] = useState<LogEntryData[]>([]);
   const [connected, setConnected] = useState(false);
   const [isAutoScrolling, setIsAutoScrolling] = useState(true);
-  const [taskFilter, setTaskFilter] = useState("all");
+  const [taskFilter, setTaskFilter] = useState(initialTaskId ?? "all");
   const [eventFilter, setEventFilter] = useState("all");
   const containerRef = useRef<HTMLDivElement>(null);
   const eventSourceRef = useRef<EventSource | null>(null);

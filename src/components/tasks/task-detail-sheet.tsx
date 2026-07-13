@@ -18,6 +18,8 @@ import { TaskAttachments } from "./task-attachments";
 import { TaskResultRenderer } from "./task-result-renderer";
 import { TaskEditDialog } from "./task-edit-dialog";
 import { useTaskDetail } from "@/hooks/use-task-detail";
+import { useTaskRunHistory } from "@/hooks/use-task-run-history";
+import { TaskRunHistory } from "./task-run-history";
 
 interface TaskDetailSheetProps {
   taskId: string | null;
@@ -67,6 +69,12 @@ export function TaskDetailSheet({
 
   const inputDocs = docs.filter((doc) => doc.direction === "input");
   const outputDocs = docs.filter((doc) => doc.direction === "output");
+  const { history: runHistory, error: runHistoryError } = useTaskRunHistory({
+    taskId,
+    enabled: open && loaded && !!task,
+    taskStatus: task?.status,
+    taskUpdatedAt: task?.updatedAt,
+  });
 
   return (
     <>
@@ -148,6 +156,14 @@ export function TaskDetailSheet({
                     description={task.description}
                     result={task.result}
                     status={task.status}
+                  />
+                )}
+
+                {taskId && (
+                  <TaskRunHistory
+                    taskId={taskId}
+                    history={runHistory}
+                    error={runHistoryError}
                   />
                 )}
               </>

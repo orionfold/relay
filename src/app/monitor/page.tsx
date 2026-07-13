@@ -10,11 +10,19 @@ import { getWorkspaceContext } from "@/lib/environment/workspace-context";
 
 export const dynamic = "force-dynamic";
 
-export default async function MonitorPage() {
+export default async function MonitorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ taskId?: string }>;
+}) {
+  const { taskId } = await searchParams;
   const activeTasks = await db
     .select({ id: tasks.id, title: tasks.title })
     .from(tasks)
     .orderBy(tasks.createdAt);
+  const initialTaskId = activeTasks.some((task) => task.id === taskId)
+    ? taskId
+    : undefined;
 
   const workspace = getWorkspaceContext();
 
@@ -35,7 +43,7 @@ export default async function MonitorPage() {
       >
         <MonitorOverview />
       </Suspense>
-      <LogStream tasks={activeTasks} />
+      <LogStream tasks={activeTasks} initialTaskId={initialTaskId} />
     </PageShell>
   );
 }

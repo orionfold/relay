@@ -4,6 +4,8 @@ import { tasks, projects, workflows, schedules } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { PageShell } from "@/components/shared/page-shell";
 import { TaskDetailView } from "@/components/tasks/task-detail-view";
+import { getTaskRunHistory } from "@/lib/tasks/run-history";
+import { getTaskUsageSummary } from "@/lib/usage/task-summary";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +42,7 @@ export default async function TaskDetailPage({
   }
 
   // Serialize Date timestamps to ISO strings for client component
+  const usage = await getTaskUsageSummary(id);
   const initialTask = {
     ...task,
     createdAt: task.createdAt instanceof Date ? task.createdAt.toISOString() : String(task.createdAt),
@@ -47,11 +50,17 @@ export default async function TaskDetailPage({
     projectName,
     workflowName,
     scheduleName,
+    usage,
   };
+  const initialRunHistory = await getTaskRunHistory(id);
 
   return (
     <PageShell backHref="/tasks" backLabel="Back to Tasks">
-      <TaskDetailView taskId={id} initialTask={initialTask} />
+      <TaskDetailView
+        taskId={id}
+        initialTask={initialTask}
+        initialRunHistory={initialRunHistory ?? undefined}
+      />
     </PageShell>
   );
 }

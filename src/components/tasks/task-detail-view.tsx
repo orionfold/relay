@@ -13,13 +13,17 @@ import { TaskResultRenderer } from "./task-result-renderer";
 import { TaskEditDialog } from "./task-edit-dialog";
 import { useTaskDetail } from "@/hooks/use-task-detail";
 import type { TaskItem } from "./task-card";
+import { TaskRunHistory } from "./task-run-history";
+import type { TaskRunHistory as TaskRunHistoryData } from "@/lib/tasks/run-history";
+import { useTaskRunHistory } from "@/hooks/use-task-run-history";
 
 interface TaskDetailViewProps {
   taskId: string;
   initialTask?: TaskItem;
+  initialRunHistory?: TaskRunHistoryData;
 }
 
-export function TaskDetailView({ taskId, initialTask }: TaskDetailViewProps) {
+export function TaskDetailView({ taskId, initialTask, initialRunHistory }: TaskDetailViewProps) {
   const router = useRouter();
   const [siblings, setSiblings] = useState<Array<{
     id: string;
@@ -54,6 +58,14 @@ export function TaskDetailView({ taskId, initialTask }: TaskDetailViewProps) {
     initialTask,
     enabled: true,
     onDeleted: () => router.push("/tasks"),
+  });
+
+  const { history: runHistory, error: runHistoryError } = useTaskRunHistory({
+    taskId,
+    enabled: true,
+    taskStatus: task?.status,
+    taskUpdatedAt: task?.updatedAt,
+    initialHistory: initialRunHistory,
   });
 
   useEffect(() => {
@@ -155,6 +167,12 @@ export function TaskDetailView({ taskId, initialTask }: TaskDetailViewProps) {
           status={task.status}
         />
       )}
+
+      <TaskRunHistory
+        taskId={taskId}
+        history={runHistory}
+        error={runHistoryError}
+      />
 
       <ConfirmDialog
         open={confirmCancel}
