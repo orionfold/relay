@@ -1,6 +1,6 @@
 # Relay — HANDOFF
 
-_Last checked: 2026-07-12. Release `0.37.0` is live; tag `v0.37.0` points at `2f1eedec`, workflow `29163749517` passed, and npm/artifact/checksum/SBOM were independently verified._
+_Last checked: 2026-07-12. Release `0.38.0` is live; tag `v0.38.0` points at `5700127f`, workflow `29222603671` passed in 3m37s, and npm/artifact/checksum/SBOM were independently verified._
 
 ## Live continuity
 
