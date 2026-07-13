@@ -244,7 +244,9 @@ export default async function CostsPage({
           activityType,
         }}
         summary={{
-          monthSpendMicros: overallMonthly?.currentValue ?? 0,
+          monthSpendMicros: budgetSnapshot.meteredSpend.monthlyMicros,
+          monthSpendCompleteness:
+            budgetSnapshot.meteredSpend.monthlyCompleteness,
           derivedDailyBudgetMicros: overallDaily?.limitValue ?? 0,
           remainingMonthlyHeadroomMicros: Math.max(
             (overallMonthly?.limitValue ?? 0) - (overallMonthly?.currentValue ?? 0),

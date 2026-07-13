@@ -21,9 +21,13 @@ export function createUsageLedgerSeeds(input: {
   const DAY = 86_400_000;
 
   // Runtimes
-  const claude = { runtimeId: "claude-agent-sdk", providerId: "anthropic", modelId: "sonnet" };
-  const codex = { runtimeId: "openai-codex-app-server", providerId: "openai", modelId: "codex-mini-latest" };
-  const ollama = { runtimeId: "ollama", providerId: "local", modelId: "llama-3.1-8b" };
+  const receiptEvidence = {
+    usageCompleteness: "complete" as const,
+    usageSource: "seed-fixture",
+  };
+  const claude = { runtimeId: "claude-agent-sdk", providerId: "anthropic", modelId: "sonnet", ...receiptEvidence };
+  const codex = { runtimeId: "openai-codex-app-server", providerId: "openai", modelId: "codex-mini-latest", ...receiptEvidence };
+  const ollama = { runtimeId: "ollama", providerId: "local", modelId: "llama-3.1-8b", ...receiptEvidence };
 
   const seeds: UsageLedgerWriteInput[] = [];
 

@@ -256,6 +256,8 @@ describe("budget guardrails", () => {
     // Fresh instance: zero ledger rows → metered spend is exactly 0.
     expect(snapshot.meteredSpend.dailyMicros).toBe(0);
     expect(snapshot.meteredSpend.monthlyMicros).toBe(0);
+    expect(snapshot.meteredSpend.dailyCompleteness).toBe("complete");
+    expect(snapshot.meteredSpend.monthlyCompleteness).toBe("complete");
     // The flat plan price is surfaced under its own name, not as spend.
     expect(snapshot.planPricedMonthlyMicros).toBe(20_000_000);
     // Guardrail statuses keep the plan-priced budget basis (unchanged behavior).
@@ -297,6 +299,8 @@ describe("budget guardrails", () => {
     const snapshot = await getBudgetGuardrailSnapshot();
     expect(snapshot.meteredSpend.dailyMicros).toBe(row?.costMicros ?? -1);
     expect(snapshot.meteredSpend.monthlyMicros).toBe(row?.costMicros ?? -1);
+    expect(snapshot.meteredSpend.dailyCompleteness).toBe("partial");
+    expect(snapshot.meteredSpend.monthlyCompleteness).toBe("partial");
     expect(snapshot.planPricedMonthlyMicros).toBeNull();
   });
 

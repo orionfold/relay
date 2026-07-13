@@ -9,7 +9,11 @@ import {
   ShieldCheck,
   Wallet,
 } from "lucide-react";
-import type { UsageAuditEntry, ProviderModelBreakdownEntry } from "@/lib/usage/ledger";
+import type {
+  UsageAuditEntry,
+  ProviderModelBreakdownEntry,
+  UsageCompleteness,
+} from "@/lib/usage/ledger";
 import type { BudgetWindowStatus } from "@/lib/settings/budget-guardrails";
 import type { RuntimeSetupState } from "@/lib/settings/runtime-setup";
 import type { PricingRegistrySnapshot } from "@/lib/usage/pricing-registry";
@@ -33,6 +37,7 @@ import { PricingRegistryPanel } from "@/components/settings/pricing-registry-pan
 
 interface CostSummary {
   monthSpendMicros: number;
+  monthSpendCompleteness: UsageCompleteness;
   derivedDailyBudgetMicros: number;
   remainingMonthlyHeadroomMicros: number;
   monthTokens: number;
@@ -276,8 +281,13 @@ export function CostDashboard({
         ? configuredRuntimes[0]!.label
         : configuredRuntimes.map((runtime) => runtime.label).join(" + ");
   const dominantRuntime = runtimeBreakdown[0] ?? null;
+  const hasIncompleteAccounting = summary.monthSpendCompleteness !== "complete";
   const pacingTone =
-    blocked.length > 0 ? "blocked" : warnings.length > 0 ? "warning" : "healthy";
+    blocked.length > 0
+      ? "blocked"
+      : warnings.length > 0 || hasIncompleteAccounting
+        ? "warning"
+        : "healthy";
   const overallMonthly = getStatus(budgetStatuses, "overall", "monthly");
 
   return (
@@ -296,9 +306,13 @@ export function CostDashboard({
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <SummaryCard
           eyebrow="Month"
-          title="Spend"
+          title={hasIncompleteAccounting ? "Known Spend" : "Spend"}
           value={formatCurrencyMicros(summary.monthSpendMicros)}
-          detail="Budget basis for the current month"
+          detail={
+            hasIncompleteAccounting
+              ? "Known minimum; one or more runtime receipts are incomplete"
+              : "Metered runtime spend for the current month"
+          }
           icon={Wallet}
         />
         <SummaryCard
@@ -365,7 +379,9 @@ export function CostDashboard({
               <p className="text-sm font-semibold">
                 {pacingTone === "blocked"
                   ? "Budget pacing is blocked"
-                  : pacingTone === "warning"
+                  : hasIncompleteAccounting
+                    ? "Budget pacing uses partial spend"
+                    : pacingTone === "warning"
                     ? "Budget pacing is near a cap"
                     : "Budget pacing is on track"}
               </p>
@@ -373,7 +389,9 @@ export function CostDashboard({
             <p className="text-sm text-muted-foreground">
               {pacingTone === "blocked"
                 ? "One or more active spend windows have been exceeded. New paid work remains blocked until the affected window resets."
-                : pacingTone === "warning"
+                : hasIncompleteAccounting
+                  ? "Known spend is enforced, but actual spend may be higher until every runtime supplies a complete receipt. Review partial rows before relying on remaining headroom."
+                  : pacingTone === "warning"
                   ? "A configured spend window is approaching its limit. Review the active provider mix before it becomes a hard stop."
                   : "Spend is within the configured pacing windows. Derived daily caps continue to roll forward from the monthly budget."}
             </p>
@@ -725,12 +743,28 @@ export function CostDashboard({
                         <TableCell className="align-top text-right">
                           {entry.status === "unknown_pricing"
                             ? "Unavailable"
-                            : formatCurrencyMicros(entry.costMicros)}
+                            : `${
+                                entry.usageCompleteness !== "complete" &&
+                                !(entry.pricingVersion?.startsWith("runtime-reported:") ?? false)
+                                  ? "≥"
+                                  : ""
+                              }${formatCurrencyMicros(entry.costMicros)}`}
                         </TableCell>
                         <TableCell className="align-top text-right text-muted-foreground">
                           {formatCompactCount(entry.totalTokens ?? 0)}
                         </TableCell>
-                        <TableCell className="align-top">{statusBadge(entry.status)}</TableCell>
+                        <TableCell className="align-top">
+                          <div className="flex flex-col items-start gap-1">
+                            {statusBadge(entry.status)}
+                            {entry.usageCompleteness !== "complete" && (
+                              <Badge variant="outline" className="text-status-warning">
+                                {entry.usageCompleteness === "partial"
+                                  ? "Partial usage"
+                                  : "Usage unavailable"}
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

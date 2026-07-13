@@ -15,7 +15,8 @@ import {
   taskTableInputs,
   scheduleFiringMetrics,
 } from "@/lib/db/schema";
-import { eq, sum, min, max, or } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
+import { getTaskUsageSummary } from "@/lib/usage/task-summary";
 import { updateTaskSchema } from "@/lib/validators/task";
 import { isValidTransition, type TaskStatus } from "@/lib/constants/task-status";
 import { validateRuntimeProfileAssignment } from "@/lib/agents/profiles/assignment-validation";
@@ -46,38 +47,14 @@ export async function GET(
     scheduleName = s?.name;
   }
 
-  // Aggregate usage from usage_ledger
-  const [usage] = await db
-    .select({
-      inputTokens: sum(usageLedger.inputTokens),
-      outputTokens: sum(usageLedger.outputTokens),
-      totalTokens: sum(usageLedger.totalTokens),
-      costMicros: sum(usageLedger.costMicros),
-      modelId: max(usageLedger.modelId),
-      startedAt: min(usageLedger.startedAt),
-      finishedAt: max(usageLedger.finishedAt),
-    })
-    .from(usageLedger)
-    .where(eq(usageLedger.taskId, id));
-
-  const hasUsage = usage?.totalTokens != null;
+  const usage = await getTaskUsageSummary(id);
 
   return NextResponse.json({
     ...task,
     projectName,
     workflowName,
     scheduleName,
-    usage: hasUsage
-      ? {
-          inputTokens: usage.inputTokens ? Number(usage.inputTokens) : null,
-          outputTokens: usage.outputTokens ? Number(usage.outputTokens) : null,
-          totalTokens: usage.totalTokens ? Number(usage.totalTokens) : null,
-          costMicros: usage.costMicros ? Number(usage.costMicros) : null,
-          modelId: usage.modelId ?? null,
-          startedAt: usage.startedAt instanceof Date ? usage.startedAt.toISOString() : usage.startedAt,
-          finishedAt: usage.finishedAt instanceof Date ? usage.finishedAt.toISOString() : usage.finishedAt,
-        }
-      : undefined,
+    usage,
   });
 }
 

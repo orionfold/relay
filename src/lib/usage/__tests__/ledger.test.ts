@@ -33,6 +33,98 @@ function formatLocalDay(date: Date) {
 }
 
 describe("usage ledger", () => {
+  it("persists provider-reported cost and explicit receipt completeness", async () => {
+    const { db, usageLedger, recordUsageLedgerEntry } = await loadUsageModules();
+
+    await recordUsageLedgerEntry({
+      activityType: "task_run",
+      runtimeId: "claude-code",
+      providerId: "anthropic",
+      modelId: "claude-opus-4-7",
+      inputTokens: 120_000,
+      outputTokens: 8_000,
+      totalTokens: 128_000,
+      reportedCostMicros: 1_530_000,
+      usageCompleteness: "complete",
+      usageSource: "claude-agent-sdk-result",
+      usageDetails: {
+        includesDelegatedUsage: true,
+        models: ["claude-opus-4-7", "claude-sonnet-4-6"],
+      },
+      status: "completed",
+      startedAt: new Date("2026-07-12T08:00:00.000Z"),
+      finishedAt: new Date("2026-07-12T08:05:00.000Z"),
+    });
+
+    const [row] = await db.select().from(usageLedger);
+    expect(row?.costMicros).toBe(1_530_000);
+    expect(row?.pricingVersion).toBe(
+      "runtime-reported:claude-agent-sdk-result"
+    );
+    expect(row?.usageCompleteness).toBe("complete");
+    expect(row?.usageSource).toBe("claude-agent-sdk-result");
+    expect(JSON.parse(row?.usageDetails ?? "{}")).toEqual(
+      expect.objectContaining({ includesDelegatedUsage: true })
+    );
+  });
+
+  it("aggregates task attempts without hiding zeroes or partial receipts", async () => {
+    const { db, tasks, recordUsageLedgerEntry } = await loadUsageModules();
+    const { getTaskUsageSummary } = await import("../task-summary");
+    const taskId = crypto.randomUUID();
+    const now = new Date();
+    await db.insert(tasks).values({
+      id: taskId,
+      title: "Receipt aggregation",
+      status: "completed",
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await recordUsageLedgerEntry({
+      taskId,
+      activityType: "task_run",
+      runtimeId: "ollama",
+      providerId: "ollama",
+      modelId: "llama3.2",
+      inputTokens: 0,
+      outputTokens: 0,
+      totalTokens: 0,
+      usageCompleteness: "complete",
+      usageSource: "ollama-response",
+      status: "completed",
+      startedAt: new Date(now.getTime() - 120_000),
+      finishedAt: new Date(now.getTime() - 60_000),
+    });
+    await recordUsageLedgerEntry({
+      taskId,
+      activityType: "task_resume",
+      runtimeId: "claude-code",
+      providerId: "anthropic",
+      modelId: "claude-opus-4-7",
+      inputTokens: 6,
+      outputTokens: 1,
+      totalTokens: 7,
+      usageCompleteness: "partial",
+      usageSource: "claude-agent-sdk-stream",
+      status: "completed",
+      startedAt: new Date(now.getTime() - 50_000),
+      finishedAt: now,
+    });
+
+    const summary = await getTaskUsageSummary(taskId);
+    expect(summary).toEqual(
+      expect.objectContaining({
+        inputTokens: 6,
+        outputTokens: 1,
+        totalTokens: 7,
+        completeness: "partial",
+        providerReportedCost: false,
+      })
+    );
+    expect(summary?.costMicros).not.toBeNull();
+  });
+
   it("records normalized ledger rows with derived, fallback, and unknown pricing states", async () => {
     const { db, usageLedger, recordUsageLedgerEntry } = await loadUsageModules();
 

@@ -12,6 +12,7 @@ import {
   Paperclip,
   CalendarClock,
   CalendarCheck,
+  AlertTriangle,
 } from "lucide-react";
 import { taskStatusVariant } from "@/lib/constants/status-colors";
 import { formatCompactDateTime } from "@/lib/utils/format-timestamp";
@@ -74,6 +75,10 @@ interface TaskBentoGridProps {
 
 export function TaskBentoGrid({ task, docs }: TaskBentoGridProps) {
   const usage = task.usage;
+  const usageIsPartial = usage?.completeness === "partial";
+  const usageIsUnavailable = usage?.completeness === "unavailable";
+  const usagePrefix = usageIsPartial ? "≥" : "";
+  const costPrefix = usageIsPartial && !usage?.providerReportedCost ? "≥" : "";
   const priority = priorityConfig[task.priority] ?? priorityConfig[2];
   const PriorityIcon = priority.icon;
 
@@ -112,7 +117,7 @@ export function TaskBentoGrid({ task, docs }: TaskBentoGridProps) {
         <TaskBentoCell
           icon={ArrowDownLeft}
           label="Input Tokens"
-          value={formatTokens(usage.inputTokens)}
+          value={`${usagePrefix}${formatTokens(usage.inputTokens)}`}
         />
       )}
 
@@ -120,15 +125,37 @@ export function TaskBentoGrid({ task, docs }: TaskBentoGridProps) {
         <TaskBentoCell
           icon={ArrowUpRight}
           label="Output Tokens"
-          value={formatTokens(usage.outputTokens)}
+          value={`${usagePrefix}${formatTokens(usage.outputTokens)}`}
         />
       )}
 
       {usage?.costMicros != null && (
         <TaskBentoCell
           icon={DollarSign}
-          label="Est. Cost"
-          value={formatCost(usage.costMicros)}
+          label={
+            usage.providerReportedCost
+              ? "Reported Cost"
+              : usageIsPartial
+                ? "Known Cost"
+                : "Est. Cost"
+          }
+          value={`${costPrefix}${formatCost(usage.costMicros)}`}
+        />
+      )}
+
+      {(usageIsPartial || usageIsUnavailable) && (
+        <TaskBentoCell
+          icon={AlertTriangle}
+          iconClassName="text-status-warning"
+          label="Usage Receipt"
+          value={usageIsPartial ? "Partial" : "Unavailable"}
+          subLabel={
+            usageIsPartial
+              ? usage.providerReportedCost
+                ? "Token/model detail is partial; cost is runtime-reported."
+                : "Known minimum; delegated usage may be missing."
+              : "The runtime returned no accountable usage."
+          }
         />
       )}
 

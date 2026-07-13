@@ -490,6 +490,8 @@ async function executeOpenAIDirectTask(taskId: string, isResume = false): Promis
       inputTokens: result.totalUsage.inputTokens ?? null,
       outputTokens: result.totalUsage.outputTokens ?? null,
       totalTokens: result.totalUsage.totalTokens ?? null,
+      usageCompleteness: "complete",
+      usageSource: "openai-direct-response",
       status: finalStatus,
       startedAt: usageState.startedAt,
       finishedAt: new Date(),

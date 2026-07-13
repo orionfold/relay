@@ -21,6 +21,7 @@ import {
   recordUsageLedgerEntry,
   resolveUsageActivityType,
   type UsageActivityType,
+  type UsageCompleteness,
 } from "@/lib/usage/ledger";
 import {
   getClaudeOAuthPlanPrice,
@@ -42,6 +43,30 @@ type BudgetScopeId = "overall" | AgentRuntimeId;
 interface UsageAggregate {
   costMicros: number;
   totalTokens: number;
+}
+
+function summarizeSpendCompleteness(
+  rows: Array<{
+    usageCompleteness: UsageCompleteness;
+    costMicros: number | null;
+    totalTokens: number | null;
+    pricingVersion: string | null;
+  }>
+): UsageCompleteness {
+  if (
+    rows.length === 0 ||
+    rows.every(
+      (row) =>
+        row.costMicros != null &&
+        (row.usageCompleteness === "complete" ||
+          (row.pricingVersion?.startsWith("runtime-reported:") ?? false))
+    )
+  ) {
+    return "complete";
+  }
+  return rows.some((row) => row.costMicros != null || row.totalTokens != null)
+    ? "partial"
+    : "unavailable";
 }
 
 export interface BudgetWindowStatus {
@@ -69,7 +94,12 @@ export interface BudgetSnapshot {
   runtimeStates: Record<AgentRuntimeId, RuntimeSetupState>;
   pricing: PricingRegistrySnapshot;
   /** Real metered spend (usage_ledger sums) — never the plan-priced budget basis. */
-  meteredSpend: { dailyMicros: number; monthlyMicros: number };
+  meteredSpend: {
+    dailyMicros: number;
+    monthlyMicros: number;
+    dailyCompleteness: UsageCompleteness;
+    monthlyCompleteness: UsageCompleteness;
+  };
   /** Flat subscription price counted as the budget basis, when billing is subscription. */
   planPricedMonthlyMicros: number | null;
 }
@@ -325,6 +355,8 @@ async function getUsageAggregates(
       runtimeId: usageLedger.runtimeId,
       costMicros: usageLedger.costMicros,
       totalTokens: usageLedger.totalTokens,
+      usageCompleteness: usageLedger.usageCompleteness,
+      pricingVersion: usageLedger.pricingVersion,
       finishedAt: usageLedger.finishedAt,
     })
     .from(usageLedger)
@@ -377,6 +409,12 @@ async function getUsageAggregates(
     metered.monthly.costMicros += runtimes[runtimeId].monthly.costMicros;
     metered.monthly.totalTokens += runtimes[runtimeId].monthly.totalTokens;
   }
+  const monthlyCompleteness = summarizeSpendCompleteness(rows);
+  const dailyCompleteness = summarizeSpendCompleteness(
+    rows.filter(
+      (row) => row.finishedAt >= dailyStart && row.finishedAt < dailyEnd
+    )
+  );
 
   let planPricedMonthlyMicros: number | null = null;
   if (runtimeStates["claude-code"].billingMode === "subscription") {
@@ -410,6 +448,8 @@ async function getUsageAggregates(
     overall,
     runtimes,
     metered,
+    dailyCompleteness,
+    monthlyCompleteness,
     planPricedMonthlyMicros,
     ...getBudgetWindowBounds(now),
   };
@@ -590,6 +630,8 @@ async function recordBlockedAttempt(input: {
     activityType: input.activityType,
     runtimeId: input.runtimeId,
     providerId: runtime.providerId,
+    usageCompleteness: "complete",
+    usageSource: "budget-guardrail",
     status: "blocked",
     startedAt: new Date(),
     finishedAt: new Date(),
@@ -741,6 +783,8 @@ export async function getBudgetGuardrailSnapshot(): Promise<BudgetSnapshot> {
     meteredSpend: {
       dailyMicros: aggregates.metered.daily.costMicros,
       monthlyMicros: aggregates.metered.monthly.costMicros,
+      dailyCompleteness: aggregates.dailyCompleteness,
+      monthlyCompleteness: aggregates.monthlyCompleteness,
     },
     planPricedMonthlyMicros: aggregates.planPricedMonthlyMicros,
   };

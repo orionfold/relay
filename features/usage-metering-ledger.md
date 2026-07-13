@@ -65,11 +65,13 @@ As a ainative operator, I want every Claude- or Codex-backed activity to produce
 - Updated workflow child-task creation and scheduler child-task creation to persist parent linkage for downstream metering
 - Seed data now includes representative Claude and Codex usage rows for governance and analytics development
 - **SDK audit (2026-03-15)**: Pricing registry expanded from 2 to 6 model families — 3 Anthropic (Sonnet 4, Opus 4, Haiku 4) + 3 OpenAI (Codex Mini, GPT-4o, GPT-5) with conservative fallback for unknown models (F5). Added `getProviderModelBreakdown()` to extract per-model usage from SDK `modelUsage` field (F6). See [sdk-runtime-hardening](sdk-runtime-hardening.md)
+- **G-040 hardening (2026-07-12):** Claude task receipts now use the terminal SDK result's cumulative `modelUsage` plus provider-reported `total_cost_usd`, preserving the per-model breakdown as receipt evidence. Ledger rows carry explicit complete/partial/unavailable scope and runtime source; partial accounting is visible in task detail, run history, budget settings, the cost dashboard, and its audit log.
 
 ## Verification
 
 - Verified with full Vitest suite (`169` passing tests) on March 12, 2026
 - Verified with a successful production build on March 12, 2026
+- G-040 verified with 67 focused tests, TypeScript, a production build, and a real delegated task whose Opus parent plus Haiku subagent reconciled to 25,773 tokens and $1.199163 across the task row, ledger, APIs, and browser UI on July 12, 2026
 
 ## Scope Boundaries
 

@@ -275,6 +275,8 @@ async function executeOllamaTask(taskId: string): Promise<void> {
       inputTokens: result.promptTokens,
       outputTokens: result.completionTokens,
       totalTokens: result.promptTokens + result.completionTokens,
+      usageCompleteness: "complete",
+      usageSource: "ollama-response",
       status: finalStatus,
       startedAt: usageState.startedAt,
       finishedAt: new Date(),

@@ -5,7 +5,7 @@ import type { InferSelectModel } from "drizzle-orm";
 // `slug` is the stable, pack-addressable handle (a pack seed references a customer
 // by slug; customerId FKs resolve through it). `industry` is free-text, NOT an enum
 // — different packs introduce different verticals, so a Core-level enum would be a
-// ceiling a pack cannot extend. See _SPECS/customer-dimension.md.
+// ceiling a pack cannot extend. See _SPECS/2026-06-30-132039_customer-dimension.md.
 export const customers = sqliteTable(
   "customers",
   {
@@ -408,6 +408,13 @@ export const usageLedger = sqliteTable(
     totalTokens: integer("total_tokens"),
     costMicros: integer("cost_micros"),
     pricingVersion: text("pricing_version"),
+    usageCompleteness: text("usage_completeness", {
+      enum: ["complete", "partial", "unavailable"],
+    })
+      .default("partial")
+      .notNull(),
+    usageSource: text("usage_source"),
+    usageDetails: text("usage_details"),
     startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
     finishedAt: integer("finished_at", { mode: "timestamp" }).notNull(),
   },

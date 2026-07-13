@@ -30,6 +30,8 @@ export type UsageLedgerStatus =
   | "blocked"
   | "unknown_pricing";
 
+export type UsageCompleteness = "complete" | "partial" | "unavailable";
+
 export interface UsageSnapshot {
   modelId?: string | null;
   inputTokens?: number | null;
@@ -46,6 +48,11 @@ export interface UsageLedgerWriteInput extends UsageSnapshot {
   activityType: UsageActivityType;
   runtimeId: string;
   providerId: string;
+  /** Provider/runtime-reported execution cost. When present, it is authoritative. */
+  reportedCostMicros?: number | null;
+  usageCompleteness?: UsageCompleteness;
+  usageSource?: string | null;
+  usageDetails?: Record<string, unknown> | null;
   status: Exclude<UsageLedgerStatus, "unknown_pricing">;
   startedAt: Date;
   finishedAt: Date;
@@ -63,6 +70,9 @@ export interface UsageAuditEntry {
   totalTokens: number | null;
   costMicros: number | null;
   pricingVersion: string | null;
+  usageCompleteness: UsageCompleteness;
+  usageSource: string | null;
+  usageDetails: string | null;
   startedAt: Date;
   finishedAt: Date;
   taskId: string | null;
@@ -219,7 +229,7 @@ export async function recordUsageLedgerEntry(input: UsageLedgerWriteInput) {
   // project the work belongs to (project → customer). Resolving here, at the single
   // ledger-write funnel, auto-attributes every project-scoped write without threading
   // customerId through all callers. Best-effort: absence of a customer is not a failure,
-  // it surfaces as the "Unattributed" bucket in the rollup. See _SPECS/customer-dimension.md.
+  // it surfaces as the "Unattributed" bucket in the rollup. See _SPECS/2026-06-30-132039_customer-dimension.md.
   let resolvedCustomerId = input.customerId ?? null;
   if (resolvedCustomerId == null && input.projectId != null) {
     const project = await db
@@ -237,16 +247,36 @@ export async function recordUsageLedgerEntry(input: UsageLedgerWriteInput) {
     (normalizedInputTokens != null && normalizedOutputTokens != null
       ? normalizedInputTokens + normalizedOutputTokens
       : null);
-  const { costMicros, pricingVersion } = await deriveUsageCostMicros({
+  const derivedCost = await deriveUsageCostMicros({
     providerId: input.providerId,
     modelId: input.modelId,
     inputTokens: normalizedInputTokens,
     outputTokens: normalizedOutputTokens,
   });
 
+  const hasReportedCost = Object.prototype.hasOwnProperty.call(
+    input,
+    "reportedCostMicros"
+  );
+  const costMicros = hasReportedCost
+    ? input.reportedCostMicros ?? null
+    : derivedCost.costMicros;
+  const pricingVersion = hasReportedCost
+    ? input.reportedCostMicros == null
+      ? null
+      : `runtime-reported:${input.usageSource ?? input.runtimeId}`
+    : derivedCost.pricingVersion;
+
   const resolvedCostMicros = input.status === "blocked" ? 0 : costMicros;
   const resolvedPricingVersion =
     input.status === "blocked" ? "budget-guardrail" : pricingVersion;
+  const usageCompleteness: UsageCompleteness =
+    input.usageCompleteness ??
+    (input.status === "blocked"
+      ? "complete"
+      : normalizedTotalTokens == null && resolvedCostMicros == null
+        ? "unavailable"
+        : "partial");
 
   const status: UsageLedgerStatus =
     input.status === "completed" &&
@@ -272,6 +302,11 @@ export async function recordUsageLedgerEntry(input: UsageLedgerWriteInput) {
     totalTokens: normalizedTotalTokens,
     costMicros: resolvedCostMicros,
     pricingVersion: resolvedPricingVersion,
+    usageCompleteness,
+    usageSource: input.usageSource ?? null,
+    usageDetails: input.usageDetails
+      ? JSON.stringify(input.usageDetails)
+      : null,
     startedAt: input.startedAt,
     finishedAt: input.finishedAt,
   } as const;
@@ -413,7 +448,7 @@ export async function getProviderModelBreakdown(options?: {
 // Map-reduce + name-join idiom. The null customerId path is FIRST-CLASS: rows with no
 // customer aggregate into a single "Unattributed" bucket (Principle #3 — shadow paths;
 // never silently drop a row). Customer names are joined back via the inArray + Map
-// pattern from listUsageAuditEntries. See _SPECS/customer-dimension.md.
+// pattern from listUsageAuditEntries. See _SPECS/2026-06-30-132039_customer-dimension.md.
 export async function getCostByCustomer(days = 7): Promise<CostByCustomerEntry[]> {
   const rows = await db
     .select()
@@ -573,6 +608,9 @@ export async function listUsageAuditEntries(options?: {
       totalTokens: row.totalTokens ?? null,
       costMicros: row.costMicros ?? null,
       pricingVersion: row.pricingVersion ?? null,
+      usageCompleteness: row.usageCompleteness,
+      usageSource: row.usageSource ?? null,
+      usageDetails: row.usageDetails ?? null,
       startedAt: row.startedAt,
       finishedAt: row.finishedAt,
       taskId: row.taskId ?? null,

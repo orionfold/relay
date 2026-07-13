@@ -41,6 +41,8 @@ export interface TaskItem {
     modelId: string | null;
     startedAt: string | null;
     finishedAt: string | null;
+    completeness: "complete" | "partial" | "unavailable";
+    providerReportedCost: boolean;
   };
 }
 

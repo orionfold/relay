@@ -611,6 +611,8 @@ async function executeAnthropicDirectTask(taskId: string, isResume = false): Pro
       inputTokens: result.totalUsage.inputTokens ?? null,
       outputTokens: result.totalUsage.outputTokens ?? null,
       totalTokens: result.totalUsage.totalTokens ?? null,
+      usageCompleteness: "complete",
+      usageSource: "anthropic-direct-response",
       status: finalStatus,
       startedAt: usageState.startedAt,
       finishedAt: new Date(),

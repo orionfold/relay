@@ -34,8 +34,10 @@ import {
   recordUsageLedgerEntry,
   resolveUsageActivityType,
   type UsageActivityType,
+  type UsageCompleteness,
   type UsageSnapshot,
 } from "@/lib/usage/ledger";
+import { extractClaudeSdkUsageReceipt } from "@/lib/usage/claude-sdk-receipt";
 import {
   handleToolPermission,
   clearPermissionCache,
@@ -163,6 +165,10 @@ export interface TaskUsageState extends UsageSnapshot {
   projectId?: string | null;
   workflowId?: string | null;
   scheduleId?: string | null;
+  reportedCostMicros?: number | null;
+  usageCompleteness?: UsageCompleteness;
+  usageSource?: string | null;
+  usageDetails?: Record<string, unknown> | null;
 }
 
 export function createTaskUsageState(
@@ -189,13 +195,36 @@ export function createTaskUsageState(
 }
 
 function applyUsageSnapshot(state: TaskUsageState, source: unknown) {
-  Object.assign(state, mergeUsageSnapshot(state, extractUsageSnapshot(source)));
+  const next = extractUsageSnapshot(source) ?? {};
+  Object.assign(state, mergeUsageSnapshot(state, next));
+  if (
+    next.inputTokens != null ||
+    next.outputTokens != null ||
+    next.totalTokens != null
+  ) {
+    state.usageCompleteness ??= "partial";
+    state.usageSource ??= "claude-agent-sdk-stream";
+  }
+}
+
+function applyTerminalUsageReceipt(state: TaskUsageState, source: unknown) {
+  const receipt = extractClaudeSdkUsageReceipt(source, state);
+  Object.assign(state, receipt.usage, {
+    reportedCostMicros: receipt.reportedCostMicros,
+    usageCompleteness: receipt.completeness,
+    usageSource: receipt.source,
+    usageDetails: receipt.details,
+  });
+  return receipt;
 }
 
 export async function finalizeTaskUsage(
   state: TaskUsageState,
   status: "completed" | "failed" | "cancelled"
 ) {
+  if (!state.usageCompleteness) {
+    applyTerminalUsageReceipt(state, null);
+  }
   await recordUsageLedgerEntry({
     taskId: state.taskId,
     workflowId: state.workflowId ?? null,
@@ -208,6 +237,12 @@ export async function finalizeTaskUsage(
     inputTokens: state.inputTokens ?? null,
     outputTokens: state.outputTokens ?? null,
     totalTokens: state.totalTokens ?? null,
+    ...(state.reportedCostMicros != null && {
+      reportedCostMicros: state.reportedCostMicros,
+    }),
+    usageCompleteness: state.usageCompleteness,
+    usageSource: state.usageSource ?? null,
+    usageDetails: state.usageDetails ?? null,
     status,
     startedAt: state.startedAt,
     finishedAt: new Date(),
@@ -367,7 +402,26 @@ async function processAgentStream(
       }
     }
 
-    // Handle result — skip if task was cancelled mid-stream
+    // Every terminal SDK result carries the cumulative billing receipt,
+    // including error/max-turn frames that do not have a `result` string.
+    if (message.type === "result") {
+      const terminalUsage = applyTerminalUsageReceipt(usageState, raw);
+      if (terminalUsage.warning) {
+        await db.insert(agentLogs).values({
+          id: crypto.randomUUID(),
+          taskId,
+          agentType: agentProfileId,
+          event: "usage_accounting_partial",
+          payload: JSON.stringify({
+            warning: terminalUsage.warning,
+            source: terminalUsage.source,
+          }),
+          timestamp: new Date(),
+        });
+      }
+    }
+
+    // Handle successful result — skip if task was cancelled mid-stream.
     if (message.type === "result" && "result" in raw) {
       if (abortController.signal.aborted) {
         await finalizeTaskUsage(usageState, "cancelled");

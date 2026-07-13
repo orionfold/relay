@@ -261,6 +261,9 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
       total_tokens INTEGER,
       cost_micros INTEGER,
       pricing_version TEXT,
+      usage_completeness TEXT DEFAULT 'partial' NOT NULL,
+      usage_source TEXT,
+      usage_details TEXT,
       started_at INTEGER NOT NULL,
       finished_at INTEGER NOT NULL,
       FOREIGN KEY (task_id) REFERENCES tasks(id) ON UPDATE NO ACTION ON DELETE NO ACTION,
@@ -343,9 +346,12 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
 
   // Customer dimension: nullable FK on projects + usage_ledger (zero-regression for
   // existing rows). The customers table is created in the exec block above, so these
-  // ALTERs resolve their REFERENCES target. See _SPECS/customer-dimension.md.
+  // ALTERs resolve their REFERENCES target. See _SPECS/2026-06-30-132039_customer-dimension.md.
   addColumnIfMissing(`ALTER TABLE projects ADD COLUMN customer_id TEXT REFERENCES customers(id);`);
   addColumnIfMissing(`ALTER TABLE usage_ledger ADD COLUMN customer_id TEXT REFERENCES customers(id);`);
+  addColumnIfMissing(`ALTER TABLE usage_ledger ADD COLUMN usage_completeness TEXT DEFAULT 'partial' NOT NULL;`);
+  addColumnIfMissing(`ALTER TABLE usage_ledger ADD COLUMN usage_source TEXT;`);
+  addColumnIfMissing(`ALTER TABLE usage_ledger ADD COLUMN usage_details TEXT;`);
   sqlite.exec(`CREATE INDEX IF NOT EXISTS idx_usage_ledger_customer_id ON usage_ledger(customer_id);`);
 
   // Heartbeat scheduler columns

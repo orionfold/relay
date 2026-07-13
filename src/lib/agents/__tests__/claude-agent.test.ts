@@ -126,6 +126,9 @@ vi.mock("@/lib/usage/ledger", () => ({
   recordUsageLedgerEntry: vi.fn().mockResolvedValue(undefined),
   resolveUsageActivityType: vi.fn().mockReturnValue("task_run"),
 }));
+vi.mock("@/lib/usage/claude-sdk-receipt", () => ({
+  extractClaudeSdkUsageReceipt: vi.fn(),
+}));
 vi.mock("@/lib/agents/learned-context", () => ({
   getActiveLearnedContext: mockGetActiveLearnedContext,
 }));
@@ -158,6 +161,8 @@ import { query } from "@anthropic-ai/claude-agent-sdk";
 import { executeClaudeTask, resumeClaudeTask, withAinativeMcpServer } from "../claude-agent";
 import { createToolServer } from "@/lib/chat/ainative-tools";
 import { loadPluginMcpServers } from "@/lib/plugins/mcp-loader";
+import { recordUsageLedgerEntry } from "@/lib/usage/ledger";
+import { extractClaudeSdkUsageReceipt } from "@/lib/usage/claude-sdk-receipt";
 
 const mockQuery = vi.mocked(query);
 
@@ -220,6 +225,15 @@ beforeEach(() => {
   mockAnalyzeForLearnedPatterns.mockResolvedValue(null);
   mockProcessSweepResult.mockResolvedValue(undefined);
   vi.mocked(loadPluginMcpServers).mockResolvedValue({});
+  vi.mocked(extractClaudeSdkUsageReceipt).mockImplementation((_source, fallback = {}) => ({
+    usage: fallback,
+    reportedCostMicros: null,
+    completeness:
+      fallback.totalTokens != null ? "partial" : "unavailable",
+    source: "claude-agent-sdk-stream",
+    details: { includesDelegatedUsage: false },
+    warning: null,
+  }));
 });
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -296,6 +310,59 @@ describe("executeClaudeTask", () => {
     };
     expect(completionArg.turnCount).toBe(2);
     expect(completionArg.tokenCount).toBe(300);
+  });
+
+  it("A2c: persists the authoritative delegated-agent receipt from the terminal result", async () => {
+    mockWhere.mockResolvedValueOnce([makeTask()]);
+    vi.mocked(extractClaudeSdkUsageReceipt).mockReturnValueOnce({
+      usage: {
+        modelId: "claude-opus-4-7",
+        inputTokens: 120_000,
+        outputTokens: 8_000,
+        totalTokens: 128_000,
+      },
+      reportedCostMicros: 1_530_000,
+      completeness: "complete",
+      source: "claude-agent-sdk-result",
+      details: {
+        includesDelegatedUsage: true,
+        modelUsage: {
+          "claude-opus-4-7": { inputTokens: 20_000, outputTokens: 2_000 },
+          "claude-sonnet-4-6": { inputTokens: 100_000, outputTokens: 6_000 },
+        },
+      },
+      warning: null,
+    });
+    mockQuery.mockReturnValue(
+      createMockStream([
+        {
+          type: "result",
+          result: "done",
+          total_cost_usd: 1.53,
+          modelUsage: { "claude-opus-4-7": {}, "claude-sonnet-4-6": {} },
+        },
+      ]) as unknown as ReturnType<typeof query>
+    );
+
+    await executeClaudeTask("task-1");
+
+    const completionCall = mockSet.mock.calls.find((call) => {
+      const arg = call[0] as Record<string, unknown>;
+      return arg?.status === "completed";
+    });
+    expect(completionCall?.[0]).toEqual(
+      expect.objectContaining({ tokenCount: 128_000 })
+    );
+    expect(vi.mocked(recordUsageLedgerEntry)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inputTokens: 120_000,
+        outputTokens: 8_000,
+        totalTokens: 128_000,
+        reportedCostMicros: 1_530_000,
+        usageCompleteness: "complete",
+        usageSource: "claude-agent-sdk-result",
+      })
+    );
   });
 
   it("A-ainative-1: injects relay MCP server into query mcpServers", async () => {

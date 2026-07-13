@@ -363,6 +363,9 @@ export function BudgetGuardrailsSection() {
     (r) => r.providerId === "openai"
   );
   const showSplitSlider = hasAnthropicRuntimes && hasOpenAIRuntimes;
+  const usageAccountingIncomplete =
+    snapshot.meteredSpend.dailyCompleteness !== "complete" ||
+    snapshot.meteredSpend.monthlyCompleteness !== "complete";
 
   return (
     <Card className="surface-card">
@@ -377,6 +380,20 @@ export function BudgetGuardrailsSection() {
             splits aligned with the runtimes you actually have configured.
           </CardDescription>
         </div>
+
+        {usageAccountingIncomplete && (
+          <div className="surface-card-muted rounded-xl border border-status-warning/25 p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="mt-0.5 h-4 w-4 text-status-warning" />
+              <div className="space-y-1">
+                <p className="text-sm font-semibold">Usage accounting is partial</p>
+                <p className="text-sm text-muted-foreground">
+                  Budget pacing uses the known minimum and may understate actual spend until every runtime reports complete delegated usage.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {blocked.length > 0 ? (
           <div className="surface-card-muted rounded-2xl border border-destructive/20 bg-destructive/8 p-4">
