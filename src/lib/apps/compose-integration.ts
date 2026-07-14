@@ -149,5 +149,6 @@ function emptyManifest(appId: string, displayName?: string): AppManifest {
     blueprints: [],
     tables: [],
     schedules: [],
+    budgetPolicies: [],
   };
 }

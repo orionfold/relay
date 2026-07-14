@@ -16,6 +16,8 @@ import {
   OperationsReceiptHistory,
   type OperationsReceiptHistoryItem,
 } from "@/components/operations/operations-receipt-history";
+import { ScheduleBudgetPolicyPanel } from "@/components/budgets/schedule-budget-policy-panel";
+import type { ScheduleBudgetSnapshot } from "@/lib/schedules/budget-policies";
 
 interface TaskSummary {
   id: string;
@@ -43,6 +45,7 @@ interface ScheduleDetail {
   firingHistory: TaskSummary[];
   receipts: OperationsReceiptHistoryItem[];
   receiptReconciliationErrors?: string[];
+  budget: ScheduleBudgetSnapshot;
 }
 
 interface ScheduleDetailViewProps {
@@ -167,6 +170,8 @@ export function ScheduleDetailView({ scheduleId, initialSchedule }: ScheduleDeta
           </Button>
         </div>
       </div>
+
+      <ScheduleBudgetPolicyPanel initialSnapshot={schedule.budget} />
 
       {/* Info cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,5 +1,29 @@
 # Feature Changelog
 
+## 2026-07-14 — G-010 app and schedule budget policies
+
+### Completed
+
+- Added operator-owned per-app and per-schedule per-run/daily/monthly cost
+  policies on the current Pack/AppManifest, usage-ledger, schedule, task-cap,
+  notification, and global-guardrail stack. Pack-authored values remain visibly
+  inactive recommendations until accepted or edited.
+- Matching app and schedule policies now serialize concurrent runs, propagate
+  the strictest per-run ceiling, reconcile direct tasks and app workflows, and
+  pause only the affected schedule or notify according to operator policy.
+  Missing cost evidence is visible and never reported as safe `$0` usage.
+- App and schedule surfaces expose recommendation acceptance, custom limits,
+  enable/disable, pause/notify behavior, removal, current usage, breach detail,
+  and textual health states using semantic tokens and the system cursor.
+
+### Verified
+
+- Targeted regressions, TypeScript, design-token validation, live API/browser
+  save/remove checks, light/dark desktop and 390px layout checks, and a no-cost
+  real Next.js runtime-graph smoke pass. The broader suite reached 3,210 passing
+  tests; all G-010-owned failures are resolved, with unrelated baseline and
+  sandbox-bound failures recorded in the feature verification note.
+
 ## 2026-07-14 — Pack repository ownership boundary
 
 ### Corrected

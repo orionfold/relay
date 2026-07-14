@@ -15,6 +15,7 @@ import {
   OperationsCriteriaValidationError,
   serializeSuccessCriteria,
 } from "@/lib/operations/criteria";
+import { getScheduleBudgetSnapshot } from "@/lib/schedules/budget-policies";
 
 export async function GET() {
   const result = await db
@@ -22,7 +23,14 @@ export async function GET() {
     .from(schedules)
     .orderBy(desc(schedules.createdAt));
 
-  return NextResponse.json(result);
+  const enriched = await Promise.all(
+    result.map(async (schedule) => ({
+      ...schedule,
+      budget: await getScheduleBudgetSnapshot(schedule.id),
+    }))
+  );
+
+  return NextResponse.json(enriched);
 }
 
 export async function POST(req: NextRequest) {

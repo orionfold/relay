@@ -82,6 +82,7 @@ export function mergeBundle(
   const blueprints: AppManifest["blueprints"] = [];
   const tables: AppManifest["tables"] = [];
   const schedules: AppManifest["schedules"] = [];
+  const budgetPolicies: AppManifest["budgetPolicies"] = [];
 
   // View merge accumulator (first-hero + concat-rest, in bundle order).
   let kit: string | undefined;
@@ -109,11 +110,18 @@ export function mergeBundle(
     claimIds("blueprint", childId, m.blueprints.map((b) => b.id), claimed);
     claimIds("table", childId, m.tables.map((t) => t.id), claimed);
     claimIds("schedule", childId, m.schedules.map((s) => s.id), claimed);
+    claimIds(
+      "budget policy",
+      childId,
+      m.budgetPolicies.map((policy) => policy.id),
+      claimed
+    );
 
     profiles.push(...m.profiles);
     blueprints.push(...m.blueprints);
     tables.push(...m.tables);
     schedules.push(...m.schedules);
+    budgetPolicies.push(...m.budgetPolicies);
 
     // View: take kit + hero from the FIRST child that declares a view/hero;
     // concatenate secondary + kpis + charts + galleries across children in order. `funnel`,
@@ -182,6 +190,7 @@ export function mergeBundle(
     blueprints,
     tables,
     schedules,
+    budgetPolicies,
     ...(view ? { view } : {}),
   });
 

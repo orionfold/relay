@@ -339,6 +339,50 @@ const AppScheduleRefSchema = z
   })
   .passthrough();
 
+const BudgetUsdSchema = z.number().positive().max(1_000_000);
+
+export const AppBudgetPolicyRecommendationSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    scope: z.enum(["app", "schedule"]),
+    schedule: z.string().min(1).optional(),
+    maxCostPerRunUsd: BudgetUsdSchema.optional(),
+    maxCostPerDayUsd: BudgetUsdSchema.optional(),
+    maxCostPerMonthUsd: BudgetUsdSchema.optional(),
+    onExceed: z.enum(["pause", "notify"]).default("pause"),
+  })
+  .strict()
+  .superRefine((policy, ctx) => {
+    if (
+      policy.maxCostPerRunUsd === undefined &&
+      policy.maxCostPerDayUsd === undefined &&
+      policy.maxCostPerMonthUsd === undefined
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Budget recommendation must declare at least one cost limit",
+      });
+    }
+    if (policy.scope === "schedule" && !policy.schedule) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["schedule"],
+        message: "Schedule-scoped budget recommendation requires schedule",
+      });
+    }
+    if (policy.scope === "app" && policy.schedule !== undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["schedule"],
+        message: "App-scoped budget recommendation cannot name a schedule",
+      });
+    }
+  });
+
+export type AppBudgetPolicyRecommendation = z.infer<
+  typeof AppBudgetPolicyRecommendationSchema
+>;
+
 export const AppManifestSchema = z
   .object({
     id: z.string(),
@@ -357,6 +401,10 @@ export const AppManifestSchema = z
     blueprints: z.array(AppBlueprintRefSchema).optional().default([]),
     tables: z.array(AppTableRefSchema).optional().default([]),
     schedules: z.array(AppScheduleRefSchema).optional().default([]),
+    budgetPolicies: z
+      .array(AppBudgetPolicyRecommendationSchema)
+      .optional()
+      .default([]),
     permissions: z
       .object({ preset: z.string().optional() })
       .passthrough()
@@ -366,7 +414,32 @@ export const AppManifestSchema = z
     // manifest so list surfaces can mark them without the original source.
     entitlement: z.string().min(1).optional(),
   })
-  .passthrough();
+  .passthrough()
+  .superRefine((manifest, ctx) => {
+    const scheduleIds = new Set(manifest.schedules.map((schedule) => schedule.id));
+    const recommendationIds = new Set<string>();
+    manifest.budgetPolicies.forEach((policy, index) => {
+      if (recommendationIds.has(policy.id)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["budgetPolicies", index, "id"],
+          message: `Duplicate budget recommendation id: ${policy.id}`,
+        });
+      }
+      recommendationIds.add(policy.id);
+      if (
+        policy.scope === "schedule" &&
+        policy.schedule &&
+        !scheduleIds.has(policy.schedule)
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["budgetPolicies", index, "schedule"],
+          message: `Unknown schedule reference: ${policy.schedule}`,
+        });
+      }
+    });
+  });
 
 export type AppManifest = z.infer<typeof AppManifestSchema>;
 export type AppOrigin = NonNullable<AppManifest["origin"]>;
@@ -792,6 +865,10 @@ export async function deleteAppCascade(
   // Dynamic import — this module must stay out of the DB static import graph.
   let schedulesRemoved = 0;
   try {
+    const { deleteAppUsageBudgetPolicies } = await import(
+      "@/lib/schedules/budget-policies"
+    );
+    await deleteAppUsageBudgetPolicies(appId);
     const { db } = await import("@/lib/db");
     const { schedules } = await import("@/lib/db/schema");
     const { like } = await import("drizzle-orm");

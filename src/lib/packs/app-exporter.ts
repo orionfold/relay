@@ -439,6 +439,15 @@ export async function buildAppPackArtifact(
     profiles: exportedProfiles,
     blueprints: exportedBlueprints,
     schedules: exportedSchedules,
+    budgetPolicies: app.manifest.budgetPolicies.map((policy) =>
+      policy.scope === "schedule" && policy.schedule
+        ? {
+            ...policy,
+            schedule:
+              scheduleRealToLogical.get(policy.schedule) ?? policy.schedule,
+          }
+        : policy
+    ),
     ...(app.manifest.view
       ? {
           view: rewriteRefs(app.manifest.view, {

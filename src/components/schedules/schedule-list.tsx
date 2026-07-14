@@ -12,7 +12,9 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { describeCron } from "@/lib/schedules/interval-parser";
 import { PackPill } from "@/components/shared/pack-pill";
 import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
+import { BudgetPolicyStatusBadge } from "@/components/budgets/budget-policy-status-badge";
 import { packOf } from "@/lib/apps/pack-of";
+import type { ScheduleBudgetSnapshot } from "@/lib/schedules/budget-policies";
 import { Clock, Heart, Pause, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,6 +34,7 @@ interface Schedule {
   createdAt: string;
   type: "scheduled" | "heartbeat";
   suppressionCount: number;
+  budget: ScheduleBudgetSnapshot;
 }
 
 interface ScheduleListProps {
@@ -226,6 +229,11 @@ export function ScheduleList({ projects, initialSelectedId }: ScheduleListProps)
                 </div>
               </CardHeader>
               <CardContent className="px-4 pb-3">
+                {sched.budget.health !== "none" && (
+                  <div className="mb-2">
+                    <BudgetPolicyStatusBadge health={sched.budget.health} />
+                  </div>
+                )}
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <span>{describeCron(sched.cronExpression)}</span>
                   <span>·</span>

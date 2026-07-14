@@ -36,6 +36,13 @@ import {
   getScheduleMaxRunDurationSec,
   getScheduleChatPressureDelaySec,
 } from "./config";
+import {
+  beginScheduleBudgetRun,
+  completeScheduleBudgetRun,
+  deferScheduleForBudgetClaim,
+  releaseScheduleBudgetRun,
+  type ScheduleBudgetRunClaim,
+} from "./budget-policies";
 
 const POLL_INTERVAL_MS = 60_000; // 60 seconds
 
@@ -44,8 +51,15 @@ let draining = false;
 
 async function finalizeScheduleFiring(
   scheduleId: string,
-  taskId: string
+  taskId: string,
+  budgetClaim: ScheduleBudgetRunClaim | null = null
 ): Promise<void> {
+  try {
+    await completeScheduleBudgetRun({ claim: budgetClaim, taskId });
+  } catch (error) {
+    console.error(`[scheduler] budget reconciliation failed for ${taskId}:`, error);
+  }
+
   try {
     await recordFiringMetrics(scheduleId, taskId);
   } catch (error) {
@@ -94,7 +108,7 @@ export async function drainQueue(): Promise<void> {
       if (countRunningScheduledSlots() >= cap) return;
 
       const [nextQueued] = await db
-        .select({ id: tasks.id })
+        .select({ id: tasks.id, scheduleId: tasks.scheduleId })
         .from(tasks)
         .where(
           and(
@@ -107,6 +121,36 @@ export async function drainQueue(): Promise<void> {
 
       if (!nextQueued) return;
 
+      let budgetClaim: ScheduleBudgetRunClaim | null = null;
+      if (nextQueued.scheduleId) {
+        const budget = await beginScheduleBudgetRun({
+          scheduleId: nextQueued.scheduleId,
+          runId: nextQueued.id,
+          claimTtlSec: getScheduleMaxRunDurationSec() + 120,
+        });
+        if (budget.status === "busy") return;
+        if (budget.status === "blocked") {
+          await db
+            .update(tasks)
+            .set({
+              status: "failed",
+              failureReason: "budget_exceeded",
+              result: budget.reason,
+              updatedAt: new Date(),
+            })
+            .where(eq(tasks.id, nextQueued.id));
+          await finalizeScheduleFiring(nextQueued.scheduleId, nextQueued.id);
+          continue;
+        }
+        budgetClaim = budget.claim;
+        if (budgetClaim?.strictestPerRunUsd !== null && budgetClaim) {
+          await db
+            .update(tasks)
+            .set({ maxBudgetUsd: budgetClaim.strictestPerRunUsd })
+            .where(eq(tasks.id, nextQueued.id));
+        }
+      }
+
       // Atomic claim — could lose the race if a concurrent tick already took
       // this specific task, OR the cap filled between the select and the claim.
       // On a lost-race (task-level) we should try the next queued task; on a
@@ -115,7 +159,10 @@ export async function drainQueue(): Promise<void> {
       // tasks that could still claim.
       const leaseSec = getScheduleMaxRunDurationSec();
       const { claimed } = claimSlot(nextQueued.id, cap, leaseSec);
-      if (!claimed) continue;
+      if (!claimed) {
+        await releaseScheduleBudgetRun(budgetClaim);
+        continue;
+      }
 
       console.log(`[scheduler] draining queue → running task ${nextQueued.id}`);
       try {
@@ -131,7 +178,11 @@ export async function drainQueue(): Promise<void> {
           .from(tasks)
           .where(eq(tasks.id, nextQueued.id));
         if (taskRow?.scheduleId) {
-          await finalizeScheduleFiring(taskRow.scheduleId, nextQueued.id);
+          await finalizeScheduleFiring(
+            taskRow.scheduleId,
+            nextQueued.id,
+            budgetClaim
+          );
         }
       } catch (err) {
         console.error(`[scheduler] metrics recording failed for ${nextQueued.id}:`, err);
@@ -557,9 +608,22 @@ async function fireSchedule(
     return;
   }
 
-  // Create child task
   const taskId = crypto.randomUUID();
   const firingNumber = schedule.firingCount + 1;
+  const leaseSec = schedule.maxRunDurationSec ?? getScheduleMaxRunDurationSec();
+  const budget = await beginScheduleBudgetRun({
+    scheduleId: schedule.id,
+    runId: taskId,
+    claimTtlSec: leaseSec + 120,
+    now,
+  });
+  if (budget.status === "blocked") return;
+  if (budget.status === "busy") {
+    await deferScheduleForBudgetClaim(schedule.id, budget.retryAt);
+    console.warn(`[scheduler] deferred ${schedule.id} — ${budget.reason}`);
+    return;
+  }
+  const budgetClaim = budget.claim;
 
   // Prepend turn-budget guidance so the agent can plan batched tool calls
   // instead of per-item loops that exhaust maxTurns mid-task.
@@ -578,6 +642,7 @@ async function fireSchedule(
     priority: 2,
     sourceType: "scheduled",
     maxTurns: schedule.maxTurns, // per-schedule override, NULL = inherit global
+    maxBudgetUsd: budgetClaim?.strictestPerRunUsd ?? null,
     successCriteriaSnapshot: schedule.successCriteria ?? "[]",
     createdAt: now,
     updatedAt: now,
@@ -632,10 +697,10 @@ async function fireSchedule(
   // comes first. In a saturated-cap scenario where no running task completes
   // before the next poll, expect up to a 60s drain latency.
   const cap = getScheduleMaxConcurrent();
-  const leaseSec = schedule.maxRunDurationSec ?? getScheduleMaxRunDurationSec();
   const { claimed } = claimSlot(taskId, cap, leaseSec);
 
   if (!claimed) {
+    await releaseScheduleBudgetRun(budgetClaim);
     console.warn(
       `[scheduler] schedule "${schedule.name}" queued — cap full (${countRunningScheduledSlots()}/${cap})`,
     );
@@ -653,7 +718,7 @@ async function fireSchedule(
         err
       );
     })
-    .then(() => finalizeScheduleFiring(schedule.id, taskId))
+    .then(() => finalizeScheduleFiring(schedule.id, taskId, budgetClaim))
     .then(() => drainQueue().catch(() => {}));
 
   console.log(
@@ -752,6 +817,20 @@ async function fireAppSchedule(
     return;
   }
 
+  const budget = await beginScheduleBudgetRun({
+    scheduleId: schedule.id,
+    claimTtlSec:
+      (schedule.maxRunDurationSec ?? getScheduleMaxRunDurationSec()) + 120,
+    now,
+  });
+  if (budget.status === "blocked") return;
+  if (budget.status === "busy") {
+    await deferScheduleForBudgetClaim(schedule.id, budget.retryAt);
+    console.warn(`[scheduler] deferred ${schedule.id} — ${budget.reason}`);
+    return;
+  }
+  const budgetClaim = budget.claim;
+
   const { dispatchScheduledBlueprint } = await import(
     "@/lib/apps/manifest-trigger-dispatch"
   );
@@ -759,9 +838,11 @@ async function fireAppSchedule(
     appId: parsed.appId,
     blueprintId,
     scheduleId: schedule.id,
+    maxBudgetUsd: budgetClaim?.strictestPerRunUsd ?? null,
   });
 
   if (!result) {
+    await releaseScheduleBudgetRun(budgetClaim);
     const failureStreak = (schedule.failureStreak ?? 0) + 1;
     const shouldAutoPause = failureStreak >= 3 && schedule.status === "active";
     const nextFireAt =
@@ -813,6 +894,26 @@ async function fireAppSchedule(
       updatedAt: now,
     })
     .where(eq(schedules.id, schedule.id));
+
+  result.completion
+    .catch((error) => {
+      console.error(
+        `[scheduler] app workflow ${result.workflowId} failed for schedule ${schedule.id}:`,
+        error
+      );
+    })
+    .then(() =>
+      completeScheduleBudgetRun({
+        claim: budgetClaim,
+        workflowId: result.workflowId,
+      })
+    )
+    .catch((error) => {
+      console.error(
+        `[scheduler] app budget reconciliation failed for workflow ${result.workflowId}:`,
+        error
+      );
+    });
 
   console.log(
     `[scheduler] fired app schedule "${schedule.name}" → blueprint ${blueprintId} (firing #${firingNumber})`
@@ -899,6 +1000,20 @@ async function fireHeartbeat(
   const evalTaskId = crypto.randomUUID();
   const firingNumber = schedule.firingCount + 1;
   const heartbeatDescription = buildHeartbeatPrompt(checklist, schedule.name);
+  const budget = await beginScheduleBudgetRun({
+    scheduleId: schedule.id,
+    runId: evalTaskId,
+    claimTtlSec:
+      (schedule.maxRunDurationSec ?? getScheduleMaxRunDurationSec()) + 120,
+    now,
+  });
+  if (budget.status === "blocked") return;
+  if (budget.status === "busy") {
+    await deferScheduleForBudgetClaim(schedule.id, budget.retryAt);
+    console.warn(`[scheduler] deferred heartbeat ${schedule.id} — ${budget.reason}`);
+    return;
+  }
+  const budgetClaim = budget.claim;
 
   await db.insert(tasks).values({
     id: evalTaskId,
@@ -913,6 +1028,7 @@ async function fireHeartbeat(
     priority: 2,
     sourceType: "heartbeat",
     maxTurns: schedule.maxTurns, // per-schedule override, NULL = inherit global
+    maxBudgetUsd: budgetClaim?.strictestPerRunUsd ?? null,
     successCriteriaSnapshot: schedule.successCriteria ?? "[]",
     createdAt: now,
     updatedAt: now,
@@ -939,11 +1055,6 @@ async function fireHeartbeat(
   } catch (err) {
     console.error(`[scheduler] heartbeat evaluation failed for "${schedule.name}":`, err);
   }
-
-  // Record health metrics and trigger drain (fire-and-forget — we still need
-  // to finish heartbeat post-processing below before returning).
-  finalizeScheduleFiring(schedule.id, evalTaskId)
-    .then(() => drainQueue().catch(() => {}));
 
   // 6. Read the completed task result
   const [evalTask] = await db
@@ -1012,6 +1123,11 @@ async function fireHeartbeat(
       `[scheduler] heartbeat "${schedule.name}" → OK (suppression #${schedule.suppressionCount + 1})`
     );
   }
+
+  // Reconcile after schedule counters/next fire are written so a pause action
+  // is final and cannot be overwritten by normal heartbeat post-processing.
+  finalizeScheduleFiring(schedule.id, evalTaskId, budgetClaim)
+    .then(() => drainQueue().catch(() => {}));
 }
 
 /**

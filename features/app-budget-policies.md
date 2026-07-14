@@ -1,422 +1,196 @@
 ---
-title: App Budget Policies
-status: deferred
-priority: P3
-milestone: post-mvp
-source: brainstorm session 2026-04-11
-dependencies: [app-extended-primitives-tier2]
+title: App and Schedule Budget Policies
+status: completed
+priority: P1
+milestone: mvp
+source: _IDEAS/backlog.md G-010; _IDEAS/reprioritze.md Gap #6
+dependencies: [usage-metering-ledger, spend-budget-guardrails, scheduled-prompt-loops, app-runtime-bundle-foundation]
 ---
 
-# App Budget Policies
-
-> **Deferred 2026-04-14.** Part of the marketplace / apps-distribution vision, which has no active plan after the pivot to 100% free Community Edition. Kept in the backlog pending future product direction.
+# App and Schedule Budget Policies
 
 ## Description
 
-Autonomous apps with scheduled agent runs can silently accumulate significant
-token usage and API costs. Today, the `usage_ledger` table tracks global
-usage but has no mechanism for per-schedule or per-app caps. An app that
-ships a "daily market analysis" schedule with no cost ceiling could burn
-through a user's API budget in days if the prompt grows unexpectedly or
-the agent enters a tool-call loop.
+Relay already records metered usage by task, workflow, project, customer, and
+schedule, and it can stop all work when an overall or runtime spend cap is
+reached. That global stop does not isolate one unattended operation: a faulty
+Pack schedule can consume most of the shared allowance before the rest of the
+workspace is protected.
 
-This feature adds `budgetPolicies` as a new primitive on `AppBundle`,
-allowing app creators to declare per-schedule token and dollar caps with
-configurable enforcement actions. The runtime checks budgets before and
-after each scheduled run, and the UI surfaces budget status on schedule
-cards with warning banners when approaching limits.
+G-010 adds operator-owned effective cost policies at app and schedule scope.
+Packs may declare recommendations in `AppManifest`, but recommendations do not
+enforce anything until the operator accepts or edits them. Accepted policies
+apply per-run, daily, and monthly metered-cost ceilings with an explicit
+`pause` or `notify` action. A pause affects only the schedule attempting the
+run; it never disables a runtime or unrelated app.
 
-## User Story
+This specification supersedes the 2026-04-11 `AppBundle`/marketplace design.
+It uses the current Pack/AppManifest, SQLite schedule, task-level run cap,
+usage-ledger, notification, and global-budget architecture.
 
-As a user, I want installed apps to respect declared budget limits on their
-scheduled runs so that no single app can silently consume my entire API
-allocation — and I want clear visibility into how much each app's schedules
-are costing.
+## Decisions and Invariants
 
-As an app creator, I want to declare sensible default budget policies for
-my app's schedules so that users trust my app will not run up unexpected
-costs.
+- Pack-authored policies are recommendations, not effective defaults.
+- The operator owns every effective policy and can accept, edit, disable, or
+  remove it locally.
+- `pause` is the recommended/default action. `notify` remains available for
+  operators who want visibility without automatic suspension.
+- App policies aggregate only schedules owned by that app. Schedule policies
+  aggregate only the named schedule. When both match, the stricter remaining
+  ceiling wins and both policies are evaluated.
+- Per-run cost limits are copied onto direct schedule tasks so supported
+  runtimes can stop during execution. Post-run reconciliation remains required
+  for provider overshoot and multi-step app workflows.
+- A hard-policy cost that cannot be measured is not reported as safe. `pause`
+  policies pause the affected schedule; `notify` policies emit a named
+  indeterminate-cost notification.
+- Concurrent runs sharing a policy are serialized through an expiring atomic
+  policy claim. A busy claim defers the later schedule without consuming a
+  firing or silently dropping it.
+- Budget notifications are deduplicated by policy, limit/window, and reset
+  period while preserving a durable evidence trail in `notifications`.
+- Existing global/runtime guardrails continue to apply independently. G-010
+  narrows fault isolation; it does not weaken the workspace stop-loss.
 
-## Technical Approach
+## Policy Contract
 
-### 1. New TypeScript interfaces (`src/lib/apps/types.ts`)
+Pack manifests may declare:
 
-```ts
-export interface AppBudgetPolicy {
-  key: string;
-  scheduleKey: string;                       // references AppScheduleTemplate.key
-  maxTokensPerRun?: number;                  // hard cap per single execution
-  maxCostPerRun?: number;                    // USD cap per single execution
-  maxTokensPerDay?: number;                  // rolling 24h token ceiling
-  maxCostPerDay?: number;                    // rolling 24h USD ceiling
-  maxTokensPerMonth?: number;                // rolling 30d token ceiling
-  maxCostPerMonth?: number;                  // rolling 30d USD ceiling
-  onExceed: "pause" | "notify" | "continue-with-warning";
-}
-
-export interface AppBudgetStatus {
-  scheduleKey: string;
-  policyKey: string;
-  tokensUsedToday: number;
-  costUsedToday: number;
-  tokensUsedThisMonth: number;
-  costUsedThisMonth: number;
-  lastRunTokens: number;
-  lastRunCost: number;
-  status: "ok" | "warning" | "exceeded" | "paused";
-  warningThreshold: number;                  // percentage (default 80%)
-}
+```yaml
+budgetPolicies:
+  - id: app-operations-budget
+    scope: app
+    maxCostPerDayUsd: 2
+    maxCostPerMonthUsd: 30
+    onExceed: pause
+  - id: daily-analysis-budget
+    scope: schedule
+    schedule: daily-analysis
+    maxCostPerRunUsd: 0.5
+    maxCostPerDayUsd: 1
+    onExceed: pause
 ```
 
-Extend `AppBundle`:
+Rules:
 
-```ts
-export interface AppBundle {
-  // ... existing fields ...
-  budgetPolicies?: AppBudgetPolicy[];
-}
-```
+- `id` is a stable kebab-case recommendation identifier.
+- `scope` is `app` or `schedule`; schedule scope requires a valid manifest
+  schedule reference and app scope forbids one.
+- At least one positive cost limit is required.
+- USD values are converted to integer microdollars before persistence.
+- The Pack installer/exporter rewrites schedule references between portable
+  logical ids and installed composite ids exactly as it does view bindings.
 
-### 2. Zod validation schema (`src/lib/apps/validation.ts`)
+The effective local policy stores one row per app and one per schedule. It
+records limits, action, enabled state, optional recommendation lineage,
+notification-dedup state, and an expiring active-run claim. Removing an app or
+schedule removes its effective policies without touching usage history.
 
-```ts
-const budgetPolicySchema = z.object({
-  key: z.string().regex(/^[a-z0-9-]+$/),
-  scheduleKey: z.string().regex(/^[a-z0-9-]+$/),
-  maxTokensPerRun: z.number().int().min(100).max(10_000_000).optional(),
-  maxCostPerRun: z.number().min(0.001).max(100).optional(),
-  maxTokensPerDay: z.number().int().min(1000).max(100_000_000).optional(),
-  maxCostPerDay: z.number().min(0.01).max(1000).optional(),
-  maxTokensPerMonth: z.number().int().min(10000).max(1_000_000_000).optional(),
-  maxCostPerMonth: z.number().min(0.10).max(10000).optional(),
-  onExceed: z.enum(["pause", "notify", "continue-with-warning"]),
-}).refine(
-  (data) => {
-    // At least one limit must be set
-    return (
-      data.maxTokensPerRun !== undefined ||
-      data.maxCostPerRun !== undefined ||
-      data.maxTokensPerDay !== undefined ||
-      data.maxCostPerDay !== undefined ||
-      data.maxTokensPerMonth !== undefined ||
-      data.maxCostPerMonth !== undefined
-    );
-  },
-  { message: "Budget policy must declare at least one limit" }
-);
-```
+## User-visible States
 
-Cross-reference: `scheduleKey` must reference a declared `schedules[].key`.
+- **No policy** — no accepted ceiling; show Configure. A Pack recommendation,
+  when present, is visibly labeled Recommended and can be accepted.
+- **Within budget** — effective policy, measured usage below 80%.
+- **Approaching limit** — effective policy at or above 80% of its nearest
+  daily/monthly limit; show measured and limit values.
+- **Limit reached** — a ceiling is reached or exceeded. The UI names whether
+  the schedule was paused or only notified.
+- **Measurement unavailable** — matching usage lacks a trustworthy cost. The
+  UI never substitutes `$0` or claims the policy is healthy.
+- **Policy busy** — another run owns the expiring claim. The schedule is
+  deferred and remains active; this transient state is logged, not presented
+  as a budget breach.
+- **Failure** — invalid policy, persistence failure, notification failure, or
+  reconciliation failure produces a named response/log; it is never swallowed.
 
-### 3. Bootstrap handler (`src/lib/apps/service.ts`)
-
-**`bootstrapBudgetPolicies(appId, policies, resourceMap)`**
-
-For each budget policy:
-
-1. Resolve `scheduleKey` to a real schedule ID via `resourceMap.schedules`.
-2. Store the policy in a new `budget_policies` table (or as JSON in the
-   app instance's `resourceMapJson`). Using `resourceMapJson` is simpler
-   and avoids a new migration:
-
-   ```ts
-   resourceMap.budgetPolicies = {
-     [policy.key]: {
-       scheduleId: resourceMap.schedules[policy.scheduleKey],
-       ...policy,
-     },
-   };
-   ```
-
-3. If the app ships with `onExceed: "pause"`, the schedule starts in
-   an active state but will auto-pause if the budget is exceeded on
-   the first run.
-
-### 4. Runtime enforcement
-
-Modify the schedule executor (`src/lib/schedules/scheduler.ts`) to check
-budget policies before and after each run:
-
-**Pre-run check:**
-
-```ts
-async function checkBudgetBeforeRun(
-  scheduleId: string,
-  appId: string
-): Promise<{ allowed: boolean; reason?: string }> {
-  const policy = getBudgetPolicyForSchedule(appId, scheduleId);
-  if (!policy) return { allowed: true };
-
-  const usage = await getUsageForSchedule(scheduleId, policy);
-
-  // Check daily limits
-  if (policy.maxTokensPerDay && usage.tokensUsedToday >= policy.maxTokensPerDay) {
-    return handleExceed(policy, "daily token limit reached");
-  }
-  if (policy.maxCostPerDay && usage.costUsedToday >= policy.maxCostPerDay) {
-    return handleExceed(policy, "daily cost limit reached");
-  }
-
-  // Check monthly limits
-  if (policy.maxTokensPerMonth && usage.tokensUsedThisMonth >= policy.maxTokensPerMonth) {
-    return handleExceed(policy, "monthly token limit reached");
-  }
-  if (policy.maxCostPerMonth && usage.costUsedThisMonth >= policy.maxCostPerMonth) {
-    return handleExceed(policy, "monthly cost limit reached");
-  }
-
-  return { allowed: true };
-}
-```
-
-**Post-run check:**
-
-After the agent run completes and usage is recorded in `usage_ledger`,
-check per-run limits:
-
-```ts
-async function checkBudgetAfterRun(
-  scheduleId: string,
-  appId: string,
-  runUsage: { tokens: number; cost: number }
-): Promise<void> {
-  const policy = getBudgetPolicyForSchedule(appId, scheduleId);
-  if (!policy) return;
-
-  if (policy.maxTokensPerRun && runUsage.tokens > policy.maxTokensPerRun) {
-    await handleExceedAction(policy, scheduleId,
-      `Run used ${runUsage.tokens} tokens (limit: ${policy.maxTokensPerRun})`);
-  }
-  if (policy.maxCostPerRun && runUsage.cost > policy.maxCostPerRun) {
-    await handleExceedAction(policy, scheduleId,
-      `Run cost $${runUsage.cost.toFixed(4)} (limit: $${policy.maxCostPerRun})`);
-  }
-}
-```
-
-**Enforcement actions:**
-
-```ts
-function handleExceedAction(
-  policy: AppBudgetPolicy,
-  scheduleId: string,
-  reason: string
-): void {
-  switch (policy.onExceed) {
-    case "pause":
-      pauseSchedule(scheduleId);
-      createNotification({
-        type: "warning",
-        title: "Schedule paused — budget exceeded",
-        body: reason,
-      });
-      break;
-    case "notify":
-      createNotification({
-        type: "warning",
-        title: "Budget warning",
-        body: reason,
-      });
-      break;
-    case "continue-with-warning":
-      // Log warning but don't interrupt
-      console.warn(`[budget] ${reason}`);
-      break;
-  }
-}
-```
-
-### 5. Per-schedule cost tracking (new platform capability)
-
-The existing `usage_ledger` table tracks usage per task (`taskId` column)
-and per runtime (`runtimeId`), but does not link usage to a specific
-schedule. Add schedule-level tracking:
-
-**Option A (preferred):** Add a `scheduleId` column to `usage_ledger`:
-
-```sql
-ALTER TABLE usage_ledger ADD COLUMN schedule_id TEXT
-  REFERENCES schedules(id) ON DELETE SET NULL;
-CREATE INDEX idx_usage_ledger_schedule_id ON usage_ledger(schedule_id);
-```
-
-The schedule executor already knows the schedule ID when it creates tasks —
-pass it through to the usage recording path.
-
-**Option B (lighter):** Derive schedule association from the task chain.
-Schedules create tasks; tasks create usage_ledger entries. Join
-`schedules → tasks → usage_ledger` to aggregate. This avoids a migration
-but is slower for budget checks on every run.
-
-Go with Option A for query performance — budget checks happen on every
-scheduled run and must be fast.
-
-### 6. Usage aggregation queries
-
-```ts
-async function getUsageForSchedule(
-  scheduleId: string,
-  policy: AppBudgetPolicy
-): Promise<AppBudgetStatus> {
-  const now = new Date();
-  const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-  // Aggregate from usage_ledger where schedule_id matches
-  const dailyUsage = db
-    .select({
-      totalTokens: sql<number>`SUM(${usageLedger.totalTokens})`,
-      totalCost: sql<number>`SUM(${usageLedger.totalCostUsd})`,
-    })
-    .from(usageLedger)
-    .where(
-      and(
-        eq(usageLedger.scheduleId, scheduleId),
-        gte(usageLedger.finishedAt, dayAgo)
-      )
-    )
-    .get();
-
-  // Similar query for monthly window
-  // ...
-
-  return {
-    scheduleKey: policy.scheduleKey,
-    policyKey: policy.key,
-    tokensUsedToday: dailyUsage?.totalTokens ?? 0,
-    costUsedToday: dailyUsage?.totalCost ?? 0,
-    // ... monthly fields ...
-    status: computeStatus(dailyUsage, monthlyUsage, policy),
-    warningThreshold: 80,
-  };
-}
-```
-
-### 7. UI: Budget status on schedule cards
-
-Extend the schedule card component (`src/components/schedules/`) to show
-budget status when a budget policy is associated:
-
-- **Green badge** — "Budget OK" (under 80% of any limit)
-- **Amber badge** — "Budget Warning" (80-100% of any limit)
-- **Red badge** — "Budget Exceeded" (over 100%, schedule may be paused)
-- **Tooltip** — Shows breakdown: tokens used/limit, cost used/limit,
-  per-run last values
-
-Add a warning banner to the schedule detail view when budget is in
-warning or exceeded state.
-
-### 8. Budget override for users
-
-Users can override app-declared budget policies via the installed app
-settings page. An override can:
-
-- Increase or decrease any limit
-- Change the `onExceed` action
-- Disable the budget policy entirely (user takes full responsibility)
-
-Overrides are stored in `resourceMapJson` alongside the original policy,
-with a `userOverride: true` flag.
-
-### 9. Built-in app examples (`src/lib/apps/builtins.ts`)
-
-**wealth-manager:**
-
-```ts
-budgetPolicies: [
-  {
-    key: "daily-review-budget",
-    scheduleKey: "daily-review",
-    maxTokensPerRun: 50000,
-    maxCostPerRun: 0.50,
-    maxTokensPerDay: 100000,
-    maxCostPerDay: 1.00,
-    onExceed: "notify",
-  },
-],
-```
-
-**growth-module:**
-
-```ts
-budgetPolicies: [
-  {
-    key: "experiment-check-budget",
-    scheduleKey: "experiment-check",
-    maxTokensPerRun: 30000,
-    maxCostPerRun: 0.30,
-    maxTokensPerDay: 60000,
-    maxCostPerDay: 0.60,
-    maxTokensPerMonth: 1000000,
-    maxCostPerMonth: 10.00,
-    onExceed: "pause",
-  },
-],
-```
+All controls use Relay semantic tokens, visible focus, keyboard operation, and
+the system cursor. Status meaning is present in text, not color alone.
 
 ## Acceptance Criteria
 
-- [ ] `AppBudgetPolicy` and `AppBudgetStatus` interfaces added to
-      `src/lib/apps/types.ts`.
-- [ ] Zod schema validates at least one limit is set per policy.
-- [ ] `scheduleKey` cross-reference validation catches invalid references.
-- [ ] `bootstrapBudgetPolicies()` stores policies in `resourceMapJson`.
-- [ ] `usage_ledger` table has a `schedule_id` column (new migration +
-      bootstrap sync).
-- [ ] Schedule executor records `schedule_id` on every usage entry.
-- [ ] Pre-run budget check blocks execution when daily/monthly limits are
-      exceeded (for `pause` action).
-- [ ] Post-run budget check enforces per-run limits after the fact.
-- [ ] `pause` action auto-pauses the schedule and creates a notification.
-- [ ] `notify` action creates a notification but allows the run to continue.
-- [ ] `continue-with-warning` action logs without interruption.
-- [ ] Schedule cards show budget status badges (green/amber/red).
-- [ ] Users can override budget policies from the installed app settings.
-- [ ] `wealth-manager` and `growth-module` builtins include budget policy
-      examples.
-- [ ] Unit tests cover: pre-run check, post-run check, each onExceed
-      action, aggregation queries, user overrides.
-- [ ] `npm test` passes; `npx tsc --noEmit` clean.
+- [x] `AppManifestSchema` validates app/schedule recommendations, rejects
+      missing limits and invalid schedule cross-references, and exposes typed
+      policy data to Pack install/export.
+- [x] Pack install and export round-trip logical schedule references in budget
+      recommendations.
+- [x] SQLite/bootstrap/migration define effective policies with one app row or
+      one schedule row, integer microdollar limits, recommendation lineage,
+      notification state, and an expiring atomic claim.
+- [x] API reads and mutates app and schedule policies with Zod boundary
+      validation, not-found handling, and named persistence errors.
+- [x] Pack recommendations remain non-enforcing until explicitly accepted.
+- [x] Pre-run enforcement evaluates matching app and schedule daily/monthly
+      totals before a scheduled or manual firing starts.
+- [x] Direct schedule tasks receive the strictest matching per-run ceiling;
+      post-run reconciliation catches overshoot.
+- [x] App-scheduled workflow tasks retain `scheduleId` attribution and their
+      completed workflow triggers post-run reconciliation.
+- [x] `pause` pauses only the affected schedule, clears its next fire, and
+      creates a `budget_alert` notification with policy and usage evidence.
+- [x] `notify` creates a deduplicated `budget_alert` but permits execution.
+- [x] Missing/untrustworthy cost follows the configured action and is visible
+      as measurement unavailable rather than healthy `$0` usage.
+- [x] Two schedules sharing an app policy cannot concurrently pass the same
+      policy claim; the later firing is deferred without incrementing its
+      firing count.
+- [x] App detail exposes recommendations/effective app and schedule policies;
+      schedule cards/detail expose effective status and configuration.
+- [x] Deleting an app or schedule cleans effective policy state; Clear Data
+      removes policy rows in foreign-key-safe order.
+- [x] Regression tests, TypeScript, token validation, a real scheduled fixture
+      crossing a small cap, and light/dark responsive browser checks pass.
+- [x] A real runtime-registry smoke confirms the workflow attribution change
+      introduces no module-load cycle.
 
 ## Scope Boundaries
 
-**Included:**
-- `AppBudgetPolicy` type, Zod schema, bootstrap handler
-- `schedule_id` column on `usage_ledger` (migration + bootstrap)
-- Per-schedule usage aggregation queries
-- Runtime enforcement in schedule executor (pre-run + post-run)
-- Budget status badges on schedule cards
-- User budget override mechanism
-- Built-in app examples
+### Included
 
-**Excluded:**
-- Global (non-app) budget caps (separate concern — platform-level feature)
-- Real-time cost estimation during a run (only check before/after)
-- Cost alerting via external channels (email/Slack) — use platform
-  notifications only
-- Token price lookup service (use static price table per model)
-- Budget policies for non-schedule primitives (e.g., chat tool calls)
-- Multi-currency support (USD only)
-- Budget visualization charts / historical trends (future enhancement)
+- Metered USD cost policies for app-owned and standalone schedules.
+- Per-run, local-calendar daily, and local-calendar monthly ceilings.
+- Operator accept/edit/disable/remove and `pause`/`notify` actions.
+- Pack recommendation schema and install/export portability.
+- Schedule-local notification, pause, status, and configuration UI.
+- Concurrent-policy claim and stale-claim recovery.
+
+### Not in scope
+
+- Token-count ceilings; task turn limits remain the token-independent control.
+- Live cancellation at the exact dollar boundary when a provider reports cost
+  only after a request completes.
+- Chat, ad-hoc workflow, project, customer, or per-client billing policies.
+- Email/Slack alerts, historical charts, forecasts, multi-currency, purchases,
+  or changing provider billing.
+- Pack capabilities, licensing, or marketplace enforcement.
 
 ## References
 
-- Source: brainstorm session 2026-04-11, plan `flickering-petting-hammock.md`
-  section 3d
-- Related: `app-extended-primitives-tier2`, `marketplace-trust-ladder`
-- Files to modify:
-  - `src/lib/apps/types.ts` — new interfaces, extend AppBundle
-  - `src/lib/apps/validation.ts` — budget policy Zod schema
-  - `src/lib/apps/service.ts` — bootstrap handler
-  - `src/lib/apps/builtins.ts` — examples in both builtin apps
-  - `src/lib/schedules/scheduler.ts` — pre-run and post-run budget checks
-  - `src/lib/db/schema.ts` — add `scheduleId` column to `usageLedger`
-  - `src/lib/db/bootstrap.ts` — sync new column in bootstrap DDL
-  - `src/components/schedules/` — budget status badges on schedule cards
-- Files to create:
-  - `src/lib/apps/budget-checker.ts` — budget enforcement logic
-    (aggregation queries, status computation, exceed handlers)
-  - `src/lib/db/migrations/00XX_add_usage_ledger_schedule_id.sql` — new
-    migration for schedule_id column
-  - `src/lib/apps/__tests__/budget-policies.test.ts` — unit tests for
-    budget enforcement
+- Goal: `_IDEAS/backlog.md` G-010
+- Priority rationale: `_IDEAS/reprioritze.md` Gap #6
+- Existing global guard: `src/lib/settings/budget-guardrails.ts`
+- Existing ledger: `src/lib/usage/ledger.ts`
+- Schedule lifecycle: `src/lib/schedules/scheduler.ts`
+- Pack contract: `src/lib/apps/registry.ts`
+
+## Verification run — 2026-07-14
+
+- Targeted schema, policy, scheduler, workflow, Pack install/export, and
+  app-schedule regressions pass. They cover empty/invalid policy rejection,
+  app+schedule matching, strictest per-run propagation, concurrent and stale
+  claims, daily pause isolation, notify-only continuation, notification
+  deduplication, unavailable measurement, workflow child attribution, and
+  logical/composite Pack schedule round-tripping.
+- `npx tsc --noEmit`, `npm run validate:tokens`, and `git diff --check` pass.
+- The broader suite reached 3,210 passing tests. Its remaining failures are
+  pre-existing or environment-bound (strategy privacy text, legacy router and
+  auth-schema expectations, Web Designer fixture count, localhost binding,
+  and E2E reachability); the one G-010 stale app-schedule assertion it exposed
+  was updated and rerun green.
+- A real `npm run dev` execution created and started a no-cost delay workflow,
+  reached the expected paused/delayed state through the actual Next.js runtime
+  graph, and produced no runtime-registry initialization or console error.
+- Live API/browser verification accepted, rendered, edited, and removed a
+  temporary schedule policy, then deleted the temporary schedule. App and
+  schedule policy surfaces passed desktop light/dark and 390px dark checks;
+  the 390px sheet reported no document or policy-panel horizontal overflow.
+  Evidence is under `output/g010/` (gitignored).

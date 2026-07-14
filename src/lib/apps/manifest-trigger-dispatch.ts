@@ -145,32 +145,34 @@ export async function dispatchBlueprintForRow(input: {
  * entirely from the blueprint's declared defaults, so a pack author must
  * give every required variable a default for a scheduled blueprint.
  *
- * Returns `{ workflowId }` on success, `null` on failure (already logged +
+ * Returns the workflow identity and completion promise on success, `null` on failure (already logged +
  * recorded in `notifications`).
  */
 export async function dispatchScheduledBlueprint(input: {
   appId: string;
   blueprintId: string;
   scheduleId: string;
-}): Promise<{ workflowId: string } | null> {
-  const { appId, blueprintId, scheduleId } = input;
+  maxBudgetUsd?: number | null;
+}): Promise<{ workflowId: string; completion: Promise<void> } | null> {
+  const { appId, blueprintId, scheduleId, maxBudgetUsd } = input;
   try {
     const { instantiateBlueprint } = await import(
       "@/lib/workflows/blueprints/instantiator"
     );
     const { executeWorkflow } = await import("@/lib/workflows/engine");
 
-    const { workflowId } = await instantiateBlueprint(blueprintId, {}, appId);
-
-    // Fire-and-forget — workflow may run for minutes
-    executeWorkflow(workflowId).catch((err) => {
-      console.error(
-        `[manifest-trigger-dispatch] executeWorkflow ${workflowId} failed:`,
-        err
-      );
+    const { workflowId } = await instantiateBlueprint(blueprintId, {}, appId, {
+      _scheduleId: scheduleId,
+      ...(maxBudgetUsd !== null && maxBudgetUsd !== undefined
+        ? { _scheduleBudgetPerRunUsd: maxBudgetUsd }
+        : {}),
     });
 
-    return { workflowId };
+    // The scheduler does not block on this promise, but it retains it so the
+    // budget claim is reconciled only after all child tasks have finished.
+    const completion = executeWorkflow(workflowId);
+
+    return { workflowId, completion };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(

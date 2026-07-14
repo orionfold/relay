@@ -869,6 +869,15 @@ function rewriteTableRefs(
       const real = scheduleLogicalToReal.get(s.id);
       return real ? { ...s, id: real } : s;
     }),
+    budgetPolicies: manifest.budgetPolicies.map((policy) =>
+      policy.scope === "schedule" && policy.schedule
+        ? {
+            ...policy,
+            schedule:
+              scheduleLogicalToReal.get(policy.schedule) ?? policy.schedule,
+          }
+        : policy
+    ),
   };
   // The view binds to tables and schedules by the SAME logical ids. Rewrite
   // those refs too — hero/secondary/cadence/runs bindings and every KPI

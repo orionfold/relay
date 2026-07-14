@@ -126,6 +126,15 @@ describe("buildAppPackArtifact", () => {
       schedules: [
         { id: SCHEDULE_ID, cron: "0 8 * * *", runs: BLUEPRINT_ID },
       ],
+      budgetPolicies: [
+        {
+          id: "daily-stop-loss",
+          scope: "schedule",
+          schedule: SCHEDULE_ID,
+          maxCostPerDayUsd: 2,
+          onExceed: "pause",
+        },
+      ],
       view: {
         kit: "tracker",
         bindings: {
@@ -155,6 +164,7 @@ describe("buildAppPackArtifact", () => {
       tables: Array<Record<string, unknown>>;
       blueprints: Array<{ trigger: { table: string } }>;
       schedules: Array<{ id: string }>;
+      budgetPolicies: Array<{ schedule: string }>;
       view: { bindings: { hero: { table: string }; cadence: { schedule: string } } };
     };
 
@@ -167,6 +177,9 @@ describe("buildAppPackArtifact", () => {
     });
     expect(manifest.blueprints[0].trigger.table).toBe(`${APP_ID}--metrics`);
     expect(manifest.schedules[0].id).toBe(`${APP_ID}--daily-refresh`);
+    expect(manifest.budgetPolicies[0].schedule).toBe(
+      `${APP_ID}--daily-refresh`
+    );
     expect(manifest.view.bindings.hero.table).toBe(`${APP_ID}--metrics`);
     expect(manifest.view.bindings.cadence.schedule).toBe(
       `${APP_ID}--daily-refresh`

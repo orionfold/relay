@@ -314,6 +314,56 @@ export const schedules = sqliteTable(
   ]
 );
 
+/**
+ * Operator-owned metered-cost stop-losses for unattended app/schedule work.
+ * Pack-authored values remain recommendations in AppManifest; only rows in
+ * this table enforce. Claim fields serialize runs that share one policy and
+ * expire so a crashed process cannot strand automation forever.
+ */
+export const usageBudgetPolicies = sqliteTable(
+  "usage_budget_policies",
+  {
+    id: text("id").primaryKey(),
+    scopeType: text("scope_type", { enum: ["app", "schedule"] }).notNull(),
+    scopeId: text("scope_id").notNull(),
+    appId: text("app_id"),
+    scheduleId: text("schedule_id").references(() => schedules.id, {
+      onDelete: "cascade",
+    }),
+    sourceRecommendationId: text("source_recommendation_id"),
+    enabled: integer("enabled", { mode: "boolean" }).default(true).notNull(),
+    onExceed: text("on_exceed", { enum: ["pause", "notify"] })
+      .default("pause")
+      .notNull(),
+    maxCostPerRunMicros: integer("max_cost_per_run_micros"),
+    maxCostPerDayMicros: integer("max_cost_per_day_micros"),
+    maxCostPerMonthMicros: integer("max_cost_per_month_micros"),
+    notificationState: text("notification_state").default("{}").notNull(),
+    lastBreachKind: text("last_breach_kind", {
+      enum: ["run", "daily", "monthly", "measurement_unavailable"],
+    }),
+    lastBreachMessage: text("last_breach_message"),
+    lastBreachAt: integer("last_breach_at", { mode: "timestamp" }),
+    activeRunId: text("active_run_id"),
+    activeScheduleId: text("active_schedule_id"),
+    claimStartedAt: integer("claim_started_at", { mode: "timestamp" }),
+    claimExpiresAt: integer("claim_expires_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  },
+  (table) => [
+    uniqueIndex("idx_usage_budget_policies_scope").on(
+      table.scopeType,
+      table.scopeId
+    ),
+    index("idx_usage_budget_policies_app_id").on(table.appId),
+    index("idx_usage_budget_policies_schedule_id").on(table.scheduleId),
+    index("idx_usage_budget_policies_claim_expiry").on(table.claimExpiresAt),
+  ]
+);
+
+export type UsageBudgetPolicyRow = InferSelectModel<typeof usageBudgetPolicies>;
+
 export const operationsReceipts = sqliteTable(
   "operations_receipts",
   {

@@ -25,7 +25,11 @@ export async function instantiateBlueprint(
   blueprintId: string,
   variables: Record<string, unknown>,
   projectId?: string,
-  metadata?: { _contextRowId?: string }
+  metadata?: {
+    _contextRowId?: string;
+    _scheduleId?: string;
+    _scheduleBudgetPerRunUsd?: number;
+  }
 ): Promise<InstantiateResult> {
   const blueprint = getBlueprint(blueprintId);
   if (!blueprint) {
@@ -100,6 +104,12 @@ export async function instantiateBlueprint(
   };
   if (metadata?._contextRowId) {
     definition._contextRowId = metadata._contextRowId;
+  }
+  if (metadata?._scheduleId) {
+    definition._scheduleId = metadata._scheduleId;
+  }
+  if (metadata?._scheduleBudgetPerRunUsd !== undefined) {
+    definition._scheduleBudgetPerRunUsd = metadata._scheduleBudgetPerRunUsd;
   }
 
   await db.insert(workflows).values({

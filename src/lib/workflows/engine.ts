@@ -929,14 +929,31 @@ export async function executeChildTask(
     .from(workflows)
     .where(eq(workflows.id, workflowId));
 
-  // Extract context_row_id from workflow definition (set by row-trigger-blueprint-execution).
-  // Used to attribute the resulting task back to the user-table row that triggered it.
+  // Extract dispatch lineage from the workflow definition. Row-triggered
+  // workflows retain their source row; schedule-triggered workflows retain
+  // schedule attribution and the operator's accepted per-run ceiling.
   let contextRowId: string | null = null;
+  let scheduleId: string | null = null;
+  let scheduleBudgetPerRunUsd: number | null = null;
   if (workflow?.definition) {
     try {
-      const def = JSON.parse(workflow.definition) as { _contextRowId?: string };
+      const def = JSON.parse(workflow.definition) as {
+        _contextRowId?: string;
+        _scheduleId?: string;
+        _scheduleBudgetPerRunUsd?: number;
+      };
       if (typeof def._contextRowId === "string") {
         contextRowId = def._contextRowId;
+      }
+      if (typeof def._scheduleId === "string") {
+        scheduleId = def._scheduleId;
+      }
+      if (
+        typeof def._scheduleBudgetPerRunUsd === "number" &&
+        Number.isFinite(def._scheduleBudgetPerRunUsd) &&
+        def._scheduleBudgetPerRunUsd > 0
+      ) {
+        scheduleBudgetPerRunUsd = def._scheduleBudgetPerRunUsd;
       }
     } catch {
       // Malformed definition JSON — log and continue.
@@ -967,11 +984,15 @@ export async function executeChildTask(
   }
 
   const taskId = crypto.randomUUID();
+  const effectiveMaxBudgetUsd =
+    maxBudgetUsd !== undefined && scheduleBudgetPerRunUsd !== null
+      ? Math.min(maxBudgetUsd, scheduleBudgetPerRunUsd)
+      : maxBudgetUsd ?? scheduleBudgetPerRunUsd;
   await db.insert(tasks).values({
     id: taskId,
     projectId: workflow?.projectId ?? null,
     workflowId,
-    scheduleId: null,
+    scheduleId,
     title: `[Workflow] ${name}`,
     description: enrichedPrompt,
     status: "queued",
@@ -980,7 +1001,7 @@ export async function executeChildTask(
     agentProfile: resolvedProfile ?? null,
     workflowRunNumber: workflow?.runNumber ?? null,
     successCriteriaSnapshot: workflow?.successCriteriaRunSnapshot ?? null,
-    maxBudgetUsd: maxBudgetUsd ?? null,
+    maxBudgetUsd: effectiveMaxBudgetUsd ?? null,
     contextRowId,
     createdAt: new Date(),
     updatedAt: new Date(),

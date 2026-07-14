@@ -232,6 +232,44 @@ describe("executeChildTask context_row_id stamping", () => {
     expect(insertedValues.contextRowId).toBeNull();
   });
 
+  it("stamps schedule lineage and preserves the stricter step budget", async () => {
+    const workflowId = "workflow-schedule-budget";
+    const workflow = {
+      id: workflowId,
+      name: "Scheduled workflow",
+      projectId: "test-app",
+      runNumber: 1,
+      definition: JSON.stringify({
+        pattern: "sequence",
+        steps: [],
+        _scheduleId: "app:test-app:daily",
+        _scheduleBudgetPerRunUsd: 0.25,
+      }),
+      status: "draft",
+    };
+    const completedTask = { id: "anything", status: "completed", result: "ok" };
+    mockWhere
+      .mockResolvedValueOnce([workflow])
+      .mockResolvedValueOnce([completedTask]);
+
+    const { executeChildTask } = await import("../engine");
+    await executeChildTask(
+      workflowId,
+      "Budgeted step",
+      "prompt",
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      0.1,
+      "test-runtime-noop"
+    );
+
+    const insertedValues = mockInsertValues.mock.calls[0]?.[0];
+    expect(insertedValues.scheduleId).toBe("app:test-app:daily");
+    expect(insertedValues.maxBudgetUsd).toBe(0.1);
+  });
+
   it("falls back to null context_row_id when workflow definition JSON is malformed", async () => {
     const workflowId = "workflow-ctx-3";
     const workflow = {

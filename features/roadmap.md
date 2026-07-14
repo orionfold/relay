@@ -182,6 +182,7 @@ via marker comments, not dropped. See `_SPECS/2026-06-29-211534_feature-cut-free
 |---------|----------|--------|--------------|
 | [usage-metering-ledger](usage-metering-ledger.md) | P1 | completed | provider-runtime-abstraction, openai-codex-app-server, monitoring-dashboard |
 | [spend-budget-guardrails](spend-budget-guardrails.md) | P1 | completed | usage-metering-ledger, inbox-notifications, provider-runtime-abstraction |
+| [app-budget-policies](app-budget-policies.md) | P1 | completed | usage-metering-ledger, spend-budget-guardrails, scheduled-prompt-loops, app-runtime-bundle-foundation |
 | [codex-subscription-governance](codex-subscription-governance.md) | P2 | completed | codex-chatgpt-authentication, spend-budget-guardrails |
 | [cost-and-usage-dashboard](cost-and-usage-dashboard.md) | P2 | completed | usage-metering-ledger, spend-budget-guardrails, micro-visualizations |
 | [workflow-budget-governance](workflow-budget-governance.md) | P1 | completed | spend-budget-guardrails, workflow-engine |
@@ -430,7 +431,6 @@ Growing the composition grammar from 7 primitives to ~18, enabling richer app ca
 | [app-extended-primitives-tier1](app-extended-primitives-tier1.md) | P1 | deferred | marketplace-install-hardening |
 | [app-extended-primitives-tier2](app-extended-primitives-tier2.md) | P2 | deferred | app-extended-primitives-tier1 |
 | [app-mcp-server-wiring](app-mcp-server-wiring.md) | P2 | deferred | app-extended-primitives-tier2, marketplace-trust-ladder |
-| [app-budget-policies](app-budget-policies.md) | P3 | deferred | app-extended-primitives-tier2 |
 
 ### App Marketplace — Chat-Native Authoring
 

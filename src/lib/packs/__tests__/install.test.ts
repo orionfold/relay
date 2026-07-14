@@ -285,6 +285,15 @@ describe("installPack", () => {
           runs: "test-agency--weekly",
         },
       ],
+      budgetPolicies: [
+        {
+          id: "month-end-stop-loss",
+          scope: "schedule",
+          schedule: "month-end",
+          maxCostPerRunUsd: 0.5,
+          onExceed: "pause",
+        },
+      ],
       view: {
         kit: "ledger",
         bindings: {
@@ -324,6 +333,9 @@ describe("installPack", () => {
     // the composite DB id so the KPI resolves (not silently null).
     const app = registry.getApp("test-agency", appsDir);
     expect(app!.manifest.schedules[0].id).toBe("app:test-agency:month-end");
+    expect(app!.manifest.budgetPolicies[0].schedule).toBe(
+      "app:test-agency:month-end"
+    );
     const view = app!.manifest.view as {
       bindings?: { kpis?: { source?: { schedule?: string } }[] };
     };

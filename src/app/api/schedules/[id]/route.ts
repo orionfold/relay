@@ -17,6 +17,7 @@ import {
   ensureScheduleReceipt,
   listScheduleReceipts,
 } from "@/lib/operations/receipts";
+import { getScheduleBudgetSnapshot } from "@/lib/schedules/budget-policies";
 
 export async function GET(
   _req: NextRequest,
@@ -64,6 +65,7 @@ export async function GET(
     successCriteriaError = error instanceof Error ? error.message : String(error);
   }
   const receipts = await listScheduleReceipts(schedule.id);
+  const budget = await getScheduleBudgetSnapshot(schedule.id);
 
   return NextResponse.json({
     ...schedule,
@@ -73,6 +75,7 @@ export async function GET(
     successCriteria,
     successCriteriaError,
     receipts,
+    budget,
     receiptReconciliationErrors: reconciliationErrors,
     firingHistory: childTasks,
   });

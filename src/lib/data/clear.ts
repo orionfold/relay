@@ -11,6 +11,7 @@ import {
   projects,
   customers,
   usageLedger,
+  usageBudgetPolicies,
   views,
   environmentSyncOps,
   environmentCheckpoints,
@@ -115,6 +116,7 @@ export function clearAllData() {
   const profileTestResultsDeleted = step("profileTestResults", () => db.delete(profileTestResults).run().changes);
   const viewsDeleted = step("views", () => db.delete(views).run().changes);
   const usageLedgerDeleted = step("usageLedger", () => db.delete(usageLedger).run().changes);
+  const usageBudgetPoliciesDeleted = step("usageBudgetPolicies", () => db.delete(usageBudgetPolicies).run().changes);
   const logsDeleted = step("agentLogs", () => db.delete(agentLogs).run().changes);
   const notificationsDeleted = step("notifications", () => db.delete(notifications).run().changes);
 
@@ -188,6 +190,7 @@ export function clearAllData() {
     scheduleFiringMetrics: scheduleFiringMetricsDeleted,
     schedules: schedulesDeleted,
     usageLedger: usageLedgerDeleted,
+    usageBudgetPolicies: usageBudgetPoliciesDeleted,
     agentLogs: logsDeleted,
     notifications: notificationsDeleted,
     documents: documentsDeleted,

@@ -5,6 +5,7 @@ import { PageShell } from "@/components/shared/page-shell";
 import { AppDetailActions } from "@/components/apps/app-detail-actions";
 import { AppDetailEntryFocus } from "@/components/apps/app-detail-entry-focus";
 import { AppPublishPanel } from "@/components/apps/app-publish-panel";
+import { AppBudgetPolicyPanel } from "@/components/budgets/app-budget-policy-panel";
 import { PackCompositionStrip } from "@/components/apps/pack-composition-strip";
 import { PackRepositorySection } from "@/components/apps/pack-repository-section";
 import { WebDesignerShell } from "@/components/apps/web-designer-shell";
@@ -16,6 +17,7 @@ import { resolveBindings } from "@/lib/apps/view-kits/resolve";
 import { loadRuntimeState } from "@/lib/apps/view-kits/data";
 import { SETTINGS_KEYS } from "@/lib/constants/settings";
 import { getSetting } from "@/lib/settings/helpers";
+import { getAppBudgetSnapshot } from "@/lib/schedules/budget-policies";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +51,7 @@ export default async function AppDetailPage({
   const isWebPublisher = app.id === "relay-web-publisher";
   const showViewDiagnostics =
     (await getSetting(SETTINGS_KEYS.APPS_SHOW_INFERENCE_DIAGNOSTICS)) === "true";
+  const budgetSnapshot = await getAppBudgetSnapshot(app.id);
 
   model.header.viewKit = {
     id: resolution.kit,
@@ -127,6 +130,7 @@ export default async function AppDetailPage({
             )}
           </>
         )}
+        <AppBudgetPolicyPanel initialSnapshot={budgetSnapshot} />
         <PackRepositorySection appId={app.id} origin={app.origin} />
       </div>
     </PageShell>

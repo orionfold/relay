@@ -112,8 +112,11 @@ describe("app-manifest schedule firing", () => {
 
     expect(instantiator.instantiateBlueprint).toHaveBeenCalledWith(
       "test-app--close",
-      expect.any(Object),
-      "test-app"
+      {},
+      "test-app",
+      {
+        _scheduleId: COMPOSITE_ID,
+      }
     );
     expect(engine.executeWorkflow).toHaveBeenCalledWith("wf-1");
 

@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { evaluateManifestTriggers } from "../manifest-trigger-dispatch";
+import {
+  dispatchScheduledBlueprint,
+  evaluateManifestTriggers,
+} from "../manifest-trigger-dispatch";
 import * as registry from "../registry";
 import * as instantiator from "@/lib/workflows/blueprints/instantiator";
 import * as engine from "@/lib/workflows/engine";
@@ -72,6 +75,39 @@ describe("evaluateManifestTriggers — happy path", () => {
       { _contextRowId: "row-1" }
     );
     expect(engine.executeWorkflow).toHaveBeenCalledWith("wf-1");
+  });
+});
+
+describe("dispatchScheduledBlueprint — budget lineage", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("preserves schedule attribution and returns workflow completion", async () => {
+    vi.mocked(instantiator.instantiateBlueprint).mockResolvedValue({
+      workflowId: "wf-scheduled",
+      name: "Scheduled workflow",
+      stepsCount: 1,
+      skippedSteps: [],
+    });
+    const completion = Promise.resolve();
+    vi.mocked(engine.executeWorkflow).mockReturnValue(completion);
+
+    const result = await dispatchScheduledBlueprint({
+      appId: "test-app",
+      blueprintId: "test-app--daily",
+      scheduleId: "app:test-app:daily",
+      maxBudgetUsd: 0.25,
+    });
+
+    expect(instantiator.instantiateBlueprint).toHaveBeenCalledWith(
+      "test-app--daily",
+      {},
+      "test-app",
+      {
+        _scheduleId: "app:test-app:daily",
+        _scheduleBudgetPerRunUsd: 0.25,
+      }
+    );
+    expect(result).toEqual({ workflowId: "wf-scheduled", completion });
   });
 });
 
