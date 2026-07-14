@@ -10,7 +10,7 @@ import { z } from "zod";
 import { isPerToolApprovalEnabled } from "@/lib/config/env";
 import { db } from "@/lib/db";
 import { notifications } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import type { CanUseToolPolicy } from "./profiles/types";
 import { isExaTool, isExaReadOnly } from "./browser-mcp";
 import { CLAUDE_SDK_READ_ONLY_FS_TOOLS } from "./runtime/claude-sdk";
@@ -99,7 +99,49 @@ export async function waitForToolPermissionResponse(
     await new Promise((resolve) => setTimeout(resolve, pollInterval));
   }
 
-  return { behavior: "deny", message: "Permission request timed out" };
+  const timeoutResponse: ToolPermissionResponse = {
+    behavior: "deny",
+    message: "Permission request timed out",
+  };
+  const timeoutClaim = db
+    .update(notifications)
+    .set({
+      response: JSON.stringify(timeoutResponse),
+      respondedAt: new Date(),
+      read: true,
+    })
+    .where(
+      and(
+        eq(notifications.id, notificationId),
+        isNull(notifications.response),
+      ),
+    )
+    .run();
+
+  if (timeoutClaim.changes === 1) return timeoutResponse;
+
+  // A user response can race the timeout claim. If it won, return that durable
+  // response instead of falsely denying work that was approved at the boundary.
+  const [notification] = db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.id, notificationId))
+    .all();
+  if (notification?.response) {
+    try {
+      const validated = toolPermissionResponseSchema.safeParse(
+        JSON.parse(notification.response),
+      );
+      if (validated.success) return validated.data;
+    } catch (error) {
+      console.error(
+        "[tool-permissions] Failed to parse response that raced timeout:",
+        error,
+      );
+    }
+  }
+
+  return timeoutResponse;
 }
 
 // ── Main permission handler ──────────────────────────────────────────
@@ -123,7 +165,8 @@ export async function handleToolPermission(
   input: Record<string, unknown>,
   canUseToolPolicy?: CanUseToolPolicy,
 ): Promise<ToolPermissionResponse> {
-  const isQuestion = toolName === "AskUserQuestion";
+  const isQuestion =
+    toolName === "AskUserQuestion" || toolName === "ask_user_question";
 
   // Layer 1: Profile-level canUseToolPolicy — fastest check, no I/O.
   // Runs BEFORE Layer 1.75's SDK filesystem auto-allow so `autoDeny: ["Read"]`

@@ -7,8 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, XCircle, Layers3, Brain } from "lucide-react";
 import { LightMarkdown } from "@/components/shared/light-markdown";
+import {
+  announceApprovalResolved,
+  isAlreadyResolvedApproval,
+  readApprovalResponse,
+  runApprovalMutation,
+} from "@/lib/notifications/approval-client";
 
 interface BatchProposalReviewProps {
+  notificationId: string;
   proposalIds: string[];
   profileIds: string[];
   body: string;
@@ -18,6 +25,7 @@ interface BatchProposalReviewProps {
 }
 
 export function BatchProposalReview({
+  notificationId,
   proposalIds,
   profileIds,
   body,
@@ -31,32 +39,53 @@ export function BatchProposalReview({
     action: string;
     count: number;
   } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function handleBatchAction(action: "approve" | "reject") {
     setLoading(action);
-    setResponded(true);
-    onResponded?.();
+    setErrorMessage(null);
 
     try {
-      const res = await fetch("/api/context/batch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ proposalIds, action }),
+      const data = await runApprovalMutation(notificationId, async () => {
+        const res = await fetch("/api/context/batch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ notificationId, proposalIds, action }),
+        });
+        return readApprovalResponse(
+          res,
+          `Failed to ${action} batch proposal`,
+          (value): value is {
+            success: true;
+            action: string;
+            count: number;
+            warning?: string;
+          } =>
+            typeof value === "object" &&
+            value !== null &&
+            (value as { success?: unknown }).success === true &&
+            typeof (value as { action?: unknown }).action === "string" &&
+            typeof (value as { count?: unknown }).count === "number"
+        );
       });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error ?? `Failed to ${action} batch proposal`);
-      }
-
-      const data = await res.json();
+      setResponded(true);
       setResult({ action: data.action, count: data.count });
+      if (data.warning) toast.warning(data.warning);
+      announceApprovalResolved(notificationId);
+      onResponded?.();
     } catch (error) {
+      if (isAlreadyResolvedApproval(error)) {
+        announceApprovalResolved(notificationId);
+        onResponded?.();
+        toast.info(error instanceof Error ? error.message : "Batch proposal already resolved");
+        return;
+      }
       setResponded(false);
       setResult(null);
-      toast.error(
-        error instanceof Error ? error.message : "Batch approval failed"
-      );
+      const message =
+        error instanceof Error ? error.message : "Batch approval failed";
+      setErrorMessage(message);
+      toast.error(message);
       onRequestFailed?.();
     } finally {
       setLoading(null);
@@ -112,6 +141,11 @@ export function BatchProposalReview({
             {loading === "reject" ? "Rejecting..." : "Reject All"}
           </Button>
         </div>
+        {errorMessage && (
+          <p role="alert" className="text-xs text-destructive">
+            Batch decision failed: {errorMessage}
+          </p>
+        )}
       </div>
     );
   }
@@ -159,6 +193,11 @@ export function BatchProposalReview({
               : `Reject All (${proposalIds.length})`}
           </Button>
         </div>
+        {errorMessage && (
+          <p role="alert" className="text-sm text-destructive">
+            Batch decision failed: {errorMessage}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

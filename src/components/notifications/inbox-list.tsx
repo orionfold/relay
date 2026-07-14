@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Eye, Inbox, RefreshCw, Trash2 } from "lucide-react";
@@ -9,6 +9,7 @@ import { NotificationItem } from "./notification-item";
 import { EmptyState } from "@/components/shared/empty-state";
 import { filterDefaultVisibleNotifications } from "@/lib/notifications/visibility";
 import type { NotificationOutputDocument } from "@/lib/notifications/completion-context";
+import { subscribeToResolvedApprovals } from "@/lib/notifications/approval-client";
 
 interface Notification {
   id: string;
@@ -26,6 +27,20 @@ interface Notification {
   completionResultPreview?: string | null;
 }
 
+function isNotificationSnapshot(value: unknown): value is Notification[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === "object" &&
+        item !== null &&
+        typeof (item as { id?: unknown }).id === "string" &&
+        typeof (item as { type?: unknown }).type === "string" &&
+        typeof (item as { response?: unknown }).response !== "undefined"
+    )
+  );
+}
+
 export function InboxList({
   initialNotifications,
 }: {
@@ -34,12 +49,27 @@ export function InboxList({
   const [notifications, setNotifications] =
     useState<Notification[]>(() => filterDefaultVisibleNotifications(initialNotifications));
   const [tab, setTab] = useState("all");
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const resolvedIdsRef = useRef(new Set<string>());
 
   const refresh = useCallback(async () => {
-    const res = await fetch("/api/notifications");
-    if (res.ok) {
-      const next = (await res.json()) as Notification[];
-      setNotifications(filterDefaultVisibleNotifications(next));
+    try {
+      const res = await fetch("/api/notifications");
+      if (!res.ok) throw new Error(`Inbox refresh returned HTTP ${res.status}`);
+      const next: unknown = await res.json();
+      if (!isNotificationSnapshot(next)) {
+        throw new Error("Inbox refresh returned a malformed response");
+      }
+      setNotifications(
+        filterDefaultVisibleNotifications(next).filter(
+          (notification) => !resolvedIdsRef.current.has(notification.id)
+        )
+      );
+      setSyncError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Inbox refresh failed";
+      console.error("[inbox-list]", message);
+      setSyncError(`${message}. Existing approvals remain actionable; retry refresh.`);
     }
   }, []);
 
@@ -50,6 +80,15 @@ export function InboxList({
     const interval = setInterval(refresh, 10_000);
     return () => clearInterval(interval);
   }, [refresh]);
+
+  useEffect(() => {
+    return subscribeToResolvedApprovals((notificationId) => {
+      resolvedIdsRef.current.add(notificationId);
+      setNotifications((current) =>
+        current.filter((notification) => notification.id !== notificationId)
+      );
+    });
+  }, []);
 
   // Real-time surfacing for workflow-blocking checkpoints
   // (fix-inbox-checkpoint-realtime). A workflow stuck at a HITL checkpoint
@@ -70,17 +109,20 @@ export function InboxList({
         // The snapshot content is not rendered here — its arrival means the
         // pending-approval set changed, so re-fetch the full list immediately.
         if (cancelled) return;
-        refresh().catch(() => {
-          // Trigger-driven refresh should fail quietly; the poll will retry.
-        });
+        void refresh();
       };
       eventSource.onerror = () => {
+        setSyncError(
+          "Live approval updates disconnected. Existing approvals remain actionable; polling will retry."
+        );
         // Fall back to the 10s poll (still active) until the stream recovers.
         eventSource?.close();
         eventSource = null;
       };
-    } catch {
-      // EventSource unavailable — the 10s poll remains the delivery path.
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "live approval updates unavailable";
+      console.error("[inbox-list]", message);
+      setSyncError(`${message}. Existing approvals remain actionable; polling will retry.`);
     }
 
     return () => {
@@ -125,6 +167,11 @@ export function InboxList({
   return (
     <div className="space-y-4">
       <div className="surface-toolbar rounded-xl p-3 sm:p-4">
+        {syncError && (
+          <p role="alert" className="mb-3 text-sm text-destructive">
+            Approval sync failed: {syncError}
+          </p>
+        )}
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           <span>Notification Queue</span>
           <span className="rounded-full bg-background/75 px-2.5 py-1 text-[11px] font-medium normal-case tracking-normal text-foreground">

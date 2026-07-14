@@ -9,6 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { PROSE_NOTIFICATION } from "@/lib/constants/prose-styles";
+import {
+  announceApprovalResolved,
+  isAlreadyResolvedApproval,
+  readApprovalResponse,
+  runApprovalMutation,
+} from "@/lib/notifications/approval-client";
 
 interface ContextProposalReviewProps {
   notificationId: string;
@@ -28,34 +34,60 @@ export function ContextProposalReview({
   const [editing, setEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(proposedAdditions);
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function handleAction(action: "approve" | "reject") {
     setSubmitting(true);
+    setErrorMessage(null);
     try {
-      const res = await fetch(`/api/agents/${profileId}/context`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action,
-          notificationId,
-          ...(action === "approve" && editing ? { editedContent } : {}),
-        }),
+      const result = await runApprovalMutation(notificationId, async () => {
+        const res = await fetch(`/api/agents/${profileId}/context`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action,
+            notificationId,
+            ...(action === "approve" && editing ? { editedContent } : {}),
+          }),
+        });
+        return readApprovalResponse(
+          res,
+          `Failed to ${action} proposal`,
+          (value): value is { ok: true; warning?: string } =>
+            typeof value === "object" &&
+            value !== null &&
+            (value as { ok?: unknown }).ok === true
+        );
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        toast.error(data?.error ?? `Failed to ${action} proposal`);
+      announceApprovalResolved(notificationId);
+      if (result.warning) {
+        toast.warning(result.warning);
+      } else {
+        toast.success(
+          action === "approve"
+            ? "Context approved and applied"
+            : "Proposal rejected"
+        );
+      }
+      onResponded();
+    } catch (error) {
+      if (isAlreadyResolvedApproval(error)) {
+        announceApprovalResolved(notificationId);
+        onResponded();
+        toast.info(
+          error instanceof Error
+            ? error.message
+            : "Context proposal already resolved"
+        );
         return;
       }
-
-      toast.success(
-        action === "approve"
-          ? "Context approved and applied"
-          : "Proposal rejected"
-      );
-      onResponded();
-    } catch {
-      toast.error("Network error");
+      const message =
+        error instanceof Error
+          ? error.message
+          : `Failed to ${action} context proposal`;
+      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -63,25 +95,32 @@ export function ContextProposalReview({
 
   if (compact) {
     return (
-      <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          variant="default"
-          disabled={submitting}
-          onClick={() => handleAction("approve")}
-        >
-          <Check className="mr-1 h-3.5 w-3.5" />
-          Approve
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={submitting}
-          onClick={() => handleAction("reject")}
-        >
-          <X className="mr-1 h-3.5 w-3.5" />
-          Reject
-        </Button>
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="default"
+            disabled={submitting}
+            onClick={() => handleAction("approve")}
+          >
+            <Check className="mr-1 h-3.5 w-3.5" />
+            Approve
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={submitting}
+            onClick={() => handleAction("reject")}
+          >
+            <X className="mr-1 h-3.5 w-3.5" />
+            Reject
+          </Button>
+        </div>
+        {errorMessage && (
+          <p role="alert" className="text-xs text-destructive">
+            Context decision failed: {errorMessage}
+          </p>
+        )}
       </div>
     );
   }
@@ -102,7 +141,9 @@ export function ContextProposalReview({
             placeholder="Edit the proposed context additions..."
           />
         ) : (
-          <div className={`${PROSE_NOTIFICATION} max-h-48 overflow-auto rounded-lg bg-background/50 p-3`}>
+          <div
+            className={`${PROSE_NOTIFICATION} max-h-48 overflow-auto rounded-lg bg-background/50 p-3`}
+          >
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {proposedAdditions.replace(/\s*\[.*?\]\s*/g, " ").trim()}
             </ReactMarkdown>
@@ -145,6 +186,11 @@ export function ContextProposalReview({
           Reject
         </Button>
       </div>
+      {errorMessage && (
+        <p role="alert" className="text-sm text-destructive">
+          Context decision failed: {errorMessage}
+        </p>
+      )}
     </div>
   );
 }

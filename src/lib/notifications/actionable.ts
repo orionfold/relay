@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, or } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { notifications, tasks, workflows } from "@/lib/db/schema";
@@ -77,11 +77,20 @@ export async function listPendingApprovalPayloads(
     .leftJoin(workflows, eq(workflows.id, tasks.workflowId))
     .where(
       and(
-        inArray(notifications.type, [
-          "permission_required",
-          "context_proposal",
-          "context_proposal_batch",
-        ]),
+        or(
+          inArray(notifications.type, [
+            "permission_required",
+            "context_proposal",
+            "context_proposal_batch",
+          ]),
+          and(
+            eq(notifications.type, "agent_message"),
+            inArray(notifications.toolName, [
+              "AskUserQuestion",
+              "ask_user_question",
+            ])
+          )
+        ),
         isNull(notifications.response)
       )
     )

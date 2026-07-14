@@ -20,6 +20,7 @@ import { BatchProposalReview } from "./batch-proposal-review";
 import { EmbeddedMarkdown } from "@/components/shared/embedded-markdown";
 import { TaskAttachments } from "@/components/tasks/task-attachments";
 import type { NotificationOutputDocument } from "@/lib/notifications/completion-context";
+import { toast } from "sonner";
 
 interface Notification {
   id: string;
@@ -108,6 +109,27 @@ function formatToolInput(
 }
 
 const navigableTypes = new Set(["task_completed", "task_failed", "permission_required", "agent_message"]);
+const nestedInteractionSelector = [
+  "a",
+  "button",
+  "input",
+  "textarea",
+  "select",
+  "[contenteditable='true']",
+  "[role='button']",
+  "[role='link']",
+  "[role='menuitem']",
+  "[data-container-navigation='ignore']",
+].join(",");
+
+function hasActiveTextSelection(): boolean {
+  const selection = window.getSelection();
+  return !!selection && !selection.isCollapsed && !!selection.toString().trim();
+}
+
+function isNestedInteraction(target: EventTarget | null): boolean {
+  return target instanceof Element && !!target.closest(nestedInteractionSelector);
+}
 
 function parseBatchToolInput(toolInput: PermissionToolInput | null): {
   proposalIds: string[];
@@ -144,11 +166,39 @@ export function NotificationItem({
     router.push(`/tasks/${notification.taskId}`);
     // Fire-and-forget: mark as read in the background
     if (isUnread) {
-      fetch(`/api/notifications/${notification.id}`, {
+      void fetch(`/api/notifications/${notification.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ read: true }),
-      }).then(() => onUpdated());
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`mark-as-read returned HTTP ${response.status}`);
+          }
+          onUpdated();
+        })
+        .catch((error) => {
+          console.error(
+            "[notification-item] Task navigation succeeded, but mark-as-read failed:",
+            error
+          );
+          toast.warning(
+            "Task opened, but this notification could not be marked as read."
+          );
+        });
+    }
+  }
+
+  function handleContainerClick(event: React.MouseEvent<HTMLElement>) {
+    if (isNestedInteraction(event.target) || hasActiveTextSelection()) return;
+    handleNavigate();
+  }
+
+  function handleContainerKeyDown(event: React.KeyboardEvent<HTMLElement>) {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleNavigate();
     }
   }
 
@@ -190,15 +240,10 @@ export function NotificationItem({
           : "surface-card-muted"
       }`}
       role="article"
-      aria-label={`${typeLabels[notification.type] ?? "Notification"}: ${notification.title}${isUnread ? " (unread)" : ""}`}
+      aria-label={`${isNavigable ? "Open task details" : (typeLabels[notification.type] ?? "Notification")}: ${notification.title}${isUnread ? " (unread)" : ""}`}
       tabIndex={isNavigable ? 0 : undefined}
-      onClick={isNavigable ? handleNavigate : undefined}
-      onKeyDown={isNavigable ? (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleNavigate();
-        }
-      } : undefined}
+      onClick={isNavigable ? handleContainerClick : undefined}
+      onKeyDown={isNavigable ? handleContainerKeyDown : undefined}
     >
       <div className="flex items-start gap-3">
         <div className="mt-0.5">{typeIcons[notification.type]}</div>
@@ -239,7 +284,7 @@ export function NotificationItem({
             notification.type !== "agent_message" &&
             notification.type !== "context_proposal" &&
             notification.type !== "context_proposal_batch" && (
-              <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+              <div className="mt-1">
                 {renderedBody && (
                   <div
                     className={
@@ -254,7 +299,10 @@ export function NotificationItem({
                   </div>
                 )}
                 {(notification.outputDocuments?.length ?? 0) > 0 && (
-                  <div className="mt-3 rounded-lg border border-border p-3">
+                  <div
+                    className="mt-3 rounded-lg border border-border p-3"
+                    data-container-navigation="ignore"
+                  >
                     <TaskAttachments
                       documents={notification.outputDocuments ?? []}
                       title={`Generated Outputs (${notification.outputDocuments?.length ?? 0})`}
@@ -328,6 +376,7 @@ export function NotificationItem({
           {notification.type === "context_proposal_batch" && (
             <div className="mt-3" onClick={(e) => e.stopPropagation()}>
               <BatchProposalReview
+                notificationId={notification.id}
                 proposalIds={parseBatchToolInput(parsedToolInput).proposalIds}
                 profileIds={parseBatchToolInput(parsedToolInput).profileIds}
                 body={notification.body ?? ""}

@@ -8,6 +8,7 @@ const {
   mockWhere,
   mockSet,
   mockSetWhere,
+  mockUpdateRun,
   mockValues,
   mockSetExecution,
   mockRemoveExecution,
@@ -25,7 +26,10 @@ const {
   const mockFrom = vi.fn();
   const mockWhere = vi.fn();
   const mockSet = vi.fn();
-  const mockSetWhere = vi.fn().mockResolvedValue(undefined);
+  const mockUpdateRun = vi.fn().mockReturnValue({ changes: 1 });
+  const mockSetWhere = vi.fn(() =>
+    Object.assign(Promise.resolve(undefined), { run: mockUpdateRun }),
+  );
   const mockValues = vi.fn();
   const mockDb = {
     select: vi.fn().mockReturnValue({ from: mockFrom }),
@@ -62,6 +66,7 @@ const {
     mockWhere,
     mockSet,
     mockSetWhere,
+    mockUpdateRun,
     mockValues,
     mockSetExecution,
     mockRemoveExecution,
@@ -88,10 +93,14 @@ vi.mock("@/lib/db/schema", async (importOriginal) => ({
     resumeCount: "resume_count",
   },
   agentLogs: {},
-  notifications: { id: "notif_id" },
+  notifications: { id: "notif_id", response: "response" },
   settings: { key: "key" },
 }));
-vi.mock("drizzle-orm", () => ({ eq: vi.fn((_col, val) => val) }));
+vi.mock("drizzle-orm", () => ({
+  eq: vi.fn((_col, val) => val),
+  and: vi.fn((...conditions) => conditions),
+  isNull: vi.fn((column) => ({ isNull: column })),
+}));
 vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   query: vi.fn(),
 }));
@@ -208,7 +217,10 @@ beforeEach(() => {
   mockSet.mockReturnValue({ where: mockSetWhere });
   mockDb.insert.mockReturnValue({ values: mockValues });
   mockValues.mockResolvedValue(undefined);
-  mockSetWhere.mockResolvedValue(undefined);
+  mockUpdateRun.mockReset().mockReturnValue({ changes: 1 });
+  mockSetWhere.mockImplementation(() =>
+    Object.assign(Promise.resolve(undefined), { run: mockUpdateRun }),
+  );
   mockPrepareTaskOutputDirectory.mockResolvedValue("/tmp/ainative-outputs/task-1");
   mockBuildTaskOutputInstructions.mockReturnValue(
     "Write outputs to /tmp/ainative-outputs/task-1"
@@ -922,6 +934,41 @@ describe("handleToolPermission", () => {
             ]);
 
             await canUseTool("AskUserQuestion", { question: "What color?" });
+
+            yield { type: "result", result: "done" };
+          },
+        } as unknown as ReturnType<typeof query>;
+      }
+    );
+
+    await executeClaudeTask("task-1");
+
+    expect(mockValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "agent_message",
+        title: "Agent has a question",
+      })
+    );
+  });
+
+  it("D2b: treats lowercase ask_user_question as a question", async () => {
+    mockWhere.mockResolvedValueOnce([makeTask()]);
+
+    mockQuery.mockImplementation(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ({ options }: any) => {
+        return {
+          async *[Symbol.asyncIterator]() {
+            const canUseTool = options.canUseTool as (
+              toolName: string,
+              input: Record<string, unknown>
+            ) => Promise<{ behavior: string }>;
+
+            mockWhere.mockResolvedValueOnce([
+              { id: "notif-1", response: JSON.stringify({ behavior: "allow" }) },
+            ]);
+
+            await canUseTool("ask_user_question", { question: "Continue?" });
 
             yield { type: "result", result: "done" };
           },

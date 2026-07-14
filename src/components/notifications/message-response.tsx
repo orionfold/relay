@@ -7,6 +7,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Send } from "lucide-react";
+import { toast } from "sonner";
+import {
+  announceApprovalResolved,
+  isAlreadyResolvedApproval,
+  readApprovalResponse,
+  runApprovalMutation,
+} from "@/lib/notifications/approval-client";
 
 export interface Question {
   id?: string;
@@ -37,6 +44,7 @@ export function MessageResponse({
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [otherTexts, setOtherTexts] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (responded && response) {
     return (
@@ -70,6 +78,7 @@ export function MessageResponse({
 
   async function handleSend() {
     setLoading(true);
+    setErrorMessage(null);
     // Merge in "Other" text where applicable
     const finalAnswers: Record<string, string> = {};
     for (const q of questions) {
@@ -83,19 +92,43 @@ export function MessageResponse({
     }
 
     try {
-      await fetch(`/api/tasks/${taskId}/respond`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          notificationId,
-          behavior: "allow",
-          updatedInput: {
-            questions: toolInput.questions,
-            answers: finalAnswers,
-          },
-        }),
+      await runApprovalMutation(notificationId, async () => {
+        const response = await fetch(`/api/tasks/${taskId}/respond`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            notificationId,
+            behavior: "allow",
+            updatedInput: {
+              questions: toolInput.questions,
+              answers: finalAnswers,
+            },
+          }),
+        });
+        await readApprovalResponse(
+          response,
+          "Failed to send answer",
+          (value): value is { success: true } =>
+            typeof value === "object" &&
+            value !== null &&
+            (value as { success?: unknown }).success === true
+        );
       });
+      announceApprovalResolved(notificationId);
       onResponded();
+    } catch (error) {
+      if (isAlreadyResolvedApproval(error)) {
+        announceApprovalResolved(notificationId);
+        onResponded();
+        toast.info(
+          error instanceof Error ? error.message : "Reply already resolved"
+        );
+        return;
+      }
+      const message =
+        error instanceof Error ? error.message : "Failed to send answer";
+      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -191,6 +224,11 @@ export function MessageResponse({
         <Send className="h-3.5 w-3.5 mr-1" />
         Send
       </Button>
+      {errorMessage && (
+        <p role="alert" className="text-xs text-destructive">
+          Reply failed: {errorMessage}
+        </p>
+      )}
     </div>
   );
 }

@@ -17,8 +17,14 @@ class EventSourceMock {
   onerror: ((event: Event) => void) | null = null;
   onmessage: ((event: MessageEvent) => void) | null = null;
 
+  constructor() {
+    latestEventSource = this;
+  }
+
   close() {}
 }
+
+let latestEventSource: EventSourceMock | null = null;
 
 const approvals = [
   {
@@ -61,6 +67,7 @@ const approvals = [
 
 describe("pending approval host", () => {
   beforeEach(() => {
+    latestEventSource = null;
     Object.defineProperty(window, "innerWidth", {
       configurable: true,
       value: 1280,
@@ -118,5 +125,26 @@ describe("pending approval host", () => {
     await waitFor(() => {
       expect(trigger).toHaveFocus();
     });
+  });
+
+  it("does not resurrect a locally resolved approval from a stale stream snapshot", async () => {
+    render(<PendingApprovalHost />);
+
+    await screen.findByText("Workspace sync · Review workspace");
+    window.dispatchEvent(
+      new CustomEvent("relay:approval-resolved", { detail: "notif-1" })
+    );
+
+    await screen.findByText("Write release brief");
+    latestEventSource?.onmessage?.(
+      new MessageEvent("message", { data: JSON.stringify(approvals) })
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText("Workspace sync · Review workspace")
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.queryByText("+1 more")).not.toBeInTheDocument();
   });
 });

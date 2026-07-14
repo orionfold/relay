@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import {
-  batchApproveProposals,
-  batchRejectProposals,
-} from "@/lib/agents/learning-session";
+import { approvalErrorResponse } from "@/lib/notifications/approval-errors";
+import { resolveContextProposalBatch } from "@/lib/notifications/resolve-context-proposal";
 
 const batchSchema = z.object({
-  proposalIds: z.array(z.string().min(1)).min(1),
+  notificationId: z.string().min(1),
+  proposalIds: z
+    .array(z.string().min(1))
+    .min(1)
+    .refine((ids) => new Set(ids).size === ids.length, {
+      message: "proposalIds must be unique",
+    }),
   action: z.enum(["approve", "reject"]),
 });
 
@@ -14,31 +18,44 @@ const batchSchema = z.object({
  * POST /api/context/batch — batch approve or reject context proposals.
  *
  * Used by the batch proposal review UI after workflow completion.
- * Accepts an array of learned_context row IDs and an action.
+ * Accepts the parent notification ID, its learned_context row IDs, and an action.
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        {
+          error: "The batch response must be valid JSON.",
+          code: "APPROVAL_PAYLOAD_MALFORMED",
+        },
+        { status: 400 }
+      );
+    }
     const parsed = batchSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "proposalIds (string[]) and action ('approve'|'reject') are required" },
+        {
+          error: "notificationId, proposalIds (string[]), and action ('approve'|'reject') are required",
+          code: "APPROVAL_PAYLOAD_MALFORMED",
+        },
         { status: 400 }
       );
     }
 
-    const { proposalIds, action } = parsed.data;
+    const { notificationId, proposalIds, action } = parsed.data;
+    const result = await resolveContextProposalBatch({
+      notificationId,
+      proposalIds,
+      action,
+    });
 
-    const count =
-      action === "approve"
-        ? await batchApproveProposals(proposalIds)
-        : await batchRejectProposals(proposalIds);
-
-    return NextResponse.json({ success: true, action, count });
-  } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Batch operation failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ success: true, action, ...result });
+  } catch (error: unknown) {
+    const failure = approvalErrorResponse(error);
+    return NextResponse.json(failure.body, { status: failure.status });
   }
 }

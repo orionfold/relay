@@ -10,7 +10,8 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronsLeft, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, X } from "lucide-react";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { TaskChipBar } from "./task-chip-bar";
 import { TaskBentoGrid } from "./task-bento-grid";
@@ -81,27 +82,38 @@ export function TaskDetailSheet({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="sm:max-w-2xl flex flex-col" showCloseButton={false}>
           <SheetHeader>
-            <div className="flex items-center gap-3">
-              {taskId && (
-                <Link
-                  href={`/tasks/${taskId}`}
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-muted/50 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground shrink-0"
-                  aria-label="Open full page"
-                >
-                  <ChevronsLeft className="h-4 w-4" />
-                </Link>
-              )}
-              <SheetTitle className="truncate flex-1">
-                {task?.title ?? "Task"}
-              </SheetTitle>
-              <SheetPrimitive.Close
-                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-muted/50 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground shrink-0"
-                aria-label="Close"
-              >
-                <X className="h-4 w-4" />
-              </SheetPrimitive.Close>
+            <div className="flex items-start gap-2">
+              <div className="min-w-0 flex-1">
+                <SheetTitle>Task summary</SheetTitle>
+                <SheetDescription className="mt-1 truncate">
+                  {task?.title ?? (loaded ? "Task not found" : "Loading task…")}
+                </SheetDescription>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                {taskId && (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link
+                      href={`/tasks/${taskId}`}
+                      aria-label="Open task details"
+                      title="Open task details"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      <span className="hidden sm:inline">Open task details</span>
+                    </Link>
+                  </Button>
+                )}
+                <SheetPrimitive.Close asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Close task summary"
+                    title="Close task summary"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </SheetPrimitive.Close>
+              </div>
             </div>
-            <SheetDescription>Task details</SheetDescription>
           </SheetHeader>
 
           {/* Body — px-6 pb-6 per project convention (SheetContent has NO body padding) */}

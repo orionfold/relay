@@ -22,7 +22,7 @@ describe("batch proposal review", () => {
     vi.unstubAllGlobals();
   });
 
-  it("optimistically resolves the batch before the request finishes", async () => {
+  it("keeps the batch actionable until the server confirms durable resolution", async () => {
     const onResponded = vi.fn();
     let resolveFetch: ((value: Response) => void) | null = null;
 
@@ -38,6 +38,7 @@ describe("batch proposal review", () => {
 
     render(
       <BatchProposalReview
+        notificationId="batch-1"
         proposalIds={["p1", "p2"]}
         profileIds={["general"]}
         body="Batch summary"
@@ -47,21 +48,33 @@ describe("batch proposal review", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /approve all/i }));
 
-    expect(onResponded).toHaveBeenCalledTimes(1);
+    expect(onResponded).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: /approving/i })).toBeDisabled();
 
     resolveFetch?.(
-      new Response(JSON.stringify({ action: "approve", count: 2 }), {
+      new Response(JSON.stringify({ success: true, action: "approve", count: 2 }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       })
     );
 
     await waitFor(() => {
+      expect(onResponded).toHaveBeenCalledTimes(1);
       expect(screen.getByText("2 proposals approved")).toBeInTheDocument();
+    });
+
+    expect(fetch).toHaveBeenCalledWith("/api/context/batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        notificationId: "batch-1",
+        proposalIds: ["p1", "p2"],
+        action: "approve",
+      }),
     });
   });
 
-  it("restores server truth when the batch request fails", async () => {
+  it("keeps a failed batch visible with named retry guidance", async () => {
     const onResponded = vi.fn();
     const onRequestFailed = vi.fn();
 
@@ -72,6 +85,7 @@ describe("batch proposal review", () => {
 
     render(
       <BatchProposalReview
+        notificationId="batch-1"
         proposalIds={["p1", "p2"]}
         profileIds={["general"]}
         body="Batch summary"
@@ -82,12 +96,15 @@ describe("batch proposal review", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /approve all/i }));
 
-    expect(onResponded).toHaveBeenCalledTimes(1);
+    expect(onResponded).not.toHaveBeenCalled();
 
     await waitFor(() => {
       expect(onRequestFailed).toHaveBeenCalledTimes(1);
     });
     expect(toastError).toHaveBeenCalledWith("Batch approval failed");
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Batch decision failed: Batch approval failed"
+    );
     expect(
       screen.getByRole("button", { name: /approve all \(2\)/i })
     ).toBeInTheDocument();

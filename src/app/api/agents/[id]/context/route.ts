@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
 import {
   getContextHistory,
-  approveProposal,
-  rejectProposal,
   rollbackToVersion,
   addDirectContext,
   checkContextSize,
 } from "@/lib/agents/learned-context";
+import { approvalErrorResponse } from "@/lib/notifications/approval-errors";
+import { resolveContextProposal } from "@/lib/notifications/resolve-context-proposal";
+import { z } from "zod";
+
+const contextMutationSchema = z.object({
+  action: z.enum(["approve", "reject", "rollback"]),
+  notificationId: z.string().min(1).optional(),
+  targetVersion: z.number().int().nonnegative().optional(),
+  editedContent: z.string().optional(),
+});
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -45,20 +53,30 @@ export async function POST(request: Request, { params }: RouteParams) {
 export async function PATCH(request: Request, { params }: RouteParams) {
   const { id: profileId } = await params;
 
-  const body = await request.json();
-  const { action, notificationId, targetVersion, editedContent } = body as {
-    action?: string;
-    notificationId?: string;
-    targetVersion?: number;
-    editedContent?: string;
-  };
-
-  if (!action) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
     return NextResponse.json(
-      { error: "action is required (approve | reject | rollback)" },
+      {
+        error: "The context response must be valid JSON.",
+        code: "APPROVAL_PAYLOAD_MALFORMED",
+      },
       { status: 400 }
     );
   }
+  const parsed = contextMutationSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        error: "A valid approve, reject, or rollback payload is required.",
+        code: "APPROVAL_PAYLOAD_MALFORMED",
+      },
+      { status: 400 }
+    );
+  }
+  const { action, notificationId, targetVersion, editedContent } = parsed.data;
+  let warning: string | undefined;
 
   try {
     switch (action) {
@@ -69,7 +87,12 @@ export async function PATCH(request: Request, { params }: RouteParams) {
             { status: 400 }
           );
         }
-        await approveProposal(notificationId, editedContent ?? undefined);
+        warning = await resolveContextProposal({
+          notificationId,
+          profileId,
+          action: "approve",
+          editedContent: editedContent ?? undefined,
+        });
         break;
 
       case "reject":
@@ -79,7 +102,11 @@ export async function PATCH(request: Request, { params }: RouteParams) {
             { status: 400 }
           );
         }
-        await rejectProposal(notificationId);
+        warning = await resolveContextProposal({
+          notificationId,
+          profileId,
+          action: "reject",
+        });
         break;
 
       case "rollback":
@@ -99,11 +126,18 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         );
     }
   } catch (error) {
+    if (action === "approve" || action === "reject") {
+      const failure = approvalErrorResponse(error);
+      return NextResponse.json(failure.body, { status: failure.status });
+    }
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : String(error) },
+      {
+        error: error instanceof Error ? error.message : String(error),
+        code: "CONTEXT_ROLLBACK_FAILED",
+      },
       { status: 400 }
     );
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, ...(warning ? { warning } : {}) });
 }

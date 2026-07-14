@@ -14,6 +14,10 @@ import {
 import { PermissionResponseActions } from "@/components/notifications/permission-response-actions";
 import { ContextProposalReview } from "@/components/profiles/context-proposal-review";
 import { BatchProposalReview } from "@/components/notifications/batch-proposal-review";
+import {
+  MessageResponse,
+  type Question,
+} from "@/components/notifications/message-response";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { PROSE_NOTIFICATION } from "@/lib/constants/prose-styles";
@@ -41,12 +45,29 @@ import {
 import { formatTimestamp } from "@/lib/utils/format-timestamp";
 import { cn } from "@/lib/utils";
 import type { PendingApprovalPayload } from "@/lib/notifications/actionable";
+import { subscribeToResolvedApprovals } from "@/lib/notifications/approval-client";
+import { toast } from "sonner";
+
+const APPROVAL_SYNC_TOAST_ID = "pending-approval-sync";
 
 function dedupePendingApprovals(items: PendingApprovalPayload[]) {
   return Array.from(
     new Map(items.map((item) => [item.notificationId, item])).values()
   ).sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+}
+
+function isPendingApprovalSnapshot(value: unknown): value is PendingApprovalPayload[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === "object" &&
+        item !== null &&
+        typeof (item as { notificationId?: unknown }).notificationId === "string" &&
+        typeof (item as { createdAt?: unknown }).createdAt === "string"
+    )
   );
 }
 
@@ -165,11 +186,22 @@ function PendingApprovalDetail({
         </p>
       </div>
 
-      {selected.notificationType === "context_proposal_batch" ? (
+      {selected.notificationType === "agent_message" &&
+      Array.isArray(selected.toolInput?.questions) ? (
+        <MessageResponse
+          taskId={selected.taskId ?? "_checkpoint"}
+          notificationId={selected.notificationId}
+          toolInput={{ questions: selected.toolInput.questions as Question[] }}
+          responded={false}
+          response={null}
+          onResponded={onResponded}
+        />
+      ) : selected.notificationType === "context_proposal_batch" ? (
         (() => {
           const parsed = parseBatchToolInput(selected.toolInput);
           return (
             <BatchProposalReview
+              notificationId={selected.notificationId}
               proposalIds={parsed.proposalIds}
               profileIds={parsed.profileIds}
               body={selected.body ?? ""}
@@ -263,12 +295,16 @@ export function PendingApprovalHost() {
   const [announcement, setAnnouncement] = useState("");
   const triggerRef = useRef<HTMLButtonElement>(null);
   const knownIdsRef = useRef<string[]>([]);
+  const resolvedIdsRef = useRef(new Set<string>());
   const isMobile = useIsMobile();
   const router = useRouter();
   const pathname = usePathname();
 
   const applySnapshot = useCallback((snapshot: PendingApprovalPayload[]) => {
-    const nextItems = dedupePendingApprovals(snapshot);
+    toast.dismiss(APPROVAL_SYNC_TOAST_ID);
+    const nextItems = dedupePendingApprovals(snapshot).filter(
+      (item) => !resolvedIdsRef.current.has(item.notificationId)
+    );
     const previousIds = new Set(knownIdsRef.current);
     const newestNew = nextItems.find(
       (item) => !previousIds.has(item.notificationId)
@@ -285,13 +321,26 @@ export function PendingApprovalHost() {
   }, []);
 
   const refreshApprovals = useCallback(async () => {
-    const res = await fetch("/api/notifications/pending-approvals", {
-      cache: "no-store",
-    });
-    if (!res.ok) return;
-
-    const snapshot = (await res.json()) as PendingApprovalPayload[];
-    applySnapshot(snapshot);
+    try {
+      const res = await fetch("/api/notifications/pending-approvals", {
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        throw new Error(`approval refresh returned HTTP ${res.status}`);
+      }
+      const snapshot: unknown = await res.json();
+      if (!isPendingApprovalSnapshot(snapshot)) {
+        throw new Error("approval refresh returned a malformed snapshot");
+      }
+      applySnapshot(snapshot);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "approval refresh failed";
+      console.error("[pending-approval-host]", message);
+      setAnnouncement(`Approval updates unavailable: ${message}. Retrying automatically.`);
+      toast.error(`Approval updates unavailable: ${message}. Retrying automatically.`, {
+        id: APPROVAL_SYNC_TOAST_ID,
+      });
+    }
   }, [applySnapshot]);
 
   const primary = items[0] ?? null;
@@ -299,6 +348,13 @@ export function PendingApprovalHost() {
     if (!items.length) return null;
     return items.find((item) => item.notificationId === selectedId) ?? items[0];
   }, [items, selectedId]);
+
+  useEffect(() => {
+    return subscribeToResolvedApprovals((notificationId) => {
+      resolvedIdsRef.current.add(notificationId);
+      removeNotification(notificationId);
+    });
+  }, []);
 
   useEffect(() => {
     if (!items.length) {
@@ -334,19 +390,41 @@ export function PendingApprovalHost() {
       eventSource = new EventSource("/api/notifications/pending-approvals/stream");
       eventSource.onmessage = (event) => {
         try {
-          const snapshot = JSON.parse(event.data) as PendingApprovalPayload[];
+          const snapshot: unknown = JSON.parse(event.data);
+          if (!isPendingApprovalSnapshot(snapshot)) {
+            throw new Error("approval stream returned a malformed snapshot");
+          }
           if (cancelled) return;
           applySnapshot(snapshot);
-        } catch {
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "approval stream parse failed";
+          console.error("[pending-approval-host]", message);
+          setAnnouncement(`Live approval updates failed: ${message}. Retrying automatically.`);
+          toast.error(`Live approval updates failed: ${message}. Retrying automatically.`, {
+            id: APPROVAL_SYNC_TOAST_ID,
+          });
           startPolling();
         }
       };
       eventSource.onerror = () => {
+        setAnnouncement(
+          "Live approval updates disconnected. Retrying approval delivery automatically."
+        );
+        toast.error(
+          "Live approval updates disconnected. Retrying approval delivery automatically.",
+          { id: APPROVAL_SYNC_TOAST_ID }
+        );
         eventSource?.close();
         eventSource = null;
         startPolling();
       };
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "approval stream unavailable";
+      console.error("[pending-approval-host]", message);
+      setAnnouncement(`Live approval updates unavailable: ${message}. Retrying automatically.`);
+      toast.error(`Live approval updates unavailable: ${message}. Retrying automatically.`, {
+        id: APPROVAL_SYNC_TOAST_ID,
+      });
       startPolling();
     }
 
@@ -447,12 +525,25 @@ export function PendingApprovalHost() {
             </div>
           </button>
 
-          {primary.notificationType === "context_proposal_batch" ? (
+          {primary.notificationType === "agent_message" &&
+          Array.isArray(primary.toolInput?.questions) ? (
+            <div className="mt-3">
+              <MessageResponse
+                taskId={primary.taskId ?? "_checkpoint"}
+                notificationId={primary.notificationId}
+                toolInput={{ questions: primary.toolInput.questions as Question[] }}
+                responded={false}
+                response={null}
+                onResponded={() => removeNotification(primary.notificationId)}
+              />
+            </div>
+          ) : primary.notificationType === "context_proposal_batch" ? (
             <div className="mt-3">
               {(() => {
                 const parsed = parseBatchToolInput(primary.toolInput);
                 return (
                   <BatchProposalReview
+                    notificationId={primary.notificationId}
                     proposalIds={parsed.proposalIds}
                     profileIds={parsed.profileIds}
                     body={primary.body ?? ""}

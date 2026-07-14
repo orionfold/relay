@@ -2,13 +2,15 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { PermissionResponseActions } from "@/components/notifications/permission-response-actions";
 
-const { toastError } = vi.hoisted(() => ({
+const { toastError, toastInfo } = vi.hoisted(() => ({
   toastError: vi.fn(),
+  toastInfo: vi.fn(),
 }));
 
 vi.mock("sonner", () => ({
   toast: {
     error: toastError,
+    info: toastInfo,
   },
 }));
 
@@ -145,5 +147,126 @@ describe("permission response actions", () => {
     );
 
     expect(screen.getByText("Always allowed")).toBeInTheDocument();
+  });
+
+  it("keeps a denied request actionable when the network fails", async () => {
+    vi.mocked(fetch).mockRejectedValueOnce(new Error("Connection lost"));
+
+    render(
+      <PermissionResponseActions
+        taskId="task-1"
+        notificationId="notif-failure"
+        toolName="Bash"
+        toolInput={{ command: "npm run build" }}
+        responded={false}
+        response={null}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Deny" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Approval failed: Connection lost"
+    );
+    expect(screen.getByRole("button", { name: "Deny" })).toBeEnabled();
+  });
+
+  it("does not dismiss when a successful response payload is malformed", async () => {
+    const onResponded = vi.fn();
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response("not-json", { status: 200 })
+    );
+
+    render(
+      <PermissionResponseActions
+        taskId="task-1"
+        notificationId="notif-malformed"
+        toolName="Bash"
+        toolInput={{ command: "npm run build" }}
+        responded={false}
+        response={null}
+        onResponded={onResponded}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Allow Once" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "server saved an unreadable response"
+    );
+    expect(onResponded).not.toHaveBeenCalled();
+  });
+
+  it("submits only one request when two mounted surfaces act concurrently", async () => {
+    let resolveFetch: ((response: Response) => void) | null = null;
+    vi.mocked(fetch).mockImplementationOnce(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveFetch = resolve;
+        })
+    );
+
+    const props = {
+      taskId: "task-1",
+      notificationId: "notif-shared",
+      toolName: "Bash",
+      toolInput: { command: "npm run build" },
+      responded: false,
+      response: null,
+    } as const;
+    render(
+      <>
+        <PermissionResponseActions {...props} />
+        <PermissionResponseActions {...props} />
+      </>
+    );
+
+    fireEvent.click(screen.getAllByRole("button", { name: "Allow Once" })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Deny" })[1]);
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "already being submitted from another view"
+    );
+
+    resolveFetch?.(
+      new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+  });
+
+  it("removes a stale second-session item when the server reports it already resolved", async () => {
+    const onResponded = vi.fn();
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          error: "This approval was already resolved in another view or session.",
+          code: "APPROVAL_ALREADY_RESOLVED",
+        }),
+        { status: 409, headers: { "Content-Type": "application/json" } }
+      )
+    );
+
+    render(
+      <PermissionResponseActions
+        taskId="task-1"
+        notificationId="notif-stale-session"
+        toolName="Bash"
+        toolInput={{ command: "npm run build" }}
+        responded={false}
+        response={null}
+        onResponded={onResponded}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Allow Once" }));
+
+    await waitFor(() => expect(onResponded).toHaveBeenCalledTimes(1));
+    expect(toastInfo).toHaveBeenCalledWith(
+      "This approval was already resolved in another view or session."
+    );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });
