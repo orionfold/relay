@@ -13,8 +13,11 @@
 - Added zero-mutation assertions for both bootstrap gates, visible Ollama Save/Test
   regressions (including the repaired network-failure feedback path), a literal-clone
   dev smoke, and a native macOS/Windows Node 20/npm 10 plus Node 22/npm 11 workflow.
-  Local hook, type, cursor-policy, and 92 focused Vitest checks pass. Native Windows
-  execution remains the required external gate before completion.
+  Local hook, type, cursor-policy, and 92 focused Vitest checks pass. A literal macOS
+  clone also passed the real Welcome/provider/Ollama boot smoke with zero instance
+  mutations, and an explicit customer-mode control retained the expected branch plus
+  consent state. Native Windows execution remains the required external gate before
+  completion.
 
 ## 2026-07-13 — TRIAGE-014–018 goal grooming
 

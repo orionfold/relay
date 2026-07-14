@@ -78,15 +78,15 @@ boot is isolated, visibly configurable, and cannot mutate customer-instance git 
   `.env.local`, Relay data, provider credentials, or Ollama configuration.
 - [ ] `.codex/hooks.json` runs a Node secrets guard, and its regression suite passes on
   macOS and Windows with the minimum and current supported Node majors.
-- [ ] Both development gates leave branches, hooks, git config, instance state, and
+- [x] Both development gates leave branches, hooks, git config, instance state, and
   schedules untouched in isolated tests.
-- [ ] `RELAY_INSTANCE_MODE=true` and ordinary customer mode retain the existing
+- [x] `RELAY_INSTANCE_MODE=true` and ordinary customer mode retain the existing
   instance-bootstrap behavior in targeted tests and a real boot smoke.
-- [ ] A fresh empty data directory renders the dashboard welcome state and provider
+- [x] A fresh empty data directory renders the dashboard welcome state and provider
   unconfigured/error states without credentials.
-- [ ] Ollama Save and unavailable/available Test paths each have a deterministic,
+- [x] Ollama Save and unavailable/available Test paths each have a deterministic,
   visible assertion.
-- [ ] The macOS literal-clone matrix passes locally.
+- [x] The macOS literal-clone matrix passes locally.
 - [ ] The Windows literal-clone matrix passes on a native Windows runner before the
   goal is closed; workflow definition alone is not acceptance evidence.
 
@@ -128,3 +128,24 @@ Excluded:
 - Existing bootstrap contract: `features/instance-bootstrap.md`
 - Existing bootstrap tests: `src/lib/instance/__tests__/bootstrap.test.ts`
 - Implementation plan: `docs/superpowers/plans/2026-07-13-g-048-fresh-clone-development-setup.md`
+
+## Verification run — 2026-07-13 (local acceptance)
+
+- `npm run test:hooks`: 6/6 passed under macOS, Node 22.18.0, npm 10.9.3.
+- Focused Vitest packet: 92/92 passed across bootstrap detection/orchestration,
+  upgrade-poller development gating, dashboard empty state, provider empty/error
+  state, Ollama Save/Test feedback, and the system-cursor policy.
+- `npx tsc --noEmit` and `git diff --check`: passed.
+- Literal clone `/tmp/relay-g048-macos.k8frwy/relay`: `npm ci` installed 776 packages
+  from the committed tree, the README development files were created before boot, and
+  `npm run smoke:fresh-clone-dev` passed. The live Next server returned the Welcome
+  dashboard, zero configured cloud providers, Ollama Save plus one available model and
+  an unavailable 502 control, no `local` branch, no pre-push hook or pushRemote config,
+  no upgrade lock, and no instance settings rows.
+- Customer-mode control in the same disposable clone with
+  `RELAY_INSTANCE_MODE=true`: live Next boot returned the Welcome dashboard, created
+  the expected `local` branch and instance/consent rows, and left the pre-push hook
+  absent while consent remained `not_yet`.
+- Remaining gate: the committed native Windows jobs (Node 20/npm 10 and Node 22/npm
+  11) require an operator-authorized push. G-048 stays in progress until those jobs
+  pass; the workflow definition is not counted as execution evidence.
