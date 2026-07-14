@@ -1,5 +1,78 @@
 # Feature Changelog
 
+## 2026-07-13 — TRIAGE-012/013 interaction affordances
+
+### Groomed
+
+- Promoted TRIAGE-012 to P2 goal G-045: establish one truthful enabled-pointer
+  policy and a clearly perceptible shared hover vocabulary across buttons, links,
+  icon actions, interactive rows, and clickable cards. The visual treatment
+  remains design-gated for light/dark comparison before implementation.
+- Promoted TRIAGE-013 to P2 goal G-046: add conditional, accessible Previous/Next
+  controls to the fixed ten-cell telemetry rail while retaining native scrolling,
+  reduced-motion behavior, truthful end states, and the existing sticky chrome.
+  The goal is ready because the operator explicitly approved the carousel
+  direction and the Kanban board already provides a local control precedent.
+- Promoted TRIAGE-017 to P2 goal G-047 after live browser and code inventory
+  confirmed that several pointer-advertised rows/cards remain mouse-only or
+  expose no interactive role/name. The visual policy stays in G-045; G-047 owns
+  semantic and keyboard parity after the Tables select/open contract is approved.
+
+### Started
+
+- G-045 moved through approved design into verification with a versioned,
+  image-backed hand cursor and a dark-only fill-plus-edge interaction vocabulary.
+  An independent web-preview pass found and repaired inert telemetry cells that
+  inherited the linked-cell hover treatment. Fresh review also removed hover
+  invitation from disabled/inert controls, restored native text-entry/label
+  cursors, completed focus-role coverage, preserved enabled destructive menu
+  colors, guarded disabled subtrees, and retained polymorphic Link-button hover;
+  linked cells, selectable labels, and enabled controls remain visibly
+  interactive.
+
+## 2026-07-13 — G-008 Operations Receipts
+
+### Groomed
+
+- Defined a bounded, local-only Operations Receipt contract for schedule and
+  workflow runs, reusing terminal task/workflow state, documents, run numbers,
+  usage records, and existing detail histories.
+- Proposed a closed four-check success-criteria grammar and the user-visible
+  verdicts `Passed`, `At risk`, and `Failed`. Implementation remains operator-
+  gated until that exact grammar and verdict language are approved.
+
+### Started
+
+- Operator approved the closed grammar and exact verdict language; G-008 moved
+  into implementation as one schedule/workflow receipt slice.
+
+### Completed
+
+- Schedules and workflows now share a bounded Success Bar editor and persist an
+  immutable per-run criteria snapshot. New terminal runs write one idempotent
+  Operations Receipt with a deterministic `Passed`, `At risk`, or `Failed`
+  verdict, criterion evidence, next action, and source diagnostics.
+- Terminal write hooks and bounded read repair cover schedule tasks plus
+  sequence, loop, parallel, and swarm workflow runs. Interrupted writes,
+  retries, zero-task loops, failed runs, missing evidence, corrupt receipt data,
+  and historical run repair fail visibly without fabricating pre-feature data.
+- Fresh review findings were repaired; 104 focused tests, typecheck, token
+  validation, production build, real isolated workflow smoke, and desktop/390px
+  browser acceptance passed. The full-suite comparison returned to the known
+  G-022 baseline with no G-008 regression.
+
+## 2026-07-13 — G-043 task-summary and Inbox navigation affordances
+
+### Completed
+
+- Full-container Inbox pointer/keyboard navigation, nested-action and selection
+  isolation, stable task-detail destinations, and the explicit task-summary
+  header actions are implemented and covered by 14 focused tests.
+- Production build and live browser acceptance pass at desktop and 390×844.
+  At 390px the detail action collapses to its icon without losing its accessible
+  name, the detail and Close controls remain distinct from each other and the
+  `Task summary` heading, document width stays at 390px, and the console is clean.
+
 ## 2026-07-12 — G-042 readable and navigable task outputs
 
 ### Completed

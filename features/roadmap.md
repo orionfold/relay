@@ -99,6 +99,11 @@ via marker comments, not dropped. See `_SPECS/2026-06-29-211534_feature-cut-free
 | Feature                                                             | Priority | Status    | Dependencies                                                                                             |
 | ------------------------------------------------------------------- | -------- | --------- | -------------------------------------------------------------------------------------------------------- |
 | [ambient-approval-toast](ambient-approval-toast.md)                 | P1       | completed | app-shell, inbox-notifications, tool-permission-persistence                                              |
+| [approval-resolution-exactly-once](approval-resolution-exactly-once.md) | P1   | completed | ambient-approval-toast, inbox-notifications, tool-permission-persistence, workflow-learning-approval-reliability |
+| [task-summary-inbox-navigation](task-summary-inbox-navigation.md) | P1 | completed | task-board, inbox-notifications, task-output-rendering |
+| [interaction-affordance-consistency](interaction-affordance-consistency.md) | P2 | in-verification | app-shell, ux-gap-fixes |
+| [interactive-container-keyboard-parity](interactive-container-keyboard-parity.md) | P2 | planned | interaction-affordance-consistency, accessibility |
+| [telemetry-rail-carousel-controls](telemetry-rail-carousel-controls.md) | P2 | in-progress | app-shell, micro-visualizations |
 | [learned-context-ux-completion](learned-context-ux-completion.md)   | P2       | completed | agent-self-improvement, agent-profile-catalog                                                            |
 | [micro-visualizations](micro-visualizations.md)                     | P2       | completed | homepage-dashboard, monitoring-dashboard, project-management                                             |
 | [command-palette-enhancement](command-palette-enhancement.md)       | P2       | completed | app-shell                                                                                                |
@@ -182,6 +187,7 @@ via marker comments, not dropped. See `_SPECS/2026-06-29-211534_feature-cut-free
 | [workflow-runtime-configuration](workflow-runtime-configuration.md) | P1 | completed | provider-runtime-abstraction, workflow-engine, smart-runtime-router |
 | [workflow-execution-resilience](workflow-execution-resilience.md) | P1 | completed | workflow-engine, workflow-document-pool |
 | [workflow-intelligence-observability](workflow-intelligence-observability.md) | P2 | completed | workflow-budget-governance, workflow-runtime-configuration, workflow-execution-resilience, usage-metering-ledger, monitoring-dashboard |
+| [operations-receipts](operations-receipts.md) | P1 | completed | scheduled-prompt-loops, workflow-engine, workflow-run-history, usage-metering-ledger, document-output-generation |
 
 ### Environment Onboarding (Control Plane)
 

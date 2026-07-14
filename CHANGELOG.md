@@ -6,6 +6,21 @@ This project was formerly published as `stagent` on npm and hosted at `github.co
 
 ## [Unreleased]
 
+### Fixed
+
+- **Inbox task notifications and task-summary panels now match their visual
+  affordances.** A task-linked Inbox card opens from its full primary area by
+  pointer or keyboard while preserving nested actions, document links, and text
+  selection. Task side panels identify themselves as `Task summary` and expose
+  distinct, responsive Open details and Close controls.
+- **Permission and learning approvals now resolve exactly once across every
+  surface.** Allow, deny, question replies, and context decisions commit their
+  durable side effects atomically, disappear from the ambient card, detail
+  dialog, and Inbox only after acknowledgement, and cannot return from stale
+  stream or polling snapshots. Failed actions remain available with a specific
+  explanation, and timed-out runtime requests now close durably instead of
+  leaving approvals that can no longer unblock work.
+
 ## [0.38.0] — 2026-07-12
 
 ### Added
