@@ -12,6 +12,10 @@ import { taskStatusVariant } from "@/lib/constants/status-colors";
 import { Pause, Play, Trash2, Clock, Zap, Hash } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import {
+  OperationsReceiptHistory,
+  type OperationsReceiptHistoryItem,
+} from "@/components/operations/operations-receipt-history";
 
 interface TaskSummary {
   id: string;
@@ -37,6 +41,8 @@ interface ScheduleDetail {
   nextFireAt: string | null;
   createdAt: string;
   firingHistory: TaskSummary[];
+  receipts: OperationsReceiptHistoryItem[];
+  receiptReconciliationErrors?: string[];
 }
 
 interface ScheduleDetailViewProps {
@@ -214,6 +220,21 @@ export function ScheduleDetailView({ scheduleId, initialSchedule }: ScheduleDeta
         </CardHeader>
         <CardContent>
           <p className="text-sm whitespace-pre-wrap">{schedule.prompt}</p>
+        </CardContent>
+      </Card>
+
+      {/* Firing History */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">
+            Operations Receipts ({schedule.receipts?.length ?? 0})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OperationsReceiptHistory
+            receipts={schedule.receipts ?? []}
+            reconciliationErrors={schedule.receiptReconciliationErrors}
+          />
         </CardContent>
       </Card>
 

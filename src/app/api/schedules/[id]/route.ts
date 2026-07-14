@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { schedules, tasks } from "@/lib/db/schema";
-import { eq, like } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { parseInterval, computeNextFireTime } from "@/lib/schedules/interval-parser";
 import { parseNaturalLanguage } from "@/lib/schedules/nlp-parser";
 import { checkCollision } from "@/lib/schedules/collision-check";
 import { resolveAgentRuntime } from "@/lib/agents/runtime/catalog";
 import { validateRuntimeProfileAssignment } from "@/lib/agents/profiles/assignment-validation";
+import {
+  OperationsCriteriaValidationError,
+  parseStoredSuccessCriteria,
+  serializeSuccessCriteria,
+  type SuccessCriteria,
+} from "@/lib/operations/criteria";
+import {
+  ensureScheduleReceipt,
+  listScheduleReceipts,
+} from "@/lib/operations/receipts";
 
 export async function GET(
   _req: NextRequest,
@@ -23,24 +33,48 @@ export async function GET(
     return NextResponse.json({ error: "Schedule not found" }, { status: 404 });
   }
 
-  // Fetch child tasks (firing history) by title pattern match
-  const titlePrefix = schedule.type === "heartbeat"
-    ? `${schedule.name} — heartbeat #%`
-    : `${schedule.name} — firing #%`;
   const childTasks = await db
     .select()
     .from(tasks)
-    .where(like(tasks.title, titlePrefix));
+    .where(eq(tasks.scheduleId, schedule.id))
+    .orderBy(desc(tasks.createdAt))
+    .limit(100);
+
+  const reconciliationErrors: string[] = [];
+  for (const task of childTasks.slice(0, 20)) {
+    if (!["completed", "failed", "cancelled"].includes(task.status)) continue;
+    if (task.successCriteriaSnapshot === null) continue;
+    try {
+      await ensureScheduleReceipt(task.id);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(
+        `[schedule-detail] receipt reconciliation failed for ${task.id}:`,
+        error
+      );
+      reconciliationErrors.push(message);
+    }
+  }
+
+  let successCriteria: SuccessCriteria = [];
+  let successCriteriaError: string | null = null;
+  try {
+    successCriteria = parseStoredSuccessCriteria(schedule.successCriteria);
+  } catch (error) {
+    successCriteriaError = error instanceof Error ? error.message : String(error);
+  }
+  const receipts = await listScheduleReceipts(schedule.id);
 
   return NextResponse.json({
     ...schedule,
     heartbeatChecklist: schedule.heartbeatChecklist
       ? JSON.parse(schedule.heartbeatChecklist)
       : null,
-    firingHistory: childTasks.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    ),
+    successCriteria,
+    successCriteriaError,
+    receipts,
+    receiptReconciliationErrors: reconciliationErrors,
+    firingHistory: childTasks,
   });
 }
 
@@ -54,6 +88,7 @@ export async function PATCH(
     status, name, prompt, interval, assignedAgent, agentProfile,
     heartbeatChecklist, activeHoursStart, activeHoursEnd, activeTimezone,
     heartbeatBudgetPerDay,
+    successCriteria,
   } = body as {
     status?: string;
     name?: string;
@@ -66,6 +101,7 @@ export async function PATCH(
     activeHoursEnd?: number | null;
     activeTimezone?: string;
     heartbeatBudgetPerDay?: number | null;
+    successCriteria?: unknown;
   };
 
   const [schedule] = await db
@@ -178,6 +214,19 @@ export async function PATCH(
   }
   if (heartbeatBudgetPerDay !== undefined) {
     updates.heartbeatBudgetPerDay = heartbeatBudgetPerDay;
+  }
+  if (successCriteria !== undefined) {
+    try {
+      updates.successCriteria = serializeSuccessCriteria(successCriteria);
+    } catch (error) {
+      if (error instanceof OperationsCriteriaValidationError) {
+        return NextResponse.json(
+          { error: error.message, issues: error.issues },
+          { status: 400 }
+        );
+      }
+      throw error;
+    }
   }
 
   const compatibilityError = validateRuntimeProfileAssignment({

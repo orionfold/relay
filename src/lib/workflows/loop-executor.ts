@@ -199,7 +199,7 @@ export async function executeLoop(
     loopState.completedAt = new Date().toISOString();
     loopState.totalDurationMs =
       Date.now() - new Date(loopState.startedAt).getTime();
-    await updateLoopState(workflowId, loopState, "active");
+    await updateLoopState(workflowId, loopState, "failed");
     throw error;
   }
 }
@@ -306,7 +306,7 @@ export function detectCompletionSignal(
 export async function updateLoopState(
   workflowId: string,
   loopState: LoopState,
-  workflowStatus: "draft" | "active" | "paused" | "completed"
+  workflowStatus: "draft" | "active" | "paused" | "completed" | "failed"
 ): Promise<void> {
   const [workflow] = await db
     .select()
@@ -326,6 +326,24 @@ export async function updateLoopState(
       updatedAt: new Date(),
     })
     .where(eq(workflows.id, workflowId));
+
+  if (workflowStatus === "completed" || workflowStatus === "failed") {
+    try {
+      const { ensureWorkflowReceipt } = await import(
+        "@/lib/operations/receipts"
+      );
+      await ensureWorkflowReceipt(workflowId, workflow.runNumber);
+    } catch (error) {
+      const { reportOperationsReceiptFailure } = await import(
+        "@/lib/operations/receipts"
+      );
+      await reportOperationsReceiptFailure({
+        ownerType: "workflow",
+        ownerId: workflowId,
+        error,
+      });
+    }
+  }
 }
 
 /**

@@ -89,6 +89,8 @@ export const tasks = sqliteTable(
     failureReason: text("failure_reason"),
     /** Per-task turn budget copied from schedules.maxTurns at firing time */
     maxTurns: integer("max_turns"),
+    /** Success criteria copied when this schedule firing or workflow run starts. */
+    successCriteriaSnapshot: text("success_criteria_snapshot"),
     /**
      * Number of assistant-role frames in the runtime stream where the agent
      * produced content. Persisted at task completion. Null for pre-existing
@@ -128,6 +130,10 @@ export const workflows = sqliteTable("workflows", {
     .default("draft")
     .notNull(),
   runNumber: integer("run_number").default(0).notNull(),
+  /** Normalized Operations Receipt criteria JSON. Null/[] means no declared bar. */
+  successCriteria: text("success_criteria"),
+  /** Criteria copied atomically when the current workflow run is claimed. */
+  successCriteriaRunSnapshot: text("success_criteria_run_snapshot"),
   /** Runtime to use for all steps (nullable — falls back to system default) */
   runtimeId: text("runtime_id"),
   /**
@@ -288,6 +294,8 @@ export const schedules = sqliteTable(
     maxTurnsSetAt: integer("max_turns_set_at", { mode: "timestamp" }),
     /** Wall-clock lease override in seconds; NULL inherits global default (1200s) */
     maxRunDurationSec: integer("max_run_duration_sec"),
+    /** Normalized Operations Receipt criteria JSON. Null/[] means no declared bar. */
+    successCriteria: text("success_criteria"),
     /**
      * Counter separate from failureStreak — increments only on maxTurns breach.
      * Reset to 0 on any non-breach outcome (successful run, generic failure, or
@@ -303,6 +311,71 @@ export const schedules = sqliteTable(
     index("idx_schedules_status").on(table.status),
     index("idx_schedules_next_fire_at").on(table.nextFireAt),
     index("idx_schedules_project_id").on(table.projectId),
+  ]
+);
+
+export const operationsReceipts = sqliteTable(
+  "operations_receipts",
+  {
+    id: text("id").primaryKey(),
+    sourceKey: text("source_key").notNull(),
+    ownerType: text("owner_type", { enum: ["schedule", "workflow"] }).notNull(),
+    scheduleId: text("schedule_id").references(() => schedules.id, {
+      onDelete: "set null",
+    }),
+    workflowId: text("workflow_id").references(() => workflows.id, {
+      onDelete: "set null",
+    }),
+    taskId: text("task_id").references(() => tasks.id, {
+      onDelete: "set null",
+    }),
+    workflowRunNumber: integer("workflow_run_number"),
+    verdict: text("verdict", {
+      enum: ["passed", "at_risk", "failed"],
+    }).notNull(),
+    criteriaSnapshot: text("criteria_snapshot").notNull(),
+    evidence: text("evidence").notNull(),
+    summary: text("summary").notNull(),
+    nextAction: text("next_action").notNull(),
+    startedAt: integer("started_at", { mode: "timestamp" }),
+    finishedAt: integer("finished_at", { mode: "timestamp" }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  },
+  (table) => [
+    uniqueIndex("idx_operations_receipts_source_key").on(table.sourceKey),
+    index("idx_operations_receipts_schedule_finished").on(
+      table.scheduleId,
+      table.finishedAt
+    ),
+    index("idx_operations_receipts_workflow_finished").on(
+      table.workflowId,
+      table.finishedAt
+    ),
+  ]
+);
+
+export type OperationsReceiptRow = InferSelectModel<typeof operationsReceipts>;
+
+export const workflowReceiptRuns = sqliteTable(
+  "workflow_receipt_runs",
+  {
+    id: text("id").primaryKey(),
+    workflowId: text("workflow_id")
+      .notNull()
+      .references(() => workflows.id, { onDelete: "cascade" }),
+    runNumber: integer("run_number").notNull(),
+    criteriaSnapshot: text("criteria_snapshot").notNull(),
+    terminalStatus: text("terminal_status", {
+      enum: ["completed", "failed"],
+    }),
+    startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
+    finishedAt: integer("finished_at", { mode: "timestamp" }),
+  },
+  (table) => [
+    uniqueIndex("idx_workflow_receipt_runs_owner_run").on(
+      table.workflowId,
+      table.runNumber
+    ),
   ]
 );
 

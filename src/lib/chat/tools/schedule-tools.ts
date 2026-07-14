@@ -5,6 +5,10 @@ import { schedules } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { ok, err, resolveEntityId, type ToolContext } from "./helpers";
 import { analyzePromptEfficiency } from "@/lib/schedules/prompt-analyzer";
+import {
+  SuccessCriteriaSchema,
+  serializeSuccessCriteria,
+} from "@/lib/operations/criteria";
 
 const VALID_SCHEDULE_STATUSES = [
   "active",
@@ -98,6 +102,9 @@ When creating a schedule as part of an app composition, pass appId so the schedu
           .max(500)
           .optional()
           .describe("Hard cap on turns per firing (10-500). Omit to inherit the system default."),
+        successCriteria: SuccessCriteriaSchema.optional().describe(
+          "Closed success checks used to grade each firing's Operations Receipt."
+        ),
       },
       async (args) => {
         try {
@@ -185,6 +192,7 @@ When creating a schedule as part of an app composition, pass appId so the schedu
             maxFirings: args.maxFirings ?? null,
             maxTurns: args.maxTurns ?? null,
             maxTurnsSetAt: args.maxTurns !== undefined ? now : null,
+            successCriteria: serializeSuccessCriteria(args.successCriteria ?? []),
             firingCount: 0,
             expiresAt,
             nextFireAt,
@@ -282,6 +290,9 @@ When creating a schedule as part of an app composition, pass appId so the schedu
           .optional()
           .nullable()
           .describe("Hard cap on turns per firing (10-500). Pass null to clear an override back to the system default."),
+        successCriteria: SuccessCriteriaSchema.optional().describe(
+          "Replace the success checks used to grade Operations Receipts. Pass [] to clear."
+        ),
       },
       async (args) => {
         try {
@@ -306,6 +317,9 @@ When creating a schedule as part of an app composition, pass appId so the schedu
           if (args.maxTurns !== undefined) {
             updates.maxTurns = args.maxTurns;
             updates.maxTurnsSetAt = args.maxTurns === null ? null : new Date();
+          }
+          if (args.successCriteria !== undefined) {
+            updates.successCriteria = serializeSuccessCriteria(args.successCriteria);
           }
 
           if (args.interval) {

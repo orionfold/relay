@@ -42,6 +42,32 @@ const POLL_INTERVAL_MS = 60_000; // 60 seconds
 let intervalHandle: ReturnType<typeof setInterval> | null = null;
 let draining = false;
 
+async function finalizeScheduleFiring(
+  scheduleId: string,
+  taskId: string
+): Promise<void> {
+  try {
+    await recordFiringMetrics(scheduleId, taskId);
+  } catch (error) {
+    console.error(`[scheduler] metrics recording failed for ${taskId}:`, error);
+  }
+
+  try {
+    const { ensureScheduleReceipt } = await import("@/lib/operations/receipts");
+    await ensureScheduleReceipt(taskId);
+  } catch (error) {
+    const { reportOperationsReceiptFailure } = await import(
+      "@/lib/operations/receipts"
+    );
+    await reportOperationsReceiptFailure({
+      ownerType: "schedule",
+      ownerId: scheduleId,
+      taskId,
+      error,
+    });
+  }
+}
+
 /**
  * Drain queued schedule/heartbeat tasks after a firing completes.
  *
@@ -105,7 +131,7 @@ export async function drainQueue(): Promise<void> {
           .from(tasks)
           .where(eq(tasks.id, nextQueued.id));
         if (taskRow?.scheduleId) {
-          await recordFiringMetrics(taskRow.scheduleId, nextQueued.id);
+          await finalizeScheduleFiring(taskRow.scheduleId, nextQueued.id);
         }
       } catch (err) {
         console.error(`[scheduler] metrics recording failed for ${nextQueued.id}:`, err);
@@ -552,6 +578,7 @@ async function fireSchedule(
     priority: 2,
     sourceType: "scheduled",
     maxTurns: schedule.maxTurns, // per-schedule override, NULL = inherit global
+    successCriteriaSnapshot: schedule.successCriteria ?? "[]",
     createdAt: now,
     updatedAt: now,
   });
@@ -626,7 +653,7 @@ async function fireSchedule(
         err
       );
     })
-    .then(() => recordFiringMetrics(schedule.id, taskId).catch(() => {}))
+    .then(() => finalizeScheduleFiring(schedule.id, taskId))
     .then(() => drainQueue().catch(() => {}));
 
   console.log(
@@ -886,6 +913,7 @@ async function fireHeartbeat(
     priority: 2,
     sourceType: "heartbeat",
     maxTurns: schedule.maxTurns, // per-schedule override, NULL = inherit global
+    successCriteriaSnapshot: schedule.successCriteria ?? "[]",
     createdAt: now,
     updatedAt: now,
   });
@@ -914,8 +942,7 @@ async function fireHeartbeat(
 
   // Record health metrics and trigger drain (fire-and-forget — we still need
   // to finish heartbeat post-processing below before returning).
-  recordFiringMetrics(schedule.id, evalTaskId)
-    .catch(() => {})
+  finalizeScheduleFiring(schedule.id, evalTaskId)
     .then(() => drainQueue().catch(() => {}));
 
   // 6. Read the completed task result

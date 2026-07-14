@@ -154,4 +154,52 @@ describe("database bootstrap recovery", () => {
 
     legacy.close();
   });
+
+  it("bootstraps Operations Receipt storage and success-criteria columns idempotently", () => {
+    const bootstrapDb = new Database(dbPath);
+
+    bootstrapAinativeDatabase(bootstrapDb);
+    expect(() => bootstrapAinativeDatabase(bootstrapDb)).not.toThrow();
+
+    const table = bootstrapDb
+      .prepare(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'operations_receipts'"
+      )
+      .get() as { name: string } | undefined;
+    expect(table?.name).toBe("operations_receipts");
+    const runTable = bootstrapDb
+      .prepare(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'workflow_receipt_runs'"
+      )
+      .get() as { name: string } | undefined;
+    expect(runTable?.name).toBe("workflow_receipt_runs");
+
+    const columns = (tableName: string) =>
+      (
+        bootstrapDb.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{
+          name: string;
+        }>
+      ).map((column) => column.name);
+    expect(columns("schedules")).toContain("success_criteria");
+    expect(columns("workflows")).toContain("success_criteria");
+    expect(columns("workflows")).toContain("success_criteria_run_snapshot");
+    expect(columns("tasks")).toContain("success_criteria_snapshot");
+
+    const receiptIndexes = (
+      bootstrapDb.prepare("PRAGMA index_list(operations_receipts)").all() as Array<{
+        name: string;
+      }>
+    ).map((index) => index.name);
+    expect(receiptIndexes).toContain("idx_operations_receipts_source_key");
+    expect(receiptIndexes).toContain("idx_operations_receipts_schedule_finished");
+    expect(receiptIndexes).toContain("idx_operations_receipts_workflow_finished");
+    const runIndexes = (
+      bootstrapDb.prepare("PRAGMA index_list(workflow_receipt_runs)").all() as Array<{
+        name: string;
+      }>
+    ).map((index) => index.name);
+    expect(runIndexes).toContain("idx_workflow_receipt_runs_owner_run");
+
+    bootstrapDb.close();
+  });
 });

@@ -11,6 +11,10 @@ import { parseNaturalLanguage } from "@/lib/schedules/nlp-parser";
 import { resolveAgentRuntime } from "@/lib/agents/runtime/catalog";
 import { validateRuntimeProfileAssignment } from "@/lib/agents/profiles/assignment-validation";
 import { checkCollision } from "@/lib/schedules/collision-check";
+import {
+  OperationsCriteriaValidationError,
+  serializeSuccessCriteria,
+} from "@/lib/operations/criteria";
 
 export async function GET() {
   const result = await db
@@ -40,6 +44,7 @@ export async function POST(req: NextRequest) {
     activeTimezone,
     heartbeatBudgetPerDay,
     documentIds,
+    successCriteria,
   } =
     body as {
       name?: string;
@@ -58,6 +63,7 @@ export async function POST(req: NextRequest) {
       activeTimezone?: string;
       heartbeatBudgetPerDay?: number;
       documentIds?: string[];
+      successCriteria?: unknown;
     };
 
   const scheduleType = type ?? "scheduled";
@@ -170,6 +176,19 @@ export async function POST(req: NextRequest) {
     ? (prompt?.trim() || `Heartbeat check: ${name?.trim()}`)
     : prompt!.trim();
 
+  let serializedSuccessCriteria: string | null;
+  try {
+    serializedSuccessCriteria = serializeSuccessCriteria(successCriteria ?? []);
+  } catch (error) {
+    if (error instanceof OperationsCriteriaValidationError) {
+      return NextResponse.json(
+        { error: error.message, issues: error.issues },
+        { status: 400 }
+      );
+    }
+    throw error;
+  }
+
   await db.insert(schedules).values({
     id,
     name: name.trim(),
@@ -194,6 +213,7 @@ export async function POST(req: NextRequest) {
     heartbeatBudgetPerDay: heartbeatBudgetPerDay ?? null,
     heartbeatSpentToday: 0,
     heartbeatBudgetResetAt: null,
+    successCriteria: serializedSuccessCriteria,
     createdAt: now,
     updatedAt: now,
   });

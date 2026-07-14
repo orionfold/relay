@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { z } from "zod";
 
 interface WorkflowRow {
   id: string;
@@ -53,7 +54,47 @@ vi.mock("drizzle-orm", () => ({
   like: () => ({}),
 }));
 
-import { findSimilarWorkflows } from "../workflow-tools";
+import { findSimilarWorkflows, workflowTools } from "../workflow-tools";
+
+function parseWorkflowToolArgs(toolName: string, args: unknown) {
+  const tool = workflowTools({ projectId: "project-1" } as never).find(
+    (candidate) => candidate.name === toolName
+  );
+  if (!tool) throw new Error(`Tool not found: ${toolName}`);
+  return z.object(tool.zodShape).safeParse(args);
+}
+
+describe("workflow Operations Receipt criteria", () => {
+  const base = {
+    name: "Receipt workflow",
+    definition: JSON.stringify({
+      pattern: "sequence",
+      steps: [{ id: "one", name: "One", prompt: "Do one" }],
+    }),
+  };
+
+  it("accepts typed criteria and rejects arbitrary judges", () => {
+    const criterion = {
+      id: "completed",
+      label: "Completed",
+      level: "required",
+      check: "status_is",
+      value: "completed",
+    };
+    expect(
+      parseWorkflowToolArgs("create_workflow", {
+        ...base,
+        successCriteria: [criterion],
+      }).success
+    ).toBe(true);
+    expect(
+      parseWorkflowToolArgs("create_workflow", {
+        ...base,
+        successCriteria: [{ ...criterion, check: "llm_judge" }],
+      }).success
+    ).toBe(false);
+  });
+});
 
 function setRows(rows: WorkflowRow[]) {
   mockWorkflowRows.value = rows;

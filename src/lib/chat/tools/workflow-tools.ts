@@ -12,6 +12,10 @@ import {
 import { eq, and, desc, inArray, like } from "drizzle-orm";
 import { ok, err, resolveEntityId, type ToolContext } from "./helpers";
 import { extractKeywords, jaccard } from "@/lib/util/similarity";
+import {
+  SuccessCriteriaSchema,
+  serializeSuccessCriteria,
+} from "@/lib/operations/criteria";
 
 const VALID_WORKFLOW_STATUSES = [
   "draft",
@@ -240,6 +244,9 @@ export function workflowTools(ctx: ToolContext) {
           .describe(
             "Runtime to use for workflow execution (e.g., 'openai-direct', 'anthropic-direct'). Use list_runtimes to see available options. Omit to use the system default."
           ),
+        successCriteria: SuccessCriteriaSchema.optional().describe(
+          "Closed success checks used to grade each workflow run's Operations Receipt."
+        ),
         force: z
           .boolean()
           .optional()
@@ -311,6 +318,7 @@ export function workflowTools(ctx: ToolContext) {
             projectId: effectiveProjectId,
             definition: args.definition,
             runtimeId,
+            successCriteria: serializeSuccessCriteria(args.successCriteria ?? []),
             status: "draft",
             createdAt: now,
             updatedAt: now,
@@ -442,6 +450,9 @@ export function workflowTools(ctx: ToolContext) {
           .string()
           .optional()
           .describe("New definition as JSON string"),
+        successCriteria: SuccessCriteriaSchema.optional().describe(
+          "Replace the checks used to grade Operations Receipts. Pass [] to clear."
+        ),
       },
       async (args) => {
         try {
@@ -472,6 +483,9 @@ export function workflowTools(ctx: ToolContext) {
           const updates: Record<string, unknown> = { updatedAt: new Date() };
           if (args.name !== undefined) updates.name = args.name;
           if (args.definition !== undefined) updates.definition = args.definition;
+          if (args.successCriteria !== undefined) {
+            updates.successCriteria = serializeSuccessCriteria(args.successCriteria);
+          }
 
           await db
             .update(workflows)

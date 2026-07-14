@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { PageShell } from "@/components/shared/page-shell";
 import { WorkflowFormView } from "@/components/workflows/workflow-form-view";
 import { listProfiles } from "@/lib/agents/profiles/registry";
+import { parseStoredSuccessCriteria } from "@/lib/operations/criteria";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,7 @@ export default async function EditWorkflowPage({
     name: workflow.name,
     projectId: workflow.projectId,
     definition: workflow.definition,
+    successCriteria: parseStoredSuccessCriteria(workflow.successCriteria),
   };
 
   return (

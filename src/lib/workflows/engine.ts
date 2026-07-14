@@ -979,6 +979,7 @@ export async function executeChildTask(
       assignedAgent: assignedAgent ?? runtimeId ?? null,
     agentProfile: resolvedProfile ?? null,
     workflowRunNumber: workflow?.runNumber ?? null,
+    successCriteriaSnapshot: workflow?.successCriteriaRunSnapshot ?? null,
     maxBudgetUsd: maxBudgetUsd ?? null,
     contextRowId,
     createdAt: new Date(),
@@ -1301,6 +1302,24 @@ export async function updateWorkflowState(
       updatedAt: new Date(),
     })
     .where(eq(workflows.id, workflowId));
+
+  if (status === "completed" || status === "failed") {
+    try {
+      const { ensureWorkflowReceipt } = await import(
+        "@/lib/operations/receipts"
+      );
+      await ensureWorkflowReceipt(workflowId, workflow.runNumber);
+    } catch (error) {
+      const { reportOperationsReceiptFailure } = await import(
+        "@/lib/operations/receipts"
+      );
+      await reportOperationsReceiptFailure({
+        ownerType: "workflow",
+        ownerId: workflowId,
+        error,
+      });
+    }
+  }
 }
 
 /**

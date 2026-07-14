@@ -17,6 +17,7 @@ import {
   type ScheduleFormInitialValues,
 } from "./schedule-form";
 import type { CronCollisionWarning } from "@/lib/schedules/collision-check";
+import type { SuccessCriteria } from "@/lib/operations/criteria";
 
 interface ScheduleEditSheetProps {
   scheduleId: string | null;
@@ -37,6 +38,8 @@ interface ScheduleData {
   recurs: boolean;
   maxFirings: number | null;
   expiresAt: string | null;
+  maxTurns: number | null;
+  successCriteria: SuccessCriteria;
 }
 
 export function ScheduleEditSheet({
@@ -82,6 +85,8 @@ export function ScheduleEditSheet({
         recurs: schedule.recurs,
         maxFirings: schedule.maxFirings,
         expiresAt: schedule.expiresAt,
+        maxTurns: schedule.maxTurns,
+        successCriteria: schedule.successCriteria,
       }
     : undefined;
 
@@ -101,6 +106,7 @@ export function ScheduleEditSheet({
           interval: values.interval,
           assignedAgent: values.assignedAgent || "",
           agentProfile: values.agentProfile || "",
+          successCriteria: values.successCriteria,
         }),
       });
 

@@ -13,6 +13,10 @@ import { and, eq, inArray } from "drizzle-orm";
 import type { WorkflowDefinition } from "@/lib/workflows/types";
 import { validateWorkflowDefinitionAssignments } from "@/lib/agents/profiles/assignment-validation";
 import { validateWorkflowDefinition } from "@/lib/workflows/definition-validation";
+import {
+  OperationsCriteriaValidationError,
+  serializeSuccessCriteria,
+} from "@/lib/operations/criteria";
 
 export async function PATCH(
   req: NextRequest,
@@ -20,10 +24,11 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const body = await req.json();
-  const { status, name, definition } = body as {
+  const { status, name, definition, successCriteria } = body as {
     status?: string;
     name?: string;
     definition?: WorkflowDefinition;
+    successCriteria?: unknown;
   };
 
   const [workflow] = await db
@@ -36,7 +41,11 @@ export async function PATCH(
   }
 
   // Edit name/definition — draft, completed, or failed
-  if (name !== undefined || definition !== undefined) {
+  if (
+    name !== undefined ||
+    definition !== undefined ||
+    successCriteria !== undefined
+  ) {
     if (!["draft", "completed", "failed"].includes(workflow.status)) {
       return NextResponse.json(
         { error: "Cannot edit active or paused workflows" },
@@ -86,6 +95,20 @@ export async function PATCH(
       updates.definition = JSON.stringify(definition);
     }
 
+    if (successCriteria !== undefined) {
+      try {
+        updates.successCriteria = serializeSuccessCriteria(successCriteria);
+      } catch (error) {
+        if (error instanceof OperationsCriteriaValidationError) {
+          return NextResponse.json(
+            { error: error.message, issues: error.issues },
+            { status: 400 }
+          );
+        }
+        throw error;
+      }
+    }
+
     await db.update(workflows).set(updates).where(eq(workflows.id, id));
 
     const [updated] = await db.select().from(workflows).where(eq(workflows.id, id));
@@ -94,7 +117,10 @@ export async function PATCH(
 
   // Status transitions
   if (!status) {
-    return NextResponse.json({ error: "status, name, or definition is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "status, name, definition, or successCriteria is required" },
+      { status: 400 }
+    );
   }
 
   if (status === "paused") {

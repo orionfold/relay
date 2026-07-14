@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SuccessCriteriaSchema } from "@/lib/operations/criteria";
 
 /**
  * ScheduleSpec — YAML-loadable schedule definition for both user-authored
@@ -49,6 +50,7 @@ const ScheduleBaseFields = {
   deliveryChannels: z.array(z.string()).optional(),
   maxTurns: z.number().int().positive().nullable().optional(),
   maxRunDurationSec: z.number().int().positive().nullable().optional(),
+  successCriteria: SuccessCriteriaSchema.optional(),
 };
 
 const intervalOrCron = (s: { interval?: string; cronExpression?: string }): boolean =>

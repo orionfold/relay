@@ -8,6 +8,8 @@ import { useWorkflowStatus } from "./hooks/use-workflow-status";
 import { SequencePatternView } from "./views/sequence-pattern-view";
 import { LoopPatternView } from "./views/loop-pattern-view";
 import { WorkflowLoadingSkeleton } from "./shared/workflow-loading-skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OperationsReceiptHistory } from "@/components/operations/operations-receipt-history";
 
 /**
  * Thin router for the workflow detail page (TDR-031). Owns polling + the
@@ -50,6 +52,19 @@ export function WorkflowStatusView({ workflowId }: { workflowId: string }) {
           onRequestDelete={onRequestDelete}
         />
       )}
+      <Card className="mt-6">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">
+            Operations Receipts ({data.receipts?.length ?? 0})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OperationsReceiptHistory
+            receipts={data.receipts ?? []}
+            reconciliationErrors={data.receiptReconciliationErrors}
+          />
+        </CardContent>
+      </Card>
       <ConfirmDialog
         open={confirmDelete}
         onOpenChange={setConfirmDelete}

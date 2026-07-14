@@ -64,4 +64,34 @@ describe("ScheduleSpec schema", () => {
       expect(r.success, `version="${badVer}" should be rejected`).toBe(false);
     }
   });
+
+  it("round-trips the closed Operations Receipt criteria grammar", () => {
+    const valid = ScheduleSpecSchema.safeParse({
+      ...scheduledMinimal,
+      successCriteria: [
+        {
+          id: "report-created",
+          label: "Report created",
+          level: "required",
+          check: "output_count_at_least",
+          value: 1,
+        },
+      ],
+    });
+    expect(valid.success).toBe(true);
+
+    const invalid = ScheduleSpecSchema.safeParse({
+      ...scheduledMinimal,
+      successCriteria: [
+        {
+          id: "judge",
+          label: "Looks good",
+          level: "required",
+          check: "llm_judge",
+          value: "looks good",
+        },
+      ],
+    });
+    expect(invalid.success).toBe(false);
+  });
 });

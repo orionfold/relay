@@ -10,7 +10,7 @@
  *             agentProfile, assignedAgent, recurs, maxFirings, expiresAt,
  *             type, heartbeatChecklist, activeHoursStart, activeHoursEnd,
  *             activeTimezone, heartbeatBudgetPerDay, deliveryChannels,
- *             maxTurns, maxRunDurationSec, updatedAt
+ *             maxTurns, maxRunDurationSec, successCriteria, updatedAt
  *   STATE   — scheduler-owned at runtime (NOT touched on reload):
  *             status, firingCount, lastFiredAt, nextFireAt, suppressionCount,
  *             lastActionAt, heartbeatSpentToday, heartbeatBudgetResetAt,
@@ -88,6 +88,10 @@ export function installSchedulesFromSpecs(
         deliveryChannels: JSON.stringify(spec.deliveryChannels ?? []),
         maxTurns: spec.maxTurns ?? null,
         maxRunDurationSec: spec.maxRunDurationSec ?? null,
+        successCriteria:
+          spec.successCriteria && spec.successCriteria.length > 0
+            ? JSON.stringify(spec.successCriteria)
+            : null,
         // Defaults applied ONLY on first insert:
         status: "active",
         firingCount: 0,
@@ -124,6 +128,10 @@ export function installSchedulesFromSpecs(
           deliveryChannels: JSON.stringify(spec.deliveryChannels ?? []),
           maxTurns: spec.maxTurns ?? null,
           maxRunDurationSec: spec.maxRunDurationSec ?? null,
+          successCriteria:
+            spec.successCriteria && spec.successCriteria.length > 0
+              ? JSON.stringify(spec.successCriteria)
+              : null,
           updatedAt: now,
           // NOTE: `status` is NOT in this set. A user who pauses a schedule in
           // the UI keeps it paused across reloads. The loader never un-pauses.

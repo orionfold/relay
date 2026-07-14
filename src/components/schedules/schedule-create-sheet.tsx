@@ -49,6 +49,7 @@ export function ScheduleCreateSheet({
           maxFirings: values.maxFirings || undefined,
           expiresInHours: values.expiresInHours || undefined,
           type: values.type,
+          successCriteria: values.successCriteria,
           ...(values.type === "heartbeat" && {
             heartbeatChecklist: values.heartbeatChecklist,
             activeHoursStart: values.activeHoursStart || undefined,

@@ -53,6 +53,7 @@ export async function POST(
       priority: 2,
       sourceType: "scheduled",
       maxTurns: schedule.maxTurns,
+      successCriteriaSnapshot: schedule.successCriteria ?? "[]",
       createdAt: now,
       updatedAt: now,
     })
@@ -103,9 +104,28 @@ export async function POST(
 
   // Fire-and-forget: the route returns immediately with taskId; execution runs
   // in the background. Errors are logged but do not affect the 200 response.
-  startTaskExecution(taskId).catch((err) => {
-    console.error(`[api/schedules/execute] task ${taskId} failed:`, err);
-  });
+  startTaskExecution(taskId)
+    .catch((err) => {
+      console.error(`[api/schedules/execute] task ${taskId} failed:`, err);
+    })
+    .then(async () => {
+      try {
+        const { ensureScheduleReceipt } = await import(
+          "@/lib/operations/receipts"
+        );
+        await ensureScheduleReceipt(taskId);
+      } catch (error) {
+        const { reportOperationsReceiptFailure } = await import(
+          "@/lib/operations/receipts"
+        );
+        await reportOperationsReceiptFailure({
+          ownerType: "schedule",
+          ownerId: schedule.id,
+          taskId,
+          error,
+        });
+      }
+    });
 
   return NextResponse.json({ taskId, forced: force });
 }

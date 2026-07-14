@@ -210,6 +210,49 @@ describe("create_schedule maxTurns persistence", () => {
   });
 });
 
+describe("schedule Operations Receipt criteria", () => {
+  const criterion = {
+    id: "run-completed",
+    label: "Run completed",
+    level: "required" as const,
+    check: "status_is" as const,
+    value: "completed" as const,
+  };
+
+  it("accepts the closed criteria grammar and rejects unsupported checks", () => {
+    expect(
+      parseArgs("create_schedule", {
+        name: "test",
+        prompt: "hello",
+        interval: "1h",
+        successCriteria: [criterion],
+      }).success
+    ).toBe(true);
+    expect(
+      parseArgs("create_schedule", {
+        name: "test",
+        prompt: "hello",
+        interval: "1h",
+        successCriteria: [{ ...criterion, check: "regex" }],
+      }).success
+    ).toBe(false);
+  });
+
+  it("normalizes criteria into the create payload", async () => {
+    const tool = getTool("create_schedule");
+    await tool.handler({
+      name: "test",
+      prompt: "hello",
+      interval: "1h",
+      successCriteria: [criterion],
+    });
+
+    expect(JSON.parse(String(mockState.lastInsertValues?.successCriteria))).toEqual([
+      criterion,
+    ]);
+  });
+});
+
 describe("create_schedule appId discipline", () => {
   const base = {
     name: "weekly check",

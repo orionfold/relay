@@ -42,6 +42,8 @@ import {
   scheduleTableInputs,
   workflowExecutionStats,
   scheduleFiringMetrics,
+  operationsReceipts,
+  workflowReceiptRuns,
   deployments,
   publishTargets,
 } from "@/lib/db/schema";
@@ -139,6 +141,11 @@ export function clearAllData() {
   // before either. Previously it was sequenced between tasks and schedules,
   // which hit a FOREIGN KEY error on re-seed once any firing metrics existed.
   const scheduleFiringMetricsDeleted = step("scheduleFiringMetrics", () => db.delete(scheduleFiringMetrics).run().changes);
+  // Receipt rows retain source references for diagnostics, so clear them before
+  // the task/schedule/workflow rows they describe. Run markers belong to a
+  // workflow and must likewise be removed before workflows.
+  const operationsReceiptsDeleted = step("operationsReceipts", () => db.delete(operationsReceipts).run().changes);
+  const workflowReceiptRunsDeleted = step("workflowReceiptRuns", () => db.delete(workflowReceiptRuns).run().changes);
   const tasksDeleted = step("tasks", () => db.delete(tasks).run().changes);
   const workflowsDeleted = step("workflows", () => db.delete(workflows).run().changes);
   const schedulesDeleted = step("schedules", () => db.delete(schedules).run().changes);
@@ -219,5 +226,7 @@ export function clearAllData() {
     files: filesDeleted,
     screenshots: screenshotsDeleted,
     workflowExecutionStats: executionStatsDeleted,
+    operationsReceipts: operationsReceiptsDeleted,
+    workflowReceiptRuns: workflowReceiptRunsDeleted,
   };
 }

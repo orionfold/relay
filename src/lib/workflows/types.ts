@@ -248,6 +248,33 @@ export interface WorkflowRunHistoryEntry {
   failedCount: number;
 }
 
+export interface WorkflowOperationsReceipt {
+  id: string;
+  sourceKey: string;
+  ownerType: "schedule" | "workflow";
+  scheduleId: string | null;
+  workflowId: string | null;
+  taskId: string | null;
+  workflowRunNumber: number | null;
+  verdict: "passed" | "at_risk" | "failed";
+  criteriaSnapshot: unknown[];
+  evidence: Array<{
+    criterionId?: string;
+    label?: string;
+    level?: "required" | "advisory";
+    check?: string;
+    expected?: string | number;
+    actual?: string | number | null;
+    status?: "passed" | "failed" | "missing";
+    detail?: string;
+  }>;
+  summary: string;
+  nextAction: string;
+  startedAt: Date | null;
+  finishedAt: Date;
+  createdAt: Date;
+}
+
 /**
  * All non-loop workflow patterns share one response shape. Alias exists so
  * the union arm and the new-pattern checklist (TDR-031) can both reference
@@ -292,6 +319,8 @@ export type WorkflowStatusResponse =
       parentDocuments?: WorkflowStatusDocument[];
       runNumber?: number;
       runHistory?: WorkflowRunHistoryEntry[];
+      receipts?: WorkflowOperationsReceipt[];
+      receiptReconciliationErrors?: string[];
     }
   | {
       pattern: NonLoopPattern;
@@ -311,4 +340,6 @@ export type WorkflowStatusResponse =
       parentDocuments?: WorkflowStatusDocument[];
       runNumber?: number;
       runHistory?: WorkflowRunHistoryEntry[];
+      receipts?: WorkflowOperationsReceipt[];
+      receiptReconciliationErrors?: string[];
     };

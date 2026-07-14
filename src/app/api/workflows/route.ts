@@ -5,6 +5,10 @@ import { desc, eq, sql } from "drizzle-orm";
 import type { WorkflowDefinition } from "@/lib/workflows/types";
 import { validateWorkflowDefinitionAssignments } from "@/lib/agents/profiles/assignment-validation";
 import { validateWorkflowDefinition } from "@/lib/workflows/definition-validation";
+import {
+  OperationsCriteriaValidationError,
+  serializeSuccessCriteria,
+} from "@/lib/operations/criteria";
 
 export async function GET() {
   const result = await db
@@ -29,10 +33,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, projectId, definition: rawDefinition } = body as {
+  const { name, projectId, definition: rawDefinition, successCriteria } = body as {
     name?: string;
     projectId?: string;
     definition?: WorkflowDefinition;
+    successCriteria?: unknown;
   };
 
   if (!name?.trim()) {
@@ -56,12 +61,25 @@ export async function POST(req: NextRequest) {
 
   const id = crypto.randomUUID();
   const now = new Date();
+  let serializedSuccessCriteria: string | null;
+  try {
+    serializedSuccessCriteria = serializeSuccessCriteria(successCriteria ?? []);
+  } catch (error) {
+    if (error instanceof OperationsCriteriaValidationError) {
+      return NextResponse.json(
+        { error: error.message, issues: error.issues },
+        { status: 400 }
+      );
+    }
+    throw error;
+  }
 
   await db.insert(workflows).values({
     id,
     name: name.trim(),
     projectId: projectId || null,
     definition: JSON.stringify(definition),
+    successCriteria: serializedSuccessCriteria,
     status: "draft",
     createdAt: now,
     updatedAt: now,

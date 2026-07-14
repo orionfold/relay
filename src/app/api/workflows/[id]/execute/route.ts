@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { workflows, tasks } from "@/lib/db/schema";
+import { workflows, tasks, workflowReceiptRuns } from "@/lib/db/schema";
 import { eq, and, sql, inArray } from "drizzle-orm";
 import { executeWorkflow } from "@/lib/workflows/engine";
 import type { WorkflowDefinition } from "@/lib/workflows/types";
@@ -48,6 +48,21 @@ export async function POST(
     workflow.status === "active" // crashed recovery
   ) {
     try {
+      if (workflow.status === "completed" || workflow.status === "failed") {
+        db.update(workflowReceiptRuns)
+          .set({
+            terminalStatus: workflow.status,
+            finishedAt: workflow.updatedAt,
+          })
+          .where(
+            and(
+              eq(workflowReceiptRuns.workflowId, id),
+              eq(workflowReceiptRuns.runNumber, workflow.runNumber)
+            )
+          )
+          .run();
+      }
+
       // 1. Cancel orphaned tasks (running/queued from previous execution)
       await db
         .update(tasks)
@@ -86,20 +101,41 @@ export async function POST(
 
   // Atomic claim: transition to "active" only if still in draft state.
   // Prevents concurrent double-execution from parallel requests.
-  const claimResult = db
-    .update(workflows)
-    .set({
-      status: "active",
-      runNumber: sql`${workflows.runNumber} + 1`,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(workflows.id, id),
-        eq(workflows.status, "draft")
+  const claimedAt = new Date();
+  const claimedRunNumber = workflow.runNumber + 1;
+  const criteriaSnapshot = workflow.successCriteria ?? "[]";
+  const claimResult = db.transaction((tx) => {
+    const result = tx
+      .update(workflows)
+      .set({
+        status: "active",
+        runNumber: sql`${workflows.runNumber} + 1`,
+        successCriteriaRunSnapshot: criteriaSnapshot,
+        updatedAt: claimedAt,
+      })
+      .where(
+        and(
+          eq(workflows.id, id),
+          eq(workflows.status, "draft")
+        )
       )
-    )
-    .run();
+      .run();
+
+    if (result.changes === 1) {
+      tx.insert(workflowReceiptRuns)
+        .values({
+          id: crypto.randomUUID(),
+          workflowId: id,
+          runNumber: claimedRunNumber,
+          criteriaSnapshot,
+          terminalStatus: null,
+          startedAt: claimedAt,
+          finishedAt: null,
+        })
+        .run();
+    }
+    return result;
+  });
 
   if (claimResult.changes === 0) {
     return NextResponse.json(

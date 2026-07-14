@@ -181,6 +181,37 @@ describe("installSchedulesFromSpecs — state preservation", () => {
     expect(row?.updatedAt.getTime()).toBeGreaterThan(pastTime.getTime());
   });
 
+  it("installs and updates normalized Operations Receipt criteria", () => {
+    const firstBar = [{
+      id: "completed",
+      label: "Run completed",
+      level: "required" as const,
+      check: "status_is" as const,
+      value: "completed" as const,
+    }];
+    const nextBar = [{
+      id: "output",
+      label: "Output created",
+      level: "required" as const,
+      check: "output_count_at_least" as const,
+      value: 1,
+    }];
+
+    installSchedulesFromSpecs([
+      fakeScheduled("test-cfg-receipt", { successCriteria: firstBar }),
+    ]);
+    installSchedulesFromSpecs([
+      fakeScheduled("test-cfg-receipt", { successCriteria: nextBar }),
+    ]);
+
+    const row = db
+      .select()
+      .from(schedulesTable)
+      .where(eq(schedulesTable.id, "test-cfg-receipt"))
+      .get();
+    expect(JSON.parse(row?.successCriteria ?? "[]")).toEqual(nextBar);
+  });
+
   // ── RACE-TOLERANCE INVARIANT (1) ──────────────────────────────────────────
 
   it("reconciles a row pre-inserted by a concurrent writer (race-tolerance invariant)", () => {
@@ -314,7 +345,7 @@ describe("column-coverage invariant", () => {
       "name", "prompt", "cronExpression", "agentProfile", "assignedAgent",
       "recurs", "maxFirings", "expiresAt", "type", "heartbeatChecklist",
       "activeHoursStart", "activeHoursEnd", "activeTimezone", "heartbeatBudgetPerDay",
-      "deliveryChannels", "maxTurns", "maxRunDurationSec", "updatedAt",
+      "deliveryChannels", "maxTurns", "maxRunDurationSec", "successCriteria", "updatedAt",
     ]);
     const STATE_COLUMNS = new Set([
       "status", "firingCount", "lastFiredAt", "nextFireAt", "suppressionCount",

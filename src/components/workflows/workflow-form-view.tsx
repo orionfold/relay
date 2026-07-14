@@ -59,12 +59,15 @@ import {
   MIN_SWARM_WORKERS,
 } from "@/lib/workflows/swarm";
 import { randomId } from "@/lib/utils/uuid";
+import { SuccessCriteriaBuilder } from "@/components/operations/success-criteria-builder";
+import type { SuccessCriteria } from "@/lib/operations/criteria";
 
 interface WorkflowData {
   id: string;
   name: string;
   projectId: string | null;
   definition: string;
+  successCriteria: SuccessCriteria;
 }
 
 interface WorkflowFormViewProps {
@@ -339,6 +342,7 @@ export function WorkflowFormView({
   const [steps, setSteps] = useState<WorkflowStep[]>([createEmptyStep()]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successCriteria, setSuccessCriteria] = useState<SuccessCriteria>([]);
 
   // Document pool state
   const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());
@@ -453,6 +457,7 @@ export function WorkflowFormView({
     const def = parseDefinition(workflow.definition);
     setName(clone ? `${workflow.name} (Copy)` : workflow.name);
     setProjectId(workflow.projectId ?? "");
+    setSuccessCriteria(workflow.successCriteria ?? []);
 
     if (def) {
       setPattern(def.pattern);
@@ -865,6 +870,7 @@ export function WorkflowFormView({
           name: name.trim(),
           projectId: projectId || undefined,
           definition,
+          successCriteria,
         }),
       });
 
@@ -1272,6 +1278,17 @@ export function WorkflowFormView({
                   </div>
                 )}
               </div>
+            </FormSectionCard>
+
+            <FormSectionCard
+              icon={ShieldCheck}
+              title="Success Bar"
+              hint="Define the checks used to grade each completed run"
+            >
+              <SuccessCriteriaBuilder
+                value={successCriteria}
+                onChange={setSuccessCriteria}
+              />
             </FormSectionCard>
 
             {/* Input Documents — Document Pool */}

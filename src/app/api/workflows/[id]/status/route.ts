@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { workflows, tasks, documents } from "@/lib/db/schema";
+import { workflows, tasks, documents, workflowReceiptRuns } from "@/lib/db/schema";
 import { eq, and, inArray, count, desc, sql as drizzleSql } from "drizzle-orm";
 import { parseWorkflowState } from "@/lib/workflows/engine";
 import type {
@@ -8,6 +8,10 @@ import type {
   NonLoopPattern,
   StepWithState,
 } from "@/lib/workflows/types";
+import {
+  ensureWorkflowReceipt,
+  listWorkflowReceipts,
+} from "@/lib/operations/receipts";
 
 /** Collect output documents for workflow step tasks + input documents from parent task */
 async function getWorkflowDocuments(
@@ -111,6 +115,33 @@ export async function GET(
   const { definition, state, loopState } = parseWorkflowState(workflow.definition);
   const sourceTaskId: string | undefined = definition.sourceTaskId;
   const { stepDocuments, parentDocuments } = await getWorkflowDocuments(state, sourceTaskId);
+  const receiptReconciliationErrors: string[] = [];
+  const recentReceiptRuns = await db
+    .select({
+      runNumber: workflowReceiptRuns.runNumber,
+      terminalStatus: workflowReceiptRuns.terminalStatus,
+    })
+    .from(workflowReceiptRuns)
+    .where(eq(workflowReceiptRuns.workflowId, workflow.id))
+    .orderBy(desc(workflowReceiptRuns.runNumber))
+    .limit(20);
+  for (const receiptRun of recentReceiptRuns) {
+    const isCurrentTerminal =
+      receiptRun.runNumber === workflow.runNumber &&
+      (workflow.status === "completed" || workflow.status === "failed");
+    if (!receiptRun.terminalStatus && !isCurrentTerminal) continue;
+    try {
+      await ensureWorkflowReceipt(workflow.id, receiptRun.runNumber);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(
+        `[workflow-status] receipt reconciliation failed for ${workflow.id} run ${receiptRun.runNumber}:`,
+        error
+      );
+      receiptReconciliationErrors.push(message);
+    }
+  }
+  const receipts = await listWorkflowReceipts(workflow.id);
 
   // Loop pattern returns loop-specific data instead of step states.
   // The `satisfies` annotation enforces the TDR-031 contract: the loop arm
@@ -133,6 +164,8 @@ export async function GET(
       parentDocuments,
       runNumber: workflow.runNumber,
       runHistory,
+      receipts,
+      receiptReconciliationErrors,
     } satisfies WorkflowStatusResponse;
     return NextResponse.json(loopBody);
   }
@@ -159,6 +192,8 @@ export async function GET(
     parentDocuments,
     runNumber: workflow.runNumber,
     runHistory,
+    receipts,
+    receiptReconciliationErrors,
   } satisfies WorkflowStatusResponse;
   return NextResponse.json(nonLoopBody);
 }

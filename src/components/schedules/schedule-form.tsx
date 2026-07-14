@@ -28,6 +28,8 @@ import {
 } from "@/lib/agents/profiles/compatibility";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 import { randomId } from "@/lib/utils/uuid";
+import { SuccessCriteriaBuilder } from "@/components/operations/success-criteria-builder";
+import type { SuccessCriteria } from "@/lib/operations/criteria";
 
 type ProfileOption = Pick<AgentProfile, "id" | "name" | "supportedRuntimes">;
 
@@ -65,6 +67,7 @@ export interface ScheduleFormValues {
   heartbeatBudgetPerDay: number | "";
   documentIds: string[];
   maxTurns: number | null;
+  successCriteria: SuccessCriteria;
 }
 
 export interface ScheduleFormInitialValues {
@@ -79,6 +82,7 @@ export interface ScheduleFormInitialValues {
   maxFirings: number | null;
   expiresAt: string | null;
   maxTurns?: number | null;
+  successCriteria?: SuccessCriteria;
 }
 
 interface ScheduleFormProps {
@@ -144,6 +148,9 @@ export function ScheduleForm({
     initialValues ? "" : ""
   );
   const [maxTurns, setMaxTurns] = useState<number | null>(initialValues?.maxTurns ?? null);
+  const [successCriteria, setSuccessCriteria] = useState<SuccessCriteria>(
+    initialValues?.successCriteria ?? []
+  );
   const [profiles, setProfiles] = useState<ProfileOption[]>([]);
 
   // NL schedule input state
@@ -284,6 +291,7 @@ export function ScheduleForm({
       heartbeatBudgetPerDay,
       documentIds: [...selectedDocIds],
       maxTurns,
+      successCriteria,
     });
   }
 
@@ -520,6 +528,11 @@ export function ScheduleForm({
           </p>
         )}
       </div>
+
+      <SuccessCriteriaBuilder
+        value={successCriteria}
+        onChange={setSuccessCriteria}
+      />
 
       {/* Natural Language Schedule Input */}
       <div className="space-y-2">
