@@ -4,31 +4,42 @@
 
 ### Groomed
 
-- Promoted TRIAGE-012 to P2 goal G-045: establish one truthful enabled-pointer
-  policy and a clearly perceptible shared hover vocabulary across buttons, links,
-  icon actions, interactive rows, and clickable cards. The visual treatment
-  remains design-gated for light/dark comparison before implementation.
+- Promoted TRIAGE-012 to P2 goal G-045: establish a clearly perceptible shared
+  hover vocabulary across buttons, links, icon actions, interactive rows, and
+  clickable cards while leaving cursor rendering to the system/browser.
 - Promoted TRIAGE-013 to P2 goal G-046: add conditional, accessible Previous/Next
   controls to the fixed ten-cell telemetry rail while retaining native scrolling,
   reduced-motion behavior, truthful end states, and the existing sticky chrome.
   The goal is ready because the operator explicitly approved the carousel
   direction and the Kanban board already provides a local control precedent.
 - Promoted TRIAGE-017 to P2 goal G-047 after live browser and code inventory
-  confirmed that several pointer-advertised rows/cards remain mouse-only or
+  confirmed that several highlight-advertised rows/cards remain mouse-only or
   expose no interactive role/name. The visual policy stays in G-045; G-047 owns
   semantic and keyboard parity after the Tables select/open contract is approved.
 
 ### Started
 
-- G-045 moved through approved design into verification with a versioned,
-  image-backed hand cursor and a dark-only fill-plus-edge interaction vocabulary.
-  An independent web-preview pass found and repaired inert telemetry cells that
+- G-045 moved through approved design into verification with a dark-only
+  fill-plus-edge interaction vocabulary. An independent web-preview pass found
+  and repaired inert telemetry cells that
   inherited the linked-cell hover treatment. Fresh review also removed hover
   invitation from disabled/inert controls, restored native text-entry/label
   cursors, completed focus-role coverage, preserved enabled destructive menu
   colors, guarded disabled subtrees, and retained polymorphic Link-button hover;
   linked cells, selectable labels, and enabled controls remain visibly
   interactive.
+
+### Completed
+
+- The operator retired every application-assigned hand shape after live
+  cross-browser flicker. Product code, shared primitives, historical build
+  instructions, design guidance, tests, and repo-local agent assets now contain
+  no cursor declarations that request it; a source-wide regression guard
+  prevents reintroduction. System/browser cursors remain authoritative.
+- Affordance is carried by the accepted eased fill-plus-edge highlight, with
+  settings glance cells and dashboard Needs Attention rows on the shared
+  treatment. Dark/light browser verification, disabled/inert checks, focus,
+  active, and reduced-motion coverage pass.
 
 ## 2026-07-13 — G-008 Operations Receipts
 

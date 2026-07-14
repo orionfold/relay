@@ -94,7 +94,7 @@ export function WorkspaceIndicator({ variant }: WorkspaceIndicatorProps) {
               <span className="text-[10px] bg-destructive/10 text-destructive px-1 rounded">shared</span>
               <button
                 onClick={handleFix}
-                className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded hover:bg-destructive/20 transition-colors cursor-pointer inline-flex items-center gap-0.5"
+                className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded hover:bg-destructive/20 transition-colors inline-flex items-center gap-0.5"
               >
                 <Wrench className="h-2.5 w-2.5" />
                 Fix

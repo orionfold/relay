@@ -11,8 +11,8 @@ dependencies: [interaction-affordance-consistency, accessibility]
 
 ## Description
 
-Relay now gives enabled interactive surfaces an unmistakable hand cursor and a
-strong dark-theme hover state. That visual contract has exposed a semantic gap:
+Relay now gives enabled interactive surfaces an unmistakable highlight and a
+strong dark-theme hover state while leaving cursors to the system. That visual contract has exposed a semantic gap:
 some composite rows and cards are still mouse-only, while others are focusable
 and key-activated but remain generic containers in the accessibility tree.
 
@@ -29,7 +29,7 @@ improvements do not leave my interaction path behind.
 
 ## Current evidence
 
-- Documents table rows expose `onClick` and the hand cursor but remain
+- Documents table rows expose `onClick` and hover highlight but remain
   `tabIndex=-1` with no interactive role in the live browser.
 - Documents grid cards, Tables spreadsheet rows, and Tables list rows use
   non-semantic containers with pointer-only activation.
@@ -44,7 +44,7 @@ improvements do not leave my interaction path behind.
 ## Technical approach
 
 1. Inventory composite interactions by combining `onClick`, `interactive`,
-   `cursor-pointer`, `role`, `tabIndex`, and `onKeyDown` searches. Classify each
+   `data-interactive-surface`, `role`, `tabIndex`, and `onKeyDown` searches. Classify each
    as navigate, open detail, select/toggle, or mixed/nested.
 2. Prefer native `Link` or `button` when the whole surface has one action and
    does not contain nested interactive descendants.
@@ -55,13 +55,13 @@ improvements do not leave my interaction path behind.
    double-click open, checkbox selection, and keyboard activation must not share
    an ambiguous key path; an explicit Open action is acceptable if it produces
    the clearest contract.
-5. Keep pointer and dark hover styling owned by G-045. This feature consumes
+5. Keep cursor policy and dark hover styling owned by G-045. This feature consumes
    that policy and changes only semantic/input behavior plus the minimum focus
    classes needed by newly focusable elements.
 
 ## Acceptance criteria
 
-- [ ] Every in-scope pointer-advertised composite is reachable in logical tab
+- [ ] Every in-scope highlight-advertised composite is reachable in logical tab
   order or contains a native focusable destination that covers the same action.
 - [ ] Every focusable composite exposes a truthful button/link role and an
   accessible name that describes its result.
@@ -73,7 +73,7 @@ improvements do not leave my interaction path behind.
   gallery, and Schedule list have focused component coverage.
 - [ ] Live accessibility-tree and keyboard checks pass on Documents, Tables,
   Workflows, Blueprints, and Schedules at desktop and 390px.
-- [ ] Pointer, hover, disabled, and focus-visible behavior from G-045 remains
+- [ ] Cursor, hover, disabled, and focus-visible behavior from G-045 remains
   unchanged for existing shared primitives.
 
 ## Scope boundaries

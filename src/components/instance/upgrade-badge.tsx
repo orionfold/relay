@@ -134,8 +134,8 @@ export function UpgradeBadge() {
     ? "Upgrade check failing. Click to retry"
     : `${count} upstream update${count === 1 ? "" : "s"} ready to merge`;
   const buttonClass = failing
-    ? "h-7 px-2 rounded-md border border-amber-500/40 bg-amber-500/10 text-[11px] font-medium text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 transition-colors cursor-pointer inline-flex items-center gap-1.5 group-data-[collapsible=icon]:hidden"
-    : "h-7 px-2 rounded-md border border-blue-500/40 bg-blue-500/10 text-[11px] font-medium text-blue-700 dark:text-blue-400 hover:bg-blue-500/20 transition-colors cursor-pointer inline-flex items-center gap-1.5 group-data-[collapsible=icon]:hidden";
+    ? "h-7 px-2 rounded-md border border-amber-500/40 bg-amber-500/10 text-[11px] font-medium text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 transition-colors inline-flex items-center gap-1.5 group-data-[collapsible=icon]:hidden"
+    : "h-7 px-2 rounded-md border border-blue-500/40 bg-blue-500/10 text-[11px] font-medium text-blue-700 dark:text-blue-400 hover:bg-blue-500/20 transition-colors inline-flex items-center gap-1.5 group-data-[collapsible=icon]:hidden";
 
   const modalUpgrade = config?.upgrade ?? null;
   const modalCount = modalUpgrade?.commitsBehind ?? count;

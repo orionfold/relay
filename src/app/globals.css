@@ -531,7 +531,6 @@
 
 [data-slot="card"].flagship-card-interactive,
 .flagship-card-interactive {
-  cursor: pointer;
   transition:
     background-color 180ms ease,
     border-color 180ms ease,
@@ -880,12 +879,9 @@ body {
   color: var(--foreground);
 }
 
-/* Cursor policy: native browser behavior only. The custom image-backed hand
-   cursor and every forced arrow-to-hand switch were removed by operator
-   decision (2026-07-13 walkthrough) after repeated cross-browser failures.
-   Do not reintroduce a custom cursor policy; the hover highlight below is
-   the affordance carrier. Disabled and inert subtrees still refuse any
-   clickability claim a stray cursor-pointer utility might make: */
+/* Cursor policy: system/browser behavior only. Relay does not assign a hand
+   cursor to interactive elements; hover highlight carries the affordance.
+   Disabled and inert subtrees retain their truthful system default: */
 button:disabled,
 button:disabled *,
 select:disabled,
@@ -921,8 +917,7 @@ input:disabled *,
   [role="switch"]:not([aria-disabled="true"]),
   .flagship-card-interactive,
   [data-interactive-surface],
-  [data-telemetry-card][href],
-  .cursor-pointer:not([role="tab"]):not([data-variant="destructive"])
+  [data-telemetry-card][href]
 ):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
   outline: 1px solid transparent;
   outline-offset: -1px;
@@ -947,8 +942,7 @@ input:disabled *,
   [role="switch"]:not([aria-disabled="true"]),
   .flagship-card-interactive,
   [data-interactive-surface],
-  [data-telemetry-card][href],
-  .cursor-pointer:not([role="tab"]):not([data-variant="destructive"])
+  [data-telemetry-card][href]
 ):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active {
   transition-duration: 40ms;
 }
@@ -972,8 +966,7 @@ input:disabled *,
   [role="switch"]:not([aria-disabled="true"]),
   .flagship-card-interactive,
   [data-interactive-surface],
-  [data-telemetry-card][href],
-  .cursor-pointer:not([role="tab"]):not([data-variant="destructive"])
+  [data-telemetry-card][href]
 ):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):hover {
   outline: 1px solid var(--interaction-hover-edge);
   outline-offset: -1px;
@@ -988,8 +981,7 @@ input:disabled *,
   [role="option"]:not([aria-disabled="true"]),
   .flagship-card-interactive,
   [data-interactive-surface],
-  [data-telemetry-card][href],
-  .cursor-pointer:not([role="tab"]):not([role="switch"]):not([role="checkbox"]):not([role="radio"]):not(input):not([data-variant="default"]):not([data-variant="destructive"]):not([data-variant="link"])
+  [data-telemetry-card][href]
 ):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):hover {
   background-color: var(--interaction-hover-surface) !important;
 }
@@ -1003,8 +995,7 @@ input:disabled *,
   [role="option"]:not([aria-disabled="true"]),
   .flagship-card-interactive,
   [data-interactive-surface],
-  [data-telemetry-card][href],
-  .cursor-pointer:not([role="tab"]):not([role="switch"]):not([role="checkbox"]):not([role="radio"]):not(input):not([data-variant="default"]):not([data-variant="destructive"]):not([data-variant="link"])
+  [data-telemetry-card][href]
 ):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active {
   background-color: var(--interaction-active-surface) !important;
 }
@@ -1024,8 +1015,7 @@ input:disabled *,
   [role="switch"]:not([aria-disabled="true"]),
   .flagship-card-interactive,
   [data-interactive-surface],
-  [data-telemetry-card][href],
-  .cursor-pointer:not([role="tab"]):not([data-variant="destructive"])
+  [data-telemetry-card][href]
 ):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active {
   outline: 2px solid var(--ring);
   outline-offset: -2px;
@@ -1060,7 +1050,8 @@ input:disabled *,
   [role="radio"]:not([aria-disabled="true"]),
   [role="switch"]:not([aria-disabled="true"]),
   .flagship-card-interactive,
-  .cursor-pointer
+  [data-interactive-surface],
+  [data-telemetry-card][href]
 ):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):focus-visible {
   outline: 2px solid var(--ring) !important;
   outline-offset: 2px !important;

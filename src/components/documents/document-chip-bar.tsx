@@ -134,7 +134,7 @@ export function DocumentChipBar({
         {doc.workflowId && doc.workflowName && (
           <Badge
             variant="secondary"
-            className="text-xs cursor-pointer hover:bg-accent gap-1"
+            className="text-xs hover:bg-accent gap-1"
             onClick={() => router.push(`/workflows/${doc.workflowId}`)}
           >
             <GitBranch className="h-3 w-3" />
@@ -149,7 +149,7 @@ export function DocumentChipBar({
         {doc.taskTitle ? (
           <Badge
             variant="secondary"
-            className="text-xs cursor-pointer hover:bg-accent gap-1"
+            className="text-xs hover:bg-accent gap-1"
             onClick={() => doc.taskId && router.push(`/tasks/${doc.taskId}`)}
           >
             <Link2 className="h-3 w-3" />

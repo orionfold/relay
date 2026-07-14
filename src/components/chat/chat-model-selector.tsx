@@ -148,7 +148,7 @@ function ModelMenuItem({
 }) {
   return (
     <DropdownMenuItem
-      className="flex items-center justify-between cursor-pointer"
+      className="flex items-center justify-between"
       onClick={() => onSelect(model.id)}
     >
       <span className="flex items-center gap-2">

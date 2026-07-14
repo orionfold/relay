@@ -54,7 +54,7 @@ export function AuthMethodSelector({
               type="button"
               onClick={() => onChange(method.id)}
               className={cn(
-                "flex flex-col items-center gap-2 rounded-lg border-2 p-4 text-center transition-all cursor-pointer",
+                "flex flex-col items-center gap-2 rounded-lg border-2 p-4 text-center transition-all",
                 "hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 isSelected
                   ? "border-primary bg-primary/5"

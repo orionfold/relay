@@ -50,7 +50,7 @@ export function RecentProjects({ projects }: RecentProjectsProps) {
             : 0;
           return (
             <Link key={project.id} href={`/projects/${project.id}`}>
-              <Card className="surface-card cursor-pointer transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl">
+              <Card className="surface-card transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl">
                 <CardHeader className="pb-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <DonutRing

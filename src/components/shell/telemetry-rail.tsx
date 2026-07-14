@@ -234,7 +234,7 @@ export function TelemetryRail() {
               aria-label="Previous telemetry cards"
               aria-controls="telemetry-scroll-region"
               onClick={() => move("previous")}
-              className="h-full w-full cursor-pointer rounded-none border-r border-border px-0 text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground motion-reduce:transition-none"
+              className="h-full w-full rounded-none border-r border-border px-0 text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground motion-reduce:transition-none"
             >
               <ChevronLeft aria-hidden />
             </Button>
@@ -384,7 +384,7 @@ export function TelemetryRail() {
               aria-label="Next telemetry cards"
               aria-controls="telemetry-scroll-region"
               onClick={() => move("next")}
-              className="h-full w-full cursor-pointer rounded-none border-l border-border px-0 text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground motion-reduce:transition-none"
+              className="h-full w-full rounded-none border-l border-border px-0 text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground motion-reduce:transition-none"
             >
               <ChevronRight aria-hidden />
             </Button>

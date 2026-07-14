@@ -568,7 +568,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
         {/* SKILL.md — collapsible */}
         {profile.skillMd && (
           <details className="group" open>
-            <summary className="surface-card flex cursor-pointer list-none items-center gap-3 rounded-lg p-3 transition-colors hover:bg-accent/50">
+            <summary className="surface-card flex list-none items-center gap-3 rounded-lg p-3 transition-colors hover:bg-accent/50">
               <FileCode className="h-4 w-4 text-muted-foreground shrink-0" />
               <div className="flex flex-col min-w-0">
                 <span className="text-sm font-semibold truncate">{profile.name}</span>

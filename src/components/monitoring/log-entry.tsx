@@ -58,7 +58,7 @@ export function LogEntry({ entry, taskName }: { entry: LogEntryData; taskName?: 
     <>
       <button
         type="button"
-        className="w-full text-left font-mono text-sm py-0.5 hover:bg-muted/50 px-2 rounded cursor-pointer"
+        className="w-full text-left font-mono text-sm py-0.5 hover:bg-muted/50 px-2 rounded"
         onClick={() => screenshotData ? setLightboxOpen(true) : setExpanded(!expanded)}
         aria-expanded={expanded}
         aria-label={`Log entry: ${entry.event} at ${time}`}
@@ -82,13 +82,13 @@ export function LogEntry({ entry, taskName }: { entry: LogEntryData; taskName?: 
             <img
               src={screenshotData.thumbnailUrl}
               alt="Screenshot"
-              className="rounded border border-border hover:border-primary transition-colors cursor-pointer"
+              className="rounded border border-border hover:border-primary transition-colors"
               style={{ width: 100, height: 60, objectFit: "cover" }}
               loading="lazy"
               onClick={() => setLightboxOpen(true)}
               onError={(e) => { e.currentTarget.style.display = "none"; }}
             />
-            <span className="text-xs text-primary cursor-pointer" onClick={() => setLightboxOpen(true)}>
+            <span className="text-xs text-primary" onClick={() => setLightboxOpen(true)}>
               Click to expand
             </span>
           </div>

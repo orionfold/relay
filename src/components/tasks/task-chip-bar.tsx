@@ -232,7 +232,7 @@ export function TaskChipBar({
         <div className="flex flex-wrap items-center gap-2">
           {task.projectId && (
             <Link href={`/projects/${task.projectId}`}>
-              <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-accent gap-1">
+              <Badge variant="secondary" className="text-xs hover:bg-accent gap-1">
                 <FolderKanban className="h-3 w-3" />
                 {task.projectName ?? "Project"}
               </Badge>
@@ -240,7 +240,7 @@ export function TaskChipBar({
           )}
           {task.workflowId && (
             <Link href={`/workflows/${task.workflowId}`}>
-              <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-accent gap-1">
+              <Badge variant="secondary" className="text-xs hover:bg-accent gap-1">
                 <GitBranch className="h-3 w-3" />
                 {task.workflowName ?? "Workflow"}
               </Badge>
@@ -248,7 +248,7 @@ export function TaskChipBar({
           )}
           {task.scheduleId && (
             <Link href="/schedules">
-              <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-accent gap-1">
+              <Badge variant="secondary" className="text-xs hover:bg-accent gap-1">
                 {task.sourceType === "heartbeat" ? (
                   <Heart className="h-3 w-3 text-rose-500" />
                 ) : (

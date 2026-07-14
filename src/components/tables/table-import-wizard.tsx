@@ -277,7 +277,7 @@ export function TableImportWizard({
                 ? "border-primary bg-primary/5"
                 : "border-border hover:border-primary/40 hover:bg-muted/50"
               }
-              ${loadingPreview ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+              ${loadingPreview ? "opacity-50 cursor-not-allowed" : ""}
             `}
           >
             <div className="flex items-center justify-between">

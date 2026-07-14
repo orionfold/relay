@@ -271,7 +271,7 @@ Missing `min-w-0` on any ancestor breaks truncation because flex's default `min-
 ### Interactive Cards
 
 All clickable cards must include:
-- `cursor-pointer transition-colors`; the shared interaction contract supplies
+- `data-interactive-surface` and `transition-colors`; the shared interaction contract supplies
   the dark-theme hover fill and structural edge
 - `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg`
 - `tabIndex={0}` + `onKeyDown` handler for non-Link cards
@@ -283,10 +283,10 @@ This applies to contained controls, clickable cards/rows, menus, and toolbar
 actions. Text-only top navigation keeps its existing text/underline treatment.
 Motion may support the state but cannot be its only visible signal.
 
-Disabled and inert surfaces keep the default cursor and must not receive hover,
-active, lift, or edge feedback. Text-entry controls keep the native text cursor;
-labels use the hand when directly paired with an enabled checkbox/radio/switch,
-or when the component explicitly makes the label itself a hit target.
+Relay leaves cursors to the system/browser and never assigns a hand cursor.
+Disabled and inert surfaces keep the default system cursor and must not receive
+hover, active, lift, or edge feedback. Text-entry controls keep the system text
+cursor.
 Destructive menu actions retain destructive hover/focus colors instead of
 inheriting the neutral cyan interaction fill, and disabled destructive actions
 remain visually neutral.

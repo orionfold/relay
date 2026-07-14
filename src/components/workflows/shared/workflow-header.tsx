@@ -153,7 +153,7 @@ export function WorkflowHeader({
               {data.projectId && (
                 <Badge
                   variant="outline"
-                  className="text-xs cursor-pointer hover:bg-accent gap-1"
+                  className="text-xs hover:bg-accent gap-1"
                   onClick={() => router.push(`/projects/${data.projectId}`)}
                 >
                   <FolderKanban className="h-3 w-3" />
@@ -269,7 +269,7 @@ function SignpostBanner({ signpost }: { signpost: Signpost }) {
   const body = (
     <div
       className={`mt-3 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${tone} ${
-        signpost.href ? "cursor-pointer hover:bg-accent transition-colors" : ""
+        signpost.href ? "hover:bg-accent transition-colors" : ""
       }`}
     >
       <Icon

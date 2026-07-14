@@ -751,7 +751,7 @@ export function ProvidersAndRuntimesSection() {
                   <Label
                     key={option.value}
                     htmlFor={`routing-${option.value}`}
-                    className={`flex cursor-pointer items-center gap-2 rounded-xl border-2 px-3 py-2 transition-all hover:bg-accent/30 ${
+                    className={`flex items-center gap-2 rounded-xl border-2 px-3 py-2 transition-all hover:bg-accent/30 ${
                       isSelected
                         ? "border-primary bg-primary/5"
                         : "border-border/40"

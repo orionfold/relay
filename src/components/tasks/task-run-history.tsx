@@ -84,7 +84,7 @@ function RunLog({ log }: { log: TaskRunLog }) {
   return (
     <details className="group/log border-b border-border-subtle last:border-b-0">
       <summary
-        className="grid cursor-pointer list-none grid-cols-[4rem_minmax(0,1fr)_auto] items-start gap-x-2 gap-y-1 px-3 py-2 font-mono text-xs hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:grid-cols-[4rem_8rem_minmax(0,1fr)_auto]"
+        className="grid list-none grid-cols-[4rem_minmax(0,1fr)_auto] items-start gap-x-2 gap-y-1 px-3 py-2 font-mono text-xs hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:grid-cols-[4rem_8rem_minmax(0,1fr)_auto]"
         onKeyDown={(event) => {
           const details = event.currentTarget.parentElement as HTMLDetailsElement | null;
           if ((event.key === "Enter" || event.key === " ") && details) {
@@ -144,7 +144,7 @@ function RunAttempt({
       className="group/run"
     >
       <summary
-        className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+        className="flex list-none flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         onKeyDown={(event) => {
           if ((event.key === "Enter" || event.key === " ") && detailsRef.current) {
             event.preventDefault();

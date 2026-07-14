@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
+const ROOT = join(__dirname, "..", "..", "..", "..");
 const UI_DIR = join(__dirname, "..");
 const GLOBALS = join(__dirname, "..", "..", "..", "app", "globals.css");
 const APP_BAR = join(__dirname, "..", "..", "shell", "app-bar.tsx");
@@ -20,27 +21,50 @@ const APP_MATERIALIZED_CARD = join(
   "chat",
   "app-materialized-card.tsx",
 );
-const CURSOR_ASSET_DIR = join(__dirname, "..", "..", "..", "..", "public", "cursors");
+const CURSOR_ASSET_DIR = join(ROOT, "public", "cursors");
 
-const POINTER_PRIMITIVES: Record<string, number> = {
-  "button.tsx": 1,
-  "checkbox.tsx": 1,
-  "command.tsx": 1,
-  "dropdown-menu.tsx": 4,
-  "radio-group.tsx": 1,
-  "select.tsx": 4,
-  "slider.tsx": 1,
-  "switch.tsx": 1,
-  "tabs.tsx": 1,
-};
+const POLICY_ROOTS = [".agents", "design-system", "docs", "features", "src"];
+const TEXT_EXTENSIONS = new Set([
+  ".cjs",
+  ".css",
+  ".html",
+  ".js",
+  ".json",
+  ".jsx",
+  ".md",
+  ".mjs",
+  ".ts",
+  ".tsx",
+  ".txt",
+  ".yaml",
+  ".yml",
+]);
 
-describe("interaction affordance policy (highlight-carried, native cursors)", () => {
-  it("contains no custom cursor switching — operator decision 2026-07-13", () => {
-    const source = readFileSync(GLOBALS, "utf8");
+function collectPolicyFiles(directory: string): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) return collectPolicyFiles(path);
+    const extension = entry.name.slice(entry.name.lastIndexOf("."));
+    return TEXT_EXTENSIONS.has(extension) ? [path] : [];
+  });
+}
 
-    expect(source).not.toContain("relay-hand-pointer");
-    expect(source).not.toContain('cursor: url(');
-    expect(source).not.toMatch(/, pointer !important;/);
+describe("interaction affordance policy (highlight-carried, system cursors)", () => {
+  it("contains no hand-cursor switching code or guidance", () => {
+    const handUtility = ["cursor", "pointer"].join("-");
+    const handDeclaration = new RegExp(
+      `${["cursor"].join("")}\\s*:\\s*(?:${["pointer"].join("")}|url\\()`,
+    );
+    const violations = POLICY_ROOTS.flatMap((root) =>
+      collectPolicyFiles(join(ROOT, root)).flatMap((path) => {
+        const source = readFileSync(path, "utf8");
+        return source.includes(handUtility) || handDeclaration.test(source)
+          ? [path]
+          : [];
+      }),
+    );
+
+    expect(violations).toEqual([]);
     expect(existsSync(CURSOR_ASSET_DIR)).toBe(false);
   });
 
@@ -192,19 +216,6 @@ describe("interaction affordance policy (highlight-carried, native cursors)", ()
 
     expect(bootRule).toContain("pointer-events: none");
   });
-
-  for (const [file, minimumPointerContracts] of Object.entries(
-    POINTER_PRIMITIVES,
-  )) {
-    it(`${file} declares enabled pointer affordances locally`, () => {
-      const source = readFileSync(join(UI_DIR, file), "utf8");
-      const pointerContracts = source.match(/cursor-pointer/g) ?? [];
-
-      expect(pointerContracts.length).toBeGreaterThanOrEqual(
-        minimumPointerContracts,
-      );
-    });
-  }
 
   for (const file of [
     "command.tsx",

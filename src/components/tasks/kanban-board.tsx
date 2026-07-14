@@ -467,7 +467,7 @@ export function KanbanBoard({
             type="button"
             aria-label="Scroll left"
             onClick={() => scrollRef.current?.scrollBy({ left: -280, behavior: "smooth" })}
-            className={`surface-control absolute left-1 top-[-2px] z-20 h-8 w-8 rounded-full flex items-center justify-center transition-opacity duration-200 cursor-pointer hover:bg-accent/50 ${canScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+            className={`surface-control absolute left-1 top-[-2px] z-20 h-8 w-8 rounded-full flex items-center justify-center transition-opacity duration-200 hover:bg-accent/50 ${canScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"}`}
           >
             <ChevronLeft className="h-4 w-4 text-foreground" />
           </button>
@@ -475,7 +475,7 @@ export function KanbanBoard({
             type="button"
             aria-label="Scroll right"
             onClick={() => scrollRef.current?.scrollBy({ left: 280, behavior: "smooth" })}
-            className={`surface-control absolute right-1 top-[-2px] z-20 h-8 w-8 rounded-full flex items-center justify-center transition-opacity duration-200 cursor-pointer hover:bg-accent/50 ${canScrollRight ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+            className={`surface-control absolute right-1 top-[-2px] z-20 h-8 w-8 rounded-full flex items-center justify-center transition-opacity duration-200 hover:bg-accent/50 ${canScrollRight ? "opacity-100" : "opacity-0 pointer-events-none"}`}
           >
             <ChevronRight className="h-4 w-4 text-foreground" />
           </button>

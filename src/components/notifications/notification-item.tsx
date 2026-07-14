@@ -232,7 +232,7 @@ export function NotificationItem({
     <Card
       className={`p-4 ${
         isNavigable
-          ? "border-l-4 border-l-primary cursor-pointer hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          ? "border-l-4 border-l-primary hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           : ""
       } ${
         isUnread

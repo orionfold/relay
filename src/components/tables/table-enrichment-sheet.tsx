@@ -346,7 +346,7 @@ export function TableEnrichmentSheet({
                 onValueChange={(value) => setPromptMode(value as "auto" | "custom")}
                 className="gap-2"
               >
-                <label className="surface-control rounded-lg border p-3 flex items-start gap-3 cursor-pointer">
+                <label className="surface-control rounded-lg border p-3 flex items-start gap-3">
                   <RadioGroupItem value="auto" />
                   <div>
                     <p className="text-sm font-medium">Auto plan</p>
@@ -355,7 +355,7 @@ export function TableEnrichmentSheet({
                     </p>
                   </div>
                 </label>
-                <label className="surface-control rounded-lg border p-3 flex items-start gap-3 cursor-pointer">
+                <label className="surface-control rounded-lg border p-3 flex items-start gap-3">
                   <RadioGroupItem value="custom" />
                   <div>
                     <p className="text-sm font-medium">Custom prompt</p>

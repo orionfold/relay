@@ -496,7 +496,7 @@ function OutputDock({
                     toggleDoc(doc.id);
                   }
                 }}
-                className={`flex items-center gap-3 p-3 rounded-lg text-left transition-colors border cursor-pointer ${
+                className={`flex items-center gap-3 p-3 rounded-lg text-left transition-colors border ${
                   isChecked
                     ? "bg-accent/50 border-accent"
                     : "hover:bg-muted/50 border-border/50"

@@ -272,7 +272,7 @@ export function RuntimePreferenceModal({
                   <Label
                     key={opt.id}
                     htmlFor={`pref-${opt.id}`}
-                    className="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-accent/40 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent/30"
+                    className="flex items-start gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-accent/40 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent/30"
                   >
                     <RadioGroupItem
                       value={opt.id}

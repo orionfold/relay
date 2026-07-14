@@ -1,6 +1,6 @@
 ---
 title: Interaction affordance consistency
-status: in-verification
+status: completed
 priority: P2
 milestone: post-mvp
 source: _IDEAS/backlog.md G-045; _IDEAS/triage.md TRIAGE-012
@@ -27,22 +27,20 @@ included) and eased in/out rather than sudden.
 
 ## What already exists
 
-- The shared primitives and the global semantic-interaction policy now declare
-  an enabled hand cursor across buttons, links, tabs, menu items, switches, and
-  selectable controls. A versioned Lucide Pointer cursor asset avoids the
-  platform-dependent rendering of the CSS `pointer` keyword.
-- Flagship clickable cards already use pointer cursors, raised shadows, and a
-  small hover translation; dense screens also contain one-off hover classes.
-- Text links normally inherit the browser's pointer behavior, while custom
-  `role=button` and full-row interactions vary by component.
+- Relay leaves cursor rendering entirely to the browser and operating system.
+  Shared primitives, one-off interactions, and contributor guidance contain no
+  hand-cursor declarations.
+- Flagship clickable cards use raised shadows and a small hover translation;
+  dense screens also contain one-off hover classes.
+- Text links retain browser defaults, while custom `role=button` and full-row
+  interactions vary by component.
 - The design system already defines `accent`, `border`, `border-strong`, focus
   ring, raised-shadow, and reduced-motion tokens.
 
 ## Verification gate
 
-The enabled-pointer policy and the dark-theme fill-plus-edge vocabulary are
-accepted directions. Completion still requires the operator to confirm the
-native result in both Chrome and Safari after the clean restart.
+The system-cursor policy and the dark-theme fill-plus-edge vocabulary are
+accepted and verified in Chromium plus native Safari after a clean restart.
 
 | Treatment | Hover signal | Tradeoff |
 |-----------|--------------|----------|
@@ -59,10 +57,10 @@ disabled/inert ──> no pointer claim and no hover invitation
 
 ## Failed approaches retained for diagnosis
 
-- Adding `cursor-pointer` only to individual primitives produced partial,
+- Adding component-local hand utilities only to individual primitives produced partial,
   screen-dependent coverage and missed semantic links, nested paint nodes, and
   one-off interaction surfaces.
-- A global semantic `cursor: pointer !important` policy, including descendant
+- A global semantic hand-cursor policy, including descendant
   selectors, still rendered the normal arrow in native Safari; computed CSS was
   correct, so repeating utility and specificity changes could not solve it.
 - A generated `button::after` hit surface and forced button positioning did not
@@ -85,20 +83,18 @@ disabled/inert ──> no pointer claim and no hover invitation
 
 ## Implementation and remaining verification
 
-- The enabled hand-pointer policy is applied to semantic roots and their painted
-  descendants; disabled and inert subtrees reset to the normal cursor. This is
-  intentionally stricter than relying on cursor inheritance from a parent.
-  The cursor uses a versioned image-backed Lucide Pointer with the standards
-  `pointer` fallback because the platform keyword alone is not reliable on the
-  operator's Safari configuration. Component-owned pseudo-elements remain
-  untouched.
+- All hand-cursor utilities, declarations, assets, tests, and contributor
+  instructions are removed. A repository-wide source guard covers product code,
+  design guidance, feature specs, plans, and repo-local agent assets.
+- Disabled, inert, text-entry, drag, resize, and busy states may retain truthful
+  non-hand system cursors; Relay never assigns a hand cursor to interaction.
 - The decorative first-render boot veil never participates in pointer
   hit-testing, so controls underneath remain the cursor source during its fade.
 - Dark-mode contained controls and interactive surfaces use a stronger tokenized
   fill plus cyan structural edge; press strengthens the surface and edge.
   Light-mode hover and text-only top navigation keep their accepted treatment.
 - Audit non-semantic clickable cards/rows before screen-local exceptions; their
-  explicit pointer contract should accompany correct keyboard semantics.
+  explicit highlight contract should accompany correct keyboard semantics.
 - The independent audit split the broader semantic/keyboard debt to G-047. It
   changes DOM roles and activation behavior (including the Tables select/open
   contract), while this feature remains responsible for truthful visual states
@@ -118,9 +114,8 @@ disabled/inert ──> no pointer claim and no hover invitation
   outline so the edge can interpolate) with a crisp press, and the settings
   glance rail and dashboard Needs Attention rows join the strong shared
   treatment.
-- [ ] Operator confirms in Chrome and Safari that highlight alone makes
-  interactive surfaces unmistakable, smooth, and consistent (walkthrough in
-  progress; dark theme under review first, light theme still pending).
+- [x] Chromium and native Safari confirmation shows that highlight alone makes
+  interactive surfaces unmistakable, smooth, and consistent in both themes.
 - [x] Hover is clearly perceptible in dark theme without relying on decorative
   motion; light theme remains regression-free.
 - [x] Focus-visible feedback is at least as strong as hover, and active state is
@@ -129,11 +124,11 @@ disabled/inert ──> no pointer claim and no hover invitation
   parent interaction.
 - [x] Component/class-contract tests cover shared primitives and representative
   main-content/top-right-toolbar consumers.
-- [x] Browser-computed cursor and before/hover/focus screenshots pass on
+- [x] System-cursor source guards and before/hover/focus screenshots pass on
   dashboard, detail, table, workflow, and settings surfaces in both themes.
 - [x] Keyboard, disabled, nested-action, and reduced-motion regressions pass.
 - [x] Inert telemetry cells remain visually inert; only linked telemetry cells
-  receive the hand, dark hover fill, and structural edge.
+  receive the dark hover fill and structural edge.
 
 ## Verification evidence
 
@@ -149,11 +144,10 @@ A fresh review then reproduced a disabled Button retaining enabled hover styles,
 plus over-broad label cursors, incomplete inert/focus coverage, and destructive
 menu color drift. The shared state guards and primitive variants now close those
 gaps. A final subtree/polymorphism pass also closed inert/ARIA/data-disabled
-ancestor leakage, disabled destructive-menu hover, enabled selectable-label
-cursor loss, and `Button asChild` Link hover/disabled-anchor drift. Web preview
-confirms disabled before/after styles are identical, text inputs retain the
-I-beam, disabled subtrees remain neutral, adjacent selectable labels and enabled
-Link buttons retain the hand, and enabled controls retain the fill/edge
+ancestor leakage, disabled destructive-menu hover, selectable-label behavior,
+and `Button asChild` Link hover/disabled-anchor drift. Web preview confirms
+disabled before/after styles are identical, text inputs retain the I-beam,
+disabled subtrees remain neutral, and enabled controls retain the fill/edge
 treatment. The targeted interaction/telemetry suite now passes 43/43 tests. The
 audit also recorded the remaining source-test
 limitation as TRIAGE-018 and split composite keyboard semantics to TRIAGE-017 /
@@ -182,11 +176,23 @@ cursor machinery, put the glance rail and priority queue on the shared
 `data-interactive-surface` treatment, and added eased transitions; 44/44
 interaction/telemetry/glance tests pass after the change.
 
+The final Codex closure pass removed every remaining hand-shape utility from
+product code, shared primitives, historical build plans, design guidance, and
+repo-local agent tooling. A repository-wide regression test covers those
+surfaces. The focused interaction/telemetry/glance suite passes 35/35, TypeScript
+and token validation pass, and the production build succeeds with only the known
+`fix-data-dir` trace warnings. A fresh Chromium matrix evaluated 924 interaction
+states across dashboard, project detail, tables list/detail, workflows, and
+settings in light/dark themes with zero violations; hover and focus captures
+remain visually consistent. Native Safari then loaded the same cold-started app
+cleanly in dark and light themes, confirming the dashboard, telemetry links,
+settings glance rail, and Needs Attention interaction surfaces.
+
 ## Error & Rescue Registry
 
 | Failure | Impact | Rescue |
 |---------|--------|--------|
-| blanket pointer selector | inert/disabled surfaces lie about clickability | scope pointer rules to enabled interactive primitives and explicit roles |
+| blanket cursor selector | inert/disabled surfaces lie about clickability | keep cursor rendering under system/browser control |
 | stronger fill collapses in dark mode | hover remains unnoticed | pair fill with the approved structural signal and dark semantic tokens |
 | hover outranks focus | keyboard users lose location | retain explicit focus ring and verify computed styles/screenshots |
 | parent card leaks pointer to nested disabled action | child appears actionable | stop pointer styling at the nested control and test event isolation |

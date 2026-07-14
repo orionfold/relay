@@ -139,7 +139,7 @@ export function TaskCard({
       className={`surface-card cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md group overflow-hidden py-0 gap-0 ${
         isDragging ? "opacity-50 shadow-lg" : ""
       } ${isFailed ? "border-l-4 border-l-destructive" : ""} ${
-        selectionMode ? "cursor-pointer hover:bg-accent/50 hover:ring-1 hover:ring-primary/30" : ""
+        selectionMode ? "hover:bg-accent/50 hover:ring-1 hover:ring-primary/30" : ""
       } ${selected ? "ring-2 ring-primary" : ""}`}
       onClick={() => {
         if (selectionMode) {
@@ -208,7 +208,7 @@ export function TaskCard({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onSelect?.(task.id, !selected); }}
-              className={`p-0.5 rounded cursor-pointer transition-colors ${
+              className={`p-0.5 rounded transition-colors ${
                 selected
                   ? "text-primary"
                   : "text-muted-foreground/70 hover:text-foreground"
@@ -229,7 +229,7 @@ export function TaskCard({
                   type="button"
                   onClick={handleConfirmDelete}
                   disabled={deleting}
-                  className="p-0.5 rounded hover:bg-destructive/10 text-destructive cursor-pointer"
+                  className="p-0.5 rounded hover:bg-destructive/10 text-destructive"
                   aria-label="Confirm delete"
                 >
                   {deleting ? (
@@ -241,7 +241,7 @@ export function TaskCard({
                 <button
                   type="button"
                   onClick={handleCancelDelete}
-                  className="p-0.5 rounded hover:bg-muted text-muted-foreground cursor-pointer"
+                  className="p-0.5 rounded hover:bg-muted text-muted-foreground"
                   aria-label="Cancel delete"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -253,7 +253,7 @@ export function TaskCard({
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onEdit!(task); }}
-                    className="p-0.5 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-opacity cursor-pointer"
+                    className="p-0.5 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-opacity"
                     aria-label={`Edit ${task.title}`}
                   >
                     <Pencil className="h-3.5 w-3.5" />
@@ -263,7 +263,7 @@ export function TaskCard({
                   <button
                     type="button"
                     onClick={handleTrashClick}
-                    className="p-0.5 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-opacity cursor-pointer"
+                    className="p-0.5 rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-opacity"
                     aria-label={`Delete ${task.title}`}
                   >
                     <Trash2 className="h-3.5 w-3.5" />

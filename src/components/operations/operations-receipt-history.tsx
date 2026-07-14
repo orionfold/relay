@@ -130,7 +130,7 @@ export function OperationsReceiptHistory({
 
                 {receipt.evidence.length > 0 && (
                   <details className="mt-2 border-t pt-2">
-                    <summary className="cursor-pointer text-xs font-medium focus-visible:ring-2 focus-visible:ring-ring rounded-sm">
+                    <summary className="text-xs font-medium focus-visible:ring-2 focus-visible:ring-ring rounded-sm">
                       Evidence ({receipt.evidence.length})
                     </summary>
                     <ul className="mt-2 space-y-1.5">

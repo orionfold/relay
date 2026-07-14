@@ -28,7 +28,7 @@ export function DocumentGrid({
         return (
           <Card
             key={doc.id}
-            className="group relative p-3 gap-0 cursor-pointer transition-colors"
+            className="group relative p-3 gap-0 transition-colors"
             onClick={() => onOpen(doc)}
           >
             <div

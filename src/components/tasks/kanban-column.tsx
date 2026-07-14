@@ -185,7 +185,7 @@ export function KanbanColumn({
           <button
             type="button"
             onClick={toggleSelectMode}
-            className={`p-1 rounded hover:bg-accent/50 transition-colors cursor-pointer ${
+            className={`p-1 rounded hover:bg-accent/50 transition-colors ${
               selectMode ? "text-primary" : "text-muted-foreground opacity-0 group-hover/col:opacity-100"
             }`}
             aria-label={selectMode ? "Exit select mode" : "Enter select mode"}

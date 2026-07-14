@@ -52,7 +52,7 @@ function TaskCard({ task }: { task: Task }) {
         }
       }}
     >
-      <Card className="p-3 cursor-pointer transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl">
+      <Card className="p-3 transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl">
         <div className="flex items-center gap-3">
           <span className="text-xs font-mono text-muted-foreground w-6">
             {priorityLabels[task.priority] ?? "P3"}

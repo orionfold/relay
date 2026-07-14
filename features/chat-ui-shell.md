@@ -46,7 +46,7 @@ As a user, I want a dedicated chat page in the Work section where I can start co
 
 ### Suggestion Chips (`src/components/chat/chat-suggestion-grid.tsx`)
 - `grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto`
-- Each chip: `flex items-center gap-3 p-3 rounded-lg border border-border bg-card cursor-pointer transition-colors hover:border-border-strong`
+- Each chip: `flex items-center gap-3 p-3 rounded-lg border border-border bg-card transition-colors hover:border-border-strong`
 - Icon + label, click inserts prompt text into input
 - Categories: project-aware, task-aware, document-aware, system
 

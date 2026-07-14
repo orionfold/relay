@@ -1785,7 +1785,7 @@ export function BranchesTreeDialog({
                   key={n.conv.id}
                   style={{ paddingLeft: `${n.depth * 16}px` }}
                   className={cn(
-                    "text-sm rounded-md px-2 py-1 cursor-pointer",
+                    "text-sm rounded-md px-2 py-1",
                     n.conv.id === conversationId
                       ? "bg-accent text-accent-foreground"
                       : "hover:bg-muted/50"

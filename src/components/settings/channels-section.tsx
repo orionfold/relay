@@ -450,7 +450,7 @@ export function ChannelsSection() {
                           <div className="flex items-center gap-1.5">
                             <Label
                               htmlFor={`chat-${ch.id}`}
-                              className="text-xs text-muted-foreground cursor-pointer"
+                              className="text-xs text-muted-foreground"
                             >
                               Chat
                             </Label>
@@ -464,7 +464,7 @@ export function ChannelsSection() {
                         <div className="flex items-center gap-1.5">
                           <Label
                             htmlFor={`active-${ch.id}`}
-                            className="text-xs text-muted-foreground cursor-pointer"
+                            className="text-xs text-muted-foreground"
                           >
                             Active
                           </Label>

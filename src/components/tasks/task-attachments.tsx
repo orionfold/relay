@@ -84,7 +84,7 @@ export function TaskAttachments({
             <div
               key={doc.id}
               className={`group flex min-w-0 items-center gap-2 overflow-hidden rounded-md px-2 py-1.5 text-sm focus-within:ring-2 focus-within:ring-ring ${
-                doc.direction === "output" ? "cursor-pointer hover:bg-accent/50" : ""
+                doc.direction === "output" ? "hover:bg-accent/50" : ""
               }`}
               onClick={() => openOutput(doc)}
             >

@@ -109,7 +109,7 @@ export function ConversationList({
               <div
                 key={conv.id}
                 className={cn(
-                  "group flex items-center gap-2 px-3 py-2 mx-1 rounded-lg cursor-pointer transition-colors",
+                  "group flex items-center gap-2 px-3 py-2 mx-1 rounded-lg transition-colors",
                   activeId === conv.id
                     ? "bg-accent text-accent-foreground"
                     : "hover:bg-muted/50"

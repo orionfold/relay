@@ -20,7 +20,7 @@ function InlineScreenshot({ attachment }: { attachment: ScreenshotAttachment }) 
     <>
       <button
         type="button"
-        className="relative rounded-lg overflow-hidden border border-border hover:border-primary transition-colors cursor-pointer group my-3 block w-full"
+        className="relative rounded-lg overflow-hidden border border-border hover:border-primary transition-colors group my-3 block w-full"
         onClick={() => setOpen(true)}
       >
         <img

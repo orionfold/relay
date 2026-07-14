@@ -30,7 +30,7 @@ export function PackCompositionStrip({ manifest }: PackCompositionStripProps) {
 
       {tables.length > 0 && (
         <details className="group mt-4 rounded-lg border bg-[var(--surface-1)]">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2 text-sm font-medium">
+          <summary className="flex list-none items-center justify-between gap-3 px-3 py-2 text-sm font-medium">
             <span className="inline-flex items-center gap-2">
               <Table2 className="h-4 w-4 text-primary" aria-hidden="true" />
               Owned tables ({tables.length})

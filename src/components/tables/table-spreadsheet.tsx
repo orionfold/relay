@@ -336,7 +336,6 @@ export function TableSpreadsheet({
                 <TableRow
                   key={row.id}
                   className={cn(
-                    "cursor-pointer",
                     selectedRows.has(row.id) && "bg-muted/50"
                   )}
                   onClick={() => handleOpenRowSheet(row)}

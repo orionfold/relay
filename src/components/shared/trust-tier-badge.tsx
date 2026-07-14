@@ -136,7 +136,7 @@ export function TrustTierBadge() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
           aria-label={`Trust tier: ${info.label}`}
         >
           <Shield className="h-3.5 w-3.5" />
@@ -167,7 +167,7 @@ export function TrustTierBadge() {
                   className={`flex items-center gap-2 text-xs py-1.5 px-1.5 w-full rounded-md transition-colors ${
                     isActive
                       ? "text-foreground font-medium bg-accent/50"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/30 cursor-pointer"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/30"
                   } disabled:opacity-50`}
                 >
                   <t.icon className="h-3 w-3 shrink-0" />

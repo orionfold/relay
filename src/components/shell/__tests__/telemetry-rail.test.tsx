@@ -125,8 +125,8 @@ describe("TelemetryRail drill-down links", () => {
       "href",
       "/projects",
     );
-    expect(screen.getByRole("link", { name: "Open active projects" })).toHaveClass(
-      "cursor-pointer",
+    expect(screen.getByRole("link", { name: "Open active projects" })).toHaveAttribute(
+      "data-telemetry-card",
     );
     expect(screen.getAllByRole("link", { name: "Open cost dashboard" })).toHaveLength(2);
   });

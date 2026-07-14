@@ -35,7 +35,7 @@ export function TaskBentoCell({
     return (
       <Link
         href={href}
-        className="surface-card-muted rounded-lg p-3 cursor-pointer hover:bg-accent/50 transition-colors block"
+        className="surface-card-muted rounded-lg p-3 hover:bg-accent/50 transition-colors block"
       >
         {content}
       </Link>

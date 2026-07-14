@@ -27,7 +27,7 @@ export function ScreenshotGallery({ attachments }: ScreenshotGalleryProps) {
           <button
             key={att.documentId}
             type="button"
-            className="relative rounded-lg overflow-hidden border border-border hover:border-primary transition-colors cursor-pointer group w-full"
+            className="relative rounded-lg overflow-hidden border border-border hover:border-primary transition-colors group w-full"
             onClick={() => setLightbox(att)}
           >
             <img

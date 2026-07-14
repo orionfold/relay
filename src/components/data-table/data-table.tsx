@@ -158,7 +158,7 @@ export function DataTable<TData>({
                   className={cn(
                     densityClasses[density],
                     onRowClick &&
-                      "cursor-pointer hover:bg-accent/50 transition-colors"
+                      " hover:bg-accent/50 transition-colors"
                   )}
                   onClick={() => onRowClick?.(row.original)}
                   onKeyDown={(e) => {

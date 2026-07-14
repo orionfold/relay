@@ -81,7 +81,7 @@ export default async function AppDetailPage({
         {isWebDesignerBundle ? (
           <>
             <details className="group rounded-lg border bg-[var(--surface-1)]">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
+              <summary className="flex list-none items-center justify-between gap-3 px-4 py-3">
                 <span className="min-w-0">
                   <span className="block text-sm font-medium">Bundle primitives</span>
                   <span className="block text-xs font-normal text-muted-foreground">

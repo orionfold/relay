@@ -294,7 +294,7 @@ export function DiscoverWorkspaceDialog({
                       <RadioGroupItem value={opt.value} id={`depth-${opt.value}`} />
                       <Label
                         htmlFor={`depth-${opt.value}`}
-                        className="text-sm font-normal cursor-pointer"
+                        className="text-sm font-normal"
                       >
                         {opt.label}
                       </Label>
@@ -314,7 +314,7 @@ export function DiscoverWorkspaceDialog({
                     />
                     <Label
                       htmlFor="marker-claude"
-                      className="text-sm font-normal cursor-pointer"
+                      className="text-sm font-normal"
                     >
                       .claude/
                     </Label>
@@ -327,7 +327,7 @@ export function DiscoverWorkspaceDialog({
                     />
                     <Label
                       htmlFor="marker-codex"
-                      className="text-sm font-normal cursor-pointer"
+                      className="text-sm font-normal"
                     >
                       .codex/
                     </Label>

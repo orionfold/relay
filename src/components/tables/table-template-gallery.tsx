@@ -110,7 +110,7 @@ export function TableTemplateGallery({ templates }: TableTemplateGalleryProps) {
                 key={t.id}
                 tone="schema"
                 watermark={Icon}
-                className="cursor-pointer hover:border-primary/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="hover:border-primary/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 tabIndex={0}
                 onClick={() => setPreviewTemplate(t)}
                 onKeyDown={(e) => {

@@ -255,7 +255,7 @@ export function ScheduleDetailView({ scheduleId, initialSchedule }: ScheduleDeta
               {schedule.firingHistory.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center justify-between border rounded-lg p-3 text-sm cursor-pointer hover:bg-accent/50 transition-colors"
+                  className="flex items-center justify-between border rounded-lg p-3 text-sm hover:bg-accent/50 transition-colors"
                   tabIndex={0}
                   onClick={() => router.push(`/monitor?taskId=${task.id}`)}
                   onKeyDown={(e) => {

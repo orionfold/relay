@@ -60,7 +60,6 @@ export function TableListTable({
           {tables.map((t) => (
             <TableRow
               key={t.id}
-              className="cursor-pointer"
               onClick={() => onSelect(t.id)}
               onDoubleClick={() => onOpen(t.id)}
             >

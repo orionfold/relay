@@ -101,7 +101,7 @@ export function RailCell({
   const className = cn(
     "flex min-w-[8.5rem] flex-none flex-col gap-0.5 border-r border-border px-4 py-2.5",
     href &&
-      "cursor-pointer transition-colors hover:bg-accent/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
+      "transition-colors hover:bg-accent/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
   );
 
   if (href) {

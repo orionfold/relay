@@ -59,7 +59,6 @@ export function DocumentTable({
             return (
               <TableRow
                 key={doc.id}
-                className="cursor-pointer"
                 onClick={() => onOpen(doc)}
               >
                 <TableCell onClick={(e: React.MouseEvent) => e.stopPropagation()}>

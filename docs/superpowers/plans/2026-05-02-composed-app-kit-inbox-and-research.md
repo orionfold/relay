@@ -1665,8 +1665,8 @@ export function InboxSplitView({
                 data-selected={selected ? "true" : "false"}
                 className={
                   selected
-                    ? "bg-muted/50 cursor-pointer"
-                    : "hover:bg-muted/30 cursor-pointer"
+                    ? "bg-muted/50"
+                    : "hover:bg-muted/30"
                 }
               >
                 <button
@@ -1975,7 +1975,7 @@ export function ResearchSplitView({
                       className={
                         stale
                           ? "opacity-50 cursor-not-allowed"
-                          : "hover:opacity-80 cursor-pointer"
+                          : "hover:opacity-80"
                       }
                     >
                       <Badge variant="outline">{c.sourceLabel}</Badge>

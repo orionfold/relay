@@ -386,7 +386,7 @@ export function RepoImportWizard({
                 {scanResult.discoveredSkills.map((skill) => (
                   <label
                     key={skill.path}
-                    className="flex items-start gap-3 surface-card-muted rounded-lg border border-border/60 p-3 cursor-pointer hover:border-primary/40 transition-colors"
+                    className="flex items-start gap-3 surface-card-muted rounded-lg border border-border/60 p-3 hover:border-primary/40 transition-colors"
                   >
                     <Checkbox
                       checked={selectedPaths.has(skill.path)}
