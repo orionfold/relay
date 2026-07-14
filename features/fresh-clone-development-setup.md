@@ -131,8 +131,10 @@ Excluded:
 
 ## Verification run — 2026-07-13 (local acceptance)
 
-- `npm run test:hooks`: 6/6 passed under macOS, Node 22.18.0, npm 10.9.3.
-- Focused Vitest packet: 92/92 passed across bootstrap detection/orchestration,
+- `npm run test:hooks`: 6/6 passed under macOS, Node 22.18.0/npm 10.9.3 and
+  Node 20.20.2/npm 10.9.3.
+- Focused Vitest packet: 92/92 passed under both Node 22.18.0 and Node 20.20.2
+  across bootstrap detection/orchestration,
   upgrade-poller development gating, dashboard empty state, provider empty/error
   state, Ollama Save/Test feedback, and the system-cursor policy.
 - `npx tsc --noEmit` and `git diff --check`: passed.
@@ -142,6 +144,12 @@ Excluded:
   dashboard, zero configured cloud providers, Ollama Save plus one available model and
   an unavailable 502 control, no `local` branch, no pre-push hook or pushRemote config,
   no upgrade lock, and no instance settings rows.
+- Second literal clone `/tmp/relay-g048-node20.Zs03Tt/relay`: dependencies were
+  rebuilt under Node 20.20.2/npm 10.9.3 and the same live fresh-clone smoke passed,
+  including the provider/Ollama and zero-instance-mutation assertions. The earlier
+  Node 20 attempt correctly failed its clean-clone precondition after the customer
+  control had created a `local` branch; evidence was rerun in a new clone rather than
+  bypassing that guard.
 - Customer-mode control in the same disposable clone with
   `RELAY_INSTANCE_MODE=true`: live Next boot returned the Welcome dashboard, created
   the expected `local` branch and instance/consent rows, and left the pre-push hook
