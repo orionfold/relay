@@ -202,4 +202,22 @@ describe("database bootstrap recovery", () => {
 
     bootstrapDb.close();
   });
+
+  it("enforces unique Operations Receipt source keys", () => {
+    const bootstrapDb = new Database(dbPath);
+    bootstrapAinativeDatabase(bootstrapDb);
+
+    const sourceKeyIndex = (
+      bootstrapDb.prepare("PRAGMA index_list(operations_receipts)").all() as Array<{
+        name: string;
+        unique: number;
+      }>
+    ).find((index) => index.name === "idx_operations_receipts_source_key");
+
+    expect(sourceKeyIndex).toMatchObject({
+      name: "idx_operations_receipts_source_key",
+      unique: 1,
+    });
+    bootstrapDb.close();
+  });
 });

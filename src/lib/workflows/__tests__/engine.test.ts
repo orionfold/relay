@@ -314,4 +314,42 @@ describe("executeChildTask context_row_id stamping", () => {
       warnSpy.mockRestore();
     }
   });
+
+  it("returns failed when the persisted child task did not complete", async () => {
+    const workflowId = "workflow-child-failed";
+    const workflow = {
+      id: workflowId,
+      name: "Child failure workflow",
+      projectId: null,
+      runNumber: null,
+      definition: JSON.stringify({ pattern: "sequence", steps: [] }),
+      status: "draft",
+    };
+    const failedTask = {
+      id: "failed-child",
+      status: "failed",
+      result: "Provider runtime error",
+    };
+    mockWhere
+      .mockResolvedValueOnce([workflow])
+      .mockResolvedValueOnce([failedTask]);
+
+    const { executeChildTask } = await import("../engine");
+    const result = await executeChildTask(
+      workflowId,
+      "Failing step",
+      "fail deterministically",
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      "test-runtime-noop"
+    );
+
+    expect(result).toMatchObject({
+      status: "failed",
+      error: "Provider runtime error",
+    });
+  });
 });

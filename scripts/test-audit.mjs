@@ -82,6 +82,7 @@ const nodeTestFileStats = nodeTestFiles.map((path) => {
   const source = readFileSync(resolve(repoRoot, path), "utf8");
   return {
     path,
+    lines: source.split("\n").length,
     directDeclarations: countMatches(
       source,
       /\btest(?:\.(?:skip|todo))?\s*\(/g
@@ -196,7 +197,7 @@ const coverage = coverageSummary
   : null;
 
 const report = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   scope: {
     productionFiles: productionFiles.length,
     totalTestFiles: vitestFiles.length + nodeTestFiles.length,
@@ -204,6 +205,14 @@ const report = {
     defaultVitestTestFiles: defaultVitestFiles.length,
     e2eVitestTestFiles: e2eFiles.length,
     nodeTestFiles: nodeTestFiles.length,
+    vitestSourceLines: vitestFileStats.reduce(
+      (total, file) => total + file.lines,
+      0
+    ),
+    nodeTestSourceLines: nodeTestFileStats.reduce(
+      (total, file) => total + file.lines,
+      0
+    ),
     totalDirectTestDeclarations:
       vitestFileStats.reduce(
         (total, file) => total + file.directDeclarations,
@@ -270,6 +279,11 @@ const report = {
       defaultVitestFiles.includes(
         "src/app/api/chat/conversations/[id]/messages/__tests__/route-termination.test.ts"
       ),
+    mutationStrengthConfigured:
+      packageJson.scripts?.["test:mutation-strength"] ===
+        "node scripts/test-mutation-strength.mjs" &&
+      existsSync(resolve(repoRoot, "scripts/mutation-strength-manifest.mjs")) &&
+      existsSync(resolve(repoRoot, "features/mutation-strength-governance.md")),
     e2eUsesCurrentSingleWorkerConfig:
       e2eVitestConfig.includes("maxWorkers: 1") &&
       e2eVitestConfig.includes("isolate: false") &&
@@ -294,6 +308,7 @@ const report = {
     "apiRouteTestFiles is an adjacency inventory, not proof that every route behavior is covered",
     "coverage is read from coverage/coverage-summary.json when present; run test:coverage immediately before this command",
     "risk-surface groups are independent prefix aggregates, so Agents overall intentionally overlaps Runtime adapters/catalog",
+    "test source-line counts include comments and blank lines and are maintenance-size signals, not coverage metrics",
   ],
 };
 
@@ -306,6 +321,8 @@ if (jsonOnly) {
     ["Vitest files (default)", report.scope.defaultVitestTestFiles],
     ["Vitest files (E2E)", report.scope.e2eVitestTestFiles],
     ["Node test files", report.scope.nodeTestFiles],
+    ["Vitest source lines", report.scope.vitestSourceLines],
+    ["Node-test source lines", report.scope.nodeTestSourceLines],
     ["Direct declarations (all)", report.scope.totalDirectTestDeclarations],
     ["Mock declarations", report.scope.mockDeclarations],
     ["API route modules", report.scope.apiRouteModules],
@@ -334,6 +351,10 @@ if (jsonOnly) {
   console.log(
     `Runtime module-graph smoke`.padEnd(30),
     report.topology.runtimeGraphSmokeConfigured ? "configured" : "MISSING"
+  );
+  console.log(
+    `Mutation-strength control`.padEnd(30),
+    report.topology.mutationStrengthConfigured ? "configured" : "MISSING"
   );
   console.log(
     `Vitest 4 E2E worker config`.padEnd(30),

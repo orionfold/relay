@@ -171,6 +171,20 @@ Prefer parameterized contract suites and shared fixture builders when scenarios
 are the same across providers. Preserve distinct tests when failures need
 different recovery, transport, or user-facing evidence.
 
+`npm run test:mutation-strength` is the bounded pruning gate. It copies current
+source and the test configuration into a marked disposable project, passes only
+non-secret process essentials plus fixture-owned Unix, Windows, and XDG profile
+roots in each child's environment, and applies the committed exact-anchor
+manifest. This is a trusted-test harness, not an OS filesystem sandbox: module
+resolution uses the shared dependency tree, while mutation and cache writes are
+directed to the disposable project. A required mutant counts as killed only
+when Vitest fails on its named assertion; timeouts, signals, collection/setup
+errors, unrelated failures, and ambiguous source anchors are harness errors.
+The command requires a green baseline, seven named load-bearing kills, one
+reviewed survivor control, byte-for-byte source restoration, an identical green
+post-restoration matrix, and verified cleanup. An unexpected survivor prohibits
+related pruning.
+
 ## Required evidence at goal completion
 
 Every behavior-changing goal records one of:
