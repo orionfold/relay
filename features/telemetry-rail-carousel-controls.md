@@ -1,6 +1,6 @@
 ---
 title: Telemetry rail carousel controls
-status: in-progress
+status: completed
 priority: P2
 milestone: post-mvp
 source: _IDEAS/backlog.md G-046; _IDEAS/triage.md TRIAGE-013
@@ -57,22 +57,44 @@ end:        [‹][ …………………… visible cards ][ ]
 
 ## Acceptance criteria
 
-- [ ] Controls are absent when rail content fits, including the exact boundary.
-- [ ] The useful directional control appears when overflow exceeds the
+- [x] Controls are absent when rail content fits, including the exact boundary.
+- [x] The useful directional control appears when overflow exceeds the
   measurement epsilon; unavailable directions stay absent.
-- [ ] Only Next appears at the start, both controls work in the middle, and only
+- [x] Only Next appears at the start, both controls work in the middle, and only
   Previous appears at the end.
-- [ ] A control activation brings the adjacent clipped telemetry card fully into
+- [x] A control activation brings the adjacent clipped telemetry card fully into
   view and never scrolls past the legal range.
-- [ ] Resize and content-width changes recompute control visibility and state.
-- [ ] Native wheel, trackpad, and touch navigation remain available.
-- [ ] Native scrolling remains available while the horizontal scrollbar chrome
+- [x] Resize and content-width changes recompute control visibility and state.
+- [x] Native wheel, trackpad, and touch navigation remain available.
+- [x] Native scrolling remains available while the horizontal scrollbar chrome
   is hidden.
-- [ ] Full-height edge-gutter buttons have stable accessible names, clear hover
+- [x] Full-height edge-gutter buttons have stable accessible names, clear hover
   and keyboard focus treatment, without layout or scale motion.
-- [ ] Reduced-motion mode uses immediate rather than smooth scrolling.
-- [ ] Browser checks pass at the exact boundary, 944px, adjacent widths, light
+- [x] Reduced-motion mode uses immediate rather than smooth scrolling.
+- [x] Browser checks pass at the exact boundary, 944px, adjacent widths, light
   and dark themes, with no page-level horizontal overflow or covered card text.
+
+## Verification run — 2026-07-14
+
+- `npx vitest run src/components/shell/__tests__/telemetry-rail.test.tsx`:
+  11/11 tests passed, including exact-fit/epsilon behavior, truthful start/middle/end
+  controls, adjacent-card reveal, resize observation, clamping, stable gutters,
+  and reduced-motion scrolling.
+- `npx vitest run src/components/ui/__tests__/interaction-cursor-policy.test.ts`:
+  23/23 source-wide system-cursor policy checks passed.
+- Live localhost browser checks passed at 943px, 944px, and 945px, plus the
+  exact-fit/epsilon boundary from 1315px through 1319px. Controls appeared only
+  beyond the two-pixel epsilon and recomputed when the viewport changed.
+- At 944px, Next-only, middle Previous/Next, and terminal Previous-only states
+  were observed. Each activation fully revealed the next clipped card and the
+  final position remained clamped to the legal scroll range.
+- Native horizontal scrolling moved the rail while computed `overflow-x: auto`
+  remained active and scrollbar chrome computed to `none`. Light and dark themes
+  both retained zero page-level horizontal overflow; fixed gutters did not overlap
+  the scroll region or card text.
+- Keyboard focus produced the visible semantic outline/ring, both direction
+  controls exposed stable accessible names, and their computed cursor remained
+  the system default. The browser console contained no warnings or errors.
 
 ## Error & Rescue Registry
 

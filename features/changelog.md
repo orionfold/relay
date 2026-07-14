@@ -1,5 +1,23 @@
 # Feature Changelog
 
+## 2026-07-14 — G-046 telemetry rail carousel controls
+
+### Completed
+
+- Closed the fixed telemetry rail's responsive-navigation gap with conditional,
+  accessible Previous/Next gutters that reveal adjacent clipped cards while
+  preserving native horizontal scrolling, truthful boundary states, the frozen
+  ten-cell scope, reduced-motion behavior, and the system cursor.
+
+### Verified
+
+- All 11 targeted component regressions and all 23 source-wide system-cursor
+  policy checks pass. Live browser checks passed at the exact two-pixel overflow
+  boundary, 943/944/945px, and a wide fit in light and dark themes, including
+  adjacent-card reveal, start/middle/end state, keyboard focus, native horizontal
+  scrolling with hidden scrollbar chrome, gutter/content separation, zero
+  page-level overflow, and a clean browser console.
+
 ## 2026-07-14 — G-055 historical help-action restoration scope
 
 ### Groomed
