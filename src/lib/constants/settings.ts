@@ -37,6 +37,8 @@ export const SETTINGS_KEYS = {
   SCHEDULE_CHAT_PRESSURE_DELAY_SEC: "schedule.chatPressureDelaySec",
   // Environment / profile sync
   AUTO_PROMOTE_SKILLS: "environment.autoPromoteSkills",
+  // App authoring diagnostics
+  APPS_SHOW_INFERENCE_DIAGNOSTICS: "apps.showInferenceDiagnostics",
 } as const;
 
 export type RoutingPreference = "cost" | "latency" | "quality" | "manual";

@@ -1,5 +1,5 @@
 import type { AppManifest } from "@/lib/apps/registry";
-import { pickKit as pickKitId } from "./inference";
+import { pickKit as pickKitId, resolveKitSelection } from "./inference";
 import { coachKit } from "./kits/coach";
 import { inboxKit } from "./kits/inbox";
 import { ledgerKit } from "./kits/ledger";
@@ -100,6 +100,7 @@ export async function loadColumnSchemas(
         name: r.name,
         type: r.dataType,
         semantic: extractSemantic(r.config),
+        format: extractFormat(r.config),
       })),
     });
   }
@@ -116,5 +117,15 @@ function extractSemantic(config: string | null): string | undefined {
   }
 }
 
+function extractFormat(config: string | null): string | undefined {
+  if (!config) return undefined;
+  try {
+    const parsed = JSON.parse(config) as { format?: unknown };
+    return typeof parsed.format === "string" ? parsed.format : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export type { KitDefinition, KitId, ColumnSchemaRef };
-export { placeholderKit };
+export { placeholderKit, resolveKitSelection };

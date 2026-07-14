@@ -11,9 +11,11 @@ import { WebDesignerShell } from "@/components/apps/web-designer-shell";
 import { WebPublisherPagesPanel } from "@/components/apps/web-publisher-pages-panel";
 import { KitView } from "@/components/apps/kit-view/kit-view";
 import { getApp } from "@/lib/apps/registry";
-import { loadColumnSchemas, pickKit } from "@/lib/apps/view-kits";
+import { loadColumnSchemas, resolveKit, resolveKitSelection } from "@/lib/apps/view-kits";
 import { resolveBindings } from "@/lib/apps/view-kits/resolve";
 import { loadRuntimeState } from "@/lib/apps/view-kits/data";
+import { SETTINGS_KEYS } from "@/lib/constants/settings";
+import { getSetting } from "@/lib/settings/helpers";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +37,8 @@ export default async function AppDetailPage({
   if (!app) notFound();
 
   const columns = await loadColumnSchemas(app.manifest);
-  const kit = pickKit(app.manifest, columns);
+  const resolution = resolveKitSelection(app.manifest, columns);
+  const kit = resolveKit(resolution.kit);
   const bindings = resolveBindings(app.manifest);
   const projection = kit.resolve({ manifest: app.manifest, columns, period, rowId: rowParam });
   const runtime = await loadRuntimeState(app, bindings, kit.id, projection, rowParam);
@@ -44,6 +47,15 @@ export default async function AppDetailPage({
   const publishBinding = app.manifest.view?.bindings.publish;
   const isWebDesignerBundle = app.id === "relay-web-designer";
   const isWebPublisher = app.id === "relay-web-publisher";
+  const showViewDiagnostics =
+    (await getSetting(SETTINGS_KEYS.APPS_SHOW_INFERENCE_DIAGNOSTICS)) === "true";
+
+  model.header.viewKit = {
+    id: resolution.kit,
+    source: resolution.source,
+    explanation: resolution.explanation,
+    diagnosticsHref: showViewDiagnostics ? `/apps/${app.id}/inference` : undefined,
+  };
 
   const headerActions = (
     <AppDetailActions
@@ -62,7 +74,7 @@ export default async function AppDetailPage({
       <div className="space-y-6">
         {isWebDesignerBundle ? (
           <div id="pack-detail-heading" tabIndex={-1} className="scroll-mt-[calc(var(--chrome-header)+1rem)] focus:outline-none">
-            <WebDesignerShell app={app} actions={headerActions} />
+            <WebDesignerShell app={app} actions={headerActions} viewKit={model.header.viewKit} />
           </div>
         ) : (
           <>

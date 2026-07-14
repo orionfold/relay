@@ -4,6 +4,7 @@ import { ScheduleCadenceChip } from "@/components/apps/schedule-cadence-chip";
 import { RunNowButton } from "@/components/apps/run-now-button";
 import { PeriodSelectorChip } from "@/components/apps/period-selector-chip";
 import { TriggerSourceChip } from "@/components/apps/trigger-source-chip";
+import { ViewKitBadge } from "@/components/apps/view-kit-badge";
 import type { HeaderSlot, ManifestPaneSlot } from "@/lib/apps/view-kits/types";
 
 interface HeaderSlotProps {
@@ -20,7 +21,7 @@ interface HeaderSlotProps {
  * chip + caller-supplied actions + "View manifest ▾" trigger on the right.
  */
 export function HeaderSlotView({ slot, manifestPane }: HeaderSlotProps) {
-  const { title, description, status, actions, cadenceChip, runNowBlueprintId, runNowVariables, periodChip, triggerSourceChip } = slot;
+  const { title, description, viewKit, status, actions, cadenceChip, runNowBlueprintId, runNowVariables, periodChip, triggerSourceChip } = slot;
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2">
       <div className="min-w-0 flex-1 sm:min-w-[16rem]">
@@ -32,6 +33,7 @@ export function HeaderSlotView({ slot, manifestPane }: HeaderSlotProps) {
             {description}
           </p>
         )}
+        {viewKit && <ViewKitBadge resolution={viewKit} />}
       </div>
       {/*
        * At mobile widths the action group wraps inside the card so long labels

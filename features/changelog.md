@@ -1,5 +1,36 @@
 # Feature Changelog
 
+## 2026-07-14 — G-009 resolved view-kit diagnostics
+
+### Completed
+
+- Every installed app header now shows the actual resolved kit as a compact
+  badge and states whether the app selected it explicitly or Relay inferred it.
+  The app/domain title remains primary, and the badge never behaves like a
+  kit switcher.
+- Added one deterministic, JSON-safe resolution trace shared by the runtime
+  dispatcher and diagnostics UI. It records first-match rule outcomes, probe
+  values and exact evidence tiers, and precedence-losing candidates without
+  scoring, telemetry, or new kit identifiers.
+- Added the default-off `apps.showInferenceDiagnostics` setting, its validated
+  local API and Settings control, and the gated `/apps/[id]/inference` route.
+  The route explains explicit versus inferred resolution and copies a
+  round-trippable explicit `view:` declaration with a restrictive-browser
+  fallback and named failure path.
+- Closed the documented currency-probe gap by carrying `config.format` into
+  column schemas and honoring `format: currency` between explicit semantics
+  and name heuristics.
+
+### Verified
+
+- 137 targeted tests, TypeScript, the 1,376-file token validator, and the
+  production build pass. Browser checks passed for explicit and inferred apps,
+  the disabled 404 gate, copied YAML, desktop/390px layout, and light/dark mode;
+  all temporary local settings were restored.
+- The broader comparison produced 3,175 passes and retained ten unrelated
+  baseline failures plus one sandbox-blocked loopback listener. None intersects
+  the G-009 source or regression set.
+
 ## 2026-07-13 — G-050 public-repository boundary
 
 ### Completed

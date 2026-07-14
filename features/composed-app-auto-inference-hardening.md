@@ -1,6 +1,6 @@
 ---
 title: Composed App Auto-Inference — Probes & Decision Table Hardening
-status: in-progress
+status: completed
 priority: P2
 milestone: post-mvp
 source: ideas/composed-apps-domain-aware-view.md
@@ -84,14 +84,13 @@ Target: 25-35 tests. Each test names the rule and the assertion in plain English
 - The next 2-3 candidate kits and why each was rejected
 - A "Copy as `view:` field" button that emits the equivalent explicit declaration
 
-**Modified file: `src/lib/apps/view-kits/inference.ts`** — refactor `pickKit` to optionally return a trace alongside the kit id. The dispatcher ignores the trace; the diagnostics page consumes it.
+**Modified file: `src/lib/apps/view-kits/inference.ts`** — `resolveKitSelection()` returns the resolved kit and trace from one decision-table evaluation. `pickKit()` delegates to it and returns only the kit id, while the dispatcher and diagnostics page consume the same resolution contract. Keeping the trace in a separate function preserves the existing `pickKit()` return type for every caller.
 
 ```ts
-export function pickKit(
+export function resolveKitSelection(
   manifest: AppManifest,
   columnSchemas: Map<string, UserTableColumn[]>,
-  options?: { trace?: true },
-): KitId | { kit: KitId; trace: InferenceTrace };
+): InferenceTrace;
 ```
 
 Settings entry added to existing settings page (`src/app/settings/page.tsx`); persists in `settings` table via existing API.
@@ -104,15 +103,16 @@ Settings entry added to existing settings page (`src/app/settings/page.tsx`); pe
 
 ## Acceptance Criteria
 
-- [ ] `userTableColumns.config.semantic` is documented and accepted; existing rows without it continue to work
+- [x] `userTableColumns.config.semantic` is documented and accepted; existing rows without it continue to work
 - [x] `hasCurrency`, `hasDate`, `hasBoolean`, `hasNotificationShape`, `hasMessageShape` probes use tiered match (semantic → format → regex), with tests for each tier
 - [x] Inference test suite has ≥25 cases; positive + negative + conjunction + edge + golden-master coverage
 - [x] All existing starter apps still resolve to their expected kit (no regression)
-- [ ] `pickKit(...).options.trace` returns an `InferenceTrace` object listing rule hits, probe values, and rejected candidate kits
-- [ ] `/apps/[id]/inference` route renders the trace when `apps.showInferenceDiagnostics` is enabled, returns 404 otherwise
-- [ ] "Copy as `view:` field" button on the diagnostics page produces a valid YAML snippet that, when added to the manifest, produces the same kit selection
-- [ ] Settings page has an `apps.showInferenceDiagnostics` toggle (default off)
-- [ ] Unit tests for the trace serialization (so the diagnostics page contract is locked)
+- [x] `resolveKitSelection()` returns an `InferenceTrace` object listing rule hits, probe values/evidence, and rejected or precedence-losing candidate kits; `pickKit()` delegates to the same evaluation
+- [x] Every app header identifies its resolved kit and distinguishes explicit from inferred selection without implying a switcher
+- [x] `/apps/[id]/inference` route renders the trace when `apps.showInferenceDiagnostics` is enabled, returns 404 otherwise
+- [x] "Copy as `view:` field" button on the diagnostics page produces a valid YAML snippet that, when added to the manifest, produces the same kit selection
+- [x] Settings page has an `apps.showInferenceDiagnostics` toggle (default off)
+- [x] Unit tests lock trace serialization, every kit family/source badge, accessible labels/tooltips, settings failure recovery, and clipboard success/fallback/refusal
 
 ## Scope Boundaries
 
@@ -136,4 +136,11 @@ Settings entry added to existing settings page (`src/app/settings/page.tsx`); pe
 - Related features: `composed-app-manifest-view-field` (provides initial `pickKit`), `composed-app-manifest-authoring-tools` (consumes the trace generator)
 - Reference: `src/lib/tables/types.ts` (existing column-config shape), `src/app/settings/page.tsx` (settings UX pattern)
 - Anti-pattern reminders: no scoring, no telemetry inputs, no fuzzy matching
-- Implementation plan: `docs/superpowers/plans/2026-05-02-composed-app-auto-inference-hardening.md` (REDUCE scope: probes + test matrix only; diagnostics route + trace API + settings toggle + copy-as-view generator deferred to follow-up feature gated on first reported kit misfire)
+- Implementation plan: `docs/superpowers/plans/2026-05-02-composed-app-auto-inference-hardening.md` (the initial REDUCE slice shipped probes + the matrix; G-009 completed the evidence-triggered diagnostics follow-up on 2026-07-14)
+
+## Completion evidence — 2026-07-14
+
+- 137 targeted tests passed across inference/dispatch, all kit-family badges for explicit and inferred sources, header and custom Web Designer integration, settings API/UI, trace serialization, YAML round-trip, and clipboard fallback/error behavior.
+- `npx tsc --noEmit`, direct design-token validation (1,376 files), and `npm run build` passed. The build includes `/apps/[id]/inference` and `/api/settings/apps`.
+- Live browser verification passed on explicit `Relay Marketing` and inferred/fallback `Contractor Invoices`: default-off route returned 404; enabling Settings exposed the badge link and full rule/probe trace; the copied YAML read back exactly; 390px light/dark checks had no horizontal overflow. Theme, viewport, and the diagnostics setting were restored afterward.
+- Full-suite comparison: 3,175 tests passed; ten unrelated baseline tests and one loopback-listener setup failed across existing E2E preconditions, stale expectations, public-boundary content, and sandbox networking. No failure touched a G-009 source or regression file.

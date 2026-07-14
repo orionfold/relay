@@ -485,7 +485,7 @@ Per-app view redesign so that composed apps render domain-aware dashboards drive
 | [composed-app-kit-tracker-and-hub](composed-app-kit-tracker-and-hub.md) (Phase 2) | P1 | completed | composed-app-view-shell, composed-app-manifest-view-field, tables-spreadsheet-editor, micro-visualizations |
 | [composed-app-kit-coach-and-ledger](composed-app-kit-coach-and-ledger.md) (Phase 3) | P2 | completed | composed-app-kit-tracker-and-hub |
 | [composed-app-kit-inbox-and-research](composed-app-kit-inbox-and-research.md) (Phase 4) | P2 | completed | composed-app-kit-coach-and-ledger |
-| [composed-app-auto-inference-hardening](composed-app-auto-inference-hardening.md) (Phase 5) | P2 | in-progress | composed-app-kit-inbox-and-research |
+| [composed-app-auto-inference-hardening](composed-app-auto-inference-hardening.md) (Phase 5) | P2 | completed | composed-app-kit-inbox-and-research |
 | [composed-app-manifest-authoring-tools](composed-app-manifest-authoring-tools.md) (Phase 5) | P3 | completed | composed-app-manifest-view-field, composed-app-auto-inference-hardening, chat-app-builder |
 | [row-trigger-blueprint-execution](row-trigger-blueprint-execution.md) (Phase 5) | P1 | completed | composed-app-kit-inbox-and-research, workflow-engine |
 

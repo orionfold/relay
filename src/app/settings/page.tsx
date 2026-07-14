@@ -16,6 +16,7 @@ import { GitHubSection } from "@/components/settings/github-section";
 import { InstanceSection } from "@/components/instance/instance-section";
 import { LicenseSection } from "@/components/settings/license-section";
 import { SettingsHashFocus } from "@/components/settings/settings-hash-focus";
+import { AppViewDiagnosticsSection } from "@/components/settings/app-view-diagnostics-section";
 import { PageShell } from "@/components/shared/page-shell";
 import { isDataOpsAllowed } from "@/lib/data/staging-gate";
 
@@ -68,6 +69,9 @@ export default function SettingsPage() {
         </SettingsAnchor>
         <SettingsAnchor id="settings-environment">
           <EnvironmentSection />
+        </SettingsAnchor>
+        <SettingsAnchor id="settings-app-authoring">
+          <AppViewDiagnosticsSection />
         </SettingsAnchor>
         <SettingsAnchor id="settings-browser-tools">
           <BrowserToolsSection />

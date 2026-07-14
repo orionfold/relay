@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type { AppManifest } from "@/lib/apps/registry";
+import yaml from "js-yaml";
+import { AppManifestSchema, type AppManifest } from "@/lib/apps/registry";
 import {
+  explicitViewYaml,
   hasBoolean,
   hasCountLike,
   hasCurrency,
@@ -9,6 +11,7 @@ import {
   hasNotificationShape,
   hasStatusLike,
   pickKit,
+  resolveKitSelection,
   rule1_ledger,
   rule2_tracker,
   rule3_research,
@@ -150,6 +153,9 @@ describe("column-shape probes — tiered match precedence", () => {
   it("hasCurrency: name pattern wins when semantic is unset", () => {
     expect(hasCurrency([{ name: "monthly_revenue" }])).toBe(true);
   });
+  it("hasCurrency: format=currency wins when semantic is unset", () => {
+    expect(hasCurrency([{ name: "wibble", format: "currency" }])).toBe(true);
+  });
   it("hasCurrency: neither tier hits → false", () => {
     expect(hasCurrency([{ name: "wibble" }])).toBe(false);
   });
@@ -162,6 +168,103 @@ describe("column-shape probes — tiered match precedence", () => {
   });
   it("hasBoolean: type=boolean wins regardless of name", () => {
     expect(hasBoolean([{ name: "wibble", type: "boolean" }])).toBe(true);
+  });
+});
+
+describe("resolveKitSelection — serializable explanation contract", () => {
+  const explicitKits = ["tracker", "workflow-hub", "coach", "ledger", "inbox", "research"] as const;
+
+  it.each(explicitKits)("identifies explicit %s selection without implying inference", (kit) => {
+    const manifest = AppManifestSchema.parse({
+      ...makeManifest(),
+      view: { kit },
+    });
+    const trace = resolveKitSelection(manifest, []);
+
+    expect(trace).toMatchObject({
+      source: "explicit",
+      kit,
+      declaredKit: kit,
+      selectedRule: "explicit-view-kit",
+    });
+    expect(trace.probes).toEqual([]);
+    expect(trace.candidates).toHaveLength(1);
+  });
+
+  it.each([
+    {
+      kit: "ledger",
+      manifest: makeManifest({ tables: [{ id: "t" }], blueprints: [{ id: "bp" }] }),
+      schemas: cols("t", [{ name: "amount" }, { name: "date" }]),
+      rule: "rule-1-ledger",
+    },
+    {
+      kit: "tracker",
+      manifest: makeManifest({ tables: [{ id: "t" }], schedules: [{ id: "s" }] }),
+      schemas: cols("t", [{ name: "date" }, { name: "completed" }]),
+      rule: "rule-2-tracker",
+    },
+    {
+      kit: "research",
+      manifest: makeManifest({ tables: [{ id: "t" }], schedules: [{ id: "s" }], blueprints: [{ id: "weekly-digest" }] }),
+      schemas: cols("t", [{ name: "source_url" }]),
+      rule: "rule-3-research",
+    },
+    {
+      kit: "coach",
+      manifest: makeManifest({ profiles: [{ id: "habit-coach" }], schedules: [{ id: "s" }] }),
+      schemas: [],
+      rule: "rule-4-coach",
+    },
+    {
+      kit: "inbox",
+      manifest: makeManifest({ blueprints: [{ id: "follow-up-drafter" }] }),
+      schemas: [],
+      rule: "rule-5-inbox",
+    },
+    {
+      kit: "workflow-hub",
+      manifest: makeManifest(),
+      schemas: [],
+      rule: "rule-7-fallback",
+    },
+  ])("traces inferred $kit selection", ({ kit, manifest, schemas, rule }) => {
+    const trace = resolveKitSelection(manifest, schemas);
+    expect(trace).toMatchObject({ source: "inferred", kit, selectedRule: rule });
+    expect(trace.candidates.filter((candidate) => candidate.selected)).toHaveLength(1);
+    expect(JSON.parse(JSON.stringify(trace))).toEqual(trace);
+  });
+
+  it("records the matching column and tier as probe evidence", () => {
+    const manifest = makeManifest({ tables: [{ id: "t" }], blueprints: [{ id: "bp" }] });
+    const trace = resolveKitSelection(
+      manifest,
+      cols("t", [
+        { name: "paid", format: "currency" },
+        { name: "recorded", semantic: "date" },
+      ]),
+    );
+
+    expect(trace.probes.find((probe) => probe.id === "currency")?.evidence).toEqual([
+      "paid (format: currency)",
+    ]);
+    expect(trace.probes.find((probe) => probe.id === "date")?.evidence).toEqual([
+      "recorded (semantic: date)",
+    ]);
+  });
+
+  it("copies a valid explicit view declaration that resolves to the same kit", () => {
+    const inferred = resolveKitSelection(
+      makeManifest({ tables: [{ id: "t" }], schedules: [{ id: "s" }] }),
+      cols("t", [{ name: "date" }, { name: "completed" }]),
+    );
+    const declaration = yaml.load(explicitViewYaml(inferred.kit)) as Record<string, unknown>;
+    const pinned = AppManifestSchema.parse({ ...makeManifest(), ...declaration });
+
+    expect(resolveKitSelection(pinned, [])).toMatchObject({
+      kit: inferred.kit,
+      source: "explicit",
+    });
   });
 });
 

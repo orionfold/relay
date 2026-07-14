@@ -51,7 +51,16 @@ export type KitId =
  */
 export interface ColumnSchemaRef {
   tableId: string;
-  columns: { name: string; type?: string; semantic?: string }[];
+  columns: { name: string; type?: string; semantic?: string; format?: string }[];
+}
+
+export type ViewKitResolutionSource = "explicit" | "inferred";
+
+export interface ViewKitHeaderMeta {
+  id: KitId;
+  source: ViewKitResolutionSource;
+  explanation: string;
+  diagnosticsHref?: string;
 }
 
 export interface ResolveInput {
@@ -227,6 +236,8 @@ export type TriggerSource =
 export interface HeaderSlot {
   title: string;
   description?: string;
+  /** The actual resolved kit and whether the manifest selected it explicitly. */
+  viewKit?: ViewKitHeaderMeta;
   status?: "ready" | "running" | "queued" | "completed" | "failed" | "planned";
   /** Right-aligned actions; rendered as ReactNode so kits can compose. */
   actions?: ReactNode;

@@ -21,10 +21,13 @@ import {
   listPublishTargets,
 } from "@/lib/publishers/app-publish";
 import type { DeploymentRow, PublishTargetRow } from "@/lib/db/schema";
+import { ViewKitBadge } from "@/components/apps/view-kit-badge";
+import type { ViewKitHeaderMeta } from "@/lib/apps/view-kits/types";
 
 interface WebDesignerShellProps {
   app: AppDetail;
   actions: ReactNode;
+  viewKit: ViewKitHeaderMeta;
 }
 
 interface ParsedRow {
@@ -48,6 +51,7 @@ interface PageCard {
 export async function WebDesignerShell({
   app,
   actions,
+  viewKit,
 }: WebDesignerShellProps) {
   const generate = app.manifest.view?.bindings.generate;
   const sourceTableId = generate?.table ?? null;
@@ -104,6 +108,7 @@ export async function WebDesignerShell({
                   {app.description}
                 </p>
               )}
+              <ViewKitBadge resolution={viewKit} />
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">{actions}</div>

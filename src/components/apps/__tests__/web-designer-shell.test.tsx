@@ -124,7 +124,15 @@ function app(): AppDetail {
 
 describe("WebDesignerShell", () => {
   it("renders bundle-level page, asset, and publish status", async () => {
-    render(await WebDesignerShell({ app: app(), actions: <button>Run</button> }));
+    render(await WebDesignerShell({
+      app: app(),
+      actions: <button>Run</button>,
+      viewKit: {
+        id: "workflow-hub",
+        source: "explicit",
+        explanation: "The manifest explicitly selects this view.",
+      },
+    }));
 
     expect(screen.getByRole("heading", { name: "Relay Web Designer" })).toBeInTheDocument();
     expect(screen.getByText("Bundle workspace")).toBeInTheDocument();
