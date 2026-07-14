@@ -1,5 +1,19 @@
 # Feature Changelog
 
+## 2026-07-14 — G-062 adaptive Home dashboard goal
+
+### Groomed
+
+- Added P1 goal G-062 for a richer, denser Home command center backed by a
+  typed dashboard-module catalog and a dedicated Dashboard settings section.
+  Operators can toggle modules, disable smart ordering, or restore defaults;
+  the default adaptive policy promotes unresolved operator action, active and
+  recent autonomous work, and installed-Pack relevance using only local,
+  deterministic signals with anti-jitter stability. The goal requires a durable
+  specification, codebase-grounded implementation plan, bounded query budget,
+  isolated module failures, and responsive accessibility/browser regression
+  coverage before completion.
+
 ## 2026-07-14 — G-061 table Render/Row view goal
 
 ### Groomed
