@@ -1,5 +1,19 @@
 # Feature Changelog
 
+## 2026-07-14 — G-055 historical help-action restoration scope
+
+### Groomed
+
+- Amended G-055 so its future specification and implementation must review the
+  original Quick Access commit (`fc45d07e`), its surviving message-metadata/SSE
+  descendants, and the User Guide route/action conventions immediately before
+  removal (`e6f532e9^`). Relay-help answers will restore bounded post-response
+  source badges and safe `Open …` actions from release-matched bundle metadata,
+  while explicitly avoiding resurrection of stale `/user-guide` routes, fuzzy
+  prose-derived citations, arbitrary model-authored URLs, or the deleted guide
+  corpus. Added help-intent, attribution, route-safety, persistence, cross-runtime,
+  accessibility, and packaged-instance regression requirements.
+
 ## 2026-07-14 — G-062 adaptive Home dashboard goal
 
 ### Groomed
