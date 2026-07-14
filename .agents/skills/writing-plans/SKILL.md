@@ -22,20 +22,43 @@ Present the challenge result with three paths:
 
 Wait for user confirmation before proceeding to plan writing.
 
+## Specification Gate
+
+Before writing an implementation plan, identify the artifact that owns required behavior. The Goal Contract is enough for a narrow, well-understood change. Create or update a durable `features/*.md` specification when the work changes cross-layer or multi-state user behavior, a public API/schema/data contract or migration, auth/licensing/privacy/security behavior, or acceptance criteria that must survive the task.
+
+Keep the boundary explicit:
+
+- the specification owns **what and done**: intended behavior, invariants/non-goals, states and failures, measurable acceptance criteria, and compatibility/migration/telemetry requirements;
+- the plan owns **how and order**: affected code/data flows, reuse, sequencing, checkpoints, regression budget, verification, and rescue/rollback.
+
+Reference the authoritative issue, feature, TDR, or decision instead of duplicating it. If planning exposes a product requirement change, update the specification before finalizing the plan. Technical sequencing discoveries belong in the plan.
+
 ## Required Plan Sections
 
 Every plan must include these sections (in addition to the standard task structure):
 
 - **"NOT in scope"** — explicit list of what this plan does NOT cover, with rationale for each deferral
 - **"What already exists"** — code, utilities, and patterns found during scope challenge that can be reused
+- **"Specification and acceptance mapping"** — authoritative requirement source plus a mapping from acceptance criteria to implementation slices
+- **"Regression test budget"** — changed behaviors, affected callers, named existing/new tests, negative/edge cases, smoke/browser coverage, and any explicit no-test rationale
 - **Error & Rescue Registry** (for non-trivial features) — table mapping failure modes to recovery strategies
+
+## Regression Test Budget
+
+Every behavior-changing feature, fix, or refactor needs a regression disposition in the plan:
+
+1. For bugs, include a pre-fix reproduction and a post-fix rerun when feasible.
+2. Map each changed acceptance criterion or behavior to a named existing test, a new durable test at the lowest reliable layer, or an explicit reason automation is infeasible plus a stronger deterministic guard.
+3. Include relevant happy-path and boundary, nil/empty/upstream-error, invalid-state, or interaction-edge coverage.
+4. Order verification from new/closest test → impacted suite → static/schema/parity checks → runtime smoke → browser evidence → broader suite/release checks as risk warrants.
+5. Record exact commands and expected evidence. Browser/manual checks complement automated coverage and do not silently replace it.
 
 ## Smoke-Test Budget for Runtime-Registry-Adjacent Features
 
 If the plan's "What already exists" or "Files touched" list mentions **any** of these modules, the plan MUST include an explicit end-to-end smoke-test step in its verification section — not just unit tests:
 
-- `src/lib/agents/Codex-agent.ts`
-- `src/lib/agents/runtime/Codex.ts` (or any other adapter under `src/lib/agents/runtime/`)
+- `src/lib/agents/claude-agent.ts`
+- `src/lib/agents/runtime/claude.ts` (or any other adapter under `src/lib/agents/runtime/`)
 - `src/lib/agents/runtime/catalog.ts` / `index.ts`
 - `src/lib/workflows/engine.ts`
 - `src/lib/workflows/loop-executor.ts`
