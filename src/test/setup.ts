@@ -1,7 +1,8 @@
 import "@testing-library/jest-dom/vitest";
-import { mkdtempSync, mkdirSync } from "fs";
-import { join } from "path";
-import { tmpdir } from "os";
+import {
+  createWorkerDataDir,
+  TestHarnessConfigurationError,
+} from "./harness";
 
 // DOM shims only apply under the default jsdom environment. Test files that
 // opt into `@vitest-environment node` (pure fs/network modules) have no
@@ -23,8 +24,13 @@ if (typeof HTMLElement !== "undefined") {
   HTMLElement.prototype.releasePointerCapture = () => {};
 }
 
-if (!process.env.RELAY_DATA_DIR) {
-  const tempDataDir = mkdtempSync(join(tmpdir(), "relay-vitest-"));
-  mkdirSync(tempDataDir, { recursive: true });
-  process.env.RELAY_DATA_DIR = tempDataDir;
+const harnessRoot = process.env.RELAY_TEST_HARNESS_ROOT;
+if (!harnessRoot) {
+  throw new TestHarnessConfigurationError(
+    "Relay default tests require the marked global test harness root"
+  );
 }
+
+const workerId =
+  process.env.VITEST_WORKER_ID ?? process.env.VITEST_POOL_ID ?? "single";
+process.env.RELAY_DATA_DIR = createWorkerDataDir(harnessRoot, workerId);

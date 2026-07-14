@@ -3,7 +3,7 @@
 This document defines how Relay decides whether behavior is protected. It is a
 risk policy, not a promise that every source line deserves a test.
 
-Adopted through G-063 on 2026-07-14.
+Adopted through G-064 on 2026-07-14.
 
 ## Quality objective
 
@@ -119,8 +119,17 @@ baseline suite is deterministic.
 
 - Test databases, homes, repositories, ports, clocks, and network/provider
   responses must be harness-owned and disposable.
-- No destructive test may accept a developer/customer `RELAY_DATA_DIR` by
-  accident. A future harness goal owns the migration to an explicit override.
+- The default Vitest command replaces any inherited `RELAY_DATA_DIR` during
+  global setup, before worker imports. It allocates one marked temporary root,
+  gives each worker a distinct child directory, and removes only the root whose
+  location, marker schema, and ownership nonce all match. Root removal runs in
+  the parent process exit hook, after worker-held database handles close on
+  Windows. Separately configured E2E/staging commands own any explicit
+  external-data opt-in.
+- `npm run test:harness-safety` executes a real-SQLite child suite with an
+  inherited database sentinel, proves that directory remains byte-for-byte
+  unchanged, and confirms the marked harness root is removed after workers
+  exit.
 - Tests must pass alone, in the normal order, and under at least one fixed
   shuffled seed before they are considered order-independent.
 - Real concurrency claims require competing connections/processes or a barrier;

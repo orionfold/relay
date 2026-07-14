@@ -255,6 +255,12 @@ const report = {
       vitestConfig.includes('"bin/**/*.ts"') &&
       !vitestConfig.includes('"src/components/ui/**"'),
     coverageReportsOnFailure: vitestConfig.includes("reportOnFailure: true"),
+    defaultHarnessOwnsMutableState:
+      vitestConfig.includes('globalSetup: ["./src/test/global-setup.ts"]') &&
+      vitestConfig.includes("unstubEnvs: true") &&
+      vitestConfig.includes("unstubGlobals: true") &&
+      packageJson.scripts?.["test:harness-safety"] ===
+        "node scripts/test-harness-safety.mjs",
     e2eUsesCurrentSingleWorkerConfig:
       e2eVitestConfig.includes("maxWorkers: 1") &&
       e2eVitestConfig.includes("isolate: false") &&
@@ -311,6 +317,10 @@ if (jsonOnly) {
   console.log(
     `Coverage on failure`.padEnd(30),
     report.topology.coverageReportsOnFailure ? "configured" : "MISSING"
+  );
+  console.log(
+    `Harness-owned mutable state`.padEnd(30),
+    report.topology.defaultHarnessOwnsMutableState ? "configured" : "MISSING"
   );
   console.log(
     `Vitest 4 E2E worker config`.padEnd(30),

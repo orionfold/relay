@@ -19,7 +19,12 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    globalSetup: ["./src/test/global-setup.ts"],
     setupFiles: ["./src/test/setup.ts"],
+    // vi.stubEnv/vi.stubGlobal are test-local by default. The setup file
+    // reasserts the worker data directory before each test module loads.
+    unstubEnvs: true,
+    unstubGlobals: true,
     include: ["src/**/__tests__/**/*.test.{ts,tsx}"],
     // Server-dependent tests have their own node/single-fork configuration and
     // must not be collected by the default unit/integration command.
