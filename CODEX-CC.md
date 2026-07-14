@@ -127,8 +127,10 @@ practice, not restored from Stagent-era ports.
   connected or the operator specifically needs to watch. Do not launch the normal Chrome
   app directly in headless mode unless explicitly requested. This is Codex-specific and
   does not constrain Claude Code browser tooling.
-- **Stop hook:** `.codex/hooks.json` intentionally keeps only the PreToolUse secrets
-  guard. The Codex `Stop` handoff nudge was removed because it fired too frequently.
+- **Codex hooks:** `.codex/hooks.json` intentionally keeps only the PreToolUse secrets
+  guard. The guard runs through Relay's required Node runtime (not Python) so a fresh
+  Windows or macOS clone has no undocumented interpreter prerequisite. The Codex
+  `Stop` handoff nudge was removed because it fired too frequently.
   Use auto compact or operator-initiated handoff for Codex session wrap-up.
 - **Memory:** Keep `MEMORY.md` and `CODEX-CC.md` aligned when changing
   Codex-only hooks, skills, settings, or browser guidance. Do not add these Codex-only
@@ -240,3 +242,9 @@ _Newest at bottom. One signed, timestamped entry per update from either platform
   marketing scripts into `_ASSETS/`, and authoring the skill family. Full design:
   `~/.claude/plans/review-the-current-assets-expressive-bird.md`. No Relay-tracked files
   changed except `HANDOFF.md` + `CODEX-CC.md`; `_ASSETS` stays strategy-owned/uncommitted.
+- **2026-07-13 — `[CODEX]`:** G-048 replaced the tracked Python-only PreToolUse
+  secrets guard with a dependency-free Node implementation and cross-platform
+  regression suite. `.codex/hooks.json` now uses the same Node runtime Relay already
+  requires, removing an undocumented Windows fresh-clone prerequisite while
+  preserving the guard's exit-0/exit-2 contract. Mirrored this durable fact into
+  `MEMORY.md`; the intentionally absent Stop hook remains unchanged.

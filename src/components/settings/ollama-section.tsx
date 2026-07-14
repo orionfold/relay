@@ -100,6 +100,9 @@ export function OllamaSection() {
       } else {
         toast.error("Failed to save base URL");
       }
+    } catch (error) {
+      const detail = error instanceof Error ? `: ${error.message}` : "";
+      toast.error(`Failed to save base URL${detail}`);
     } finally {
       setSavingUrl(false);
     }

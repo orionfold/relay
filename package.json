@@ -64,6 +64,8 @@
     "build": "next build",
     "build:cli": "tsup",
     "test": "vitest run",
+    "test:hooks": "node --test .codex/hooks/*.test.mjs",
+    "smoke:fresh-clone-dev": "node scripts/fresh-clone-dev-smoke.mjs",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "vitest run --config vitest.config.e2e.ts",

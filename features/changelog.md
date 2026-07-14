@@ -1,5 +1,21 @@
 # Feature Changelog
 
+## 2026-07-13 — G-048 fresh-clone development setup
+
+### Started
+
+- Replaced the tracked Python-only Codex secrets guard with a dependency-free Node
+  guard and regression suite, removing an undocumented Windows prerequisite while
+  preserving the allow/block exit contract.
+- Added an explicit pre-first-boot README path for macOS/Linux and Windows PowerShell.
+  Both paths activate Relay development mode, create the durable git sentinel, and
+  isolate data from `~/.relay`; provider credentials remain optional.
+- Added zero-mutation assertions for both bootstrap gates, visible Ollama Save/Test
+  regressions (including the repaired network-failure feedback path), a literal-clone
+  dev smoke, and a native macOS/Windows Node 20/npm 10 plus Node 22/npm 11 workflow.
+  Local hook, type, cursor-policy, and 92 focused Vitest checks pass. Native Windows
+  execution remains the required external gate before completion.
+
 ## 2026-07-13 — TRIAGE-014–018 goal grooming
 
 ### Groomed

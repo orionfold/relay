@@ -1,0 +1,91 @@
+name: Fresh-clone development setup
+
+on:
+  pull_request:
+    paths:
+      - ".codex/hooks/**"
+      - ".codex/hooks.json"
+      - ".github/workflows/fresh-clone-dev.yml"
+      - "README.md"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/fresh-clone-dev-smoke.mjs"
+      - "src/components/settings/ollama-section.tsx"
+      - "src/components/settings/__tests__/ollama-section.test.tsx"
+      - "src/lib/instance/**"
+  push:
+    branches: [main]
+    paths:
+      - ".codex/hooks/**"
+      - ".codex/hooks.json"
+      - ".github/workflows/fresh-clone-dev.yml"
+      - "README.md"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/fresh-clone-dev-smoke.mjs"
+      - "src/components/settings/ollama-section.tsx"
+      - "src/components/settings/__tests__/ollama-section.test.tsx"
+      - "src/lib/instance/**"
+  workflow_dispatch:
+
+jobs:
+  fresh-clone:
+    name: ${{ matrix.os }} · Node ${{ matrix.node }} · npm ${{ matrix.npm }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            node: 20
+            npm: 10
+          - os: macos-latest
+            node: 22
+            npm: 11
+          - os: windows-latest
+            node: 20
+            npm: 10
+          - os: windows-latest
+            node: 22
+            npm: 11
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Select supported npm line
+        run: npm install --global npm@${{ matrix.npm }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Replay README setup (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          cat > .env.local <<'EOF'
+          RELAY_DEV_MODE=true
+          RELAY_DATA_DIR=./.relay-dev-data
+          EOF
+          touch .git/relay-dev-mode
+
+      - name: Replay README setup (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          @'
+          RELAY_DEV_MODE=true
+          RELAY_DATA_DIR=./.relay-dev-data
+          '@ | Set-Content .env.local
+          New-Item -ItemType File .git/relay-dev-mode -Force | Out-Null
+
+      - name: Verify portable hook and setup regressions
+        run: |
+          npm run test:hooks
+          npx vitest run src/lib/instance/__tests__/bootstrap.test.ts src/components/dashboard/__tests__/welcome-landing.test.tsx src/components/settings/__tests__/providers-runtimes-section.test.tsx src/components/settings/__tests__/ollama-section.test.tsx
+
+      - name: Boot literal fresh clone
+        run: node scripts/fresh-clone-dev-smoke.mjs

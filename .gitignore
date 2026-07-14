@@ -9,6 +9,7 @@ dist/
 .env
 .env.local
 .env.*.local
+.relay-dev-data/
 
 # OS
 .DS_Store

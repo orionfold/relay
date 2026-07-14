@@ -1,0 +1,130 @@
+---
+title: Fresh-Clone Development Setup
+status: in-progress
+priority: P1
+milestone: post-mvp
+source: _IDEAS/triage.md#TRIAGE-014
+dependencies: [instance-bootstrap]
+---
+
+# Fresh-Clone Development Setup
+
+## Description
+
+Relay contributors need one explicit path from a literal clone to a safe development
+instance. The path must activate development mode before the first application boot,
+use an isolated empty data directory, and work on supported macOS and Windows hosts
+without relying on undocumented global tools. Development mode must remain a hard
+no-op for instance bootstrap: it cannot create the `local` branch, install a pre-push
+hook, or register customer-instance automation.
+
+The verified defects are narrower than the original report: the README currently
+starts `npm run dev` without first activating either development-mode gate, and the
+tracked Codex hook invokes Python even though Python is not a Relay prerequisite.
+The provider runtime failure from the intake report has not been reproduced, so this
+feature verifies current empty, error, Save, and Test behavior rather than claiming a
+provider implementation fix.
+
+## User Story
+
+As a Relay contributor on macOS or Windows, I want a copy-pasteable fresh-clone setup
+that uses only Git, supported Node/npm, and Relay itself, so that my first development
+boot is isolated, visibly configurable, and cannot mutate customer-instance git state.
+
+## Required Behavior
+
+### One pre-boot development contract
+
+- A contributor clones the repository and installs dependencies.
+- Before the first `npm run dev`, the contributor creates `.env.local` with both
+  `RELAY_DEV_MODE=true` and a clone-local `RELAY_DATA_DIR`.
+- The documented macOS/Linux and PowerShell commands express the same state.
+- `.git/relay-dev-mode` is documented as the durable secondary safety gate and can be
+  used independently of `.env.local`.
+- Provider credentials are optional. A fresh empty instance must load without them.
+
+### Bootstrap invariants
+
+- `RELAY_DEV_MODE=true` returns `dev_mode_env` before any instance configuration,
+  branch, hook, git config, or schedule registration.
+- `.git/relay-dev-mode` returns `dev_mode_sentinel` with the same zero-mutation result.
+- `RELAY_INSTANCE_MODE=true` still overrides both development gates for explicit
+  customer-mode bootstrap testing.
+- Customer mode retains its current consent-gated bootstrap behavior.
+
+### Portable tracked hooks
+
+- Tracked Codex hooks use the Node runtime already required by Relay.
+- The secrets guard preserves its allow/block contract and exit codes on all supported
+  hosts; malformed input fails open, while real-looking secrets and `.env` staging
+  attempts are blocked with a named message.
+- Hook configuration contains no Python prerequisite or shell-specific path quoting.
+
+### Fresh-instance setup feedback
+
+- The dashboard renders its existing welcome/empty state against an empty data dir.
+- Provider settings visibly show unconfigured runtimes and a named load error with a
+  retry action when provider state cannot load.
+- Saving an Ollama base URL produces a visible success or failure outcome.
+- Testing an unavailable Ollama endpoint produces a visible failure.
+- Testing an available Ollama endpoint produces a visible connected state and model
+  count.
+
+## Acceptance Criteria
+
+- [ ] README presents equivalent macOS/Linux and PowerShell paths, and both activate
+  dev mode plus isolated data before first boot.
+- [ ] The README commands replay successfully from a literal clone with no prior
+  `.env.local`, Relay data, provider credentials, or Ollama configuration.
+- [ ] `.codex/hooks.json` runs a Node secrets guard, and its regression suite passes on
+  macOS and Windows with the minimum and current supported Node majors.
+- [ ] Both development gates leave branches, hooks, git config, instance state, and
+  schedules untouched in isolated tests.
+- [ ] `RELAY_INSTANCE_MODE=true` and ordinary customer mode retain the existing
+  instance-bootstrap behavior in targeted tests and a real boot smoke.
+- [ ] A fresh empty data directory renders the dashboard welcome state and provider
+  unconfigured/error states without credentials.
+- [ ] Ollama Save and unavailable/available Test paths each have a deterministic,
+  visible assertion.
+- [ ] The macOS literal-clone matrix passes locally.
+- [ ] The Windows literal-clone matrix passes on a native Windows runner before the
+  goal is closed; workflow definition alone is not acceptance evidence.
+
+## Compatibility and Non-Goals
+
+Included:
+
+- Contributor source setup documentation in the tracked README.
+- The tracked Codex secrets guard and its platform matrix.
+- Regression coverage for existing bootstrap and setup UI behavior.
+- A native macOS/Windows fresh-clone CI smoke using supported Node/npm.
+
+Excluded:
+
+- Redesigning provider authentication, routing, or the Settings information
+  architecture; the current behavior is under verification, not replacement.
+- Changing customer-instance consent, branches, guardrails, or upgrade scheduling.
+- Bundling Python, PowerShell, Ollama, or provider credentials.
+- Fixing the unverified historical provider-runtime symptom without a reproduction.
+- Publishing, pushing, or releasing; those remain separate operator gates.
+
+## Failure States
+
+| Failure | Required outcome |
+|---|---|
+| Hook receives malformed/empty JSON | Allow the tool call; the guard must not brick Codex |
+| Hook detects secret material | Exit 2 and emit `BLOCKED by secrets-guard` with a named reason |
+| Provider settings fetch fails | Replace loading with a visible error and Retry control |
+| Ollama settings save fails | Visible error toast; Save control returns to enabled state |
+| Ollama is unavailable | Visible failed connection text; no stale models remain |
+| Ollama is available | Visible connected text with the returned model count |
+| Development gate is omitted | Fresh-clone smoke fails on any generated instance mutation |
+| Native Windows evidence is unavailable | Goal remains open at the external-run gate |
+
+## References
+
+- Goal: strategy `_IDEAS/backlog.md` G-048
+- Source: strategy `_IDEAS/triage.md` TRIAGE-014 (groomed 2026-07-13)
+- Existing bootstrap contract: `features/instance-bootstrap.md`
+- Existing bootstrap tests: `src/lib/instance/__tests__/bootstrap.test.ts`
+- Implementation plan: `docs/superpowers/plans/2026-07-13-g-048-fresh-clone-development-setup.md`

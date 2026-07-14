@@ -175,18 +175,64 @@ npm distribution name: `orionfold-relay` (CLI commands `relay` / `orionfold-rela
 
 ## Development
 
+Relay requires Node.js 20 or newer. A source checkout must enter Relay development
+mode **before the first app boot** so customer-instance bootstrap cannot create local
+branches, install git hooks, or register instance automation in the contributor clone.
+
+macOS or Linux:
+
 ```bash
-git clone https://github.com/orionfold/relay.git && cd relay && npm install
+git clone https://github.com/orionfold/relay.git
+cd relay
+npm install
 
-# Set up one or both runtime credentials
 cat > .env.local <<'EOF'
-ANTHROPIC_API_KEY=your-anthropic-key
-OPENAI_API_KEY=your-openai-key
+RELAY_DEV_MODE=true
+RELAY_DATA_DIR=./.relay-dev-data
 EOF
+touch .git/relay-dev-mode
 
+npm run dev
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/orionfold/relay.git
+Set-Location relay
+npm install
+
+@'
+RELAY_DEV_MODE=true
+RELAY_DATA_DIR=./.relay-dev-data
+'@ | Set-Content .env.local
+New-Item -ItemType File .git/relay-dev-mode -Force | Out-Null
+
+npm run dev
+```
+
+The two gates are intentionally redundant. `RELAY_DEV_MODE=true` is the primary
+per-developer gate; `.git/relay-dev-mode` survives `.env.local` edits and protects the
+clone independently. `RELAY_DATA_DIR` keeps development data inside an ignored,
+clone-local directory, so a literal fresh clone starts empty and does not reuse
+`~/.relay`. You can verify either gate independently by removing the other one.
+
+Provider credentials are optional at boot. Open [Settings](http://localhost:3000/settings)
+to save or test Anthropic, OpenAI, or Ollama configuration and receive a visible
+success or failure result. Keep real keys in `.env.local` or enter them through
+Settings; never commit them.
+
+To exercise customer-instance bootstrap deliberately from a development checkout,
+run it only against isolated data with `RELAY_INSTANCE_MODE=true`; this explicit
+override wins over both development gates.
+
+Common commands:
+
+```bash
 npm run dev            # Next.js dev server (Turbopack)
 npm run build:cli      # Build CLI → dist/cli.js
 npm test               # Run Vitest
+npm run test:hooks     # Run the cross-platform Codex hook regressions
 npm run test:coverage  # Coverage report
 npm run test:e2e       # E2E integration tests (requires runtime credentials)
 ```

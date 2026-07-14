@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { execFileSync } from "child_process";
+import { execFileSync, spawnSync } from "child_process";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
@@ -27,6 +27,20 @@ function initRepo(dir: string) {
  */
 function getGit(args: string[], cwd: string): string {
   return execFileSync("git", args, { cwd, encoding: "utf-8" }).trim();
+}
+
+async function expectNoBootstrapMutation(dir: string) {
+  expect(getGit(["branch", "--format=%(refname:short)"], dir)).toBe("main");
+  expect(existsSync(join(dir, ".git", "hooks", "pre-push"))).toBe(false);
+  const pushConfig = spawnSync(
+    "git",
+    ["config", "--get-regexp", "^branch\\..*\\.pushRemote$"],
+    { cwd: dir, encoding: "utf-8" },
+  );
+  expect(pushConfig.stdout.trim()).toBe("");
+  const { getInstanceConfig, getGuardrails } = await import("../settings");
+  expect(getInstanceConfig()).toBeNull();
+  expect(getGuardrails().firstBootCompletedAt).toBeNull();
 }
 
 /**
@@ -408,9 +422,7 @@ describe("ensureInstance orchestrator", () => {
     const result = await ensureInstance(tempDir);
     expect(result.skipped).toBe("dev_mode_env");
     expect(result.steps).toEqual([]);
-    expect(existsSync(join(tempDir, ".git", "hooks", "pre-push"))).toBe(false);
-    const { createGitOps } = await import("../git-ops");
-    expect(createGitOps(tempDir).branchExists("local")).toBe(false);
+    await expectNoBootstrapMutation(tempDir);
   });
 
   it("returns skipped with dev_mode_sentinel when sentinel file exists", async () => {
@@ -419,6 +431,7 @@ describe("ensureInstance orchestrator", () => {
     const result = await ensureInstance(tempDir);
     expect(result.skipped).toBe("dev_mode_sentinel");
     expect(result.steps).toEqual([]);
+    await expectNoBootstrapMutation(tempDir);
   });
 
   it("returns skipped with no_git when .git directory is absent", async () => {
@@ -474,6 +487,15 @@ describe("ensureInstance orchestrator", () => {
 
   it("RELAY_INSTANCE_MODE=true override beats RELAY_DEV_MODE=true", async () => {
     vi.stubEnv("RELAY_DEV_MODE", "true");
+    vi.stubEnv("RELAY_INSTANCE_MODE", "true");
+    const { ensureInstance } = await import("../bootstrap");
+    const result = await ensureInstance(tempDir);
+    expect(result.skipped).toBeUndefined();
+    expect(result.steps.length).toBeGreaterThan(0);
+  });
+
+  it("RELAY_INSTANCE_MODE=true override beats the sentinel gate", async () => {
+    writeFileSync(join(tempDir, ".git", "relay-dev-mode"), "");
     vi.stubEnv("RELAY_INSTANCE_MODE", "true");
     const { ensureInstance } = await import("../bootstrap");
     const result = await ensureInstance(tempDir);
