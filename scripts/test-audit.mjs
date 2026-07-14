@@ -3,6 +3,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { RISK_SURFACES } from "./quality-policy.mjs";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const args = new Set(process.argv.slice(2));
@@ -112,9 +113,7 @@ const workflowFiles = walk(workflowDirectory)
   .filter((path) => /\.ya?ml$/.test(path));
 const fullSuiteWorkflowReferences = workflowFiles.filter((path) => {
   const source = readFileSync(resolve(repoRoot, path), "utf8");
-  return /(?:npm\s+(?:run\s+)?test(?:\s|$)|npx\s+vitest\s+run\s*(?:\n|$))/m.test(
-    source
-  );
+  return /(?:npm\s+(?:run\s+)?test(?:\s|$)|npx\s+vitest\s+run\s*(?:\n|$)|npm\s+run\s+quality:gate)/m.test(source);
 });
 
 const vitestConfig = readFileSync(resolve(repoRoot, "vitest.config.ts"), "utf8");
@@ -139,22 +138,6 @@ const coverageEntries = coverageSummary
       }))
       .sort((left, right) => left.path.localeCompare(right.path))
   : [];
-const riskSurfaceDefinitions = [
-  ["Database", ["src/lib/db/"]],
-  ["Workflows", ["src/lib/workflows/"]],
-  ["Schedules", ["src/lib/schedules/"]],
-  ["Runtime adapters/catalog", ["src/lib/agents/runtime/"]],
-  ["Agents overall", ["src/lib/agents/"]],
-  ["Chat", ["src/lib/chat/"]],
-  ["Packs", ["src/lib/packs/"]],
-  ["Licensing", ["src/lib/licensing/"]],
-  ["Instance bootstrap/upgrade", ["src/lib/instance/"]],
-  ["Desktop artifact helpers", ["src/lib/desktop/"]],
-  ["API routes", ["src/app/api/"]],
-  ["Components", ["src/components/"]],
-  ["CLI", ["bin/"]],
-];
-
 function aggregateMetric(entries, metric) {
   const totals = entries.reduce(
     (sum, entry) => ({
@@ -181,7 +164,7 @@ const coverage = coverageSummary
         (entry) =>
           entry.metrics.lines.total > 0 && entry.metrics.lines.covered === 0
       ).length,
-      byRiskSurface: riskSurfaceDefinitions.map(([surface, prefixes]) => {
+      byRiskSurface: RISK_SURFACES.map(({ label: surface, prefixes }) => {
         const entries = coverageEntries.filter((entry) =>
           prefixes.some((prefix) => entry.path.startsWith(prefix))
         );
@@ -197,7 +180,7 @@ const coverage = coverageSummary
   : null;
 
 const report = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   scope: {
     productionFiles: productionFiles.length,
     totalTestFiles: vitestFiles.length + nodeTestFiles.length,
@@ -284,6 +267,12 @@ const report = {
         "node scripts/test-mutation-strength.mjs" &&
       existsSync(resolve(repoRoot, "scripts/mutation-strength-manifest.mjs")) &&
       existsSync(resolve(repoRoot, "features/mutation-strength-governance.md")),
+    qualityGateConfigured:
+      packageJson.scripts?.["quality:gate"] ===
+        "node scripts/quality-gate.mjs" &&
+      packageJson.scripts?.["check:quality-coverage"] ===
+        "node scripts/check-quality-coverage.mjs" &&
+      existsSync(resolve(repoRoot, ".github/workflows/quality-gate.yml")),
     e2eUsesCurrentSingleWorkerConfig:
       e2eVitestConfig.includes("maxWorkers: 1") &&
       e2eVitestConfig.includes("isolate: false") &&
@@ -355,6 +344,10 @@ if (jsonOnly) {
   console.log(
     `Mutation-strength control`.padEnd(30),
     report.topology.mutationStrengthConfigured ? "configured" : "MISSING"
+  );
+  console.log(
+    `Risk-tiered quality gate`.padEnd(30),
+    report.topology.qualityGateConfigured ? "configured" : "MISSING"
   );
   console.log(
     `Vitest 4 E2E worker config`.padEnd(30),

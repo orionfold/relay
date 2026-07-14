@@ -1,0 +1,62 @@
+name: Relay quality gate
+
+on:
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Quality profile to run
+        required: true
+        default: release
+        type: choice
+        options:
+          - pr
+          - release
+  workflow_call:
+    inputs:
+      profile:
+        description: Quality profile to run
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Relay quality gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Use the release npm line
+        run: |
+          npm install --global npm@11
+          npm --version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run pull-request quality contract
+        if: github.event_name == 'pull_request'
+        env:
+          QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: npm run quality:gate -- --profile pr
+
+      - name: Run merge/release quality contract
+        if: github.event_name != 'pull_request'
+        env:
+          QUALITY_PROFILE: ${{ inputs.profile || 'release' }}
+        run: npm run quality:gate -- --profile "$QUALITY_PROFILE"

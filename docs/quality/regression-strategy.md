@@ -3,7 +3,7 @@
 This document defines how Relay decides whether behavior is protected. It is a
 risk policy, not a promise that every source line deserves a test.
 
-Adopted through G-064 on 2026-07-14.
+Adopted through G-065 on 2026-07-14.
 
 ## Quality objective
 
@@ -128,6 +128,49 @@ independent risk-surface prefix groups so the reported matrix is reproducible.
 Do not raise a global threshold merely to make a dashboard green. Add path/risk
 thresholds only after the corresponding invariant matrix is green and the
 baseline suite is deterministic.
+
+## Pull-request and release execution contract
+
+`npm run quality:gate -- --profile pr --base <sha> --head <sha>` is the local
+equivalent of the always-on `Relay quality gate` pull-request check. The
+workflow has no path filter: every pull request runs TypeScript, the default
+Vitest matrix under all-source coverage, the coverage ratchet, the executable
+test audit, deterministic hook/privacy/docs/Pack/token guards, and the real
+runtime graph. Runtime smoke is always-on because the registry's transitive
+imports reach beyond a reliably maintainable static path allowlist. A committed
+path policy may only add harness-safety, mutation-strength, or Pack-compatibility
+lanes. A missing/invalid diff fails closed.
+
+Merge-group and tag-release qualification use the `release` profile and run
+every conditional lane plus the CLI build. The tag publish workflow calls the
+same reusable workflow and declares the external publication job dependent on
+it. Its clean publication runner then rebuilds artifacts and retains the
+customer-identical production `npx` smoke before npm/GitHub writes. The
+fresh-clone macOS/Windows Node/npm matrix remains separate because portability
+and install topology are not substitutes for the default regression suite.
+
+The coverage gate compares every eligible production path against
+`coverage/coverage-summary.json` and applies committed Tier-0/Tier-1
+no-regression floors as exact covered/total fractions. It uses cross
+multiplication, so even a one-line regression that rounds to the same displayed
+percentage fails. These are ratchets from an honest all-source baseline, not
+target attainment claims. Low aggregate coverage cannot bypass a named runtime,
+harness, mutation, Pack, fresh-clone, or packaged boundary. A required lane that
+exits zero without its semantic receipt is a gate failure.
+
+The shared workflow uses Node 22 and npm 11, matching the trusted-publish job;
+the separate fresh-clone workflow retains Node 20/22 and npm 10/11 portability.
+Quality execution is sequential and unsharded. Its local release budget is a
+measured 12 minutes; it is checked after each lane completes and is not a claim
+of local process-tree termination. The hosted job's 15-minute timeout is the
+hard execution ceiling, including runner variance and excluding dependency
+installation from the local receipt. Add caching/sharding only after recorded
+timing exhausts the local budget.
+
+The intended protected-branch check is `Relay quality gate`, with strict
+up-to-date branch enforcement if the repository adopts required pull requests.
+GitHub repository/ruleset changes are external operator actions. Do not claim
+the check is merge-required until read-only inspection confirms the live rule.
 
 ## Isolation and reproducibility
 

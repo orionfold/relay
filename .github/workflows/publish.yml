@@ -16,7 +16,16 @@ on:
       - "v*"
 
 jobs:
+  quality:
+    name: Relay quality gate
+    uses: ./.github/workflows/quality-gate.yml
+    with:
+      profile: release
+    permissions:
+      contents: read
+
   publish:
+    needs: quality
     runs-on: ubuntu-latest
     permissions:
       id-token: write # REQUIRED: lets the runner mint the OIDC token npm verifies
@@ -85,10 +94,12 @@ jobs:
           git archive --format=tar --output=/tmp/relay-public-source.tar HEAD
           node scripts/check-public-boundary.mjs archive /tmp/relay-public-source.tar
 
-      - name: Build + test gate
-        run: |
-          npm run build:cli
-          npx vitest run src/lib/licensing/ src/lib/desktop/
+      # The reusable release profile has already run the complete quality
+      # contract. Rebuild the CLI in this clean publication runner because its
+      # dist output is consumed by npm pack below and is not transferred between
+      # jobs.
+      - name: Rebuild CLI for publication artifacts
+        run: npm run build:cli
 
       # npx users must never receive a multi-hundred-MB tarball: the production
       # build ships as a GitHub Release asset (below), not inside the package.
