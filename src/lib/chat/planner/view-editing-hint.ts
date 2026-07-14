@@ -157,7 +157,7 @@ export function buildViewEditingHint(
       break;
     case "kpis":
       lines.push(
-        "Primary tool for this turn: `set_app_view_kpis`. Pass the COMPLETE kpis array (1-6 tiles). Use `tableSum`, `tableCount`, `tableLatest`, `blueprintRunCount`, `scheduleNextFire`, or `tableSumWindowed` source kinds. Format defaults to `int` — set to `currency`/`percent`/`duration`/`relative` when appropriate."
+        "Primary tool for this turn: `set_app_view_kpis`. Pass the COMPLETE kpis array (1-6 tiles). Use `tableSum`, `tableCount`, `tableLatest`, `blueprintRunCount`, `scheduleNextFire`, or `tableSumWindowed` source kinds. Format defaults to `int` — set to `currency`/`percent`/`duration`/`relative` when appropriate. For comparable windowed KPIs, explicitly set `semantics.favorable` to `higher`, `lower`, `closer-to-zero`, or `neutral`; never infer favorability from the KPI label or stored sign."
       );
       break;
   }

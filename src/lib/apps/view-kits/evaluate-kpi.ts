@@ -1,6 +1,11 @@
 import type { ViewConfig } from "@/lib/apps/registry";
 import { formatKpi, type KpiPrimitive } from "./format-kpi";
-import type { KpiTile } from "./types";
+import type {
+  KpiDirection,
+  KpiFavorability,
+  KpiTile,
+  KpiTrend,
+} from "./types";
 
 type KpiSpec = NonNullable<ViewConfig["bindings"]["kpis"]>[number];
 type KpiSource = KpiSpec["source"];
@@ -44,15 +49,112 @@ export interface KpiContext {
 const MAX_SPARK_POINTS = 30;
 
 /**
- * Derive a coarse trend direction from a series' first vs. last value. Callers
- * only invoke this with 2+ points; the tile renders the arrow/glyph.
+ * Derive arithmetic direction between two observations without assigning a
+ * business judgment. Favorability is evaluated separately below.
  */
-function trendOf(series: number[]): "up" | "down" | "flat" {
-  const first = series[0];
-  const last = series[series.length - 1];
-  if (last > first) return "up";
-  if (last < first) return "down";
+function directionOf(from: number, to: number): KpiDirection {
+  if (to > from) return "up";
+  if (to < from) return "down";
   return "flat";
+}
+
+type FavorablePolicy = NonNullable<KpiSpec["semantics"]>["favorable"];
+
+function favorabilityOf(
+  from: number,
+  to: number,
+  direction: KpiDirection,
+  policy: FavorablePolicy
+): KpiFavorability {
+  if (direction === "flat" || policy === "neutral") return "neutral";
+  if (policy === "higher") {
+    return direction === "up" ? "favorable" : "unfavorable";
+  }
+  if (policy === "lower") {
+    return direction === "down" ? "favorable" : "unfavorable";
+  }
+
+  const fromMagnitude = Math.abs(from);
+  const toMagnitude = Math.abs(to);
+  if (toMagnitude === fromMagnitude) return "neutral";
+  return toMagnitude < fromMagnitude ? "favorable" : "unfavorable";
+}
+
+function comparisonLabel(
+  direction: KpiDirection,
+  delta: number,
+  format: KpiSpec["format"]
+): string {
+  if (direction === "flat") return "No change vs first observed day";
+  const prefix = direction === "up" ? "Up" : "Down";
+  return `${prefix} ${formatKpi(Math.abs(delta), format)} vs first observed day`;
+}
+
+function momentumLabel(direction: KpiDirection): string {
+  return `Latest movement ${direction}`;
+}
+
+/**
+ * Turns a daily KPI series into the approved G-037 dual-signal vocabulary.
+ * Overall comparison is last vs first; latest momentum is last vs previous.
+ * Favorability is always explicit and never inferred from label or sign.
+ */
+export function deriveKpiTrend(
+  series: number[],
+  format: KpiSpec["format"],
+  policy: FavorablePolicy,
+  tileLabel: string,
+  tileValue: string
+): KpiTrend {
+  if (series.length < 2) {
+    return {
+      state: "sparse",
+      label: "Need 2 observations",
+      summary: `${tileLabel} is ${tileValue}. Need 2 observations for comparison.`,
+    };
+  }
+
+  const first = series[0]!;
+  const previous = series[series.length - 2]!;
+  const last = series[series.length - 1]!;
+  const comparisonDirection = directionOf(first, last);
+  const momentumDirection = directionOf(previous, last);
+  const comparisonFavorability = favorabilityOf(
+    first,
+    last,
+    comparisonDirection,
+    policy
+  );
+  const momentumFavorability = favorabilityOf(
+    previous,
+    last,
+    momentumDirection,
+    policy
+  );
+  const comparison = {
+    direction: comparisonDirection,
+    favorability: comparisonFavorability,
+    label: comparisonLabel(comparisonDirection, last - first, format),
+  };
+  const momentum = {
+    direction: momentumDirection,
+    favorability: momentumFavorability,
+    label: momentumLabel(momentumDirection),
+  };
+  const watermark =
+    comparisonDirection !== "flat" &&
+    comparisonDirection === momentumDirection &&
+    comparisonFavorability === momentumFavorability
+      ? comparisonDirection
+      : undefined;
+
+  return {
+    state: "ready",
+    comparison,
+    momentum,
+    watermark,
+    summary: `${tileLabel} is ${tileValue}. ${comparison.label}. ${momentum.label}. Overall movement is ${comparisonFavorability}; latest movement is ${momentumFavorability}.`,
+  };
 }
 
 /**
@@ -132,9 +234,15 @@ export async function evaluateKpi(spec: KpiSpec, ctx: KpiContext): Promise<KpiTi
       spec.source.sign,
       spec.source.window
     );
+    tile.trend = deriveKpiTrend(
+      series,
+      spec.format,
+      spec.semantics?.favorable ?? "neutral",
+      tile.label,
+      tile.value
+    );
     if (series.length >= 2) {
       tile.spark = series.slice(-MAX_SPARK_POINTS);
-      tile.trend = trendOf(series);
     }
   }
 

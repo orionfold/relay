@@ -87,12 +87,14 @@ export function defaultLedgerKpis(
       id: "net",
       label: "Net",
       format: "currency",
+      semantics: { favorable: "neutral" },
       source: { kind: "tableSumWindowed", table, column: currencyCol.name, window: period },
     },
     {
       id: "inflow",
       label: "Inflow",
       format: "currency",
+      semantics: { favorable: "higher" },
       source: {
         kind: "tableSumWindowed",
         table,
@@ -105,6 +107,7 @@ export function defaultLedgerKpis(
       id: "outflow",
       label: "Outflow",
       format: "currency",
+      semantics: { favorable: "closer-to-zero" },
       source: {
         kind: "tableSumWindowed",
         table,

@@ -90,6 +90,8 @@ view:
           sign: positive
           window: mtd
         format: currency
+        semantics:
+          favorable: higher
       - id: costs-mtd
         label: AI + costs (MTD)
         source:
@@ -99,6 +101,8 @@ view:
           sign: negative
           window: mtd
         format: currency
+        semantics:
+          favorable: closer-to-zero
       - id: margin-mtd
         label: Margin (MTD)
         source:
@@ -115,6 +119,8 @@ view:
             sign: positive
             window: mtd
         format: percent
+        semantics:
+          favorable: higher
       - id: close-runs
         label: Close runs (30d)
         source:

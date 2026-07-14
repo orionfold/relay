@@ -171,9 +171,10 @@ describe("evaluateKpi — trend/spark (windowed series)", () => {
       column: "amount",
       window: "mtd",
     },
+    semantics: { favorable: "higher" },
   };
 
-  it("populates spark from the windowed series and trend=up when rising", async () => {
+  it("reports a rising series as favorable with an aligned watermark", async () => {
     const tile = await evaluateKpi(
       windowedSpec,
       makeCtx({
@@ -182,30 +183,87 @@ describe("evaluateKpi — trend/spark (windowed series)", () => {
       })
     );
     expect(tile.spark).toEqual([100, 200, 300]);
-    expect(tile.trend).toBe("up");
+    expect(tile.trend).toMatchObject({
+      state: "ready",
+      comparison: {
+        direction: "up",
+        favorability: "favorable",
+        label: "Up $200.00 vs first observed day",
+      },
+      momentum: {
+        direction: "up",
+        favorability: "favorable",
+        label: "Latest movement up",
+      },
+      watermark: "up",
+    });
   });
 
-  it("derives trend=down when the series falls", async () => {
+  it("reports a lower-is-better fall as favorable", async () => {
     const tile = await evaluateKpi(
-      windowedSpec,
+      { ...windowedSpec, semantics: { favorable: "lower" } },
       makeCtx({
         tableSumWindowedSeries: vi.fn(async () => [300, 200, 50]),
       })
     );
-    expect(tile.trend).toBe("down");
+    expect(tile.trend).toMatchObject({
+      state: "ready",
+      comparison: { direction: "down", favorability: "favorable" },
+      momentum: { direction: "down", favorability: "favorable" },
+      watermark: "down",
+    });
   });
 
-  it("derives trend=flat when first and last are equal", async () => {
+  it("keeps rebound comparison and latest momentum distinct", async () => {
+    const tile = await evaluateKpi(
+      windowedSpec,
+      makeCtx({
+        tableSumWindowedSeries: vi.fn(async () => [100, 50, 80]),
+      })
+    );
+    expect(tile.trend).toMatchObject({
+      state: "ready",
+      comparison: { direction: "down", favorability: "unfavorable" },
+      momentum: { direction: "up", favorability: "favorable" },
+    });
+    expect(tile.trend?.state === "ready" && tile.trend.watermark).toBeUndefined();
+  });
+
+  it("keeps reversal comparison and latest momentum distinct", async () => {
+    const tile = await evaluateKpi(
+      windowedSpec,
+      makeCtx({
+        tableSumWindowedSeries: vi.fn(async () => [100, 150, 120]),
+      })
+    );
+    expect(tile.trend).toMatchObject({
+      state: "ready",
+      comparison: { direction: "up", favorability: "favorable" },
+      momentum: { direction: "down", favorability: "unfavorable" },
+    });
+    expect(tile.trend?.state === "ready" && tile.trend.watermark).toBeUndefined();
+  });
+
+  it("keeps a flat endpoint explicit while preserving internal movement", async () => {
     const tile = await evaluateKpi(
       windowedSpec,
       makeCtx({
         tableSumWindowedSeries: vi.fn(async () => [100, 250, 100]),
       })
     );
-    expect(tile.trend).toBe("flat");
+    expect(tile.trend).toMatchObject({
+      state: "ready",
+      comparison: {
+        direction: "flat",
+        favorability: "neutral",
+        label: "No change vs first observed day",
+      },
+      momentum: { direction: "down", favorability: "unfavorable" },
+    });
+    expect(tile.spark).toEqual([100, 250, 100]);
   });
 
-  it("omits spark/trend when the series has fewer than 2 points", async () => {
+  it("renders an explicit sparse state when the series has fewer than 2 points", async () => {
     const tile = await evaluateKpi(
       windowedSpec,
       makeCtx({
@@ -213,7 +271,54 @@ describe("evaluateKpi — trend/spark (windowed series)", () => {
       })
     );
     expect(tile.spark).toBeUndefined();
-    expect(tile.trend).toBeUndefined();
+    expect(tile.trend).toEqual({
+      state: "sparse",
+      label: "Need 2 observations",
+      summary: "Net is $0.00. Need 2 observations for comparison.",
+    });
+  });
+
+  it("handles a negative series moving closer to zero without inverting arithmetic direction", async () => {
+    const tile = await evaluateKpi(
+      { ...windowedSpec, semantics: { favorable: "closer-to-zero" } },
+      makeCtx({
+        tableSumWindowed: vi.fn(async () => -230),
+        tableSumWindowedSeries: vi.fn(async () => [-100, -80, -50]),
+      })
+    );
+    expect(tile.trend).toMatchObject({
+      state: "ready",
+      comparison: { direction: "up", favorability: "favorable" },
+      momentum: { direction: "up", favorability: "favorable" },
+      watermark: "up",
+    });
+  });
+
+  it("omits the watermark when closer-to-zero favorability diverges after crossing zero", async () => {
+    const tile = await evaluateKpi(
+      { ...windowedSpec, semantics: { favorable: "closer-to-zero" } },
+      makeCtx({
+        tableSumWindowedSeries: vi.fn(async () => [-100, 10, 20]),
+      })
+    );
+    expect(tile.trend).toMatchObject({
+      state: "ready",
+      comparison: { direction: "up", favorability: "favorable" },
+      momentum: { direction: "up", favorability: "unfavorable" },
+    });
+    expect(tile.trend?.state === "ready" && tile.trend.watermark).toBeUndefined();
+  });
+
+  it("defaults omitted semantics to a neutral judgment", async () => {
+    const tile = await evaluateKpi(
+      { ...windowedSpec, semantics: undefined },
+      makeCtx({ tableSumWindowedSeries: vi.fn(async () => [1, 2, 3]) })
+    );
+    expect(tile.trend).toMatchObject({
+      state: "ready",
+      comparison: { direction: "up", favorability: "neutral" },
+      momentum: { direction: "up", favorability: "neutral" },
+    });
   });
 
   it("caps spark at the most recent 30 points", async () => {
@@ -228,6 +333,10 @@ describe("evaluateKpi — trend/spark (windowed series)", () => {
     // The most recent 30 points are kept (16..45).
     expect(tile.spark?.[0]).toBe(16);
     expect(tile.spark?.[29]).toBe(45);
+    expect(tile.trend).toMatchObject({
+      state: "ready",
+      comparison: { direction: "up", label: "Up $44.00 vs first observed day" },
+    });
   });
 
   it("does not fetch a series or set trend/spark when no window is set", async () => {

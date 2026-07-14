@@ -73,6 +73,13 @@ describe("buildViewEditingHint", () => {
     expect(hint).toContain("set_app_view_kpis");
   });
 
+  it("requires explicit KPI favorability semantics for comparable windows", () => {
+    const hint = buildViewEditingHint({ detected: true, intent: "kpis" });
+    expect(hint).toContain("semantics.favorable");
+    expect(hint).toContain("closer-to-zero");
+    expect(hint).toContain("never infer favorability");
+  });
+
   it("names the seven kit ids", () => {
     const hint = buildViewEditingHint({ detected: true, intent: "kit" });
     for (const kit of [

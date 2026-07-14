@@ -166,7 +166,7 @@ export function appViewTools(_ctx: ToolContext) {
           .min(1)
           .max(6)
           .describe(
-            "Array of 1-6 KPI specs. Each: { id, label, source: { kind, ... }, format? }"
+            "Array of 1-6 KPI specs. Each: { id, label, source: { kind, ... }, format?, semantics?: { favorable: higher | lower | closer-to-zero | neutral } }"
           ),
       },
       async (args) => {

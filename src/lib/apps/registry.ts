@@ -106,11 +106,20 @@ const RatioKpiSourceSchema = z.object({
 
 const KpiSourceSchema = z.union([LeafKpiSourceSchema, RatioKpiSourceSchema]);
 
+export const KpiSemanticsSchema = z
+  .object({
+    favorable: z
+      .enum(["higher", "lower", "closer-to-zero", "neutral"])
+      .default("neutral"),
+  })
+  .strict();
+
 export const KpiSpecSchema = z.object({
   id: z.string(),
   label: z.string(),
   source: KpiSourceSchema,
   format: z.enum(["int", "currency", "percent", "duration", "relative"]).default("int"),
+  semantics: KpiSemanticsSchema.optional(),
 });
 
 /**

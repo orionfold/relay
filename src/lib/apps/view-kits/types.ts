@@ -253,12 +253,35 @@ export interface HeaderSlot {
   triggerSourceChip?: TriggerSource;
 }
 
+export type KpiDirection = "up" | "down" | "flat";
+export type KpiFavorability = "favorable" | "unfavorable" | "neutral";
+
+export interface KpiTrendSignal {
+  direction: KpiDirection;
+  favorability: KpiFavorability;
+  label: string;
+}
+
+export type KpiTrend =
+  | {
+      state: "sparse";
+      label: string;
+      summary: string;
+    }
+  | {
+      state: "ready";
+      comparison: KpiTrendSignal;
+      momentum: KpiTrendSignal;
+      watermark?: Exclude<KpiDirection, "flat">;
+      summary: string;
+    };
+
 export interface KpiTile {
   id: string;
   label: string;
   value: string;
   hint?: string;
-  trend?: "up" | "down" | "flat";
+  trend?: KpiTrend;
   /** Phase 2: optional sparkline data for the tile (max 30 points). */
   spark?: number[];
 }

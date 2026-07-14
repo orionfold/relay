@@ -47,4 +47,117 @@ describe("KPIStrip", () => {
     expect(screen.queryByText("Label 6")).toBeNull();
     expect(screen.queryByText("Label 7")).toBeNull();
   });
+
+  it("renders named comparison, momentum, favorability, and an aligned watermark", () => {
+    const summary =
+      "Revenue is $300.00. Up $200.00 vs first observed day. Latest movement up. Overall movement is favorable; latest movement is favorable.";
+    const { container } = render(
+      <KPIStrip
+        tiles={[
+          {
+            id: "revenue",
+            label: "Revenue",
+            value: "$300.00",
+            spark: [100, 200, 300],
+            trend: {
+              state: "ready",
+              comparison: {
+                direction: "up",
+                favorability: "favorable",
+                label: "Up $200.00 vs first observed day",
+              },
+              momentum: {
+                direction: "up",
+                favorability: "favorable",
+                label: "Latest movement up",
+              },
+              watermark: "up",
+              summary,
+            },
+          },
+        ]}
+      />
+    );
+
+    expect(
+      screen.getByText("Up $200.00 vs first observed day · Favorable")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Latest movement up · Favorable")
+    ).toBeInTheDocument();
+    const card = container.querySelector('[data-kit-primitive="kpi-tile"]');
+    expect(card).toHaveAttribute("data-comparison-direction", "up");
+    expect(card).toHaveAttribute("data-momentum-direction", "up");
+    expect(card).toHaveAttribute("data-favorability", "favorable");
+    expect(card).toHaveAttribute("aria-label", summary);
+    expect(card).toHaveAttribute("role", "group");
+    expect(container.querySelector('[data-kpi-watermark="up"]')).not.toBeNull();
+    expect(container.querySelector('svg[aria-label^="Revenue:"] polyline')).toHaveAttribute(
+      "stroke",
+      "var(--status-completed)"
+    );
+  });
+
+  it("omits the watermark when comparison and latest momentum diverge", () => {
+    const { container } = render(
+      <KPIStrip
+        tiles={[
+          {
+            id: "rebound",
+            label: "Rebound",
+            value: "80",
+            spark: [100, 50, 80],
+            trend: {
+              state: "ready",
+              comparison: {
+                direction: "down",
+                favorability: "unfavorable",
+                label: "Down 20 vs first observed day",
+              },
+              momentum: {
+                direction: "up",
+                favorability: "favorable",
+                label: "Latest movement up",
+              },
+              summary:
+                "Rebound is 80. Down 20 vs first observed day. Latest movement up. Overall movement is unfavorable; latest movement is favorable.",
+            },
+          },
+        ]}
+      />
+    );
+
+    expect(container.querySelector("[data-kpi-watermark]")).toBeNull();
+    expect(container.querySelector('svg[aria-label^="Rebound:"] polyline')).toHaveAttribute(
+      "stroke",
+      "var(--status-completed)"
+    );
+  });
+
+  it("renders the explicit sparse state without an icon or watermark", () => {
+    const { container } = render(
+      <KPIStrip
+        tiles={[
+          {
+            id: "sparse",
+            label: "Sparse",
+            value: "1",
+            trend: {
+              state: "sparse",
+              label: "Need 2 observations",
+              summary: "Sparse is 1. Need 2 observations for comparison.",
+            },
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText("Need 2 observations")).toBeInTheDocument();
+    expect(container.querySelector('[data-trend-state="sparse"]')).toHaveAttribute(
+      "aria-label",
+      "Sparse is 1. Need 2 observations for comparison."
+    );
+    expect(container.querySelector("[data-kpi-watermark]")).toBeNull();
+    expect(container.querySelector("svg")).toBeNull();
+  });
 });

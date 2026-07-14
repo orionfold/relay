@@ -78,6 +78,11 @@ describe("defaultLedgerKpis", () => {
     expect(kpis[0].source.kind).toBe("tableSumWindowed");
     expect(kpis[1].source).toMatchObject({ sign: "positive", window: "mtd" });
     expect(kpis[2].source).toMatchObject({ sign: "negative", window: "mtd" });
+    expect(kpis.map((k) => k.semantics?.favorable)).toEqual([
+      "neutral",
+      "higher",
+      "closer-to-zero",
+    ]);
   });
 
   it("appends Run-rate KPI when blueprintId provided", () => {

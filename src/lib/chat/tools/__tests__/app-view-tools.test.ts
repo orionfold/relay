@@ -197,6 +197,7 @@ describe("appViewTools — set_app_view_kpis", () => {
             label: "Active habits",
             source: { kind: "tableCount", table: "habits" },
             format: "int",
+            semantics: { favorable: "higher" },
           },
         ],
       })
@@ -210,6 +211,9 @@ describe("appViewTools — set_app_view_kpis", () => {
     // Hero is preserved; kpis is added.
     expect(bindings.hero).toEqual({ table: "habits" });
     expect((bindings.kpis as unknown[]).length).toBe(1);
+    expect(bindings.kpis).toEqual([
+      expect.objectContaining({ semantics: { favorable: "higher" } }),
+    ]);
   });
 
   it("rejects > 6 kpis at the input boundary", async () => {

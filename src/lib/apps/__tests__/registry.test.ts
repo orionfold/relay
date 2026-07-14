@@ -587,4 +587,45 @@ describe("KpiSpecSchema — tableSumWindowed arm", () => {
     };
     expect(() => KpiSpecSchema.parse(spec)).toThrow();
   });
+
+  it.each(["higher", "lower", "closer-to-zero", "neutral"] as const)(
+    "accepts explicit %s favorability semantics",
+    (favorable) => {
+      const parsed = KpiSpecSchema.parse({
+        id: "trend",
+        label: "Trend",
+        source: {
+          kind: "tableSumWindowed",
+          table: "t",
+          column: "amount",
+          window: "mtd",
+        },
+        semantics: { favorable },
+      });
+      expect(parsed.semantics?.favorable).toBe(favorable);
+    }
+  );
+
+  it("keeps semantics optional and defaults an empty declaration to neutral", () => {
+    const base = {
+      id: "trend",
+      label: "Trend",
+      source: { kind: "tableCount", table: "t" },
+    };
+    expect(KpiSpecSchema.parse(base).semantics).toBeUndefined();
+    expect(
+      KpiSpecSchema.parse({ ...base, semantics: {} }).semantics?.favorable
+    ).toBe("neutral");
+  });
+
+  it("rejects an unknown favorability policy", () => {
+    expect(() =>
+      KpiSpecSchema.parse({
+        id: "trend",
+        label: "Trend",
+        source: { kind: "tableCount", table: "t" },
+        semantics: { favorable: "always-green" },
+      })
+    ).toThrow();
+  });
 });

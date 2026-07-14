@@ -1,5 +1,24 @@
 # Feature Changelog
 
+## 2026-07-14 — G-037 truthful KPI trend semantics
+
+### Completed
+
+- Replaced the ambiguous up/down/flat KPI signal with a deterministic two-signal
+  contract: last-versus-first comparison, last-versus-previous momentum, and
+  explicit `higher`, `lower`, `closer-to-zero`, or `neutral` favorability.
+- KPI cards now name comparison and momentum in visible text, color each signal
+  by declared favorability, omit watermarks for rebounds/reversals/flat states,
+  and show `Need 2 observations` for sparse histories. Existing manifests remain
+  valid with neutral semantics, and system-cursor behavior is unchanged.
+
+### Verified
+
+- 113 focused and 91 affected regression tests passed with one skipped test,
+  alongside TypeScript, design-token, and diff checks. Live desktop and 390px
+  checks passed in light and dark themes with truthful sparse output, complete
+  accessible group names, no overflow, and a clean browser console.
+
 ## 2026-07-14 — G-052 list-item hover consistency
 
 ### Completed

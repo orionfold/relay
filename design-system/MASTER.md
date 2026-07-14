@@ -207,6 +207,27 @@ Reads as a toolbar/control-strip. Height ~46px vs 56px stacked. Buttons fit 2×2
 
 Recommended chips: `Badge variant="outline"` with icon prefix. Configured chips: filled variants (`AuthStatusBadge`, etc.). Visual grammar — outline = suggestion, filled = committed.
 
+### KPI trend semantics
+
+Comparable KPI cards keep arithmetic direction, recent momentum, and business
+favorability separate:
+
+- the comparison arrow names last-versus-first arithmetic direction;
+- the sparkline and latest-movement label name recent momentum;
+- `Favorable`, `Unfavorable`, or `Neutral` is always visible in text, while
+  semantic status color reinforces that judgment without carrying it alone;
+- favorability must be declared (`higher`, `lower`, `closer-to-zero`, or
+  `neutral`) and is never inferred from labels or signed values;
+- a large direction watermark appears only when non-flat comparison and latest
+  momentum agree in direction and favorability; rebound, reversal, semantic
+  conflict, flat, and sparse states omit it;
+- fewer than two observations render `Need 2 observations`, not an invented
+  arrow or trend.
+
+Comparable cards are labeled accessibility groups with one summary naming the
+value, comparison, momentum, and both favorability judgments. See
+`features/kpi-trend-semantics.md` for the authoritative state contract.
+
 ### Card status toolbar
 
 Operational cards with status or user actions should end with `CardStatusToolbar`.
