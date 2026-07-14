@@ -1,5 +1,25 @@
 # Feature Changelog
 
+## 2026-07-14 — G-052 list-item hover consistency
+
+### Completed
+
+- Added one token-driven fill-only interaction treatment for dashboard Needs
+  Attention rows, linked Settings-at-a-glance cells, and Tables list rows.
+  Existing dividers, radii, and selection geometry no longer receive a second
+  dark-theme hover/press outline; keyboard focus remains on the shared two-pixel
+  ring and Tables input semantics remain owned by G-047.
+- Added Tables hover coverage while preserving nested checkbox isolation,
+  selection, and single/double-click behavior. The implementation assigns no
+  cursor and the source-wide system-cursor policy remains green.
+
+### Verified
+
+- 29 targeted tests, TypeScript, and token validation pass. Live light/dark
+  checks on `/` and `/tables` confirmed the shared 160ms token contract across
+  8 Needs Attention links, 10 Settings items, and 33 Tables rows, with no
+  injected list-item outline, no page-level overflow, and a clean console.
+
 ## 2026-07-14 — G-046 telemetry rail carousel controls
 
 ### Completed

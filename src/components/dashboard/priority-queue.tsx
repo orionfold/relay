@@ -74,7 +74,8 @@ export function PriorityQueue({ tasks }: PriorityQueueProps) {
                   key={task.id}
                   href={linkHref}
                   data-interactive-surface=""
-                  className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-b-0 hover:bg-accent/50 rounded-md px-1 -mx-1 transition-colors"
+                  data-interactive-outline="preserve"
+                  className="interactive-list-item flex items-center gap-3 py-2.5 border-b border-border/50 last:border-b-0 rounded-md px-1 -mx-1"
                 >
                   <Icon className={`h-4 w-4 flex-shrink-0 ${
                     task.isWorkflow ? "text-primary" : priorityColors[task.priority] ?? priorityColors[3]

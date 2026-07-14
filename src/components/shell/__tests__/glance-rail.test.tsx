@@ -35,10 +35,13 @@ describe("GlanceRail drill-down links", () => {
     stubGlance(glance());
     render(<GlanceRail />);
 
-    expect(screen.getByRole("link", { name: "Open Budget settings" })).toHaveAttribute(
+    const budgetLink = screen.getByRole("link", { name: "Open Budget settings" });
+    expect(budgetLink).toHaveAttribute(
       "href",
       "/settings#settings-budget",
     );
+    expect(budgetLink).toHaveClass("interactive-list-item");
+    expect(budgetLink).toHaveAttribute("data-interactive-outline", "preserve");
     expect(screen.getByRole("link", { name: "Open Search settings" })).toHaveAttribute(
       "href",
       "/settings#settings-web-search",

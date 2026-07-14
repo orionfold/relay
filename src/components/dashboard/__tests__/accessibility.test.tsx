@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { PriorityQueue } from "@/components/dashboard/priority-queue";
@@ -20,6 +20,9 @@ describe("dashboard accessibility surfaces", () => {
     );
 
     expect(container.querySelector('.space-y-1[aria-live="polite"]')).not.toBeNull();
+    const taskLink = screen.getByRole("link", { name: /Fix runtime mismatch/ });
+    expect(taskLink).toHaveClass("interactive-list-item");
+    expect(taskLink).toHaveAttribute("data-interactive-outline", "preserve");
   });
 
   it("marks the activity feed updates as a polite live region", () => {

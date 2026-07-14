@@ -902,6 +902,21 @@ input:disabled *,
    change outline-color — a discrete none-to-solid outline cannot ease and
    reads as a flash. The reduced-motion override at the end of this file
    collapses these durations. */
+.interactive-list-item {
+  transition-property: background-color, color;
+  transition-duration: 160ms;
+  transition-timing-function: ease-in-out;
+}
+
+.interactive-list-item:not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):hover {
+  background-color: var(--interaction-hover-surface);
+}
+
+.interactive-list-item:not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active {
+  background-color: var(--interaction-active-surface);
+  transition-duration: 40ms;
+}
+
 .dark :where(
   button:not(:disabled):not([role="tab"]):not([data-variant="link"]):not([data-slot="sidebar-rail"]),
   summary,
@@ -918,7 +933,7 @@ input:disabled *,
   .flagship-card-interactive,
   [data-interactive-surface],
   [data-telemetry-card][href]
-):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):not([data-interactive-outline="preserve"]) {
   outline: 1px solid transparent;
   outline-offset: -1px;
   transition-property: background-color, border-color, color, outline-color, box-shadow, transform;
@@ -943,7 +958,7 @@ input:disabled *,
   .flagship-card-interactive,
   [data-interactive-surface],
   [data-telemetry-card][href]
-):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active {
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):not([data-interactive-outline="preserve"]):active {
   transition-duration: 40ms;
 }
 
@@ -967,7 +982,7 @@ input:disabled *,
   .flagship-card-interactive,
   [data-interactive-surface],
   [data-telemetry-card][href]
-):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):hover {
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):not([data-interactive-outline="preserve"]):hover {
   outline: 1px solid var(--interaction-hover-edge);
   outline-offset: -1px;
 }
@@ -1016,7 +1031,7 @@ input:disabled *,
   .flagship-card-interactive,
   [data-interactive-surface],
   [data-telemetry-card][href]
-):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active {
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):not([data-interactive-outline="preserve"]):active {
   outline: 2px solid var(--ring);
   outline-offset: -2px;
 }

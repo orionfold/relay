@@ -103,6 +103,7 @@ via marker comments, not dropped. See `_SPECS/2026-06-29-211534_feature-cut-free
 | [task-summary-inbox-navigation](task-summary-inbox-navigation.md) | P1 | completed | task-board, inbox-notifications, task-output-rendering |
 | [interaction-affordance-consistency](interaction-affordance-consistency.md) | P2 | in-verification | app-shell, ux-gap-fixes |
 | [interactive-container-keyboard-parity](interactive-container-keyboard-parity.md) | P2 | planned | interaction-affordance-consistency, accessibility |
+| [list-item-hover-highlight-consistency](list-item-hover-highlight-consistency.md) | P2 | completed | interaction-affordance-consistency |
 | [telemetry-rail-carousel-controls](telemetry-rail-carousel-controls.md) | P2 | completed | app-shell, micro-visualizations |
 | [learned-context-ux-completion](learned-context-ux-completion.md)   | P2       | completed | agent-self-improvement, agent-profile-catalog                                                            |
 | [micro-visualizations](micro-visualizations.md)                     | P2       | completed | homepage-dashboard, monitoring-dashboard, project-management                                             |

@@ -14,6 +14,13 @@ const PRIORITY_QUEUE = join(
   "dashboard",
   "priority-queue.tsx",
 );
+const TABLE_LIST = join(
+  __dirname,
+  "..",
+  "..",
+  "tables",
+  "table-list-table.tsx",
+);
 const APP_MATERIALIZED_CARD = join(
   __dirname,
   "..",
@@ -200,14 +207,48 @@ describe("interaction affordance policy (highlight-carried, system cursors)", ()
     const source = readFileSync(GLANCE_RAIL, "utf8");
 
     expect(source.match(/data-interactive-surface/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(source.match(/data-interactive-outline="preserve"/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(source.match(/interactive-list-item/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(source).not.toContain("hover:bg-accent/70");
   });
 
   it("keeps dashboard Needs Attention rows on the shared distinguishable hover", () => {
     const source = readFileSync(PRIORITY_QUEUE, "utf8");
 
     expect(source).toContain("data-interactive-surface");
-    expect(source).toContain("hover:bg-accent/50");
-    expect(source).not.toContain("hover:bg-accent/30");
+    expect(source).toContain('data-interactive-outline="preserve"');
+    expect(source).toContain("interactive-list-item");
+    expect(source).not.toMatch(/hover:bg-accent\/(?:30|50|70)/);
+  });
+
+  it("gives Tables list rows the same fill-only interaction contract", () => {
+    const source = readFileSync(TABLE_LIST, "utf8");
+
+    expect(source).toContain("data-interactive-surface");
+    expect(source).toContain('data-interactive-outline="preserve"');
+    expect(source).toContain('className="interactive-list-item"');
+  });
+
+  it("keeps list-item hover fill-only while preserving the shared focus ring", () => {
+    const source = readFileSync(GLOBALS, "utf8");
+    const listHoverRule =
+      source.match(/\.interactive-list-item[^{}]+:hover\s*\{[^}]+\}/s)?.[0] ?? "";
+    const listActiveRule =
+      source.match(/\.interactive-list-item[^{}]+:active\s*\{[^}]+\}/s)?.[0] ?? "";
+
+    expect(listHoverRule).toContain(
+      "background-color: var(--interaction-hover-surface)",
+    );
+    expect(listHoverRule).not.toContain("outline");
+    expect(listActiveRule).toContain(
+      "background-color: var(--interaction-active-surface)",
+    );
+    expect(listActiveRule).not.toContain("outline");
+    expect(source.match(/:not\(\[data-interactive-outline="preserve"\]\)/g)?.length).toBeGreaterThanOrEqual(4);
+    expect(source).toContain("outline-offset: 2px !important");
+    expect(source).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]+transition-duration: 0\.01ms !important/,
+    );
   });
 
   it("keeps the decorative boot veil out of pointer hit-testing", () => {

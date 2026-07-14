@@ -291,6 +291,19 @@ Destructive menu actions retain destructive hover/focus colors instead of
 inheriting the neutral cyan interaction fill, and disabled destructive actions
 remain visually neutral.
 
+### Interactive List Items
+
+Dense row-like interactions use `interactive-list-item` together with
+`data-interactive-surface`. The shared utility owns the token-driven hover and
+active fills plus the accepted 160ms ease in both themes.
+
+When an item already has structural geometry such as dividers, a selected row,
+or a rail cell edge, add `data-interactive-outline="preserve"`. This suppresses
+only the generic hover/press outline so the highlight does not draw a second or
+mismatched shape. It does not suppress the shared two-pixel `focus-visible`
+ring. Disabled/inert guards, nested-control behavior, and system cursor policy
+remain unchanged.
+
 ## Icons
 
 **Library:** Lucide React
