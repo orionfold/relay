@@ -52,7 +52,12 @@ function Cell({ label, value, href }: GlanceCell) {
     "glance-cell flex min-w-[7rem] flex-none flex-col gap-0.5 px-3 transition-colors hover:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
   if (href) {
     return (
-      <Link href={href} aria-label={`Open ${label} settings`} className={className}>
+      <Link
+        href={href}
+        aria-label={`Open ${label} settings`}
+        data-interactive-surface=""
+        className={className}
+      >
         {content}
       </Link>
     );
@@ -182,7 +187,8 @@ export function GlanceRail() {
         </div>
         <Link
           href="/settings"
-          className="glance-cell flex flex-none items-center gap-0.5 px-4 font-mono text-[0.55rem] uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-primary"
+          data-interactive-surface=""
+          className="glance-cell flex flex-none items-center gap-0.5 px-4 font-mono text-[0.55rem] uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:bg-accent/70 hover:text-primary"
         >
           Open
           <ArrowUpRight aria-hidden className="h-2.5 w-2.5" />

@@ -11,10 +11,19 @@ dependencies: [app-shell, ux-gap-fixes]
 
 ## Outcome
 
-Enabled buttons, links, icon actions, interactive rows, and clickable cards use
-one truthful hand-pointer policy. Dark-theme contained controls have clearly
-perceptible hover/press feedback while the already-acceptable light theme stays
-regression-free and keyboard focus remains at least as strong.
+Enabled buttons, links, icon actions, interactive rows, and clickable cards
+carry their affordance through clearly perceptible, smoothly eased hover/press
+highlight. Cursors are native browser behavior only; no code switches the
+arrow to a hand. The already-acceptable light theme stays regression-free and
+keyboard focus remains at least as strong.
+
+**Direction change — 2026-07-13 walkthrough.** The operator retired the entire
+arrow-to-hand cursor approach after watching it live: the image-backed cursor
+flickered on click areas and never settled, after both Claude Code and Codex
+top models had repeatedly failed to make any variant reliable. Decision: remove
+all cursor-switching code and carry affordance with highlight alone. Highlight
+must be consistent (settings glance rail and dashboard Needs Attention rows
+included) and eased in/out rather than sudden.
 
 ## What already exists
 
@@ -69,6 +78,10 @@ disabled/inert ──> no pointer claim and no hover invitation
   cannot survive.
 - Ordinary dark-theme accent shifts were too close to the surrounding charcoal
   surface. Light theme was not part of that contrast defect.
+- The versioned image-backed cursor itself, though it passed computed-style
+  checks and cold-start screenshots, flickered during real pointer use in the
+  operator walkthrough. This closed the cursor line of work entirely: no
+  keyword, image, or pseudo-element variant is acceptable. Native cursors only.
 
 ## Implementation and remaining verification
 
@@ -97,10 +110,17 @@ disabled/inert ──> no pointer claim and no hover invitation
 
 ## Acceptance criteria
 
-- [x] The operator approves the hand policy and dark-theme fill-plus-edge scope.
-- [ ] Native hand pointer is visibly confirmed by the operator on enabled
-  buttons, links, icon actions, rows, and cards in Chrome and Safari; inputs,
-  disabled controls, and inert surfaces retain the normal cursor.
+- [x] The dark-theme fill-plus-edge scope is operator-approved; the earlier
+  hand-pointer approval was withdrawn on 2026-07-13 and every cursor-switching
+  rule plus the cursor asset is removed with a regression test guarding
+  against reintroduction.
+- [x] Interactive-state highlight eases in and out (~160ms, transparent rest
+  outline so the edge can interpolate) with a crisp press, and the settings
+  glance rail and dashboard Needs Attention rows join the strong shared
+  treatment.
+- [ ] Operator confirms in Chrome and Safari that highlight alone makes
+  interactive surfaces unmistakable, smooth, and consistent (walkthrough in
+  progress; dark theme under review first, light theme still pending).
 - [x] Hover is clearly perceptible in dark theme without relying on decorative
   motion; light theme remains regression-free.
 - [x] Focus-visible feedback is at least as strong as hover, and active state is
@@ -109,7 +129,7 @@ disabled/inert ──> no pointer claim and no hover invitation
   parent interaction.
 - [x] Component/class-contract tests cover shared primitives and representative
   main-content/top-right-toolbar consumers.
-- [ ] Browser-computed cursor and before/hover/focus screenshots pass on
+- [x] Browser-computed cursor and before/hover/focus screenshots pass on
   dashboard, detail, table, workflow, and settings surfaces in both themes.
 - [x] Keyboard, disabled, nested-action, and reduced-motion regressions pass.
 - [x] Inert telemetry cells remain visually inert; only linked telemetry cells
@@ -138,6 +158,29 @@ treatment. The targeted interaction/telemetry suite now passes 43/43 tests. The
 audit also recorded the remaining source-test
 limitation as TRIAGE-018 and split composite keyboard semantics to TRIAGE-017 /
 G-047.
+
+A 2026-07-13 cold-start Playwright matrix
+(`output/interaction-audit/2026-07-13/cold-matrix/`) closed the remaining
+automated criterion: after killing and cold-starting the dev server (cursor
+asset 200 on first request), 932 element checks across dashboard, project
+detail, tables list, table spreadsheet, workflows, and settings in light and
+dark themes found zero violations — every enabled interactive element resolves
+the image-backed hand (900/900), inert telemetry cells stay handless (12/12),
+text entry keeps the I-beam (14/14), and disabled controls never claim the
+pointer (6/6). Hover deltas confirm fill-plus-edge on buttons, cards, and
+linked telemetry cells on every dark surface, fill-based hover intact in
+light, and keyboard focus resolves to the 2px cyan ring in both themes.
+Screenshots and `report.json` sit beside the rerunnable `g045-matrix.cjs`.
+Note: the matrix's hand-cursor assertions predate the 2026-07-13 direction
+change and are historical; its highlight, focus, inert, and disabled evidence
+remains valid.
+
+The 2026-07-13 live operator walkthrough (Claude in Chrome, dark theme) then
+found cursor flicker, an unlit settings glance rail, barely visible Needs
+Attention hovers, and sudden flashy highlight. The same session removed the
+cursor machinery, put the glance rail and priority queue on the shared
+`data-interactive-surface` treatment, and added eased transitions; 44/44
+interaction/telemetry/glance tests pass after the change.
 
 ## Error & Rescue Registry
 

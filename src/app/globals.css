@@ -880,101 +880,12 @@ body {
   color: var(--foreground);
 }
 
-/* App-wide pointer policy. The cursor is resolved from the deepest painted
-   node under the mouse, not necessarily the semantic root, so enabled targets
-   AND their descendants carry the hand explicitly. Disabled subtrees are
-   excluded at the source and reset afterward as a defensive fallback. */
-:where(
-  a[href],
-  a[href] *,
-  button:not(:disabled),
-  button:not(:disabled) *,
-  summary,
-  summary *,
-  select:not(:disabled),
-  select:not(:disabled) *,
-  input[type="checkbox"]:not(:disabled),
-  input[type="checkbox"]:not(:disabled) *,
-  input[type="radio"]:not(:disabled),
-  input[type="radio"]:not(:disabled) *,
-  input[type="range"]:not(:disabled),
-  input[type="range"]:not(:disabled) *,
-  [role="button"]:not([aria-disabled="true"]),
-  [role="button"]:not([aria-disabled="true"]) *,
-  [role="combobox"]:not([aria-disabled="true"]),
-  [role="combobox"]:not([aria-disabled="true"]) *,
-  [role="link"]:not([aria-disabled="true"]),
-  [role="link"]:not([aria-disabled="true"]) *,
-  [role="tab"]:not([aria-disabled="true"]),
-  [role="tab"]:not([aria-disabled="true"]) *,
-  [role="menuitem"]:not([aria-disabled="true"]),
-  [role="menuitem"]:not([aria-disabled="true"]) *,
-  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
-  [role="menuitemcheckbox"]:not([aria-disabled="true"]) *,
-  [role="menuitemradio"]:not([aria-disabled="true"]),
-  [role="menuitemradio"]:not([aria-disabled="true"]) *,
-  [role="option"]:not([aria-disabled="true"]),
-  [role="option"]:not([aria-disabled="true"]) *,
-  [role="checkbox"]:not([aria-disabled="true"]),
-  [role="checkbox"]:not([aria-disabled="true"]) *,
-  [role="radio"]:not([aria-disabled="true"]),
-  [role="radio"]:not([aria-disabled="true"]) *,
-  [role="switch"]:not([aria-disabled="true"]),
-  [role="switch"]:not([aria-disabled="true"]) *,
-  .flagship-card-interactive,
-  .flagship-card-interactive *,
-  .cursor-pointer,
-  .cursor-pointer *
-):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
-  cursor: url("/cursors/relay-hand-pointer-v1.svg") 7 2, pointer !important;
-}
-
-/* Labels adjacent to enabled selectable controls are part of the same hit
-   target. Ordinary text-field labels remain neutral. */
-:is(
-  label[for]:has(+ :is([role="checkbox"], [role="radio"], [role="switch"]):not(:disabled):not([aria-disabled="true"]):not([data-disabled]:not([data-disabled="false"]))),
-  :is([role="checkbox"], [role="radio"], [role="switch"]):not(:disabled):not([aria-disabled="true"]):not([data-disabled]:not([data-disabled="false"])) + label[for]
-):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *),
-:is(
-  label[for]:has(+ :is([role="checkbox"], [role="radio"], [role="switch"]):not(:disabled):not([aria-disabled="true"]):not([data-disabled]:not([data-disabled="false"]))),
-  :is([role="checkbox"], [role="radio"], [role="switch"]):not(:disabled):not([aria-disabled="true"]):not([data-disabled]:not([data-disabled="false"])) + label[for]
-):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) * {
-  cursor: url("/cursors/relay-hand-pointer-v1.svg") 7 2, pointer !important;
-}
-
-/* Text-entry surfaces retain the native insertion cursor. Labels are never
-   treated as a blanket category: selectable-control adjacency above and an
-   explicit component class are the two supported pointer opt-ins. */
-:where(
-  input:not([type]):not(:disabled),
-  input:is([type="text"], [type="email"], [type="password"], [type="search"], [type="tel"], [type="url"], [type="number"]):not(:disabled),
-  textarea:not(:disabled),
-  [contenteditable]:not([contenteditable="false"])
-):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
-  cursor: text !important;
-}
-
-/* Keep the shared Button contract explicit as well as semantic. Safari can
-   resolve an outline button through its painted variant layer instead of the
-   lower-specificity semantic selector, even though both compute identically in
-   Chromium. This later, variant-aware rule keeps every Button surface on the
-   same cursor asset without affecting disabled controls. */
-:where(
-  button[data-slot="button"][data-variant]:not(:disabled),
-  button[data-slot="button"][data-variant]:not(:disabled) *
-):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
-  cursor: url("/cursors/relay-hand-pointer-v1.svg") 7 2, pointer !important;
-}
-
-/* The sidebar rail is primarily a resize affordance, so it keeps a resize
-   cursor even though clicking it also toggles the sidebar. */
-:where(
-  button[data-slot="sidebar-rail"]:not(:disabled),
-  button[data-slot="sidebar-rail"]:not(:disabled) *
-):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
-  cursor: ew-resize !important;
-}
-
+/* Cursor policy: native browser behavior only. The custom image-backed hand
+   cursor and every forced arrow-to-hand switch were removed by operator
+   decision (2026-07-13 walkthrough) after repeated cross-browser failures.
+   Do not reintroduce a custom cursor policy; the hover highlight below is
+   the affordance carrier. Disabled and inert subtrees still refuse any
+   clickability claim a stray cursor-pointer utility might make: */
 button:disabled,
 button:disabled *,
 select:disabled,
@@ -988,6 +899,58 @@ input:disabled *,
 [inert],
 [inert] * {
   cursor: default !important;
+}
+
+/* Interactive-state easing. Every surface that can receive the structural
+   edge carries a transparent 1px outline at rest, so hover and press only
+   change outline-color — a discrete none-to-solid outline cannot ease and
+   reads as a flash. The reduced-motion override at the end of this file
+   collapses these durations. */
+.dark :where(
+  button:not(:disabled):not([role="tab"]):not([data-variant="link"]):not([data-slot="sidebar-rail"]),
+  summary,
+  select:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]):not([role="tab"]),
+  [role="combobox"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]):not([data-variant="destructive"]),
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
+  [role="menuitemradio"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]),
+  .flagship-card-interactive,
+  [data-interactive-surface],
+  [data-telemetry-card][href],
+  .cursor-pointer:not([role="tab"]):not([data-variant="destructive"])
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
+  outline: 1px solid transparent;
+  outline-offset: -1px;
+  transition-property: background-color, border-color, color, outline-color, box-shadow, transform;
+  transition-duration: 160ms;
+  transition-timing-function: ease-in-out;
+}
+
+/* Press feedback stays crisp: easing slowly into :active reads as lag. */
+.dark :where(
+  button:not(:disabled):not([role="tab"]):not([data-variant="link"]):not([data-slot="sidebar-rail"]),
+  summary,
+  select:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]):not([role="tab"]),
+  [role="combobox"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]):not([data-variant="destructive"]),
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
+  [role="menuitemradio"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]),
+  .flagship-card-interactive,
+  [data-interactive-surface],
+  [data-telemetry-card][href],
+  .cursor-pointer:not([role="tab"]):not([data-variant="destructive"])
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active {
+  transition-duration: 40ms;
 }
 
 /* Dark theme needs a larger state delta than the ordinary surface scale.

@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const UI_DIR = join(__dirname, "..");
 const GLOBALS = join(__dirname, "..", "..", "..", "app", "globals.css");
 const APP_BAR = join(__dirname, "..", "..", "shell", "app-bar.tsx");
+const GLANCE_RAIL = join(__dirname, "..", "..", "shell", "glance-rail.tsx");
+const PRIORITY_QUEUE = join(
+  __dirname,
+  "..",
+  "..",
+  "dashboard",
+  "priority-queue.tsx",
+);
 const APP_MATERIALIZED_CARD = join(
   __dirname,
   "..",
@@ -12,16 +20,7 @@ const APP_MATERIALIZED_CARD = join(
   "chat",
   "app-materialized-card.tsx",
 );
-const CURSOR_ASSET = join(
-  __dirname,
-  "..",
-  "..",
-  "..",
-  "..",
-  "public",
-  "cursors",
-  "relay-hand-pointer-v1.svg",
-);
+const CURSOR_ASSET_DIR = join(__dirname, "..", "..", "..", "..", "public", "cursors");
 
 const POINTER_PRIMITIVES: Record<string, number> = {
   "button.tsx": 1,
@@ -35,45 +34,25 @@ const POINTER_PRIMITIVES: Record<string, number> = {
   "tabs.tsx": 1,
 };
 
-describe("app-wide hand cursor policy", () => {
-  it("makes the semantic policy authoritative over generated defaults", () => {
+describe("interaction affordance policy (highlight-carried, native cursors)", () => {
+  it("contains no custom cursor switching — operator decision 2026-07-13", () => {
     const source = readFileSync(GLOBALS, "utf8");
 
-    expect(source).toContain("button:not(:disabled)");
-    expect(source).toContain('[role="button"]:not([aria-disabled="true"])');
-    expect(source).toContain(".flagship-card-interactive");
-    expect(source).toContain(".cursor-pointer");
-    expect(source).toMatch(/, pointer !important;/);
-    expect(source).toMatch(/cursor:\s*default !important;/);
+    expect(source).not.toContain("relay-hand-pointer");
+    expect(source).not.toContain('cursor: url(');
+    expect(source).not.toMatch(/, pointer !important;/);
+    expect(existsSync(CURSOR_ASSET_DIR)).toBe(false);
   });
 
-  it("applies the hand cursor to painted descendants, not only roots", () => {
+  it("keeps disabled and inert subtrees on the truthful default cursor", () => {
     const source = readFileSync(GLOBALS, "utf8");
 
-    expect(source).toContain(".cursor-pointer,");
-    expect(source).toContain(".cursor-pointer *");
+    expect(source).toMatch(/cursor:\s*default !important;/);
     expect(source).toContain('[aria-disabled="true"] *');
     expect(source).toContain(
       '[data-disabled]:not([data-disabled="false"]) *',
     );
     expect(source).toContain("[inert] *");
-    expect(source).toContain(":not([inert] *)");
-    expect(source).toContain(':not([aria-disabled="true"] *)');
-    expect(source).toContain(
-      ':not([data-disabled]:not([data-disabled="false"]) *)',
-    );
-  });
-
-  it("preserves native text-entry cursors and does not treat every label as a hit target", () => {
-    const source = readFileSync(GLOBALS, "utf8");
-
-    expect(source).toContain('input:is([type="text"]');
-    expect(source).toContain("textarea:not(:disabled)");
-    expect(source).toContain("cursor: text !important");
-    expect(source).not.toContain("label[for],");
-    expect(source).toContain(
-      'label[for]:has(+ :is([role="checkbox"], [role="radio"], [role="switch"])',
-    );
   });
 
   for (const file of ["input.tsx", "textarea.tsx", "label.tsx"]) {
@@ -88,32 +67,13 @@ describe("app-wide hand cursor policy", () => {
     });
   }
 
-  it("uses an image-backed hand with a standards fallback", () => {
-    const source = readFileSync(GLOBALS, "utf8");
-    const asset = readFileSync(CURSOR_ASSET, "utf8");
-
-    expect(source).toContain(
-      'cursor: url("/cursors/relay-hand-pointer-v1.svg") 7 2, pointer !important;',
-    );
-    expect(asset).toContain("Lucide Pointer icon");
-    expect(source).not.toContain("button:not(:disabled)::after");
-  });
-
-  it("keeps every painted shared Button variant on the image-backed cursor", () => {
-    const source = readFileSync(GLOBALS, "utf8");
-
-    expect(source).toContain(
-      'button[data-slot="button"][data-variant]:not(:disabled)',
-    );
-  });
-
   it("preserves the Tabs active indicator", () => {
     const source = readFileSync(join(UI_DIR, "tabs.tsx"), "utf8");
 
     expect(source).toContain("data-[state=active]:after:opacity-100");
   });
 
-  it("keeps disabled buttons hit-testable so nested cards cannot leak a hand", () => {
+  it("keeps disabled buttons hit-testable so nested cards cannot leak affordance", () => {
     const source = readFileSync(join(UI_DIR, "button.tsx"), "utf8");
 
     expect(source).toContain("disabled:cursor-default");
@@ -160,6 +120,20 @@ describe("app-wide hand cursor policy", () => {
     expect(source).toContain("outline: 2px solid var(--ring)");
   });
 
+  it("eases the highlight instead of flashing it, with a crisp press", () => {
+    const source = readFileSync(GLOBALS, "utf8");
+
+    // Transparent rest outline makes the edge interpolable; none -> solid
+    // cannot ease and reads as a flash.
+    expect(source).toContain("outline: 1px solid transparent");
+    expect(source).toContain(
+      "transition-property: background-color, border-color, color, outline-color, box-shadow, transform",
+    );
+    expect(source).toContain("transition-timing-function: ease-in-out");
+    expect(source).toContain("transition-duration: 160ms");
+    expect(source).toContain("transition-duration: 40ms");
+  });
+
   it("does not advertise inert telemetry cells as interactive on hover", () => {
     const source = readFileSync(GLOBALS, "utf8");
 
@@ -198,6 +172,20 @@ describe("app-wide hand cursor policy", () => {
     expect(source).toContain("data-interactive-surface");
   });
 
+  it("gives linked settings-glance cells the strong interactive treatment", () => {
+    const source = readFileSync(GLANCE_RAIL, "utf8");
+
+    expect(source.match(/data-interactive-surface/g)?.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("keeps dashboard Needs Attention rows on the shared distinguishable hover", () => {
+    const source = readFileSync(PRIORITY_QUEUE, "utf8");
+
+    expect(source).toContain("data-interactive-surface");
+    expect(source).toContain("hover:bg-accent/50");
+    expect(source).not.toContain("hover:bg-accent/30");
+  });
+
   it("keeps the decorative boot veil out of pointer hit-testing", () => {
     const source = readFileSync(GLOBALS, "utf8");
     const bootRule = source.match(/\.of-boot\s*\{[^}]+\}/s)?.[0] ?? "";
@@ -225,7 +213,7 @@ describe("app-wide hand cursor policy", () => {
     "slider.tsx",
     "tabs.tsx",
   ]) {
-    it(`${file} keeps disabled choices hit-testable without leaking a hand`, () => {
+    it(`${file} keeps disabled choices hit-testable without leaking affordance`, () => {
       const source = readFileSync(join(UI_DIR, file), "utf8");
 
       expect(source).toContain("cursor-default");
