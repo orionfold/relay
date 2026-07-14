@@ -8,9 +8,10 @@ export interface ClaimResult {
 // Module-level prepared statements. These are hot-path primitives called on
 // every scheduler tick and drain pass, so we pay the SQL compilation cost once
 // at module load rather than on every invocation.
-const claimStmt = sqlite.prepare(
-  "UPDATE tasks SET status = 'running', slot_claimed_at = ?, lease_expires_at = ?, updated_at = ? WHERE id = ? AND status = 'queued' AND source_type IN ('scheduled', 'heartbeat') AND (SELECT COUNT(*) FROM tasks WHERE status = 'running' AND source_type IN ('scheduled', 'heartbeat')) < ?",
-);
+export const SLOT_CLAIM_SQL =
+  "UPDATE tasks SET status = 'running', slot_claimed_at = ?, lease_expires_at = ?, updated_at = ? WHERE id = ? AND status = 'queued' AND source_type IN ('scheduled', 'heartbeat') AND (SELECT COUNT(*) FROM tasks WHERE status = 'running' AND source_type IN ('scheduled', 'heartbeat')) < ?";
+
+const claimStmt = sqlite.prepare(SLOT_CLAIM_SQL);
 
 const countRunningStmt = sqlite.prepare(
   "SELECT COUNT(*) AS n FROM tasks WHERE status = 'running' AND source_type IN ('scheduled', 'heartbeat')",

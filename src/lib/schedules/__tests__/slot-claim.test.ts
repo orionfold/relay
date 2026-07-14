@@ -3,7 +3,13 @@ import { db } from "@/lib/db";
 import { tasks, schedules, projects, settings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
-import { claimSlot, countRunningScheduledSlots } from "../slot-claim";
+import { Worker } from "node:worker_threads";
+import { join } from "node:path";
+import {
+  claimSlot,
+  countRunningScheduledSlots,
+  SLOT_CLAIM_SQL,
+} from "../slot-claim";
 import { reapExpiredLeases } from "../slot-claim";
 
 function seedProject(): string {
@@ -106,7 +112,7 @@ describe("claimSlot", () => {
     expect(row2?.status).toBe("queued");
   });
 
-  it("two concurrent claim attempts for the same task yield exactly one winner", () => {
+  it("refuses a repeated claim for the same task", () => {
     const pid = seedProject();
     const sid = seedSchedule(pid);
     const tid = seedQueuedTask(sid);
@@ -116,6 +122,97 @@ describe("claimSlot", () => {
 
     expect(first.claimed).toBe(true);
     expect(second.claimed).toBe(false); // task already running, can't re-claim
+  });
+
+  it("allows exactly one winner when two SQLite connections race beneath cap 1", async () => {
+    const projectId = seedProject();
+    const firstTaskId = seedQueuedTask(seedSchedule(projectId));
+    const secondTaskId = seedQueuedTask(seedSchedule(projectId));
+    const databasePath = join(process.env.RELAY_DATA_DIR!, "relay.db");
+    const startBarrier = new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT);
+    const startSignal = new Int32Array(startBarrier);
+
+    const workerSource = `
+      const { parentPort, workerData } = require("node:worker_threads");
+      const Database = require("better-sqlite3");
+      const db = new Database(workerData.databasePath);
+      db.pragma("busy_timeout = 5000");
+      const start = new Int32Array(workerData.startBarrier);
+      parentPort.postMessage({ type: "ready" });
+      Atomics.wait(start, 0, 0);
+      try {
+        const result = db.prepare(workerData.sql).run(
+          workerData.nowSec,
+          workerData.nowSec + 1200,
+          workerData.nowSec,
+          workerData.taskId,
+          1,
+        );
+        parentPort.postMessage({ type: "result", changes: result.changes });
+      } catch (error) {
+        parentPort.postMessage({
+          type: "error",
+          message: error instanceof Error ? error.message : String(error),
+        });
+      } finally {
+        db.close();
+      }
+    `;
+
+    const runClaim = (taskId: string) => {
+      let markReady!: () => void;
+      const ready = new Promise<void>((resolve) => {
+        markReady = resolve;
+      });
+      const result = new Promise<number>((resolve, reject) => {
+        const worker = new Worker(workerSource, {
+          eval: true,
+          workerData: {
+            databasePath,
+            sql: SLOT_CLAIM_SQL,
+            taskId,
+            nowSec: Math.ceil(Date.now() / 1000),
+            startBarrier,
+          },
+        });
+        worker.on("message", (message) => {
+          if (message.type === "ready") {
+            markReady();
+            return;
+          }
+          if (message.type === "error") {
+            reject(new Error(`Competing claim failed: ${message.message}`));
+            return;
+          }
+          resolve(message.changes);
+        });
+        worker.on("error", reject);
+        worker.on("exit", (code) => {
+          if (code !== 0) reject(new Error(`Competing claim worker exited ${code}`));
+        });
+      });
+      return { ready, result };
+    };
+
+    const firstClaim = runClaim(firstTaskId);
+    const secondClaim = runClaim(secondTaskId);
+    // Let both connections open and block on the shared start signal before
+    // releasing them together. SQLite then serializes the actual writers.
+    await Promise.all([firstClaim.ready, secondClaim.ready]);
+    Atomics.store(startSignal, 0, 1);
+    Atomics.notify(startSignal, 0, 2);
+
+    const changes = await Promise.all([firstClaim.result, secondClaim.result]);
+    expect(changes.sort()).toEqual([0, 1]);
+    expect(countRunningScheduledSlots()).toBe(1);
+
+    const rows = db
+      .select({ id: tasks.id, status: tasks.status })
+      .from(tasks)
+      .where(eq(tasks.sourceType, "scheduled"))
+      .all();
+    expect(rows.filter((row) => row.status === "running")).toHaveLength(1);
+    expect(rows.filter((row) => row.status === "queued")).toHaveLength(1);
   });
 
   it("respects cap across multiple tasks from different schedules", () => {

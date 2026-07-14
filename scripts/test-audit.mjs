@@ -261,6 +261,15 @@ const report = {
       vitestConfig.includes("unstubGlobals: true") &&
       packageJson.scripts?.["test:harness-safety"] ===
         "node scripts/test-harness-safety.mjs",
+    runtimeGraphSmokeConfigured:
+      packageJson.scripts?.["test:runtime-graph"] ===
+        "node scripts/runtime-module-graph-smoke.mjs" &&
+      defaultVitestFiles.includes(
+        "src/lib/agents/runtime/__tests__/module-boundary.test.ts"
+      ) &&
+      defaultVitestFiles.includes(
+        "src/app/api/chat/conversations/[id]/messages/__tests__/route-termination.test.ts"
+      ),
     e2eUsesCurrentSingleWorkerConfig:
       e2eVitestConfig.includes("maxWorkers: 1") &&
       e2eVitestConfig.includes("isolate: false") &&
@@ -321,6 +330,10 @@ if (jsonOnly) {
   console.log(
     `Harness-owned mutable state`.padEnd(30),
     report.topology.defaultHarnessOwnsMutableState ? "configured" : "MISSING"
+  );
+  console.log(
+    `Runtime module-graph smoke`.padEnd(30),
+    report.topology.runtimeGraphSmokeConfigured ? "configured" : "MISSING"
   );
   console.log(
     `Vitest 4 E2E worker config`.padEnd(30),

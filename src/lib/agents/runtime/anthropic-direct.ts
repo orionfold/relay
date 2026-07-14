@@ -15,7 +15,6 @@ import {
   buildTaskQueryContext,
   createTaskUsageState,
 } from "../claude-agent";
-import { createToolServer } from "@/lib/chat/ainative-tools";
 import type { AnthropicToolDef } from "@/lib/chat/tool-registry";
 import { handleToolPermission, clearPermissionCache } from "../tool-permissions";
 import {
@@ -408,6 +407,7 @@ async function executeAnthropicDirectTask(taskId: string, isResume = false): Pro
     const client = new sdk.default({ apiKey });
 
     // Get tools in Anthropic format
+    const { createToolServer } = await import("@/lib/chat/ainative-tools");
     const toolServer = createToolServer(task.projectId);
     const { tools, executeHandler } = toolServer.forProvider("anthropic");
 

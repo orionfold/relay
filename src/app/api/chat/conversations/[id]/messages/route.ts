@@ -60,6 +60,11 @@ export async function POST(
   // Bridge the async generator to an SSE ReadableStream
   const encoder = new TextEncoder();
   const streamStartedAt = Date.now();
+  const streamAbortController = new AbortController();
+  const forwardRequestAbort = () =>
+    streamAbortController.abort(req.signal.reason);
+  if (req.signal.aborted) forwardRequestAbort();
+  else req.signal.addEventListener("abort", forwardRequestAbort, { once: true });
   const stream = new ReadableStream({
     async start(controller) {
       const keepalive = setInterval(() => {
@@ -75,7 +80,7 @@ export async function POST(
         for await (const event of sendMessage(
           id,
           content,
-          req.signal,
+          streamAbortController.signal,
           mentions
         )) {
           const data = `data: ${JSON.stringify(event)}\n\n`;
@@ -91,11 +96,16 @@ export async function POST(
           message:
             error instanceof Error ? error.message : "Stream error",
         };
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify(errorEvent)}\n\n`)
-        );
+        try {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(errorEvent)}\n\n`)
+          );
+        } catch {
+          // The client may already have cancelled the outer SSE stream.
+        }
       } finally {
         clearInterval(keepalive);
+        req.signal.removeEventListener("abort", forwardRequestAbort);
         try {
           controller.close();
         } catch {
@@ -104,12 +114,12 @@ export async function POST(
       }
     },
     // Fires when the client disconnects mid-stream (browser tab closed,
-    // user navigated away, AbortController.abort() fired on the fetch).
-    // The engine's own `req.signal` abort already records
-    // `stream.aborted.signal` in its catch path — this cancel callback
-    // only fires when the ReadableStream is torn down independently,
-    // so record it as a distinct `stream.aborted.client` code.
+    // user navigated away, or reader.cancel()). Record the client boundary,
+    // then propagate cancellation into the provider generator so it does not
+    // continue behind a closed SSE stream. A paired stream.aborted.signal event
+    // from the engine is intentional: the two codes name different boundaries.
     cancel(reason) {
+      streamAbortController.abort(reason);
       recordTermination({
         reason: "stream.aborted.client",
         conversationId: id,

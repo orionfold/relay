@@ -33,7 +33,12 @@ const OK = {
   } as Record<string, string | null>,
 };
 
-function mockAll(o: Partial<typeof OK> & { throwRuntime?: boolean } = {}) {
+function mockAll(
+  o: Partial<typeof OK> & {
+    throwRuntime?: boolean;
+    throwBudget?: boolean;
+  } = {}
+) {
   const c = { ...OK, ...o };
   vi.doMock("@/lib/settings/runtime-setup", () => ({
     getRuntimeSetupStates: async () => {
@@ -53,7 +58,10 @@ function mockAll(o: Partial<typeof OK> & { throwRuntime?: boolean } = {}) {
     getLicensedIdentity: () => c.license,
   }));
   vi.doMock("@/lib/settings/budget-guardrails", () => ({
-    getBudgetGuardrailSnapshot: async () => c.budget,
+    getBudgetGuardrailSnapshot: async () => {
+      if (o.throwBudget) throw new Error("budget policy corrupt");
+      return c.budget;
+    },
   }));
   vi.doMock("@/lib/settings/routing", () => ({
     getRoutingPreference: async () => c.routing,
@@ -154,12 +162,7 @@ describe("GET /api/settings/glance — shadow paths (one source down)", () => {
   });
 
   it("nulls only the budget cap when the budget read throws", async () => {
-    mockAll();
-    vi.doMock("@/lib/settings/budget-guardrails", () => ({
-      getBudgetGuardrailSnapshot: async () => {
-        throw new Error("budget policy corrupt");
-      },
-    }));
+    mockAll({ throwBudget: true });
     const { GET } = await import("../route");
     const body = await (await GET()).json();
     expect(body.budgetMonthlyCapUsd).toBeNull();

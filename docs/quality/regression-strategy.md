@@ -90,6 +90,20 @@ separate command and configuration. A test belongs in the default suite only if
 it can run hermetically without an already-running Relay server or live
 credentials.
 
+`npm run test:runtime-graph` is the credential-free Tier-0 runtime control. It
+copies current source into a disposable repo-local project shell, starts a local
+fake Ollama transport and a real isolated Next development process, then
+executes a task, one-step workflow, and Chat SSE turn through public routes. It
+asserts requested/effective runtime parity, task start/completion logs, workflow
+child completion, durable Chat finalization, diagnostics telemetry, and absence
+of the TDR-032 initialization-cycle signature. The Next child inherits only an
+allowlist of non-secret process essentials and uses fixture-owned Unix, Windows,
+and XDG profile roots. The fake replaces only the remote transport; it never
+replaces Relay modules. A source-wide syntax guard also rejects alias or relative
+static imports, side-effect imports, and re-exports of
+`@/lib/chat/ainative-tools` anywhere in production agent code while allowing the
+required function-local dynamic import.
+
 ## Coverage interpretation
 
 `npm run test:coverage` explicitly includes production TypeScript under `src`
@@ -134,6 +148,12 @@ baseline suite is deterministic.
   shuffled seed before they are considered order-independent.
 - Real concurrency claims require competing connections/processes or a barrier;
   two synchronous calls through one singleton are only an idempotency test.
+- Schedule slot-claim coverage opens two SQLite connections in worker threads,
+  releases them through one barrier beneath cap 1, and requires exactly one
+  winner. This is the minimum evidence for the atomic claim invariant.
+- Streaming provider controls require an explicit terminal frame. Text followed
+  by EOF, malformed trailing data, or an empty/nil body is a named failed turn,
+  never a completed response inferred merely from receiving a delta.
 - Quarantine requires a named trigger, owner, expiry, and replacement guard. A
   blanket “known failures” exception is not a quality policy.
 
@@ -163,6 +183,11 @@ Verification proceeds from targeted tests to impacted suite, static/schema
 checks, real runtime smoke, browser evidence, broader suite, and packaged staging
 as risk warrants. A red broader baseline is reported by exact before/after
 comparison and groomed; it is never described as green.
+
+Credentialed or billable provider smokes are explicit operator gates. They
+supplement rather than replace the deterministic runtime-graph command and must
+record the runtime, task ID, terminal status, and log evidence without exposing
+credentials.
 
 ## Authoritative references
 

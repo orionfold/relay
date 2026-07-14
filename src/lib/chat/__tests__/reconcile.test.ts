@@ -4,6 +4,7 @@ import { conversations, chatMessages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { reconcileStreamingMessages } from "../reconcile";
+import { __resetForTesting, readTerminations } from "../stream-telemetry";
 
 function seedConversation(): string {
   const id = randomUUID();
@@ -45,6 +46,7 @@ describe("reconcileStreamingMessages", () => {
     // Isolate each test
     db.delete(chatMessages).run();
     db.delete(conversations).run();
+    __resetForTesting();
   });
 
   it("sweeps a 20-min-old streaming row with empty content to error state with fallback", async () => {
@@ -68,6 +70,9 @@ describe("reconcileStreamingMessages", () => {
     expect(row?.status).toBe("error");
     expect(row?.content).toMatch(/Interrupted/i);
     expect(row?.content.length).toBeGreaterThan(0);
+    expect(readTerminations().map((event) => event.reason)).toEqual([
+      "stream.reconciled.stale",
+    ]);
   });
 
   it("leaves a 30-second-old streaming row untouched", async () => {

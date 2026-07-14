@@ -73,6 +73,7 @@
     "test:e2e": "vitest run --config vitest.config.e2e.ts",
     "test:audit": "node scripts/test-audit.mjs",
     "test:harness-safety": "node scripts/test-harness-safety.mjs",
+    "test:runtime-graph": "node scripts/runtime-module-graph-smoke.mjs",
     "test:ui": "vitest --ui",
     "validate:tokens": "npx tsx design-system/validate-tokens.ts",
     "check:price-drift": "node scripts/check-price-drift.mjs",

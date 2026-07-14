@@ -11,7 +11,9 @@
  * Six server-side reason codes:
  *   - stream.completed        — normal end-of-generator (success path)
  *   - stream.aborted.signal   — req.signal fired, engine catch block entered
- *   - stream.aborted.client   — ReadableStream cancel callback fired
+ *   - stream.aborted.client   — ReadableStream cancel callback fired; Relay
+ *                               also propagates this into the engine signal,
+ *                               so a paired aborted.signal may be present
  *   - stream.finalized.error  — non-abort exception in engine catch block
  *   - stream.abandoned        — generator return() called by consumer
  *                               (finally ran but catch was skipped). Covers

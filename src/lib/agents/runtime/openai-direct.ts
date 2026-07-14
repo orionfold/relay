@@ -16,7 +16,6 @@ import {
   buildTaskQueryContext,
   createTaskUsageState,
 } from "../claude-agent";
-import { createToolServer } from "@/lib/chat/ainative-tools";
 import type { OpenAIFunctionDef } from "@/lib/chat/tool-registry";
 import { handleToolPermission, clearPermissionCache } from "../tool-permissions";
 import {
@@ -300,6 +299,7 @@ async function executeOpenAIDirectTask(taskId: string, isResume = false): Promis
     const sdk = await getOpenAISDK();
     const client = new sdk.default({ apiKey });
 
+    const { createToolServer } = await import("@/lib/chat/ainative-tools");
     const toolServer = createToolServer(task.projectId);
     const { tools, executeHandler } = toolServer.forProvider("openai");
 

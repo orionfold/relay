@@ -20,6 +20,11 @@ import { buildChatContext } from "./context-builder";
 import { getWorkspaceContext } from "@/lib/environment/workspace-context";
 import { recordUsageLedgerEntry } from "@/lib/usage/ledger";
 import { resolveOllamaModel } from "@/lib/agents/runtime/ollama-model-resolver";
+import { finalizeStreamingMessage } from "./reconcile";
+import {
+  recordTermination,
+  type TerminationReason,
+} from "./stream-telemetry";
 import type { ChatStreamEvent } from "./types";
 
 /**
@@ -30,105 +35,28 @@ export async function* sendOllamaMessage(
   userContent: string,
   signal?: AbortSignal
 ): AsyncGenerator<ChatStreamEvent> {
-  const conversation = await getConversation(conversationId);
-  if (!conversation) {
-    yield { type: "error", message: "Conversation not found" };
-    return;
-  }
-
-  yield { type: "status", phase: "preparing", message: "Connecting to Ollama..." };
-
-  // Resolve Ollama base URL and model
-  const baseUrl =
-    (await getSetting(SETTINGS_KEYS.OLLAMA_BASE_URL)) || "http://localhost:11434";
-  // Resolve: conversation-pinned model → configured default → first pulled
-  // model → named error. Never the old hardcoded `llama3.2` phantom (#25).
-  const requestedModel = conversation.modelId?.replace(/^ollama:/, "");
-  const defaultModel = await getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL);
-  let modelId: string;
-  try {
-    modelId = await resolveOllamaModel(baseUrl, requestedModel, defaultModel);
-  } catch (err) {
-    // Surface the "no model configured" case as a visible chat error rather
-    // than an unhandled rejection that silently kills the stream (#25, CLAUDE.md #1).
-    yield {
-      type: "error",
-      message: err instanceof Error ? err.message : "No Ollama model configured",
-    };
-    return;
-  }
-
-  // Build context
-  let projectName: string | null = null;
-  let projectCwd: string | null = null;
-  if (conversation.projectId) {
-    const project = db
-      .select()
-      .from(projects)
-      .where(eq(projects.id, conversation.projectId))
-      .get();
-    if (project) {
-      projectName = project.name;
-      projectCwd = project.workingDirectory ?? null;
-    }
-  }
-
-  const workspace = getWorkspaceContext();
-  if (projectCwd) workspace.cwd = projectCwd;
-
-  const context = await buildChatContext({
-    conversationId,
-    projectId: conversation.projectId,
-    projectName,
-    workspace,
-  });
-
-  // Persist user message
-  await addMessage({
-    conversationId,
-    role: "user",
-    content: userContent,
-    status: "complete",
-  });
-
-  // Create assistant message placeholder
-  const assistantMsg = await addMessage({
-    conversationId,
-    role: "assistant",
-    content: "",
-    status: "streaming",
-  });
-
-  // Build message history for Ollama
-  const history = db
-    .select()
-    .from(chatMessages)
-    .where(eq(chatMessages.conversationId, conversationId))
-    .orderBy(chatMessages.createdAt)
-    .all();
-
-  const messages = [
-    // System prompt from context
-    ...(context.systemPrompt
-      ? [{ role: "system" as const, content: context.systemPrompt }]
-      : []),
-    // Conversation history (exclude the placeholder assistant msg)
-    ...history
-      .filter((m) => m.id !== assistantMsg.id && m.content)
-      .map((m) => ({
-        role: m.role as "user" | "assistant" | "system",
-        content: m.content!,
-      })),
-  ];
-
-  // Stream from Ollama
-  let accumulated = "";
-
-  // Meter the turn like every other chat path (main engine writes a
-  // chat_turn row on success, degrade, and error). Ollama's final chunk
-  // reports prompt_eval_count / eval_count; local runs are recorded at $0 —
-  // those rows are what proves blended-cost savings on /costs.
   const startedAt = new Date();
+  let conversation: Awaited<ReturnType<typeof getConversation>> | null = null;
+  let assistantMsg: Awaited<ReturnType<typeof addMessage>> | null = null;
+  let accumulated = "";
+  let primaryTerminationRecorded = false;
+
+  const recordPrimaryTermination = (
+    reason: TerminationReason,
+    error?: string
+  ) => {
+    if (primaryTerminationRecorded) return;
+    primaryTerminationRecorded = true;
+    recordTermination({
+      reason,
+      conversationId,
+      messageId: assistantMsg?.id ?? null,
+      durationMs: Date.now() - startedAt.getTime(),
+      ...(error ? { error: error.slice(0, 500) } : {}),
+    });
+  };
+
+  let modelId: string | null = null;
   let inputTokens: number | null = null;
   let outputTokens: number | null = null;
   let ledgerRecorded = false;
@@ -136,7 +64,7 @@ export async function* sendOllamaMessage(
     if (ledgerRecorded) return;
     ledgerRecorded = true;
     await recordUsageLedgerEntry({
-      projectId: conversation.projectId ?? null,
+      projectId: conversation?.projectId ?? null,
       activityType: "chat_turn",
       runtimeId: "ollama",
       providerId: "ollama",
@@ -165,6 +93,89 @@ export async function* sendOllamaMessage(
   };
 
   try {
+    conversation = await getConversation(conversationId);
+    if (!conversation) {
+      const message = "Conversation not found";
+      recordPrimaryTermination("stream.finalized.error", message);
+      yield { type: "error", message };
+      return;
+    }
+
+    yield {
+      type: "status",
+      phase: "preparing",
+      message: "Connecting to Ollama...",
+    };
+
+    const baseUrl =
+      (await getSetting(SETTINGS_KEYS.OLLAMA_BASE_URL)) ||
+      "http://localhost:11434";
+    const requestedModel = conversation.modelId?.replace(/^ollama:/, "");
+    const defaultModel = await getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL);
+    try {
+      modelId = await resolveOllamaModel(baseUrl, requestedModel, defaultModel);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No Ollama model configured";
+      recordPrimaryTermination("stream.finalized.error", message);
+      yield { type: "error", message };
+      return;
+    }
+
+    let projectName: string | null = null;
+    let projectCwd: string | null = null;
+    if (conversation.projectId) {
+      const project = db
+        .select()
+        .from(projects)
+        .where(eq(projects.id, conversation.projectId))
+        .get();
+      if (project) {
+        projectName = project.name;
+        projectCwd = project.workingDirectory ?? null;
+      }
+    }
+
+    const workspace = getWorkspaceContext();
+    if (projectCwd) workspace.cwd = projectCwd;
+    const context = await buildChatContext({
+      conversationId,
+      projectId: conversation.projectId,
+      projectName,
+      workspace,
+    });
+
+    await addMessage({
+      conversationId,
+      role: "user",
+      content: userContent,
+      status: "complete",
+    });
+    assistantMsg = await addMessage({
+      conversationId,
+      role: "assistant",
+      content: "",
+      status: "streaming",
+    });
+
+    const history = db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.conversationId, conversationId))
+      .orderBy(chatMessages.createdAt)
+      .all();
+    const messages = [
+      ...(context.systemPrompt
+        ? [{ role: "system" as const, content: context.systemPrompt }]
+        : []),
+      ...history
+        .filter((message) => message.id !== assistantMsg!.id && message.content)
+        .map((message) => ({
+          role: message.role as "user" | "assistant" | "system",
+          content: message.content!,
+        })),
+    ];
+
     const response = await fetch(`${baseUrl}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -178,17 +189,23 @@ export async function* sendOllamaMessage(
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => "Unknown error");
-      yield { type: "error", message: `Ollama error (${response.status}): ${errorText}` };
-      await updateMessageStatus(assistantMsg.id, "complete");
+      const message = `Ollama error (${response.status}): ${errorText}`;
+      await updateMessageContent(assistantMsg.id, message);
+      await updateMessageStatus(assistantMsg.id, "error");
       await recordTurn("failed");
+      recordPrimaryTermination("stream.finalized.error", message);
+      yield { type: "error", message };
       return;
     }
 
     const reader = response.body?.getReader();
     if (!reader) {
-      yield { type: "error", message: "No response stream from Ollama" };
-      await updateMessageStatus(assistantMsg.id, "complete");
+      const message = "No response stream from Ollama";
+      await updateMessageContent(assistantMsg.id, message);
+      await updateMessageStatus(assistantMsg.id, "error");
       await recordTurn("failed");
+      recordPrimaryTermination("stream.finalized.error", message);
+      yield { type: "error", message };
       return;
     }
 
@@ -196,6 +213,8 @@ export async function* sendOllamaMessage(
 
     const decoder = new TextDecoder();
     let buffer = "";
+    let terminalFrameReceived = false;
+    let malformedFrameReceived = false;
 
     while (true) {
       const { done, value } = await reader.read();
@@ -215,11 +234,12 @@ export async function* sendOllamaMessage(
             yield { type: "delta", content: delta };
           }
           if (parsed.done) {
+            terminalFrameReceived = true;
             captureTokenCounts(parsed);
             break;
           }
         } catch {
-          // Skip malformed lines
+          malformedFrameReceived = true;
         }
       }
     }
@@ -233,29 +253,80 @@ export async function* sendOllamaMessage(
           accumulated += delta;
           yield { type: "delta", content: delta };
         }
-        if (parsed.done) captureTokenCounts(parsed);
+        if (parsed.done) {
+          terminalFrameReceived = true;
+          captureTokenCounts(parsed);
+        }
       } catch {
-        // ignore
+        malformedFrameReceived = true;
       }
     }
 
-    // Persist the complete response
+    if (malformedFrameReceived || !terminalFrameReceived) {
+      const message = malformedFrameReceived
+        ? "Ollama returned malformed streaming data"
+        : "Ollama stream ended before its terminal frame";
+      const durableContent = accumulated
+        ? `${accumulated}\n\n[${message}]`
+        : message;
+      await updateMessageContent(assistantMsg.id, durableContent);
+      await updateMessageStatus(assistantMsg.id, "error");
+      await recordTurn("failed");
+      recordPrimaryTermination("stream.finalized.error", message);
+      yield { type: "error", message };
+      return;
+    }
+
+    if (!accumulated.trim()) {
+      const message = "Ollama returned an empty response";
+      await updateMessageContent(assistantMsg.id, message);
+      await updateMessageStatus(assistantMsg.id, "error");
+      await recordTurn("failed");
+      recordPrimaryTermination("stream.finalized.error", message);
+      yield { type: "error", message };
+      return;
+    }
+
     await updateMessageContent(assistantMsg.id, accumulated);
     await updateMessageStatus(assistantMsg.id, "complete");
     await recordTurn("completed");
-
+    recordPrimaryTermination("stream.completed");
     yield { type: "done", messageId: assistantMsg.id, quickAccess: [] };
-  } catch (err) {
-    if (signal?.aborted) {
-      yield { type: "error", message: "Request cancelled" };
-    } else {
-      const msg = err instanceof Error ? err.message : "Ollama streaming failed";
-      yield { type: "error", message: msg };
+  } catch (error) {
+    const message = signal?.aborted
+      ? "Request cancelled"
+      : error instanceof Error
+        ? error.message
+        : "Ollama streaming failed";
+    if (assistantMsg) {
+      await updateMessageContent(assistantMsg.id, accumulated || message);
+      await updateMessageStatus(assistantMsg.id, "error");
+      await recordTurn(signal?.aborted ? "cancelled" : "failed");
     }
-    if (accumulated) {
-      await updateMessageContent(assistantMsg.id, accumulated);
+    recordPrimaryTermination(
+      signal?.aborted ? "stream.aborted.signal" : "stream.finalized.error",
+      message
+    );
+    yield { type: "error", message };
+  } finally {
+    if (assistantMsg && !ledgerRecorded) {
+      try {
+        await recordTurn(signal?.aborted ? "cancelled" : "failed");
+      } catch (error) {
+        console.error("[chat] Ollama usage finalization failed:", error);
+      }
     }
-    await updateMessageStatus(assistantMsg.id, "complete");
-    await recordTurn(signal?.aborted ? "cancelled" : "failed");
+    if (assistantMsg) {
+      try {
+        await finalizeStreamingMessage(assistantMsg.id, accumulated);
+      } catch (error) {
+        console.error("[chat] Ollama finalize safety net failed:", error);
+      }
+    } else if (!primaryTerminationRecorded) {
+      recordPrimaryTermination(
+        "stream.abandoned",
+        "Ollama stream ended before creating an assistant message"
+      );
+    }
   }
 }
