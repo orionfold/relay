@@ -8,6 +8,26 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.39.0] — 2026-07-14
+
+### Added
+
+- **Schedules and workflows now produce durable Operations Receipts.** Operators
+  can declare a deterministic success bar and inspect a per-run `Passed`, `At
+  risk`, or `Failed` verdict with criterion evidence, the next action, and links
+  back to the source task or Monitor diagnostics.
+
+### Changed
+
+- **Interactive surfaces now use a consistent system-cursor policy.** Relay no
+  longer assigns hand cursors; enabled controls, links, rows, and cards instead
+  communicate affordance with smoothly eased semantic fill, structural edge,
+  active, and focus-visible states across light and dark themes.
+- **Fresh-clone contributor setup is explicit and portable.** The documented
+  macOS/Linux and PowerShell paths activate development mode and isolated data
+  before first boot, tracked Codex hooks use Relay's required Node runtime, and
+  bootstrap regressions guard against customer-instance side effects.
+
 ### Fixed
 
 - **Inbox task notifications and task-summary panels now match their visual
@@ -22,6 +42,14 @@ them; the current package and repository identity is Orionfold Relay.
   stream or polling snapshots. Failed actions remain available with a specific
   explanation, and timed-out runtime requests now close durably instead of
   leaving approvals that can no longer unblock work.
+
+### Security
+
+- **Public source and release artifacts now enforce a fail-closed privacy
+  boundary.** Internal continuity records remain available locally but are not
+  tracked or archived, while the tracked tree, Git archive, documentation
+  links, and npm tarball are checked for private machine paths, peer-project
+  provenance, retired identities, and other operational residue before publish.
 
 ## [0.38.0] — 2026-07-12
 
