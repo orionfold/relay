@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import {
   userTables,
   userTableColumns,
+  userTableRowHistory,
   userTableRows,
 } from "@/lib/db/schema";
 import {
@@ -36,6 +37,9 @@ async function provisionTable(
   columns: Array<{ name: string; displayName: string }>
 ) {
   const now = new Date();
+  await db
+    .delete(userTableRowHistory)
+    .where(eq(userTableRowHistory.tableId, TABLE_ID));
   await db.delete(userTableRows).where(eq(userTableRows.tableId, TABLE_ID));
   await db
     .delete(userTableColumns)

@@ -49,9 +49,15 @@ describe("updateAuthSettingsSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects missing method field", () => {
-    const result = updateAuthSettingsSchema.safeParse({});
-    expect(result.success).toBe(false);
+  it("accepts a model-only partial update without a method field", () => {
+    const result = updateAuthSettingsSchema.safeParse({
+      model: "claude-sonnet-4-6",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.model).toBe("claude-sonnet-4-6");
+      expect(result.data.method).toBeUndefined();
+    }
   });
 
   it("rejects empty apiKey string", () => {

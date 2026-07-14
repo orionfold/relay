@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { existsSync, readFileSync, readdirSync, statSync } from "fs";
+import { existsSync, lstatSync, readFileSync, readdirSync } from "fs";
 import { execFileSync } from "child_process";
 import { join, resolve } from "path";
 
@@ -84,7 +84,11 @@ describe("npm publish contract", () => {
       "_SPECS",
     ]
       .map((root) => join(PROJECT_ROOT, root))
-      .filter((root) => existsSync(root));
+      .filter((root) => {
+        if (!existsSync(root)) return false;
+        const info = lstatSync(root);
+        return !info.isSymbolicLink() && info.isDirectory();
+      });
 
     const forbidden = [
       /~\/orionfold\/(?:marketing|website|self-wealth|self-health|llc|consulting|books)\b/i,
@@ -101,8 +105,10 @@ describe("npm publish contract", () => {
     const files = (root: string): string[] =>
       readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
         const fullPath = join(root, entry.name);
-        if (entry.isDirectory()) return files(fullPath);
-        if (!statSync(fullPath).isFile()) return [];
+        const info = lstatSync(fullPath);
+        if (info.isSymbolicLink()) return [];
+        if (info.isDirectory()) return files(fullPath);
+        if (!info.isFile()) return [];
         return [fullPath];
       });
 

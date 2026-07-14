@@ -1,12 +1,11 @@
 // @vitest-environment node
 import { createHash } from "crypto";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync, existsSync, readFileSync, utimesSync, readdirSync } from "fs";
-import { createServer, type Server } from "http";
 import { tmpdir } from "os";
 import { join } from "path";
 import { pathToFileURL } from "url";
 import * as tar from "tar";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   PrebuiltDownloadError,
   artifactCachePaths,
@@ -28,6 +27,7 @@ function tempDir(prefix: string): string {
 }
 
 afterEach(async () => {
+  vi.unstubAllGlobals();
   while (cleanups.length) {
     await cleanups.pop()!();
   }
@@ -121,26 +121,28 @@ describe("downloadToFile", () => {
 
   it("downloads over http and fails loudly on non-200", async () => {
     const dir = tempDir("relay-http-");
-    const server: Server = createServer((req, res) => {
-      if (req.url === "/ok.tgz") {
-        res.writeHead(200);
-        res.end("http-bytes");
-      } else {
-        res.writeHead(404);
-        res.end("not found");
+    const fetchMock = vi.fn(async (url: string | URL | Request) => {
+      if (String(url).endsWith("/ok.tgz")) {
+        return new Response("http-bytes", { status: 200 });
       }
+      return new Response("not found", {
+        status: 404,
+        statusText: "Not Found",
+      });
     });
-    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
-    cleanups.push(() => new Promise<void>((r) => server.close(() => r())));
-    const port = (server.address() as { port: number }).port;
+    vi.stubGlobal("fetch", fetchMock);
 
     const dest = join(dir, "dest.tgz");
-    await downloadToFile(`http://127.0.0.1:${port}/ok.tgz`, dest);
+    await downloadToFile("https://artifacts.example/ok.tgz", dest);
     expect(readFileSync(dest, "utf-8")).toBe("http-bytes");
 
     await expect(
-      downloadToFile(`http://127.0.0.1:${port}/missing.tgz`, join(dir, "d2.tgz")),
+      downloadToFile(
+        "https://artifacts.example/missing.tgz",
+        join(dir, "d2.tgz")
+      ),
     ).rejects.toThrow(PrebuiltDownloadError);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
 

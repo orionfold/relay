@@ -23,7 +23,15 @@ const mockCreateScan = createScan as ReturnType<typeof vi.fn>;
 const mockScanEnvironment = scanEnvironment as ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  mockGetLatestScan.mockReset();
+  mockCreateScan.mockReset();
+  mockScanEnvironment.mockReset();
+  mockScanEnvironment.mockReturnValue({
+    personas: ["claude-code"],
+    artifacts: [],
+    durationMs: 15,
+    errors: [],
+  });
 });
 
 describe("shouldRescan", () => {

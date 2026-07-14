@@ -119,7 +119,7 @@ describe("relay-web-designer — bundle install contract", () => {
     const app = registry.getApp("relay-web-designer", appsDir)!;
     expect(app).not.toBeNull();
     const bindings = app.manifest.view?.bindings;
-    expect(app.tableCount).toBe(2);
+    expect(app.tableCount).toBe(3);
     expect(app.profileCount).toBe(2);
     expect(app.blueprintCount).toBe(2);
     expect(bindings?.publish?.targetType).toBe("github-pages");
