@@ -421,10 +421,10 @@ AFTER:  status=paused, firing_count=17  ← PRESERVED ✅
 
 ## References
 
-- Source: [`ideas/self-extending-machine-strategy.md`](../ideas/self-extending-machine-strategy.md) §9 Milestone 2, §5 (plugin disk layout), §10 (non-goals)
+- Source: internal self-extending-machine strategy §9 Milestone 2, §5 (plugin disk layout), §10 (non-goals)
 - Depends on: [`primitive-bundle-plugin-kind-5`](primitive-bundle-plugin-kind-5.md) — the plugin loader, composite-id strategy, per-plugin error isolation, boot-order invariants
 - Depends on: [`scheduled-prompt-loops`](scheduled-prompt-loops.md) — scheduler engine, interval parser, cron semantics, schedules DB table
 - Shape-parent: [`workflow-blueprints`](workflow-blueprints.md) — the YAML + Zod + registry + loader pattern this mirrors (registry.ts, plugin injection surface, cross-ref validator)
-- Architectural: [`.claude/skills/architect/references/tdr-034-kind-5-plugin-loader.md`](../.claude/skills/architect/references/tdr-034-kind-5-plugin-loader.md) — namespacing convention, composite-id strategy, sync loader / dynamic-import asymmetry (applies to chat tools)
+- Architectural: [TDR-034](../.agents/skills/architect/references/tdr-034-kind-5-plugin-loader.md) — namespacing convention, composite-id strategy, sync loader / dynamic-import asymmetry (applies to chat tools)
 - Plan-level: `features/architect-report.md` Refinement 2 — generic `scanBundleSection<T>` helper extraction, mandatory on fourth user
 - Related M3: `chat-tools-plugin-kind-1` (not yet groomed — strategy doc §9 Milestone 3) — will also adopt `z.discriminatedUnion` at the manifest-schema layer; this spec de-risks the M3 schema shape by introducing the pattern here first

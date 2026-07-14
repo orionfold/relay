@@ -19,7 +19,7 @@ The end-to-end journey from purchase to premium features unlocked. Supports two 
 
 **Path A — In-app purchase (primary):** User clicks upgrade in `/settings/subscription` → Stripe Checkout → returns to app → `LicenseManager.validate()` finds the license by email → auto-activates. No license key needed.
 
-**Path B — Marketing site purchase:** User pays on ainative.io → receives install email → runs `npx ainative` → signs in with Supabase Auth (same email) → `LicenseManager.validate()` finds the license → auto-activates. No license key needed.
+**Path B — Marketing site purchase:** User pays on orionfold.com/relay → receives install email → runs `npx ainative` → signs in with Supabase Auth (same email) → `LicenseManager.validate()` finds the license → auto-activates. No license key needed.
 
 **Path C — Manual key entry (fallback):** For edge cases where email matching fails, a license key input form exists in `/settings/subscription`. User enters key → validates against Supabase → activates.
 
@@ -29,7 +29,7 @@ The primary UX is **zero-friction email-based activation** — pay, sign in with
 
 As a user who just upgraded via Stripe Checkout in the app, I want my premium features to unlock automatically when I return — no key entry, no extra steps.
 
-As a user who purchased on ainative.io before installing, I want to sign in with my email and have my subscription recognized automatically.
+As a user who purchased on orionfold.com/relay before installing, I want to sign in with my email and have my subscription recognized automatically.
 
 As a user whose email matching failed, I want a fallback license key form so I can still activate manually.
 
@@ -296,7 +296,7 @@ No license key needed — the Stripe webhook already created the license row in 
 
 ### Path B: Marketing Site Purchase
 
-1. User pays on ainative.io via Stripe Payment Link
+1. User pays on orionfold.com/relay via Stripe Payment Link
 2. Stripe webhook creates license row in Supabase (linked to email)
 3. User receives email: "Install `npx ainative` and sign in with this email"
 4. User installs, opens app, goes to `/settings/subscription`

@@ -3,7 +3,7 @@ title: Task Runtime ainative MCP Injection
 status: completed
 priority: P0
 milestone: post-mvp
-source: .archive/handoff/bug-task-execution-missing-ainative-mcp.md
+source: internal history record
 dependencies: [agent-integration, chat-engine]
 ---
 
@@ -73,7 +73,7 @@ As a ainative operator running a scheduled agent that reads or writes tables (Ne
 
 ## References
 
-- Source: `.archive/handoff/bug-task-execution-missing-ainative-mcp.md`
+- Source: `internal history record`
 - `src/lib/chat/engine.ts:280-315` — reference implementation (chat engine MCP injection)
 - `src/lib/chat/ainative-tools.ts:70-133` — `createToolServer` / `createStagentMcpServer` factories
 - `src/lib/agents/claude-agent.ts:492-513` — `executeClaudeTask` MCP merge point (current, broken)

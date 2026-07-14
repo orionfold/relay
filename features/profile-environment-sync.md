@@ -178,4 +178,4 @@ Setting `auto_promote_skills: boolean` (default: `false`, opt-in). When enabled,
 - Source: `features/agent-profile-from-environment.md` — extends the one-way bridge to roundtrip sync
 - Architecture: Passive Reconciliation pattern — filesystem as single source of truth
 - Related: `environment-cache` (scan storage), `skill-portfolio` (drift detection), `agent-profile-catalog` (profile CRUD), `environment-sync-engine` (cross-tool sync)
-- Plan: `.claude/plans/distributed-fluttering-haven.md` — full architectural analysis with 3 alternatives evaluated
+- Plan: `internal implementation plan` — full architectural analysis with 3 alternatives evaluated

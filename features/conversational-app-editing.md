@@ -389,7 +389,7 @@ feature — the actual submission flow is part of `app-forking-remix`.
 ## References
 
 - Source: brainstorm session 2026-04-11 (EXPAND scope)
-- Plan: `.claude/plans/flickering-petting-hammock.md` §4d
+- Plan: `internal implementation plan` §4d
 - Related features: `chat-app-builder` (provides base chat tools),
   `app-remix` (fork-then-edit flow), `visual-app-studio` (visual editor
   alternative), `app-forking-remix` (upstream contribution)

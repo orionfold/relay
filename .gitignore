@@ -33,6 +33,10 @@ coverage/
 ideas/
 methods/
 output/
+.archive/handoff/
+/HANDOFF.md
+/CODEX-CC.md
+/OPERATOR-REQUIREMENTS.md
 
 # strategy channel symlink — planning artifacts live in the private
 # orionfold/strategy repo (_IDEAS -> ../strategy/relay/_IDEAS); never ship here
@@ -93,20 +97,23 @@ CLAUDE.local.md
 .claude/hooks/
 .claude/handoff-profile.yaml
 
-# AI Native Business book — authoring + content extracted to the private
-# ~/orionfold/books repo (2026-06). The book stays out of the open ainative
-# repo and npm packaging; npm `files` never included these. Kept local on
-# disk; only un-tracked from git. See HANDOFF.md. (.claude/skills/book-updater
+# AI Native Business book — authoring + content extracted to a private peer
+# repository (2026-06). The book stays out of the public Relay repository and
+# npm packaging; npm `files` never included these. Kept local on
+# disk; only un-tracked from git. (.claude/skills/book-updater
 # is already covered by the .claude/skills/ rule above.)
 /book/
 /ai-native-notes/
 
-# User Guide / docs generated corpus — generation moved to ~/orionfold/books
-# (the field-manual's authoring source) and the in-app User Guide UI was
+# User Guide / docs generated corpus — generation moved to a private authoring
+# repository and the in-app User Guide UI was
 # removed (2026-06). The generated docs no longer ship (dropped from npm
 # `files` + cli hoist). Kept local on disk; only un-tracked from git.
-# KEEP docs/superpowers/ (dev plans/specs) and docs/plugin-security.md
-# (hand-written) TRACKED — they are not generated User Guide content.
+# Session-local implementation plans/specs are internal continuity records.
+# Keep hand-written contributor documentation such as docs/plugin-security.md
+# tracked, but never publish the superpowers scratch history.
+/docs/superpowers/plans/
+/docs/superpowers/specs/
 /docs/features/
 /docs/journeys/
 /docs/use-cases/

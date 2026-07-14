@@ -13,7 +13,7 @@ describe("openai codex auth", () => {
           return {
             account: {
               type: "chatgpt",
-              email: "sehgal.manav@gmail.com",
+              email: "customer@example.com",
               planType: "prolite",
             },
             requiresOpenaiAuth: false,
@@ -35,7 +35,7 @@ describe("openai codex auth", () => {
     expect(state.connected).toBe(true);
     expect(state.account).toEqual({
       type: "chatgpt",
-      email: "sehgal.manav@gmail.com",
+      email: "customer@example.com",
       planType: "prolite",
     });
     expect(state.rateLimits).toBeNull();
@@ -49,7 +49,7 @@ describe("openai codex auth", () => {
           return {
             account: {
               type: "chatgpt",
-              email: "sehgal.manav@gmail.com",
+              email: "customer@example.com",
               planType: null,
             },
             requiresOpenaiAuth: false,
@@ -78,7 +78,7 @@ describe("openai codex auth", () => {
           return {
             account: {
               type: "chatgpt",
-              email: "sehgal.manav@gmail.com",
+              email: "customer@example.com",
               planType: "unknown",
             },
             requiresOpenaiAuth: false,

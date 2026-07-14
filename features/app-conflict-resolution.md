@@ -3,7 +3,7 @@ title: App Conflict Resolution
 status: deferred
 priority: P2
 milestone: post-mvp
-source: .archive/handoff/ainative-app-marketplace-spec.md
+source: internal history record
 dependencies: [app-package-format, marketplace-install-hardening]
 ---
 
@@ -360,7 +360,7 @@ if (!report.canProceed && !body.force) {
 
 ## References
 
-- Source: `.archive/handoff/ainative-app-marketplace-spec.md` section 8
+- Source: `internal history record` section 8
 - Related: `marketplace-install-hardening` (UNIQUE constraint is the DB-level
   fallback), `app-package-format` (defines namespace isolation rules),
   `app-updates-dependencies` (builds on conflict detection for update flow)

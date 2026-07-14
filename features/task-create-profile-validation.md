@@ -3,7 +3,7 @@ title: Task Create Profile Validation + Disappearance Investigation
 status: completed
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/bug-task-silently-disappears-after-creation.md
+source: internal history record
 dependencies: [agent-integration, agent-profile-catalog]
 ---
 
@@ -76,7 +76,7 @@ When `execute_task` is called with a task that has a validation error knowable s
 
 ## References
 
-- Source: `.archive/handoff/bug-task-silently-disappears-after-creation.md`
+- Source: `internal history record`
 - `src/lib/chat/tools/task-tools.ts:91-96` — `create_task` Zod schema (target of validation change)
 - `src/lib/agents/profiles/registry.ts:143-170` — `getProfile` / `listProfiles`
 - `src/lib/agents/claude-agent.ts:300-309, 363-371, 731-740` — existing failed-state persistence paths

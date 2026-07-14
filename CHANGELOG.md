@@ -1,8 +1,10 @@
 # Changelog
 
-## Renamed from stagent
+## Package lineage
 
-This project was formerly published as `stagent` on npm and hosted at `github.com/manavsehgal/stagent`. As of 2026-04-17 it is `ainative`. The old GitHub URL redirects permanently; `stagent` on npm is deprecated with an upgrade pointer to `ainative`.
+Relay's npm package has used the historical names `stagent` and `ainative`.
+Those names remain only where migration compatibility or release history needs
+them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
@@ -558,7 +560,7 @@ The unreleased `0.13.3` entry below is folded into this release — that fix shi
 ### Changed — BREAKING
 
 - **Package renamed** from `stagent` to `ainative`. Install with `npm i ainative` or run `npx ainative`. The `stagent` npm package is deprecated.
-- **GitHub repo renamed** to `manavsehgal/ainative`. Old URL redirects permanently.
+- **GitHub repository identity updated** during the historical package migration.
 - **Homepage** is now [ainative.business](https://ainative.business).
 - **User data directory** auto-migrates from `~/.stagent/` to `~/.ainative/` on first boot. The database file inside is also renamed (`stagent.db` → `ainative.db`), and in-place SQL migrations rewrite `mcp__stagent__*` tool prefixes and `sourceFormat: "stagent"` enum values in `agent_profiles` rows. Pre-flight backup recommended: `cp -r ~/.stagent ~/.stagent.bak-pre-ainative`.
 - **Environment variables renamed** to `AINATIVE_DATA_DIR`, `AINATIVE_DEV_MODE`, `AINATIVE_INSTANCE_MODE`, `AINATIVE_LAUNCH_CWD`. Clean break — update any shell aliases, `.env.local`, or CI configurations.

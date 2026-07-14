@@ -3,7 +3,7 @@ title: App Seed Data Generation
 status: deferred
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/ainative-app-marketplace-spec.md
+source: internal history record
 dependencies: [app-package-format]
 ---
 
@@ -230,7 +230,7 @@ async function loadSeedData(appId: string, tableId: string, csvPath: string) {
 
 ## References
 
-- Source: `.archive/handoff/ainative-app-marketplace-spec.md` section 7
+- Source: `internal history record` section 7
 - Related: `app-package-format` (defines where seed-data lives in `.sap`),
   `app-cli-tools` (provides the CLI framework for `seed` command)
 - Files to create:

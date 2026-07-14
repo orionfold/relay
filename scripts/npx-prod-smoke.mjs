@@ -183,6 +183,12 @@ async function main() {
       repoRoot,
       "src/lib/licensing/__tests__/fixtures/of-relay-verify-20260701.license.json",
     );
+    const licenseFixture = JSON.parse(readFileSync(licenseSrc, "utf8"));
+    const licensedEmail = String(licenseFixture.payload?.issued_to?.email ?? "");
+    assert(licensedEmail, "prod-signed license fixture must include an issued_to email");
+    const licensedBanner = new RegExp(
+      `Licensed to ${licensedEmail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+    );
     const licensePath = path.join(workDir, "my.license.json");
     writeFileSync(licensePath, readFileSync(licenseSrc));
 
@@ -244,7 +250,7 @@ async function main() {
       const port = await reserveLoopbackPort();
       const { child, getOutput } = launchCli({ installDir, dataDir, port, artifactUrl });
       try {
-        await waitForOutput(getOutput, /Licensed to manav@orionfold\.com/, PROD_START_TIMEOUT_MS, "licensed banner");
+        await waitForOutput(getOutput, licensedBanner, PROD_START_TIMEOUT_MS, "licensed banner");
         assert(!/Community Edition/.test(getOutput()), "a licensee is never greeted as Community Edition");
         await waitForHttpOk(`http://127.0.0.1:${port}/`, PROD_START_TIMEOUT_MS);
         const seed = await fetch(`http://127.0.0.1:${port}/api/data/seed`, { method: "POST" });

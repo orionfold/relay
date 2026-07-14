@@ -17,7 +17,7 @@ Configures complete Stripe billing — 3 products × 2 prices (monthly + annual)
 
 ## User Story
 
-As a visitor on ainative.io, I want to purchase a plan via Stripe Payment Link and then receive install instructions + automatic license activation when I run `npx ainative` and sign in with the same email.
+As a visitor on orionfold.com/relay, I want to purchase a plan via Stripe Payment Link and then receive install instructions + automatic license activation when I run `npx ainative` and sign in with the same email.
 
 As an existing ainative user, I want to upgrade from within the app via Stripe Checkout and have my premium features unlock immediately when I return.
 
@@ -26,7 +26,7 @@ As an existing ainative user, I want to upgrade from within the app via Stripe C
 ### Two Entry Points, One Backend
 
 ```
-Marketing site (ainative.io)              Product (/settings/subscription)
+Marketing site (orionfold.com/relay)              Product (/settings/subscription)
          │                                         │
     Stripe Payment Link                    Stripe Checkout Session
          │                                         │
@@ -53,11 +53,11 @@ Marketing site (ainative.io)              Product (/settings/subscription)
 ### Payment Links (Marketing Site Entry)
 
 Stripe Payment Links are static URLs that can be embedded directly in Pricing.astro:
-- `https://buy.ainative.io/SOLO_LINK` — Solo monthly
-- `https://buy.ainative.io/OPERATOR_LINK` — Operator monthly
-- `https://buy.ainative.io/SCALE_LINK` — Scale monthly
+- `https://orionfold.com/relay/checkout/SOLO_LINK` — Solo monthly
+- `https://orionfold.com/relay/checkout/OPERATOR_LINK` — Operator monthly
+- `https://orionfold.com/relay/checkout/SCALE_LINK` — Scale monthly
 - Each Payment Link collects email (required) — this is the identity anchor
-- After payment, Stripe redirects to `https://ainative.io/confirmed?session_id={CHECKOUT_SESSION_ID}`
+- After payment, Stripe redirects to `https://orionfold.com/relay/confirmed?session_id={CHECKOUT_SESSION_ID}`
 - The `/confirmed` page (already exists in site) shows: "Welcome! Install `npx ainative` and sign in with {email} to activate your subscription."
 
 ### Checkout Sessions (In-App Entry)

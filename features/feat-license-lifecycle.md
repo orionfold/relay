@@ -148,7 +148,7 @@ Run against the packed tarball in the staging harness (extend
 - [x] A premium test-pack (fixture pack declaring
       `entitlement: product:orionfold-relay`) installs via `pack add` with **no**
       `--license-url` (store consult).
-- [x] Next launch banner reads `Licensed to manav@orionfold.com` (fixture has
+- [x] Next launch banner reads `Licensed to <fixture recipient>` (the fixture has
       email only); with a name-bearing fixture, the name wins (unit-tested
       precedence org → name → email).
 - [x] `rm -rf <data-dir>/licenses` → banner reverts to Community Edition, the

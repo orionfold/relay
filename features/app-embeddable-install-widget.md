@@ -40,7 +40,7 @@ Two URL patterns for maximum compatibility:
 
 **Web URL (primary):**
 ```
-https://ainative.io/install/{app-id}
+https://orionfold.com/relay/install/{app-id}
 ```
 - Works everywhere (browsers, GitHub READMEs, email)
 - Redirects to `/marketplace/apps/{app-id}?action=install` on the user's
@@ -124,13 +124,13 @@ Embed this badge on your website:
 [Preview of badge]
 
 HTML:
-<a href="https://ainative.io/install/wealth-manager">
-  <img src="https://ainative.io/api/badges/wealth-manager"
+<a href="https://orionfold.com/relay/install/wealth-manager">
+  <img src="https://orionfold.com/relay/api/badges/wealth-manager"
        alt="Install on ainative" height="32" />
 </a>
 
 Markdown:
-[![Install on ainative](https://ainative.io/api/badges/wealth-manager)](https://ainative.io/install/wealth-manager)
+[![Install on ainative](https://orionfold.com/relay/api/badges/wealth-manager)](https://orionfold.com/relay/install/wealth-manager)
 
 Theme: [Dark] [Light]
 Style: [Standard] [With Count] [Minimal]

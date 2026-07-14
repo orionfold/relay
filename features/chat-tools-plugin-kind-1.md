@@ -9,7 +9,7 @@ dependencies: [primitive-bundle-plugin-kind-5, schedules-as-yaml-registry, chat-
 ---
 
 > **Status: shipped (2026-04-20).** Milestone 3 final-acceptance gate passed.
-> Phase 4 live smokes (`.archive/handoff/2026-04-20-tdr-037-phase-4-shipped-handoff.md`)
+> Phase 4 live smokes (`internal history record`)
 > verified the two-path trust model end-to-end: echo-server self-extension
 > classification (T19), `AINATIVE_PLUGIN_CONFINEMENT=1` seatbelt wrap
 > activation (T20), `--safe-mode` + `plugin-trust-model = strict|off`
@@ -416,9 +416,9 @@ Stdio child processes are long-lived — they spawn once at step 7 and remain un
 
 ## References
 
-- Source: [`ideas/self-extending-machine-strategy.md`](../ideas/self-extending-machine-strategy.md) §5 (plugin primitive — revised by Amendment 2026-04-19 (II)), §9 Milestone 3, §10 (non-goals), §11 Risk D (plugin trust model — reduced for stdio), §13 (open decisions — TS authoring resolved)
+- Source: internal self-extending-machine strategy §5 (plugin primitive — revised by Amendment 2026-04-19 (II)), §9 Milestone 3, §10 (non-goals), §11 Risk D (plugin trust model — reduced for stdio), §13 (open decisions — TS authoring resolved)
 - Strategy amendment: §9 "Amendment 2026-04-19 (II) — MCP as the Kind 1 extension surface" — supersedes original §5 Kind 1 contract
-- Security model EXPAND brainstorm: [`ideas/m3-security-model-brainstorm.md`](../ideas/m3-security-model-brainstorm.md) — sourced per-tool approval overlay, capability expiry, revocation flow, confinement modes, Docker off-ramp scope, 10-row Error & Rescue Registry, 5 delight opportunities. §7 of that doc enumerates the six M3 scope additions now incorporated above
+- Security model EXPAND brainstorm (internal history) — sourced per-tool approval overlay, capability expiry, revocation flow, confinement modes, Docker off-ramp scope, 10-row Error & Rescue Registry, 5 delight opportunities. Its six M3 scope additions are incorporated above.
 - Depends on: [`primitive-bundle-plugin-kind-5`](primitive-bundle-plugin-kind-5.md) — the plugin loader, manifest Zod discriminated union, boot integration, first-boot seeder pattern, `reload_plugin` / `reload_plugins` chat tools
 - Depends on: [`schedules-as-yaml-registry`](schedules-as-yaml-registry.md) — the `scanBundleSection<T>` generic helper, `z.discriminatedUnion` manifest pattern
 - Depends on: [`chat-engine`](chat-engine.md) — MCP server merge path via `withAinativeMcpServer()`
@@ -427,9 +427,9 @@ Stdio child processes are long-lived — they spawn once at step 7 and remain un
 - Reuses: `src/lib/environment/parsers/mcp-config.ts` (.mcp.json parser), `src/lib/environment/sync/mcp-sync.ts` (cross-tool MCP sync), `src/lib/agents/claude-agent.ts:566` (`withAinativeMcpServer` merge site)
 - Architecture: new files at `src/lib/plugins/mcp-loader.ts`, `src/lib/plugins/capability-check.ts`, `src/lib/plugins/examples/gmail-triage/`; modifications to `src/lib/plugins/sdk/types.ts`, `src/lib/plugins/registry.ts`, `src/lib/agents/runtime/catalog.ts`, `src/lib/agents/runtime/anthropic-direct.ts`, `src/lib/agents/runtime/openai-direct.ts`, `src/lib/agents/runtime/codex-app-server-client.ts`, `src/lib/chat/tools/plugin-tools.ts`, `src/instrumentation-node.ts`, `bin/cli.ts`
 - Related (later milestones):
-  - [`nl-to-composition-v1`](../ideas/self-extending-machine-strategy.md#milestone-4--nl-to-composition-v1-p1-post-mvp) (M4) — the chat flow that can now emit Kind 1 plugin scaffolds end-to-end
-  - [`install-parity-audit`](../ideas/self-extending-machine-strategy.md#milestone-5--install-parity-audit-p1-post-mvp) (M5) — release gate
-- TDR-032 (`.claude/skills/architect/references/tdr-032-*`) — module-load-cycle discipline; all new chat tool handlers and the plugin-MCP loader MUST use dynamic `await import()` at call site
-- TDR-034 (`.claude/skills/architect/references/tdr-034-kind-5-plugin-loader.md`) — inherited load-bearing decisions from M1
+  - [`nl-to-composition-v1`](nl-to-composition-v1.md) (M4) — the chat flow that can now emit Kind 1 plugin scaffolds end-to-end
+  - [`install-parity-audit`](install-parity-audit.md) (M5) — release gate
+- TDR-032 (`.agents/skills/architect/references/tdr-032-*`) — module-load-cycle discipline; all new chat tool handlers and the plugin-MCP loader MUST use dynamic `await import()` at call site
+- TDR-034 (`.agents/skills/architect/references/tdr-034-kind-5-plugin-loader.md`) — inherited load-bearing decisions from M1
 - TDR-035 (`.claude/skills/architect/references/tdr-035-plugin-mcp-cross-runtime-contract.md`, drafted 2026-04-19) — plugin-MCP cross-runtime registration contract. Codifies the six load-bearing decisions: five-source merge order, plugin-MCP loader as authoritative source, capability-accept lockfile hash derivation, transport dispatch, reload semantics per transport, process ownership and lifecycle. Future runtime additions (Gemini, DeepSeek) follow the six-step recipe in the TDR
 - Rolled-back precursor: `features/roadmap.md` "App Marketplace — Extended Primitives" section (`app-mcp-server-wiring` specifically, deferred 2026-04-12). This feature picks up the MCP-wiring pattern deliberately without the trust-ladder and marketplace chrome.

@@ -3,7 +3,7 @@ title: "Fix: Exported Bundle Not Registered in Sidebar"
 status: deferred
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/bug-app-bundle-not-registered-in-sidebar.md
+source: internal history record
 dependencies: [app-runtime-bundle-foundation]
 ---
 
@@ -44,5 +44,5 @@ As a user who exports a project as an app bundle, I want the app to immediately 
 
 ## References
 
-- Source: `.archive/handoff/bug-app-bundle-not-registered-in-sidebar.md`
+- Source: `internal history record`
 - Related features: app-runtime-bundle-foundation, fix-sidebar-reactive-update

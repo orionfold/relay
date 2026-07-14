@@ -3,7 +3,7 @@ title: "Fix: Sidebar App Menus Accordion Behavior"
 status: deferred
 priority: P2
 milestone: post-mvp
-source: .archive/handoff/bug-sidebar-app-menus-always-expanded.md
+source: internal history record
 dependencies: [app-runtime-bundle-foundation]
 ---
 
@@ -47,5 +47,5 @@ As a user with multiple installed apps, I want the sidebar app menus to follow t
 
 ## References
 
-- Source: `.archive/handoff/bug-sidebar-app-menus-always-expanded.md`
+- Source: `internal history record`
 - Related features: app-runtime-bundle-foundation

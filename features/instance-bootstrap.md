@@ -100,7 +100,7 @@ As a ainative end user who just cloned the repo and is about to make my first cu
 - [ ] Called with `AINATIVE_DEV_MODE=true` AND `AINATIVE_INSTANCE_MODE=true` → override wins, bootstrap runs normally (opt-in beats opt-out)
 - [ ] Called with no `.git` directory present → returns `{skipped: "no_git"}`, no errors
 - [ ] Test explicitly covers the ainative main dev repo scenario: temp-dir with a `.env.local` containing `AINATIVE_DEV_MODE=true` → `ensureInstance()` makes no changes
-- [ ] Pre-ship checklist item (verified manually before merge): `AINATIVE_DEV_MODE=true` added to `/Users/manavsehgal/Developer/ainative/.env.local` AND documented in `AGENTS.md` + `CLAUDE.md`
+- [ ] Pre-ship checklist item (verified manually before merge): `AINATIVE_DEV_MODE=true` added to `Relay development checkout/.env.local` AND documented in `AGENTS.md` + `CLAUDE.md`
 
 *Consent flow:*
 - [ ] First boot with no existing consent → Phase A runs, Phase B skipped, notification created with 3 actions

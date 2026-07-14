@@ -54,5 +54,5 @@ As a ainative user, I want my license tier to be enforced locally with offline r
 
 ## References
 
-- Related features: [budget-guardrails](budget-guardrails.md), [usage-metering-ledger](usage-metering-ledger.md)
+- Related features: [spend-budget-guardrails](spend-budget-guardrails.md), [usage-metering-ledger](usage-metering-ledger.md)
 - Follow-on features: [supabase-cloud-backend](supabase-cloud-backend.md), [stripe-billing-integration](stripe-billing-integration.md)

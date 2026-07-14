@@ -3,7 +3,7 @@ title: Chat Session Persistence Provider
 status: completed
 priority: P0
 milestone: post-mvp
-source: .archive/handoff/bug-chat-session-view-switch-regression.md
+source: internal history record
 dependencies: [chat-engine, chat-ui-shell, chat-stream-resilience-telemetry]
 ---
 
@@ -184,7 +184,7 @@ migrations. No schema changes.
 
 ## References
 
-- Source: `.archive/handoff/bug-chat-session-view-switch-regression.md`
+- Source: `internal history record`
 - Related: `chat-stream-resilience-telemetry` (telemetry that measured this),
   `chat-engine`, `chat-ui-shell`, `chat-conversation-persistence`
 - Files to create:

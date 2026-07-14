@@ -1,0 +1,9 @@
+# G-050 public-repository boundary defense in depth. These entries are ignored
+# and untracked, but export-ignore also protects archives if one is accidentally
+# re-added before the tracked-tree guard runs.
+/.archive/handoff/** export-ignore
+/HANDOFF.md export-ignore
+/CODEX-CC.md export-ignore
+/OPERATOR-REQUIREMENTS.md export-ignore
+/docs/superpowers/plans/** export-ignore
+/docs/superpowers/specs/** export-ignore

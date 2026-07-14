@@ -126,5 +126,5 @@ As a user supervising an active task or workflow, I want permission requests to 
 
 - [inbox-notifications.md](inbox-notifications.md)
 - [tool-permission-persistence.md](tool-permission-persistence.md)
-- [tauri-desktop.md](tauri-desktop.md)
+- Retired desktop-shell design record (internal history)
 - Source: `ideas/mvp-vision.md` human-in-the-loop and inbox sections

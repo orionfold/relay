@@ -70,7 +70,7 @@ describe("saveLicense", () => {
   it("accepts the real prod-signed fixture", () => {
     const info = saveLicense(realLicense as SignedLicense, { dir, now: NOW });
     expect(info.licenseId).toBe("OF-RELAY-VERIFY-20260701");
-    expect(info.issuedTo.email).toBe("manav@orionfold.com");
+    expect(info.issuedTo.email).toBe(realLicense.payload.issued_to.email);
   });
 
   it("rejects a tampered envelope with LicenseStoreError (nothing written)", () => {

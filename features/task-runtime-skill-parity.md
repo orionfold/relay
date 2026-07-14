@@ -75,7 +75,7 @@ Real-environment test: create `.claude/skills/task-smoke/SKILL.md`, dispatch a t
 - [x] Task execution sees the same skills as chat on the same project (smoke test confirmed via `Skill` tool invocation)
 - [x] CLAUDE.md and `.claude/rules/*.md` reach task execution (SDK auto-loads both via `settingSources: ["project"]`)
 - [x] Filesystem tools (`Read`, `Grep`, etc.) are usable from tasks; `Edit`/`Write`/`Bash` gated by the existing permission bridge (Layer 1.75 in `handleToolPermission` auto-allows Read/Grep/Glob/Skill; Edit/Write/Bash route through notification polling)
-- [ ] ~~Tier 0 partition is sourced from the shared helper — no duplicated prose between `engine.ts` and `claude-agent.ts`~~ — **deferred** per scope challenge; chat and task have genuinely different prompt shapes (history vs. document/table/output context). Documented in `.claude/plans/faithful-task-mirror.md` "NOT in scope".
+- [ ] ~~Tier 0 partition is sourced from the shared helper — no duplicated prose between `engine.ts` and `claude-agent.ts`~~ — **deferred** per scope challenge; chat and task have genuinely different prompt shapes (history vs. document/table/output context). Documented in `internal implementation plan` "NOT in scope".
 - [x] Hooks are **not** loaded on task execution (matching Q2) — regression test in `claude-agent-sdk-options.test.ts` greps for `\bhooks\s*:` in both `query()` blocks
 - [x] Capability check: if a future runtime without `hasNativeSkills` is used for tasks, `settingSources`/`Skill` are not passed (gated via `getFeaturesForModel(...).hasNativeSkills` in both `executeClaudeTask` and `resumeClaudeTask`)
 - [x] Smoke test: task invokes a project skill and the invocation appears in the task log — see "Verification run — 2026-04-13" below

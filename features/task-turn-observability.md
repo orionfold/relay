@@ -4,7 +4,7 @@ status: completed
 shipped-date: 2026-05-03
 priority: P2
 milestone: post-mvp
-source: .archive/handoff/feature-task-turn-observability.md
+source: internal history record
 dependencies: [agent-integration, scheduled-prompt-loops]
 ---
 
@@ -104,7 +104,7 @@ The scheduler at `scheduler.ts:198-206` reads `tasks.turnCount` first; only fall
 
 ## References
 
-- Source: `.archive/handoff/feature-task-turn-observability.md`
+- Source: `internal history record`
 - `src/lib/db/schema.ts:57` — existing `maxTurns` column on `tasks` (new columns land nearby)
 - `src/lib/agents/claude-agent.ts:225` — existing `turnCount++` counter in stream processing
 - `src/lib/agents/claude-agent.ts:300-309` — result-frame handler (target for persist-on-completion)

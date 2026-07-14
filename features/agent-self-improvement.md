@@ -123,7 +123,7 @@ Sweep produces a prioritized list of improvement tasks inserted into the task qu
 
 ## References
 
-- **Inspiration**: [`ideas/karpathy-one-gpu-research-lab.md`](../ideas/karpathy-one-gpu-research-lab.md) — Autoresearch's `program.md` (human-authored, immutable) vs `AGENT.md` (agent-authored, mutable); Ralph Wiggum's self-updating instructions; Gas Town sweep agents
+- **Inspiration**: internal research synthesis — Autoresearch's `program.md` (human-authored, immutable) vs `AGENT.md` (agent-authored, mutable); Ralph Wiggum's self-updating instructions; Gas Town sweep agents
 - **DB Schema**: `src/lib/db/schema.ts` lines 172-202 — `learned_context` table
 - **Autonomous loops**: `features/autonomous-loop-execution.md` — stop conditions, iteration context, pause/resume
 - **Multi-agent routing**: `features/multi-agent-routing.md` — profile registry, task classifier, execution integration

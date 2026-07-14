@@ -4,7 +4,7 @@ status: dropped
 dropped: "Not pursuing — app distribution/marketplace ambition cut per _IDEAS/reprioritze.md §4 (concentration cutline, 2026-06-29)."
 priority: P2
 milestone: post-mvp
-source: .archive/handoff/ainative-app-marketplace-spec.md
+source: internal history record
 dependencies: [app-cli-tools, marketplace-app-publishing]
 ---
 
@@ -194,7 +194,7 @@ newer versions across all channels.
 
 ## References
 
-- Source: .archive/handoff/ainative-app-marketplace-spec.md §4.4-4.5
+- Source: internal history record §4.4-4.5
 - Related: `app-cli-tools` (CLI install command), `marketplace-app-publishing`
   (Supabase storage), `app-updates-dependencies` (uses source tracking)
 - Files to create:

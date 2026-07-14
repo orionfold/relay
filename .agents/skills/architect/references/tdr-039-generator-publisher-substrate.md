@@ -19,7 +19,7 @@ leaves Relay. There is no "generate a thing and publish it somewhere" verb.
 
 A new product direction needs exactly that. The first consumer is a **Web
 Designer** bundle — `relay-web-assets` (catalog + visuals + a gallery
-primitive, harvested from `~/orionfold/website`) + `relay-web-publisher`
+primitive, built from synthetic public examples) + `relay-web-publisher`
 (generates a static site from the managed data and deploys it to the user's
 GitHub Pages). And it must generalize: the operator named a **family** of
 future generators on the same substrate — social-media generator, video

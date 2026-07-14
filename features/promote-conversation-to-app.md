@@ -244,7 +244,7 @@ confirming.
 ## References
 
 - Source: brainstorm session 2026-04-11 (EXPAND scope)
-- Plan: `.claude/plans/flickering-petting-hammock.md` §4b
+- Plan: `internal implementation plan` §4b
 - Related features: `chat-app-builder` (provides `introspectProject`),
   `app-seed-data-generation` (provides sanitization strategy library),
   `marketplace-app-publishing` (downstream consumer)

@@ -142,7 +142,7 @@ Test coverage: 19 classify-trust tests + 8 capability-check self-extension bypas
 
 - `ideas/self-extending-machine-strategy.md` §4 (composition ladder), §5 (security posture), §10 (non-goals), §11 Risk D (Docker off-ramp), Amendment II (MCP as extension surface)
 - `handoff/2026-04-20-m3-phases-c-d-e-complete-handoff.md` (what shipped in Phases C+D+E)
-- `/Users/manavsehgal/.claude/plans/time-to-consult-the-clever-rose.md` (execution plan this TDR ratifies)
+- Internal implementation plan (execution plan this TDR ratifies)
 - TDR-035 (loader-authority cross-runtime contract, rescoped)
 - TDR-032 (dynamic-import discipline — unchanged)
 - `src/lib/plugins/classify-trust.ts` (classifier implementation)

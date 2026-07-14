@@ -3,7 +3,7 @@ title: App Runtime Bundle Foundation
 status: completed
 priority: P0
 milestone: post-mvp
-source: .archive/handoff/ainative-app-marketplace-spec.md
+source: internal history record
 dependencies: [database-schema]
 ---
 
@@ -202,7 +202,7 @@ resolvers.
 
 ## References
 
-- Source: `.archive/handoff/ainative-app-marketplace-spec.md` sections 3-6
+- Source: `internal history record` sections 3-6
 - Shipped: commit `56e2839`
 - Key files:
   - `src/lib/apps/types.ts` — AppBundle, AppManifest, AppInstance types

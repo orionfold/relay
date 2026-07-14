@@ -15,11 +15,11 @@ dependencies: [stripe-billing-integration]
 
 Updates the existing ainative.github.io marketing site (Astro 5 + React + Tailwind v4) to reflect the PLG monetization strategy. The site already has a `Pricing.astro` section with outdated tiers (Community Free / Pro $149 / Team $499 + Advisory Services). This feature rewrites Pricing.astro with the new 4-tier structure (Community / Solo / Operator / Scale), adds marketplace creator economics as a primary selling point, updates Hero copy to shift from "waitlist" to "live product + upgrade path," and replaces the Advisory Services block with a marketplace creator pitch.
 
-The site lives at `/Users/manavsehgal/Developer/ainative.github.io` and deploys to ainative.io via GitHub Pages.
+The site lives at `legacy marketing repository` and deploys to orionfold.com/relay via GitHub Pages.
 
 ## User Story
 
-As a potential ainative user visiting ainative.io, I want to see clear pricing tiers with specific value at each level — especially the marketplace earning potential — so I can understand why upgrading from free makes economic sense.
+As a potential ainative user visiting orionfold.com/relay, I want to see clear pricing tiers with specific value at each level — especially the marketplace earning potential — so I can understand why upgrading from free makes economic sense.
 
 As an existing Community user, I want the pricing page to show me exactly what I gain at each tier, with emphasis on the marketplace creator opportunity at Operator, so I'm motivated by income potential rather than just feature unlocks.
 
@@ -135,13 +135,13 @@ const tiers = [
 **Stripe CTA buttons:**
 - `type: 'stripe'` buttons link to Stripe Payment Links (static URLs, no API call needed)
 - Payment Links collect email (required) — this is the identity anchor for license matching
-- After payment, Stripe redirects to `https://ainative.io/confirmed?session_id={ID}`
+- After payment, Stripe redirects to `https://orionfold.com/relay/confirmed?session_id={ID}`
 - The existing `/confirmed` page is updated to show: "Install `npx ainative` and sign in with {email} to activate"
 - Community tier keeps `npx ainative` command block (existing pattern)
 
 **Dual-entry flow (how marketing site payment connects to the product):**
 ```
-ainative.io → user clicks "Get Operator" → Stripe Payment Link
+orionfold.com/relay → user clicks "Get Operator" → Stripe Payment Link
   → pays with email → Stripe webhook → Supabase license row created
   → redirect to /confirmed → "Install npx ainative, sign in with {email}"
   → user installs → signs in with same email → license auto-activates
@@ -297,7 +297,7 @@ Render as collapsible `<details>/<summary>` elements (native HTML, no JS needed)
 - Related: [`edition-readme-update`](edition-readme-update.md) — README positioning
 - Related: [`marketplace-access-gate`](marketplace-access-gate.md) — marketplace creator economics
 - Related: [`upgrade-cta-banners`](upgrade-cta-banners.md) — in-app banners link to /pricing
-- Marketing site repo: `/Users/manavsehgal/Developer/ainative.github.io`
+- Marketing site repo: `legacy marketing repository`
 - Existing Pricing component: `src/components/sections/Pricing.astro`
 - Existing Hero: `src/components/sections/Hero.astro`
 - Existing PersonaLanes: `src/components/sections/PersonaLanes.astro`

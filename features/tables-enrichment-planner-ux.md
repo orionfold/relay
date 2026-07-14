@@ -3,7 +3,7 @@ title: Tables Enrichment Planner UX
 status: completed
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/table-enrichment-runtime-planner.md
+source: internal history record
 dependencies: [tables-enrichment-planner-api, workflow-ux-overhaul, operational-surface-foundation]
 ---
 
@@ -61,5 +61,5 @@ As a table operator, I want to launch enrichment from the table itself, preview 
 
 ## References
 
-- Source: `.archive/handoff/table-enrichment-runtime-planner.md`
+- Source: `internal history record`
 - Related features: `tables-enrichment-planner-api`, `workflow-ux-overhaul`, `operational-surface-foundation`

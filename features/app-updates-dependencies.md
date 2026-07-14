@@ -4,7 +4,7 @@ status: dropped
 dropped: "Not pursuing — app distribution/marketplace ambition cut per _IDEAS/reprioritze.md §4 (concentration cutline, 2026-06-29)."
 priority: P2
 milestone: post-mvp
-source: .archive/handoff/ainative-app-marketplace-spec.md
+source: internal history record
 dependencies: [app-conflict-resolution, app-cli-tools]
 ---
 
@@ -277,7 +277,7 @@ and may be picked up by a future successful update.
 
 ## References
 
-- Source: .archive/handoff/ainative-app-marketplace-spec.md §11 Phase 3
+- Source: internal history record §11 Phase 3
 - Related: `app-conflict-resolution` (namespace + version compat checks),
   `app-cli-tools` (CLI commands), `app-distribution-channels` (source
   channel resolution for update checks)

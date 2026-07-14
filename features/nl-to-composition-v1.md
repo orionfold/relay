@@ -11,7 +11,7 @@ dependencies:
   - chat-tools-plugin-kind-1 (M3, shipped 2026-04-20)
 design: docs/superpowers/specs/2026-04-21-m4.5-nl-to-composition-design.md
 plan: docs/superpowers/plans/2026-04-21-m4.5-implementation.md
-handoff: .archive/handoff/2026-04-21-m4.5-shipped-handoff.md
+handoff: internal history record
 ---
 
 # Natural Language → App Composition v1

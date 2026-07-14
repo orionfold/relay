@@ -369,7 +369,7 @@ $ grep -E "ReferenceError|Cannot access.*before initialization|claudeRuntimeAdap
 ## References
 
 - Source: `ideas/self-extending-machine-strategy.md` — §4 (composition ladder), §5 (plugin primitive), §9 Milestone 1, §10 (non-goals), §11 Risk A (coverage gap off-ramp)
-- Plan: `/Users/manavsehgal/.claude/plans/when-running-from-npx-validated-kahan.md` — decisions D1–D6, verification section
+- Plan: `internal implementation plan` — decisions D1–D6, verification section
 - Depends on: [`agent-profile-catalog`](agent-profile-catalog.md) — profile registry and YAML schema reuse
 - Depends on: [`workflow-blueprints`](workflow-blueprints.md) — blueprint registry and YAML schema reuse
 - Related (later milestones):

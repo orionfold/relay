@@ -133,7 +133,7 @@ const CODEX_AVAILABLE = await checkRuntime('codex');
 
 ## References
 
-- **Origin**: [Agent E2E Test Report](../output/done-agent-e2e-test-report.md) Recommendations #3 and #4
+- **Origin**: internal Agent E2E Test Report, Recommendations #3 and #4
 - **Rec 3**: "This manual browser test should be automated using the ainative API directly for CI/CD"
 - **Rec 4**: "Run sequence/parallel/blueprint tests on Codex runtime for cross-runtime workflow coverage" (folded into this feature)
 - **Existing tests**: `src/**/__tests__/` — 30+ unit/component tests via Vitest

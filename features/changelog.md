@@ -1,5 +1,34 @@
 # Feature Changelog
 
+## 2026-07-13 — G-050 public-repository boundary
+
+### Completed
+
+- Classified Relay's root, archive, and docs surfaces and removed 125 internal
+  continuity/history records from Git without deleting local copies: 74 archived
+  handoffs, 48 session plans/specifications, and three root operator documents.
+  Public trust documentation, including `docs/trust/continuity.md`, remains.
+- Added a fail-closed policy engine for the tracked index, real Git archives,
+  and real npm tarballs. Exact path/rule exceptions cover only guard fixtures,
+  existing pack privacy negatives, public authorship, the classification receipt,
+  and one immutable production-signature compatibility vector.
+- Repaired retained documentation and fixtures: machine/private paths, stale
+  operational links, retired actionable endpoints, personal repository identity,
+  and direct support messaging were replaced with durable public references or
+  synthetic examples. The Stagent/AINATIVE lineage remains only as neutral
+  migration context rather than current product provenance.
+- Added an index-aware local Markdown-link guard so local-but-untracked records
+  cannot make a public link pass. All 472 tracked Markdown files resolve.
+- Wired tracked-tree and Git-archive checks into the publish workflow and npm
+  prepublish path; the existing real npm tarball size step now scans privacy too.
+
+### Verification
+
+- Boundary tests (5), local-link tests (3), license-store tests (18), both pack
+  privacy tests, TypeScript, CLI build, and bundled-pack integrity pass.
+- A real committed Git archive and npm tarball pass the shared scanner locally
+  and from a literal clean clone. Nothing was pushed or published.
+
 ## 2026-07-13 — G-048 fresh-clone development setup
 
 ### Started
@@ -291,9 +320,9 @@
   priority-ordered queue of 36 incomplete goals. Every goal now names an observable outcome,
   constraints, verification, and operator gate; shipped findings are omitted instead of retained as
   historical backlog.
-- Moved every live `HANDOFF.md` task into the canonical backlog, including customer retests,
+- Moved every live `internal continuity record` task into the canonical backlog, including customer retests,
   website delivery waits, Web Publisher polish, `_ASSETS` consolidation, pack follow-ups, staging
-  cadence, and reactive debt. `HANDOFF.md` now carries only recovery anchors and points to the queue.
+  cadence, and reactive debt. `internal continuity record` now carries only recovery anchors and points to the queue.
 - Promoted two missing high-leverage goals from the strategy audit: Proof/Arena verified-model
   import into Relay and Operations Receipts for unattended runs.
 
@@ -1187,7 +1216,7 @@ Lands two new domain-aware view kits — Coach (markdown digest hero) and Ledger
 - **New starter (`.claude/apps/starters/finance-pack.yaml`)**: Ledger dogfood target — currency-table + monthly-close blueprint + monthly schedule.
 - **Slot renderers**: no changes required — `hero.tsx`, `secondary.tsx`, `activity.tsx` already pass through `slot.content` as `ReactNode`. Coach + Ledger build content via `createElement(...)` per the Phase 2 frozen contract for client-component heroes.
 - **Tests (~82 new)**: see plan at `docs/superpowers/plans/2026-05-02-composed-app-kit-coach-and-ledger.md` for full breakdown. Full project: 1831/1850 pass + 12 skipped + 7 pre-existing failures (router.test.ts, settings.test.ts) unchanged from `main`. tsc clean for `src/(app|lib|components)`.
-- **Browser smoke deferred**: Coach + Ledger end-to-end browser verification at `/apps/<weekly-portfolio-check-in>` and `/apps/<finance-pack>` requires interactive session (compose app via chat surface, visit `npm run dev` URL, screenshot). See HANDOFF.md for the smoke checklist.
+- **Browser smoke deferred**: Coach + Ledger end-to-end browser verification at `/apps/<weekly-portfolio-check-in>` and `/apps/<finance-pack>` requires interactive session (compose app via chat surface, visit `npm run dev` URL, screenshot). See internal continuity record for the smoke checklist.
 - **NOT in scope** (deferred per HOLD): document citation strip (Phase 4 — `DocumentChipBar` is wrong primitive), top mover (24h) KPI (needs diff aggregation, Phase 5), allocation drift % (underspecified, Phase 5), `RunHistoryTimeline` primitive (Phase 4), kit-loader registry refactor (Phase 4 when 5+ branches arrive — Phase 3 ends with 4), period range customization beyond MTD/QTD/YTD, chart formats beyond AreaChart, `TableSpreadsheet` for Ledger transactions (intentional read-only choice).
 
 ## 2026-05-02
@@ -1278,7 +1307,7 @@ Final release gate for the Self-Extending Machine cluster (M1 + M2 + M3 + M4 + M
 - **M4.5 surface clean**: planner + scaffold API route use only data-dir paths and pure logic. Zero `process.cwd()` usage, zero `import.meta.dirname`, zero static file reads from `appRoot`. No M4.5 fixes needed.
 - **Package size**: packed tarball 1.8MB → 4.5MB (+2.7MB of markdown content). Unpacked 7MB → 7.4MB (delta is small because `src/` was always the bulk).
 - **Test totals**: 338/338 green across `src/lib/__tests__/`, `src/lib/chat/`, `src/components/chat/`, `src/app/api/plugins/` (up from 333 pre-M5 +5 npm-pack-files).
-- **Publish readiness**: next step is version bump + `npm publish --access public` as `manavsehgal` maintainer per strategy amendment 2026-04-19.
+- **Publish readiness**: next step is version bump + `npm publish --access public` as the current maintainer per the 2026-04-19 release decision.
 
 ### Shipped — M4.5 `nl-to-composition-v1`
 
@@ -1421,15 +1450,15 @@ New P1 post-MVP feature extracted from a live design session grounding IA fixes 
 
 ### Completed — npm-package-ownership-migration
 
-Metadata-only patch migrating the npm publisher account from `navamio` to `manavsehgal`. Completes the identity migration started with the GitHub repo rename (`navam-io/ainative` → `manavsehgal/ainative`, 2026-04-17). No runtime code changes — `npm install ainative@latest` and `npx ainative` continue to work unchanged.
+Metadata-only patch migrating the npm publisher account between legacy maintainers. Completes the identity migration started with the historical GitHub repository rename on 2026-04-17. No runtime code changes — the then-current package install and `npx` commands continued to work unchanged.
 
-- Registry ownership: `manavsehgal` invited as maintainer via npm web UI; `navamio` removed after `0.11.1` publish verified clean.
-- Published `ainative@0.11.1` from the `manavsehgal` account — first tarball where the `_npmUser` / "published by" field names the new maintainer.
+- Registry ownership moved to the current maintainer via the npm web UI; the retired maintainer was removed after the `0.11.1` publish verified clean.
+- Published `ainative@0.11.1` from the new maintainer account — first tarball where the `_npmUser` / "published by" field reflected the migration.
 - Manifest: `repository.url` + `bugs.url` already corrected during the GitHub migration; `0.11.1` is the first npm release carrying the corrected URLs.
 - Historical versions `<0.11.1` deprecated with an upgrade notice so pinned installs nudge users toward `latest`.
 - Local `~/.npmrc` stale `navamio` `_authToken` revoked after the owner transfer.
 
-**Verification:** `npm view ainative@0.11.1 _npmUser.name` → `manavsehgal`; `npm owner ls ainative` → `manavsehgal` only; `npm view ainative@0.10.0 deprecated` → upgrade notice present; scratch-dir `npx ainative@latest --help` runs clean.
+**Verification:** the `0.11.1` publisher and sole-owner metadata matched the new maintainer; the `0.10.0` deprecation notice was present; scratch-dir execution of the then-current package returned help successfully.
 
 ## 2026-04-15
 
@@ -1789,7 +1818,7 @@ Scope pushback documented: the spec's §3 (shared Tier 0 partition helper) was d
 
 TDR-032 smoke test verified: a real task (`39331e2f-71a5-42fc-8928-bbe4c8f66ae3`) invoked the `task-smoke` fixture skill via the `Skill` tool and returned the exact sentinel `TASK_SMOKE_SKILL_REACHED_AGENT`. No `ReferenceError` in dev-server output. Smoke fixture deleted post-run.
 
-Commits: `bc597d0` → `f966c7d` (9 commits). Plan: `.claude/plans/faithful-task-mirror.md`.
+Commits: `bc597d0` → `f966c7d` (9 commits). Plan: `internal implementation plan`.
 
 Unblocks: — (the P1 Claude-runtime skill story is now complete; remaining Chat Context Experience features can proceed independently).
 
@@ -1805,13 +1834,13 @@ Regression guards: hooks-excluded test greps engine.ts source for a `hooks:` key
 
 Unblocks: `chat-codex-app-server-skills` (P1), `chat-ollama-native-skills` (P2), `task-runtime-skill-parity` (P1), `chat-file-mentions` (P1), `chat-command-namespace-refactor` (P1).
 
-Commits: `78bdbaa` → `cd73c2e` (10 commits). Plan: `.claude/plans/claude-sdk-skills-ignition.md`.
+Commits: `78bdbaa` → `cd73c2e` (10 commits). Plan: `internal implementation plan`.
 
 ### Completed — runtime-capability-matrix (P1)
 
 Shipped the first-class runtime-feature declaration in `src/lib/agents/runtime/catalog.ts`. Added `RuntimeFeatures` interface as a **sibling** of the pre-existing operational `RuntimeCapabilities` bag (not a rename — that would have broken ~7 consumer files). Populated the 9-field feature bag on all 5 runtimes (`claude-code`, `openai-codex-app-server`, `anthropic-direct`, `openai-direct`, `ollama`). Added `getRuntimeFeatures` helper + `getFeaturesForModel` chat-layer convenience. Drift-guarded by exhaustiveness + inline-snapshot + length-against-interface-growth tests (14 tests total, all green). TDR-032 smoke test: `GET /api/chat/models` cold-compiled 200, no module-load cycle.
 
-Commits: `98681bf` → `dee6b3b` (6 commits). Plan: `.claude/plans/steady-capable-matrix.md`. Consumer wiring (popover filter, capability hint banner, settings-onboarding, `RuntimeSummary.features`) intentionally deferred to downstream specs per the plan's NOT-in-scope list.
+Commits: `98681bf` → `dee6b3b` (6 commits). Plan: `internal implementation plan`. Consumer wiring (popover filter, capability hint banner, settings-onboarding, `RuntimeSummary.features`) intentionally deferred to downstream specs per the plan's NOT-in-scope list.
 
 Unblocks: `chat-claude-sdk-skills` (P0 critical path), `chat-codex-app-server-skills`, `chat-ollama-native-skills`, `chat-command-namespace-refactor`, `task-runtime-skill-parity`, `onboarding-runtime-provider-choice`.
 
@@ -1846,7 +1875,7 @@ Key design decisions locked during grooming:
 - **Q9a** — capability-hint banner below input for reduced-capability runtimes (e.g., Ollama).
 
 Source: `ideas/chat-context-experience.md`
-Plan: `.claude/plans/mutable-waddling-reef.md`
+Plan: `internal implementation plan`
 
 ## 2026-04-12
 
@@ -1876,7 +1905,7 @@ New feature: `my-apps-lifecycle` (P1). Consulted `/product-manager`, `/architect
 
 ### Groomed — Sidebar Bug Fixes (3 features)
 
-Groomed 3 bugs from `.archive/handoff/` into feature specs:
+Groomed 3 bugs from internal history into feature specs:
 - `fix-exported-bundle-registration` (P1) — exported bundles via export_app_bundle MCP tool don't get DB records, so they never appear in sidebar
 - `fix-sidebar-reactive-update` (P1) — sidebar doesn't re-fetch app data after install, requires full page refresh
 - `fix-sidebar-accordion-behavior` (P2) — app sidebar menus always expanded, missing accordion pattern from native groups
@@ -1903,8 +1932,8 @@ Key decisions locked during brainstorm:
 - Trust ceiling: declarative + MCP protocol (no sandboxed JS execution)
 - Trust → execution tier mapping: community=Tier A (declarative), verified=Tier A+B (MCP/channels/tools), official=full access
 
-Source: .archive/handoff/ainative-app-marketplace-spec.md + brainstorm session with /architect, /product-manager, /frontend-designer
-Plan: .claude/plans/flickering-petting-hammock.md
+Source: internal history record + brainstorm session with /architect, /product-manager, /frontend-designer
+Plan: internal implementation plan
 
 ### Completed — app-seed-data-generation (P1)
 
@@ -1981,7 +2010,7 @@ Product-manager review of the 26 groomed marketplace specs. Key findings:
 - **Sprint plan:** 8 sprints (44-51) added to roadmap. Sprint 44 clears 4 WIP features + starts 3 zero-dep blockers. All P1s complete by Sprint 48. Full initiative done by Sprint 51.
 - **Critical path:** instance-bootstrap -> install-hardening -> app-package-format -> chat-app-builder (4 sprints minimum to first user-facing marketplace feature)
 
-Plan: .claude/plans/witty-jingling-castle.md
+Plan: internal implementation plan
 
 ### Completed — task-create-profile-validation (P1)
 
@@ -2039,16 +2068,17 @@ A code-quality follow-up (commit `ddd58fd`) switched from the deprecated `create
 - Dedupe the duplicate `withStagentAllowedTools(…)` call at both conditional-spread sites
 - Add a smoke-test budget policy for plans that touch runtime-registry-adjacent modules, since unit tests that mock those modules structurally cannot catch module-load cycles
 
-### Groomed — handoff batch from wealth-mgr branch
+### Groomed — internal hardening batch
 
-Groomed four handoff docs from `.archive/handoff/` into feature specs under the Platform Hardening milestone. Two are bug fixes on the scheduled/task execution path, two are observability and control features uncovered while operating those schedules. Code paths were verified against the live codebase via an Explore pass before specs were written; one handoff's root-cause theory ("task was deleted") was corrected — the codebase has no task deletion code anywhere, so the groomed spec frames the work as "add validation + investigate scoping mismatch" rather than "stop deleting tasks."
+Groomed four internal reports into feature specs under the Platform Hardening milestone. Two are bug fixes on the scheduled/task execution path, two are observability and control features uncovered while operating those schedules. Code paths were verified against the live codebase via an Explore pass before specs were written; one report's root-cause theory ("task was deleted") was corrected — the codebase has no task deletion code anywhere, so the groomed spec frames the work as "add validation + investigate scoping mismatch" rather than "stop deleting tasks."
 
 - **`task-runtime-ainative-mcp-injection`** (P0) — wires `createStagentMcpServer` into `executeClaudeTask` and `resumeClaudeTask` in `src/lib/agents/claude-agent.ts` and adds `mcp__stagent__*` to the `claude-code` runtime's `allowedTools`, matching the chat engine, `openai-direct`, and `anthropic-direct` runtimes. This is the root cause of schedule-fired agents silently reporting "No ainative table MCP tools are available in this session" in News Sentinel, Price Monitor, and Daily Briefing. A follow-up TDR under `agent-system` will codify "All runtime entry points must inject the in-process ainative MCP server consistently" so the gap cannot recur when a new runtime adapter is added.
 - **`task-create-profile-validation`** (P1) — rejects invalid `agentProfile` values at `create_task` (today, `anthropic-direct` — a runtime, not a profile — is accepted as if it were a profile). Also carries a time-boxed investigation spike for the reported "task disappears after creation" symptom; the codebase audit found no DELETE on tasks anywhere and traced the likely cause to data-dir (`STAGENT_DATA_DIR`) or `projectId` scoping mismatch between the creating and querying contexts.
 - **`schedule-maxturns-api-control`** (P2) — exposes the existing `schedules.maxTurns` column on `create_schedule` / `update_schedule` MCP input schemas in `src/lib/chat/tools/schedule-tools.ts`. The column, the scheduler plumbing, and the handoff from schedule to task firing already exist; only the Zod schemas are missing.
 - **`task-turn-observability`** (P2) — adds `turnCount` / `tokenCount` columns to the `tasks` table, surfaces them on `get_task` / `list_tasks`, and commits to a written definition of what the turn-count metric measures. Observed schedule turn counts of 700–2,900 far exceed any plausible "reasoning round" interpretation and currently mislead both users and AI assistants into wrong diagnoses. The spec requires the metric definition to be written down before any columns are added so the codebase doesn't persist a misnamed field.
 
-Source handoff docs remain in `.archive/handoff/` as source-of-record; each spec references its source via frontmatter `source:`.
+The internal source reports remain outside the public repository; each public
+spec preserves the relevant decisions without linking operational continuity.
 
 ## 2026-04-10
 
@@ -2056,7 +2086,7 @@ Source handoff docs remain in `.archive/handoff/` as source-of-record; each spec
 
 Audited the 2026-04-09 and 2026-04-10 releases through a product-manager, code-review, architect, and frontend-designer lens and groomed four follow-up features into `features/` + Platform Hardening roadmap. The primary driver was a user-reported regression where switching sidebar views mid-stream causes chat conversations to lose turn history and errors to replace prior responses — reproducible across both Claude and GPT runtimes.
 
-- **`chat-session-persistence-provider`** (P0) — root-cause fix for the chat session regression. Hoists chat state from `ChatShell` into a layout-level `ChatSessionProvider` so streaming survives sidebar navigation, and removes the two `setMessages([])` catch-all branches that wipe visible turn history on any fetch hiccup. Source: `.archive/handoff/bug-chat-session-view-switch-regression.md`. Follow-up to the `chat-stream-resilience-telemetry` escalation trigger — the telemetry commits (89316c4, a131402) measured this scenario and the user's report is now the evidence for the follow-up.
+- **`chat-session-persistence-provider`** (P0) — root-cause fix for the chat session regression. Hoists chat state from `ChatShell` into a layout-level `ChatSessionProvider` so streaming survives sidebar navigation, and removes the two `setMessages([])` catch-all branches that wipe visible turn history on any fetch hiccup. Source: `internal history record`. Follow-up to the `chat-stream-resilience-telemetry` escalation trigger — the telemetry commits (89316c4, a131402) measured this scenario and the user's report is now the evidence for the follow-up.
 - **`marketplace-install-hardening`** (P1) — guards the unguarded `JSON.parse` in `hydrateInstance`, adds a UNIQUE index on `app_instances(app_id)` to close a check-then-insert race, and introduces an end-to-end install→provision→uninstall fixture test so the new marketplace foundation shipped in commit 56e2839 is no longer scaffolding-with-code-islands.
 - **`enrichment-planner-test-hardening`** (P2) — reorders validation-before-cast in `buildEnrichmentPlan`, adds route tests for `POST /api/tables/[id]/enrich/plan`, and raises the `enrichment-planner.ts` test-to-code ratio from ~27% to 50%+ by covering `buildReasoning`, `selectStrategy` edge cases, all six normalized data types, and null-input paths.
 - **`chat-dedup-variant-tolerance`** (P3) — adds regression tests for legitimate-variant workflow creation (e.g., "Enrich contacts" vs "Enrich accounts") and, if the tests expose false positives at the current 0.7 Jaccard threshold, introduces a weighted similarity scheme that downweights shared verbs in workflow names.
@@ -2094,7 +2124,7 @@ Codex App Server inside ainative no longer requires an API key. OpenAI provider 
 
 ### Groomed — workflow-learning-approval-reliability
 
-Converted `.archive/handoff/table-enrich-context-approval-noise.md` into a bounded shared follow-up feature instead of reopening completed table-enrichment or Inbox specs.
+Converted `internal history record` into a bounded shared follow-up feature instead of reopening completed table-enrichment or Inbox specs.
 
 - **`workflow-learning-approval-reliability`** — plans a shared runtime and Inbox reliability slice so workflow child-task learned-context extraction stays inside the learning-session lifecycle, row-heavy enrichment runs collapse to one workflow-level learning batch instead of many standalone approvals, and responded `context_proposal` / `context_proposal_batch` notifications disappear from the active Inbox queue without deleting historical rows.
 
@@ -2104,7 +2134,7 @@ This was filed as a base-product follow-up because the regression lives in share
 
 ### Completed — chat-stream-resilience-telemetry
 
-Shipped as the second half of the .archive/handoff/ grooming session. Lightweight termination telemetry now observes every exit path of the chat SSE lifecycle so we can decide whether to invest in an SSE resume protocol — or confidently close the risk as already-mitigated.
+Shipped as the second half of an internal grooming session. Lightweight termination telemetry now observes every exit path of the chat SSE lifecycle so we can decide whether to invest in an SSE resume protocol — or confidently close the risk as already-mitigated.
 
 **All 9 acceptance criteria met:**
 
@@ -2174,13 +2204,13 @@ Shipped in the same session as grooming. Duplicate workflow creation in long cha
 **Verification run:**
 - `npx vitest run` → **712 passed, 11 skipped (e2e), 0 failures**. Baseline was 687; delta +25 matches the 25 new tests added.
 - `npx tsc --noEmit` → **exit 0**, fully clean.
-- `git diff --stat` → 5 files modified (+149/-54), 3 new files (similarity.ts, similarity.test.ts, workflow-tools-dedup.test.ts). `.archive/handoff/` untouched.
+- `git diff --stat` → 5 files modified (+149/-54), 3 new files (similarity.ts, similarity.test.ts, workflow-tools-dedup.test.ts). Internal source records were untouched.
 
 **Files:**
 - Created: `src/lib/util/similarity.ts`, `src/lib/util/__tests__/similarity.test.ts`, `src/lib/chat/tools/__tests__/workflow-tools-dedup.test.ts`
 - Modified: `src/lib/import/dedup.ts`, `src/lib/chat/tools/workflow-tools.ts`, `src/lib/chat/system-prompt.ts`
 
-### Groomed — .archive/handoff/ bug reports into two Platform Hardening specs
+### Groomed — internal bug reports into two Platform Hardening specs
 
 Two bug reports from a sibling ainative instance (written against a different `src/features/` / `src/db/` file layout) were validated against this repo's actual structure and groomed into feature specs under the Platform Hardening section of the roadmap.
 
@@ -2190,11 +2220,12 @@ Two bug reports from a sibling ainative instance (written against a different `s
 
 Both features land in the **Platform Hardening** section. No new TDR was created — the dedup feature reuses an existing pattern, and the telemetry feature defers the architectural decision (SSE resume protocol) until evidence exists to support it. A follow-up `chat-stream-resume-protocol` feature with a supporting api-design TDR would be filed only if telemetry shows >1% abnormal terminations in normal use.
 
-Source handoff docs remain in `.archive/handoff/` as archive — the spec `source:` frontmatter references them so traceability is preserved.
+Internal source reports remain outside the public repository; the public specs
+preserve their validated requirements and decisions.
 
 ### Completed — workflow-status-view-pattern-router (full refactor)
 
-Unlike the two ship-verifications earlier today (workflow-step-delays, bulk-row-enrichment), this was a real greenfield implementation of the TDR-031 contract that was groomed and architected this morning in response to PR manavsehgal/ainative#6. Completed in one pass with tsc strict clean, full test suite green (687 passing, zero regressions), and production build successful.
+Unlike the two ship-verifications earlier today (workflow-step-delays, bulk-row-enrichment), this was a real greenfield implementation of the TDR-031 contract that was groomed and architected this morning in response to legacy PR #6. Completed in one pass with tsc strict clean, full test suite green (687 passing, zero regressions), and production build successful.
 
 **All 17 acceptance criteria met:**
 
@@ -2258,7 +2289,7 @@ Unlike the two ship-verifications earlier today (workflow-step-delays, bulk-row-
 
 **Manual browser smoke:** deferred — tsc strict clean + full test suite + production build successful is strong enough evidence for this refactor. Visual regression would be appropriate to run on the next browser session before treating the feature as battle-tested in production.
 
-**Today's thread closed:** PR manavsehgal/ainative#6 → architect review → TDR-031 → feature spec → full implementation. Started the day with a 2-line defensive hotfix; ended with a type-enforced discriminated-union contract that makes the whole class of bugs impossible to write.
+**Today's thread closed:** legacy PR #6 → architect review → TDR-031 → feature spec → full implementation. Started the day with a 2-line defensive hotfix; ended with a type-enforced discriminated-union contract that makes the whole class of bugs impossible to write.
 
 ### Completed — bulk-row-enrichment (ship verification)
 
@@ -2328,15 +2359,15 @@ Feature status flipped `planned` → `completed` after `/product-manager` ship-v
 
 ### Fixed — Workflow detail page crash on loop-pattern workflows
 
-Merged PR manavsehgal/ainative#6 (`fix/workflow-loop-status-crash`), opened the same day by ainative Chat running in the `ainative-growth` instance. The workflow detail page crashed into the React error boundary for every loop-pattern workflow (the pattern used by table enrichment) because `completedStepOutputs` in `src/components/workflows/workflow-status-view.tsx:404-406` dereferenced `s.state.result` unconditionally — but the status API returns raw step definitions without a `.state` property for loop workflows. The PR adds optional chaining as a 2-line defensive guard. Shipped as an interim hotfix; the root-cause fix is tracked by the new `workflow-status-view-pattern-router` spec below.
+Merged legacy PR #6 (`fix/workflow-loop-status-crash`), opened the same day by ainative Chat running in the `ainative-growth` instance. The workflow detail page crashed into the React error boundary for every loop-pattern workflow (the pattern used by table enrichment) because `completedStepOutputs` in `src/components/workflows/workflow-status-view.tsx:404-406` dereferenced `s.state.result` unconditionally — but the status API returns raw step definitions without a `.state` property for loop workflows. The PR adds optional chaining as a 2-line defensive guard. Shipped as an interim hotfix; the root-cause fix is tracked by the new `workflow-status-view-pattern-router` spec below.
 
 ### Groomed — Workflow Status View Pattern Router (1 feature)
 
-Created `features/workflow-status-view-pattern-router.md` (P2, post-mvp, planned) as the durable follow-up to PR manavsehgal/ainative#6. Scope: discriminated-union response type in `src/lib/workflows/types.ts`, type-annotated route handler at `src/app/api/workflows/[id]/status/route.ts`, refactor of the 895-line `workflow-status-view.tsx` god component into a thin router (<80 lines), two new pattern-specific subviews under `src/components/workflows/views/`, and a shared polling hook at `src/components/workflows/hooks/use-workflow-status.ts`. The final acceptance criterion **removes** the optional chaining PR #6 added — by that point the TypeScript compiler enforces the invariant via the discriminated union, so the defensive guard becomes obsolete. Also fixes a latent bug: loop workflows currently show an empty Full Output sheet because the UI never reads `loopState.iterations[].result` — the new loop subview wires this up.
+Created `features/workflow-status-view-pattern-router.md` (P2, post-mvp, planned) as the durable follow-up to legacy PR #6. Scope: discriminated-union response type in `src/lib/workflows/types.ts`, type-annotated route handler at `src/app/api/workflows/[id]/status/route.ts`, refactor of the 895-line `workflow-status-view.tsx` god component into a thin router (<80 lines), two new pattern-specific subviews under `src/components/workflows/views/`, and a shared polling hook at `src/components/workflows/hooks/use-workflow-status.ts`. The final acceptance criterion **removes** the optional chaining PR #6 added — by that point the TypeScript compiler enforces the invariant via the discriminated union, so the defensive guard becomes obsolete. Also fixes a latent bug: loop workflows currently show an empty Full Output sheet because the UI never reads `loopState.iterations[].result` — the new loop subview wires this up.
 
 **Architect review:** `/architect` ran in Architecture Review mode on PR #6 (`features/architect-report.md` 2026-04-09). Verdict: accept the hotfix, treat it as interim, ship the router refactor in a separate PR. Classification: Medium blast radius (2 layers, 6-7 files). Regression risk matrix covers sequence/parallel/loop/swarm detail pages and polling behavior.
 
-**New TDR created:** [TDR-031 — Workflow status API is a pattern-discriminated union; consumers branch before reading](.claude/skills/architect/references/tdr-031-workflow-status-response-contract.md), category `api-design`, status `accepted`. Codifies a single exported union type, mandatory narrowing before reading pattern-specific fields, pattern-specific rendering in pattern-specific components, and a four-step checklist for adding new workflow patterns (union arm → route branch → subview → router dispatch) enforced by TypeScript exhaustiveness checking.
+**New TDR created:** [TDR-031 — Workflow status API is a pattern-discriminated union; consumers branch before reading](../.agents/skills/architect/references/tdr-031-workflow-status-response-contract.md), category `api-design`, status `accepted`. Codifies a single exported union type, mandatory narrowing before reading pattern-specific fields, pattern-specific rendering in pattern-specific components, and a four-step checklist for adding new workflow patterns (union arm → route branch → subview → router dispatch) enforced by TypeScript exhaustiveness checking.
 
 **Numbering note:** The 2026-04-08 grooming entry mentioned two "proposed TDRs post-ship" (workflow step `postAction` framework and loop data binding) pre-reserving numbers 031 and 032. Those TDRs were never created. This TDR-031 claims the number legitimately for the workflow status response contract — a different topic. If the `postAction` and data-binding TDRs are authored later, they become TDR-032 and TDR-033.
 
@@ -2376,7 +2407,7 @@ Both feature specs include a new "Chat Context Exposure" section covering system
 
 **Track order locked:** Workflow Step Delays first, Bulk Row Enrichment second. Delays is smaller, exercises the scheduler extension in isolation, and has lower drift risk. Enrichment's LoopConfig data-binding changes benefit from building on a stable foundation.
 
-**Reviewed with:** `/architect` (integration design, blast radius Medium across 4 layers, 7 existing TDRs apply), `/product-manager` (feature split, scope boundaries, acceptance criteria), `/frontend-designer` (delay-step UX: 12 new UX-testable acceptance criteria including timezone clarity, compact duration format, no live aria-live ticking, Execute-button pattern reuse). Full plan at `/Users/manavsehgal/.claude/plans/polished-tickling-pearl.md`.
+**Reviewed with:** `/architect` (integration design, blast radius Medium across 4 layers, 7 existing TDRs apply), `/product-manager` (feature split, scope boundaries, acceptance criteria), `/frontend-designer` (delay-step UX: 12 new UX-testable acceptance criteria including timezone clarity, compact duration format, no live aria-live ticking, Execute-button pattern reuse). Full plan at `internal implementation plan`.
 
 ## 2026-04-07
 
@@ -2384,7 +2415,7 @@ Both feature specs include a new "Chat Context Exposure" section covering system
 
 User review caught two gaps in the initial grooming pass:
 
-**Gap 1 — Main dev repo safety:** if `instance-bootstrap` ships without gates, the canonical dev repo (`/Users/manavsehgal/Developer/ainative`) will have a pre-push hook installed and `branch.main.pushRemote=no_push` set on first `npm run dev` after merge, breaking contributor push workflow catastrophically.
+**Gap 1 — Main dev repo safety:** if `instance-bootstrap` ships without gates, the canonical dev repo (`Relay development checkout`) will have a pre-push hook installed and `branch.main.pushRemote=no_push` set on first `npm run dev` after merge, breaking contributor push workflow catastrophically.
 
 Added **layered defense**:
 - Primary gate: `STAGENT_DEV_MODE=true` env var (per-developer, via `.env.local`)
@@ -2518,7 +2549,7 @@ Comprehensive free→paid strategy brainstormed and groomed using `/product-mana
 - `upgrade-conversion-instrumentation` — anonymous funnel tracking for A/B testing
 
 **Dual-entry payment model established:**
-- Marketing site (ainative.io) uses Stripe Payment Links — static URLs, no API calls
+- Marketing site (orionfold.com/relay) uses Stripe Payment Links — static URLs, no API calls
 - Product (/settings/subscription) uses Stripe Checkout Sessions via Supabase Edge Function
 - Both paths create same license row in Supabase, keyed by email
 - Primary activation: email-based auto-matching (pay → sign in with same email → done)

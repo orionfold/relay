@@ -302,7 +302,7 @@ The agent guides the remix through a structured conversation:
 ## References
 
 - Source: brainstorm session 2026-04-11 (EXPAND scope)
-- Plan: `.claude/plans/flickering-petting-hammock.md` §4c
+- Plan: `internal implementation plan` §4c
 - Related features: `chat-app-builder` (provides base chat tools),
   `app-forking-remix` (marketplace UI for forking),
   `conversational-app-editing` (post-fork modifications)

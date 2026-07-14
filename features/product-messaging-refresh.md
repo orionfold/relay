@@ -15,7 +15,7 @@ Reposition all in-repo product messaging from "Governed AI Agent Workspace" to "
 
 The repositioning does not change the product's technical capabilities — it reframes existing 74+ features around business outcomes rather than governance primitives. The current positioning ("govern your AI agents, operate with oversight") speaks to developers managing agent infrastructure. The new positioning ("run your entire business with AI agents") speaks to solo founders building AI-native businesses.
 
-Website updates (ainative.io) are explicitly out of scope. This spec covers only in-repo artifacts that ship with `npx ainative` or live on GitHub.
+Website updates (orionfold.com/relay) are explicitly out of scope. This spec covers only in-repo artifacts that ship with `npx ainative` or live on GitHub.
 
 ## User Story
 
@@ -125,7 +125,7 @@ The product today IS a governed agent workspace. It does not yet have marketing/
 - Package metadata (description, keywords)
 
 **Excluded:**
-- Website (ainative.io) updates — separate initiative
+- Website (orionfold.com/relay) updates — separate initiative
 - Book chapter body text — regenerate via document-writer later
 - UI component changes beyond welcome-landing.tsx copy
 - New features or code capabilities — messaging only

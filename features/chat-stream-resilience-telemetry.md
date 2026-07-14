@@ -3,7 +3,7 @@ title: Chat Stream Resilience Telemetry
 status: completed
 priority: P2
 milestone: post-mvp
-source: .archive/handoff/bug-conversation-refresh-midstream.md
+source: internal history record
 dependencies: [chat-engine, chat-api-routes]
 ---
 
@@ -119,7 +119,7 @@ If telemetry shows >1% of streams terminating with `stream.aborted.client` / `st
 
 ## References
 
-- Source: `.archive/handoff/bug-conversation-refresh-midstream.md` (original theory from sibling repo)
+- Source: `internal history record` (original theory from sibling repo)
 - Mitigations already in place:
   - `src/lib/chat/engine.ts:720` — `finalizeStreamingMessage()` in finally block
   - `src/lib/chat/reconcile.ts:59-82` — `reconcileStreamingMessages()` safety net

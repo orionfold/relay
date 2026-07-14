@@ -69,6 +69,6 @@ As a ainative operator, I want the agent runtime layer to use SDK capabilities c
 
 ## References
 
-- Audit report: [done-sdk-usage-audit.md](../output/done-sdk-usage-audit.md)
+- Audit source: internal SDK usage report; durable findings are captured above.
 - Related features: [provider-runtime-abstraction](provider-runtime-abstraction.md), [usage-metering-ledger](usage-metering-ledger.md), [spend-budget-guardrails](spend-budget-guardrails.md), [agent-self-improvement](agent-self-improvement.md)
 - Related features: [cross-provider-profile-compatibility](cross-provider-profile-compatibility.md) (temperature removal)

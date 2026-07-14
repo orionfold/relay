@@ -60,4 +60,4 @@ Unit test suite: 1947 passed, 7 failed (all pre-existing, unrelated to this feat
 - Implementation plan: `docs/superpowers/plans/2026-05-02-profile-runtime-default-resolution.md` (commit ca23f59c)
 - Predecessor feature: `features/row-trigger-blueprint-execution.md`
 - Commit chain: `90aa707b` → `57fb3726` → `a476c857` → `31321eb8` → `f7a66b75`
-- HANDOFF: `.archive/handoff/2026-05-02-profile-runtime-default-resolution-pre-shipped-handoff.md` (predecessor) → `HANDOFF.md` (current, post-ship)
+- HANDOFF: `internal history record` (predecessor) → `internal continuity record` (current, post-ship)

@@ -3,7 +3,7 @@ title: Marketplace App Publishing
 status: completed
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/ainative-app-marketplace-spec.md, brainstorm 2026-04-11
+source: internal history record, brainstorm 2026-04-11
 dependencies: [app-package-format, app-cli-tools, marketplace-access-gate]
 ---
 
@@ -205,7 +205,7 @@ here is the shared backend.
 
 ## References
 
-- Source: .archive/handoff/ainative-app-marketplace-spec.md §4.5, §10.1
+- Source: internal history record §4.5, §10.1
 - Related: `marketplace-access-gate` (tier gating), `app-package-format`
   (.sap structure), `app-cli-tools` (CLI publish command)
 - Files to modify:

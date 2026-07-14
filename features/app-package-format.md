@@ -4,7 +4,7 @@ status: dropped
 dropped: "Not pursuing — app distribution/marketplace ambition cut per _IDEAS/reprioritze.md §4 (concentration cutline, 2026-06-29)."
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/ainative-app-marketplace-spec.md
+source: internal history record
 dependencies: [marketplace-install-hardening]
 ---
 
@@ -86,8 +86,8 @@ version: 1.0.0
 description: Portfolio tracking and investment analysis
 author:
   name: ainative Team
-  email: apps@ainative.io
-  url: https://ainative.io
+  email: apps@orionfold.com/relay
+  url: https://orionfold.com/relay
 license: MIT
 
 platform:
@@ -301,7 +301,7 @@ function checkPlatformCompat(manifest: AppManifest): boolean {
 
 ## References
 
-- Source: `.archive/handoff/ainative-app-marketplace-spec.md` section 3
+- Source: `internal history record` section 3
 - Related: `app-runtime-bundle-foundation` (defines the `AppBundle` type
   this format serializes)
 - Files to modify:

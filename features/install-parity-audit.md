@@ -7,7 +7,7 @@ milestone: M5
 dependencies:
   - nl-to-composition-v1 (M4.5, shipped 2026-04-21)
   - chat-tools-plugin-kind-1 (M3, shipped 2026-04-20)
-handoff: .archive/handoff/2026-04-21-m5-shipped-handoff.md
+handoff: internal history record
 ---
 
 # Install Parity Audit (Milestone 5)
@@ -59,7 +59,7 @@ Final release gate before the single batched npm publish of the Self-Extending M
 ## What's next (post-M5)
 
 1. Bump `package.json` version per semver for cumulative M1 + M2 + M3 + M4 + M4.5 + M5 delta (currently 0.13.3; likely 0.14.0 for the batched self-extending-machine release).
-2. `npm publish --access public` as `manavsehgal` maintainer.
+2. `npm publish --access public` as the current package maintainer.
 3. Announce release; link to the handoffs (2026-04-20 Phase 6, 2026-04-21 M4.5, 2026-04-21 M5).
 
 See the ship handoff for full context.

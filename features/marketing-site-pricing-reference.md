@@ -8,9 +8,9 @@ The main ainative codebase provides the constants; this page consumes them.
 | Tier | Monthly | Annual | Stripe Payment Link |
 |------|---------|--------|---------------------|
 | Community | Free | Free | N/A |
-| Solo | $19 | $190 ($15.83/mo) | `https://buy.ainative.io/SOLO_LINK` |
-| Operator | $49 | $490 ($40.83/mo) | `https://buy.ainative.io/OPERATOR_LINK` |
-| Scale | $99 | $990 ($82.50/mo) | `https://buy.ainative.io/SCALE_LINK` |
+| Solo | $19 | $190 ($15.83/mo) | `https://orionfold.com/relay/checkout/SOLO_LINK` |
+| Operator | $49 | $490 ($40.83/mo) | `https://orionfold.com/relay/checkout/OPERATOR_LINK` |
+| Scale | $99 | $990 ($82.50/mo) | `https://orionfold.com/relay/checkout/SCALE_LINK` |
 
 ## Files to Modify in ainative.github.io
 

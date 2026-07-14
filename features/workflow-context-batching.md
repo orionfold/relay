@@ -118,7 +118,7 @@ Proposals with a `sessionId` are buffered; proposals without one behave as today
 
 ## References
 
-- **Origin**: [Agent E2E Test Report](../output/done-agent-e2e-test-report.md) Recommendation #5 — "Multiple context proposals during workflow execution add friction — consider auto-approving within a workflow session"
+- **Origin**: internal Agent E2E Test Report, Recommendation #5 — "Multiple context proposals during workflow execution add friction — consider auto-approving within a workflow session"
 - **Builds on**: [agent-self-improvement](agent-self-improvement.md) — pattern extraction and learned context system
 - **Builds on**: [workflow-engine](workflow-engine.md) — workflow execution lifecycle
 - **Related**: [ambient-approval-toast](ambient-approval-toast.md) — notification delivery pattern

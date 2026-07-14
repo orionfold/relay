@@ -17,7 +17,7 @@ category: api-design
 
 The default branch additionally includes `resumeAt` (for delay-pattern pauses); the loop branch does not. This is an implicit polymorphic response. It was never codified, and the consumer type in `src/components/workflows/workflow-status-view.tsx:43-58` declares `StepWithState.state` as **required** — a single flat shape that silently lies about loop responses.
 
-PR manavsehgal/ainative#6 was filed on 2026-04-09 after a production crash: `completedStepOutputs` in `workflow-status-view.tsx:404-406` dereferenced `s.state.result` unconditionally, and the React error boundary caught the resulting `TypeError` on every loop-pattern workflow (the entry point table enrichment uses today). The hotfix added optional chaining. The root cause — the unwritten rule that consumers must branch on `pattern` before reading step state — was never documented, so neither the original author nor PR #6 had a contract to enforce.
+Legacy PR #6 was filed on 2026-04-09 after a production crash: `completedStepOutputs` in `workflow-status-view.tsx:404-406` dereferenced `s.state.result` unconditionally, and the React error boundary caught the resulting `TypeError` on every loop-pattern workflow (the entry point table enrichment uses today). The hotfix added optional chaining. The root cause — the unwritten rule that consumers must branch on `pattern` before reading step state — was never documented, so neither the original author nor PR #6 had a contract to enforce.
 
 This pattern (one route, multiple shapes keyed on a discriminator) will recur. The workflow engine already has four patterns (sequence, parallel, loop, swarm), a DAG pattern is plausible, and the heartbeat and schedule engines may add their own. Without a codified contract, the next pattern added will repeat the same trap.
 
@@ -41,7 +41,7 @@ This TDR does not cover WebSocket or SSE variants of the status API. If a stream
 
 ## Consequences
 
-- **Crashes become compiler errors.** The class of bug PR manavsehgal/ainative#6 fixed — blind dereference of a pattern-specific field — is caught at build time. A future engineer writing `data.steps[i].state.result` without narrowing gets a red squiggle, not a production error boundary.
+- **Crashes become compiler errors.** The class of bug legacy PR #6 fixed — blind dereference of a pattern-specific field — is caught at build time. A future engineer writing `data.steps[i].state.result` without narrowing gets a red squiggle, not a production error boundary.
 - **The top-level view shrinks.** `workflow-status-view.tsx` today is 895 lines of mixed data fetching, derived computation, sequence rendering, parallel rendering, loop dispatch, swarm dispatch, and sheet dialogs. The router split (tracked in the `workflow-status-view-pattern-router` feature spec) brings it under 80 lines. Each subview is independently testable and independently rewritable.
 - **Loop outputs become first-class.** Today `completedStepOutputs` returns `[]` for loop workflows — correct by accident, wrong by design, because `loopState.iterations[].result` holds the actual outputs. The loop subview is free to read iterations directly and surface them in the Full Output sheet.
 - **Adding a new pattern is cheaper.** The four-step checklist is explicit and enforced by the type system. No one has to remember that "also update this computation above the branch."
@@ -66,6 +66,6 @@ This TDR does not cover WebSocket or SSE variants of the status API. If a stream
 - `src/components/workflows/workflow-status-view.tsx:513,522` — existing loop branches in the view, sitting below the unconditional computation at line 404 (ordering bug).
 - `src/components/workflows/loop-status-view.tsx` — existing pattern-specific renderer that reads `loopState.iterations[]` correctly; becomes the inner component of the loop subview.
 - `src/lib/workflows/types.ts:105-124` — `IterationState` and `LoopState` types; reusable as-is for the loop arm of the union.
-- PR manavsehgal/ainative#6 — hotfix that surfaced the drift.
+- Legacy PR #6 — hotfix that surfaced the drift.
 - `features/workflow-status-view-pattern-router.md` — feature spec tracking the implementation of this TDR.
 - TDR-003 (API design) and TDR-004 (Server Components for reads) — adjacent API-layer decisions; this TDR does not supersede either.

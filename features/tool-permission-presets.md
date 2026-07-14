@@ -87,6 +87,6 @@ Presets are additive — enabling "git-safe" also includes all "read-only" tools
 
 ## References
 
-- **Origin**: [Agent E2E Test Report](../output/done-agent-e2e-test-report.md) Recommendation #1 — "Tool pre-approval: Consider adding a bulk approve for common read-only tools to reduce friction"
+- **Origin**: internal Agent E2E Test Report, Recommendation #1 — "Tool pre-approval: Consider adding a bulk approve for common read-only tools to reduce friction"
 - **Builds on**: [tool-permission-persistence](tool-permission-persistence.md) — individual "Always Allow" mechanism
 - **Related**: Claude Code's `allowedTools` convention for permission patterns

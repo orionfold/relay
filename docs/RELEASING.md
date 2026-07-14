@@ -83,4 +83,4 @@ and this workflow file. Nothing to rotate, nothing to revoke, nothing to paste.
   Node 22 + upgrades npm).
 - `permissions: id-token: write` in the job (present).
 - `package.json` `repository.url` must point at `github.com/orionfold/relay`
-  (fixed 2026-07-01 — was stale `manavsehgal/ainative`).
+  (fixed 2026-07-01 — previously pointed at a retired repository).

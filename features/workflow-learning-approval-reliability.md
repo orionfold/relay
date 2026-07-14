@@ -4,7 +4,7 @@ status: completed
 shipped-date: 2026-05-03
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/table-enrich-context-approval-noise.md
+source: internal history record
 dependencies:
   - workflow-context-batching
   - inbox-notifications
@@ -93,5 +93,5 @@ Run on 2026-05-03:
 
 ## References
 
-- Source: `.archive/handoff/table-enrich-context-approval-noise.md`
+- Source: `internal history record`
 - Related features: `workflow-context-batching`, `inbox-notifications`, `learned-context-ux-completion`, `tables-enrichment-planner-ux`

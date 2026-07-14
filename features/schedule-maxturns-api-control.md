@@ -3,7 +3,7 @@ title: Schedule maxTurns API Control
 status: completed
 priority: P2
 milestone: post-mvp
-source: .archive/handoff/feature-schedule-maxturns-control.md
+source: internal history record
 dependencies: [scheduled-prompt-loops]
 ---
 
@@ -53,7 +53,7 @@ As an operator running schedules of varying complexity, I want to set a per-sche
 
 ## References
 
-- Source: `.archive/handoff/feature-schedule-maxturns-control.md`
+- Source: `internal history record`
 - `src/lib/db/schema.ts:237-239` — existing `maxTurns` column with doc comment
 - `src/lib/chat/tools/schedule-tools.ts:46-72` — target `create_schedule` Zod schema
 - `src/lib/chat/tools/schedule-tools.ts:202-219` — target `update_schedule` Zod schema

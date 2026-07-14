@@ -65,6 +65,8 @@
     "build:cli": "tsup",
     "test": "vitest run",
     "test:hooks": "node --test .codex/hooks/*.test.mjs",
+    "test:public-boundary": "node --test scripts/check-public-boundary.test.mjs",
+    "test:doc-links": "node --test scripts/check-local-doc-links.test.mjs",
     "smoke:fresh-clone-dev": "node scripts/fresh-clone-dev-smoke.mjs",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -75,8 +77,11 @@
     "check:pack-taxonomy": "node scripts/check-pack-taxonomy.mjs",
     "check:pack-compat": "node scripts/check-pack-compat.mjs",
     "check:pack-tarball": "node scripts/check-pack-tarball.mjs",
+    "check:public-boundary": "node scripts/check-public-boundary.mjs tracked",
+    "check:public-artifacts": "node scripts/check-public-boundary.mjs artifacts",
+    "check:doc-links": "node scripts/check-local-doc-links.mjs",
     "sync-worktree": "bash bin/sync-worktree.sh",
-    "prepublishOnly": "npm run build:cli"
+    "prepublishOnly": "npm run test:public-boundary && npm run check:public-boundary && npm run build:cli"
   },
   "engines": {
     "node": ">=20.0.0"

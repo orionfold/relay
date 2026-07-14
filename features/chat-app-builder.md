@@ -221,7 +221,7 @@ agent to follow the 6-step discovery flow. The prompt includes:
 ## References
 
 - Source: brainstorm session 2026-04-11 (EXPAND scope)
-- Plan: `.claude/plans/flickering-petting-hammock.md` §4a
+- Plan: `internal implementation plan` §4a
 - Related features: `app-package-format`, `app-extended-primitives-tier1`,
   `promote-conversation-to-app`, `app-remix`, `conversational-app-editing`
 - Files to create:

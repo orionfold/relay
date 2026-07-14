@@ -3,7 +3,7 @@ title: App CLI Tools
 status: completed
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/ainative-app-marketplace-spec.md
+source: internal history record
 dependencies: [app-package-format, app-seed-data-generation]
 ---
 
@@ -300,7 +300,7 @@ it with the `app` group following the same pattern.
 
 ## References
 
-- Source: `.archive/handoff/ainative-app-marketplace-spec.md` section 10
+- Source: `internal history record` section 10
 - Related: `app-package-format` (defines what commands operate on),
   `app-seed-data-generation` (seed command delegates to), `bin/cli.ts`
   (existing CLI entry point)

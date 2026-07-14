@@ -81,6 +81,6 @@ As a user browsing profiles, I want built-in profiles like `sweep` to appear in 
 
 ## References
 
-- **Origin**: [Agent Self-Improvement E2E Report](../output/done-agent-self-improvement-e2e-report.md)
+- **Origin**: internal Agent Self-Improvement E2E Report
 - **Builds on**: [agent-self-improvement](agent-self-improvement.md)
 - **Builds on**: [agent-profile-catalog](agent-profile-catalog.md)

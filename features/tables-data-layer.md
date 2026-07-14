@@ -154,7 +154,7 @@ user_tables → user_table_templates
 
 ## References
 
-- Source: Plan file `/Users/manavsehgal/.claude/plans/functional-greeting-cookie.md`
+- Source: Plan file `internal implementation plan`
 - Pattern: `src/lib/data/chat.ts` — CRUD operations pattern
 - Pattern: `src/lib/db/bootstrap.ts` — bootstrap DDL pattern
 - Pattern: `src/lib/data/clear.ts` — FK-safe deletion pattern

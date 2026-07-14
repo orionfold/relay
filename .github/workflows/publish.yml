@@ -78,6 +78,13 @@ jobs:
           fi
           echo "Publishing orionfold-relay@$PKG"
 
+      - name: Guard — public tracked tree and source archive
+        run: |
+          npm run test:public-boundary
+          npm run check:public-boundary
+          git archive --format=tar --output=/tmp/relay-public-source.tar HEAD
+          node scripts/check-public-boundary.mjs archive /tmp/relay-public-source.tar
+
       - name: Build + test gate
         run: |
           npm run build:cli
@@ -101,6 +108,7 @@ jobs:
           fi
           SIZE=$(wc -c < "$TARBALL")
           echo "npm tarball: $TARBALL — $SIZE bytes"
+          node scripts/check-public-boundary.mjs npm "$TARBALL"
           if [ "$SIZE" -gt 10485760 ]; then
             echo "::error::npm tarball is $SIZE bytes (> 10 MB) — build output is leaking into the package"
             exit 1

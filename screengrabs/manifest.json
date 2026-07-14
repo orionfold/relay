@@ -129,7 +129,7 @@
   "notes": [
     "Branching captures used AINATIVE_CHAT_BRANCHING=true env var, which was REMOVED from .env.local immediately after capture. Default user behavior is unchanged.",
     "6 demo apps were materialized at ~/.ainative/apps/demo-{habit-tracker,portfolio-coach,expense-ledger,lead-inbox,research-pad,ops-hub} to capture all 6 view kits. They remain seeded as benign demos prefixed with `demo-` and are safe to delete via the /apps UI.",
-    "App-builder journey is a NEW persona. Doc-generator does not yet generate a docs/journeys/app-builder.md — see HANDOFF.md for follow-up.",
+    "App-builder journey is a NEW persona. Doc-generator does not yet generate a docs/journeys/app-builder.md — see internal continuity record for follow-up.",
     "Workflow-hub kit regression test from commit 98e6ca3f verified: /apps/demo-ops-hub renders cleanly with no crash."
   ]
 }

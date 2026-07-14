@@ -3,7 +3,7 @@ title: Marketplace App Listing
 status: completed
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/ainative-app-marketplace-spec.md
+source: internal history record
 dependencies: [marketplace-access-gate, app-runtime-bundle-foundation]
 ---
 
@@ -205,7 +205,7 @@ data changes infrequently.
 
 ## References
 
-- Source: .archive/handoff/ainative-app-marketplace-spec.md §4, §9
+- Source: internal history record §4, §9
 - Related: `marketplace-access-gate` (tier gating), `app-runtime-bundle-foundation`
   (install machinery), `marketplace-trust-ladder` (trust badges)
 - Files to modify:

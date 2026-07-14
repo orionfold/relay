@@ -3,7 +3,7 @@ title: "Fix: Sidebar Reactive Update After App Install"
 status: deferred
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/bug-marketplace-app-sidebar-requires-refresh.md
+source: internal history record
 dependencies: [app-runtime-bundle-foundation]
 ---
 
@@ -43,5 +43,5 @@ As a user who installs an app from the marketplace, I want the app to immediatel
 
 ## References
 
-- Source: `.archive/handoff/bug-marketplace-app-sidebar-requires-refresh.md`
+- Source: `internal history record`
 - Related features: app-runtime-bundle-foundation, fix-exported-bundle-registration

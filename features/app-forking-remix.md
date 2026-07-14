@@ -107,7 +107,7 @@ Add to local `app_instances`:
 On the marketplace detail page, if `forkedFrom` is set:
 
 ```
-🔗 Forked from Wealth Manager by manavsehgal
+🔗 Forked from Wealth Manager by example-author
 ```
 
 Clicking the link navigates to the original app's marketplace listing.

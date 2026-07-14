@@ -3,7 +3,7 @@ title: Tables Enrichment Runtime V2
 status: completed
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/table-enrichment-runtime-planner.md
+source: internal history record
 dependencies: [bulk-row-enrichment, workflow-engine, workflow-runtime-configuration]
 ---
 
@@ -58,5 +58,5 @@ As an operator enriching a table column, I want each row to run the right number
 
 ## References
 
-- Source: `.archive/handoff/table-enrichment-runtime-planner.md`
+- Source: `internal history record`
 - Related features: `bulk-row-enrichment`, `workflow-engine`, `workflow-runtime-configuration`

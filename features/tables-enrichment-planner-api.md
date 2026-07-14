@@ -3,7 +3,7 @@ title: Tables Enrichment Planner API
 status: completed
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/table-enrichment-runtime-planner.md
+source: internal history record
 dependencies: [tables-enrichment-runtime-v2, provider-runtime-abstraction, tables-agent-integration]
 ---
 
@@ -56,5 +56,5 @@ As an operator preparing a table enrichment run, I want to preview the recommend
 
 ## References
 
-- Source: `.archive/handoff/table-enrichment-runtime-planner.md`
+- Source: `internal history record`
 - Related features: `tables-enrichment-runtime-v2`, `bulk-row-enrichment`, `tables-agent-integration`

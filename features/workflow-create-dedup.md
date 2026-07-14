@@ -3,7 +3,7 @@ title: Workflow Creation Deduplication
 status: completed
 priority: P1
 milestone: post-mvp
-source: .archive/handoff/bug-duplicate-workflow-creation.md
+source: internal history record
 dependencies: [chat-engine, workflow-engine]
 ---
 
@@ -120,7 +120,7 @@ In `src/lib/chat/system-prompt.ts`, add an instruction near the workflow-related
 
 ## References
 
-- Source: `.archive/handoff/bug-duplicate-workflow-creation.md`
+- Source: `internal history record`
 - Existing pattern to reuse: `src/lib/import/dedup.ts:30-62`
 - Files to modify: `src/lib/chat/tools/workflow-tools.ts`, `src/lib/chat/system-prompt.ts`, `src/lib/import/dedup.ts`
 - Files to create: `src/lib/util/similarity.ts`, plus adjacent `__tests__/` entries
