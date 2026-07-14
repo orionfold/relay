@@ -1,5 +1,18 @@
 # Feature Changelog
 
+## 2026-07-14 — G-061 table Render/Row view goal
+
+### Groomed
+
+- Added P1 goal G-061 for a shared semantic table-data renderer and labeled
+  `Render` / `Row` switcher. Generic app-shell table heroes will default to
+  Render while `/tables/[id]` retains Row as its default editing surface. The
+  goal requires an additive display-role contract, explicit-first deterministic
+  fallbacks, safe thumbnails, stable category pills, non-semantic-by-default
+  numerical intensity, accessible interaction/state preservation, a durable
+  feature specification and implementation plan, and real responsive browser
+  regression coverage before completion.
+
 ## 2026-07-14 — G-009 resolved view-kit diagnostics
 
 ### Completed
