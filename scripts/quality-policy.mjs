@@ -2,6 +2,7 @@ export const QUALITY_PROFILES = ["pr", "release"];
 
 export const ALWAYS_LANES = [
   "typecheck",
+  "test-projects",
   "default-coverage",
   "coverage-policy",
   "test-audit",
@@ -26,11 +27,12 @@ export const CONDITIONAL_LANES = [
 export const RELEASE_ONLY_LANES = ["build-cli"];
 
 export const COVERAGE_RATCHET_BASELINE = {
-  commit: "870d0b08",
+  commit: "G-067",
   measuredAt: "2026-07-14",
   node: "22.18.0",
   npm: "11.6.0",
   eligibleProductionFiles: 965,
+  topology: "node-jsdom-browser",
 };
 
 const qualityControlPaths = [
@@ -43,6 +45,8 @@ const qualityControlPaths = [
   "scripts/check-quality-coverage.mjs",
   "scripts/quality-gate.test.mjs",
   "scripts/test-audit.mjs",
+  "scripts/test-projects.mjs",
+  "scripts/check-test-projects.mjs",
   "vitest.config.ts",
 ];
 
@@ -83,9 +87,12 @@ export const PATH_LANE_RULES = {
   ],
 };
 
-// Exact all-source values measured immediately after G-068 at the baseline
-// above. These prevent regression; they are not claims that weak surfaces have
-// reached the long-term targets in docs/quality/regression-strategy.md.
+// Exact all-source values measured after the G-067 environment split. V8's
+// Node instrumentation omits a directive/source-map line that jsdom counted as
+// both covered and executable in several server modules; the affected floors
+// were rebaselined only where that paired decrement lowered the ratio. These
+// prevent regression; they are not claims that weak surfaces have reached the
+// long-term targets in docs/quality/regression-strategy.md.
 export const RISK_SURFACES = [
   {
     id: "database",
@@ -93,7 +100,7 @@ export const RISK_SURFACES = [
     tier: 0,
     prefixes: ["src/lib/db/"],
     minimum: {
-      lines: { covered: 215, total: 280 },
+      lines: { covered: 214, total: 279 },
       branches: { covered: 12, total: 16 },
     },
   },
@@ -123,7 +130,7 @@ export const RISK_SURFACES = [
     tier: 0,
     prefixes: ["src/lib/agents/runtime/"],
     minimum: {
-      lines: { covered: 284, total: 1430 },
+      lines: { covered: 282, total: 1428 },
       branches: { covered: 227, total: 1128 },
     },
   },
@@ -133,7 +140,7 @@ export const RISK_SURFACES = [
     tier: 1,
     prefixes: ["src/lib/agents/"],
     minimum: {
-      lines: { covered: 1020, total: 2615 },
+      lines: { covered: 1016, total: 2611 },
       branches: { covered: 715, total: 2044 },
     },
   },
@@ -143,7 +150,7 @@ export const RISK_SURFACES = [
     tier: 0,
     prefixes: ["src/lib/chat/"],
     minimum: {
-      lines: { covered: 1106, total: 2709 },
+      lines: { covered: 1102, total: 2706 },
       branches: { covered: 600, total: 2044 },
     },
   },
@@ -153,7 +160,7 @@ export const RISK_SURFACES = [
     tier: 0,
     prefixes: ["src/lib/packs/"],
     minimum: {
-      lines: { covered: 826, total: 909 },
+      lines: { covered: 823, total: 906 },
       branches: { covered: 505, total: 670 },
     },
   },
@@ -163,7 +170,7 @@ export const RISK_SURFACES = [
     tier: 0,
     prefixes: ["src/lib/licensing/"],
     minimum: {
-      lines: { covered: 276, total: 308 },
+      lines: { covered: 275, total: 307 },
       branches: { covered: 215, total: 267 },
     },
   },
@@ -173,7 +180,7 @@ export const RISK_SURFACES = [
     tier: 0,
     prefixes: ["src/lib/instance/"],
     minimum: {
-      lines: { covered: 207, total: 249 },
+      lines: { covered: 204, total: 246 },
       branches: { covered: 98, total: 136 },
     },
   },
@@ -183,8 +190,8 @@ export const RISK_SURFACES = [
     tier: 0,
     prefixes: ["src/lib/desktop/"],
     minimum: {
-      lines: { covered: 127, total: 137 },
-      branches: { covered: 56, total: 68 },
+      lines: { covered: 125, total: 135 },
+      branches: { covered: 54, total: 66 },
     },
   },
   {

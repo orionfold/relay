@@ -172,6 +172,28 @@ test("non-zero, signal, launch error, and missing semantic evidence are named fa
   );
 });
 
+test("test-project membership lane requires its one-to-one receipt", () => {
+  const lane = LANE_DEFINITIONS["test-projects"];
+  assert.equal(
+    evaluateLaneResult(lane, {
+      status: 0,
+      signal: null,
+      stdout: "[test-projects] OK node=315 jsdom=100 browser=1 total=416",
+      stderr: "",
+    }).ok,
+    true
+  );
+  assert.match(
+    evaluateLaneResult(lane, {
+      status: 0,
+      signal: null,
+      stdout: "",
+      stderr: "",
+    }).reason,
+    /one-to-one Node\/jsdom\/browser project receipt/
+  );
+});
+
 test("coverage policy fails when an eligible source disappears", () => {
   const report = evaluateCoveragePolicy({
     summary: { total: fakeMetrics({ linesCovered: 0, linesTotal: 0, branchesCovered: 0, branchesTotal: 0 }) },

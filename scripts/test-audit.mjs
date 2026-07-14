@@ -4,6 +4,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { RISK_SURFACES } from "./quality-policy.mjs";
+import { classifyTestFile } from "./test-projects.mjs";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const args = new Set(process.argv.slice(2));
@@ -124,6 +125,10 @@ const e2eVitestConfig = readFileSync(
 const packageJson = JSON.parse(
   readFileSync(resolve(repoRoot, "package.json"), "utf8")
 );
+const qualityWorkflow = readFileSync(
+  resolve(repoRoot, ".github/workflows/quality-gate.yml"),
+  "utf8"
+);
 
 const coverageSummaryPath = resolve(repoRoot, "coverage/coverage-summary.json");
 const coverageSummary = existsSync(coverageSummaryPath)
@@ -180,7 +185,7 @@ const coverage = coverageSummary
   : null;
 
 const report = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   scope: {
     productionFiles: productionFiles.length,
     totalTestFiles: vitestFiles.length + nodeTestFiles.length,
@@ -240,7 +245,7 @@ const report = {
     workflowFiles,
     fullSuiteWorkflowReferences,
     defaultExcludesE2e:
-      vitestConfig.includes('exclude: ["src/__tests__/e2e/**"]') &&
+      e2eFiles.every((path) => classifyTestFile(path) === "e2e") &&
       packageJson.scripts?.["test:e2e"]?.includes("vitest.config.e2e.ts"),
     coverageIncludesProductionSurface:
       vitestConfig.includes('"src/**/*.{ts,tsx}"') &&
@@ -253,6 +258,21 @@ const report = {
       vitestConfig.includes("unstubGlobals: true") &&
       packageJson.scripts?.["test:harness-safety"] ===
         "node scripts/test-harness-safety.mjs",
+    nodeJsdomBrowserProjectsConfigured:
+      vitestConfig.includes('name: "node"') &&
+      vitestConfig.includes('environment: "node"') &&
+      vitestConfig.includes('name: "jsdom"') &&
+      vitestConfig.includes('environment: "jsdom"') &&
+      vitestConfig.includes('name: "browser"') &&
+      vitestConfig.includes("provider: playwright()") &&
+      packageJson.devDependencies?.["@vitest/browser-playwright"] === "4.1.4" &&
+      packageJson.devDependencies?.playwright === "1.61.1" &&
+      qualityWorkflow.includes("playwright install --with-deps chromium"),
+    projectMembershipGuardConfigured:
+      packageJson.scripts?.["test:projects"] ===
+        "node scripts/check-test-projects.mjs" &&
+      existsSync(resolve(repoRoot, "scripts/test-projects.mjs")) &&
+      existsSync(resolve(repoRoot, "scripts/check-test-projects.mjs")),
     runtimeGraphSmokeConfigured:
       packageJson.scripts?.["test:runtime-graph"] ===
         "node scripts/runtime-module-graph-smoke.mjs" &&
@@ -336,6 +356,14 @@ if (jsonOnly) {
   console.log(
     `Harness-owned mutable state`.padEnd(30),
     report.topology.defaultHarnessOwnsMutableState ? "configured" : "MISSING"
+  );
+  console.log(
+    `Node/jsdom/browser projects`.padEnd(30),
+    report.topology.nodeJsdomBrowserProjectsConfigured ? "configured" : "MISSING"
+  );
+  console.log(
+    `Project membership guard`.padEnd(30),
+    report.topology.projectMembershipGuardConfigured ? "configured" : "MISSING"
   );
   console.log(
     `Runtime module-graph smoke`.padEnd(30),

@@ -255,6 +255,11 @@ function prepareProject() {
   for (const file of ["package.json", "tsconfig.json", "next-env.d.ts"]) {
     copyFileSync(join(repoRoot, file), join(projectRoot, file));
   }
+  mkdirSync(join(projectRoot, "scripts"));
+  copyFileSync(
+    join(repoRoot, "scripts/test-projects.mjs"),
+    join(projectRoot, "scripts/test-projects.mjs")
+  );
   const configSource = readFileSync(join(repoRoot, "vitest.config.ts"), "utf8");
   const configAnchor = "export default defineConfig({";
   if (countOccurrences(configSource, configAnchor) !== 1) {

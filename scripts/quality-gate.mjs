@@ -27,6 +27,11 @@ export const LANE_DEFINITIONS = {
     args: ["node_modules/typescript/bin/tsc", "--noEmit"],
     evidence: "exit-zero",
   },
+  "test-projects": npmLane(
+    "test-projects",
+    "test:projects",
+    "test-projects"
+  ),
   "default-coverage": {
     id: "default-coverage",
     command: process.execPath,
@@ -127,14 +132,16 @@ function parseJson(output, laneId) {
 }
 
 function validateAudit(report) {
-  if (report.schemaVersion !== 4) {
-    return `test audit schema drifted: expected 4, received ${report.schemaVersion ?? "missing"}`;
+  if (report.schemaVersion !== 5) {
+    return `test audit schema drifted: expected 5, received ${report.schemaVersion ?? "missing"}`;
   }
   const requiredTopology = [
     "defaultExcludesE2e",
     "coverageIncludesProductionSurface",
     "coverageReportsOnFailure",
     "defaultHarnessOwnsMutableState",
+    "nodeJsdomBrowserProjectsConfigured",
+    "projectMembershipGuardConfigured",
     "runtimeGraphSmokeConfigured",
     "mutationStrengthConfigured",
     "qualityGateConfigured",
@@ -175,6 +182,11 @@ export function evaluateLaneResult(lane, result, root = repoRoot) {
   let missing = null;
   switch (lane.evidence) {
     case "exit-zero":
+      break;
+    case "test-projects":
+      if (!output.includes("[test-projects] OK")) {
+        missing = "one-to-one Node/jsdom/browser project receipt";
+      }
       break;
     case "default-coverage":
       if (

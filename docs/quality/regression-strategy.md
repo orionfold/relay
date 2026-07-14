@@ -3,7 +3,7 @@
 This document defines how Relay decides whether behavior is protected. It is a
 risk policy, not a promise that every source line deserves a test.
 
-Adopted through G-065 on 2026-07-14.
+Adopted through G-067 on 2026-07-14.
 
 ## Quality objective
 
@@ -85,10 +85,21 @@ Policy:
 | Browser/component | user-visible interaction, focus, CSS/browser APIs | data integrity or scheduler concurrency |
 | Customer-identical staging | packaged first run, install/upgrade/release journey | fast per-change feedback |
 
-Tests live next to the source in `__tests__/`. Server-dependent E2E remains a
-separate command and configuration. A test belongs in the default suite only if
-it can run hermetically without an already-running Relay server or live
-credentials.
+Tests live next to the source in `__tests__/`. The default Vitest matrix has
+three explicit projects: Node for server, database, API, CLI, filesystem, and
+pure logic; jsdom for React components, hooks, and component-level integration;
+and pinned headless Chromium for a deliberately small compiled-CSS/browser-state
+slice. `npm run test:projects` fails if any default test is missing or collected
+by more than one project. Server-dependent E2E remains a separate command and
+configuration. A test belongs in the default suite only if it can run
+hermetically without an already-running Relay server or live credentials.
+
+Use `@testing-library/user-event` with semantic role/name queries in jsdom when
+the event sequence matters. Use `vitest/browser` locators, CDP-backed
+interactions, and retriable `expect.element`/`expect.poll` assertions for real
+browser checks; do not replace those with direct event dispatch. Browser tests
+are reserved for computed CSS, focus, layout, and browser APIs, not a duplicate
+of every component test.
 
 `npm run test:runtime-graph` is the credential-free Tier-0 runtime control. It
 copies current source into a disposable repo-local project shell, starts a local
@@ -166,6 +177,8 @@ of local process-tree termination. The hosted job's 15-minute timeout is the
 hard execution ceiling, including runner variance and excluding dependency
 installation from the local receipt. Add caching/sharding only after recorded
 timing exhausts the local budget.
+The workflow installs the Chromium revision pinned by Playwright before the
+quality contract; browser/provider package versions are exact dev dependencies.
 
 The intended protected-branch check is `Relay quality gate`, with strict
 up-to-date branch enforcement if the repository adopts required pull requests.

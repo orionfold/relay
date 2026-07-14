@@ -48,6 +48,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install pinned Chromium
+        run: node_modules/.bin/playwright install --with-deps chromium
+
       - name: Run pull-request quality contract
         if: github.event_name == 'pull_request'
         env:

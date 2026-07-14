@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { TableListTable } from "../table-list-table";
@@ -20,11 +21,12 @@ const table: TableWithRelations = {
 };
 
 describe("TableListTable interaction treatment", () => {
-  it("highlights body rows without changing row or nested-checkbox callbacks", () => {
+  it("highlights body rows without changing row or nested-checkbox callbacks", async () => {
+    const user = userEvent.setup();
     const onToggleSelect = vi.fn();
     const onSelect = vi.fn();
     const onOpen = vi.fn();
-    const { container } = render(
+    render(
       <TableListTable
         tables={[table]}
         selected={new Set([table.id])}
@@ -35,23 +37,22 @@ describe("TableListTable interaction treatment", () => {
       />,
     );
 
-    const bodyRow = container.querySelector("tbody tr");
-    expect(bodyRow).not.toBeNull();
+    const bodyRow = screen.getAllByRole("row")[1];
     expect(bodyRow).toHaveClass("interactive-list-item");
     expect(bodyRow).toHaveAttribute("data-interactive-surface", "");
     expect(bodyRow).toHaveAttribute("data-interactive-outline", "preserve");
 
-    fireEvent.click(bodyRow!);
+    await user.click(bodyRow);
     expect(onSelect).toHaveBeenCalledWith(table.id);
 
     onSelect.mockClear();
     const rowCheckbox = screen.getAllByRole("checkbox")[1];
     expect(rowCheckbox).toBeChecked();
-    fireEvent.click(rowCheckbox);
+    await user.click(rowCheckbox);
     expect(onToggleSelect).toHaveBeenCalledWith(table.id);
     expect(onSelect).not.toHaveBeenCalled();
 
-    fireEvent.doubleClick(bodyRow!);
+    await user.dblClick(bodyRow);
     expect(onOpen).toHaveBeenCalledWith(table.id);
   });
 });
