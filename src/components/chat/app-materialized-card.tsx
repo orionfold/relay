@@ -84,12 +84,19 @@ export function AppMaterializedCard({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button asChild size="sm" variant="default" disabled={status !== "running"}>
-          <Link href={`/apps/${appId}`} aria-label={`Open ${name}`}>
+        {status === "running" ? (
+          <Button asChild size="sm" variant="default">
+            <Link href={`/apps/${appId}`} aria-label={`Open ${name}`}>
+              <ExternalLink className="h-3 w-3 mr-1.5" aria-hidden="true" />
+              Open pack
+            </Link>
+          </Button>
+        ) : (
+          <Button size="sm" variant="default" disabled>
             <ExternalLink className="h-3 w-3 mr-1.5" aria-hidden="true" />
             Open pack
-          </Link>
-        </Button>
+          </Button>
+        )}
         {files.length > 0 && (
           <Button
             size="sm"

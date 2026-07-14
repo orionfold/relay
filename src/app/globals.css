@@ -126,6 +126,12 @@
   --accent: oklch(0.955 0.01 250);
   --accent-foreground: oklch(0.25 0.03 250);
 
+  /* Interaction feedback. Light theme already has sufficient surface contrast,
+     so these preserve its existing accent/edge vocabulary. */
+  --interaction-hover-surface: var(--accent);
+  --interaction-hover-edge: var(--border-strong);
+  --interaction-active-surface: var(--secondary);
+
   /* Destructive */
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.98 0.005 0);
@@ -289,6 +295,14 @@
   /* Accent */
   --accent: oklch(0.20 0.02 250);
   --accent-foreground: oklch(0.92 0.01 250);
+
+  /* Dark interaction feedback — deliberately wider than the ordinary
+     surface-1 (L0.185) → accent (L0.20) step. Hover rises to L0.255 with a
+     cyan structural edge; active strengthens to L0.30. The state remains
+     visible without relying on motion. */
+  --interaction-hover-surface: oklch(0.255 0.035 230);
+  --interaction-hover-edge: oklch(0.62 0.10 192);
+  --interaction-active-surface: oklch(0.30 0.045 225);
 
   /* Destructive */
   --destructive: oklch(0.60 0.22 25);        /* Derivation: light L0.55 + 0.05 boost */
@@ -525,8 +539,8 @@
     transform 180ms ease;
 }
 
-[data-slot="card"].flagship-card-interactive:hover,
-.flagship-card-interactive:hover {
+[data-slot="card"].flagship-card-interactive:not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):hover,
+.flagship-card-interactive:not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):hover {
   border-color: color-mix(in oklch, var(--primary) 42%, var(--border));
   box-shadow: var(--shadow-raised);
   transform: translateY(-2px);
@@ -537,8 +551,8 @@
     transform 180ms ease;
 }
 
-[data-slot="card"].flagship-card-interactive:active,
-.flagship-card-interactive:active {
+[data-slot="card"].flagship-card-interactive:not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active,
+.flagship-card-interactive:not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active {
   transform: translateY(0) scale(0.99);
   transition-duration: 75ms;
 }
@@ -696,9 +710,9 @@
    (markup lives in layout.tsx). Holds briefly, then fades out via
    CSS only — no JS state, no hydration timing, FOUC-safe by
    construction. Sits above app content but BELOW modal/toast
-   layers. The `to` step sets visibility:hidden + pointer-events:
-   none so the veil fully leaves the a11y tree and stops
-   intercepting clicks once gone.
+   layers. It is decorative and never owns pointer hit-testing; the
+   underlying app controls remain the cursor source while the veil fades.
+   The `to` step sets visibility:hidden so the veil fully leaves the tree.
    ============================================================= */
 @keyframes of-boot-out {
   0%, 55% { opacity: 1; }
@@ -709,6 +723,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-overlay);
+  pointer-events: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -779,6 +794,27 @@
   background: var(--rail-surface);
   box-shadow: inset 0 1px 0 0 var(--rail-glow);
 }
+
+/* The telemetry rail keeps native wheel, trackpad, touch, and programmatic
+   scrolling, while its explicit edge controls replace the easy-to-miss
+   horizontal scrollbar chrome. */
+.telemetry-scroll-region {
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+  -ms-overflow-style: none;
+}
+
+.telemetry-scroll-region::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
+.telemetry-scroll-region::-webkit-scrollbar-track,
+.telemetry-scroll-region::-webkit-scrollbar-thumb {
+  border: 0;
+  background: transparent;
+}
 /* Telemetry-cell vertical dividers: --border (L0.26 dark) is too low-contrast
    over the lifted rail band, so bump the rail's own cell dividers to
    --border-strong (L0.32). Scoped to the rail (the [aria-label] attribute
@@ -842,6 +878,229 @@ body {
 
 body {
   color: var(--foreground);
+}
+
+/* App-wide pointer policy. The cursor is resolved from the deepest painted
+   node under the mouse, not necessarily the semantic root, so enabled targets
+   AND their descendants carry the hand explicitly. Disabled subtrees are
+   excluded at the source and reset afterward as a defensive fallback. */
+:where(
+  a[href],
+  a[href] *,
+  button:not(:disabled),
+  button:not(:disabled) *,
+  summary,
+  summary *,
+  select:not(:disabled),
+  select:not(:disabled) *,
+  input[type="checkbox"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled) *,
+  input[type="radio"]:not(:disabled),
+  input[type="radio"]:not(:disabled) *,
+  input[type="range"]:not(:disabled),
+  input[type="range"]:not(:disabled) *,
+  [role="button"]:not([aria-disabled="true"]),
+  [role="button"]:not([aria-disabled="true"]) *,
+  [role="combobox"]:not([aria-disabled="true"]),
+  [role="combobox"]:not([aria-disabled="true"]) *,
+  [role="link"]:not([aria-disabled="true"]),
+  [role="link"]:not([aria-disabled="true"]) *,
+  [role="tab"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]) *,
+  [role="menuitem"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]) *,
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]) *,
+  [role="menuitemradio"]:not([aria-disabled="true"]),
+  [role="menuitemradio"]:not([aria-disabled="true"]) *,
+  [role="option"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]) *,
+  [role="checkbox"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not([aria-disabled="true"]) *,
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]) *,
+  [role="switch"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]) *,
+  .flagship-card-interactive,
+  .flagship-card-interactive *,
+  .cursor-pointer,
+  .cursor-pointer *
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
+  cursor: url("/cursors/relay-hand-pointer-v1.svg") 7 2, pointer !important;
+}
+
+/* Labels adjacent to enabled selectable controls are part of the same hit
+   target. Ordinary text-field labels remain neutral. */
+:is(
+  label[for]:has(+ :is([role="checkbox"], [role="radio"], [role="switch"]):not(:disabled):not([aria-disabled="true"]):not([data-disabled]:not([data-disabled="false"]))),
+  :is([role="checkbox"], [role="radio"], [role="switch"]):not(:disabled):not([aria-disabled="true"]):not([data-disabled]:not([data-disabled="false"])) + label[for]
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *),
+:is(
+  label[for]:has(+ :is([role="checkbox"], [role="radio"], [role="switch"]):not(:disabled):not([aria-disabled="true"]):not([data-disabled]:not([data-disabled="false"]))),
+  :is([role="checkbox"], [role="radio"], [role="switch"]):not(:disabled):not([aria-disabled="true"]):not([data-disabled]:not([data-disabled="false"])) + label[for]
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) * {
+  cursor: url("/cursors/relay-hand-pointer-v1.svg") 7 2, pointer !important;
+}
+
+/* Text-entry surfaces retain the native insertion cursor. Labels are never
+   treated as a blanket category: selectable-control adjacency above and an
+   explicit component class are the two supported pointer opt-ins. */
+:where(
+  input:not([type]):not(:disabled),
+  input:is([type="text"], [type="email"], [type="password"], [type="search"], [type="tel"], [type="url"], [type="number"]):not(:disabled),
+  textarea:not(:disabled),
+  [contenteditable]:not([contenteditable="false"])
+):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
+  cursor: text !important;
+}
+
+/* Keep the shared Button contract explicit as well as semantic. Safari can
+   resolve an outline button through its painted variant layer instead of the
+   lower-specificity semantic selector, even though both compute identically in
+   Chromium. This later, variant-aware rule keeps every Button surface on the
+   same cursor asset without affecting disabled controls. */
+:where(
+  button[data-slot="button"][data-variant]:not(:disabled),
+  button[data-slot="button"][data-variant]:not(:disabled) *
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
+  cursor: url("/cursors/relay-hand-pointer-v1.svg") 7 2, pointer !important;
+}
+
+/* The sidebar rail is primarily a resize affordance, so it keeps a resize
+   cursor even though clicking it also toggles the sidebar. */
+:where(
+  button[data-slot="sidebar-rail"]:not(:disabled),
+  button[data-slot="sidebar-rail"]:not(:disabled) *
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *) {
+  cursor: ew-resize !important;
+}
+
+button:disabled,
+button:disabled *,
+select:disabled,
+select:disabled *,
+input:disabled,
+input:disabled *,
+[aria-disabled="true"],
+[aria-disabled="true"] *,
+[data-disabled]:not([data-disabled="false"]),
+[data-disabled]:not([data-disabled="false"]) *,
+[inert],
+[inert] * {
+  cursor: default !important;
+}
+
+/* Dark theme needs a larger state delta than the ordinary surface scale.
+   Text-only top navigation tabs are intentionally excluded; their accepted
+   underline/text treatment remains unchanged. Every included surface gets a
+   structural edge, while neutral surfaces also receive the stronger fill. */
+.dark :where(
+  button:not(:disabled):not([role="tab"]):not([data-variant="link"]):not([data-slot="sidebar-rail"]),
+  summary,
+  select:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]):not([role="tab"]),
+  [role="combobox"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]):not([data-variant="destructive"]),
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
+  [role="menuitemradio"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]),
+  .flagship-card-interactive,
+  [data-interactive-surface],
+  [data-telemetry-card][href],
+  .cursor-pointer:not([role="tab"]):not([data-variant="destructive"])
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):hover {
+  outline: 1px solid var(--interaction-hover-edge);
+  outline-offset: -1px;
+}
+
+.dark :where(
+  button:not(:disabled):not([role="tab"]):not([data-variant="default"]):not([data-variant="destructive"]):not([data-variant="link"]):not([data-slot="sidebar-rail"]),
+  summary,
+  [role="menuitem"]:not([aria-disabled="true"]):not([data-variant="destructive"]),
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
+  [role="menuitemradio"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  .flagship-card-interactive,
+  [data-interactive-surface],
+  [data-telemetry-card][href],
+  .cursor-pointer:not([role="tab"]):not([role="switch"]):not([role="checkbox"]):not([role="radio"]):not(input):not([data-variant="default"]):not([data-variant="destructive"]):not([data-variant="link"])
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):hover {
+  background-color: var(--interaction-hover-surface) !important;
+}
+
+.dark :where(
+  button:not(:disabled):not([role="tab"]):not([data-variant="default"]):not([data-variant="destructive"]):not([data-variant="link"]):not([data-slot="sidebar-rail"]),
+  summary,
+  [role="menuitem"]:not([aria-disabled="true"]):not([data-variant="destructive"]),
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
+  [role="menuitemradio"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  .flagship-card-interactive,
+  [data-interactive-surface],
+  [data-telemetry-card][href],
+  .cursor-pointer:not([role="tab"]):not([role="switch"]):not([role="checkbox"]):not([role="radio"]):not(input):not([data-variant="default"]):not([data-variant="destructive"]):not([data-variant="link"])
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active {
+  background-color: var(--interaction-active-surface) !important;
+}
+
+.dark :where(
+  button:not(:disabled):not([role="tab"]):not([data-variant="link"]):not([data-slot="sidebar-rail"]),
+  summary,
+  select:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]):not([role="tab"]),
+  [role="combobox"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]):not([data-variant="destructive"]),
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
+  [role="menuitemradio"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]),
+  .flagship-card-interactive,
+  [data-interactive-surface],
+  [data-telemetry-card][href],
+  .cursor-pointer:not([role="tab"]):not([data-variant="destructive"])
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):active {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+/* Destructive menu actions keep their semantic color family and, like every
+   other disabled target, receive no hover invitation. */
+[data-slot="dropdown-menu-item"][data-variant="destructive"]:not([data-disabled]):hover {
+  color: var(--destructive);
+  background-color: color-mix(in oklch, var(--destructive) 10%, transparent);
+}
+
+.dark [data-slot="dropdown-menu-item"][data-variant="destructive"]:not([data-disabled]):hover {
+  background-color: color-mix(in oklch, var(--destructive) 20%, transparent);
+}
+
+:where(
+  a[href],
+  button:not(:disabled),
+  summary,
+  select:not(:disabled),
+  input:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="combobox"]:not([aria-disabled="true"]),
+  [role="link"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]),
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
+  [role="menuitemradio"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]),
+  .flagship-card-interactive,
+  .cursor-pointer
+):not(:disabled):not(:disabled *):not([aria-disabled="true"]):not([aria-disabled="true"] *):not([data-disabled]:not([data-disabled="false"])):not([data-disabled]:not([data-disabled="false"]) *):not([inert]):not([inert] *):focus-visible {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: 2px !important;
 }
 
 /* =============================================================

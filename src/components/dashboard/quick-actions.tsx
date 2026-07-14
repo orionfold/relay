@@ -27,7 +27,7 @@ export function QuickActions() {
             key={action.label}
             type="button"
             onClick={() => router.push(action.href)}
-            className="flex flex-col items-center gap-1.5 rounded-lg p-3 text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="flex cursor-pointer flex-col items-center gap-1.5 rounded-lg p-3 text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             <action.icon className="h-5 w-5" />
             <span className="text-[11px] font-medium">{action.label}</span>

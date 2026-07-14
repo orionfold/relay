@@ -154,6 +154,7 @@ export function AppBar({ apps }: { apps: AppInstance[] }) {
             href="/settings"
             aria-label="Settings"
             title="Settings"
+            data-interactive-surface
             aria-current={settingsActive ? "page" : undefined}
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
@@ -168,7 +169,7 @@ export function AppBar({ apps }: { apps: AppInstance[] }) {
             type="button"
             onClick={openCommandPalette}
             aria-label="Open command palette (⌘K)"
-            className="hidden h-8 items-center rounded-md border border-border/60 px-2 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
+            className="hidden h-8 cursor-pointer items-center rounded-md border border-border/60 px-2 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
           >
             <kbd className="font-mono">⌘K</kbd>
           </button>

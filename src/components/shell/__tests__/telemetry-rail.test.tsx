@@ -1,10 +1,15 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { TelemetryRail } from "../telemetry-rail";
 import type { TelemetrySnapshot } from "../telemetry-types";
 import * as useTelemetryModule from "../use-telemetry";
 import * as useInstanceIdentityModule from "../use-instance-identity";
 import type { InstanceIdentityState } from "../use-instance-identity";
+
+const originalScrollToDescriptor = Object.getOwnPropertyDescriptor(
+  HTMLElement.prototype,
+  "scrollTo",
+);
 
 // The SPEND cells must render real metered ledger sums — never the plan price
 // or budget cap as a value (fix-dashboard-budget-vs-cost-labeling). The plan /
@@ -61,6 +66,20 @@ beforeEach(() => {
   stubIdentity();
 });
 
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+  if (originalScrollToDescriptor) {
+    Object.defineProperty(
+      HTMLElement.prototype,
+      "scrollTo",
+      originalScrollToDescriptor,
+    );
+  } else {
+    delete (HTMLElement.prototype as Partial<HTMLElement>).scrollTo;
+  }
+});
+
 describe("TelemetryRail spend cells", () => {
   it("shows $0.00 metered spend on a fresh subscription-billed instance, with the plan named in the sub-line", () => {
     stubTelemetry(snapshot({ planPricedMonthlyMicros: 20_000_000 }));
@@ -106,6 +125,9 @@ describe("TelemetryRail drill-down links", () => {
       "href",
       "/projects",
     );
+    expect(screen.getByRole("link", { name: "Open active projects" })).toHaveClass(
+      "cursor-pointer",
+    );
     expect(screen.getAllByRole("link", { name: "Open cost dashboard" })).toHaveLength(2);
   });
 });
@@ -129,5 +151,228 @@ describe("TelemetryRail runtime cell (FEAT-10)", () => {
     render(<TelemetryRail />);
 
     expect(screen.getByText("Claude Code")).toBeInTheDocument();
+  });
+});
+
+describe("TelemetryRail overflow controls (G-046)", () => {
+  function mockRailLayout({
+    viewport,
+    content,
+  }: {
+    viewport: number;
+    content: number;
+  }) {
+    let viewportWidth = viewport;
+    let railWidth = viewport;
+    let contentWidth = content;
+
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(function () {
+      if (this.dataset.testid === "telemetry-scroll-region") return viewportWidth;
+      if (this.dataset.testid === "telemetry-rail") return railWidth;
+      return 0;
+    });
+    vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockImplementation(function () {
+      return this.dataset.testid === "telemetry-scroll-region" ? contentWidth : 0;
+    });
+
+    const scrollTo = vi.fn(function (this: HTMLElement, options: ScrollToOptions) {
+      this.scrollLeft = options.left ?? 0;
+      this.dispatchEvent(new Event("scroll", { bubbles: true }));
+    });
+    Object.defineProperty(HTMLElement.prototype, "scrollTo", {
+      configurable: true,
+      value: scrollTo,
+    });
+
+    return {
+      scrollTo,
+      resize(nextViewport: number, nextContent: number) {
+        viewportWidth = nextViewport;
+        railWidth = nextViewport;
+        contentWidth = nextContent;
+        fireEvent(window, new Event("resize"));
+      },
+      resizeWithGutters({
+        rail,
+        viewport,
+        content,
+      }: {
+        rail: number;
+        viewport: number;
+        content: number;
+      }) {
+        railWidth = rail;
+        viewportWidth = viewport;
+        contentWidth = content;
+        fireEvent(window, new Event("resize"));
+      },
+    };
+  }
+
+  it("keeps controls absent at the exact fit boundary and reveals them after overflow", async () => {
+    stubTelemetry(snapshot());
+    const layout = mockRailLayout({ viewport: 700, content: 700 });
+    render(<TelemetryRail />);
+
+    expect(
+      screen.queryByRole("button", { name: "Previous telemetry cards" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Next telemetry cards" }),
+    ).not.toBeInTheDocument();
+
+    layout.resize(697, 700);
+    expect(
+      screen.queryByRole("button", { name: "Previous telemetry cards" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next telemetry cards" })).toBeEnabled();
+
+    layout.resizeWithGutters({ rail: 701, viewport: 665, content: 700 });
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("button", { name: "Next telemetry cards" }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it("moves the rail and exposes truthful start and end states", async () => {
+    stubTelemetry(snapshot());
+    const layout = mockRailLayout({ viewport: 400, content: 700 });
+    render(<TelemetryRail />);
+
+    const next = screen.getByRole("button", { name: "Next telemetry cards" });
+    expect(next).toBeEnabled();
+    expect(
+      screen.queryByRole("button", { name: "Previous telemetry cards" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("telemetry-previous-gutter")).toBeInTheDocument();
+    expect(screen.getByTestId("telemetry-next-gutter")).toBeInTheDocument();
+
+    fireEvent.click(next);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("button", { name: "Next telemetry cards" }),
+      ).not.toBeInTheDocument(),
+    );
+    const previous = screen.getByRole("button", {
+      name: "Previous telemetry cards",
+    });
+    expect(previous).toBeEnabled();
+    expect(screen.getByTestId("telemetry-previous-gutter")).toBeInTheDocument();
+    expect(screen.getByTestId("telemetry-next-gutter")).toBeInTheDocument();
+    expect(layout.scrollTo).toHaveBeenLastCalledWith({
+      left: 300,
+      behavior: "smooth",
+    });
+
+    fireEvent.click(previous);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("button", { name: "Previous telemetry cards" }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(
+      screen.getByRole("button", { name: "Next telemetry cards" }),
+    ).toBeEnabled();
+    expect(layout.scrollTo).toHaveBeenLastCalledWith({
+      left: 0,
+      behavior: "smooth",
+    });
+  });
+
+  it("uses immediate scrolling when reduced motion is requested", async () => {
+    stubTelemetry(snapshot());
+    const layout = mockRailLayout({ viewport: 400, content: 700 });
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({ matches: true }) as MediaQueryList),
+    );
+    render(<TelemetryRail />);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Next telemetry cards" }),
+    );
+    expect(layout.scrollTo).toHaveBeenLastCalledWith({
+      left: 300,
+      behavior: "auto",
+    });
+  });
+
+  it("moves by the clipped card edge when card geometry is available", async () => {
+    stubTelemetry(snapshot());
+    const layout = mockRailLayout({ viewport: 400, content: 700 });
+    render(<TelemetryRail />);
+
+    const region = screen.getByRole("region", { name: "Telemetry" });
+    vi.spyOn(region, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      right: 400,
+      width: 400,
+      top: 0,
+      bottom: 64,
+      height: 64,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    const cards = Array.from(
+      region.querySelectorAll<HTMLElement>("[data-telemetry-card]"),
+    );
+    cards.forEach((card, index) => {
+      vi.spyOn(card, "getBoundingClientRect").mockImplementation(() => {
+        const left = index * 136 - region.scrollLeft;
+        return {
+          left,
+          right: left + 136,
+          width: 136,
+          top: 0,
+          bottom: 64,
+          height: 64,
+          x: left,
+          y: 0,
+          toJSON: () => ({}),
+        };
+      });
+    });
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Next telemetry cards" }),
+    );
+    expect(layout.scrollTo).toHaveBeenLastCalledWith({
+      left: 8,
+      behavior: "smooth",
+    });
+
+    const previous = await screen.findByRole("button", {
+      name: "Previous telemetry cards",
+    });
+    fireEvent.click(previous);
+    expect(layout.scrollTo).toHaveBeenLastCalledWith({
+      left: 0,
+      behavior: "smooth",
+    });
+  });
+
+  it("keeps stable full-height gutters and limits control motion to color", async () => {
+    stubTelemetry(snapshot());
+    mockRailLayout({ viewport: 400, content: 700 });
+    render(<TelemetryRail />);
+
+    const next = await screen.findByRole("button", {
+      name: "Next telemetry cards",
+    });
+    expect(screen.getByTestId("telemetry-previous-gutter")).toHaveClass(
+      "self-stretch",
+      "w-9",
+    );
+    expect(screen.getByTestId("telemetry-next-gutter")).toHaveClass(
+      "self-stretch",
+      "w-9",
+    );
+    expect(next).toHaveClass("h-full", "w-full", "rounded-none", "transition-colors");
+    expect(next).not.toHaveClass("animate-in", "active:scale-[0.96]");
+    expect(screen.getByTestId("telemetry-scroll-region")).toHaveClass(
+      "telemetry-scroll-region",
+    );
   });
 });
