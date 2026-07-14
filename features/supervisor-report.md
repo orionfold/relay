@@ -1,34 +1,35 @@
 ---
-generated: 2026-07-12
+generated: 2026-07-14
 mode: next-steps
 ---
 
 # Supervisor Report
 
-## Next Steps — 2026-07-12
+## Next Steps — 2026-07-14
 
 ### Recommendation
 
-**Do this:** Complete G-042, `Make task outputs readable and directly navigable`.
+**Do this:** Begin G-057, `Reproduce the distributed Ollama profile and workflow failure`, when the matching three-host environment or reporter evidence is available.
 
-**Why:** G-042 was the highest ready P1 goal and directly addressed the output-rendering and
-document-navigation findings from the live G-006 walkthrough after G-041 stabilized run evidence.
+**Why:** The G-063 testing-improvement series is now complete through G-067, including G-051's
+rendered browser-state fixture. The operator's next priority is the distributed/self-hosted runtime
+series, and G-057 is the evidence-gathering boundary that separates client→Relay networking,
+Relay→Ollama networking, model/capability errors, and execution-target fallback before code changes.
 
-**Priority category:** Phase advancement — highest ready goal in the canonical backlog with all
-dependencies and operator gates satisfied.
+**Invoke:** use the G-033 diagnostic discipline with the exact browser client → Relay Linux VM →
+remote Ollama LAN server topology. Do not change customer network or Ollama configuration without
+approval.
 
-### Result
+**Priority category:** Customer reliability — first goal in the operator-prioritized distributed
+runtime sequence.
 
-G-042 completed on 2026-07-12. Task detail, task-summary, Inbox completion previews, and rendered
-documents now share safe markdown hierarchy, semantic Insight callouts, a 2× expanded reading area,
-and direct generated-document navigation. Focused tests, TypeScript, production build, real-result
-browser replay, desktop/390px checks, and fresh review passed.
+### Context
 
-### Next ready goal
-
-G-043, `Make task-summary and Inbox navigation match their visual affordances`, is now the highest
-ready backlog goal. It closes the remaining walkthrough navigation gaps around full-card Inbox
-activation, side-panel identity, and the explicit task-detail action.
+- Completed testing goals: G-022, G-064, G-065, G-066, G-067, G-068, plus bounded G-051.
+- Runtime sequence: G-057 distributed Ollama diagnosis, G-056 execution-target truth informed by
+  that evidence, then G-069 LiteLLM/LM Studio support.
+- G-057 remains environment/customer-evidence gated; it must end in a named reproduction,
+  `not reproduced`, or `needs-info` disposition rather than a speculative fix.
 
 ---
 

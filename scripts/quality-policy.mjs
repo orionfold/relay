@@ -27,7 +27,7 @@ export const CONDITIONAL_LANES = [
 export const RELEASE_ONLY_LANES = ["build-cli"];
 
 export const COVERAGE_RATCHET_BASELINE = {
-  commit: "G-067",
+  commit: "2852e89c",
   measuredAt: "2026-07-14",
   node: "22.18.0",
   npm: "11.6.0",

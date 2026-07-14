@@ -1,5 +1,48 @@
 # Feature Changelog
 
+## 2026-07-14 — G-067 test environments and G-051 browser-state fixture
+
+### Completed
+
+- Split the default Vitest matrix into Node for server/data/API/CLI tests, jsdom
+  for React and hooks, and one pinned Playwright Chromium project for compiled
+  interaction CSS. A one-to-one manifest fails on missing or double-collected
+  files, and the shared quality workflow installs the pinned browser revision.
+- Migrated the bounded Tables row slice from direct event dispatch to semantic
+  `user-event` interaction and role queries, including nested-checkbox and
+  double-click isolation.
+- Completed G-051 with computed light/dark hover, press, keyboard focus,
+  disabled/inert, and destructive-state assertions. The fixture changes no
+  cursor styling and retains the source-wide system-cursor policy.
+
+### Verified
+
+- All 416 default files map once to 315 Node, 100 jsdom, and one browser project.
+  The matrix passed 3,250 tests with one intentional skip in 23.93 seconds,
+  versus 3,245 plus one skip in 36.23 seconds before the split; fixed seed
+  `6301` matched.
+- Pinned Chromium repeatedly passed five cases and killed four deliberate CSS
+  faults before exact restoration. Coverage passed all 416 files at 39.66%
+  lines and 33.83% branches; harness safety, quality ratchets/policy, and
+  TypeScript passed. The final 19-lane release profile passed in 53.50 seconds,
+  including real Ollama runtime-graph, mutation-strength, Pack compatibility,
+  and CLI-build receipts.
+
+## 2026-07-14 — Distributed inference series grooming
+
+### Planned
+
+- Recorded G-067 as the final testing-improvement goal, followed by the
+  distributed/self-hosted runtime sequence: G-057, G-056, then G-069.
+- Amended G-057 around the reported three-host topology: browser client, Relay
+  Linux VM/server, and remote Ollama LAN server. Its acceptance now separates
+  both network legs from model/capability and requested/effective-target errors,
+  requires no-fallback evidence, and includes trust/data-flow documentation.
+- Added G-069 for LiteLLM and LM Studio over a shared OpenAI-compatible transport
+  boundary while preserving provider identity, capability, privacy, and cost
+  truth. Architecture, credentials, and remote-endpoint posture remain operator
+  gates before implementation.
+
 ## 2026-07-14 — G-010 app and schedule budget policies
 
 ### Completed
@@ -172,6 +215,52 @@
 - The broader comparison produced 3,175 passes and retained ten unrelated
   baseline failures plus one sandbox-blocked loopback listener. None intersects
   the G-009 source or regression set.
+
+## 2026-07-14 — TRIAGE-019–027 goal grooming
+
+### Groomed
+
+- Promoted TRIAGE-019 to P2 goal G-052, then amended it with the operator's
+  Tables observation: Needs Attention, Settings rail, and Tables list rows must
+  share an aligned theme-appropriate hover highlight, while dark-theme hover
+  must not add a second or mismatched outline. The accepted system-cursor-only
+  policy, selection semantics, and stronger keyboard focus remain explicit;
+  G-051 stays the broader rendered-state test-infrastructure goal rather than
+  blocking this bounded correction.
+- Merged TRIAGE-020 into existing P2 goal G-019. Card convergence now explicitly
+  includes card-to-detail status/action parity, expanded top-right detail-header
+  treatment, responsive collapse, and matching disabled/destructive safeguards.
+- Promoted TRIAGE-021 to P1 goal G-053 as a current-release Pack authoring and
+  repository-publishing wayfinding outcome. It reuses the shipped Packs-first IA
+  and requires a clean-instance direct-navigation plus Chat replay before adding
+  any new authoring surface.
+- Split TRIAGE-022 at its natural dependency boundary. P1 goal G-054 owns the
+  incremental, release-stamped `_ASSETS/` user-guide/API knowledge artifact and
+  stale-corpus gate; dependent P1 goal G-055 owns bounded, source/version-aware
+  retrieval inside packaged Relay Chat without injecting the full corpus.
+- Promoted TRIAGE-023 to P1 goal G-056. The goal makes Manual/default semantics
+  explicit, previews requested versus effective profile/runtime/model, and
+  requires an explicit rescue choice instead of silent target substitution.
+- Promoted TRIAGE-024 and TRIAGE-026 to separate reactive diagnostic goals G-057
+  and G-059 under the G-033 discipline. Each waits for a matching Linux/customer
+  environment, records one complete topology/evidence packet, and cannot become
+  an implementation fix without a current reproduction.
+- Promoted TRIAGE-025 to P1 goal G-058. It keeps the locked single-tenant Core and
+  process-per-tenant isolation model while making customer attribution, project
+  cwd, instance data, runtime context, and actual security boundaries truthful
+  in product and `_ASSETS/` documentation.
+- Promoted TRIAGE-027 to operator-gated P1 goal G-060 as a specification-first
+  outcome. The goal must define and threat-model independently buildable fleet
+  inventory, provisioning, and lifecycle/handoff slices before any Instance
+  Manager implementation goal is accepted.
+
+### Backlog hygiene
+
+- Cleared `_IDEAS/triage.md`; every open finding now has a promotion or merge
+  disposition and an executable verification contract.
+- No field report was labeled a confirmed defect without current-release
+  evidence, and no row-level multi-tenancy or cross-customer data plane was
+  introduced by grooming.
 
 ## 2026-07-13 — G-050 public-repository boundary
 
