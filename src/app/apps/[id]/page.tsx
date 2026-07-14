@@ -6,7 +6,7 @@ import { AppDetailActions } from "@/components/apps/app-detail-actions";
 import { AppDetailEntryFocus } from "@/components/apps/app-detail-entry-focus";
 import { AppPublishPanel } from "@/components/apps/app-publish-panel";
 import { PackCompositionStrip } from "@/components/apps/pack-composition-strip";
-import { PackRepositoryPanel } from "@/components/apps/pack-repository-panel";
+import { PackRepositorySection } from "@/components/apps/pack-repository-section";
 import { WebDesignerShell } from "@/components/apps/web-designer-shell";
 import { WebPublisherPagesPanel } from "@/components/apps/web-publisher-pages-panel";
 import { KitView } from "@/components/apps/kit-view/kit-view";
@@ -127,12 +127,7 @@ export default async function AppDetailPage({
             )}
           </>
         )}
-        <div id="pack-repository-panel" className="scroll-mt-[calc(var(--chrome-header)+1rem)]">
-          <PackRepositoryPanel
-            appId={app.id}
-            exportBlocked={Boolean(app.manifest.entitlement)}
-          />
-        </div>
+        <PackRepositorySection appId={app.id} origin={app.origin} />
       </div>
     </PageShell>
   );

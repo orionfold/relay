@@ -34,6 +34,13 @@ immediately installable by Git URL and honestly classified
 `community · unverified`; a maintainer may later add its `repo:` pointer and a
 trusted signature to `orionfold.packs/v1`. The index links, never hosts.
 
+As corrected on 2026-07-14, the Pack repository panel is an authoring surface,
+not installed-Pack chrome. It renders only for user-created app shells.
+Installed official, partner, community, free, and licensed Packs expose no
+repository, sample-data, export, publish, or Community-submission controls.
+Exporter, publish-job, and Community-submission services enforce the same
+origin boundary before reading a repository target or making a GitHub request.
+
 Public and private are equal first-class creator-owned destinations. GitHub
 owns the visibility setting; Relay displays it but does not create or change
 it. After an exact successful public publish, **Submit to Relay Community**
@@ -207,6 +214,9 @@ success + URL, the token is masked at every surface, and the payload carries no 
       the same target/test/preview/publish flow.
 - [x] Community submission requires a successful exact-hash public publish and
       prepares a review request that links to the creator repository.
+- [x] The Pack repository panel and all server-side publish/submission entry
+      points are available only to user-created app shells; installed Packs are
+      hidden and refused regardless of license tier.
 
 ## Scope Boundaries
 

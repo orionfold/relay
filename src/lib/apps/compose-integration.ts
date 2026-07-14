@@ -113,6 +113,13 @@ export function upsertAppManifest(
     }
   }
 
+  // Stamp legacy manifests without changing ownership when composition adds
+  // a primitive to an installed Pack shell.
+  manifest.origin ??=
+    manifest.entitlement || fs.existsSync(path.join(appDir, "install-state.json"))
+      ? "installed-pack"
+      : "user-created";
+
   const arr = manifest[BUCKETS[artifact.kind]] as Array<
     Record<string, unknown> & { id: string }
   >;
@@ -136,6 +143,7 @@ function emptyManifest(appId: string, displayName?: string): AppManifest {
     id: appId,
     version: "0.1.0",
     name,
+    origin: "user-created",
     description: `Composed app: ${name}`,
     profiles: [],
     blueprints: [],

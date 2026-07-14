@@ -173,10 +173,10 @@ export async function buildAppPackArtifact(
   if (!app) {
     throw new AppPackExportError("APP_NOT_FOUND", `App not found: ${appId}`);
   }
-  if (app.manifest.entitlement) {
+  if (app.origin !== "user-created" || app.manifest.entitlement) {
     throw new AppPackExportError(
       "PACK_EXPORT_FORBIDDEN",
-      "Licensed premium pack content cannot be re-exported as a community pack. Duplicate or compose your own app primitives first."
+      "Installed pack content cannot be re-exported. Create a user-owned app shell and compose your own primitives first."
     );
   }
 
@@ -432,6 +432,9 @@ export async function buildAppPackArtifact(
     version: app.manifest.version ?? "0.1.0",
     author: options.author ?? app.manifest.author,
     entitlement: undefined,
+    // Origin describes ownership on this Relay instance, not portable Pack
+    // provenance. The receiving installer stamps `installed-pack` itself.
+    origin: undefined,
     tables: exportedTables,
     profiles: exportedProfiles,
     blueprints: exportedBlueprints,

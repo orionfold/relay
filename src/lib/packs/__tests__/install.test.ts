@@ -215,6 +215,8 @@ describe("installPack", () => {
     // Manifest dropped + the logical table ref rewritten to a real id.
     const app = registry.getApp("test-agency", appsDir);
     expect(app).not.toBeNull();
+    expect(app!.origin).toBe("installed-pack");
+    expect(app!.manifest.origin).toBe("installed-pack");
     expect(app!.manifest.tables).toHaveLength(1);
     const realTableId = app!.manifest.tables[0].id;
     expect(realTableId).not.toBe("clients"); // rewritten to a real UUID
@@ -638,6 +640,7 @@ describe("installPack", () => {
       )
     ) as Record<string, unknown>;
     expect(written.entitlement).toBe("product:orionfold-relay");
+    expect(written.origin).toBe("installed-pack");
   });
 
   it("persists the --license-url license to the store on a successful premium install", async () => {

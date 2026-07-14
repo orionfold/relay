@@ -344,6 +344,12 @@ export const AppManifestSchema = z
     id: z.string(),
     version: z.string().optional(),
     name: z.string(),
+    /**
+     * Instance-local authorship boundary. Pack installation always overwrites
+     * this value with `installed-pack`; Relay composition stamps
+     * `user-created`. It remains optional for pre-origin manifests.
+     */
+    origin: z.enum(["user-created", "installed-pack"]).optional(),
     description: z.string().optional(),
     persona: z.string().optional(),
     author: z.string().optional(),
@@ -363,6 +369,7 @@ export const AppManifestSchema = z
   .passthrough();
 
 export type AppManifest = z.infer<typeof AppManifestSchema>;
+export type AppOrigin = NonNullable<AppManifest["origin"]>;
 
 export interface AppSummary {
   id: string;
@@ -379,6 +386,8 @@ export interface AppSummary {
   files: string[];
   /** The pack's entitlement string when it was installed as premium content. */
   entitlement: string | null;
+  /** Whether repository/export authoring belongs to this app shell. */
+  origin: AppOrigin;
 }
 
 export interface AppDetail extends AppSummary {
@@ -467,6 +476,12 @@ function manifestToSummary(manifest: AppManifest, rootDir: string): AppSummary {
   }
   const firstCron = manifest.schedules[0]?.cron;
   const scheduleHuman = firstCron ? humanizeCron(firstCron) : null;
+  const origin = manifest.entitlement
+    ? "installed-pack"
+    : manifest.origin ??
+      (fs.existsSync(path.join(rootDir, "install-state.json"))
+        ? "installed-pack"
+        : "user-created");
   return {
     id: manifest.id,
     name: manifest.name,
@@ -481,6 +496,7 @@ function manifestToSummary(manifest: AppManifest, rootDir: string): AppSummary {
     createdAt,
     files: collectFiles(rootDir).sort(),
     entitlement: manifest.entitlement ?? null,
+    origin,
   };
 }
 

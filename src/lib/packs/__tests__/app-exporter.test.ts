@@ -17,7 +17,11 @@ import {
   getAinativeBlueprintsDir,
   getAinativeProfilesDir,
 } from "@/lib/utils/ainative-paths";
-import { AppManifestSchema, getApp } from "@/lib/apps/registry";
+import {
+  AppManifestSchema,
+  getApp,
+  writeAppManifest,
+} from "@/lib/apps/registry";
 import { installPack } from "../install";
 import { buildAppPackArtifact, exportAppPackToDirectory } from "../app-exporter";
 
@@ -167,6 +171,7 @@ describe("buildAppPackArtifact", () => {
     expect(manifest.view.bindings.cadence.schedule).toBe(
       `${APP_ID}--daily-refresh`
     );
+    expect(manifest).not.toHaveProperty("origin");
     expect(artifact.files.some((file) => file.path.includes("seed/tables"))).toBe(false);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
@@ -184,6 +189,21 @@ describe("buildAppPackArtifact", () => {
     ).toEqual([{ amount: 42 }]);
   });
 
+  it("refuses every installed pack, including free packs without an entitlement", async () => {
+    const app = getApp(APP_ID)!;
+    writeAppManifest(APP_ID, {
+      ...app.manifest,
+      origin: "installed-pack",
+      entitlement: undefined,
+    });
+
+    await expect(buildAppPackArtifact(APP_ID)).rejects.toMatchObject({
+      code: "PACK_EXPORT_FORBIDDEN",
+      message:
+        "Installed pack content cannot be re-exported. Create a user-owned app shell and compose your own primitives first.",
+    });
+  });
+
   it("round-trips through pack install with stable refs and typed table columns", async () => {
     const outputDir = path.join(process.env.RELAY_DATA_DIR!, "test-exports", APP_ID);
     await exportAppPackToDirectory(APP_ID, { outputDir });
@@ -193,6 +213,8 @@ describe("buildAppPackArtifact", () => {
 
     const installed = getApp(APP_ID);
     expect(installed).not.toBeNull();
+    expect(installed!.origin).toBe("installed-pack");
+    expect(installed!.manifest.origin).toBe("installed-pack");
     const tables = await listTables({ projectId: APP_ID });
     expect(tables).toHaveLength(1);
     expect(tables[0].name).toBe("Metrics");

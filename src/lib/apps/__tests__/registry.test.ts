@@ -135,6 +135,38 @@ describe("listApps", () => {
     expect(apps[0].profileCount).toBe(1);
     expect(apps[0].tableCount).toBe(1);
     expect(apps[0].scheduleCount).toBe(1);
+    expect(apps[0].origin).toBe("user-created");
+  });
+
+  it("honors explicit origin and classifies legacy install markers", () => {
+    writeManifest(
+      tmp,
+      "explicit-installed",
+      "id: explicit-installed\nname: Explicit\norigin: installed-pack\n"
+    );
+    const sidecarDir = writeManifest(
+      tmp,
+      "legacy-free",
+      "id: legacy-free\nname: Legacy free\n"
+    );
+    fs.writeFileSync(
+      path.join(sidecarDir, "install-state.json"),
+      JSON.stringify({ packVersion: "0.1.0", installedAt: "now", files: {} })
+    );
+    writeManifest(
+      tmp,
+      "legacy-premium",
+      "id: legacy-premium\nname: Legacy premium\norigin: user-created\nentitlement: product:relay\n"
+    );
+
+    const origins = Object.fromEntries(
+      listApps(tmp).map((app) => [app.id, app.origin])
+    );
+    expect(origins).toMatchObject({
+      "explicit-installed": "installed-pack",
+      "legacy-free": "installed-pack",
+      "legacy-premium": "installed-pack",
+    });
   });
 
   it("lists multiple apps newest first", async () => {
@@ -179,6 +211,7 @@ describe("getApp", () => {
     expect(detail).not.toBeNull();
     expect(detail?.manifest.id).toBe("wealth-tracker");
     expect(detail?.manifest.schedules[0].cron).toBe("0 8 * * 1");
+    expect(detail?.origin).toBe("user-created");
   });
 
   it("returns null for missing app", () => {

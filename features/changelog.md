@@ -1,5 +1,25 @@
 # Feature Changelog
 
+## 2026-07-14 — Pack repository ownership boundary
+
+### Corrected
+
+- Pack repository authoring now appears only on user-created app shells.
+  Installed official, partner, community, free, and licensed Packs no longer
+  show repository setup, sample-data, export, publish, or Community-submission
+  controls.
+- New composition and installation writes stamp explicit app origin. Existing
+  apps remain compatible through entitlement and install-state fallbacks, and
+  export/publish/submission services reject installed Packs before repository
+  work begins.
+
+### Verified
+
+- 106 focused regressions and TypeScript pass. Live Relay checks confirmed the
+  section is absent from licensed Agency Pro and free installed Agency, remains
+  present for the user-created Contractor Invoices app, and emits no console
+  warnings.
+
 ## 2026-07-14 — G-037 truthful KPI trend semantics
 
 ### Completed

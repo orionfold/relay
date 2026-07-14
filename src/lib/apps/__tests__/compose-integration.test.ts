@@ -214,6 +214,7 @@ describe("upsertAppManifest", () => {
     expect(apps).toHaveLength(1);
     expect(apps[0].id).toBe("listable-app");
     expect(apps[0].name).toBe("Listable App");
+    expect(apps[0].origin).toBe("user-created");
     expect(apps[0].profileCount).toBe(1);
     expect(apps[0].blueprintCount).toBe(1);
   });
@@ -239,6 +240,32 @@ describe("upsertAppManifest", () => {
     );
     expect(parsed?.id).toBe("busted-app");
     expect(parsed?.profiles).toHaveLength(1);
+    expect(parsed?.origin).toBe("user-created");
+  });
+
+  it("preserves installed-Pack ownership when composition adds a primitive", () => {
+    const appDir = path.join(tmp, "installed-app");
+    fs.mkdirSync(appDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(appDir, "manifest.yaml"),
+      yaml.dump({
+        id: "installed-app",
+        name: "Installed App",
+        origin: "installed-pack",
+      })
+    );
+
+    upsertAppManifest(
+      "installed-app",
+      { kind: "profile", id: "installed-app--custom-helper" },
+      "Installed App",
+      tmp
+    );
+
+    const parsed = parseAppManifest(
+      fs.readFileSync(path.join(appDir, "manifest.yaml"), "utf-8")
+    );
+    expect(parsed?.origin).toBe("installed-pack");
   });
 
   it("writes yaml that round-trips cleanly", () => {

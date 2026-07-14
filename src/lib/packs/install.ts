@@ -527,6 +527,9 @@ export async function installPack(
       logicalToReal,
       scheduleLogicalToReal
     );
+    // Installation owns the source boundary even if an incoming community
+    // manifest claims it was user-created on another Relay instance.
+    droppedManifest.origin = "installed-pack";
     // Record the entitlement on the installed manifest so `pack list` (and
     // the future /packs UI) can mark premium packs without re-reading the
     // original pack source (D6).

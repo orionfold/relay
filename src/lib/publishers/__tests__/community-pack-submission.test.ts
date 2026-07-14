@@ -29,8 +29,10 @@ vi.mock("@/lib/db", () => ({
 }));
 
 vi.mock("@/lib/packs/app-exporter", () => ({ buildAppPackArtifact: vi.fn() }));
+vi.mock("@/lib/apps/registry", () => ({ getApp: vi.fn() }));
 vi.mock("../github-connection", () => ({ inspectGitHubRepository: vi.fn() }));
 
+import { getApp } from "@/lib/apps/registry";
 import { buildAppPackArtifact } from "@/lib/packs/app-exporter";
 import { inspectGitHubRepository } from "../github-connection";
 import { prepareCommunityPackSubmission } from "../community-pack-submission";
@@ -52,6 +54,7 @@ describe("community Pack submission", () => {
   beforeEach(() => {
     state.rows = [target, deployment];
     vi.clearAllMocks();
+    vi.mocked(getApp).mockReturnValue({ origin: "user-created" } as never);
     vi.mocked(buildAppPackArtifact).mockResolvedValue({
       packId: "maker-pack",
       version: "1.2.0",
@@ -94,6 +97,18 @@ describe("community Pack submission", () => {
     state.rows = [target, undefined];
     await expect(prepareCommunityPackSubmission("app-1", "target-1", hash))
       .rejects.toThrow("Publish this exact Pack preview");
+  });
+
+  it("refuses an installed pack before repository inspection", async () => {
+    vi.mocked(getApp).mockReturnValue({ origin: "installed-pack" } as never);
+
+    await expect(
+      prepareCommunityPackSubmission("app-1", "target-1", hash)
+    ).rejects.toThrow(
+      "Relay Community submission is available only for user-created app shells."
+    );
+    expect(inspectGitHubRepository).not.toHaveBeenCalled();
+    expect(buildAppPackArtifact).not.toHaveBeenCalled();
   });
 
   it("refuses layouts the Git URL installer cannot resolve", async () => {

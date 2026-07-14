@@ -76,10 +76,8 @@ function targetLabel(target: PublishTarget): string {
 
 export function PackRepositoryPanel({
   appId,
-  exportBlocked = false,
 }: {
   appId: string;
-  exportBlocked?: boolean;
 }) {
   const [targets, setTargets] = useState<PublishTarget[]>([]);
   const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
@@ -295,7 +293,7 @@ export function PackRepositoryPanel({
               size="sm"
               variant="outline"
               onClick={inspectPack}
-              disabled={previewing || exportBlocked}
+              disabled={previewing}
               className="gap-1.5"
             >
               {previewing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Package className="h-3.5 w-3.5" />}
@@ -305,7 +303,7 @@ export function PackRepositoryPanel({
               size="sm"
               variant="outline"
               onClick={downloadPack}
-              disabled={exporting || exportBlocked}
+              disabled={exporting}
               className="gap-1.5"
             >
               {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
@@ -314,7 +312,7 @@ export function PackRepositoryPanel({
             <Button
               size="sm"
               onClick={() => setConfirmOpen(true)}
-              disabled={!selectedTargetId || !preview || publishing || exportBlocked}
+              disabled={!selectedTargetId || !preview || publishing}
               className="gap-1.5"
             >
               {publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <GitBranch className="h-3.5 w-3.5" />}
@@ -324,11 +322,6 @@ export function PackRepositoryPanel({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {exportBlocked && (
-          <div className="rounded-lg border border-status-warning/25 bg-status-warning/10 px-3 py-2 text-sm text-status-warning">
-            Licensed premium pack content cannot be re-exported. Compose your own app primitives first.
-          </div>
-        )}
         {error && (
           <div className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}

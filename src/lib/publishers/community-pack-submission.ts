@@ -1,6 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { deployments, publishTargets } from "@/lib/db/schema";
+import { getApp } from "@/lib/apps/registry";
 import { buildAppPackArtifact } from "@/lib/packs/app-exporter";
 import { inspectGitHubRepository } from "./github-connection";
 
@@ -31,6 +32,13 @@ export async function prepareCommunityPackSubmission(
   targetId: string,
   expectedHash: string
 ): Promise<{ url: string; repositoryUrl: string; packId: string; version: string }> {
+  const app = getApp(appId);
+  if (!app || app.origin !== "user-created") {
+    throw new CommunityPackSubmissionError(
+      "Relay Community submission is available only for user-created app shells.",
+      app ? 403 : 404
+    );
+  }
   const target = db
     .select()
     .from(publishTargets)

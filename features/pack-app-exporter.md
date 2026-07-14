@@ -20,7 +20,7 @@ pack” requests.
 The shipped standard names community-owned tables/schedules
 `<pack-id>--<primitive>`, preserves typed table definitions and relation refs,
 excludes live rows by default (explicit samples are capped at 25 rows/table),
-refuses licensed premium content, and validates trigger/schedule shadow paths
+refuses every installed Pack regardless of license tier, and validates trigger/schedule shadow paths
 before export. Direct Git installs without a trusted index signature classify
 as `community · unverified`; the exporter does not invent a local signing
 identity. A round-trip test exports, deletes, and reinstalls a running app and
@@ -50,6 +50,19 @@ introduces no network and no install-path change. Path 1 (hand-edit any editor +
 remains fully supported and needs *nothing* from this spec beyond the shipped format + the R3
 signer — the two authoring paths produce the same on-disk format and interoperate at the file
 level.
+
+## App ownership boundary — corrected 2026-07-14
+
+The exporter and Pack repository surface belong only to a user-created app
+shell. Installed official, partner, community, free, and licensed Packs are
+consumption surfaces; Relay must not present them as creator-owned publishing
+sources. New composed manifests are stamped `origin: user-created`; Pack
+installation overwrites any incoming claim with `origin: installed-pack`.
+Legacy manifests resolve through entitlement and `install-state.json` markers.
+Origin is instance-local metadata and is removed from exported artifacts before
+the receiving installer stamps its own installed origin. A pre-origin manifest
+with neither marker remains classified as user-created for backwards
+compatibility; updating or reinstalling any old Pack stamps it explicitly.
 
 ## User Story
 
@@ -129,6 +142,9 @@ exporter makes no network call — it is a pure read-app-state + write-files tra
 - [x] Community ids are namespaced and any remaining **owned taxonomy id** collision fails loudly
       at export (never emits a shadowing pack).
 - [x] Direct Git sources without a trusted index signature resolve as `community · unverified`.
+- [x] Export is available only for user-created app shells; installed Packs are
+      refused regardless of license tier, including legacy installs identified
+      by entitlement or install-state markers.
 - [x] Targeted exporter/install/chat/publisher tests and TypeScript verification are green.
 
 ## Scope Boundaries

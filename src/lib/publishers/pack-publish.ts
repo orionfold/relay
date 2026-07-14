@@ -7,6 +7,7 @@ import { getPublisherAdapter } from "./registry";
 
 export type PackPublishErrorCode =
   | "APP_NOT_FOUND"
+  | "PACK_PUBLISH_FORBIDDEN"
   | "PACK_TARGET_NOT_FOUND"
   | "PACK_TARGET_TYPE_INVALID"
   | "PACK_TARGET_CONFIG_INVALID"
@@ -35,8 +36,16 @@ export interface ConfirmedPackPublishOptions extends PackPublishOptions {
 }
 
 function requireTarget(appId: string, targetId: string) {
-  if (!getApp(appId)) {
+  const app = getApp(appId);
+  if (!app) {
     throw new PackPublishError("APP_NOT_FOUND", `App not found: ${appId}`, 404);
+  }
+  if (app.origin !== "user-created") {
+    throw new PackPublishError(
+      "PACK_PUBLISH_FORBIDDEN",
+      "Pack repository publishing is available only for user-created app shells.",
+      403
+    );
   }
   const target = db
     .select()
