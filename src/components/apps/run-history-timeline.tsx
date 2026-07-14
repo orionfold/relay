@@ -82,7 +82,9 @@ export function RunHistoryTimeline({
             {onSelect ? (
               <button
                 type="button"
-                className="w-full text-left hover:bg-accent/30 focus-visible:ring-2 focus-visible:ring-ring rounded-md transition-colors"
+                data-interactive-surface=""
+                data-interactive-outline="preserve"
+                className="interactive-list-item w-full text-left focus-visible:ring-2 focus-visible:ring-ring rounded-md"
                 onClick={() => onSelect(run.id)}
               >
                 {inner}

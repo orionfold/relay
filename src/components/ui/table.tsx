@@ -52,14 +52,20 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   )
 }
 
-function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+function TableRow({ className, onClick, ...props }: React.ComponentProps<"tr">) {
+  const interactive = typeof onClick === "function"
+
   return (
     <tr
       data-slot="table-row"
+      data-interactive-surface={interactive ? "" : undefined}
+      data-interactive-outline={interactive ? "preserve" : undefined}
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+        "border-b data-[state=selected]:bg-muted",
+        interactive && "interactive-list-item",
         className
       )}
+      onClick={onClick}
       {...props}
     />
   )

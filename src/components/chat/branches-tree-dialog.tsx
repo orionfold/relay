@@ -114,11 +114,13 @@ export function BranchesTreeDialog({
                 <li
                   key={n.conv.id}
                   style={{ paddingLeft: `${n.depth * 16}px` }}
+                  data-interactive-surface=""
+                  data-interactive-outline="preserve"
                   className={cn(
-                    "text-sm rounded-md px-2 py-1 ",
+                    "interactive-list-item text-sm rounded-md px-2 py-1",
                     n.conv.id === conversationId
                       ? "bg-accent text-accent-foreground"
-                      : "hover:bg-muted/50"
+                      : undefined
                   )}
                   onClick={() => onSelect(n.conv.id)}
                   role="button"

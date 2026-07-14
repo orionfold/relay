@@ -39,12 +39,14 @@ export function DiscoveryProjectRow({
 
   return (
     <div
-      className={`flex items-start gap-3 rounded-lg border p-3 transition-colors ${
+      data-interactive-surface={project.alreadyImported ? undefined : ""}
+      data-interactive-outline={project.alreadyImported ? undefined : "preserve"}
+      className={`${project.alreadyImported ? "" : "interactive-list-item"} flex items-start gap-3 rounded-lg border p-3 ${
         project.alreadyImported
           ? "opacity-60 bg-muted/30"
           : selected
             ? "border-primary/30 bg-primary/5"
-            : "hover:bg-muted/50"
+            : ""
       }`}
     >
       <Checkbox

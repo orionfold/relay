@@ -176,7 +176,9 @@ export default async function ProjectDetailPage({
                 <Link
                   key={doc.id}
                   href={`/documents/${doc.id}`}
-                  className="flex items-center gap-3 py-2 text-xs hover:bg-accent/50 transition-colors -mx-6 px-6"
+                  data-interactive-surface=""
+                  data-interactive-outline="preserve"
+                  className="interactive-list-item flex items-center gap-3 py-2 text-xs -mx-6 px-6"
                 >
                   <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                   <span className="truncate flex-1">{doc.originalName}</span>

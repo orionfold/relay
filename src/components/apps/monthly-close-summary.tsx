@@ -25,7 +25,9 @@ export function MonthlyCloseSummary({ task }: MonthlyCloseSummaryProps) {
       <button
         type="button"
         onClick={() => setExpanded((b) => !b)}
-        className="w-full flex items-center gap-2 p-3 text-left hover:bg-accent rounded-lg"
+        data-interactive-surface=""
+        data-interactive-outline="preserve"
+        className="interactive-list-item w-full flex items-center gap-2 p-3 text-left rounded-lg"
       >
         {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         <span className="font-medium text-sm">{task.title}</span>

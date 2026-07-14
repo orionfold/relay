@@ -165,7 +165,9 @@ export function DocumentDetailView({ documentId, initialDocument }: DocumentDeta
             {versions.map((v) => (
               <button
                 key={v.id}
-                className={`w-full flex items-center gap-3 px-3 py-2 text-xs hover:bg-accent/50 transition-colors ${v.id === doc.id ? "bg-accent/30" : ""}`}
+                data-interactive-surface=""
+                data-interactive-outline="preserve"
+                className={`interactive-list-item w-full flex items-center gap-3 px-3 py-2 text-xs ${v.id === doc.id ? "bg-accent/30" : ""}`}
                 onClick={() => v.id !== doc.id && router.push(`/documents/${v.id}`)}
                 disabled={v.id === doc.id}
               >

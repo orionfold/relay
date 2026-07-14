@@ -60,9 +60,6 @@ export function TableListTable({
           {tables.map((t) => (
             <TableRow
               key={t.id}
-              data-interactive-surface=""
-              data-interactive-outline="preserve"
-              className="interactive-list-item"
               onClick={() => onSelect(t.id)}
               onDoubleClick={() => onOpen(t.id)}
             >

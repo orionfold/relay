@@ -186,7 +186,9 @@ function ProviderRow({
       <button
         type="button"
         onClick={toggle}
-        className="flex w-full items-center gap-3 p-4 text-left hover:bg-accent/30 transition-colors rounded-2xl"
+        data-interactive-surface=""
+        data-interactive-outline="preserve"
+        className="interactive-list-item flex w-full items-center gap-3 p-4 text-left rounded-2xl"
       >
         <div
           className={`h-2.5 w-2.5 shrink-0 rounded-full ${

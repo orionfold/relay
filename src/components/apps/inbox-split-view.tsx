@@ -58,13 +58,12 @@ export function InboxSplitView({
                 role="listitem"
                 data-row-id={row.id}
                 data-selected={selected ? "true" : "false"}
-                className={
-                  selected ? "bg-muted/50" : "hover:bg-accent/30"
-                }
               >
                 <button
                   type="button"
-                  className="w-full text-left p-3 focus-visible:ring-2 focus-visible:ring-ring rounded-md transition-colors"
+                  data-interactive-surface=""
+                  data-interactive-outline="preserve"
+                  className={`interactive-list-item w-full text-left p-3 focus-visible:ring-2 focus-visible:ring-ring rounded-md ${selected ? "bg-muted/50" : ""}`}
                   onClick={() => selectRow(row.id)}
                 >
                   <span className="block text-sm font-medium truncate">

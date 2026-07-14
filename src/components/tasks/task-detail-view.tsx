@@ -123,7 +123,9 @@ export function TaskDetailView({ taskId, initialTask, initialRunHistory }: TaskD
               <Link
                 key={s.id}
                 href={`/tasks/${s.id}`}
-                className="flex items-center gap-3 px-3 py-2 text-xs hover:bg-accent/50 transition-colors"
+                data-interactive-surface=""
+                data-interactive-outline="preserve"
+                className="interactive-list-item flex items-center gap-3 px-3 py-2 text-xs"
               >
                 <span className={`w-2 h-2 rounded-full shrink-0 ${
                   s.status === "completed" ? "bg-status-completed" :

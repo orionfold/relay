@@ -419,12 +419,14 @@ export function DocumentPickerSheet({
                             key={doc.id}
                             role="button"
                             tabIndex={0}
+                            data-interactive-surface=""
+                            data-interactive-outline="preserve"
                             onClick={() => toggleDocument(doc.id)}
                             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleDocument(doc.id); } }}
-                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                            className={`interactive-list-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left ${
                               isChecked
                                 ? "bg-accent/50 border border-accent"
-                                : "hover:bg-muted/50 border border-transparent"
+                                : "border border-transparent"
                             }`}
                           >
                             <Checkbox

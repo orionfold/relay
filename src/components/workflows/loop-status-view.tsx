@@ -203,7 +203,9 @@ export function LoopStatusView({
                 <div key={iter.iteration} className="border rounded-lg">
                   <button
                     type="button"
-                    className="w-full flex items-center gap-3 p-2.5 text-left hover:bg-muted/50 transition-colors rounded-lg"
+                    data-interactive-surface=""
+                    data-interactive-outline="preserve"
+                    className="interactive-list-item w-full flex items-center gap-3 p-2.5 text-left rounded-lg"
                     onClick={() => toggleIteration(iter.iteration)}
                   >
                     <div className="flex-shrink-0">

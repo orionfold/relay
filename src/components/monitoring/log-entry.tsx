@@ -58,7 +58,9 @@ export function LogEntry({ entry, taskName }: { entry: LogEntryData; taskName?: 
     <>
       <button
         type="button"
-        className="w-full text-left font-mono text-sm py-0.5 hover:bg-muted/50 px-2 rounded"
+        data-interactive-surface=""
+        data-interactive-outline="preserve"
+        className="interactive-list-item w-full text-left font-mono text-sm py-0.5 px-2 rounded"
         onClick={() => screenshotData ? setLightboxOpen(true) : setExpanded(!expanded)}
         aria-expanded={expanded}
         aria-label={`Log entry: ${entry.event} at ${time}`}

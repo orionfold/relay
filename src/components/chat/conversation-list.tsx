@@ -108,11 +108,13 @@ export function ConversationList({
             {filteredConversations.map((conv) => (
               <div
                 key={conv.id}
+                data-interactive-surface=""
+                data-interactive-outline="preserve"
                 className={cn(
-                  "group flex items-center gap-2 px-3 py-2 mx-1 rounded-lg transition-colors",
+                  "interactive-list-item group flex items-center gap-2 px-3 py-2 mx-1 rounded-lg",
                   activeId === conv.id
                     ? "bg-accent text-accent-foreground"
-                    : "hover:bg-muted/50"
+                    : undefined
                 )}
                 onClick={() => onSelect(conv.id)}
                 onKeyDown={(e) => {

@@ -14,13 +14,25 @@ const PRIORITY_QUEUE = join(
   "dashboard",
   "priority-queue.tsx",
 );
-const TABLE_LIST = join(
-  __dirname,
-  "..",
-  "..",
-  "tables",
-  "table-list-table.tsx",
-);
+const TABLE_PRIMITIVE = join(UI_DIR, "table.tsx");
+const LIST_ROW_SOURCES = new Map<string, number>([
+  ["src/components/chat/conversation-list.tsx", 1],
+  ["src/components/chat/branches-tree-dialog.tsx", 1],
+  ["src/components/apps/inbox-split-view.tsx", 1],
+  ["src/components/shared/document-picker-sheet.tsx", 1],
+  ["src/components/tasks/task-run-history.tsx", 2],
+  ["src/components/apps/run-history-timeline.tsx", 1],
+  ["src/components/workflows/loop-status-view.tsx", 1],
+  ["src/components/monitoring/log-entry.tsx", 1],
+  ["src/components/documents/document-detail-view.tsx", 1],
+  ["src/components/tasks/task-detail-view.tsx", 1],
+  ["src/app/projects/[id]/page.tsx", 1],
+  ["src/components/schedules/schedule-detail-view.tsx", 1],
+  ["src/components/schedules/schedule-detail-sheet.tsx", 1],
+  ["src/components/apps/monthly-close-summary.tsx", 1],
+  ["src/components/settings/providers-runtimes-section.tsx", 1],
+  ["src/components/workspace/discovery-project-row.tsx", 1],
+]);
 const APP_MATERIALIZED_CARD = join(
   __dirname,
   "..",
@@ -222,11 +234,32 @@ describe("interaction affordance policy (highlight-carried, system cursors)", ()
   });
 
   it("gives Tables list rows the same fill-only interaction contract", () => {
-    const source = readFileSync(TABLE_LIST, "utf8");
+    const source = readFileSync(TABLE_PRIMITIVE, "utf8");
 
     expect(source).toContain("data-interactive-surface");
-    expect(source).toContain('data-interactive-outline="preserve"');
-    expect(source).toContain('className="interactive-list-item"');
+    expect(source).toContain(
+      'data-interactive-outline={interactive ? "preserve" : undefined}',
+    );
+    expect(source).toContain('interactive && "interactive-list-item"');
+    expect(source).not.toContain("hover:bg-muted/50");
+  });
+
+  it("keeps the audited app-wide list-row inventory on the fill-only contract", () => {
+    for (const [relativePath, minimumRows] of LIST_ROW_SOURCES) {
+      const source = readFileSync(join(ROOT, relativePath), "utf8");
+
+      expect(
+        source.match(/interactive-list-item/g)?.length,
+      ).toBeGreaterThanOrEqual(minimumRows);
+      expect(
+        source.match(/data-interactive-surface/g)?.length,
+      ).toBeGreaterThanOrEqual(minimumRows);
+      expect(
+        source.match(
+          /data-interactive-outline(?:="preserve"|=\{[^}]*"preserve"[^}]*\})/g,
+        )?.length,
+      ).toBeGreaterThanOrEqual(minimumRows);
+    }
   });
 
   it("keeps list-item hover fill-only while preserving the shared focus ring", () => {

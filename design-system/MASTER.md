@@ -293,9 +293,12 @@ remain visually neutral.
 
 ### Interactive List Items
 
-Dense row-like interactions use `interactive-list-item` together with
-`data-interactive-surface`. The shared utility owns the token-driven hover and
-active fills plus the accepted 160ms ease in both themes.
+Dense, full-row interactions use `interactive-list-item` together with
+`data-interactive-surface`. This includes table records, conversation/history
+rows, related-record lists, and expandable list rows. The shared utility owns
+the token-driven hover and active fills plus the accepted 160ms ease in both
+themes. Clickable shared `TableRow` instances receive this contract
+automatically; static table rows remain inert.
 
 When an item already has structural geometry such as dividers, a selected row,
 or a rail cell edge, add `data-interactive-outline="preserve"`. This suppresses
@@ -303,6 +306,9 @@ only the generic hover/press outline so the highlight does not draw a second or
 mismatched shape. It does not suppress the shared two-pixel `focus-visible`
 ring. Disabled/inert guards, nested-control behavior, and system cursor policy
 remain unchanged.
+
+Cards/tiles, compact controls, menus, radio choices, and static informational
+rows are separate interaction families and do not adopt the list-row contract.
 
 ## Icons
 

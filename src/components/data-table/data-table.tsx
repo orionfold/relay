@@ -157,10 +157,9 @@ export function DataTable<TData>({
                   data-state={row.getIsSelected() && "selected"}
                   className={cn(
                     densityClasses[density],
-                    onRowClick &&
-                      " hover:bg-accent/50 transition-colors"
+                    onRowClick && "focus-visible:ring-2 focus-visible:ring-ring"
                   )}
-                  onClick={() => onRowClick?.(row.original)}
+                  onClick={onRowClick ? () => onRowClick(row.original) : undefined}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && onRowClick) {
                       onRowClick(row.original);

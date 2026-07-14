@@ -282,7 +282,9 @@ export function ScheduleDetailSheet({
                       {schedule.firingHistory.map((task) => (
                         <div
                           key={task.id}
-                          className="flex items-center justify-between border rounded-lg p-2.5 text-xs hover:bg-accent/50 transition-colors"
+                          data-interactive-surface=""
+                          data-interactive-outline="preserve"
+                          className="interactive-list-item flex items-center justify-between border rounded-lg p-2.5 text-xs"
                           tabIndex={0}
                           onClick={() => router.push(`/monitor?taskId=${task.id}`)}
                           onKeyDown={(e) => {
