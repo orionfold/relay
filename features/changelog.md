@@ -1,5 +1,42 @@
 # Feature Changelog
 
+## 2026-07-13 — TRIAGE-014–018 goal grooming
+
+### Groomed
+
+- Promoted TRIAGE-014 to P1 goal G-048 after confirming the contributor setup
+  contract is defective: README omits the required pre-boot dev-mode gate and
+  the tracked Codex hook assumes `python3` without a proved Windows path. G-048
+  owns a literal macOS/Windows fresh-clone matrix and visible provider/Ollama
+  setup outcomes; it does not claim the original provider-runtime symptom still
+  reproduces.
+- Promoted TRIAGE-015 to P2 goal G-049 as a bounded diagnostic outcome. It must
+  distinguish App Router transitions, explicit refreshes, HMR, browser reload,
+  and process restart before any corrective implementation goal is created.
+- Promoted TRIAGE-016 to P1 goal G-050 after confirming the public tree contains
+  substantial internal operational residue and stale identity/personal details.
+  Classification and any destructive relocation remain operator-gated; public
+  trust documentation and durable decisions must be preserved.
+- Confirmed TRIAGE-017 is fully represented by G-047 and removed the duplicate
+  intake entry. G-047 continues to own semantic/keyboard parity and the Tables
+  select/open decision, separate from G-045's accepted visual-state policy.
+- Promoted TRIAGE-018 to P2 goal G-051 now that G-045 is accepted. G-051 owns a
+  small rendered computed-state fixture for hover, active, focus, disabled, and
+  inert regressions while retaining the source-wide system-cursor guard. It
+  leaves cursor rendering to the system and rejects a broad or flaky screenshot
+  suite.
+
+### Backlog hygiene
+
+- Removed completed G-006, G-008, and G-045 from the live incomplete-goal
+  backlog; their completion evidence remains in this changelog and feature
+  specs.
+- Returned G-007 to `_IDEAS/reprioritze.md` research rather than preserving an
+  unapproved cross-product interchange contract as an executable Relay goal.
+  It can be promoted again only after Proof/Arena artifact ownership is decided.
+- Cleared `_IDEAS/triage.md`; all five findings now have a recorded promotion or
+  merge disposition.
+
 ## 2026-07-13 — TRIAGE-012/013 interaction affordances
 
 ### Groomed
