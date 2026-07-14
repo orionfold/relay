@@ -1,0 +1,168 @@
+# Relay regression strategy
+
+This document defines how Relay decides whether behavior is protected. It is a
+risk policy, not a promise that every source line deserves a test.
+
+Adopted through G-063 on 2026-07-14.
+
+## Quality objective
+
+Relay aims for **complete regression protection of named load-bearing
+invariants**, not blanket 100% repository line coverage. Coverage percentages
+are diagnostics that reveal missing execution; they do not prove that
+assertions would catch a defect.
+
+A behavior is protected only when the test layer can observe the failure it is
+supposed to prevent. A unit test that replaces the relevant production module
+graph with mocks is not evidence for module-load safety. A browser screenshot
+without a behavioral assertion is not evidence for a working journey.
+
+## Risk tiers
+
+### Tier 0 — load-bearing
+
+Examples:
+
+- database bootstrap, migration, foreign-key integrity, idempotency, and
+  exactly-once state transitions
+- task, workflow, and schedule dispatch, claims, budgets, cancellation, resume,
+  and failure recovery
+- runtime catalog/target resolution plus real adapter/module-load boundaries
+- Chat stream finalization, abort/reconcile behavior, permissions, and context
+- Pack install/update/export ownership and licensing/privacy/trust boundaries
+- CLI first run, upgrade, release artifacts, and critical operator journeys
+
+Policy:
+
+- 100% of agreed invariants and named failure modes map to an automated guard or
+  a documented deterministic smoke that runs at the real boundary.
+- No Tier-0 cell may be protected only by a test that mocks away the failure
+  boundary.
+- Deterministic pure/business modules target at least 90% line and 80% branch
+  coverage. Adapters and process/browser boundaries use contract/fake-transport
+  coverage plus required real smoke instead of chasing unreachable SDK lines.
+- Nil, empty, upstream-error, concurrency, retry, partial-write, and recovery
+  paths are explicit members of the matrix.
+- A required runtime lane that silently skips is a missing guard, not a pass.
+
+### Tier 1 — high-risk product logic
+
+Examples include validators, API mutations, table transformations, usage/cost
+rollups, profile/blueprint resolution, settings mutations, and Pack view-model
+resolution.
+
+Policy:
+
+- Every accepted behavior and named failure state has a deterministic test at
+  the lowest reliable layer.
+- The diagnostic target is at least 80% line and 70% branch coverage.
+- Boundary validation and visible named failures matter more than getter/setter
+  or framework plumbing coverage.
+
+### Tier 2 — interaction and presentation
+
+Examples include React components, hooks, navigation, responsive state, and
+accessibility behavior.
+
+Policy:
+
+- Test user-visible behavior, accessible roles/names, keyboard interaction,
+  loading/empty/error/populated states, and mutation failure recovery.
+- Use jsdom component tests for deterministic DOM contracts; use a real browser
+  for CSS, focus, layout, browser APIs, and critical multi-surface journeys.
+- Coverage percentages are informative, not a release gate by themselves.
+- Generated shadcn primitives and declarative/type-only files may be excluded
+  when shared integration tests protect Relay's custom behavior.
+
+## Test layers and ownership
+
+| Layer | Owns | Must not be used as a substitute for |
+|---|---|---|
+| Pure unit | parsers, resolvers, validators, calculations, state machines | database constraints, module graphs, browser behavior |
+| Integration | real SQLite/filesystem, API boundaries, Pack round trips | competing processes, real providers, customer journey |
+| Contract/fake transport | SDK payloads, runtime/provider error mapping | real module loading, credentials, executable discovery |
+| Runtime smoke | real Next process, task dispatch, module graph, provider lane | broad combinatorial unit coverage |
+| Browser/component | user-visible interaction, focus, CSS/browser APIs | data integrity or scheduler concurrency |
+| Customer-identical staging | packaged first run, install/upgrade/release journey | fast per-change feedback |
+
+Tests live next to the source in `__tests__/`. Server-dependent E2E remains a
+separate command and configuration. A test belongs in the default suite only if
+it can run hermetically without an already-running Relay server or live
+credentials.
+
+## Coverage interpretation
+
+`npm run test:coverage` explicitly includes production TypeScript under `src`
+plus the shipped `bin/cli.ts`. This is required because Vitest 4 otherwise
+reports only modules imported by the run, making completely untested files
+invisible. Test infrastructure/declarations and three Next shell files
+(`layout.tsx`, `error.tsx`, and `global-error.tsx`) are named exclusions; shared
+UI primitives are not blanket-excluded.
+
+Coverage reviews must state:
+
+1. included and excluded source patterns
+2. line, branch, function, and statement totals
+3. zero-covered files in Tier 0/1
+4. whether tests were green, red, or skipped
+5. whether mutation/fault injection confirms assertion strength
+
+Run `npm run test:coverage` immediately before `npm run test:audit -- --json`.
+The audit command reads `coverage/coverage-summary.json` and applies committed,
+independent risk-surface prefix groups so the reported matrix is reproducible.
+
+Do not raise a global threshold merely to make a dashboard green. Add path/risk
+thresholds only after the corresponding invariant matrix is green and the
+baseline suite is deterministic.
+
+## Isolation and reproducibility
+
+- Test databases, homes, repositories, ports, clocks, and network/provider
+  responses must be harness-owned and disposable.
+- No destructive test may accept a developer/customer `RELAY_DATA_DIR` by
+  accident. A future harness goal owns the migration to an explicit override.
+- Tests must pass alone, in the normal order, and under at least one fixed
+  shuffled seed before they are considered order-independent.
+- Real concurrency claims require competing connections/processes or a barrier;
+  two synchronous calls through one singleton are only an idempotency test.
+- Quarantine requires a named trigger, owner, expiry, and replacement guard. A
+  blanket “known failures” exception is not a quality policy.
+
+## Pruning policy
+
+A test may be removed or consolidated only when all of the following are true:
+
+1. its invariant and historical regression provenance are identified
+2. a retained test protects the same boundary with equal or stronger fidelity
+3. before/after coverage does not lose the relevant path
+4. mutation or deliberate fault injection still fails at the retained guard
+5. the change reduces maintenance, flake, or measured runtime
+
+Prefer parameterized contract suites and shared fixture builders when scenarios
+are the same across providers. Preserve distinct tests when failures need
+different recovery, transport, or user-facing evidence.
+
+## Required evidence at goal completion
+
+Every behavior-changing goal records one of:
+
+- the existing named test that protects it
+- a new lowest-reliable-layer regression test
+- why automation is infeasible and the stronger deterministic guard used
+
+Verification proceeds from targeted tests to impacted suite, static/schema
+checks, real runtime smoke, browser evidence, broader suite, and packaged staging
+as risk warrants. A red broader baseline is reported by exact before/after
+comparison and groomed; it is never described as green.
+
+## Authoritative references
+
+- [Vitest 4 migration and coverage include guidance](https://vitest.dev/guide/migration)
+- [Vitest coverage configuration and thresholds](https://main.vitest.dev/config/coverage)
+- [Vitest test projects](https://vitest.dev/guide/projects.html)
+- [Vitest sequence shuffling](https://vitest.dev/config/sequence)
+- [Testing Library guiding principles](https://testing-library.com/docs/)
+- [Testing Library query priority](https://testing-library.com/docs/queries/about/)
+- [Testing Library user-event](https://testing-library.com/docs/user-event/intro/)
+- [Playwright testing best practices](https://playwright.dev/docs/best-practices)
+- [GitHub Actions Node.js testing guidance](https://docs.github.com/en/actions/tutorials/build-and-test-code/nodejs)

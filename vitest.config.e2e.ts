@@ -17,10 +17,8 @@ export default defineConfig({
       concurrent: false,
     },
     pool: "forks",
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    // Vitest 4 replaced poolOptions.forks.singleFork with this equivalent.
+    maxWorkers: 1,
+    isolate: false,
   },
 });

@@ -71,6 +71,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "vitest run --config vitest.config.e2e.ts",
+    "test:audit": "node scripts/test-audit.mjs",
     "test:ui": "vitest --ui",
     "validate:tokens": "npx tsx design-system/validate-tokens.ts",
     "check:price-drift": "node scripts/check-price-drift.mjs",
