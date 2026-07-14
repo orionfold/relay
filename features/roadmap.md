@@ -366,6 +366,7 @@ Automates the PRIVATE-INSTANCES runbook — turns the manual `git merge main` + 
 | Feature | Priority | Status | Dependencies |
 |---------|----------|--------|--------------|
 | [instance-bootstrap](instance-bootstrap.md) | P1 | completed | — |
+| [fresh-clone-development-setup](fresh-clone-development-setup.md) | P1 | completed | instance-bootstrap |
 | [upgrade-detection](upgrade-detection.md) | P1 | completed | instance-bootstrap, scheduled-prompt-loops |
 | [upgrade-session](upgrade-session.md) | P1 | in-progress | instance-bootstrap, upgrade-detection, agent-integration, agent-profile-catalog |
 | [instance-license-metering](instance-license-metering.md) | P2 | deferred | instance-bootstrap, local-license-manager, license-activation-flow |

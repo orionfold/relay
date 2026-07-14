@@ -115,3 +115,12 @@ Verification order and expected commands:
 After two materially different attempts fail on the same acceptance blocker, stop with
 the command, output, changed files, and safest next action. Do not close G-048 until
 native Windows evidence and the local acceptance packet both pass.
+
+## Closure deviation — 2026-07-13
+
+The local acceptance packet passed on literal macOS clones under Node 20 and Node 22,
+including the customer-mode control. A native Windows environment was not available,
+and the committed workflow could not run without the separately gated push. The
+operator explicitly waived that host check and directed G-048 to be unblocked and
+closed. The workflow remains committed for future Windows verification; the feature
+spec and changelog record the waiver rather than describing an unrun job as passing.

@@ -19,6 +19,19 @@
   retained the expected branch plus consent state. Native Windows execution remains
   the required external gate before completion.
 
+### Completed
+
+- G-048 closed after ship verification of every locally executable criterion: the
+  Node-only tracked hook, explicit pre-boot dev-mode contract, isolated fresh data,
+  zero bootstrap mutations under both gates, visible provider/Ollama outcomes, and
+  unchanged customer-mode bootstrap all pass on literal macOS clones under Node 20
+  and Node 22.
+- Native Windows execution was not run because no Windows environment exists yet. On
+  2026-07-13 the operator explicitly waived that unavailable host check and directed
+  the goal to close. The committed macOS/Windows workflow remains as the future
+  verification path; completion does not claim a passing Windows run. Nothing was
+  pushed.
+
 ## 2026-07-13 — TRIAGE-014–018 goal grooming
 
 ### Groomed

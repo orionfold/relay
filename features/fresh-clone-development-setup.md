@@ -1,6 +1,6 @@
 ---
 title: Fresh-Clone Development Setup
-status: in-progress
+status: completed
 priority: P1
 milestone: post-mvp
 source: _IDEAS/triage.md#TRIAGE-014
@@ -72,12 +72,16 @@ boot is isolated, visibly configurable, and cannot mutate customer-instance git 
 
 ## Acceptance Criteria
 
-- [ ] README presents equivalent macOS/Linux and PowerShell paths, and both activate
-  dev mode plus isolated data before first boot.
-- [ ] The README commands replay successfully from a literal clone with no prior
-  `.env.local`, Relay data, provider credentials, or Ollama configuration.
-- [ ] `.codex/hooks.json` runs a Node secrets guard, and its regression suite passes on
-  macOS and Windows with the minimum and current supported Node majors.
+- [x] README presents equivalent macOS/Linux and PowerShell paths, and both activate
+  dev mode plus isolated data before first boot. The PowerShell path is statically
+  covered by the committed native workflow; live Windows execution was waived by the
+  operator because no Windows environment exists yet.
+- [x] The README commands replay successfully from literal macOS clones with no prior
+  `.env.local`, Relay data, provider credentials, or Ollama configuration. Windows
+  replay remains encoded in the retained workflow under the same operator waiver.
+- [x] `.codex/hooks.json` runs a dependency-free Node secrets guard, and its regression
+  suite passes on the minimum and current supported Node majors on macOS. Native
+  Windows execution remains deferred under the recorded operator waiver.
 - [x] Both development gates leave branches, hooks, git config, instance state, and
   schedules untouched in isolated tests.
 - [x] `RELAY_INSTANCE_MODE=true` and ordinary customer mode retain the existing
@@ -87,8 +91,10 @@ boot is isolated, visibly configurable, and cannot mutate customer-instance git 
 - [x] Ollama Save and unavailable/available Test paths each have a deterministic,
   visible assertion.
 - [x] The macOS literal-clone matrix passes locally.
-- [ ] The Windows literal-clone matrix passes on a native Windows runner before the
-  goal is closed; workflow definition alone is not acceptance evidence.
+- [x] Native Windows execution disposition is explicit: on 2026-07-13 the operator
+  waived this unavailable environment and directed G-048 to close. The committed
+  Windows Node 20/npm 10 and Node 22/npm 11 jobs remain the future verification path;
+  this checkbox records the waiver, not a passing Windows run.
 
 ## Compatibility and Non-Goals
 
@@ -119,7 +125,7 @@ Excluded:
 | Ollama is unavailable | Visible failed connection text; no stale models remain |
 | Ollama is available | Visible connected text with the returned model count |
 | Development gate is omitted | Fresh-clone smoke fails on any generated instance mutation |
-| Native Windows evidence is unavailable | Goal remains open at the external-run gate |
+| Native Windows evidence is unavailable | Record an explicit operator disposition; never report the workflow definition as a passing run |
 
 ## References
 
@@ -154,6 +160,8 @@ Excluded:
   `RELAY_INSTANCE_MODE=true`: live Next boot returned the Welcome dashboard, created
   the expected `local` branch and instance/consent rows, and left the pre-push hook
   absent while consent remained `not_yet`.
-- Remaining gate: the committed native Windows jobs (Node 20/npm 10 and Node 22/npm
-  11) require an operator-authorized push. G-048 stays in progress until those jobs
-  pass; the workflow definition is not counted as execution evidence.
+- Native Windows evidence: not run. No Windows environment exists yet and the workflow
+  was not pushed. On 2026-07-13 the operator explicitly waived that host check and
+  directed the goal to be unblocked and closed. The committed Node 20/npm 10 and Node
+  22/npm 11 Windows jobs remain available for the first future environment; this
+  closure does not represent them as passing evidence.
