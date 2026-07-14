@@ -8,6 +8,35 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.40.0] — 2026-07-14
+
+### Added
+
+- **Installed apps now explain which view kit Relay resolved.** App headers show
+  the active kit and whether it was selected explicitly or inferred. An
+  optional diagnostics view records the deterministic evidence behind that
+  decision and can copy a round-trippable explicit view declaration.
+
+### Changed
+
+- **Pack KPI trends now describe what the measurements actually establish.**
+  Comparisons distinguish the first observed value from recent momentum,
+  respect whether higher or lower values are favorable, expose accessible
+  summaries, and avoid claiming a trend when history is too sparse.
+- **List-item hover treatment is consistent across Relay.** Tables, chat
+  history, settings rails, Needs attention, and other list surfaces use the
+  same semantic fill treatment without adding a second outline or replacing
+  the system cursor.
+- **The plugin API compatibility window advances to `0.40`.** Relay continues
+  accepting `0.39` plugins for the standard one-minor compatibility window.
+
+### Fixed
+
+- **Installed Packs no longer expose repository-authoring controls.** The Pack
+  repository section and its server response are limited to custom,
+  user-created app shells; installed free, licensed, official, and community
+  Packs keep their distribution provenance without presenting creator tools.
+
 ## [0.39.0] — 2026-07-14
 
 ### Added
