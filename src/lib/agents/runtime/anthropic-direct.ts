@@ -445,6 +445,7 @@ async function executeAnthropicDirectTask(taskId: string, isResume = false): Pro
     const { getSetting } = await import("@/lib/settings/helpers");
     const { resolvePreferredModel } = await import("./model-preference");
     const modelId =
+      task.effectiveModelId ??
       (await getSetting("anthropic_direct_model")) ??
       (await resolvePreferredModel("anthropic-direct")).modelId;
 

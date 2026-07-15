@@ -52,7 +52,7 @@ export function WorkflowKanbanCard({ workflow, onRun, onStop }: WorkflowKanbanCa
 
   const openWorkflow = () => router.push(`/workflows/${workflow.id}`);
   const runLabel =
-    execution.status === "draft" ? "Run" : "Re-run";
+    execution.status === "draft" ? "Review & run" : "Review & re-run";
 
   return (
       <Card
@@ -166,7 +166,7 @@ export function WorkflowKanbanCard({ workflow, onRun, onStop }: WorkflowKanbanCa
                 onClick={() => onRun(workflow)}
                 aria-label={`${runLabel} workflow ${workflow.name}`}
               >
-                {runLabel === "Re-run" ? (
+                {runLabel === "Review & re-run" ? (
                   <RotateCcw className="h-3 w-3" />
                 ) : (
                   <Play className="h-3 w-3" />

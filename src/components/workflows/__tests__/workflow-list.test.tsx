@@ -69,20 +69,19 @@ describe("WorkflowList card interactions", () => {
     expect(push).toHaveBeenCalledWith("/workflows/wf-1");
   });
 
-  it("runs the draft workflow from the explicit button without bubbling a second card click", async () => {
+  it("opens the target review from the explicit run shortcut without starting execution", async () => {
     render(<WorkflowList projects={[]} />);
 
     const runButton = await screen.findByRole("button", {
-      name: "Run workflow Weekly Report",
+      name: "Review & run workflow Weekly Report",
     });
     fireEvent.click(runButton);
 
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith("/api/workflows/wf-1/execute", {
-        method: "POST",
-      });
-    });
     expect(push).toHaveBeenCalledTimes(1);
     expect(push).toHaveBeenCalledWith("/workflows/wf-1");
+    expect(global.fetch).not.toHaveBeenCalledWith(
+      "/api/workflows/wf-1/execute",
+      expect.anything()
+    );
   });
 });

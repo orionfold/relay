@@ -91,15 +91,8 @@ export function WorkflowList({ projects }: WorkflowListProps) {
     }
   }
 
-  async function handleRunWorkflow(id: string) {
-    const res = await fetch(`/api/workflows/${id}/execute`, { method: "POST" });
-    if (res.ok) {
-      toast.success("Workflow started");
-      router.push(`/workflows/${id}`);
-    } else {
-      const data = await res.json().catch(() => null);
-      toast.error(data?.error ?? "Failed to run workflow");
-    }
+  function handleRunWorkflow(id: string) {
+    router.push(`/workflows/${id}`);
   }
 
   async function handleStopWorkflow(id: string) {
@@ -186,11 +179,8 @@ export function WorkflowList({ projects }: WorkflowListProps) {
               stepStates: parsedState,
             });
             const runLabel =
-              execution.status === "draft" ? "Run" : "Re-run";
-            const runAriaLabel =
-              runLabel === "Run"
-                ? `Run workflow ${wf.name}`
-                : `${runLabel} workflow ${wf.name}`;
+              execution.status === "draft" ? "Review & run" : "Review & re-run";
+            const runAriaLabel = `${runLabel} workflow ${wf.name}`;
             return (
               <Card
                 key={wf.id}
@@ -276,7 +266,7 @@ export function WorkflowList({ projects }: WorkflowListProps) {
                             aria-label={runAriaLabel}
                             onClick={() => handleRunWorkflow(wf.id)}
                           >
-                            {runLabel === "Re-run" ? (
+                            {runLabel === "Review & re-run" ? (
                               <RotateCcw className="h-3.5 w-3.5" />
                             ) : (
                               <Play className="h-3.5 w-3.5" />

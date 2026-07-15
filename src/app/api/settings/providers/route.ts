@@ -124,7 +124,7 @@ export async function GET() {
       configured: ollamaConfigured,
       connected: ollamaConnected,
       baseUrl: ollamaBaseRaw || "http://localhost:11434",
-      defaultModel: ollamaDefaultModelRaw || "llama3",
+      defaultModel: ollamaDefaultModelRaw || "",
     },
     chatDefaultModel: chatDefaultModelRaw ?? null,
     routingPreference,

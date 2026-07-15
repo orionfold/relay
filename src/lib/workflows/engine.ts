@@ -27,7 +27,6 @@ import {
 } from "@/lib/documents/context-builder";
 import { resolveStepBudget, estimateWorkflowCost } from "./cost-estimator";
 import { resolveAgentRuntime } from "@/lib/agents/runtime/catalog";
-import { getSetting } from "@/lib/settings/helpers";
 import { updateExecutionStats } from "./execution-stats";
 
 /**
@@ -85,7 +84,7 @@ export async function executeWorkflow(workflowId: string): Promise<void> {
   // Loop pattern manages its own lifecycle — delegate fully
   if (definition.pattern === "loop") {
     try {
-      await executeLoop(workflowId, definition);
+      await executeLoop(workflowId, definition, workflowRuntimeId);
 
       await db.insert(agentLogs).values({
         id: crypto.randomUUID(),
@@ -504,7 +503,10 @@ async function executeParallel(
       });
 
       const stepBudget = await resolveStepBudget(step);
-      const stepRuntime = await resolveStepRuntime(step.runtimeId, workflowRuntimeId);
+      const stepRuntime = await resolveStepRuntime(
+        step.runtimeId ?? step.assignedAgent,
+        workflowRuntimeId
+      );
 
       const result = await executeChildTask(
         workflowId,
@@ -584,7 +586,10 @@ async function executeParallel(
   });
 
   const synthesisBudget = await resolveStepBudget(synthesisStep);
-  const synthesisRuntime = await resolveStepRuntime(synthesisStep.runtimeId, workflowRuntimeId);
+  const synthesisRuntime = await resolveStepRuntime(
+    synthesisStep.runtimeId ?? synthesisStep.assignedAgent,
+    workflowRuntimeId
+  );
 
   const synthesisResult = await executeChildTask(
     workflowId,
@@ -720,7 +725,10 @@ async function executeSwarm(
       });
 
       const workerBudget = await resolveStepBudget(step);
-      const workerRuntime = await resolveStepRuntime(step.runtimeId, workflowRuntimeId);
+      const workerRuntime = await resolveStepRuntime(
+        step.runtimeId ?? step.assignedAgent,
+        workflowRuntimeId
+      );
 
       const result = await executeChildTask(
         workflowId,
@@ -852,7 +860,10 @@ async function runSwarmRefinery(input: {
   });
 
   const refineryBudget = await resolveStepBudget(refineryStep as import("./types").WorkflowStep);
-  const refineryRuntime = await resolveStepRuntime(refineryStep.runtimeId, workflowRuntimeId);
+  const refineryRuntime = await resolveStepRuntime(
+    refineryStep.runtimeId ?? refineryStep.assignedAgent,
+    workflowRuntimeId
+  );
 
   const refineryResult = await executeChildTask(
     workflowId,
@@ -894,9 +905,9 @@ async function runSwarmRefinery(input: {
  *
  * Precedence (highest wins):
  *   1. step.runtimeId (per-step override)
- *   2. workflow.runtimeId (per-workflow)
- *   3. routing.preference setting
- *   4. DEFAULT_AGENT_RUNTIME
+ *   2. legacy step.assignedAgent (passed as stepRuntimeId by callers)
+ *   3. workflow.runtimeId (per-workflow)
+ *   4. task resolver (Manual default or automatic routing)
  */
 async function resolveStepRuntime(
   stepRuntimeId?: string,
@@ -904,9 +915,7 @@ async function resolveStepRuntime(
 ): Promise<string | undefined> {
   if (stepRuntimeId) return resolveAgentRuntime(stepRuntimeId);
   if (workflowRuntimeId) return resolveAgentRuntime(workflowRuntimeId);
-  const routingPref = await getSetting("default_runtime");
-  if (routingPref) return resolveAgentRuntime(routingPref);
-  return undefined; // Let executeTaskWithRuntime use its own default
+  return undefined;
 }
 
 /**
@@ -962,9 +971,10 @@ export async function executeChildTask(
   }
 
   // Resolve "auto" profile via multi-agent router
+  const requestedRuntimeId = runtimeId ?? assignedAgent ?? null;
   const resolvedProfile =
     !agentProfile || agentProfile === "auto"
-      ? classifyTaskProfile(name, prompt, assignedAgent)
+      ? classifyTaskProfile(name, prompt, requestedRuntimeId)
       : agentProfile;
 
   // Inject parent task's document context into step prompt so file attachments
@@ -997,7 +1007,7 @@ export async function executeChildTask(
     description: enrichedPrompt,
     status: "queued",
     priority: 1,
-      assignedAgent: assignedAgent ?? runtimeId ?? null,
+    assignedAgent: requestedRuntimeId,
     agentProfile: resolvedProfile ?? null,
     workflowRunNumber: workflow?.runNumber ?? null,
     successCriteriaSnapshot: workflow?.successCriteriaRunSnapshot ?? null,
@@ -1014,7 +1024,7 @@ export async function executeChildTask(
 
   try {
     await startTaskExecution(taskId, {
-      requestedRuntimeId: runtimeId ?? assignedAgent,
+      requestedRuntimeId,
     });
   } catch (err) {
     console.error(`[workflow-engine] Runtime execution failed for task ${taskId}:`, err);
@@ -1087,7 +1097,10 @@ async function executeStep(
     const budgetUsd = await resolveStepBudget(
       stepBudgetUsd ? ({ budgetUsd: stepBudgetUsd } as import("./types").WorkflowStep) : undefined
     );
-    const resolvedRuntime = await resolveStepRuntime(stepRuntimeId, workflowRuntimeId);
+    const resolvedRuntime = await resolveStepRuntime(
+      stepRuntimeId ?? assignedAgent,
+      workflowRuntimeId
+    );
 
     const result = await executeChildTask(
       workflowId,

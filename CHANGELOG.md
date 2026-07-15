@@ -8,6 +8,29 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+### Added
+
+- **Tasks and workflows preview their exact execution target before launch.**
+  Run-capable detail views show the resolved profile, runtime, model, and
+  selection reason for each executable step; unresolved targets name the
+  problem and keep Run or Re-run disabled until the operator edits the target.
+
+### Changed
+
+- **Manual and explicit runtime choices now have distinct, truthful behavior.**
+  Manual routing uses Relay's default runtime with auto-routing disabled, while
+  a compatible explicit runtime/model is honored exactly. Automatic routing
+  may select another healthy compatible runtime and records why.
+
+### Fixed
+
+- **Execution preflight no longer mutates work before target validation.** Tasks
+  remain queued and workflows remain unclaimed when a profile, capability,
+  runtime, or model cannot resolve; workflow preview, child-task persistence,
+  dispatch, receipts, and provider summaries now share the same target truth.
+- **Empty Ollama model settings stay empty.** Relay resolves an actually pulled
+  model at execution time instead of displaying a synthesized `llama3` default.
+
 ## [0.40.0] — 2026-07-14
 
 ### Added

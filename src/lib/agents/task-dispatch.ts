@@ -108,6 +108,8 @@ function buildLaunchFallbackTarget(input: {
       input.retryTarget.requestedModelId ?? input.originalTarget.requestedModelId,
     effectiveModelId: input.retryTarget.effectiveModelId,
     effectiveRuntimeId: input.retryTarget.effectiveRuntimeId,
+    selectionMode: "automatic",
+    selectionReason: `${input.launchError.message}; selected the next healthy compatible runtime`,
   };
 }
 
@@ -165,19 +167,24 @@ async function retryTaskWithFallback(
 
 export async function startTaskExecution(
   taskId: string,
-  options?: { requestedRuntimeId?: string | null }
+  options?: {
+    requestedRuntimeId?: string | null;
+    preflightTarget?: ResolvedExecutionTarget;
+  }
 ) {
   const [task] = await db.select().from(tasks).where(eq(tasks.id, taskId));
   if (!task) {
     throw new Error(`Task ${taskId} not found`);
   }
 
-  const target = await resolveTaskExecutionTarget({
-    title: task.title,
-    description: task.description,
-    requestedRuntimeId: options?.requestedRuntimeId ?? task.assignedAgent,
-    profileId: task.agentProfile,
-  });
+  const target =
+    options?.preflightTarget ??
+    (await resolveTaskExecutionTarget({
+      title: task.title,
+      description: task.description,
+      requestedRuntimeId: options?.requestedRuntimeId ?? task.assignedAgent,
+      profileId: task.agentProfile,
+    }));
 
   await db
     .update(tasks)
@@ -188,6 +195,11 @@ export async function startTaskExecution(
     return await executeTaskWithRuntime(taskId, target.effectiveRuntimeId);
   } catch (error) {
     if (error instanceof RetryableRuntimeLaunchError) {
+      if (target.requestedRuntimeId) {
+        await logRuntimeLaunchFailure(task.id, error);
+        await markTaskLaunchFailed(task.id, task.title, error);
+        throw error;
+      }
       return retryTaskWithFallback(task, target, error);
     }
     throw error;

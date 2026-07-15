@@ -553,7 +553,13 @@ export interface TaskQueryContext {
 }
 
 export async function buildTaskQueryContext(
-  task: { id: string; title: string; description?: string | null; projectId?: string | null },
+  task: {
+    id: string;
+    title: string;
+    description?: string | null;
+    projectId?: string | null;
+    effectiveModelId?: string | null;
+  },
   profileId: string
 ): Promise<TaskQueryContext> {
   const profile = getProfile(profileId);
@@ -601,7 +607,9 @@ export async function buildTaskQueryContext(
   const maxTurns = profile?.maxTurns ?? DEFAULT_MAX_TURNS;
 
   const { modelId } = await resolvePreferredModel("claude-code", {
-    pinnedModelId: profile?.capabilityOverrides?.["claude-code"]?.modelId,
+    pinnedModelId:
+      task.effectiveModelId ??
+      profile?.capabilityOverrides?.["claude-code"]?.modelId,
   });
 
   return {

@@ -952,7 +952,7 @@ function RecommendationBanner({
       <div className="h-full rounded-xl border border-primary/20 bg-primary/5 px-3 py-3">
         <p className="text-xs text-muted-foreground">
           <span className="font-medium text-foreground">Manual routing.</span>{" "}
-          provider configuration stays as is. Pick a preference to get per-provider recommendations.
+          Automatic runtime selection is off. Tasks without an explicit runtime use Relay&apos;s default runtime (Claude Code). Provider configuration stays unchanged.
         </p>
       </div>
     );

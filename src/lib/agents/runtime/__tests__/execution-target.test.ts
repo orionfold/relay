@@ -47,6 +47,8 @@ vi.mock("@/lib/agents/router", () => ({
 
 import {
   RequestedModelUnavailableError,
+  RuntimeCapabilityMismatchError,
+  RuntimeUnavailableError,
   resolveChatExecutionTarget,
   resolveResumeExecutionTarget,
   resolveTaskExecutionTarget,
@@ -106,23 +108,77 @@ describe("execution target resolver", () => {
     });
   });
 
-  it("falls back from an unavailable requested task runtime to a compatible alternate", async () => {
+  it("blocks an unavailable explicit task runtime without changing the target", async () => {
     mockGetProfile.mockReturnValue({
       id: "upgrade-assistant",
       allowedTools: ["Bash(git status)", "Read", "Write"],
     });
 
-    const target = await resolveTaskExecutionTarget({
-      title: "Upgrade local branch",
-      description: "Merge upstream main safely",
-      requestedRuntimeId: "claude-code",
-      profileId: "upgrade-assistant",
+    await expect(
+      resolveTaskExecutionTarget({
+        title: "Upgrade local branch",
+        description: "Merge upstream main safely",
+        requestedRuntimeId: "claude-code",
+        profileId: "upgrade-assistant",
+      })
+    ).rejects.toBeInstanceOf(RuntimeUnavailableError);
+  });
+
+  it("names a capability mismatch for an explicit runtime", async () => {
+    mockGetProfile.mockReturnValue({
+      id: "document-writer",
+      supportedRuntimes: ["claude-code", "ollama"],
+      allowedTools: ["Read", "Write"],
+    });
+    mockProfileSupportsRuntime.mockReturnValue(true);
+
+    await expect(
+      resolveTaskExecutionTarget({
+        title: "Write report",
+        requestedRuntimeId: "ollama",
+        profileId: "document-writer",
+      })
+    ).rejects.toMatchObject({
+      name: "RuntimeCapabilityMismatchError",
+      message: expect.stringContaining("filesystem tools"),
+    });
+  });
+
+  it("honors an explicit compatible runtime and profile-pinned model", async () => {
+    mockGetProfile.mockReturnValue({
+      id: "general",
+      allowedTools: [],
+      capabilityOverrides: {
+        "openai-codex-app-server": { modelId: "gpt-5.3-codex" },
+      },
     });
 
-    expect(target.requestedRuntimeId).toBe("claude-code");
+    const target = await resolveTaskExecutionTarget({
+      title: "Use the explicit target",
+      requestedRuntimeId: "openai-codex-app-server",
+      profileId: "general",
+    });
+
+    expect(target.requestedRuntimeId).toBe("openai-codex-app-server");
     expect(target.effectiveRuntimeId).toBe("openai-codex-app-server");
-    expect(target.fallbackApplied).toBe(true);
-    expect(target.fallbackReason).toContain("Fell back to OpenAI Codex App Server");
+    expect(target.requestedModelId).toBe("gpt-5.3-codex");
+    expect(target.effectiveModelId).toBe("gpt-5.3-codex");
+    expect(target.selectionMode).toBe("explicit");
+  });
+
+  it("blocks an explicit runtime when its profile id is stale", async () => {
+    mockGetProfile.mockReturnValue(undefined);
+
+    await expect(
+      resolveTaskExecutionTarget({
+        title: "Run an imported task",
+        requestedRuntimeId: "openai-codex-app-server",
+        profileId: "removed-pack-profile",
+      })
+    ).rejects.toMatchObject({
+      name: "NoCompatibleRuntimeError",
+      message: expect.stringContaining("removed-pack-profile"),
+    });
   });
 
   it("auto-selects a healthy runtime when no task runtime was requested", async () => {
@@ -145,6 +201,49 @@ describe("execution target resolver", () => {
     expect(target.requestedRuntimeId).toBeNull();
     expect(target.effectiveRuntimeId).toBe("openai-codex-app-server");
     expect(target.fallbackApplied).toBe(false);
+    expect(target.selectionMode).toBe("automatic");
+  });
+
+  it("uses the default runtime without auto-routing when routing is Manual", async () => {
+    mockGetRoutingPreference.mockResolvedValue("manual");
+    mockGetProfile.mockReturnValue({
+      id: "general",
+      allowedTools: [],
+    });
+    mockTestRuntimeConnection.mockResolvedValue({ connected: true });
+
+    const target = await resolveTaskExecutionTarget({
+      title: "Run with the manual default",
+      profileId: "general",
+    });
+
+    expect(target.requestedRuntimeId).toBeNull();
+    expect(target.effectiveRuntimeId).toBe("claude-code");
+    expect(target.selectionMode).toBe("manual-default");
+    expect(target.selectionReason).toContain("auto-routing is off");
+    expect(mockSuggestRuntime).not.toHaveBeenCalled();
+  });
+
+  it("does not reconsider a launch-failed runtime when no automatic alternative remains", async () => {
+    mockGetRuntimeSetupStates.mockResolvedValue(makeStates(["claude-code"]));
+    mockListConfiguredRuntimeIds.mockReturnValue(["claude-code"]);
+    mockGetProfile.mockReturnValue({
+      id: "general",
+      allowedTools: [],
+    });
+
+    await expect(
+      resolveTaskExecutionTarget({
+        title: "Retry an automatic task",
+        profileId: "general",
+        unavailableRuntimeIds: ["claude-code"],
+        unavailableReasons: { "claude-code": "Claude Code failed to launch" },
+      })
+    ).rejects.toMatchObject({
+      name: "RuntimeUnavailableError",
+      message: "Claude Code failed to launch",
+    });
+    expect(mockSuggestRuntime).not.toHaveBeenCalled();
   });
 
   it("falls back chat turns to the mapped alternate model when the requested runtime is unavailable", async () => {

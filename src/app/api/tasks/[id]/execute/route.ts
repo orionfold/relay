@@ -10,6 +10,7 @@ import {
 } from "@/lib/settings/budget-guardrails";
 import { ensureFreshScan } from "@/lib/environment/auto-scan";
 import { resolveTaskExecutionTarget } from "@/lib/agents/runtime/execution-target";
+import { classifyExecutionTargetError } from "@/lib/agents/runtime/execution-target-preview";
 import { startTaskExecution } from "@/lib/agents/task-dispatch";
 
 export async function POST(
@@ -27,30 +28,82 @@ export async function POST(
     throw error;
   }
 
-  // Atomic check-and-claim: only one request can transition queued → running
-  const claimed = db
-    .update(tasks)
-    .set({ status: "running", updatedAt: new Date() })
-    .where(and(eq(tasks.id, id), eq(tasks.status, "queued")))
-    .returning()
-    .all();
-
-  if (claimed.length === 0) {
-    // Either not found or not in queued status
-    const [task] = await db.select().from(tasks).where(eq(tasks.id, id));
-    if (!task) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
+  const [task] = await db.select().from(tasks).where(eq(tasks.id, id));
+  if (!task) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  if (task.status !== "queued") {
     return NextResponse.json(
       { error: `Task must be queued to execute, current status: ${task.status}` },
       { status: 400 }
     );
   }
 
-  const task = claimed[0];
   let taskProfile = task.agentProfile;
+  let executionTarget;
+  try {
+    executionTarget = await resolveTaskExecutionTarget({
+      title: task.title,
+      description: task.description,
+      requestedRuntimeId: task.assignedAgent,
+      profileId: taskProfile,
+    });
+    // Auto-classify before claiming so an incompatible or unavailable target
+    // leaves the task queued and editable instead of manufacturing a failed run.
+    if (!taskProfile) {
+      taskProfile = classifyTaskProfile(
+        task.title,
+        task.description,
+        executionTarget.effectiveRuntimeId
+      );
+      executionTarget = await resolveTaskExecutionTarget({
+        title: task.title,
+        description: task.description,
+        requestedRuntimeId: task.assignedAgent,
+        profileId: taskProfile,
+      });
+    }
 
-  // Auto-scan environment if the task's project has a workingDirectory
+    const compatibilityError = validateRuntimeProfileAssignment({
+      profileId: taskProfile,
+      runtimeId: executionTarget.effectiveRuntimeId,
+      context: "Task profile",
+    });
+    if (compatibilityError) {
+      return NextResponse.json(
+        { error: compatibilityError, code: "runtime_capability_mismatch" },
+        { status: 409 }
+      );
+    }
+  } catch (error) {
+    const classified = classifyExecutionTargetError(error);
+    return NextResponse.json(
+      { error: classified.message, code: classified.code },
+      { status: 409 }
+    );
+  }
+
+  // Atomic check-and-claim after target preflight. A concurrent request can
+  // still win while preflight is running, so retain the guarded transition.
+  const claimed = db
+    .update(tasks)
+    .set({
+      status: "running",
+      agentProfile: taskProfile,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(tasks.id, id), eq(tasks.status, "queued")))
+    .returning()
+    .all();
+
+  if (claimed.length === 0) {
+    return NextResponse.json(
+      { error: "Task is already running or its status changed" },
+      { status: 409 }
+    );
+  }
+
+  // Auto-scan environment only after the run has been claimed.
   if (task.projectId) {
     const [project] = await db
       .select()
@@ -61,80 +114,11 @@ export async function POST(
     }
   }
 
-  let executionTarget;
-  try {
-    executionTarget = await resolveTaskExecutionTarget({
-      title: task.title,
-      description: task.description,
-      requestedRuntimeId: task.assignedAgent,
-      profileId: taskProfile,
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    db.update(tasks)
-      .set({
-        status: "failed",
-        result: message,
-        updatedAt: new Date(),
-      })
-      .where(eq(tasks.id, id))
-      .run();
-    return NextResponse.json({ error: message }, { status: 400 });
-  }
-
-  // Auto-classify profile if none was set. Use the resolved runtime so the
-  // chosen profile is compatible with the runtime we will actually launch.
-  if (!taskProfile) {
-    const autoProfile = classifyTaskProfile(
-      task.title,
-      task.description,
-      executionTarget.effectiveRuntimeId
-    );
-    db.update(tasks)
-      .set({ agentProfile: autoProfile, updatedAt: new Date() })
-      .where(eq(tasks.id, id))
-      .run();
-    taskProfile = autoProfile;
-    try {
-      executionTarget = await resolveTaskExecutionTarget({
-        title: task.title,
-        description: task.description,
-        requestedRuntimeId: task.assignedAgent,
-        profileId: taskProfile,
-      });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      db.update(tasks)
-        .set({
-          status: "failed",
-          result: message,
-          updatedAt: new Date(),
-        })
-        .where(eq(tasks.id, id))
-        .run();
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  }
-
-  const compatibilityError = validateRuntimeProfileAssignment({
-    profileId: taskProfile,
-    runtimeId: executionTarget.effectiveRuntimeId,
-    context: "Task profile",
-  });
-  if (compatibilityError) {
-    db.update(tasks)
-      .set({
-        status: "failed",
-        result: compatibilityError,
-        updatedAt: new Date(),
-      })
-      .where(eq(tasks.id, id))
-      .run();
-    return NextResponse.json({ error: compatibilityError }, { status: 400 });
-  }
-
   // Fire-and-forget — task already marked as running
-  startTaskExecution(id, { requestedRuntimeId: task.assignedAgent }).catch(
+  startTaskExecution(id, {
+    requestedRuntimeId: task.assignedAgent,
+    preflightTarget: executionTarget,
+  }).catch(
     (err) => console.error(`Task ${id} execution error:`, err)
   );
 

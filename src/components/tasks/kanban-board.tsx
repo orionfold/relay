@@ -385,19 +385,8 @@ export function KanbanBoard({
     }
   }, [tasks, refresh]);
 
-  const handleRunWorkflow = useCallback(async (workflow: WorkflowKanbanItem) => {
-    const res = await fetch(`/api/workflows/${workflow.id}/execute`, { method: "POST" });
-    if (res.ok) {
-      toast.success(
-        workflow.status === "completed" || workflow.status === "failed" || workflow.status === "active"
-          ? "Workflow restarted"
-          : "Workflow started"
-      );
-      router.refresh();
-    } else {
-      const data = await res.json().catch(() => null);
-      toast.error(data?.error ?? "Failed to run workflow");
-    }
+  const handleRunWorkflow = useCallback((workflow: WorkflowKanbanItem) => {
+    router.push(`/workflows/${workflow.id}`);
   }, [router]);
 
   const handleStopWorkflow = useCallback(async (workflow: WorkflowKanbanItem) => {

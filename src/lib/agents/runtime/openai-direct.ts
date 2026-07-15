@@ -325,6 +325,7 @@ async function executeOpenAIDirectTask(taskId: string, isResume = false): Promis
     const { getSetting } = await import("@/lib/settings/helpers");
     const { resolvePreferredModel } = await import("./model-preference");
     const modelId =
+      task.effectiveModelId ??
       (await getSetting("openai_direct_model")) ??
       (await resolvePreferredModel("openai-direct")).modelId;
     const maxTurns = ctx.maxTurns ?? DEFAULT_MAX_TURNS;

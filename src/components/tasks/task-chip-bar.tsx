@@ -45,6 +45,7 @@ interface TaskChipBarProps {
   onResume: () => void;
   onRetry: () => void;
   onDelete: () => void;
+  targetReady?: boolean | null;
 }
 
 export function TaskChipBar({
@@ -57,6 +58,7 @@ export function TaskChipBar({
   onResume,
   onRetry,
   onDelete,
+  targetReady = true,
 }: TaskChipBarProps) {
   const priority = priorityConfig[task.priority] ?? priorityConfig[2];
   const PriorityIcon = priority.icon;
@@ -90,7 +92,12 @@ export function TaskChipBar({
             </Button>
           )}
           {task.status === "queued" && (
-            <Button size="sm" onClick={onRun} disabled={loading}>
+            <Button
+              size="sm"
+              onClick={onRun}
+              disabled={loading || targetReady !== true}
+              title={targetReady === false ? "Edit the execution target before running" : undefined}
+            >
               <Play className="h-3.5 w-3.5 mr-1" />
               {loading ? "Starting..." : "Run"}
             </Button>

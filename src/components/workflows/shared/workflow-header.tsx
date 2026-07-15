@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
 import { patternLabels } from "@/lib/constants/status-colors";
 import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import { StatusChip } from "@/components/shared/status-chip";
+import { ExecutionTargetPreview } from "@/components/shared/execution-target-preview";
 import type { WorkflowStatusResponse } from "@/lib/workflows/types";
 import { getWorkflowExecutionInfoFromStatusResponse } from "@/lib/workflows/execution-status";
 
@@ -127,6 +129,7 @@ export function WorkflowHeader({
   onDelete: () => void;
 }) {
   const router = useRouter();
+  const [targetReady, setTargetReady] = useState<boolean | null>(null);
   const hasDefinition = !!data.definition;
   const execution = getWorkflowExecutionInfoFromStatusResponse(data);
   const primaryRunLabel =
@@ -172,7 +175,12 @@ export function WorkflowHeader({
           <StatusChip status={execution.status} family="lifecycle" />
 
           {canExecute && execution.canRun && !["completed", "failed"].includes(data.status) && (
-            <Button size="sm" onClick={onExecute} disabled={executing}>
+            <Button
+              size="sm"
+              onClick={onExecute}
+              disabled={executing || targetReady !== true}
+              title={targetReady === false ? "Edit the execution target before running" : undefined}
+            >
               <Play className="h-3 w-3 mr-1" />
               {executing ? "Starting..." : primaryRunLabel}
             </Button>
@@ -218,7 +226,8 @@ export function WorkflowHeader({
               variant="outline"
               size="sm"
               onClick={onRerun}
-              disabled={executing}
+              disabled={executing || targetReady !== true}
+              title={targetReady === false ? "Edit the execution target before running" : undefined}
             >
               <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
               Re-run
@@ -238,6 +247,13 @@ export function WorkflowHeader({
           )}
         </div>
       </div>
+      <ExecutionTargetPreview
+        kind="workflow"
+        id={data.id}
+        enabled={execution.canRun && !["active", "paused"].includes(data.status)}
+        revision={`${data.status}:${data.runNumber ?? 0}`}
+        onReadyChange={setTargetReady}
+      />
       <SignpostBanner signpost={computeSignpost(data)} />
     </CardHeader>
   );

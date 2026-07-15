@@ -4,6 +4,8 @@ import { workflows, tasks, workflowReceiptRuns } from "@/lib/db/schema";
 import { eq, and, sql, inArray } from "drizzle-orm";
 import { executeWorkflow } from "@/lib/workflows/engine";
 import type { WorkflowDefinition } from "@/lib/workflows/types";
+import { resolveWorkflowExecutionTargets } from "@/lib/workflows/execution-targets";
+import { classifyExecutionTargetError } from "@/lib/agents/runtime/execution-target-preview";
 
 export async function POST(
   _req: NextRequest,
@@ -39,6 +41,22 @@ export async function POST(
       );
     }
     // Crashed "active" with 0 live tasks — fall through to re-execution
+  }
+
+  // Resolve every executable step before mutating workflow or task state.
+  // Execution resolves again at dispatch time so this is advisory and the
+  // claim path remains authoritative if configuration changes meanwhile.
+  try {
+    await resolveWorkflowExecutionTargets({
+      definition: JSON.parse(workflow.definition) as WorkflowDefinition,
+      workflowRuntimeId: workflow.runtimeId,
+    });
+  } catch (error) {
+    const classified = classifyExecutionTargetError(error);
+    return NextResponse.json(
+      { error: classified.message, code: classified.code },
+      { status: 409 }
+    );
   }
 
   // Re-run: comprehensive reset for completed, failed, or crashed-active workflows

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { ExecutionTargetPreview } from "@/components/shared/execution-target-preview";
 import { TaskAttachments } from "./task-attachments";
 import { TaskChipBar } from "./task-chip-bar";
 import { TaskBentoGrid } from "./task-bento-grid";
@@ -25,6 +26,7 @@ interface TaskDetailViewProps {
 
 export function TaskDetailView({ taskId, initialTask, initialRunHistory }: TaskDetailViewProps) {
   const router = useRouter();
+  const [targetReady, setTargetReady] = useState<boolean | null>(null);
   const [siblings, setSiblings] = useState<Array<{
     id: string;
     title: string;
@@ -108,6 +110,15 @@ export function TaskDetailView({ taskId, initialTask, initialRunHistory }: TaskD
         onResume={handleResume}
         onRetry={() => handleStatusChange("queued")}
         onDelete={handleDelete}
+        targetReady={targetReady}
+      />
+
+      <ExecutionTargetPreview
+        kind="task"
+        id={task.id}
+        enabled={task.status === "queued"}
+        revision={task.updatedAt}
+        onReadyChange={setTargetReady}
       />
 
       <TaskBentoGrid task={task} docs={docs} />

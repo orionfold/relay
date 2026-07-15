@@ -40,11 +40,14 @@ async function getOllamaBaseUrl(): Promise<string> {
  * else the first actually-pulled model, else throws a named error — never the
  * old hardcoded `llama3.2` phantom (issue #25).
  */
-async function getOllamaModel(baseUrl: string): Promise<string> {
+async function getOllamaModel(
+  baseUrl: string,
+  requestedModel?: string | null,
+): Promise<string> {
   const { getSetting } = await import("@/lib/settings/helpers");
   const { SETTINGS_KEYS } = await import("@/lib/constants/settings");
   const defaultModel = await getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL);
-  return resolveOllamaModel(baseUrl, null, defaultModel);
+  return resolveOllamaModel(baseUrl, requestedModel, defaultModel);
 }
 
 // ── NDJSON streaming chat ───────────────────────────────────────────
@@ -191,7 +194,7 @@ async function executeOllamaTask(taskId: string): Promise<void> {
 
     const ctx = await buildTaskQueryContext(task, agentProfileId);
     const baseUrl = await getOllamaBaseUrl();
-    const modelId = await getOllamaModel(baseUrl);
+    const modelId = await getOllamaModel(baseUrl, task.effectiveModelId);
 
     // Build messages
     const messages: OllamaChatMessage[] = [];
@@ -228,7 +231,12 @@ async function executeOllamaTask(taskId: string): Promise<void> {
 
     await db
       .update(tasks)
-      .set({ status: finalStatus, result: resultText, updatedAt: new Date() })
+      .set({
+        status: finalStatus,
+        result: resultText,
+        effectiveModelId: modelId,
+        updatedAt: new Date(),
+      })
       .where(eq(tasks.id, taskId));
 
     await db.insert(notifications).values({

@@ -29,7 +29,7 @@ vi.mock("@/lib/agents/runtime/execution-target", () => ({
 
 import { startTaskExecution } from "../task-dispatch";
 
-function seedTask() {
+function seedTask(assignedAgent: string | null = "claude-code") {
   const id = randomUUID();
   const now = new Date();
   db.insert(tasks)
@@ -38,7 +38,7 @@ function seedTask() {
       title: "Upgrade local clone",
       description: "Merge upstream changes safely",
       status: "queued",
-      assignedAgent: "claude-code",
+      assignedAgent,
       agentProfile: "upgrade-assistant",
       priority: 2,
       resumeCount: 0,
@@ -57,25 +57,29 @@ describe("startTaskExecution", () => {
     db.delete(tasks).run();
   });
 
-  it("retries once on a retryable launch failure and persists the fallback runtime", async () => {
-    const taskId = seedTask();
+  it("retries an automatically selected target once and persists the visible fallback", async () => {
+    const taskId = seedTask(null);
 
     mockResolveTaskExecutionTarget
       .mockResolvedValueOnce({
-        requestedRuntimeId: "claude-code",
+        requestedRuntimeId: null,
         effectiveRuntimeId: "claude-code",
         requestedModelId: null,
         effectiveModelId: null,
         fallbackApplied: false,
         fallbackReason: null,
+        selectionMode: "automatic",
+        selectionReason: "test",
       })
       .mockResolvedValueOnce({
-        requestedRuntimeId: "claude-code",
+        requestedRuntimeId: null,
         effectiveRuntimeId: "openai-codex-app-server",
         requestedModelId: null,
         effectiveModelId: null,
         fallbackApplied: false,
         fallbackReason: null,
+        selectionMode: "automatic",
+        selectionReason: "test fallback",
       });
 
     mockExecuteTaskWithRuntime
@@ -89,7 +93,7 @@ describe("startTaskExecution", () => {
       )
       .mockResolvedValueOnce(undefined);
 
-    await startTaskExecution(taskId, { requestedRuntimeId: "claude-code" });
+    await startTaskExecution(taskId);
 
     expect(mockExecuteTaskWithRuntime).toHaveBeenNthCalledWith(1, taskId, "claude-code");
     expect(mockExecuteTaskWithRuntime).toHaveBeenNthCalledWith(
@@ -100,7 +104,7 @@ describe("startTaskExecution", () => {
     expect(mockResolveTaskExecutionTarget).toHaveBeenNthCalledWith(2, {
       title: "Upgrade local clone",
       description: "Merge upstream changes safely",
-      requestedRuntimeId: "claude-code",
+      requestedRuntimeId: null,
       profileId: "upgrade-assistant",
       unavailableRuntimeIds: ["claude-code"],
       unavailableReasons: {
@@ -123,21 +127,19 @@ describe("startTaskExecution", () => {
     expect(logs.map((log) => log.event)).toContain("runtime_fallback");
   });
 
-  it("marks the task failed when a retryable launch failure has no compatible alternate", async () => {
+  it("marks an explicit target failed without silently retrying another runtime", async () => {
     const taskId = seedTask();
 
-    mockResolveTaskExecutionTarget
-      .mockResolvedValueOnce({
+    mockResolveTaskExecutionTarget.mockResolvedValueOnce({
         requestedRuntimeId: "claude-code",
         effectiveRuntimeId: "claude-code",
         requestedModelId: null,
         effectiveModelId: null,
         fallbackApplied: false,
         fallbackReason: null,
-      })
-      .mockRejectedValueOnce(
-        new Error("No compatible configured runtime is available for this task.")
-      );
+        selectionMode: "explicit",
+        selectionReason: "Explicit runtime override",
+      });
 
     mockExecuteTaskWithRuntime.mockRejectedValueOnce(
       new RetryableRuntimeLaunchError({
@@ -150,11 +152,13 @@ describe("startTaskExecution", () => {
 
     await expect(
       startTaskExecution(taskId, { requestedRuntimeId: "claude-code" })
-    ).rejects.toThrow("No compatible configured runtime is available for this task.");
+    ).rejects.toThrow("Claude Code failed to launch before task execution started");
 
     const row = db.select().from(tasks).where(eq(tasks.id, taskId)).get();
     expect(row?.status).toBe("failed");
-    expect(row?.result).toBe("No compatible configured runtime is available for this task.");
+    expect(row?.result).toContain("Claude Code failed to launch before task execution started");
+    expect(mockResolveTaskExecutionTarget).toHaveBeenCalledTimes(1);
+    expect(mockExecuteTaskWithRuntime).toHaveBeenCalledTimes(1);
 
     const taskNotifications = db
       .select()

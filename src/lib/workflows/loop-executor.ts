@@ -25,7 +25,8 @@ import { normalizeEnrichmentOutput } from "@/lib/tables/enrichment-planner";
  */
 export async function executeLoop(
   workflowId: string,
-  definition: WorkflowDefinition
+  definition: WorkflowDefinition,
+  workflowRuntimeId?: string
 ): Promise<void> {
   if (!definition.loopConfig) {
     throw new Error("Loop pattern requires loopConfig");
@@ -137,6 +138,7 @@ export async function executeLoop(
             totalRows: effectiveMax,
             loopAssignedAgent: assignedAgent,
             loopAgentProfile: agentProfile,
+            workflowRuntimeId,
           })
         : await executeChildTask(
             workflowId,
@@ -147,8 +149,15 @@ export async function executeLoop(
               iterationNum,
               maxIterations
             ),
-            assignedAgent ?? definition.steps[0].assignedAgent,
-            agentProfile ?? definition.steps[0].agentProfile
+            definition.steps[0].assignedAgent ?? assignedAgent,
+            agentProfile ?? definition.steps[0].agentProfile,
+            undefined,
+            definition.steps[0].id,
+            definition.steps[0].budgetUsd,
+            definition.steps[0].runtimeId ??
+              definition.steps[0].assignedAgent ??
+              assignedAgent ??
+              workflowRuntimeId
           );
 
       // Update iteration state
@@ -525,6 +534,7 @@ async function executeRowDrivenIteration(params: {
   totalRows: number;
   loopAssignedAgent?: string;
   loopAgentProfile?: string;
+  workflowRuntimeId?: string;
 }): Promise<{ taskId: string; status: string; result?: string; error?: string }> {
   const {
     workflowId,
@@ -535,6 +545,7 @@ async function executeRowDrivenIteration(params: {
     totalRows,
     loopAssignedAgent,
     loopAgentProfile,
+    workflowRuntimeId,
   } = params;
 
   let previousStepOutput = "";
@@ -556,12 +567,12 @@ async function executeRowDrivenIteration(params: {
       workflowId,
       `${step.name} · Row ${iteration}`,
       prompt,
-      loopAssignedAgent ?? step.assignedAgent,
+      step.assignedAgent ?? loopAssignedAgent,
       loopAgentProfile ?? step.agentProfile,
       undefined,
       step.id,
       step.budgetUsd,
-      step.runtimeId
+      step.runtimeId ?? step.assignedAgent ?? loopAssignedAgent ?? workflowRuntimeId
     );
     lastTaskId = result.taskId;
 

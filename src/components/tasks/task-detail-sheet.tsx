@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import {
   Sheet,
@@ -13,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, X } from "lucide-react";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { ExecutionTargetPreview } from "@/components/shared/execution-target-preview";
 import { TaskChipBar } from "./task-chip-bar";
 import { TaskBentoGrid } from "./task-bento-grid";
 import { TaskAttachments } from "./task-attachments";
@@ -37,6 +39,7 @@ export function TaskDetailSheet({
   onDeleted,
   onUpdated,
 }: TaskDetailSheetProps) {
+  const [targetReady, setTargetReady] = useState<boolean | null>(null);
   const {
     task,
     docs,
@@ -140,6 +143,15 @@ export function TaskDetailSheet({
                   onResume={handleResume}
                   onRetry={() => handleStatusChange("queued")}
                   onDelete={handleDelete}
+                  targetReady={targetReady}
+                />
+
+                <ExecutionTargetPreview
+                  kind="task"
+                  id={task.id}
+                  enabled={task.status === "queued"}
+                  revision={task.updatedAt}
+                  onReadyChange={setTargetReady}
                 />
 
                 <TaskBentoGrid task={task} docs={docs} />

@@ -5,83 +5,72 @@ mode: impact
 
 # Architect Report
 
-## Change Impact Analysis — Distributed Ollama topology
+## Change Impact Analysis — Effective execution target truth
 
-### Proposed outcome
+### Proposed change
 
-Diagnose Relay running on a Linux VM/server, reached by a separate browser
-client and calling Ollama on a third LAN host. Separate both network legs from
-model, profile/capability, and execution-target failures; never count fallback
-to a cloud runtime as Ollama success.
-
-### Current dependency trace
-
-```text
-browser
-  -> same-origin Relay Settings/runtime/Chat/task/workflow APIs
-  -> persisted ollama.baseUrl + ollama.defaultModel
-  -> server-side model discovery / connection test / execution adapter
-  -> remote Ollama /api/tags + /api/chat
-  -> task, workflow child, Chat message, logs, diagnostics, usage receipts
-```
-
-There is no browser → Ollama call in the supported path. Browser CORS cannot
-explain the Relay → Ollama leg. The current adapter interface and persisted Base
-URL already permit non-loopback endpoints without a new runtime type.
+Make requested profile/runtime/model, effective target, selection reason, and
+blocking capability/availability errors one shared contract across task and
+workflow preflight, dispatch, persisted fields, Monitor/detail, and receipts.
 
 ### Blast radius
 
-| Layer | Current surface | Impact |
+| Layer | Files | Impact |
 |---|---|---|
-| Settings/API | Ollama settings, runtime probe, provider summary | URL validation/normalization, truthful default model, typed probe errors |
-| Runtime | model resolver, Ollama adapter, execution target | endpoint/model identity, timeout and error mapping, no-fallback receipt |
-| Chat/workflow | Ollama engine, task/workflow execution, SSE telemetry | shared endpoint/model selection and terminal-state parity |
-| Usage/trust | usage cost derivation, UI labels, trust/data-flow docs | distinguish zero token billing from infrastructure cost; local from remote |
+| Runtime | execution target, model preference/Ollama resolver, task dispatch | explicit targets stop falling back; model becomes concrete before launch |
+| Workflow | execute route, engine child-task boundary, preview helper | preflight before claim; one runtime precedence for preview/persistence/dispatch |
+| API | task/workflow target routes, provider summary | serializable named states; no phantom Ollama default |
+| Frontend | task detail/sheet, workflow header/list/Kanban | compact pre-run target review and explicit edit rescue |
+| Quality | resolver, route, workflow, component, runtime smoke suites | target matrix and module-graph regression protection |
 
-**Classification: High — four layers.** A diagnostic requires no schema or
-migration. A complete product correction may touch approximately 15–25 files
-across server, UI, tests, and public documentation.
+**Classification: High — five layers, approximately 15–25 files.** No schema,
+migration, API version, or feature flag is required because target columns and
+workflow runtime fields already exist.
 
-### Confirmed drift
+### Dependency trace
 
-- `POST /api/settings/ollama` accepts unvalidated strings; normalization and a
-  stable network/error contract are absent.
-- The provider summary synthesizes `llama3` when the persisted default is empty,
-  while the runtime resolver may select the first actually pulled model.
-- `document-writer` declares Ollama support but its filesystem tools cause the
-  target resolver to filter Ollama; the emitted error names the supported list
-  rather than the missing filesystem capability. This is not a network probe.
-- Manual routing intentionally returns the default runtime. Without a separate
-  explicit runtime request, Manual → Claude is current behavior, though the UI
-  contract is easy to misread.
-- Runtime/model calls originate server-side as intended, but DNS, refusal,
-  timeout, authentication, missing-model, malformed-response, and upstream
-  failures do not share stable named reason codes.
-- UI and trust documentation equate the `ollama` provider id with localhost,
-  privacy, free operation, and zero egress. Those claims are only true for a
-  loopback/operator-owned topology. The ledger's `$0` is specifically zero
-  per-token provider billing, not proof of zero infrastructure cost.
+```text
+task/workflow saved target
+  -> runtime/profile capability filter
+  -> configured + healthy runtime probe
+  -> concrete model resolver
+  -> preview response
+  -> execute route revalidation before claim
+  -> child task requested/effective fields
+  -> runtime adapter
+  -> usage ledger + detail/Monitor receipt
+```
 
-### Architectural recommendation
+### Pattern alignment and risks
 
-1. Close G-057 as `not reproduced locally; external topology unverified`; do
-   not infer a customer-network cause from loopback evidence.
-2. Feed the confirmed phantom-default and requested/effective parity findings
-   into G-056.
-3. Centralize validated endpoint configuration and typed connection errors
-   before G-069 adds LiteLLM and LM Studio; reuse transport mechanics without
-   collapsing provider identity or trust/cost truth.
-4. Treat public trust/cost/privacy wording as a separate operator-gated change.
-5. Preserve the real-module-graph smoke in deterministic mode and use its new
-   configured-endpoint mode for Relay-host → Ollama evidence. Test the browser
-   client → Relay leg separately on the actual client host.
+- TDR-001 remains intact: successful execute requests still return 202 and run
+  asynchronously; only pre-claim validation becomes stricter.
+- TDR-006 is strengthened: shared orchestration owns target truth while
+  provider adapters execute the resolved target.
+- TDR-031 remains intact: workflow status stays pattern-discriminated; target
+  preview is a separate route and does not pollute pattern-specific progress.
+- TDR-032 makes the real runtime smoke mandatory because workflow engine and
+  runtime-registry-adjacent modules are touched. New modules must not statically
+  import chat tools.
+- The highest risk is preview/launch drift. Revalidation before state claim and
+  authoritative explicit-target blocking prevent silent provider changes.
+
+### Recommended approach
+
+1. Centralize named target states and concrete model resolution.
+2. Reject incompatible/unavailable explicit targets without fallback.
+3. Preflight all executable workflow steps before reset/claim.
+4. Align workflow requested-runtime precedence at preview, persistence, and
+   dispatch.
+5. Expose dedicated preview routes only on run-capable detail surfaces.
+6. Prove field/ledger parity and run the real module graph.
 
 ### TDR disposition
 
-No new decision is accepted yet. If G-056/G-069 adopts one shared remote
-endpoint-validation/error contract across Ollama, LiteLLM, and LM Studio, record
-that boundary in a runtime TDR before implementation. The current G-057 work is
-diagnostic evidence, not an architectural commitment.
+No new TDR is required. This work tightens accepted TDR-001/TDR-006 contracts
+without adding a new architectural mechanism. If G-069 later generalizes
+endpoint validation/error taxonomy across Ollama, LiteLLM, and LM Studio, that
+shared provider boundary should receive its own runtime TDR.
 
 ---
 

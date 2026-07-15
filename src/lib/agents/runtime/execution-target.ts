@@ -13,6 +13,10 @@ import { testRuntimeConnection } from "./index";
 import { getRoutingPreference } from "@/lib/settings/routing";
 import { getRuntimeSetupStates, listConfiguredRuntimeIds } from "@/lib/settings/runtime-setup";
 import { CHAT_MODELS, DEFAULT_CHAT_MODEL, getRuntimeForModel } from "@/lib/chat/types";
+import { getSetting } from "@/lib/settings/helpers";
+import { SETTINGS_KEYS } from "@/lib/constants/settings";
+import { resolvePreferredModel } from "./model-preference";
+import { resolveOllamaModel } from "./ollama-model-resolver";
 
 const FILESYSTEM_TOOL_NAMES = new Set([
   "Read",
@@ -53,10 +57,18 @@ export class NoCompatibleRuntimeError extends Error {
   }
 }
 
+export class RuntimeCapabilityMismatchError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RuntimeCapabilityMismatchError";
+  }
+}
+
 export function buildNoCompatibleRuntimeError(input: {
   profileId: string | null | undefined;
   profile: AgentProfile | undefined;
   configuredRuntimeIds: AgentRuntimeId[];
+  requirements?: RuntimeRequirements;
 }): NoCompatibleRuntimeError {
   const configured =
     input.configuredRuntimeIds.length > 0
@@ -68,6 +80,15 @@ export function buildNoCompatibleRuntimeError(input: {
       `No profile registered for id \`${input.profileId ?? "(unknown)"}\`. ` +
         `If this profile is referenced from an app manifest, ensure the app is ` +
         `installed; otherwise author the profile.yaml. Configured runtimes: ${configured}.`
+    );
+  }
+
+  const requiredCapabilities = describeRequiredCapabilities(input.requirements);
+  if (requiredCapabilities.length > 0 && input.configuredRuntimeIds.length > 0) {
+    return new NoCompatibleRuntimeError(
+      `Profile \`${input.profile.id}\` requires ${requiredCapabilities.join(" and ")}. ` +
+        `Configured runtimes ${configured} do not provide a profile-compatible target with those capabilities. ` +
+        `Choose a runtime with ${requiredCapabilities.join(" and ")} or update the profile.`
     );
   }
 
@@ -86,6 +107,8 @@ export interface ResolvedExecutionTarget {
   effectiveModelId: string | null;
   fallbackApplied: boolean;
   fallbackReason: string | null;
+  selectionMode: "explicit" | "manual-default" | "automatic" | "resume" | "chat";
+  selectionReason: string;
 }
 
 type RuntimeRequirements = {
@@ -97,6 +120,35 @@ type RuntimeAvailability = {
   available: boolean;
   reason: string | null;
 };
+
+function describeRequiredCapabilities(
+  requirements?: RuntimeRequirements
+): string[] {
+  if (!requirements) return [];
+  const capabilities: string[] = [];
+  if (requirements.requiresBash) {
+    capabilities.push("Bash");
+  }
+  if (requirements.requiresFilesystem) {
+    capabilities.push("filesystem tools (Read, Write, or Edit)");
+  }
+  return capabilities;
+}
+
+function getMissingRuntimeCapabilities(
+  runtimeId: AgentRuntimeId,
+  requirements: RuntimeRequirements
+): string[] {
+  const features = getRuntimeFeatures(runtimeId);
+  const missing: string[] = [];
+  if (requirements.requiresBash && !features.hasBash) {
+    missing.push("Bash");
+  }
+  if (requirements.requiresFilesystem && !features.hasFilesystemTools) {
+    missing.push("filesystem tools (Read, Write, or Edit)");
+  }
+  return missing;
+}
 
 function unique<T>(values: T[]): T[] {
   return Array.from(new Set(values));
@@ -132,6 +184,97 @@ function runtimeMeetsRequirements(
     return false;
   }
   return true;
+}
+
+function buildRuntimeCapabilityMismatchError(input: {
+  runtimeId: AgentRuntimeId;
+  profileId?: string | null;
+  requirements: RuntimeRequirements;
+}): RuntimeCapabilityMismatchError {
+  const profile = input.profileId ? getProfile(input.profileId) : undefined;
+  const runtime = getRuntimeCatalogEntry(input.runtimeId);
+
+  if (profile && !profileSupportsRuntime(profile, input.runtimeId)) {
+    return new RuntimeCapabilityMismatchError(
+      `Profile \`${profile.id}\` does not support ${runtime.label}. ` +
+        `Supported runtimes: [${profile.supportedRuntimes.join(", ")}]. ` +
+        `Edit the task or workflow step and explicitly choose a supported runtime.`
+    );
+  }
+
+  const missing = getMissingRuntimeCapabilities(
+    input.runtimeId,
+    input.requirements
+  );
+  return new RuntimeCapabilityMismatchError(
+    `${runtime.label} cannot run profile \`${profile?.id ?? input.profileId ?? "auto"}\` ` +
+      `because it lacks ${missing.join(" and ") || "required capabilities"}. ` +
+      `Edit the task or workflow step and explicitly choose a compatible runtime.`
+  );
+}
+
+function getProfileModelPin(
+  profileId: string | null | undefined,
+  runtimeId: AgentRuntimeId
+): string | null {
+  const profile = profileId ? getProfile(profileId) : undefined;
+  return profile?.capabilityOverrides?.[runtimeId]?.modelId ?? null;
+}
+
+async function resolveTaskModel(
+  runtimeId: AgentRuntimeId,
+  profileId?: string | null
+): Promise<{ requestedModelId: string | null; effectiveModelId: string | null }> {
+  const requestedModelId = getProfileModelPin(profileId, runtimeId);
+
+  if (runtimeId === "openai-codex-app-server") {
+    return { requestedModelId, effectiveModelId: requestedModelId };
+  }
+
+  if (runtimeId === "ollama") {
+    const [baseUrl, defaultModel] = await Promise.all([
+      getSetting(SETTINGS_KEYS.OLLAMA_BASE_URL),
+      getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL),
+    ]);
+    const effectiveModelId = await resolveOllamaModel(
+      baseUrl || "http://localhost:11434",
+      requestedModelId,
+      defaultModel
+    );
+    return { requestedModelId, effectiveModelId };
+  }
+
+  const configuredModel =
+    runtimeId === "anthropic-direct"
+      ? await getSetting(SETTINGS_KEYS.ANTHROPIC_DIRECT_MODEL)
+      : runtimeId === "openai-direct"
+        ? await getSetting(SETTINGS_KEYS.OPENAI_DIRECT_MODEL)
+        : null;
+  const effectiveModelId =
+    requestedModelId ??
+    configuredModel ??
+    (await resolvePreferredModel(runtimeId)).modelId;
+  return { requestedModelId, effectiveModelId };
+}
+
+async function buildResolvedTaskTarget(input: {
+  runtimeId: AgentRuntimeId;
+  profileId?: string | null;
+  selectionMode: "explicit" | "manual-default" | "automatic";
+  selectionReason: string;
+}): Promise<ResolvedExecutionTarget> {
+  const model = await resolveTaskModel(input.runtimeId, input.profileId);
+  return {
+    requestedRuntimeId:
+      input.selectionMode === "explicit" ? input.runtimeId : null,
+    effectiveRuntimeId: input.runtimeId,
+    requestedModelId: model.requestedModelId,
+    effectiveModelId: model.effectiveModelId,
+    fallbackApplied: false,
+    fallbackReason: null,
+    selectionMode: input.selectionMode,
+    selectionReason: input.selectionReason,
+  };
 }
 
 function filterCompatibleRuntimes(
@@ -182,65 +325,6 @@ async function checkRuntimeAvailability(
   }
 }
 
-async function getConfiguredCandidateRuntimes(
-  profileId?: string | null
-): Promise<AgentRuntimeId[]> {
-  const states = await getRuntimeSetupStates();
-  return filterCompatibleRuntimes(
-    listConfiguredRuntimeIds(states) as AgentRuntimeId[],
-    profileId
-  );
-}
-
-function buildTaskFallbackOrder(input: {
-  title: string;
-  description?: string | null;
-  profileId?: string | null;
-  requestedRuntimeId: AgentRuntimeId | null;
-  compatibleRuntimeIds: AgentRuntimeId[];
-}): AgentRuntimeId[] {
-  const alternates = input.compatibleRuntimeIds.filter(
-    (runtimeId) => runtimeId !== input.requestedRuntimeId
-  );
-  if (alternates.length === 0) {
-    return [];
-  }
-
-  const preferred = suggestRuntime(
-    input.title,
-    input.description,
-    input.profileId,
-    alternates,
-    "quality"
-  ).runtimeId;
-
-  return unique([
-    preferred,
-    ...alternates.filter(
-      (runtimeId) =>
-        input.requestedRuntimeId != null &&
-        getRuntimeCatalogEntry(runtimeId).providerId ===
-          getRuntimeCatalogEntry(input.requestedRuntimeId).providerId
-    ),
-    ...alternates,
-  ]);
-}
-
-function buildRuntimeFallbackReason(input: {
-  requestedRuntimeId: AgentRuntimeId | null;
-  effectiveRuntimeId: AgentRuntimeId;
-  unavailableReason: string | null;
-}): string | null {
-  if (!input.requestedRuntimeId) {
-    return null;
-  }
-
-  const requestedLabel = getRuntimeLabel(input.requestedRuntimeId);
-  const effectiveLabel = getRuntimeLabel(input.effectiveRuntimeId);
-  const reason = input.unavailableReason ?? `${requestedLabel} is unavailable`;
-  return `${reason}. Fell back to ${effectiveLabel}.`;
-}
-
 export async function resolveTaskExecutionTarget(input: {
   title: string;
   description?: string | null;
@@ -258,7 +342,12 @@ export async function resolveTaskExecutionTarget(input: {
       resolveAgentRuntime(runtimeId)
     )
   );
-  const configuredCandidates = await getConfiguredCandidateRuntimes(input.profileId);
+  const states = await getRuntimeSetupStates();
+  const configuredRuntimeIds = listConfiguredRuntimeIds(states) as AgentRuntimeId[];
+  const configuredCandidates = filterCompatibleRuntimes(
+    configuredRuntimeIds,
+    input.profileId
+  );
   const compatibleCandidates = configuredCandidates.filter((runtimeId) =>
     runtimeMeetsRequirements(runtimeId, requirements)
   );
@@ -266,29 +355,25 @@ export async function resolveTaskExecutionTarget(input: {
     (runtimeId) => !unavailableRuntimeIds.has(runtimeId)
   );
 
-  if (compatibleCandidates.length === 0) {
-    const profile = input.profileId ? getProfile(input.profileId) : undefined;
-    throw buildNoCompatibleRuntimeError({
-      profileId: input.profileId,
-      profile,
-      configuredRuntimeIds: configuredCandidates,
-    });
-  }
-
   if (requestedRuntimeId) {
+    const profile = input.profileId ? getProfile(input.profileId) : undefined;
+    if (input.profileId && !profile) {
+      throw buildNoCompatibleRuntimeError({
+        profileId: input.profileId,
+        profile,
+        configuredRuntimeIds,
+        requirements,
+      });
+    }
     if (
-      compatibleCandidates.includes(requestedRuntimeId) &&
-      !unavailableRuntimeIds.has(requestedRuntimeId) &&
-      (await checkRuntimeAvailability(requestedRuntimeId)).available
+      (profile && !profileSupportsRuntime(profile, requestedRuntimeId)) ||
+      !runtimeMeetsRequirements(requestedRuntimeId, requirements)
     ) {
-      return {
-        requestedRuntimeId,
-        effectiveRuntimeId: requestedRuntimeId,
-        requestedModelId: null,
-        effectiveModelId: null,
-        fallbackApplied: false,
-        fallbackReason: null,
-      };
+      throw buildRuntimeCapabilityMismatchError({
+        runtimeId: requestedRuntimeId,
+        profileId: input.profileId,
+        requirements,
+      });
     }
 
     const availability = unavailableRuntimeIds.has(requestedRuntimeId)
@@ -298,54 +383,78 @@ export async function resolveTaskExecutionTarget(input: {
             input.unavailableReasons?.[requestedRuntimeId] ??
             `${getRuntimeLabel(requestedRuntimeId)} is temporarily unavailable`,
         }
-      : compatibleCandidates.includes(requestedRuntimeId)
-      ? await checkRuntimeAvailability(requestedRuntimeId)
-      : {
-          available: false,
-          reason: `${getRuntimeLabel(requestedRuntimeId)} does not support this task/profile`,
-        };
-    const fallbackOrder = buildTaskFallbackOrder({
-      title: input.title,
-      description: input.description,
-      profileId: input.profileId,
-      requestedRuntimeId,
-      compatibleRuntimeIds: launchableCandidates,
-    });
-
-    for (const candidate of fallbackOrder) {
-      const candidateAvailability = await checkRuntimeAvailability(candidate);
-      if (candidateAvailability.available) {
-        return {
-          requestedRuntimeId,
-          effectiveRuntimeId: candidate,
-          requestedModelId: null,
-          effectiveModelId: null,
-          fallbackApplied: true,
-          fallbackReason: buildRuntimeFallbackReason({
-            requestedRuntimeId,
-            effectiveRuntimeId: candidate,
-            unavailableReason: availability.reason,
-          }),
-        };
-      }
+      : await checkRuntimeAvailability(requestedRuntimeId);
+    if (!availability.available) {
+      throw new RuntimeUnavailableError(
+        `${availability.reason ?? `${getRuntimeLabel(requestedRuntimeId)} is unavailable`}. ` +
+          `The explicit target was not changed. Configure it or explicitly choose another runtime.`
+      );
     }
 
+    return buildResolvedTaskTarget({
+      runtimeId: requestedRuntimeId,
+      profileId: input.profileId,
+      selectionMode: "explicit",
+      selectionReason: "Explicit runtime override",
+    });
+  }
+
+  if (compatibleCandidates.length === 0) {
     const profile = input.profileId ? getProfile(input.profileId) : undefined;
     throw buildNoCompatibleRuntimeError({
       profileId: input.profileId,
       profile,
-      configuredRuntimeIds: configuredCandidates,
+      configuredRuntimeIds,
+      requirements,
     });
   }
 
   const routingPreference = await getRoutingPreference();
-  const suggested = suggestRuntime(
+  if (routingPreference === "manual") {
+    const defaultRuntimeId = DEFAULT_AGENT_RUNTIME;
+    const profile = input.profileId ? getProfile(input.profileId) : undefined;
+    if (
+      (profile && !profileSupportsRuntime(profile, defaultRuntimeId)) ||
+      !runtimeMeetsRequirements(defaultRuntimeId, requirements)
+    ) {
+      throw buildRuntimeCapabilityMismatchError({
+        runtimeId: defaultRuntimeId,
+        profileId: input.profileId,
+        requirements,
+      });
+    }
+    const availability = await checkRuntimeAvailability(defaultRuntimeId);
+    if (!availability.available) {
+      throw new RuntimeUnavailableError(
+        `${availability.reason ?? `${getRuntimeLabel(defaultRuntimeId)} is unavailable`}. ` +
+          `Manual routing disables auto-routing and uses the default runtime; configure it or explicitly choose another runtime.`
+      );
+    }
+    return buildResolvedTaskTarget({
+      runtimeId: defaultRuntimeId,
+      profileId: input.profileId,
+      selectionMode: "manual-default",
+      selectionReason: "Manual routing — auto-routing is off; using the default runtime",
+    });
+  }
+
+  if (launchableCandidates.length === 0) {
+    const reasons = Array.from(unavailableRuntimeIds)
+      .map((runtimeId) => input.unavailableReasons?.[runtimeId])
+      .filter((reason): reason is string => Boolean(reason));
+    throw new RuntimeUnavailableError(
+      reasons[0] ?? "No healthy runtime is currently available to execute this task."
+    );
+  }
+
+  const suggestion = suggestRuntime(
     input.title,
     input.description,
     input.profileId,
     launchableCandidates,
     routingPreference
-  ).runtimeId;
+  );
+  const suggested = suggestion.runtimeId;
   const autoOrder = unique([
     suggested,
     ...launchableCandidates,
@@ -354,14 +463,14 @@ export async function resolveTaskExecutionTarget(input: {
   for (const candidate of autoOrder) {
     const availability = await checkRuntimeAvailability(candidate);
     if (availability.available) {
-      return {
-        requestedRuntimeId: null,
-        effectiveRuntimeId: candidate,
-        requestedModelId: null,
-        effectiveModelId: null,
-        fallbackApplied: false,
-        fallbackReason: null,
-      };
+      return buildResolvedTaskTarget({
+        runtimeId: candidate,
+        profileId: input.profileId,
+        selectionMode: "automatic",
+        selectionReason: suggested === candidate
+          ? suggestion.reason
+          : `${getRuntimeLabel(suggested)} was unavailable; selected the next healthy compatible runtime`,
+      });
     }
   }
 
@@ -396,6 +505,8 @@ export async function resolveResumeExecutionTarget(input: {
     effectiveModelId: null,
     fallbackApplied: false,
     fallbackReason: null,
+    selectionMode: "resume",
+    selectionReason: "Resume keeps the previous effective runtime",
   };
 }
 
@@ -506,6 +617,8 @@ export async function resolveChatExecutionTarget(input: {
         effectiveModelId: candidateModelId,
         unavailableReason: requestedAvailability?.reason ?? null,
       }),
+      selectionMode: "chat",
+      selectionReason: "Chat model selection",
     };
   }
 
