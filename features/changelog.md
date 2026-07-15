@@ -1,5 +1,26 @@
 # Feature Changelog
 
+## 2026-07-15 — G-075 truthful grounded-help links
+
+### Completed
+
+- Extended the release-matched knowledge bundle with canonical public
+  `orionfold.com` Guide/API destinations and a schema-2 integrity contract.
+  Unsafe hosts, wrong source families, credentials, ports, queries, fragments,
+  kind mismatches, and tampered locators fail closed.
+- Added App Router page/fragment parity verification to knowledge build,
+  verification, prepack, and extracted-package checks. Historical runtime and
+  license screenshot locators now produce the live namespaced Settings anchors;
+  Ollama help lands on `#settings-providers`.
+- Linked verified source badges in a distinct source row with an external-link
+  indicator and safe new-tab semantics. Related in-app actions render on the
+  following row; invalid or legacy persisted source URLs remain truthful
+  non-links, and stale internal actions are omitted.
+- Verified 3,451 passing tests across 450 files (one intentional skip),
+  TypeScript, public/package boundaries, deterministic bundle generation, an
+  extracted npm package, a real grounded Chat run, and desktop plus 390 px
+  browser layouts without horizontal overflow or cursor-switching code.
+
 ## 2026-07-15 — G-055 version-aware Relay help in Chat
 
 ### Completed

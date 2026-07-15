@@ -36,13 +36,14 @@
     "/api/settings/test",
     "/api/settings/web-search"
   ],
-  "contentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+  "contentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
   "features": [],
   "id": "api:06-settings-license-instance",
   "journeys": [],
   "kind": "api",
   "productRoutes": [],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/api/06-settings-license-instance/",
+  "schemaVersion": 2,
   "screenshots": [],
   "sections": [
     {

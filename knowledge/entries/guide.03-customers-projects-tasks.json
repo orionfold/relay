@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "a8e2da13a45fd22dad66617a16ab989c60e84bb37647f20adb3125850b777728",
+  "contentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
   "features": [
     "Card system",
     "Customer book",
@@ -27,7 +27,8 @@
     "/projects",
     "/tasks"
   ],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/docs/organize-customers-projects-and-tasks/",
+  "schemaVersion": 2,
   "screenshots": [
     {
       "id": "agency-app-detail",

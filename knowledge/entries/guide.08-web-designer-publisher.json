@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "7be414d758b3bcaf2596ac09acb31390dbb5280d83c7f7ed60ea2100c876f9aa",
+  "contentHash": "c61d424c69bcdc5c412db3380d388feb8e412d5aa41f168dfbaf94c93372dbb7",
   "features": [
     "Current bundled pack families",
     "Installed packs/apps",
@@ -26,7 +26,8 @@
     "/tables",
     "/tables/demo_table_support_queue"
   ],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/docs/build-and-publish-a-small-website/",
+  "schemaVersion": 2,
   "screenshots": [
     {
       "id": "agents-list",

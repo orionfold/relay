@@ -7,13 +7,14 @@
     "/api/workspace/fix-data-dir",
     "/api/workspace/import"
   ],
-  "contentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+  "contentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
   "features": [],
   "id": "api:01-overview-local-api",
   "journeys": [],
   "kind": "api",
   "productRoutes": [],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/api/01-overview-local-api/",
+  "schemaVersion": 2,
   "screenshots": [],
   "sections": [
     {

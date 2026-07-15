@@ -110,9 +110,21 @@ describe("Relay knowledge ranking and retrieval", () => {
     expect(turn.quickAccess.some((item) => item.kind === "knowledge-source")).toBe(true);
     expect(
       turn.quickAccess
+        .filter((item) => item.kind === "knowledge-source")
+        .every((item) => item.href?.startsWith("https://orionfold.com/relay/docs/"))
+    ).toBe(true);
+    expect(
+      turn.quickAccess
         .filter((item) => item.kind === "knowledge-action")
         .every((item) => item.href.startsWith("/") && !item.href.startsWith("/api/"))
     ).toBe(true);
+    expect(turn.quickAccess).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "knowledge-action",
+        href: "/settings#settings-providers",
+        label: "Open Providers & runtimes settings",
+      }),
+    ]));
   });
 
   it("does not touch the bundle for non-help turns", () => {
@@ -169,23 +181,58 @@ describe("Relay knowledge named unavailable states", () => {
     expect(unknown.status === "unavailable" && unknown.receipt.failureCode).toBe("KnowledgeBundleSchemaError");
   });
 
-  it("rejects an unsafe product route even when the artifact hashes are self-consistent", () => {
+  it.each(["https://example.com/trap", "/settings#runtime"])(
+    "rejects an unsafe or stale product route even when the artifact hashes are self-consistent: %s",
+    (unsafeRoute) => {
+      const root = fixtureRoot();
+      const indexPath = join(root, "knowledge/index.json");
+      const manifestPath = join(root, "knowledge/manifest.json");
+      const index = JSON.parse(readFileSync(indexPath, "utf8"));
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+      index.sections[0].productRoutes = [unsafeRoute];
+      const indexJson = stableJson(index);
+      manifest.indexHash = sha256(indexJson);
+      manifest.bundleHash = sha256(stableJson({
+        corpus: manifest.corpus,
+        entries: manifest.entries.map(({
+          contentHash,
+          id,
+          path,
+          publicUrl,
+        }: Record<string, string>) => ({ contentHash, id, path, publicUrl })),
+        indexHash: manifest.indexHash,
+        releaseVersion: manifest.releaseVersion,
+        sourceBundleHash: manifest.sourceBundleHash,
+      }));
+      writeFileSync(indexPath, indexJson);
+      writeFileSync(manifestPath, stableJson(manifest));
+      const turn = prepareRelayKnowledgeTurn("How do I use Relay?", { rootDir: root });
+      expect(turn.status === "unavailable" && turn.receipt.failureCode).toBe("KnowledgeBundleSchemaError");
+    },
+  );
+
+  it.each([
+    "https://example.com/relay/docs/get-started-with-relay/",
+    "http://orionfold.com/relay/docs/get-started-with-relay/",
+    "https://orionfold.com/relay/api/01-overview-local-api/",
+    "https://orionfold.com/relay/docs/get-started-with-relay/?next=trap",
+  ])("rejects an unsafe or noncanonical source destination: %s", (publicUrl) => {
     const root = fixtureRoot();
-    const indexPath = join(root, "knowledge/index.json");
     const manifestPath = join(root, "knowledge/manifest.json");
-    const index = JSON.parse(readFileSync(indexPath, "utf8"));
     const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-    index.sections[0].productRoutes = ["https://example.com/trap"];
-    const indexJson = stableJson(index);
-    manifest.indexHash = sha256(indexJson);
-    manifest.bundleHash = sha256(stableJson({
-      corpus: manifest.corpus,
-      entries: manifest.entries.map(({ contentHash, id, path }: Record<string, string>) => ({ contentHash, id, path })),
-      indexHash: manifest.indexHash,
-      releaseVersion: manifest.releaseVersion,
-      sourceBundleHash: manifest.sourceBundleHash,
-    }));
-    writeFileSync(indexPath, indexJson);
+    const guide = manifest.entries.find((entry: { kind: string }) => entry.kind === "guide");
+    guide.publicUrl = publicUrl;
+    writeFileSync(manifestPath, stableJson(manifest));
+    const turn = prepareRelayKnowledgeTurn("How do I use Relay?", { rootDir: root });
+    expect(turn.status === "unavailable" && turn.receipt.failureCode).toBe("KnowledgeBundleSchemaError");
+  });
+
+  it("rejects a manifest source whose kind does not match its id or URL family", () => {
+    const root = fixtureRoot();
+    const manifestPath = join(root, "knowledge/manifest.json");
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    const guide = manifest.entries.find((entry: { kind: string }) => entry.kind === "guide");
+    guide.kind = "api";
     writeFileSync(manifestPath, stableJson(manifest));
     const turn = prepareRelayKnowledgeTurn("How do I use Relay?", { rootDir: root });
     expect(turn.status === "unavailable" && turn.receipt.failureCode).toBe("KnowledgeBundleSchemaError");

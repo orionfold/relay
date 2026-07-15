@@ -16,7 +16,7 @@ import path from "node:path";
 const require = createRequire(import.meta.url);
 let yaml;
 
-export const KNOWLEDGE_SCHEMA_VERSION = 1;
+export const KNOWLEDGE_SCHEMA_VERSION = 2;
 export const MAX_ENTRY_BYTES = 512 * 1024;
 export const MAX_BUNDLE_BYTES = 5 * 1024 * 1024;
 
@@ -235,7 +235,100 @@ export function normalizeProductRoute(value, label = "product route") {
   ) {
     throw new KnowledgeBundleSchemaError(`${label} is not a safe absolute-local route: ${value}`);
   }
+  const aliases = new Map([
+    ["/settings#runtime", "/settings#settings-providers"],
+    ["/settings#license", "/settings#settings-license"],
+  ]);
+  return aliases.get(value) ?? value;
+}
+
+export function canonicalPublicUrl(kind, sourceSlug) {
+  if (kind !== "guide" && kind !== "api") {
+    throw new KnowledgeBundleSchemaError(`Unsupported knowledge source kind: ${kind}`);
+  }
+  const safeSlug = normalizeRelativeSourcePath(sourceSlug, `${kind} public slug`);
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(safeSlug)) {
+    throw new KnowledgeBundleSchemaError(`${kind} public slug is not canonical: ${sourceSlug}`);
+  }
+  const publicSlug = kind === "guide" ? safeSlug.replace(/^\d+-/, "") : safeSlug;
+  if (!publicSlug) {
+    throw new KnowledgeBundleSchemaError(`${kind} public slug is empty after normalization`);
+  }
+  return `https://orionfold.com/relay/${kind === "guide" ? "docs" : "api"}/${publicSlug}/`;
+}
+
+export function validateCanonicalPublicUrl(value, kind, label = "public URL") {
+  assertString(value, label);
+  let parsed;
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new KnowledgeBundleSchemaError(`${label} is not a valid URL: ${value}`);
+  }
+  const family = kind === "guide" ? "docs" : kind === "api" ? "api" : null;
+  if (
+    !family ||
+    parsed.protocol !== "https:" ||
+    parsed.hostname !== "orionfold.com" ||
+    parsed.port !== "" ||
+    parsed.username !== "" ||
+    parsed.password !== "" ||
+    parsed.search !== "" ||
+    parsed.hash !== "" ||
+    !new RegExp(`^/relay/${family}/[a-z0-9][a-z0-9-]*/$`).test(parsed.pathname) ||
+    parsed.href !== value
+  ) {
+    throw new KnowledgeBundleSchemaError(`${label} is not a canonical ${kind} destination: ${value}`);
+  }
   return value;
+}
+
+function findAppRoutePage(appRoot, pathname) {
+  let candidates = [path.join(appRoot, "src", "app")];
+  for (const segment of pathname.split("/").filter(Boolean)) {
+    const next = [];
+    for (const candidate of candidates) {
+      const exact = path.join(candidate, segment);
+      if (existsSync(exact) && lstatSync(exact).isDirectory()) next.push(exact);
+      if (!existsSync(candidate)) continue;
+      for (const entry of readdirSync(candidate, { withFileTypes: true })) {
+        if (entry.isDirectory() && /^\[[^\]]+\]$/.test(entry.name)) {
+          next.push(path.join(candidate, entry.name));
+        }
+      }
+    }
+    candidates = unique(next);
+  }
+  for (const candidate of candidates) {
+    for (const filename of ["page.tsx", "page.ts", "page.jsx", "page.js"]) {
+      const file = path.join(candidate, filename);
+      if (existsSync(file)) return file;
+    }
+  }
+  return null;
+}
+
+export function verifyProductRouteTargets(routes, appRoot) {
+  for (const rawRoute of unique(routes)) {
+    const route = normalizeProductRoute(rawRoute);
+    if (route !== rawRoute) {
+      throw new KnowledgeBundleSchemaError(`Knowledge product route is not canonical: ${rawRoute}`);
+    }
+    const [pathname, fragment] = route.split("#");
+    const page = findAppRoutePage(appRoot, pathname);
+    if (!page) {
+      throw new KnowledgeBundleSchemaError(`Knowledge product route has no App Router page: ${pathname}`);
+    }
+    if (fragment) {
+      const source = readFileSync(page, "utf8");
+      const escaped = fragment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      if (!new RegExp(`\\bid\\s*=\\s*["']${escaped}["']`).test(source)) {
+        throw new KnowledgeBundleSchemaError(
+          `Knowledge product route fragment #${fragment} is absent from ${path.relative(appRoot, page)}`,
+        );
+      }
+    }
+  }
 }
 
 function readJson(file, label) {
@@ -381,6 +474,7 @@ export function createKnowledgeArtifact({ assetsRoot, packageJsonPath }) {
       id: `guide:${chapter.id}`,
       journeys: unique(chapter.journeys ?? []),
       kind: "guide",
+      publicUrl: canonicalPublicUrl("guide", chapter.slug),
       productRoutes: unique(screenshots.map(({ productRoute }) => productRoute)),
       schemaVersion: KNOWLEDGE_SCHEMA_VERSION,
       screenshots,
@@ -442,6 +536,7 @@ export function createKnowledgeArtifact({ assetsRoot, packageJsonPath }) {
       id: `api:${group.id}`,
       journeys: [],
       kind: "api",
+      publicUrl: canonicalPublicUrl("api", group.slug),
       productRoutes: [],
       schemaVersion: KNOWLEDGE_SCHEMA_VERSION,
       screenshots: [],
@@ -465,6 +560,7 @@ export function createKnowledgeArtifact({ assetsRoot, packageJsonPath }) {
     id: entry.id,
     kind: entry.kind,
     path: `entries/${entry.id.replace(":", ".")}.json`,
+    publicUrl: entry.publicUrl,
     sourceHash: entry.sourceHash,
     sourceStateHash: entry.sourceStateHash,
     title: entry.title,
@@ -490,7 +586,12 @@ export function createKnowledgeArtifact({ assetsRoot, packageJsonPath }) {
   const bundleHash = sha256(
     stableJson({
       corpus,
-      entries: entryFiles.map(({ contentHash, id, path: entryPath }) => ({ contentHash, id, path: entryPath })),
+      entries: entryFiles.map(({ contentHash, id, path: entryPath, publicUrl }) => ({
+        contentHash,
+        id,
+        path: entryPath,
+        publicUrl,
+      })),
       indexHash,
       releaseVersion: packageJson.version,
       sourceBundleHash,
@@ -530,7 +631,7 @@ function listFiles(root, prefix = "") {
   });
 }
 
-export function verifyKnowledgeBundle({ bundleDir, packageJsonPath }) {
+export function verifyKnowledgeBundle({ bundleDir, packageJsonPath, appRoot = path.dirname(packageJsonPath) }) {
   const packageJson = readJson(packageJsonPath, "package.json");
   const manifest = readJson(path.join(bundleDir, "manifest.json"), "knowledge manifest");
   const index = readJson(path.join(bundleDir, "index.json"), "knowledge index");
@@ -577,6 +678,7 @@ export function verifyKnowledgeBundle({ bundleDir, packageJsonPath }) {
     assertHash(declaration.sourceHash, `${declaration.id} declared sourceHash`);
     assertHash(declaration.sourceStateHash, `${declaration.id} declared sourceStateHash`);
     assertHash(declaration.contentHash, `${declaration.id} declared contentHash`);
+    validateCanonicalPublicUrl(declaration.publicUrl, declaration.kind, `${declaration.id} declared publicUrl`);
     expectedFiles.add(expectedPath);
     const absolute = path.join(bundleDir, expectedPath);
     let bytes;
@@ -613,10 +715,12 @@ export function verifyKnowledgeBundle({ bundleDir, packageJsonPath }) {
     }
     if (
       entry.sourceHash !== declaration.sourceHash ||
-      entry.sourceStateHash !== declaration.sourceStateHash
+      entry.sourceStateHash !== declaration.sourceStateHash ||
+      entry.publicUrl !== declaration.publicUrl
     ) {
       throw new KnowledgeBundleIntegrityError(`${entry.id} source hashes do not match manifest`);
     }
+    validateCanonicalPublicUrl(entry.publicUrl, entry.kind, `${entry.id} publicUrl`);
     assertArray(entry.sections, `${entry.id} sections`);
     assertArray(entry.productRoutes, `${entry.id} productRoutes`);
     assertArray(entry.apiPaths, `${entry.id} apiPaths`);
@@ -636,7 +740,11 @@ export function verifyKnowledgeBundle({ bundleDir, packageJsonPath }) {
         throw new KnowledgeBundleSchemaError(`${entry.id}/${section.id} wordCount is invalid`);
       }
     }
-    for (const route of entry.productRoutes ?? []) normalizeProductRoute(route, `${entry.id} product route`);
+    for (const route of entry.productRoutes ?? []) {
+      if (normalizeProductRoute(route, `${entry.id} product route`) !== route) {
+        throw new KnowledgeBundleSchemaError(`${entry.id} contains a noncanonical product route ${route}`);
+      }
+    }
     for (const apiPath of entry.apiPaths) {
       if (typeof apiPath !== "string" || !apiPath.startsWith("/api/")) {
         throw new KnowledgeBundleSchemaError(`${entry.id} contains invalid API path ${apiPath}`);
@@ -682,6 +790,7 @@ export function verifyKnowledgeBundle({ bundleDir, packageJsonPath }) {
   if (stableJson(expectedIndex) !== stableJson(index)) {
     throw new KnowledgeBundleIntegrityError(`Knowledge index does not match entry sections`);
   }
+  verifyProductRouteTargets(entries.flatMap((entry) => entry.productRoutes), appRoot);
   const sourceBundleHash = sha256(
     stableJson(entries.map(({ id, sourceHash, sourceStateHash }) => ({ id, sourceHash, sourceStateHash }))),
   );
@@ -691,10 +800,11 @@ export function verifyKnowledgeBundle({ bundleDir, packageJsonPath }) {
   const bundleHash = sha256(
     stableJson({
       corpus: manifest.corpus,
-      entries: manifest.entries.map(({ contentHash: hash, id, path: entryPath }) => ({
+      entries: manifest.entries.map(({ contentHash: hash, id, path: entryPath, publicUrl }) => ({
         contentHash: hash,
         id,
         path: entryPath,
+        publicUrl,
       })),
       indexHash: manifest.indexHash,
       releaseVersion: manifest.releaseVersion,

@@ -50,7 +50,7 @@ export interface EntityQuickAccessItem {
   href: string;
 }
 
-/** Exact bundled-knowledge attribution. It is deliberately not a link. */
+/** Exact bundled-knowledge attribution with an optional verified public destination. */
 export interface KnowledgeSourceQuickAccessItem {
   kind: "knowledge-source";
   sourceId: string;
@@ -59,6 +59,7 @@ export interface KnowledgeSourceQuickAccessItem {
   heading: string;
   releaseVersion: string;
   label: string;
+  href?: string;
 }
 
 /** Product navigation declared by the bundled knowledge artifact. */
@@ -78,9 +79,36 @@ export function isSafeQuickAccessHref(value: unknown): value is string {
   if (
     typeof value !== "string" ||
     !/^\/[A-Za-z0-9_./-]*(?:#[A-Za-z0-9_.-]+)?$/.test(value) ||
-    value.startsWith("//")
+    value.startsWith("//") ||
+    value === "/settings#runtime" ||
+    value === "/settings#license"
   ) return false;
   return value.split("#")[0].split("/").every((part) => part !== "." && part !== "..");
+}
+
+export function isSafeKnowledgeSourceHref(
+  value: unknown,
+  sourceKind?: KnowledgeSourceQuickAccessItem["sourceKind"]
+): value is string {
+  if (typeof value !== "string") return false;
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return false;
+  }
+  const family = sourceKind === "guide" ? "docs" : sourceKind === "api" ? "api" : "(?:docs|api)";
+  return (
+    parsed.protocol === "https:" &&
+    parsed.hostname === "orionfold.com" &&
+    parsed.port === "" &&
+    parsed.username === "" &&
+    parsed.password === "" &&
+    parsed.search === "" &&
+    parsed.hash === "" &&
+    new RegExp(`^/relay/${family}/[a-z0-9][a-z0-9-]*/$`).test(parsed.pathname) &&
+    parsed.href === value
+  );
 }
 
 /** Parse persisted metadata defensively; old entity items remain compatible. */
@@ -99,7 +127,17 @@ export function parseQuickAccessItems(value: unknown): QuickAccessItem[] {
         typeof item.releaseVersion === "string" &&
         typeof item.label === "string"
       ) {
-        items.push(item as unknown as KnowledgeSourceQuickAccessItem);
+        const source: KnowledgeSourceQuickAccessItem = {
+          kind: "knowledge-source",
+          sourceId: item.sourceId,
+          sectionId: item.sectionId,
+          sourceKind: item.sourceKind,
+          heading: item.heading,
+          releaseVersion: item.releaseVersion,
+          label: item.label,
+        };
+        if (isSafeKnowledgeSourceHref(item.href, item.sourceKind)) source.href = item.href;
+        items.push(source);
       }
       continue;
     }

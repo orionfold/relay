@@ -1,5 +1,5 @@
 /** Public, package-local knowledge artifact contract produced by G-054. */
-export const RELAY_KNOWLEDGE_SCHEMA_VERSION = 1 as const;
+export const RELAY_KNOWLEDGE_SCHEMA_VERSION = 2 as const;
 
 export type RelayKnowledgeKind = "guide" | "api";
 
@@ -24,6 +24,7 @@ export interface RelayKnowledgeEntry {
   schemaVersion: typeof RELAY_KNOWLEDGE_SCHEMA_VERSION;
   id: string;
   kind: RelayKnowledgeKind;
+  publicUrl: string;
   title: string;
   summary: string;
   sourcePath: string;
@@ -64,6 +65,7 @@ export interface RelayKnowledgeManifestEntry {
   kind: RelayKnowledgeKind;
   title: string;
   path: string;
+  publicUrl: string;
   sourceHash: string;
   sourceStateHash: string;
   contentHash: string;

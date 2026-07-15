@@ -27,13 +27,14 @@
     "/api/tasks/{id}/target",
     "/api/tasks/assist"
   ],
-  "contentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+  "contentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
   "features": [],
   "id": "api:02-core-records",
   "journeys": [],
   "kind": "api",
   "productRoutes": [],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/api/02-core-records/",
+  "schemaVersion": 2,
   "screenshots": [],
   "sections": [
     {

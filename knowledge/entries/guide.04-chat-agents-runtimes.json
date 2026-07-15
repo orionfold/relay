@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "85a73271b75ba82f9632a044fc81e2b76c4163d9b5e6ec72ae499f7b8e6e2db0",
+  "contentHash": "08244f8630eb3a874ee1e26f2c20aaa3b119e5fd94e493113e67c5ff43517252",
   "features": [
     "Agents",
     "Chat workspace",
@@ -22,10 +22,11 @@
     "/inbox",
     "/monitor",
     "/settings",
-    "/settings#runtime",
+    "/settings#settings-providers",
     "/tasks"
   ],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/docs/plan-work-with-chat-agents-and-runtimes/",
+  "schemaVersion": 2,
   "screenshots": [
     {
       "id": "agents-list",
@@ -110,7 +111,7 @@
     {
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__desktop.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
       "theme": "dark",
       "viewport": "desktop"
@@ -118,7 +119,7 @@
     {
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__mobile.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "74d7110d1ba5a3e63aef651e58361aad164fbb316e08ed35d875a8d8ff41c1a3",
       "theme": "dark",
       "viewport": "mobile"
@@ -238,7 +239,7 @@
     {
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__desktop.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "e3e4ba5ef17e207de5dc8a4d69860eee24d17b112dd8e2e6c72843b24b97f8ee",
       "theme": "light",
       "viewport": "desktop"
@@ -246,7 +247,7 @@
     {
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__mobile.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
       "theme": "light",
       "viewport": "mobile"
@@ -344,7 +345,7 @@
   ],
   "sourceHash": "5c1f44d52a0b9574ae8af6f98c460d603e6d72c4431d0a6e8fe07feb4bdf430e",
   "sourcePath": "docs/guides/04-plan-work-with-chat-agents-and-runtimes.md",
-  "sourceStateHash": "14ad106c3ff587367d9c13084e68cb7d8498c3902d4b9adbba19170d409a4620",
+  "sourceStateHash": "7e8649310007fc58e4a14b7fb3990ae96afc78a7afc14b24e6217cb672753330",
   "summary": "Teach the reader how chat, agents, model choices, and approvals fit together.",
   "title": "Plan Work With Chat, Agents, And Runtimes"
 }

@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "7841815ddfe60bf41aa0fd1d0dabe0060df80e0de444efabf14de20087afafc1",
+  "contentHash": "fb6082ca96581ab5dc52e7e5e82705beb68ef614617c8b3c78b4b4182f54c691",
   "features": [
     "Command palette and navigation",
     "Dashboard and settings drill-downs",
@@ -18,10 +18,11 @@
   "productRoutes": [
     "/",
     "/settings",
-    "/settings#license",
-    "/settings#runtime"
+    "/settings#settings-license",
+    "/settings#settings-providers"
   ],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/docs/get-started-with-relay/",
+  "schemaVersion": 2,
   "screenshots": [
     {
       "id": "home-cockpit",
@@ -42,7 +43,7 @@
     {
       "id": "settings-license",
       "path": "dark/settings/settings-license__desktop.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
       "theme": "dark",
       "viewport": "desktop"
@@ -50,7 +51,7 @@
     {
       "id": "settings-license",
       "path": "dark/settings/settings-license__mobile.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
       "theme": "dark",
       "viewport": "mobile"
@@ -58,7 +59,7 @@
     {
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__desktop.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
       "theme": "dark",
       "viewport": "desktop"
@@ -66,7 +67,7 @@
     {
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__mobile.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "74d7110d1ba5a3e63aef651e58361aad164fbb316e08ed35d875a8d8ff41c1a3",
       "theme": "dark",
       "viewport": "mobile"
@@ -106,7 +107,7 @@
     {
       "id": "settings-license",
       "path": "light/settings/settings-license__desktop.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
       "theme": "light",
       "viewport": "desktop"
@@ -114,7 +115,7 @@
     {
       "id": "settings-license",
       "path": "light/settings/settings-license__mobile.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
       "theme": "light",
       "viewport": "mobile"
@@ -122,7 +123,7 @@
     {
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__desktop.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "e3e4ba5ef17e207de5dc8a4d69860eee24d17b112dd8e2e6c72843b24b97f8ee",
       "theme": "light",
       "viewport": "desktop"
@@ -130,7 +131,7 @@
     {
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__mobile.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
       "theme": "light",
       "viewport": "mobile"
@@ -212,7 +213,7 @@
   ],
   "sourceHash": "e5919ad7dba144293158ce7eaeaa52558176e66ad629def7be0600744b5e0538",
   "sourcePath": "docs/guides/01-get-started-with-relay.md",
-  "sourceStateHash": "10a2df1e1fd2f32703648fd7221de18456ef973d15ffec7bce2d9a5fa34f998c",
+  "sourceStateHash": "d81e54c65bebdae8100531ea0d807e3d1307e1f526b808850b23ffa475d9b8a7",
   "summary": "Help a new reader start Relay, understand the local app, and know where to look first.",
   "title": "Get Started With Relay"
 }

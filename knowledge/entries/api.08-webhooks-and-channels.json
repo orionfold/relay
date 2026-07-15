@@ -7,13 +7,14 @@
     "/api/channels/inbound/telegram",
     "/api/channels/inbound/telegram/poll"
   ],
-  "contentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+  "contentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
   "features": [],
   "id": "api:08-webhooks-and-channels",
   "journeys": [],
   "kind": "api",
   "productRoutes": [],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/api/08-webhooks-and-channels/",
+  "schemaVersion": 2,
   "screenshots": [],
   "sections": [
     {

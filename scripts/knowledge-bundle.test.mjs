@@ -5,6 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import {
   createKnowledgeArtifact,
+  canonicalPublicUrl,
   KnowledgeBundleIntegrityError,
   KnowledgeBundleSchemaError,
   KnowledgeBundleVersionError,
@@ -12,7 +13,9 @@ import {
   KnowledgeSourceStaleError,
   reconcileKnowledgeBundle,
   stableJson,
+  validateCanonicalPublicUrl,
   verifyKnowledgeBundle,
+  verifyProductRouteTargets,
 } from "./lib/knowledge-bundle.mjs";
 
 function write(file, content) {
@@ -30,6 +33,12 @@ function fixture() {
   const bundleDir = path.join(root, "knowledge");
   const packageJsonPath = path.join(root, "package.json");
   writeJson(packageJsonPath, { name: "orionfold-relay", version: "1.2.3" });
+  write(path.join(root, "src/app/packs/page.tsx"), "export default function Page() { return null; }\n");
+  write(
+    path.join(root, "src/app/settings/page.tsx"),
+    'export default function Page() { return <><div id="settings-license" /><div id="settings-providers" /></>; }\n',
+  );
+  write(path.join(root, "src/app/tables/[id]/page.tsx"), "export default function Page() { return null; }\n");
 
   const screenshotPaths = [
     "light/packs/packs__desktop.png",
@@ -133,6 +142,9 @@ test("builds a deterministic release-stamped bundle and writes zero files on unc
   assert.ok(first.result.written.includes("entries/guide.01-packs.json"));
   const guide = JSON.parse(readFileSync(path.join(paths.bundleDir, "entries/guide.01-packs.json"), "utf8"));
   assert.deepEqual(guide.productRoutes, ["/packs"]);
+  assert.equal(guide.publicUrl, "https://orionfold.com/relay/docs/use-packs/");
+  const api = JSON.parse(readFileSync(path.join(paths.bundleDir, "entries/api.01-packs-api.json"), "utf8"));
+  assert.equal(api.publicUrl, "https://orionfold.com/relay/api/01-packs-api/");
   assert.equal(guide.sections[0].markdown.includes("../../screenshots"), false);
   assert.equal(guide.sections[0].markdown.includes("[Figure: Packs gallery]"), true);
 
@@ -152,13 +164,58 @@ test("accepts safe in-app fragments while refusing queries and malformed fragmen
   screenshots.entries[0].route = "/settings#license";
   writeJson(manifestPath, screenshots);
   const guide = artifact(paths).entries.find(({ kind }) => kind === "guide");
-  assert.deepEqual(guide.productRoutes, ["/packs", "/settings#license"]);
+  assert.deepEqual(guide.productRoutes, ["/packs", "/settings#settings-license"]);
 
   for (const route of ["/settings?panel=license", "/settings#license/details", "/settings#"]) {
     screenshots.entries[0].route = route;
     writeJson(manifestPath, screenshots);
     assert.throws(() => artifact(paths), KnowledgeBundleSchemaError);
   }
+});
+
+test("derives only canonical source URLs for each public documentation family", () => {
+  assert.equal(
+    canonicalPublicUrl("guide", "04-plan-work-with-chat-agents-and-runtimes"),
+    "https://orionfold.com/relay/docs/plan-work-with-chat-agents-and-runtimes/",
+  );
+  assert.equal(
+    canonicalPublicUrl("api", "03-agents-chat-runtimes"),
+    "https://orionfold.com/relay/api/03-agents-chat-runtimes/",
+  );
+  assert.equal(
+    validateCanonicalPublicUrl("https://orionfold.com/relay/docs/use-packs/", "guide"),
+    "https://orionfold.com/relay/docs/use-packs/",
+  );
+  for (const [url, kind] of [
+    ["http://orionfold.com/relay/docs/use-packs/", "guide"],
+    ["https://www.orionfold.com/relay/docs/use-packs/", "guide"],
+    ["https://orionfold.com/relay/api/01-packs-api/", "guide"],
+    ["https://orionfold.com/relay/docs/use-packs/?next=trap", "guide"],
+    ["https://orionfold.com/relay/docs/use-packs/#trap", "guide"],
+  ]) {
+    assert.throws(() => validateCanonicalPublicUrl(url, kind), KnowledgeBundleSchemaError);
+  }
+});
+
+test("verifies static, dynamic, and fragment product-route targets", () => {
+  const paths = fixture();
+  assert.doesNotThrow(() => verifyProductRouteTargets([
+    "/packs",
+    "/tables/example",
+    "/settings#settings-providers",
+  ], paths.root));
+  assert.throws(
+    () => verifyProductRouteTargets(["/missing"], paths.root),
+    /has no App Router page/,
+  );
+  assert.throws(
+    () => verifyProductRouteTargets(["/settings#missing"], paths.root),
+    /fragment #missing is absent/,
+  );
+  assert.throws(
+    () => verifyProductRouteTargets(["/settings#runtime"], paths.root),
+    /is not canonical/,
+  );
 });
 
 test("a guide feature-state change rewrites only the mapped guide entry and aggregate files", () => {

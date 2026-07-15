@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "sections": [
     {
       "apiPaths": [
@@ -10,7 +10,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "Who This Is For",
       "kind": "api",
       "ordinal": 0,
@@ -52,7 +52,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "Stability",
       "kind": "api",
       "ordinal": 1,
@@ -94,7 +94,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "Local Access Model",
       "kind": "api",
       "ordinal": 2,
@@ -136,7 +136,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "Endpoint Families",
       "kind": "api",
       "ordinal": 3,
@@ -179,7 +179,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "Endpoints",
       "kind": "api",
       "ordinal": 4,
@@ -221,7 +221,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "Endpoint Reference",
       "kind": "api",
       "ordinal": 5,
@@ -264,7 +264,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "GET /api/command-palette/recent",
       "kind": "api",
       "ordinal": 6,
@@ -306,7 +306,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "POST /api/context/batch",
       "kind": "api",
       "ordinal": 7,
@@ -348,7 +348,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "GET /api/workspace/context",
       "kind": "api",
       "ordinal": 8,
@@ -390,7 +390,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "POST /api/workspace/discover",
       "kind": "api",
       "ordinal": 9,
@@ -432,7 +432,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "POST /api/workspace/fix-data-dir",
       "kind": "api",
       "ordinal": 10,
@@ -474,7 +474,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "POST /api/workspace/import",
       "kind": "api",
       "ordinal": 11,
@@ -516,7 +516,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "Examples",
       "kind": "api",
       "ordinal": 12,
@@ -558,7 +558,7 @@
         "/api/workspace/fix-data-dir",
         "/api/workspace/import"
       ],
-      "entryContentHash": "916870f2029052646e9b32ca70fe34e9388c93cf01fd485d5e08d8ce88b70a70",
+      "entryContentHash": "073158d104e74b086244af80df9a291710578b585b1a82304bd5d44265c70be8",
       "heading": "Do Not Depend On",
       "kind": "api",
       "ordinal": 13,
@@ -621,7 +621,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "Who This Is For",
       "kind": "api",
       "ordinal": 0,
@@ -689,7 +689,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "Stability",
       "kind": "api",
       "ordinal": 1,
@@ -757,7 +757,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "Local Access Model",
       "kind": "api",
       "ordinal": 2,
@@ -827,7 +827,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "Conventions For This Group",
       "kind": "api",
       "ordinal": 3,
@@ -896,7 +896,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "Endpoint Families",
       "kind": "api",
       "ordinal": 4,
@@ -965,7 +965,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "Endpoints",
       "kind": "api",
       "ordinal": 5,
@@ -1033,7 +1033,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "Endpoint Reference",
       "kind": "api",
       "ordinal": 6,
@@ -1102,7 +1102,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/customers",
       "kind": "api",
       "ordinal": 7,
@@ -1170,7 +1170,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/customers",
       "kind": "api",
       "ordinal": 8,
@@ -1238,7 +1238,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/customers/{id}",
       "kind": "api",
       "ordinal": 9,
@@ -1306,7 +1306,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "PATCH /api/customers/{id}",
       "kind": "api",
       "ordinal": 10,
@@ -1374,7 +1374,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/customers/{id}/link-project",
       "kind": "api",
       "ordinal": 11,
@@ -1442,7 +1442,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/projects",
       "kind": "api",
       "ordinal": 12,
@@ -1510,7 +1510,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/projects",
       "kind": "api",
       "ordinal": 13,
@@ -1578,7 +1578,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/projects/{id}",
       "kind": "api",
       "ordinal": 14,
@@ -1646,7 +1646,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "PATCH /api/projects/{id}",
       "kind": "api",
       "ordinal": 15,
@@ -1714,7 +1714,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "DELETE /api/projects/{id}",
       "kind": "api",
       "ordinal": 16,
@@ -1782,7 +1782,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/projects/{id}/documents",
       "kind": "api",
       "ordinal": 17,
@@ -1850,7 +1850,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "PUT /api/projects/{id}/documents",
       "kind": "api",
       "ordinal": 18,
@@ -1918,7 +1918,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/tasks",
       "kind": "api",
       "ordinal": 19,
@@ -1986,7 +1986,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/tasks",
       "kind": "api",
       "ordinal": 20,
@@ -2054,7 +2054,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/tasks/{id}",
       "kind": "api",
       "ordinal": 21,
@@ -2122,7 +2122,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "PATCH /api/tasks/{id}",
       "kind": "api",
       "ordinal": 22,
@@ -2190,7 +2190,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "DELETE /api/tasks/{id}",
       "kind": "api",
       "ordinal": 23,
@@ -2258,7 +2258,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/tasks/{id}/cancel",
       "kind": "api",
       "ordinal": 24,
@@ -2326,7 +2326,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/tasks/{id}/execute",
       "kind": "api",
       "ordinal": 25,
@@ -2394,7 +2394,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/tasks/{id}/logs",
       "kind": "api",
       "ordinal": 26,
@@ -2462,7 +2462,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/tasks/{id}/output",
       "kind": "api",
       "ordinal": 27,
@@ -2530,7 +2530,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/tasks/{id}/provenance",
       "kind": "api",
       "ordinal": 28,
@@ -2598,7 +2598,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/tasks/{id}/respond",
       "kind": "api",
       "ordinal": 29,
@@ -2666,7 +2666,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/tasks/{id}/resume",
       "kind": "api",
       "ordinal": 30,
@@ -2734,7 +2734,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/tasks/{id}/siblings",
       "kind": "api",
       "ordinal": 31,
@@ -2802,7 +2802,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/tasks/assist",
       "kind": "api",
       "ordinal": 32,
@@ -2870,7 +2870,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/documents",
       "kind": "api",
       "ordinal": 33,
@@ -2938,7 +2938,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/documents",
       "kind": "api",
       "ordinal": 34,
@@ -3006,7 +3006,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/documents/{id}",
       "kind": "api",
       "ordinal": 35,
@@ -3074,7 +3074,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "PATCH /api/documents/{id}",
       "kind": "api",
       "ordinal": 36,
@@ -3142,7 +3142,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/documents/{id}/file",
       "kind": "api",
       "ordinal": 37,
@@ -3210,7 +3210,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/documents/{id}/versions",
       "kind": "api",
       "ordinal": 38,
@@ -3278,7 +3278,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "DELETE /api/documents/{id}",
       "kind": "api",
       "ordinal": 39,
@@ -3346,7 +3346,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/handoffs",
       "kind": "api",
       "ordinal": 40,
@@ -3414,7 +3414,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/handoffs",
       "kind": "api",
       "ordinal": 41,
@@ -3482,7 +3482,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/handoffs/{id}",
       "kind": "api",
       "ordinal": 42,
@@ -3550,7 +3550,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "PATCH /api/handoffs/{id}",
       "kind": "api",
       "ordinal": 43,
@@ -3618,7 +3618,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/memory",
       "kind": "api",
       "ordinal": 44,
@@ -3686,7 +3686,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "POST /api/memory",
       "kind": "api",
       "ordinal": 45,
@@ -3754,7 +3754,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "PATCH /api/memory",
       "kind": "api",
       "ordinal": 46,
@@ -3822,7 +3822,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "DELETE /api/memory",
       "kind": "api",
       "ordinal": 47,
@@ -3890,7 +3890,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/tasks/{id}/history",
       "kind": "api",
       "ordinal": 48,
@@ -3958,7 +3958,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "GET /api/tasks/{id}/target",
       "kind": "api",
       "ordinal": 49,
@@ -4026,7 +4026,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "Examples",
       "kind": "api",
       "ordinal": 50,
@@ -4094,7 +4094,7 @@
         "/api/tasks/{id}/target",
         "/api/tasks/assist"
       ],
-      "entryContentHash": "774689fdcd9cf050c975641c80cd8e9efbc076287acc33390356d2f1ee4c456b",
+      "entryContentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
       "heading": "Do Not Depend On",
       "kind": "api",
       "ordinal": 51,
@@ -4169,7 +4169,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "Who This Is For",
       "kind": "api",
       "ordinal": 0,
@@ -4263,7 +4263,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "Stability",
       "kind": "api",
       "ordinal": 1,
@@ -4357,7 +4357,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "Local Access Model",
       "kind": "api",
       "ordinal": 2,
@@ -4452,7 +4452,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "Conventions For This Group",
       "kind": "api",
       "ordinal": 3,
@@ -4547,7 +4547,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "Endpoint Families",
       "kind": "api",
       "ordinal": 4,
@@ -4642,7 +4642,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "Endpoints",
       "kind": "api",
       "ordinal": 5,
@@ -4735,7 +4735,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "Endpoint Reference",
       "kind": "api",
       "ordinal": 6,
@@ -4830,7 +4830,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/agents",
       "kind": "api",
       "ordinal": 7,
@@ -4924,7 +4924,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents",
       "kind": "api",
       "ordinal": 8,
@@ -5018,7 +5018,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/agents/{id}",
       "kind": "api",
       "ordinal": 9,
@@ -5112,7 +5112,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "PUT /api/agents/{id}",
       "kind": "api",
       "ordinal": 10,
@@ -5206,7 +5206,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "DELETE /api/agents/{id}",
       "kind": "api",
       "ordinal": 11,
@@ -5300,7 +5300,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/agents/{id}/context",
       "kind": "api",
       "ordinal": 12,
@@ -5394,7 +5394,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents/{id}/context",
       "kind": "api",
       "ordinal": 13,
@@ -5488,7 +5488,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "PATCH /api/agents/{id}/context",
       "kind": "api",
       "ordinal": 14,
@@ -5582,7 +5582,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents/{id}/test",
       "kind": "api",
       "ordinal": 15,
@@ -5676,7 +5676,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/agents/{id}/test-results",
       "kind": "api",
       "ordinal": 16,
@@ -5770,7 +5770,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents/{id}/test-single",
       "kind": "api",
       "ordinal": 17,
@@ -5864,7 +5864,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents/assist",
       "kind": "api",
       "ordinal": 18,
@@ -5958,7 +5958,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents/import",
       "kind": "api",
       "ordinal": 19,
@@ -6052,7 +6052,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/agents/import-repo",
       "kind": "api",
       "ordinal": 20,
@@ -6146,7 +6146,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents/import-repo/scan",
       "kind": "api",
       "ordinal": 21,
@@ -6240,7 +6240,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents/import-repo/preview",
       "kind": "api",
       "ordinal": 22,
@@ -6334,7 +6334,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents/import-repo/confirm",
       "kind": "api",
       "ordinal": 23,
@@ -6428,7 +6428,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents/import-repo/check-updates",
       "kind": "api",
       "ordinal": 24,
@@ -6522,7 +6522,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/agents/import-repo/apply-updates",
       "kind": "api",
       "ordinal": 25,
@@ -6616,7 +6616,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/chat/branching/flag",
       "kind": "api",
       "ordinal": 26,
@@ -6710,7 +6710,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/chat/conversations",
       "kind": "api",
       "ordinal": 27,
@@ -6804,7 +6804,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/chat/conversations",
       "kind": "api",
       "ordinal": 28,
@@ -6898,7 +6898,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/chat/conversations/{id}",
       "kind": "api",
       "ordinal": 29,
@@ -6992,7 +6992,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "PATCH /api/chat/conversations/{id}",
       "kind": "api",
       "ordinal": 30,
@@ -7086,7 +7086,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "DELETE /api/chat/conversations/{id}",
       "kind": "api",
       "ordinal": 31,
@@ -7180,7 +7180,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/chat/conversations/{id}/branches",
       "kind": "api",
       "ordinal": 32,
@@ -7274,7 +7274,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/chat/conversations/{id}/messages",
       "kind": "api",
       "ordinal": 33,
@@ -7368,7 +7368,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/chat/conversations/{id}/messages",
       "kind": "api",
       "ordinal": 34,
@@ -7462,7 +7462,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/chat/conversations/{id}/redo",
       "kind": "api",
       "ordinal": 35,
@@ -7556,7 +7556,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/chat/conversations/{id}/respond",
       "kind": "api",
       "ordinal": 36,
@@ -7650,7 +7650,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/chat/conversations/{id}/rewind",
       "kind": "api",
       "ordinal": 37,
@@ -7744,7 +7744,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/chat/conversations/{id}/skills/activate",
       "kind": "api",
       "ordinal": 38,
@@ -7838,7 +7838,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/chat/conversations/{id}/skills/deactivate",
       "kind": "api",
       "ordinal": 39,
@@ -7932,7 +7932,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/chat/entities/search",
       "kind": "api",
       "ordinal": 40,
@@ -8026,7 +8026,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/chat/export",
       "kind": "api",
       "ordinal": 41,
@@ -8120,7 +8120,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/chat/files/search",
       "kind": "api",
       "ordinal": 42,
@@ -8214,7 +8214,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/chat/models",
       "kind": "api",
       "ordinal": 43,
@@ -8308,7 +8308,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/chat/suggested-prompts",
       "kind": "api",
       "ordinal": 44,
@@ -8402,7 +8402,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/runtimes/ollama",
       "kind": "api",
       "ordinal": 45,
@@ -8496,7 +8496,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/runtimes/ollama",
       "kind": "api",
       "ordinal": 46,
@@ -8590,7 +8590,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "POST /api/runtimes/suggest",
       "kind": "api",
       "ordinal": 47,
@@ -8684,7 +8684,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "GET /api/runtimes/openai-compatible/{runtimeId}",
       "kind": "api",
       "ordinal": 48,
@@ -8778,7 +8778,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "Examples",
       "kind": "api",
       "ordinal": 49,
@@ -8872,7 +8872,7 @@
         "/api/runtimes/openai-compatible/{runtimeId}",
         "/api/runtimes/suggest"
       ],
-      "entryContentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+      "entryContentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
       "heading": "Do Not Depend On",
       "kind": "api",
       "ordinal": 50,
@@ -8964,7 +8964,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "Who This Is For",
       "kind": "api",
       "ordinal": 0,
@@ -9044,7 +9044,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "Stability",
       "kind": "api",
       "ordinal": 1,
@@ -9124,7 +9124,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "Local Access Model",
       "kind": "api",
       "ordinal": 2,
@@ -9206,7 +9206,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "Conventions For This Group",
       "kind": "api",
       "ordinal": 3,
@@ -9287,7 +9287,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "Endpoint Families",
       "kind": "api",
       "ordinal": 4,
@@ -9368,7 +9368,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "Endpoints",
       "kind": "api",
       "ordinal": 5,
@@ -9448,7 +9448,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "Endpoint Reference",
       "kind": "api",
       "ordinal": 6,
@@ -9529,7 +9529,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/blueprints",
       "kind": "api",
       "ordinal": 7,
@@ -9609,7 +9609,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/blueprints",
       "kind": "api",
       "ordinal": 8,
@@ -9689,7 +9689,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/blueprints/{id}",
       "kind": "api",
       "ordinal": 9,
@@ -9769,7 +9769,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "DELETE /api/blueprints/{id}",
       "kind": "api",
       "ordinal": 10,
@@ -9849,7 +9849,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/blueprints/{id}/instantiate",
       "kind": "api",
       "ordinal": 11,
@@ -9929,7 +9929,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/blueprints/import",
       "kind": "api",
       "ordinal": 12,
@@ -10009,7 +10009,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/workflows",
       "kind": "api",
       "ordinal": 13,
@@ -10089,7 +10089,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/workflows",
       "kind": "api",
       "ordinal": 14,
@@ -10169,7 +10169,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "PATCH /api/workflows/{id}",
       "kind": "api",
       "ordinal": 15,
@@ -10249,7 +10249,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "DELETE /api/workflows/{id}",
       "kind": "api",
       "ordinal": 16,
@@ -10329,7 +10329,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/workflows/{id}/debug",
       "kind": "api",
       "ordinal": 17,
@@ -10409,7 +10409,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/workflows/{id}/documents",
       "kind": "api",
       "ordinal": 18,
@@ -10489,7 +10489,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/workflows/{id}/documents",
       "kind": "api",
       "ordinal": 19,
@@ -10569,7 +10569,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "DELETE /api/workflows/{id}/documents",
       "kind": "api",
       "ordinal": 20,
@@ -10649,7 +10649,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/workflows/{id}/execute",
       "kind": "api",
       "ordinal": 21,
@@ -10729,7 +10729,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/workflows/{id}/resume",
       "kind": "api",
       "ordinal": 22,
@@ -10809,7 +10809,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/workflows/{id}/status",
       "kind": "api",
       "ordinal": 23,
@@ -10889,7 +10889,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/workflows/{id}/steps/{stepId}/retry",
       "kind": "api",
       "ordinal": 24,
@@ -10969,7 +10969,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/workflows/{id}/stop",
       "kind": "api",
       "ordinal": 25,
@@ -11049,7 +11049,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/workflows/{id}/target",
       "kind": "api",
       "ordinal": 26,
@@ -11129,7 +11129,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/workflows/from-assist",
       "kind": "api",
       "ordinal": 27,
@@ -11209,7 +11209,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/workflows/optimize",
       "kind": "api",
       "ordinal": 28,
@@ -11289,7 +11289,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/notifications",
       "kind": "api",
       "ordinal": 29,
@@ -11369,7 +11369,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "PATCH /api/notifications/{id}",
       "kind": "api",
       "ordinal": 30,
@@ -11449,7 +11449,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "DELETE /api/notifications/{id}",
       "kind": "api",
       "ordinal": 31,
@@ -11529,7 +11529,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "PATCH /api/notifications/mark-all-read",
       "kind": "api",
       "ordinal": 32,
@@ -11609,7 +11609,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/notifications/pending-approvals",
       "kind": "api",
       "ordinal": 33,
@@ -11689,7 +11689,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/notifications/pending-approvals/stream",
       "kind": "api",
       "ordinal": 34,
@@ -11769,7 +11769,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/permissions",
       "kind": "api",
       "ordinal": 35,
@@ -11849,7 +11849,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/permissions",
       "kind": "api",
       "ordinal": 36,
@@ -11929,7 +11929,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "DELETE /api/permissions",
       "kind": "api",
       "ordinal": 37,
@@ -12009,7 +12009,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/permissions/presets",
       "kind": "api",
       "ordinal": 38,
@@ -12089,7 +12089,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/permissions/presets",
       "kind": "api",
       "ordinal": 39,
@@ -12169,7 +12169,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "DELETE /api/permissions/presets",
       "kind": "api",
       "ordinal": 40,
@@ -12249,7 +12249,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/schedules",
       "kind": "api",
       "ordinal": 41,
@@ -12329,7 +12329,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/schedules",
       "kind": "api",
       "ordinal": 42,
@@ -12409,7 +12409,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/schedules/{id}",
       "kind": "api",
       "ordinal": 43,
@@ -12489,7 +12489,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "PATCH /api/schedules/{id}",
       "kind": "api",
       "ordinal": 44,
@@ -12569,7 +12569,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "DELETE /api/schedules/{id}",
       "kind": "api",
       "ordinal": 45,
@@ -12649,7 +12649,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/schedules/{id}/execute",
       "kind": "api",
       "ordinal": 46,
@@ -12729,7 +12729,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/schedules/{id}/heartbeat-history",
       "kind": "api",
       "ordinal": 47,
@@ -12809,7 +12809,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "GET /api/schedules/{id}/budget",
       "kind": "api",
       "ordinal": 48,
@@ -12889,7 +12889,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "PUT /api/schedules/{id}/budget",
       "kind": "api",
       "ordinal": 49,
@@ -12969,7 +12969,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "DELETE /api/schedules/{id}/budget",
       "kind": "api",
       "ordinal": 50,
@@ -13049,7 +13049,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "POST /api/schedules/parse",
       "kind": "api",
       "ordinal": 51,
@@ -13129,7 +13129,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "Examples",
       "kind": "api",
       "ordinal": 52,
@@ -13209,7 +13209,7 @@
         "/api/workflows/from-assist",
         "/api/workflows/optimize"
       ],
-      "entryContentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+      "entryContentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
       "heading": "Do Not Depend On",
       "kind": "api",
       "ordinal": 53,
@@ -13298,7 +13298,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "Who This Is For",
       "kind": "api",
       "ordinal": 0,
@@ -13397,7 +13397,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "Stability",
       "kind": "api",
       "ordinal": 1,
@@ -13496,7 +13496,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "Local Access Model",
       "kind": "api",
       "ordinal": 2,
@@ -13597,7 +13597,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "Conventions For This Group",
       "kind": "api",
       "ordinal": 3,
@@ -13697,7 +13697,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "Endpoint Families",
       "kind": "api",
       "ordinal": 4,
@@ -13797,7 +13797,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "Endpoints",
       "kind": "api",
       "ordinal": 5,
@@ -13896,7 +13896,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "Endpoint Reference",
       "kind": "api",
       "ordinal": 6,
@@ -13996,7 +13996,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/packs/install",
       "kind": "api",
       "ordinal": 7,
@@ -14095,7 +14095,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/packs/update",
       "kind": "api",
       "ordinal": 8,
@@ -14194,7 +14194,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/apps",
       "kind": "api",
       "ordinal": 9,
@@ -14293,7 +14293,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/apps/{id}",
       "kind": "api",
       "ordinal": 10,
@@ -14392,7 +14392,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "DELETE /api/apps/{id}",
       "kind": "api",
       "ordinal": 11,
@@ -14491,7 +14491,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/apps/{id}/deployments",
       "kind": "api",
       "ordinal": 12,
@@ -14590,7 +14590,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/apps/{id}/deployments/{deploymentId}",
       "kind": "api",
       "ordinal": 13,
@@ -14689,7 +14689,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/apps/{id}/budgets",
       "kind": "api",
       "ordinal": 14,
@@ -14788,7 +14788,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "PUT /api/apps/{id}/budgets",
       "kind": "api",
       "ordinal": 15,
@@ -14887,7 +14887,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "DELETE /api/apps/{id}/budgets",
       "kind": "api",
       "ordinal": 16,
@@ -14986,7 +14986,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/apps/{id}/pack/inspect",
       "kind": "api",
       "ordinal": 17,
@@ -15085,7 +15085,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/apps/{id}/pack/export",
       "kind": "api",
       "ordinal": 18,
@@ -15184,7 +15184,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/apps/{id}/pack/publish",
       "kind": "api",
       "ordinal": 19,
@@ -15283,7 +15283,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/apps/{id}/pack/community-submission",
       "kind": "api",
       "ordinal": 20,
@@ -15382,7 +15382,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/apps/{id}/preview",
       "kind": "api",
       "ordinal": 21,
@@ -15481,7 +15481,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/apps/{id}/preview",
       "kind": "api",
       "ordinal": 22,
@@ -15580,7 +15580,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/apps/{id}/previews/{artifactId}/{path*}",
       "kind": "api",
       "ordinal": 23,
@@ -15679,7 +15679,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/apps/{id}/publish",
       "kind": "api",
       "ordinal": 24,
@@ -15778,7 +15778,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/apps/{id}/publish-targets",
       "kind": "api",
       "ordinal": 25,
@@ -15877,7 +15877,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/apps/{id}/publish-targets",
       "kind": "api",
       "ordinal": 26,
@@ -15976,7 +15976,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "DELETE /api/apps/{id}/publish-targets/{targetId}",
       "kind": "api",
       "ordinal": 27,
@@ -16075,7 +16075,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/apps/{id}/publish-targets/{targetId}/test",
       "kind": "api",
       "ordinal": 28,
@@ -16174,7 +16174,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/apps/{id}/site-settings",
       "kind": "api",
       "ordinal": 29,
@@ -16273,7 +16273,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "PUT /api/apps/{id}/site-settings",
       "kind": "api",
       "ordinal": 30,
@@ -16372,7 +16372,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/tables",
       "kind": "api",
       "ordinal": 31,
@@ -16471,7 +16471,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/tables",
       "kind": "api",
       "ordinal": 32,
@@ -16570,7 +16570,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/tables/{id}",
       "kind": "api",
       "ordinal": 33,
@@ -16669,7 +16669,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "PATCH /api/tables/{id}",
       "kind": "api",
       "ordinal": 34,
@@ -16768,7 +16768,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "DELETE /api/tables/{id}",
       "kind": "api",
       "ordinal": 35,
@@ -16867,7 +16867,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/tables/{id}/charts",
       "kind": "api",
       "ordinal": 36,
@@ -16966,7 +16966,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/tables/{id}/charts",
       "kind": "api",
       "ordinal": 37,
@@ -17065,7 +17065,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "PATCH /api/tables/{id}/charts/{chartId}",
       "kind": "api",
       "ordinal": 38,
@@ -17164,7 +17164,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "DELETE /api/tables/{id}/charts/{chartId}",
       "kind": "api",
       "ordinal": 39,
@@ -17263,7 +17263,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/tables/{id}/columns",
       "kind": "api",
       "ordinal": 40,
@@ -17362,7 +17362,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "PATCH /api/tables/{id}/columns",
       "kind": "api",
       "ordinal": 41,
@@ -17461,7 +17461,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/tables/{id}/enrich",
       "kind": "api",
       "ordinal": 42,
@@ -17560,7 +17560,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/tables/{id}/enrich/plan",
       "kind": "api",
       "ordinal": 43,
@@ -17659,7 +17659,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/tables/{id}/enrich/runs",
       "kind": "api",
       "ordinal": 44,
@@ -17758,7 +17758,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/tables/{id}/export",
       "kind": "api",
       "ordinal": 45,
@@ -17857,7 +17857,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/tables/{id}/history",
       "kind": "api",
       "ordinal": 46,
@@ -17956,7 +17956,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/tables/{id}/import",
       "kind": "api",
       "ordinal": 47,
@@ -18055,7 +18055,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/tables/{id}/rows",
       "kind": "api",
       "ordinal": 48,
@@ -18154,7 +18154,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/tables/{id}/rows",
       "kind": "api",
       "ordinal": 49,
@@ -18253,7 +18253,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "PATCH /api/tables/{id}/rows/{rowId}",
       "kind": "api",
       "ordinal": 50,
@@ -18352,7 +18352,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "DELETE /api/tables/{id}/rows/{rowId}",
       "kind": "api",
       "ordinal": 51,
@@ -18451,7 +18451,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/tables/{id}/rows/{rowId}/history",
       "kind": "api",
       "ordinal": 52,
@@ -18550,7 +18550,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/tables/{id}/rows/{rowId}/history",
       "kind": "api",
       "ordinal": 53,
@@ -18649,7 +18649,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/tables/{id}/triggers",
       "kind": "api",
       "ordinal": 54,
@@ -18748,7 +18748,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/tables/{id}/triggers",
       "kind": "api",
       "ordinal": 55,
@@ -18847,7 +18847,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "PATCH /api/tables/{id}/triggers",
       "kind": "api",
       "ordinal": 56,
@@ -18946,7 +18946,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "PATCH /api/tables/{id}/triggers/{triggerId}",
       "kind": "api",
       "ordinal": 57,
@@ -19045,7 +19045,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "DELETE /api/tables/{id}/triggers/{triggerId}",
       "kind": "api",
       "ordinal": 58,
@@ -19144,7 +19144,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/tables/templates",
       "kind": "api",
       "ordinal": 59,
@@ -19243,7 +19243,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/tables/templates",
       "kind": "api",
       "ordinal": 60,
@@ -19342,7 +19342,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "GET /api/views",
       "kind": "api",
       "ordinal": 61,
@@ -19441,7 +19441,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "POST /api/views",
       "kind": "api",
       "ordinal": 62,
@@ -19540,7 +19540,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "PATCH /api/views/{id}",
       "kind": "api",
       "ordinal": 63,
@@ -19639,7 +19639,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "DELETE /api/views/{id}",
       "kind": "api",
       "ordinal": 64,
@@ -19738,7 +19738,7 @@
         "/api/views",
         "/api/views/{id}"
       ],
-      "entryContentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+      "entryContentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
       "heading": "Do Not Depend On",
       "kind": "api",
       "ordinal": 65,
@@ -19836,7 +19836,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "Who This Is For",
       "kind": "api",
       "ordinal": 0,
@@ -19929,7 +19929,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "Stability",
       "kind": "api",
       "ordinal": 1,
@@ -20022,7 +20022,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "Local Access Model",
       "kind": "api",
       "ordinal": 2,
@@ -20116,7 +20116,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "Conventions For This Group",
       "kind": "api",
       "ordinal": 3,
@@ -20210,7 +20210,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "Endpoint Families",
       "kind": "api",
       "ordinal": 4,
@@ -20304,7 +20304,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "Endpoints",
       "kind": "api",
       "ordinal": 5,
@@ -20397,7 +20397,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "Endpoint Reference",
       "kind": "api",
       "ordinal": 6,
@@ -20491,7 +20491,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings",
       "kind": "api",
       "ordinal": 7,
@@ -20584,7 +20584,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings",
       "kind": "api",
       "ordinal": 8,
@@ -20677,7 +20677,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/apps",
       "kind": "api",
       "ordinal": 9,
@@ -20770,7 +20770,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/apps",
       "kind": "api",
       "ordinal": 10,
@@ -20863,7 +20863,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/author-default",
       "kind": "api",
       "ordinal": 11,
@@ -20956,7 +20956,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/browser-tools",
       "kind": "api",
       "ordinal": 12,
@@ -21049,7 +21049,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/browser-tools",
       "kind": "api",
       "ordinal": 13,
@@ -21142,7 +21142,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/budgets",
       "kind": "api",
       "ordinal": 14,
@@ -21235,7 +21235,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/budgets",
       "kind": "api",
       "ordinal": 15,
@@ -21328,7 +21328,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/chat",
       "kind": "api",
       "ordinal": 16,
@@ -21421,7 +21421,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "PUT /api/settings/chat",
       "kind": "api",
       "ordinal": 17,
@@ -21514,7 +21514,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/chat/pins",
       "kind": "api",
       "ordinal": 18,
@@ -21607,7 +21607,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "PUT /api/settings/chat/pins",
       "kind": "api",
       "ordinal": 19,
@@ -21700,7 +21700,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/chat/saved-searches",
       "kind": "api",
       "ordinal": 20,
@@ -21793,7 +21793,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "PUT /api/settings/chat/saved-searches",
       "kind": "api",
       "ordinal": 21,
@@ -21886,7 +21886,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/environment",
       "kind": "api",
       "ordinal": 22,
@@ -21979,7 +21979,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/environment",
       "kind": "api",
       "ordinal": 23,
@@ -22072,7 +22072,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/glance",
       "kind": "api",
       "ordinal": 24,
@@ -22165,7 +22165,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/github",
       "kind": "api",
       "ordinal": 25,
@@ -22258,7 +22258,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/github",
       "kind": "api",
       "ordinal": 26,
@@ -22351,7 +22351,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "DELETE /api/settings/github",
       "kind": "api",
       "ordinal": 27,
@@ -22444,7 +22444,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/github/repositories",
       "kind": "api",
       "ordinal": 28,
@@ -22537,7 +22537,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/learning",
       "kind": "api",
       "ordinal": 29,
@@ -22630,7 +22630,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/learning",
       "kind": "api",
       "ordinal": 30,
@@ -22723,7 +22723,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/ollama",
       "kind": "api",
       "ordinal": 31,
@@ -22816,7 +22816,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/ollama",
       "kind": "api",
       "ordinal": 32,
@@ -22909,7 +22909,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/openai",
       "kind": "api",
       "ordinal": 33,
@@ -23002,7 +23002,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/openai",
       "kind": "api",
       "ordinal": 34,
@@ -23095,7 +23095,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/openai/login",
       "kind": "api",
       "ordinal": 35,
@@ -23188,7 +23188,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/openai/login",
       "kind": "api",
       "ordinal": 36,
@@ -23281,7 +23281,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "DELETE /api/settings/openai/login",
       "kind": "api",
       "ordinal": 37,
@@ -23374,7 +23374,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/openai/logout",
       "kind": "api",
       "ordinal": 38,
@@ -23467,7 +23467,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/openai-compatible/{runtimeId}",
       "kind": "api",
       "ordinal": 39,
@@ -23560,7 +23560,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "PUT /api/settings/openai-compatible/{runtimeId}",
       "kind": "api",
       "ordinal": 40,
@@ -23653,7 +23653,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "DELETE /api/settings/openai-compatible/{runtimeId}",
       "kind": "api",
       "ordinal": 41,
@@ -23746,7 +23746,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/pricing",
       "kind": "api",
       "ordinal": 42,
@@ -23839,7 +23839,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/pricing",
       "kind": "api",
       "ordinal": 43,
@@ -23932,7 +23932,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/providers",
       "kind": "api",
       "ordinal": 44,
@@ -24025,7 +24025,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/routing",
       "kind": "api",
       "ordinal": 45,
@@ -24118,7 +24118,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/routing",
       "kind": "api",
       "ordinal": 46,
@@ -24211,7 +24211,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/runtime",
       "kind": "api",
       "ordinal": 47,
@@ -24304,7 +24304,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/runtime",
       "kind": "api",
       "ordinal": 48,
@@ -24397,7 +24397,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/test",
       "kind": "api",
       "ordinal": 49,
@@ -24490,7 +24490,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/settings/web-search",
       "kind": "api",
       "ordinal": 50,
@@ -24583,7 +24583,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/settings/web-search",
       "kind": "api",
       "ordinal": 51,
@@ -24676,7 +24676,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/license",
       "kind": "api",
       "ordinal": 52,
@@ -24769,7 +24769,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/license",
       "kind": "api",
       "ordinal": 53,
@@ -24862,7 +24862,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "DELETE /api/license/{id}",
       "kind": "api",
       "ordinal": 54,
@@ -24955,7 +24955,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/onboarding/progress",
       "kind": "api",
       "ordinal": 55,
@@ -25048,7 +25048,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/instance/config",
       "kind": "api",
       "ordinal": 56,
@@ -25141,7 +25141,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/instance/identity",
       "kind": "api",
       "ordinal": 57,
@@ -25234,7 +25234,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/instance/init",
       "kind": "api",
       "ordinal": 58,
@@ -25327,7 +25327,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/instance/upgrade",
       "kind": "api",
       "ordinal": 59,
@@ -25420,7 +25420,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/instance/upgrade/check",
       "kind": "api",
       "ordinal": 60,
@@ -25513,7 +25513,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/instance/upgrade/status",
       "kind": "api",
       "ordinal": 61,
@@ -25606,7 +25606,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "POST /api/environment/rescan-if-stale",
       "kind": "api",
       "ordinal": 62,
@@ -25699,7 +25699,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "GET /api/environment/skills",
       "kind": "api",
       "ordinal": 63,
@@ -25792,7 +25792,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+      "entryContentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
       "heading": "Do Not Depend On",
       "kind": "api",
       "ordinal": 64,
@@ -25866,7 +25866,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "Who This Is For",
       "kind": "api",
       "ordinal": 0,
@@ -25922,7 +25922,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "Stability",
       "kind": "api",
       "ordinal": 1,
@@ -25978,7 +25978,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "Local Access Model",
       "kind": "api",
       "ordinal": 2,
@@ -26036,7 +26036,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "Conventions For This Group",
       "kind": "api",
       "ordinal": 3,
@@ -26093,7 +26093,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "Endpoint Families",
       "kind": "api",
       "ordinal": 4,
@@ -26150,7 +26150,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "Endpoints",
       "kind": "api",
       "ordinal": 5,
@@ -26206,7 +26206,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "Endpoint Reference",
       "kind": "api",
       "ordinal": 6,
@@ -26263,7 +26263,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "POST /api/uploads",
       "kind": "api",
       "ordinal": 7,
@@ -26319,7 +26319,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "GET /api/uploads/{id}",
       "kind": "api",
       "ordinal": 8,
@@ -26375,7 +26375,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "DELETE /api/uploads/{id}",
       "kind": "api",
       "ordinal": 9,
@@ -26431,7 +26431,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "POST /api/uploads/cleanup",
       "kind": "api",
       "ordinal": 10,
@@ -26487,7 +26487,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "GET /api/snapshots",
       "kind": "api",
       "ordinal": 11,
@@ -26543,7 +26543,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "POST /api/snapshots",
       "kind": "api",
       "ordinal": 12,
@@ -26599,7 +26599,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "GET /api/snapshots/{id}",
       "kind": "api",
       "ordinal": 13,
@@ -26655,7 +26655,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "DELETE /api/snapshots/{id}",
       "kind": "api",
       "ordinal": 14,
@@ -26711,7 +26711,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "POST /api/snapshots/{id}/restore",
       "kind": "api",
       "ordinal": 15,
@@ -26767,7 +26767,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "GET /api/snapshots/settings",
       "kind": "api",
       "ordinal": 16,
@@ -26823,7 +26823,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "PUT /api/snapshots/settings",
       "kind": "api",
       "ordinal": 17,
@@ -26879,7 +26879,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "GET /api/plugins",
       "kind": "api",
       "ordinal": 18,
@@ -26935,7 +26935,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "POST /api/plugins/reload",
       "kind": "api",
       "ordinal": 19,
@@ -26991,7 +26991,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "POST /api/plugins/scaffold",
       "kind": "api",
       "ordinal": 20,
@@ -27047,7 +27047,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "GET /api/telemetry",
       "kind": "api",
       "ordinal": 21,
@@ -27103,7 +27103,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "GET /api/diagnostics/chat-streams",
       "kind": "api",
       "ordinal": 22,
@@ -27159,7 +27159,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "GET /api/logs/stream",
       "kind": "api",
       "ordinal": 23,
@@ -27215,7 +27215,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "POST /api/data/seed",
       "kind": "api",
       "ordinal": 24,
@@ -27271,7 +27271,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "POST /api/data/clear",
       "kind": "api",
       "ordinal": 25,
@@ -27327,7 +27327,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+      "entryContentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
       "heading": "Do Not Depend On",
       "kind": "api",
       "ordinal": 26,
@@ -27375,7 +27375,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "Who This Is For",
       "kind": "api",
       "ordinal": 0,
@@ -27411,7 +27411,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "Stability",
       "kind": "api",
       "ordinal": 1,
@@ -27447,7 +27447,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "Local Access Model",
       "kind": "api",
       "ordinal": 2,
@@ -27485,7 +27485,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "Conventions For This Group",
       "kind": "api",
       "ordinal": 3,
@@ -27522,7 +27522,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "Endpoint Families",
       "kind": "api",
       "ordinal": 4,
@@ -27559,7 +27559,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "Endpoints",
       "kind": "api",
       "ordinal": 5,
@@ -27595,7 +27595,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "Endpoint Reference",
       "kind": "api",
       "ordinal": 6,
@@ -27632,7 +27632,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "GET /api/channels",
       "kind": "api",
       "ordinal": 7,
@@ -27668,7 +27668,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "POST /api/channels",
       "kind": "api",
       "ordinal": 8,
@@ -27704,7 +27704,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "GET /api/channels/{id}",
       "kind": "api",
       "ordinal": 9,
@@ -27740,7 +27740,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "PATCH /api/channels/{id}",
       "kind": "api",
       "ordinal": 10,
@@ -27776,7 +27776,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "DELETE /api/channels/{id}",
       "kind": "api",
       "ordinal": 11,
@@ -27812,7 +27812,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "POST /api/channels/{id}/test",
       "kind": "api",
       "ordinal": 12,
@@ -27848,7 +27848,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "POST /api/channels/inbound/slack",
       "kind": "api",
       "ordinal": 13,
@@ -27884,7 +27884,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "POST /api/channels/inbound/telegram",
       "kind": "api",
       "ordinal": 14,
@@ -27920,7 +27920,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "POST /api/channels/inbound/telegram/poll",
       "kind": "api",
       "ordinal": 15,
@@ -27956,7 +27956,7 @@
         "/api/channels/inbound/telegram",
         "/api/channels/inbound/telegram/poll"
       ],
-      "entryContentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+      "entryContentHash": "6cbbfc674daa6edc12470d61633c975e9573098714d10f735473477a326dd711",
       "heading": "Do Not Depend On",
       "kind": "api",
       "ordinal": 16,
@@ -27986,15 +27986,15 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7841815ddfe60bf41aa0fd1d0dabe0060df80e0de444efabf14de20087afafc1",
+      "entryContentHash": "fb6082ca96581ab5dc52e7e5e82705beb68ef614617c8b3c78b4b4182f54c691",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
       "productRoutes": [
         "/",
         "/settings",
-        "/settings#license",
-        "/settings#runtime"
+        "/settings#settings-license",
+        "/settings#settings-providers"
       ],
       "searchTerms": [
         "app",
@@ -28031,21 +28031,21 @@
       ],
       "sectionId": "what-this-chapter-helps-you-do",
       "sourceId": "guide:01-get-started",
-      "sourceStateHash": "10a2df1e1fd2f32703648fd7221de18456ef973d15ffec7bce2d9a5fa34f998c",
+      "sourceStateHash": "d81e54c65bebdae8100531ea0d807e3d1307e1f526b808850b23ffa475d9b8a7",
       "title": "Get Started With Relay",
       "wordCount": 25
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7841815ddfe60bf41aa0fd1d0dabe0060df80e0de444efabf14de20087afafc1",
+      "entryContentHash": "fb6082ca96581ab5dc52e7e5e82705beb68ef614617c8b3c78b4b4182f54c691",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
       "productRoutes": [
         "/",
         "/settings",
-        "/settings#license",
-        "/settings#runtime"
+        "/settings#settings-license",
+        "/settings#settings-providers"
       ],
       "searchTerms": [
         "app",
@@ -28082,21 +28082,21 @@
       ],
       "sectionId": "the-operator-story",
       "sourceId": "guide:01-get-started",
-      "sourceStateHash": "10a2df1e1fd2f32703648fd7221de18456ef973d15ffec7bce2d9a5fa34f998c",
+      "sourceStateHash": "d81e54c65bebdae8100531ea0d807e3d1307e1f526b808850b23ffa475d9b8a7",
       "title": "Get Started With Relay",
       "wordCount": 213
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7841815ddfe60bf41aa0fd1d0dabe0060df80e0de444efabf14de20087afafc1",
+      "entryContentHash": "fb6082ca96581ab5dc52e7e5e82705beb68ef614617c8b3c78b4b4182f54c691",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
       "productRoutes": [
         "/",
         "/settings",
-        "/settings#license",
-        "/settings#runtime"
+        "/settings#settings-license",
+        "/settings#settings-providers"
       ],
       "searchTerms": [
         "app",
@@ -28132,21 +28132,21 @@
       ],
       "sectionId": "what-this-part-of-relay-is-for",
       "sourceId": "guide:01-get-started",
-      "sourceStateHash": "10a2df1e1fd2f32703648fd7221de18456ef973d15ffec7bce2d9a5fa34f998c",
+      "sourceStateHash": "d81e54c65bebdae8100531ea0d807e3d1307e1f526b808850b23ffa475d9b8a7",
       "title": "Get Started With Relay",
       "wordCount": 167
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7841815ddfe60bf41aa0fd1d0dabe0060df80e0de444efabf14de20087afafc1",
+      "entryContentHash": "fb6082ca96581ab5dc52e7e5e82705beb68ef614617c8b3c78b4b4182f54c691",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
       "productRoutes": [
         "/",
         "/settings",
-        "/settings#license",
-        "/settings#runtime"
+        "/settings#settings-license",
+        "/settings#settings-providers"
       ],
       "searchTerms": [
         "app",
@@ -28185,21 +28185,21 @@
       ],
       "sectionId": "walk-the-screen-like-an-operator",
       "sourceId": "guide:01-get-started",
-      "sourceStateHash": "10a2df1e1fd2f32703648fd7221de18456ef973d15ffec7bce2d9a5fa34f998c",
+      "sourceStateHash": "d81e54c65bebdae8100531ea0d807e3d1307e1f526b808850b23ffa475d9b8a7",
       "title": "Get Started With Relay",
       "wordCount": 368
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7841815ddfe60bf41aa0fd1d0dabe0060df80e0de444efabf14de20087afafc1",
+      "entryContentHash": "fb6082ca96581ab5dc52e7e5e82705beb68ef614617c8b3c78b4b4182f54c691",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
       "productRoutes": [
         "/",
         "/settings",
-        "/settings#license",
-        "/settings#runtime"
+        "/settings#settings-license",
+        "/settings#settings-providers"
       ],
       "searchTerms": [
         "app",
@@ -28237,21 +28237,21 @@
       ],
       "sectionId": "run-the-work-carefully",
       "sourceId": "guide:01-get-started",
-      "sourceStateHash": "10a2df1e1fd2f32703648fd7221de18456ef973d15ffec7bce2d9a5fa34f998c",
+      "sourceStateHash": "d81e54c65bebdae8100531ea0d807e3d1307e1f526b808850b23ffa475d9b8a7",
       "title": "Get Started With Relay",
       "wordCount": 261
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7841815ddfe60bf41aa0fd1d0dabe0060df80e0de444efabf14de20087afafc1",
+      "entryContentHash": "fb6082ca96581ab5dc52e7e5e82705beb68ef614617c8b3c78b4b4182f54c691",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
       "productRoutes": [
         "/",
         "/settings",
-        "/settings#license",
-        "/settings#runtime"
+        "/settings#settings-license",
+        "/settings#settings-providers"
       ],
       "searchTerms": [
         "app",
@@ -28289,21 +28289,21 @@
       ],
       "sectionId": "what-to-do-when-the-state-looks-wrong",
       "sourceId": "guide:01-get-started",
-      "sourceStateHash": "10a2df1e1fd2f32703648fd7221de18456ef973d15ffec7bce2d9a5fa34f998c",
+      "sourceStateHash": "d81e54c65bebdae8100531ea0d807e3d1307e1f526b808850b23ffa475d9b8a7",
       "title": "Get Started With Relay",
       "wordCount": 133
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7841815ddfe60bf41aa0fd1d0dabe0060df80e0de444efabf14de20087afafc1",
+      "entryContentHash": "fb6082ca96581ab5dc52e7e5e82705beb68ef614617c8b3c78b4b4182f54c691",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
       "productRoutes": [
         "/",
         "/settings",
-        "/settings#license",
-        "/settings#runtime"
+        "/settings#settings-license",
+        "/settings#settings-providers"
       ],
       "searchTerms": [
         "app",
@@ -28341,21 +28341,21 @@
       ],
       "sectionId": "what-this-changes-in-daily-work",
       "sourceId": "guide:01-get-started",
-      "sourceStateHash": "10a2df1e1fd2f32703648fd7221de18456ef973d15ffec7bce2d9a5fa34f998c",
+      "sourceStateHash": "d81e54c65bebdae8100531ea0d807e3d1307e1f526b808850b23ffa475d9b8a7",
       "title": "Get Started With Relay",
       "wordCount": 126
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7841815ddfe60bf41aa0fd1d0dabe0060df80e0de444efabf14de20087afafc1",
+      "entryContentHash": "fb6082ca96581ab5dc52e7e5e82705beb68ef614617c8b3c78b4b4182f54c691",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,
       "productRoutes": [
         "/",
         "/settings",
-        "/settings#license",
-        "/settings#runtime"
+        "/settings#settings-license",
+        "/settings#settings-providers"
       ],
       "searchTerms": [
         "app",
@@ -28391,13 +28391,13 @@
       ],
       "sectionId": "where-to-go-next",
       "sourceId": "guide:01-get-started",
-      "sourceStateHash": "10a2df1e1fd2f32703648fd7221de18456ef973d15ffec7bce2d9a5fa34f998c",
+      "sourceStateHash": "d81e54c65bebdae8100531ea0d807e3d1307e1f526b808850b23ffa475d9b8a7",
       "title": "Get Started With Relay",
       "wordCount": 23
     },
     {
       "apiPaths": [],
-      "entryContentHash": "add180e4faccbd67747aaa0c35875aadeba849a5f6c966281b4d5b9d7c1c9ddc",
+      "entryContentHash": "add8e65bcb1e3b9e86c1ad7058705a0d1c7ce64339a55bb0db32dbf1e8621ad2",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
@@ -28406,7 +28406,7 @@
         "/packs",
         "/schedules",
         "/settings",
-        "/settings#license"
+        "/settings#settings-license"
       ],
       "searchTerms": [
         "actions",
@@ -28437,13 +28437,13 @@
       ],
       "sectionId": "what-this-chapter-helps-you-do",
       "sourceId": "guide:02-packs-and-licenses",
-      "sourceStateHash": "775ceee772572075b1afa884844a1df95f7886b9b45d61b9dcb0f1ab5bc4d29e",
+      "sourceStateHash": "a8617b5e03b095d885298d9e017a694a943d0405014a5a90b0aae096f1030fa1",
       "title": "Use Packs And Licenses",
       "wordCount": 23
     },
     {
       "apiPaths": [],
-      "entryContentHash": "add180e4faccbd67747aaa0c35875aadeba849a5f6c966281b4d5b9d7c1c9ddc",
+      "entryContentHash": "add8e65bcb1e3b9e86c1ad7058705a0d1c7ce64339a55bb0db32dbf1e8621ad2",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
@@ -28452,7 +28452,7 @@
         "/packs",
         "/schedules",
         "/settings",
-        "/settings#license"
+        "/settings#settings-license"
       ],
       "searchTerms": [
         "actions",
@@ -28483,13 +28483,13 @@
       ],
       "sectionId": "the-operator-story",
       "sourceId": "guide:02-packs-and-licenses",
-      "sourceStateHash": "775ceee772572075b1afa884844a1df95f7886b9b45d61b9dcb0f1ab5bc4d29e",
+      "sourceStateHash": "a8617b5e03b095d885298d9e017a694a943d0405014a5a90b0aae096f1030fa1",
       "title": "Use Packs And Licenses",
       "wordCount": 171
     },
     {
       "apiPaths": [],
-      "entryContentHash": "add180e4faccbd67747aaa0c35875aadeba849a5f6c966281b4d5b9d7c1c9ddc",
+      "entryContentHash": "add8e65bcb1e3b9e86c1ad7058705a0d1c7ce64339a55bb0db32dbf1e8621ad2",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
@@ -28498,7 +28498,7 @@
         "/packs",
         "/schedules",
         "/settings",
-        "/settings#license"
+        "/settings#settings-license"
       ],
       "searchTerms": [
         "actions",
@@ -28528,13 +28528,13 @@
       ],
       "sectionId": "what-this-part-of-relay-is-for",
       "sourceId": "guide:02-packs-and-licenses",
-      "sourceStateHash": "775ceee772572075b1afa884844a1df95f7886b9b45d61b9dcb0f1ab5bc4d29e",
+      "sourceStateHash": "a8617b5e03b095d885298d9e017a694a943d0405014a5a90b0aae096f1030fa1",
       "title": "Use Packs And Licenses",
       "wordCount": 139
     },
     {
       "apiPaths": [],
-      "entryContentHash": "add180e4faccbd67747aaa0c35875aadeba849a5f6c966281b4d5b9d7c1c9ddc",
+      "entryContentHash": "add8e65bcb1e3b9e86c1ad7058705a0d1c7ce64339a55bb0db32dbf1e8621ad2",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
@@ -28543,7 +28543,7 @@
         "/packs",
         "/schedules",
         "/settings",
-        "/settings#license"
+        "/settings#settings-license"
       ],
       "searchTerms": [
         "actions",
@@ -28576,13 +28576,13 @@
       ],
       "sectionId": "walk-the-screen-like-an-operator",
       "sourceId": "guide:02-packs-and-licenses",
-      "sourceStateHash": "775ceee772572075b1afa884844a1df95f7886b9b45d61b9dcb0f1ab5bc4d29e",
+      "sourceStateHash": "a8617b5e03b095d885298d9e017a694a943d0405014a5a90b0aae096f1030fa1",
       "title": "Use Packs And Licenses",
       "wordCount": 219
     },
     {
       "apiPaths": [],
-      "entryContentHash": "add180e4faccbd67747aaa0c35875aadeba849a5f6c966281b4d5b9d7c1c9ddc",
+      "entryContentHash": "add8e65bcb1e3b9e86c1ad7058705a0d1c7ce64339a55bb0db32dbf1e8621ad2",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
@@ -28591,7 +28591,7 @@
         "/packs",
         "/schedules",
         "/settings",
-        "/settings#license"
+        "/settings#settings-license"
       ],
       "searchTerms": [
         "actions",
@@ -28623,13 +28623,13 @@
       ],
       "sectionId": "run-the-work-carefully",
       "sourceId": "guide:02-packs-and-licenses",
-      "sourceStateHash": "775ceee772572075b1afa884844a1df95f7886b9b45d61b9dcb0f1ab5bc4d29e",
+      "sourceStateHash": "a8617b5e03b095d885298d9e017a694a943d0405014a5a90b0aae096f1030fa1",
       "title": "Use Packs And Licenses",
       "wordCount": 328
     },
     {
       "apiPaths": [],
-      "entryContentHash": "add180e4faccbd67747aaa0c35875aadeba849a5f6c966281b4d5b9d7c1c9ddc",
+      "entryContentHash": "add8e65bcb1e3b9e86c1ad7058705a0d1c7ce64339a55bb0db32dbf1e8621ad2",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
@@ -28638,7 +28638,7 @@
         "/packs",
         "/schedules",
         "/settings",
-        "/settings#license"
+        "/settings#settings-license"
       ],
       "searchTerms": [
         "actions",
@@ -28669,13 +28669,13 @@
       ],
       "sectionId": "what-to-do-when-the-state-looks-wrong",
       "sourceId": "guide:02-packs-and-licenses",
-      "sourceStateHash": "775ceee772572075b1afa884844a1df95f7886b9b45d61b9dcb0f1ab5bc4d29e",
+      "sourceStateHash": "a8617b5e03b095d885298d9e017a694a943d0405014a5a90b0aae096f1030fa1",
       "title": "Use Packs And Licenses",
       "wordCount": 157
     },
     {
       "apiPaths": [],
-      "entryContentHash": "add180e4faccbd67747aaa0c35875aadeba849a5f6c966281b4d5b9d7c1c9ddc",
+      "entryContentHash": "add8e65bcb1e3b9e86c1ad7058705a0d1c7ce64339a55bb0db32dbf1e8621ad2",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
@@ -28684,7 +28684,7 @@
         "/packs",
         "/schedules",
         "/settings",
-        "/settings#license"
+        "/settings#settings-license"
       ],
       "searchTerms": [
         "actions",
@@ -28716,13 +28716,13 @@
       ],
       "sectionId": "what-this-changes-in-daily-work",
       "sourceId": "guide:02-packs-and-licenses",
-      "sourceStateHash": "775ceee772572075b1afa884844a1df95f7886b9b45d61b9dcb0f1ab5bc4d29e",
+      "sourceStateHash": "a8617b5e03b095d885298d9e017a694a943d0405014a5a90b0aae096f1030fa1",
       "title": "Use Packs And Licenses",
       "wordCount": 122
     },
     {
       "apiPaths": [],
-      "entryContentHash": "add180e4faccbd67747aaa0c35875aadeba849a5f6c966281b4d5b9d7c1c9ddc",
+      "entryContentHash": "add8e65bcb1e3b9e86c1ad7058705a0d1c7ce64339a55bb0db32dbf1e8621ad2",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,
@@ -28731,7 +28731,7 @@
         "/packs",
         "/schedules",
         "/settings",
-        "/settings#license"
+        "/settings#settings-license"
       ],
       "searchTerms": [
         "actions",
@@ -28761,13 +28761,13 @@
       ],
       "sectionId": "where-to-go-next",
       "sourceId": "guide:02-packs-and-licenses",
-      "sourceStateHash": "775ceee772572075b1afa884844a1df95f7886b9b45d61b9dcb0f1ab5bc4d29e",
+      "sourceStateHash": "a8617b5e03b095d885298d9e017a694a943d0405014a5a90b0aae096f1030fa1",
       "title": "Use Packs And Licenses",
       "wordCount": 16
     },
     {
       "apiPaths": [],
-      "entryContentHash": "a8e2da13a45fd22dad66617a16ab989c60e84bb37647f20adb3125850b777728",
+      "entryContentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
@@ -28818,7 +28818,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "a8e2da13a45fd22dad66617a16ab989c60e84bb37647f20adb3125850b777728",
+      "entryContentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
@@ -28869,7 +28869,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "a8e2da13a45fd22dad66617a16ab989c60e84bb37647f20adb3125850b777728",
+      "entryContentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
@@ -28919,7 +28919,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "a8e2da13a45fd22dad66617a16ab989c60e84bb37647f20adb3125850b777728",
+      "entryContentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
@@ -28972,7 +28972,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "a8e2da13a45fd22dad66617a16ab989c60e84bb37647f20adb3125850b777728",
+      "entryContentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
@@ -29023,7 +29023,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "a8e2da13a45fd22dad66617a16ab989c60e84bb37647f20adb3125850b777728",
+      "entryContentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
@@ -29075,7 +29075,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "a8e2da13a45fd22dad66617a16ab989c60e84bb37647f20adb3125850b777728",
+      "entryContentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
@@ -29126,7 +29126,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "a8e2da13a45fd22dad66617a16ab989c60e84bb37647f20adb3125850b777728",
+      "entryContentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,
@@ -29176,7 +29176,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "85a73271b75ba82f9632a044fc81e2b76c4163d9b5e6ec72ae499f7b8e6e2db0",
+      "entryContentHash": "08244f8630eb3a874ee1e26f2c20aaa3b119e5fd94e493113e67c5ff43517252",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
@@ -29187,7 +29187,7 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#runtime",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -29216,13 +29216,13 @@
       ],
       "sectionId": "what-this-chapter-helps-you-do",
       "sourceId": "guide:04-chat-agents-runtimes",
-      "sourceStateHash": "14ad106c3ff587367d9c13084e68cb7d8498c3902d4b9adbba19170d409a4620",
+      "sourceStateHash": "7e8649310007fc58e4a14b7fb3990ae96afc78a7afc14b24e6217cb672753330",
       "title": "Plan Work With Chat, Agents, And Runtimes",
       "wordCount": 16
     },
     {
       "apiPaths": [],
-      "entryContentHash": "85a73271b75ba82f9632a044fc81e2b76c4163d9b5e6ec72ae499f7b8e6e2db0",
+      "entryContentHash": "08244f8630eb3a874ee1e26f2c20aaa3b119e5fd94e493113e67c5ff43517252",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
@@ -29233,7 +29233,7 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#runtime",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -29262,13 +29262,13 @@
       ],
       "sectionId": "the-operator-story",
       "sourceId": "guide:04-chat-agents-runtimes",
-      "sourceStateHash": "14ad106c3ff587367d9c13084e68cb7d8498c3902d4b9adbba19170d409a4620",
+      "sourceStateHash": "7e8649310007fc58e4a14b7fb3990ae96afc78a7afc14b24e6217cb672753330",
       "title": "Plan Work With Chat, Agents, And Runtimes",
       "wordCount": 195
     },
     {
       "apiPaths": [],
-      "entryContentHash": "85a73271b75ba82f9632a044fc81e2b76c4163d9b5e6ec72ae499f7b8e6e2db0",
+      "entryContentHash": "08244f8630eb3a874ee1e26f2c20aaa3b119e5fd94e493113e67c5ff43517252",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
@@ -29279,7 +29279,7 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#runtime",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -29307,13 +29307,13 @@
       ],
       "sectionId": "what-this-part-of-relay-is-for",
       "sourceId": "guide:04-chat-agents-runtimes",
-      "sourceStateHash": "14ad106c3ff587367d9c13084e68cb7d8498c3902d4b9adbba19170d409a4620",
+      "sourceStateHash": "7e8649310007fc58e4a14b7fb3990ae96afc78a7afc14b24e6217cb672753330",
       "title": "Plan Work With Chat, Agents, And Runtimes",
       "wordCount": 134
     },
     {
       "apiPaths": [],
-      "entryContentHash": "85a73271b75ba82f9632a044fc81e2b76c4163d9b5e6ec72ae499f7b8e6e2db0",
+      "entryContentHash": "08244f8630eb3a874ee1e26f2c20aaa3b119e5fd94e493113e67c5ff43517252",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
@@ -29324,7 +29324,7 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#runtime",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -29355,13 +29355,13 @@
       ],
       "sectionId": "walk-the-screen-like-an-operator",
       "sourceId": "guide:04-chat-agents-runtimes",
-      "sourceStateHash": "14ad106c3ff587367d9c13084e68cb7d8498c3902d4b9adbba19170d409a4620",
+      "sourceStateHash": "7e8649310007fc58e4a14b7fb3990ae96afc78a7afc14b24e6217cb672753330",
       "title": "Plan Work With Chat, Agents, And Runtimes",
       "wordCount": 188
     },
     {
       "apiPaths": [],
-      "entryContentHash": "85a73271b75ba82f9632a044fc81e2b76c4163d9b5e6ec72ae499f7b8e6e2db0",
+      "entryContentHash": "08244f8630eb3a874ee1e26f2c20aaa3b119e5fd94e493113e67c5ff43517252",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
@@ -29372,7 +29372,7 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#runtime",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -29401,13 +29401,13 @@
       ],
       "sectionId": "run-the-work-carefully",
       "sourceId": "guide:04-chat-agents-runtimes",
-      "sourceStateHash": "14ad106c3ff587367d9c13084e68cb7d8498c3902d4b9adbba19170d409a4620",
+      "sourceStateHash": "7e8649310007fc58e4a14b7fb3990ae96afc78a7afc14b24e6217cb672753330",
       "title": "Plan Work With Chat, Agents, And Runtimes",
       "wordCount": 222
     },
     {
       "apiPaths": [],
-      "entryContentHash": "85a73271b75ba82f9632a044fc81e2b76c4163d9b5e6ec72ae499f7b8e6e2db0",
+      "entryContentHash": "08244f8630eb3a874ee1e26f2c20aaa3b119e5fd94e493113e67c5ff43517252",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
@@ -29418,7 +29418,7 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#runtime",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -29448,13 +29448,13 @@
       ],
       "sectionId": "what-to-do-when-the-state-looks-wrong",
       "sourceId": "guide:04-chat-agents-runtimes",
-      "sourceStateHash": "14ad106c3ff587367d9c13084e68cb7d8498c3902d4b9adbba19170d409a4620",
+      "sourceStateHash": "7e8649310007fc58e4a14b7fb3990ae96afc78a7afc14b24e6217cb672753330",
       "title": "Plan Work With Chat, Agents, And Runtimes",
       "wordCount": 140
     },
     {
       "apiPaths": [],
-      "entryContentHash": "85a73271b75ba82f9632a044fc81e2b76c4163d9b5e6ec72ae499f7b8e6e2db0",
+      "entryContentHash": "08244f8630eb3a874ee1e26f2c20aaa3b119e5fd94e493113e67c5ff43517252",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
@@ -29465,7 +29465,7 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#runtime",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -29494,13 +29494,13 @@
       ],
       "sectionId": "what-this-changes-in-daily-work",
       "sourceId": "guide:04-chat-agents-runtimes",
-      "sourceStateHash": "14ad106c3ff587367d9c13084e68cb7d8498c3902d4b9adbba19170d409a4620",
+      "sourceStateHash": "7e8649310007fc58e4a14b7fb3990ae96afc78a7afc14b24e6217cb672753330",
       "title": "Plan Work With Chat, Agents, And Runtimes",
       "wordCount": 107
     },
     {
       "apiPaths": [],
-      "entryContentHash": "85a73271b75ba82f9632a044fc81e2b76c4163d9b5e6ec72ae499f7b8e6e2db0",
+      "entryContentHash": "08244f8630eb3a874ee1e26f2c20aaa3b119e5fd94e493113e67c5ff43517252",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,
@@ -29511,7 +29511,7 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#runtime",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -29539,13 +29539,13 @@
       ],
       "sectionId": "where-to-go-next",
       "sourceId": "guide:04-chat-agents-runtimes",
-      "sourceStateHash": "14ad106c3ff587367d9c13084e68cb7d8498c3902d4b9adbba19170d409a4620",
+      "sourceStateHash": "7e8649310007fc58e4a14b7fb3990ae96afc78a7afc14b24e6217cb672753330",
       "title": "Plan Work With Chat, Agents, And Runtimes",
       "wordCount": 15
     },
     {
       "apiPaths": [],
-      "entryContentHash": "6fa9e40ee9fecabae12b92976024797c6b0a979e1f13f5241cdb4d87ab7632bc",
+      "entryContentHash": "d397b1a1e8dce972eeaeb10b93ce59ea0d543880c373e7e71bdf9362b8d0cef5",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
@@ -29596,7 +29596,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "6fa9e40ee9fecabae12b92976024797c6b0a979e1f13f5241cdb4d87ab7632bc",
+      "entryContentHash": "d397b1a1e8dce972eeaeb10b93ce59ea0d543880c373e7e71bdf9362b8d0cef5",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
@@ -29647,7 +29647,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "6fa9e40ee9fecabae12b92976024797c6b0a979e1f13f5241cdb4d87ab7632bc",
+      "entryContentHash": "d397b1a1e8dce972eeaeb10b93ce59ea0d543880c373e7e71bdf9362b8d0cef5",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
@@ -29697,7 +29697,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "6fa9e40ee9fecabae12b92976024797c6b0a979e1f13f5241cdb4d87ab7632bc",
+      "entryContentHash": "d397b1a1e8dce972eeaeb10b93ce59ea0d543880c373e7e71bdf9362b8d0cef5",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
@@ -29750,7 +29750,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "6fa9e40ee9fecabae12b92976024797c6b0a979e1f13f5241cdb4d87ab7632bc",
+      "entryContentHash": "d397b1a1e8dce972eeaeb10b93ce59ea0d543880c373e7e71bdf9362b8d0cef5",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
@@ -29801,7 +29801,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "6fa9e40ee9fecabae12b92976024797c6b0a979e1f13f5241cdb4d87ab7632bc",
+      "entryContentHash": "d397b1a1e8dce972eeaeb10b93ce59ea0d543880c373e7e71bdf9362b8d0cef5",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
@@ -29852,7 +29852,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "6fa9e40ee9fecabae12b92976024797c6b0a979e1f13f5241cdb4d87ab7632bc",
+      "entryContentHash": "d397b1a1e8dce972eeaeb10b93ce59ea0d543880c373e7e71bdf9362b8d0cef5",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
@@ -29904,7 +29904,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "6fa9e40ee9fecabae12b92976024797c6b0a979e1f13f5241cdb4d87ab7632bc",
+      "entryContentHash": "d397b1a1e8dce972eeaeb10b93ce59ea0d543880c373e7e71bdf9362b8d0cef5",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,
@@ -29954,7 +29954,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "0069902b9a4f98d1bb79d7363053e6a5f595c917e4d4d566ab38e9d6aa0057f1",
+      "entryContentHash": "10c6db3601f9f27cfe6d261de873a80bfe6b233165e551bce3d01fb1aa6a6c5c",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
@@ -30001,7 +30001,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "0069902b9a4f98d1bb79d7363053e6a5f595c917e4d4d566ab38e9d6aa0057f1",
+      "entryContentHash": "10c6db3601f9f27cfe6d261de873a80bfe6b233165e551bce3d01fb1aa6a6c5c",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
@@ -30048,7 +30048,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "0069902b9a4f98d1bb79d7363053e6a5f595c917e4d4d566ab38e9d6aa0057f1",
+      "entryContentHash": "10c6db3601f9f27cfe6d261de873a80bfe6b233165e551bce3d01fb1aa6a6c5c",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
@@ -30094,7 +30094,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "0069902b9a4f98d1bb79d7363053e6a5f595c917e4d4d566ab38e9d6aa0057f1",
+      "entryContentHash": "10c6db3601f9f27cfe6d261de873a80bfe6b233165e551bce3d01fb1aa6a6c5c",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
@@ -30143,7 +30143,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "0069902b9a4f98d1bb79d7363053e6a5f595c917e4d4d566ab38e9d6aa0057f1",
+      "entryContentHash": "10c6db3601f9f27cfe6d261de873a80bfe6b233165e551bce3d01fb1aa6a6c5c",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
@@ -30190,7 +30190,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "0069902b9a4f98d1bb79d7363053e6a5f595c917e4d4d566ab38e9d6aa0057f1",
+      "entryContentHash": "10c6db3601f9f27cfe6d261de873a80bfe6b233165e551bce3d01fb1aa6a6c5c",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
@@ -30238,7 +30238,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "0069902b9a4f98d1bb79d7363053e6a5f595c917e4d4d566ab38e9d6aa0057f1",
+      "entryContentHash": "10c6db3601f9f27cfe6d261de873a80bfe6b233165e551bce3d01fb1aa6a6c5c",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
@@ -30285,7 +30285,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "0069902b9a4f98d1bb79d7363053e6a5f595c917e4d4d566ab38e9d6aa0057f1",
+      "entryContentHash": "10c6db3601f9f27cfe6d261de873a80bfe6b233165e551bce3d01fb1aa6a6c5c",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,
@@ -30331,7 +30331,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "df36e88eb9038666363c9f2445b45abf813b773a140b733d606c5c051a3943eb",
+      "entryContentHash": "4e6e3a6bc464f4ab3a8ea4eabd1619aba1e8f5223f01a32bf2464c86c39e9af4",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
@@ -30342,8 +30342,8 @@
         "/customers",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -30374,13 +30374,13 @@
       ],
       "sectionId": "what-this-chapter-helps-you-do",
       "sourceId": "guide:07-monitor-costs",
-      "sourceStateHash": "767f6d2356d8161bf9b67879e1357c7a38a6b5a17c9d075d7c5f688e58a7a7be",
+      "sourceStateHash": "5d3809604def8f7c6fb801c3d3bfad113646178e752a0415a3d3efe203305244",
       "title": "Watch Runs, Costs, And Budget Signals",
       "wordCount": 16
     },
     {
       "apiPaths": [],
-      "entryContentHash": "df36e88eb9038666363c9f2445b45abf813b773a140b733d606c5c051a3943eb",
+      "entryContentHash": "4e6e3a6bc464f4ab3a8ea4eabd1619aba1e8f5223f01a32bf2464c86c39e9af4",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
@@ -30391,8 +30391,8 @@
         "/customers",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -30423,13 +30423,13 @@
       ],
       "sectionId": "the-operator-story",
       "sourceId": "guide:07-monitor-costs",
-      "sourceStateHash": "767f6d2356d8161bf9b67879e1357c7a38a6b5a17c9d075d7c5f688e58a7a7be",
+      "sourceStateHash": "5d3809604def8f7c6fb801c3d3bfad113646178e752a0415a3d3efe203305244",
       "title": "Watch Runs, Costs, And Budget Signals",
       "wordCount": 128
     },
     {
       "apiPaths": [],
-      "entryContentHash": "df36e88eb9038666363c9f2445b45abf813b773a140b733d606c5c051a3943eb",
+      "entryContentHash": "4e6e3a6bc464f4ab3a8ea4eabd1619aba1e8f5223f01a32bf2464c86c39e9af4",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
@@ -30440,8 +30440,8 @@
         "/customers",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -30471,13 +30471,13 @@
       ],
       "sectionId": "what-this-part-of-relay-is-for",
       "sourceId": "guide:07-monitor-costs",
-      "sourceStateHash": "767f6d2356d8161bf9b67879e1357c7a38a6b5a17c9d075d7c5f688e58a7a7be",
+      "sourceStateHash": "5d3809604def8f7c6fb801c3d3bfad113646178e752a0415a3d3efe203305244",
       "title": "Watch Runs, Costs, And Budget Signals",
       "wordCount": 179
     },
     {
       "apiPaths": [],
-      "entryContentHash": "df36e88eb9038666363c9f2445b45abf813b773a140b733d606c5c051a3943eb",
+      "entryContentHash": "4e6e3a6bc464f4ab3a8ea4eabd1619aba1e8f5223f01a32bf2464c86c39e9af4",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
@@ -30488,8 +30488,8 @@
         "/customers",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -30522,13 +30522,13 @@
       ],
       "sectionId": "walk-the-screen-like-an-operator",
       "sourceId": "guide:07-monitor-costs",
-      "sourceStateHash": "767f6d2356d8161bf9b67879e1357c7a38a6b5a17c9d075d7c5f688e58a7a7be",
+      "sourceStateHash": "5d3809604def8f7c6fb801c3d3bfad113646178e752a0415a3d3efe203305244",
       "title": "Watch Runs, Costs, And Budget Signals",
       "wordCount": 157
     },
     {
       "apiPaths": [],
-      "entryContentHash": "df36e88eb9038666363c9f2445b45abf813b773a140b733d606c5c051a3943eb",
+      "entryContentHash": "4e6e3a6bc464f4ab3a8ea4eabd1619aba1e8f5223f01a32bf2464c86c39e9af4",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
@@ -30539,8 +30539,8 @@
         "/customers",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -30572,13 +30572,13 @@
       ],
       "sectionId": "run-the-work-carefully",
       "sourceId": "guide:07-monitor-costs",
-      "sourceStateHash": "767f6d2356d8161bf9b67879e1357c7a38a6b5a17c9d075d7c5f688e58a7a7be",
+      "sourceStateHash": "5d3809604def8f7c6fb801c3d3bfad113646178e752a0415a3d3efe203305244",
       "title": "Watch Runs, Costs, And Budget Signals",
       "wordCount": 198
     },
     {
       "apiPaths": [],
-      "entryContentHash": "df36e88eb9038666363c9f2445b45abf813b773a140b733d606c5c051a3943eb",
+      "entryContentHash": "4e6e3a6bc464f4ab3a8ea4eabd1619aba1e8f5223f01a32bf2464c86c39e9af4",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
@@ -30589,8 +30589,8 @@
         "/customers",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -30622,13 +30622,13 @@
       ],
       "sectionId": "what-to-do-when-the-state-looks-wrong",
       "sourceId": "guide:07-monitor-costs",
-      "sourceStateHash": "767f6d2356d8161bf9b67879e1357c7a38a6b5a17c9d075d7c5f688e58a7a7be",
+      "sourceStateHash": "5d3809604def8f7c6fb801c3d3bfad113646178e752a0415a3d3efe203305244",
       "title": "Watch Runs, Costs, And Budget Signals",
       "wordCount": 175
     },
     {
       "apiPaths": [],
-      "entryContentHash": "df36e88eb9038666363c9f2445b45abf813b773a140b733d606c5c051a3943eb",
+      "entryContentHash": "4e6e3a6bc464f4ab3a8ea4eabd1619aba1e8f5223f01a32bf2464c86c39e9af4",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
@@ -30639,8 +30639,8 @@
         "/customers",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -30672,13 +30672,13 @@
       ],
       "sectionId": "what-this-changes-in-daily-work",
       "sourceId": "guide:07-monitor-costs",
-      "sourceStateHash": "767f6d2356d8161bf9b67879e1357c7a38a6b5a17c9d075d7c5f688e58a7a7be",
+      "sourceStateHash": "5d3809604def8f7c6fb801c3d3bfad113646178e752a0415a3d3efe203305244",
       "title": "Watch Runs, Costs, And Budget Signals",
       "wordCount": 140
     },
     {
       "apiPaths": [],
-      "entryContentHash": "df36e88eb9038666363c9f2445b45abf813b773a140b733d606c5c051a3943eb",
+      "entryContentHash": "4e6e3a6bc464f4ab3a8ea4eabd1619aba1e8f5223f01a32bf2464c86c39e9af4",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,
@@ -30689,8 +30689,8 @@
         "/customers",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -30720,13 +30720,13 @@
       ],
       "sectionId": "where-to-go-next",
       "sourceId": "guide:07-monitor-costs",
-      "sourceStateHash": "767f6d2356d8161bf9b67879e1357c7a38a6b5a17c9d075d7c5f688e58a7a7be",
+      "sourceStateHash": "5d3809604def8f7c6fb801c3d3bfad113646178e752a0415a3d3efe203305244",
       "title": "Watch Runs, Costs, And Budget Signals",
       "wordCount": 16
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7be414d758b3bcaf2596ac09acb31390dbb5280d83c7f7ed60ea2100c876f9aa",
+      "entryContentHash": "c61d424c69bcdc5c412db3380d388feb8e412d5aa41f168dfbaf94c93372dbb7",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
@@ -30781,7 +30781,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7be414d758b3bcaf2596ac09acb31390dbb5280d83c7f7ed60ea2100c876f9aa",
+      "entryContentHash": "c61d424c69bcdc5c412db3380d388feb8e412d5aa41f168dfbaf94c93372dbb7",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
@@ -30836,7 +30836,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7be414d758b3bcaf2596ac09acb31390dbb5280d83c7f7ed60ea2100c876f9aa",
+      "entryContentHash": "c61d424c69bcdc5c412db3380d388feb8e412d5aa41f168dfbaf94c93372dbb7",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
@@ -30890,7 +30890,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7be414d758b3bcaf2596ac09acb31390dbb5280d83c7f7ed60ea2100c876f9aa",
+      "entryContentHash": "c61d424c69bcdc5c412db3380d388feb8e412d5aa41f168dfbaf94c93372dbb7",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
@@ -30946,7 +30946,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7be414d758b3bcaf2596ac09acb31390dbb5280d83c7f7ed60ea2100c876f9aa",
+      "entryContentHash": "c61d424c69bcdc5c412db3380d388feb8e412d5aa41f168dfbaf94c93372dbb7",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
@@ -31002,7 +31002,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7be414d758b3bcaf2596ac09acb31390dbb5280d83c7f7ed60ea2100c876f9aa",
+      "entryContentHash": "c61d424c69bcdc5c412db3380d388feb8e412d5aa41f168dfbaf94c93372dbb7",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
@@ -31058,7 +31058,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7be414d758b3bcaf2596ac09acb31390dbb5280d83c7f7ed60ea2100c876f9aa",
+      "entryContentHash": "c61d424c69bcdc5c412db3380d388feb8e412d5aa41f168dfbaf94c93372dbb7",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
@@ -31114,7 +31114,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "7be414d758b3bcaf2596ac09acb31390dbb5280d83c7f7ed60ea2100c876f9aa",
+      "entryContentHash": "c61d424c69bcdc5c412db3380d388feb8e412d5aa41f168dfbaf94c93372dbb7",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,
@@ -31168,7 +31168,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "580ef34fba4c74d780f1c0e4a934959e7730e880ab468905131a5713d5aa83ff",
+      "entryContentHash": "d3af75dbde8f2ec85fe8d244164959d9e1cd6513e4acdbbd51cbd989d942dd3b",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
@@ -31179,8 +31179,8 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -31217,13 +31217,13 @@
       ],
       "sectionId": "what-this-chapter-helps-you-do",
       "sourceId": "guide:09-settings-trust",
-      "sourceStateHash": "0f768d9c6a4bd21cebc3953bc9cbe08afde59b0e3633d2f7004b863f7819216f",
+      "sourceStateHash": "88a4378394fbed7e1370463c225c6038c664d2714555c451b0c639caf4cfe5b7",
       "title": "Set Trust, Runtime, And Local Controls",
       "wordCount": 20
     },
     {
       "apiPaths": [],
-      "entryContentHash": "580ef34fba4c74d780f1c0e4a934959e7730e880ab468905131a5713d5aa83ff",
+      "entryContentHash": "d3af75dbde8f2ec85fe8d244164959d9e1cd6513e4acdbbd51cbd989d942dd3b",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
@@ -31234,8 +31234,8 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -31272,13 +31272,13 @@
       ],
       "sectionId": "the-operator-story",
       "sourceId": "guide:09-settings-trust",
-      "sourceStateHash": "0f768d9c6a4bd21cebc3953bc9cbe08afde59b0e3633d2f7004b863f7819216f",
+      "sourceStateHash": "88a4378394fbed7e1370463c225c6038c664d2714555c451b0c639caf4cfe5b7",
       "title": "Set Trust, Runtime, And Local Controls",
       "wordCount": 173
     },
     {
       "apiPaths": [],
-      "entryContentHash": "580ef34fba4c74d780f1c0e4a934959e7730e880ab468905131a5713d5aa83ff",
+      "entryContentHash": "d3af75dbde8f2ec85fe8d244164959d9e1cd6513e4acdbbd51cbd989d942dd3b",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
@@ -31289,8 +31289,8 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -31326,13 +31326,13 @@
       ],
       "sectionId": "what-this-part-of-relay-is-for",
       "sourceId": "guide:09-settings-trust",
-      "sourceStateHash": "0f768d9c6a4bd21cebc3953bc9cbe08afde59b0e3633d2f7004b863f7819216f",
+      "sourceStateHash": "88a4378394fbed7e1370463c225c6038c664d2714555c451b0c639caf4cfe5b7",
       "title": "Set Trust, Runtime, And Local Controls",
       "wordCount": 141
     },
     {
       "apiPaths": [],
-      "entryContentHash": "580ef34fba4c74d780f1c0e4a934959e7730e880ab468905131a5713d5aa83ff",
+      "entryContentHash": "d3af75dbde8f2ec85fe8d244164959d9e1cd6513e4acdbbd51cbd989d942dd3b",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
@@ -31343,8 +31343,8 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -31383,13 +31383,13 @@
       ],
       "sectionId": "walk-the-screen-like-an-operator",
       "sourceId": "guide:09-settings-trust",
-      "sourceStateHash": "0f768d9c6a4bd21cebc3953bc9cbe08afde59b0e3633d2f7004b863f7819216f",
+      "sourceStateHash": "88a4378394fbed7e1370463c225c6038c664d2714555c451b0c639caf4cfe5b7",
       "title": "Set Trust, Runtime, And Local Controls",
       "wordCount": 168
     },
     {
       "apiPaths": [],
-      "entryContentHash": "580ef34fba4c74d780f1c0e4a934959e7730e880ab468905131a5713d5aa83ff",
+      "entryContentHash": "d3af75dbde8f2ec85fe8d244164959d9e1cd6513e4acdbbd51cbd989d942dd3b",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
@@ -31400,8 +31400,8 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -31438,13 +31438,13 @@
       ],
       "sectionId": "run-the-work-carefully",
       "sourceId": "guide:09-settings-trust",
-      "sourceStateHash": "0f768d9c6a4bd21cebc3953bc9cbe08afde59b0e3633d2f7004b863f7819216f",
+      "sourceStateHash": "88a4378394fbed7e1370463c225c6038c664d2714555c451b0c639caf4cfe5b7",
       "title": "Set Trust, Runtime, And Local Controls",
       "wordCount": 273
     },
     {
       "apiPaths": [],
-      "entryContentHash": "580ef34fba4c74d780f1c0e4a934959e7730e880ab468905131a5713d5aa83ff",
+      "entryContentHash": "d3af75dbde8f2ec85fe8d244164959d9e1cd6513e4acdbbd51cbd989d942dd3b",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
@@ -31455,8 +31455,8 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -31494,13 +31494,13 @@
       ],
       "sectionId": "what-to-do-when-the-state-looks-wrong",
       "sourceId": "guide:09-settings-trust",
-      "sourceStateHash": "0f768d9c6a4bd21cebc3953bc9cbe08afde59b0e3633d2f7004b863f7819216f",
+      "sourceStateHash": "88a4378394fbed7e1370463c225c6038c664d2714555c451b0c639caf4cfe5b7",
       "title": "Set Trust, Runtime, And Local Controls",
       "wordCount": 152
     },
     {
       "apiPaths": [],
-      "entryContentHash": "580ef34fba4c74d780f1c0e4a934959e7730e880ab468905131a5713d5aa83ff",
+      "entryContentHash": "d3af75dbde8f2ec85fe8d244164959d9e1cd6513e4acdbbd51cbd989d942dd3b",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
@@ -31511,8 +31511,8 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -31549,13 +31549,13 @@
       ],
       "sectionId": "what-this-changes-in-daily-work",
       "sourceId": "guide:09-settings-trust",
-      "sourceStateHash": "0f768d9c6a4bd21cebc3953bc9cbe08afde59b0e3633d2f7004b863f7819216f",
+      "sourceStateHash": "88a4378394fbed7e1370463c225c6038c664d2714555c451b0c639caf4cfe5b7",
       "title": "Set Trust, Runtime, And Local Controls",
       "wordCount": 104
     },
     {
       "apiPaths": [],
-      "entryContentHash": "580ef34fba4c74d780f1c0e4a934959e7730e880ab468905131a5713d5aa83ff",
+      "entryContentHash": "d3af75dbde8f2ec85fe8d244164959d9e1cd6513e4acdbbd51cbd989d942dd3b",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,
@@ -31566,8 +31566,8 @@
         "/inbox",
         "/monitor",
         "/settings",
-        "/settings#license",
-        "/settings#runtime",
+        "/settings#settings-license",
+        "/settings#settings-providers",
         "/tasks"
       ],
       "searchTerms": [
@@ -31603,7 +31603,7 @@
       ],
       "sectionId": "where-to-go-next",
       "sourceId": "guide:09-settings-trust",
-      "sourceStateHash": "0f768d9c6a4bd21cebc3953bc9cbe08afde59b0e3633d2f7004b863f7819216f",
+      "sourceStateHash": "88a4378394fbed7e1370463c225c6038c664d2714555c451b0c639caf4cfe5b7",
       "title": "Set Trust, Runtime, And Local Controls",
       "wordCount": 21
     }

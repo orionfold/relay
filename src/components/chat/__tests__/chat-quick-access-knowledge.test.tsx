@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { ChatQuickAccess } from "../chat-quick-access";
 import { ChatMessage } from "../chat-message";
 import { parseQuickAccessItems } from "@/lib/chat/types";
@@ -10,7 +10,7 @@ vi.mock("../chat-session-provider", () => ({
 }));
 
 describe("ChatQuickAccess knowledge affordances", () => {
-  it("distinguishes a non-link versioned source from a safe product action", () => {
+  it("links a verified public source separately above a safe product action", () => {
     render(
       <ChatQuickAccess
         items={[
@@ -22,6 +22,7 @@ describe("ChatQuickAccess knowledge affordances", () => {
             heading: "Run The Work Carefully",
             releaseVersion: "0.41.0",
             label: "Guide · Run The Work Carefully · Relay 0.41.0",
+            href: "https://orionfold.com/relay/docs/use-packs-and-licenses/",
           },
           {
             kind: "knowledge-action",
@@ -32,8 +33,85 @@ describe("ChatQuickAccess knowledge affordances", () => {
         ]}
       />
     );
-    expect(screen.getByLabelText(/Source: Guide/)).not.toHaveAttribute("href");
-    expect(screen.getByRole("link", { name: "Open Packs in Relay" })).toHaveAttribute("href", "/packs");
+    const sourceGroup = screen.getByRole("group", { name: "Sources" });
+    const actionGroup = screen.getByRole("group", { name: "Related Relay actions" });
+    const source = within(sourceGroup).getByRole("link", { name: /Source: Guide.*opens in a new tab/ });
+    expect(source).toHaveAttribute("href", "https://orionfold.com/relay/docs/use-packs-and-licenses/");
+    expect(source).toHaveAttribute("target", "_blank");
+    expect(source).toHaveAttribute("rel", "noopener noreferrer");
+    expect(source.querySelectorAll("svg")).toHaveLength(2);
+    expect(within(actionGroup).getByRole("link", { name: "Open Packs in Relay" })).toHaveAttribute("href", "/packs");
+    expect(sourceGroup.compareDocumentPosition(actionGroup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("keeps missing or unsafe public source destinations as truthful non-links", () => {
+    const parsed = parseQuickAccessItems([
+      {
+        kind: "knowledge-source",
+        sourceId: "guide:01-get-started",
+        sectionId: "overview",
+        sourceKind: "guide",
+        heading: "Overview",
+        releaseVersion: "0.41.0",
+        label: "Guide · Get started · Relay 0.41.0",
+        href: "https://example.com/trap",
+      },
+      {
+        kind: "knowledge-source",
+        sourceId: "api:01-overview-local-api",
+        sectionId: "overview",
+        sourceKind: "api",
+        heading: "Overview",
+        releaseVersion: "0.41.0",
+        label: "API · Overview · Relay 0.41.0",
+      },
+    ]);
+    expect(parsed).toHaveLength(2);
+    expect(parsed.every((item) => item.kind === "knowledge-source" && item.href === undefined)).toBe(true);
+    render(<ChatQuickAccess items={parsed} />);
+    const sources = screen.getByRole("group", { name: "Sources" });
+    expect(within(sources).queryAllByRole("link")).toHaveLength(0);
+    expect(screen.queryByRole("group", { name: "Related Relay actions" })).toBeNull();
+  });
+
+  it("omits empty groups and keeps source-first grouping for mixed wrapping content", () => {
+    const { rerender } = render(
+      <ChatQuickAccess items={[{
+        kind: "knowledge-action",
+        sourceId: "guide:01-get-started",
+        label: "Open Settings",
+        href: "/settings",
+      }]} />
+    );
+    expect(screen.queryByRole("group", { name: "Sources" })).toBeNull();
+    expect(screen.getByRole("group", { name: "Related Relay actions" })).toBeInTheDocument();
+
+    rerender(
+      <ChatQuickAccess items={[
+        {
+          kind: "knowledge-action",
+          sourceId: "guide:01-get-started",
+          label: "Open Settings",
+          href: "/settings",
+        },
+        {
+          kind: "knowledge-source",
+          sourceId: "guide:01-get-started",
+          sectionId: "overview",
+          sourceKind: "guide",
+          heading: "Overview",
+          releaseVersion: "0.41.0",
+          label: "Guide · Get started · Relay 0.41.0",
+          href: "https://orionfold.com/relay/docs/get-started-with-relay/",
+        },
+      ]} />
+    );
+    const groups = screen.getAllByRole("group");
+    expect(groups.map((group) => group.getAttribute("aria-label"))).toEqual([
+      "Sources",
+      "Related Relay actions",
+    ]);
+    expect(groups.every((group) => group.className.includes("flex-wrap"))).toBe(true);
   });
 
   it("keeps historical entity items and drops unsafe persisted actions", () => {
@@ -57,6 +135,12 @@ describe("ChatQuickAccess knowledge affordances", () => {
           sourceId: "api:tasks",
           label: "Call tasks API",
           href: "/api/tasks",
+        },
+        {
+          kind: "knowledge-action",
+          sourceId: "guide:01-get-started",
+          label: "Open stale Runtime settings",
+          href: "/settings#runtime",
         },
       ])
     ).toEqual([{ entityType: "task", entityId: "t1", label: "Task", href: "/tasks/t1" }]);

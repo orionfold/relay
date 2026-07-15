@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "0069902b9a4f98d1bb79d7363053e6a5f595c917e4d4d566ab38e9d6aa0057f1",
+  "contentHash": "10c6db3601f9f27cfe6d261de873a80bfe6b233165e551bce3d01fb1aa6a6c5c",
   "features": [
     "Installed packs/apps",
     "Kit-aware app layouts",
@@ -25,7 +25,8 @@
     "/tables",
     "/tables/demo_table_support_queue"
   ],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/docs/use-tables-triggers-and-schedules/",
+  "schemaVersion": 2,
   "screenshots": [
     {
       "id": "agency-app-detail",

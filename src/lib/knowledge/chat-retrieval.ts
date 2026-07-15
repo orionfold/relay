@@ -10,7 +10,7 @@ import {
   type RelayKnowledgeManifest,
   type RelayKnowledgeSection,
 } from "./types";
-import type { QuickAccessItem } from "@/lib/chat/types";
+import { isSafeKnowledgeSourceHref, type QuickAccessItem } from "@/lib/chat/types";
 
 export const KNOWLEDGE_MAX_SECTIONS = 3;
 export const KNOWLEDGE_MAX_TOKENS = 1_200;
@@ -71,6 +71,7 @@ export type RelayKnowledgeTurn =
 
 interface LoadedSection extends RelayKnowledgeReceiptSection {
   markdown: string;
+  publicUrl: string;
   productRoutes: string[];
   score: number;
 }
@@ -166,7 +167,9 @@ function isSafeLocalRoute(value: unknown): value is string {
     typeof value !== "string" ||
     !/^\/[A-Za-z0-9_./-]*(?:#[A-Za-z0-9_.-]+)?$/.test(value) ||
     value.startsWith("//") ||
-    value.startsWith("/api/")
+    value.startsWith("/api/") ||
+    value === "/settings#runtime" ||
+    value === "/settings#license"
   ) return false;
   return value.split("#")[0].split("/").every((part) => part !== "." && part !== "..");
 }
@@ -211,10 +214,13 @@ function validateManifestAndIndex(
     const expectedPath = `entries/${entry.id.replace(":", ".")}.json`;
     if (
       !/^(guide|api):[a-z0-9][a-z0-9-]*$/.test(entry.id) ||
+      (entry.kind !== "guide" && entry.kind !== "api") ||
+      !entry.id.startsWith(`${entry.kind}:`) ||
       entry.path !== expectedPath ||
       !isHash(entry.contentHash) ||
       !isHash(entry.sourceHash) ||
       !isHash(entry.sourceStateHash) ||
+      !isSafeKnowledgeSourceHref(entry.publicUrl, entry.kind) ||
       ids.has(entry.id) ||
       paths.has(entry.path)
     ) {
@@ -226,7 +232,7 @@ function validateManifestAndIndex(
   }
   const rootHash = sha256(stableJson({
     corpus: manifest.corpus,
-    entries: manifest.entries.map(({ contentHash, id, path }) => ({ contentHash, id, path })),
+    entries: manifest.entries.map(({ contentHash, id, path, publicUrl }) => ({ contentHash, id, path, publicUrl })),
     indexHash: manifest.indexHash,
     releaseVersion: manifest.releaseVersion,
     sourceBundleHash: manifest.sourceBundleHash,
@@ -310,6 +316,8 @@ function validateEntry(
     entry.kind !== declaration.kind ||
     entry.sourceHash !== declaration.sourceHash ||
     entry.sourceStateHash !== declaration.sourceStateHash ||
+    entry.publicUrl !== declaration.publicUrl ||
+    !isSafeKnowledgeSourceHref(entry.publicUrl, entry.kind) ||
     entry.contentHash !== declaration.contentHash ||
     !Array.isArray(entry.sections) ||
     !Array.isArray(entry.productRoutes) ||
@@ -357,8 +365,8 @@ export function rankKnowledgeIndex(
 
 function routeLabel(route: string): string {
   const fragment = route.split("#")[1];
-  if (fragment === "license") return "Open License settings";
-  if (fragment === "runtime") return "Open Runtime settings";
+  if (fragment === "settings-license") return "Open License settings";
+  if (fragment === "settings-providers") return "Open Providers & runtimes settings";
   const root = route.split("#")[0].split("/").filter(Boolean)[0] ?? "dashboard";
   const labels: Record<string, string> = {
     agents: "Agents", apps: "Apps", blueprints: "Blueprints", chat: "Chat",
@@ -450,6 +458,7 @@ export function prepareRelayKnowledgeTurn(
           wordCount: section.wordCount,
           truncated: false,
           markdown: section.markdown,
+          publicUrl: entry.publicUrl,
           productRoutes: indexRecord.productRoutes,
           score: sectionScore(section, indexRecord, query),
         });
@@ -473,19 +482,26 @@ export function prepareRelayKnowledgeTurn(
       throw new RelayKnowledgeError("KnowledgeNoMatchError", "No non-empty current section matches the help query");
     }
 
-    const receiptSections = selected.map(({ markdown: _m, productRoutes: _r, score: _s, ...receipt }) => receipt);
+    const receiptSections = selected.map(({
+      markdown: _m,
+      productRoutes: _r,
+      publicUrl: _u,
+      score: _s,
+      ...receipt
+    }) => receipt);
     const receipt: RelayKnowledgeReceipt = {
       status: "ready",
       releaseVersion: manifest.releaseVersion,
       sections: receiptSections,
     };
-    const sources: QuickAccessItem[] = receiptSections.slice(0, 2).map((section) => ({
+    const sources: QuickAccessItem[] = selected.slice(0, 2).map((section) => ({
       kind: "knowledge-source",
       sourceId: section.sourceId,
       sectionId: section.sectionId,
       sourceKind: section.sourceKind,
       heading: section.heading,
       releaseVersion: manifest.releaseVersion,
+      href: section.publicUrl,
       label: `${section.sourceKind === "api" ? "API" : "Guide"} · ${section.title} / ${section.heading} · Relay ${manifest.releaseVersion}`,
     }));
     const actions: QuickAccessItem[] = chooseRoutes(selected, query).map((href) => ({

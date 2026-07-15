@@ -33,13 +33,14 @@
     "/api/runtimes/openai-compatible/{runtimeId}",
     "/api/runtimes/suggest"
   ],
-  "contentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+  "contentHash": "1da1ecd4a9f508affacfcfc39d2a7c5c9c7b568125428ab2c51ba8b4255a56eb",
   "features": [],
   "id": "api:03-agents-chat-runtimes",
   "journeys": [],
   "kind": "api",
   "productRoutes": [],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/api/03-agents-chat-runtimes/",
+  "schemaVersion": 2,
   "screenshots": [],
   "sections": [
     {

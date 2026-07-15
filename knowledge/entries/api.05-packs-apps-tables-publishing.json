@@ -38,13 +38,14 @@
     "/api/views",
     "/api/views/{id}"
   ],
-  "contentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+  "contentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
   "features": [],
   "id": "api:05-packs-apps-tables-publishing",
   "journeys": [],
   "kind": "api",
   "productRoutes": [],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/api/05-packs-apps-tables-publishing/",
+  "schemaVersion": 2,
   "screenshots": [],
   "sections": [
     {

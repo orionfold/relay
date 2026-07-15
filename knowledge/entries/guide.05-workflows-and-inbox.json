@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "6fa9e40ee9fecabae12b92976024797c6b0a979e1f13f5241cdb4d87ab7632bc",
+  "contentHash": "d397b1a1e8dce972eeaeb10b93ce59ea0d543880c373e7e71bdf9362b8d0cef5",
   "features": [
     "Human-in-the-loop workflow questions",
     "Inbox",
@@ -27,7 +27,8 @@
     "/tasks",
     "/workflows"
   ],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/docs/run-workflows-with-human-checkpoints/",
+  "schemaVersion": 2,
   "screenshots": [
     {
       "id": "agency-app-detail",

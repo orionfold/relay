@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "add180e4faccbd67747aaa0c35875aadeba849a5f6c966281b4d5b9d7c1c9ddc",
+  "contentHash": "add8e65bcb1e3b9e86c1ad7058705a0d1c7ce64339a55bb0db32dbf1e8621ad2",
   "features": [
     "Current bundled pack families",
     "Offline license lifecycle",
@@ -22,9 +22,10 @@
     "/packs",
     "/schedules",
     "/settings",
-    "/settings#license"
+    "/settings#settings-license"
   ],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/docs/use-packs-and-licenses/",
+  "schemaVersion": 2,
   "screenshots": [
     {
       "id": "agents-list",
@@ -77,7 +78,7 @@
     {
       "id": "settings-license",
       "path": "dark/settings/settings-license__desktop.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
       "theme": "dark",
       "viewport": "desktop"
@@ -85,7 +86,7 @@
     {
       "id": "settings-license",
       "path": "dark/settings/settings-license__mobile.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
       "theme": "dark",
       "viewport": "mobile"
@@ -157,7 +158,7 @@
     {
       "id": "settings-license",
       "path": "light/settings/settings-license__desktop.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
       "theme": "light",
       "viewport": "desktop"
@@ -165,7 +166,7 @@
     {
       "id": "settings-license",
       "path": "light/settings/settings-license__mobile.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
       "theme": "light",
       "viewport": "mobile"
@@ -247,7 +248,7 @@
   ],
   "sourceHash": "19f71df161c96f451a6d5000ee87f737bbbe49b16f6a7cd7f3673f1ffe38302e",
   "sourcePath": "docs/guides/02-use-packs-and-licenses.md",
-  "sourceStateHash": "775ceee772572075b1afa884844a1df95f7886b9b45d61b9dcb0f1ab5bc4d29e",
+  "sourceStateHash": "a8617b5e03b095d885298d9e017a694a943d0405014a5a90b0aae096f1030fa1",
   "summary": "Explain what packs are, how to install or update them, and how license state affects premium pack actions.",
   "title": "Use Packs And Licenses"
 }

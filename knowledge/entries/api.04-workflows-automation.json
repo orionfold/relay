@@ -30,13 +30,14 @@
     "/api/workflows/from-assist",
     "/api/workflows/optimize"
   ],
-  "contentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+  "contentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
   "features": [],
   "id": "api:04-workflows-automation",
   "journeys": [],
   "kind": "api",
   "productRoutes": [],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/api/04-workflows-automation/",
+  "schemaVersion": 2,
   "screenshots": [],
   "sections": [
     {

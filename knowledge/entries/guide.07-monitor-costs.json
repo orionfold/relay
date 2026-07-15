@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "df36e88eb9038666363c9f2445b45abf813b773a140b733d606c5c051a3943eb",
+  "contentHash": "4e6e3a6bc464f4ab3a8ea4eabd1619aba1e8f5223f01a32bf2464c86c39e9af4",
   "features": [
     "Cost and Usage",
     "Customers and spend attribution",
@@ -23,11 +23,12 @@
     "/customers",
     "/monitor",
     "/settings",
-    "/settings#license",
-    "/settings#runtime",
+    "/settings#settings-license",
+    "/settings#settings-providers",
     "/tasks"
   ],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/docs/watch-runs-costs-and-budget-signals/",
+  "schemaVersion": 2,
   "screenshots": [
     {
       "id": "chat-workspace",
@@ -112,7 +113,7 @@
     {
       "id": "settings-license",
       "path": "dark/settings/settings-license__desktop.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
       "theme": "dark",
       "viewport": "desktop"
@@ -120,7 +121,7 @@
     {
       "id": "settings-license",
       "path": "dark/settings/settings-license__mobile.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
       "theme": "dark",
       "viewport": "mobile"
@@ -128,7 +129,7 @@
     {
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__desktop.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
       "theme": "dark",
       "viewport": "desktop"
@@ -136,7 +137,7 @@
     {
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__mobile.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "74d7110d1ba5a3e63aef651e58361aad164fbb316e08ed35d875a8d8ff41c1a3",
       "theme": "dark",
       "viewport": "mobile"
@@ -256,7 +257,7 @@
     {
       "id": "settings-license",
       "path": "light/settings/settings-license__desktop.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
       "theme": "light",
       "viewport": "desktop"
@@ -264,7 +265,7 @@
     {
       "id": "settings-license",
       "path": "light/settings/settings-license__mobile.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
       "theme": "light",
       "viewport": "mobile"
@@ -272,7 +273,7 @@
     {
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__desktop.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "e3e4ba5ef17e207de5dc8a4d69860eee24d17b112dd8e2e6c72843b24b97f8ee",
       "theme": "light",
       "viewport": "desktop"
@@ -280,7 +281,7 @@
     {
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__mobile.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
       "theme": "light",
       "viewport": "mobile"
@@ -378,7 +379,7 @@
   ],
   "sourceHash": "92f4ceaa250b5cd917878b46786f47c6710d94e920fdba704672099a8d348a74",
   "sourcePath": "docs/guides/07-watch-runs-costs-and-budget-signals.md",
-  "sourceStateHash": "767f6d2356d8161bf9b67879e1357c7a38a6b5a17c9d075d7c5f688e58a7a7be",
+  "sourceStateHash": "5d3809604def8f7c6fb801c3d3bfad113646178e752a0415a3d3efe203305244",
   "summary": "Teach the reader how to audit what ran, what it cost, and where to tune the setup.",
   "title": "Watch Runs, Costs, And Budget Signals"
 }

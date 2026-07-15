@@ -16,13 +16,14 @@
     "/api/uploads/{id}",
     "/api/uploads/cleanup"
   ],
-  "contentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+  "contentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
   "features": [],
   "id": "api:07-files-observability-maintenance",
   "journeys": [],
   "kind": "api",
   "productRoutes": [],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/api/07-files-observability-maintenance/",
+  "schemaVersion": 2,
   "screenshots": [],
   "sections": [
     {

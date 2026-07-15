@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "580ef34fba4c74d780f1c0e4a934959e7730e880ab468905131a5713d5aa83ff",
+  "contentHash": "d3af75dbde8f2ec85fe8d244164959d9e1cd6513e4acdbbd51cbd989d942dd3b",
   "features": [
     "Dashboard and settings drill-downs",
     "Local-first trust posture",
@@ -23,11 +23,12 @@
     "/inbox",
     "/monitor",
     "/settings",
-    "/settings#license",
-    "/settings#runtime",
+    "/settings#settings-license",
+    "/settings#settings-providers",
     "/tasks"
   ],
-  "schemaVersion": 1,
+  "publicUrl": "https://orionfold.com/relay/docs/set-trust-runtime-and-local-controls/",
+  "schemaVersion": 2,
   "screenshots": [
     {
       "id": "chat-workspace",
@@ -112,7 +113,7 @@
     {
       "id": "settings-license",
       "path": "dark/settings/settings-license__desktop.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
       "theme": "dark",
       "viewport": "desktop"
@@ -120,7 +121,7 @@
     {
       "id": "settings-license",
       "path": "dark/settings/settings-license__mobile.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
       "theme": "dark",
       "viewport": "mobile"
@@ -128,7 +129,7 @@
     {
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__desktop.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
       "theme": "dark",
       "viewport": "desktop"
@@ -136,7 +137,7 @@
     {
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__mobile.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "74d7110d1ba5a3e63aef651e58361aad164fbb316e08ed35d875a8d8ff41c1a3",
       "theme": "dark",
       "viewport": "mobile"
@@ -256,7 +257,7 @@
     {
       "id": "settings-license",
       "path": "light/settings/settings-license__desktop.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
       "theme": "light",
       "viewport": "desktop"
@@ -264,7 +265,7 @@
     {
       "id": "settings-license",
       "path": "light/settings/settings-license__mobile.png",
-      "productRoute": "/settings#license",
+      "productRoute": "/settings#settings-license",
       "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
       "theme": "light",
       "viewport": "mobile"
@@ -272,7 +273,7 @@
     {
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__desktop.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "e3e4ba5ef17e207de5dc8a4d69860eee24d17b112dd8e2e6c72843b24b97f8ee",
       "theme": "light",
       "viewport": "desktop"
@@ -280,7 +281,7 @@
     {
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__mobile.png",
-      "productRoute": "/settings#runtime",
+      "productRoute": "/settings#settings-providers",
       "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
       "theme": "light",
       "viewport": "mobile"
@@ -378,7 +379,7 @@
   ],
   "sourceHash": "c0ccc8ce1d9066ea54193d357ea1860c1c5e2ad3b57b04e313866b4204d4a144",
   "sourcePath": "docs/guides/09-set-trust-runtime-and-local-controls.md",
-  "sourceStateHash": "0f768d9c6a4bd21cebc3953bc9cbe08afde59b0e3633d2f7004b863f7819216f",
+  "sourceStateHash": "88a4378394fbed7e1370463c225c6038c664d2714555c451b0c639caf4cfe5b7",
   "summary": "Explain the settings an SMB should check before trusting Relay with real work.",
   "title": "Set Trust, Runtime, And Local Controls"
 }

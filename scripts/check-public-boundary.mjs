@@ -89,6 +89,9 @@ export const ALLOWLIST = new Map([
   // every forbidden class. No other script or test receives this exception.
   ["scripts/check-public-boundary.mjs", ALL_RULE_IDS],
   ["scripts/check-public-boundary.test.mjs", ALL_RULE_IDS],
+  // Knowledge-bundle reconciliation uses one synthetic machine path to prove
+  // generated public artifacts reject private source material.
+  ["scripts/knowledge-bundle.test.mjs", new Set(["machine-path"])],
   // Public authorship/license attribution is intentional and portable.
   ["README.md", new Set(["personal-handle"])],
   // The classification receipt must name the excluded continuity paths so a
