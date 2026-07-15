@@ -145,20 +145,23 @@ baseline suite is deterministic.
 `npm run quality:gate -- --profile pr --base <sha> --head <sha>` is the local
 equivalent of the always-on `Relay quality gate` pull-request check. The
 workflow has no path filter: every pull request runs TypeScript, the default
-Vitest matrix under all-source coverage, the coverage ratchet, the executable
-test audit, deterministic hook/privacy/docs/Pack/token guards, and the real
-runtime graph. Runtime smoke is always-on because the registry's transitive
-imports reach beyond a reliably maintainable static path allowlist. A committed
-path policy may only add harness-safety, mutation-strength, or Pack-compatibility
-lanes. A missing/invalid diff fails closed.
+CLI build before its bundled-CLI integration tests, the Vitest matrix under
+all-source coverage, the coverage ratchet, the executable test audit,
+deterministic hook/privacy/docs/Pack/token guards, and the real runtime graph.
+Runtime smoke is always-on because the registry's transitive imports reach
+beyond a reliably maintainable static path allowlist. A committed path policy
+may only add harness-safety, mutation-strength, or Pack-compatibility lanes. A
+missing/invalid diff fails closed.
 
 Merge-group and tag-release qualification use the `release` profile and run
-every conditional lane plus the CLI build. The tag publish workflow calls the
-same reusable workflow and declares the external publication job dependent on
-it. Its clean publication runner then rebuilds artifacts and retains the
-customer-identical production `npx` smoke before npm/GitHub writes. The
-fresh-clone macOS/Windows Node/npm matrix remains separate because portability
-and install topology are not substitutes for the default regression suite.
+every conditional lane. Both profiles build the CLI before default coverage so
+clean checkouts satisfy the bundled-CLI integration-test prerequisite. The tag
+publish workflow calls the same reusable workflow and declares the external
+publication job dependent on it. Its clean publication runner then rebuilds
+artifacts and retains the customer-identical production `npx` smoke before
+npm/GitHub writes. The fresh-clone macOS/Windows Node/npm matrix remains
+separate because portability and install topology are not substitutes for the
+default regression suite.
 
 The coverage gate compares every eligible production path against
 `coverage/coverage-summary.json` and applies committed Tier-0/Tier-1

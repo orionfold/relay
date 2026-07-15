@@ -43,6 +43,21 @@ test("PR plans always include the deterministic contract", () => {
   assert.deepEqual(plan.lanes, ALWAYS_LANES);
 });
 
+test("CLI integration artifact is built before default coverage in every profile", () => {
+  for (const profile of ["pr", "release"]) {
+    const plan = planQualityGate({
+      profile,
+      changedFiles: profile === "pr" ? ["README.md"] : [],
+    });
+    assert.ok(plan.lanes.includes("build-cli"), profile);
+    assert.ok(
+      plan.lanes.indexOf("build-cli") < plan.lanes.indexOf("default-coverage"),
+      profile
+    );
+  }
+  assert.equal(RELEASE_ONLY_LANES.includes("build-cli"), false);
+});
+
 test("runtime graph smoke is always-on for transitive dependencies", () => {
   const plan = planQualityGate({
     profile: "pr",

@@ -3,6 +3,7 @@ export const QUALITY_PROFILES = ["pr", "release"];
 export const ALWAYS_LANES = [
   "typecheck",
   "test-projects",
+  "build-cli",
   "default-coverage",
   "coverage-policy",
   "test-audit",
@@ -24,7 +25,7 @@ export const CONDITIONAL_LANES = [
   "pack-compat",
 ];
 
-export const RELEASE_ONLY_LANES = ["build-cli"];
+export const RELEASE_ONLY_LANES = [];
 
 export const COVERAGE_RATCHET_BASELINE = {
   commit: "2852e89c",

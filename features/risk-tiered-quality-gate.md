@@ -45,6 +45,7 @@ Every pull request runs one stable `Relay quality gate` job without workflow
 path filtering. It always runs:
 
 - TypeScript compilation
+- the bundled CLI build before integration tests that execute `dist/cli.js`
 - the default Vitest matrix under V8 coverage (same include/exclude contract as
   `npm test`)
 - an all-source denominator check and committed per-risk-surface ratchet floors
@@ -65,11 +66,13 @@ is a failure, never a reason to run fewer checks.
 
 ### Merge queue and release
 
-Merge-group and release profiles conservatively run every conditional lane. The
-tag publish workflow calls the same reusable workflow and declares publication
-dependent on it. The publish job still rebuilds artifacts in its own clean
-runner and then performs the existing production build and customer-identical
-`npx` smoke before its external npm/GitHub writes.
+Merge-group and release profiles conservatively run every conditional lane.
+Both profiles build the bundled CLI before coverage so a clean checkout meets
+the default integration suite's artifact prerequisite. The tag publish workflow
+calls the same reusable workflow and declares publication dependent on it. The
+publish job still rebuilds artifacts in its own clean runner and then performs
+the existing production build and customer-identical `npx` smoke before its
+external npm/GitHub writes.
 
 ## Coverage contract
 
@@ -114,6 +117,8 @@ controls retain their own bounded cleanup behavior.
       publish job until that profile succeeds.
 - [x] Default tests plus all-source coverage, TypeScript, static checks, and
       test-audit validation are always required.
+- [x] A clean checkout builds the bundled CLI before default coverage executes
+      the CLI environment integration tests.
 - [x] Path tests prove the runtime lane is always-on and harness, mutation, and
       Pack-compatibility lanes cannot be bypassed by any mapped production,
       test, policy, or workflow change; release and merge profiles include all.

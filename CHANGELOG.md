@@ -40,6 +40,9 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Fixed
 
+- **Release qualification is deterministic on clean checkouts.** The shared
+  quality contract now builds the bundled CLI before integration tests execute
+  it, instead of relying on a locally cached `dist/cli.js` artifact.
 - **Interrupted workflows now settle truthfully and resume exactly once.**
   Failed parallel branches and loop iterations cannot produce a completed
   parent or receipt; delayed and human-input recovery use durable atomic claims;
