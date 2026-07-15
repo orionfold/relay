@@ -64,7 +64,6 @@ export async function* sendOpenAICompatibleMessage(
 
   const recordTurn = async (status: "completed" | "failed" | "cancelled") => {
     if (ledgerRecorded) return;
-    ledgerRecorded = true;
     await recordUsageLedgerEntry({
       projectId: conversation?.projectId ?? null,
       activityType: "chat_turn",
@@ -92,6 +91,7 @@ export async function* sendOpenAICompatibleMessage(
       startedAt,
       finishedAt: new Date(),
     });
+    ledgerRecorded = true;
   };
 
   try {

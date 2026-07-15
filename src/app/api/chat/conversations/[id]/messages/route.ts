@@ -75,6 +75,7 @@ export async function POST(
           clearInterval(keepalive);
         }
       }, 15_000);
+      let terminalSeen = false;
 
       try {
         for await (const event of sendMessage(
@@ -87,8 +88,24 @@ export async function POST(
           controller.enqueue(encoder.encode(data));
 
           if (event.type === "done" || event.type === "error") {
+            terminalSeen = true;
             break;
           }
+        }
+        if (!terminalSeen && !streamAbortController.signal.aborted) {
+          const message = "Chat stream ended without a terminal event";
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({ type: "error", message })}\n\n`
+            )
+          );
+          recordTermination({
+            reason: "stream.finalized.error",
+            conversationId: id,
+            messageId: null,
+            durationMs: Date.now() - streamStartedAt,
+            error: message,
+          });
         }
       } catch (error) {
         const errorEvent = {
@@ -96,12 +113,21 @@ export async function POST(
           message:
             error instanceof Error ? error.message : "Stream error",
         };
-        try {
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(errorEvent)}\n\n`)
-          );
-        } catch {
-          // The client may already have cancelled the outer SSE stream.
+        if (!streamAbortController.signal.aborted) {
+          recordTermination({
+            reason: "stream.finalized.error",
+            conversationId: id,
+            messageId: null,
+            durationMs: Date.now() - streamStartedAt,
+            error: errorEvent.message.slice(0, 500),
+          });
+          try {
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify(errorEvent)}\n\n`)
+            );
+          } catch {
+            // The client may already have cancelled the outer SSE stream.
+          }
         }
       } finally {
         clearInterval(keepalive);

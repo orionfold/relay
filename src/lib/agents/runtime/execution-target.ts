@@ -21,6 +21,7 @@ import {
   isOpenAICompatibleRuntimeId,
   resolveOpenAICompatibleModel,
 } from "./openai-compatible";
+import { getChatRuntimeContract } from "@/lib/chat/runtime-contract";
 
 const FILESYSTEM_TOOL_NAMES = new Set([
   "Read",
@@ -568,6 +569,12 @@ export async function resolveChatExecutionTarget(input: {
   const explicitRuntimeId = input.requestedRuntimeId
     ? resolveAgentRuntime(input.requestedRuntimeId)
     : null;
+  if (explicitRuntimeId) {
+    const chatContract = getChatRuntimeContract(explicitRuntimeId);
+    if (!chatContract.supported) {
+      throw new RuntimeCapabilityMismatchError(chatContract.reason);
+    }
+  }
   const prefixedRuntimeId = rawRequestedModelId.startsWith("litellm:")
     ? "litellm"
     : rawRequestedModelId.startsWith("lmstudio:")

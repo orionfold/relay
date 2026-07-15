@@ -66,6 +66,7 @@ import {
   detectViewEditingIntent,
   buildViewEditingHint,
 } from "./planner/view-editing-hint";
+import { requireChatRuntimeContract } from "./runtime-contract";
 
 // Re-exported from runtime/claude-sdk.ts so chat/engine.ts remains a stable
 // import surface for the Phase 1a test suite. The canonical definitions
@@ -170,6 +171,13 @@ function diagnoseProcessError(rawMessage: string, stderr: string): string {
   return rawMessage;
 }
 
+class ClaudeChatTerminalError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ClaudeChatTerminalError";
+  }
+}
+
 // ── Stream-shaping helpers (exported for unit tests) ──────────────────
 
 /**
@@ -238,35 +246,41 @@ export async function* sendMessage(
     };
   }
 
-  // Route to Codex App Server for OpenAI models
-  if (target.effectiveRuntimeId === "openai-codex-app-server") {
-    const { sendCodexMessage } = await import("./codex-engine");
-    yield* sendCodexMessage(conversationId, userContent, signal, target);
-    return;
-  }
-
-  // Route to Ollama for local models
-  if (target.effectiveRuntimeId === "ollama") {
-    const { sendOllamaMessage } = await import("./ollama-engine");
-    yield* sendOllamaMessage(conversationId, userContent, signal);
-    return;
-  }
-
-  if (
-    target.effectiveRuntimeId === "litellm" ||
-    target.effectiveRuntimeId === "lmstudio"
-  ) {
-    const { sendOpenAICompatibleMessage } = await import(
-      "./openai-compatible-engine"
-    );
-    yield* sendOpenAICompatibleMessage(
-      target.effectiveRuntimeId,
-      conversationId,
-      userContent,
-      signal,
-      target
-    );
-    return;
+  const chatContract = requireChatRuntimeContract(target.effectiveRuntimeId);
+  switch (chatContract.engine) {
+    case "codex-app-server": {
+      const { sendCodexMessage } = await import("./codex-engine");
+      yield* sendCodexMessage(conversationId, userContent, signal, target);
+      return;
+    }
+    case "ollama-http": {
+      const { sendOllamaMessage } = await import("./ollama-engine");
+      yield* sendOllamaMessage(conversationId, userContent, signal);
+      return;
+    }
+    case "openai-compatible-sse": {
+      const { sendOpenAICompatibleMessage } = await import(
+        "./openai-compatible-engine"
+      );
+      if (
+        target.effectiveRuntimeId !== "litellm" &&
+        target.effectiveRuntimeId !== "lmstudio"
+      ) {
+        throw new Error(
+          `Chat contract mismatch for ${target.effectiveRuntimeId}`
+        );
+      }
+      yield* sendOpenAICompatibleMessage(
+        target.effectiveRuntimeId,
+        conversationId,
+        userContent,
+        signal,
+        target
+      );
+      return;
+    }
+    case "claude-agent-sdk":
+      break;
   }
 
   const runtimeId = target.effectiveRuntimeId;
@@ -868,16 +882,22 @@ export async function* sendMessage(
           }
         }
       } else if (raw.type === "result") {
-        if (raw.is_error && raw.subtype !== "error_max_turns") {
+        if (raw.is_error) {
           // SDKResultError has `errors: string[]`; SDKResultSuccess has `result: string`
           const errors = (raw as Record<string, unknown>).errors as string[] | undefined;
           const result = (raw as Record<string, unknown>).result as string | undefined;
+          if (typeof result === "string" && result.length > 0 && !fullText) {
+            fullText = result;
+            yield { type: "delta", content: result };
+          }
           const errorDetail = errors?.length
             ? errors.join("; ")
-            : typeof result === "string"
+            : raw.subtype === "error_max_turns"
+              ? "Claude Agent SDK reached the configured turn limit"
+              : typeof result === "string"
               ? result
               : "Agent SDK returned an error";
-          throw new Error(errorDetail);
+          throw new ClaudeChatTerminalError(errorDetail);
         }
         // Only emit result text as fallback when streaming didn't deliver content.
         // When deltas were active, fullText is already complete — re-emitting
@@ -917,6 +937,11 @@ export async function* sendMessage(
     if (!fullText && usage.outputTokens && usage.outputTokens > 0) {
       fullText = "(Response was generated but could not be captured. Please try again.)";
       yield { type: "delta", content: fullText };
+    }
+    if (!fullText.trim()) {
+      throw new ClaudeChatTerminalError(
+        "Claude Agent SDK completed without assistant output"
+      );
     }
 
     // Finalize assistant message
@@ -1011,58 +1036,31 @@ export async function* sendMessage(
       error: errorMessage.slice(0, 500),
     });
 
-    if (fullText && fullText.length > 50) {
-      // Substantial content was already streamed — complete gracefully with warning
-      const warning = `\n\n---\n\n*Response may be incomplete: ${errorMessage}*`;
-      fullText += warning;
-      yield { type: "delta", content: warning };
+    // Preserve useful partial text, but never convert a failed provider
+    // terminal into application-level success. Runtime/model/usage truth must
+    // agree with the public terminal event across every provider.
+    const durableContent = fullText
+      ? `${fullText}\n\n---\n\n*Response incomplete: ${errorMessage}*`
+      : errorMessage || "(Response failed — no error detail available.)";
+    fullText = durableContent;
+    await updateMessageContent(assistantMsg.id, durableContent);
+    await updateMessageStatus(assistantMsg.id, "error");
 
-      await updateMessageContent(assistantMsg.id, fullText);
-      await updateMessageStatus(assistantMsg.id, "complete");
+    await recordUsageLedgerEntry({
+      projectId: conversation.projectId,
+      activityType: "chat_turn",
+      runtimeId,
+      providerId,
+      modelId: usage.modelId ?? target.effectiveModelId ?? conversation.modelId ?? null,
+      inputTokens: usage.inputTokens ?? null,
+      outputTokens: usage.outputTokens ?? null,
+      totalTokens: usage.totalTokens ?? null,
+      status: signal?.aborted ? "cancelled" : "failed",
+      startedAt,
+      finishedAt: new Date(),
+    });
 
-      await recordUsageLedgerEntry({
-        projectId: conversation.projectId,
-        activityType: "chat_turn",
-        runtimeId,
-        providerId,
-        modelId: usage.modelId ?? target.effectiveModelId ?? conversation.modelId ?? null,
-        inputTokens: usage.inputTokens ?? null,
-        outputTokens: usage.outputTokens ?? null,
-        totalTokens: usage.totalTokens ?? null,
-        status: "completed",
-        startedAt,
-        finishedAt: new Date(),
-      });
-
-      yield { type: "done", messageId: assistantMsg.id, quickAccess: [] };
-    } else {
-      // No meaningful content — show as error. Fallback chain ensures we
-      // never write an empty string even if both fullText and errorMessage
-      // happen to be blank.
-      await updateMessageContent(
-        assistantMsg.id,
-        fullText ||
-          errorMessage ||
-          "(Response failed — no error detail available.)"
-      );
-      await updateMessageStatus(assistantMsg.id, "error");
-
-      await recordUsageLedgerEntry({
-        projectId: conversation.projectId,
-        activityType: "chat_turn",
-        runtimeId,
-        providerId,
-        modelId: usage.modelId ?? target.effectiveModelId ?? conversation.modelId ?? null,
-        inputTokens: usage.inputTokens ?? null,
-        outputTokens: usage.outputTokens ?? null,
-        totalTokens: usage.totalTokens ?? null,
-        status: signal?.aborted ? "cancelled" : "failed",
-        startedAt,
-        finishedAt: new Date(),
-      });
-
-      yield { type: "error", message: errorMessage };
-    }
+    yield { type: "error", message: errorMessage };
   } finally {
     // Safety net: guarantee the placeholder row never remains in
     // status='streaming' after the generator exits. Catches code paths that

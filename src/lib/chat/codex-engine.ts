@@ -35,6 +35,9 @@ import {
 } from "./permission-bridge";
 import { getWorkspaceContext } from "@/lib/environment/workspace-context";
 import type { ResolvedExecutionTarget } from "@/lib/agents/runtime/execution-target";
+import { finalizeStreamingMessage } from "./reconcile";
+import { recordTermination, type TerminationReason } from "./stream-telemetry";
+import { registerChatStream, unregisterChatStream } from "./active-streams";
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -46,6 +49,20 @@ function asRecord(v: unknown): Record<string, unknown> | null {
 
 function asString(v: unknown): string | null {
   return typeof v === "string" ? v : null;
+}
+
+class CodexChatTerminalError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CodexChatTerminalError";
+  }
+}
+
+class CodexChatCancelledError extends Error {
+  constructor(message = "Request cancelled") {
+    super(message);
+    this.name = "CodexChatCancelledError";
+  }
 }
 
 // ── Public API ───────────────────────────────────────────────────────────
@@ -131,57 +148,153 @@ export async function* sendCodexMessage(
     content: "",
     status: "streaming",
   });
-
-  // Get OpenAI API key
-  let auth;
-  try {
-    auth = await resolveOpenAICodexAuthContext();
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "OpenAI Codex authentication is not configured.";
-    await updateMessageContent(assistantMsg.id, message);
-    await updateMessageStatus(assistantMsg.id, "error");
-    yield { type: "error", message };
-    return;
-  }
-
-  yield { type: "status", phase: "connecting", message: "Connecting to model..." };
-
+  registerChatStream(conversationId);
   const sideChannel = createSideChannel(conversationId);
   const startedAt = new Date();
   let usage: UsageSnapshot = {};
   let fullText = "";
   let client: CodexAppServerClient | null = null;
   let threadId = conversation.sessionId;
+  let turnId: string | null = null;
+  let interruptPromise: Promise<unknown> | null = null;
+  let ledgerRecorded = false;
+  let terminationRecorded = false;
+
+  const effectiveModelId = () =>
+    usage.modelId ??
+    targetOverride?.effectiveModelId ??
+    conversation.modelId ??
+    null;
+
+  const recordTurn = async (status: "completed" | "failed" | "cancelled") => {
+    if (ledgerRecorded) return;
+    await recordUsageLedgerEntry({
+      projectId: conversation.projectId,
+      activityType: "chat_turn",
+      runtimeId,
+      providerId,
+      modelId: effectiveModelId(),
+      inputTokens: usage.inputTokens ?? null,
+      outputTokens: usage.outputTokens ?? null,
+      totalTokens: usage.totalTokens ?? null,
+      status,
+      startedAt,
+      finishedAt: new Date(),
+    });
+    ledgerRecorded = true;
+  };
+
+  const recordPrimaryTermination = (
+    reason: TerminationReason,
+    error?: string
+  ) => {
+    if (terminationRecorded) return;
+    terminationRecorded = true;
+    recordTermination({
+      reason,
+      conversationId,
+      messageId: assistantMsg.id,
+      durationMs: Date.now() - startedAt.getTime(),
+      ...(error ? { error: error.slice(0, 500) } : {}),
+    });
+  };
+
+  const persistMetadata = async (quickAccess: unknown[] = []) => {
+    const metadata = JSON.stringify({
+      modelId: effectiveModelId(),
+      runtimeId,
+      requestedRuntimeId:
+        targetOverride?.requestedRuntimeId ?? conversation.runtimeId,
+      requestedModelId:
+        targetOverride?.requestedModelId ?? conversation.modelId,
+      ...(targetOverride?.fallbackReason
+        ? { fallbackReason: targetOverride.fallbackReason }
+        : {}),
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      ...(quickAccess.length > 0 ? { quickAccess } : {}),
+    });
+    const { chatMessages } = await import("@/lib/db/schema");
+    await db
+      .update(chatMessages)
+      .set({ metadata })
+      .where(eq(chatMessages.id, assistantMsg.id));
+  };
 
   // ── Callback → AsyncGenerator bridge ──────────────────────────────────
   const eventQueue: ChatStreamEvent[] = [];
   let resolveNext: (() => void) | null = null;
   let done = false;
+  type CodexChatTerminal =
+    | { status: "completed" }
+    | { status: "cancelled"; message: string }
+    | { status: "failed"; message: string };
+  // Mutated by notification callbacks; the wrapper keeps TypeScript from
+  // incorrectly narrowing a closure-mutated local to `never` after the loop.
+  const terminalState: { value: CodexChatTerminal | null } = { value: null };
 
-  function pushEvent(event: ChatStreamEvent) {
-    eventQueue.push(event);
+  function wake() {
     resolveNext?.();
     resolveNext = null;
   }
 
+  function pushEvent(event: ChatStreamEvent) {
+    eventQueue.push(event);
+    wake();
+  }
+
+  function settleTerminal(
+    value: CodexChatTerminal
+  ) {
+    if (terminalState.value) return;
+    terminalState.value = value;
+    done = true;
+    wake();
+  }
+
   async function waitForEvent(): Promise<void> {
-    if (eventQueue.length > 0) return;
+    if (eventQueue.length > 0 || done) return;
     return new Promise<void>((r) => {
       resolveNext = r;
     });
   }
 
+  const requestTurnInterrupt = () => {
+    if (!interruptPromise && client && threadId && turnId) {
+      interruptPromise = client
+        .request("turn/interrupt", { threadId, turnId })
+        .catch((error) =>
+          console.error("[chat] Codex turn interrupt failed:", error)
+        );
+    }
+  };
+
+  const forwardAbort = () => {
+    settleTerminal({ status: "cancelled", message: "Request cancelled" });
+    requestTurnInterrupt();
+  };
+  if (signal?.aborted) forwardAbort();
+  else signal?.addEventListener("abort", forwardAbort, { once: true });
+
   try {
+    if (signal?.aborted) throw new CodexChatCancelledError();
+    const auth = await resolveOpenAICodexAuthContext();
+
+    yield {
+      type: "status",
+      phase: "connecting",
+      message: "Connecting to model...",
+    };
     client = await auth.connect(workspace.cwd);
 
     // Initialize and authenticate
     await ensureOpenAICodexClientAuthenticated(client, auth);
 
-    // Validate model availability against what the user's account supports
-    let validatedModel: string | undefined;
+    // Keep provider identity explicit. Discovery may fail, but silently
+    // substituting Codex's default would make persisted model metadata false.
+    const requestedModelId =
+      targetOverride?.effectiveModelId ?? conversation.modelId;
+    let validatedModel = requestedModelId || undefined;
     try {
       const modelResponse = (await client.request("model/list", {})) as {
         models?: Array<{ id: string; name?: string }>;
@@ -189,14 +302,15 @@ export async function* sendCodexMessage(
       const availableIds = new Set(
         (modelResponse.models ?? []).map((m: { id: string }) => m.id)
       );
-      const requestedModelId =
-        targetOverride?.effectiveModelId ?? conversation.modelId;
-      if (requestedModelId && availableIds.has(requestedModelId)) {
-        validatedModel = requestedModelId;
+      if (requestedModelId && !availableIds.has(requestedModelId)) {
+        throw new CodexChatTerminalError(
+          `Requested Codex model "${requestedModelId}" is not available for this account.`
+        );
       }
-      // If not available, validatedModel stays undefined → Codex uses its default
-    } catch {
-      // model/list failed — proceed without explicit model selection
+    } catch (error) {
+      if (error instanceof CodexChatTerminalError) throw error;
+      // Discovery failure is not authoritative. Pass the requested model to the
+      // provider so it can accept or reject that exact identity.
     }
 
     // Handle server-initiated requests (approvals)
@@ -222,6 +336,18 @@ export async function* sendCodexMessage(
           const t = asRecord(params.thread);
           const tid = t ? asString(t.id) : null;
           if (tid) threadId = tid;
+          break;
+        }
+
+        case "turn/started": {
+          const turn = asRecord(params.turn);
+          turnId = turn ? asString(turn.id) : asString(params.turnId);
+          if (signal?.aborted) requestTurnInterrupt();
+          pushEvent({
+            type: "status",
+            phase: "generating",
+            message: "Generating response...",
+          });
           break;
         }
 
@@ -274,22 +400,23 @@ export async function* sendCodexMessage(
           const turn = asRecord(params.turn);
           const status = turn ? asString(turn.status) : null;
 
-          if (status === "completed" || status === "interrupted") {
-            done = true;
-            pushEvent({ type: "done" as "done", messageId: assistantMsg.id, quickAccess: [] });
+          if (status === "completed") {
+            settleTerminal({ status: "completed" });
+          } else if (status === "interrupted") {
+            settleTerminal({
+              status: "cancelled",
+              message: "Codex turn was interrupted",
+            });
           } else {
             const errObj = turn ? asRecord(turn.error) : null;
             const errMsg = errObj ? asString(errObj.message) : null;
-            done = true;
-            pushEvent({ type: "error", message: errMsg || "Codex turn failed" });
+            settleTerminal({
+              status: "failed",
+              message: errMsg || "Codex turn failed",
+            });
           }
           break;
         }
-
-        case "turn/started":
-          // First event from model — signal generating
-          pushEvent({ type: "status", phase: "generating", message: "Generating response..." });
-          break;
 
         default:
           break;
@@ -297,8 +424,7 @@ export async function* sendCodexMessage(
     };
 
     client.onProcessError = (error) => {
-      done = true;
-      pushEvent({ type: "error", message: error.message });
+      settleTerminal({ status: "failed", message: error.message });
     };
 
     // Start or resume thread
@@ -337,6 +463,8 @@ export async function* sendCodexMessage(
       : "";
     const turnText = historyBlock + userContent;
 
+    if (signal?.aborted) throw new CodexChatCancelledError();
+
     // Start turn — only pass model if validated against available models
     await client.request("turn/start", {
       threadId,
@@ -346,8 +474,11 @@ export async function* sendCodexMessage(
       approvalPolicy: "on-request",
     });
 
-    // Yield events from the queue until done
-    while (!done) {
+    // Yield every event queued before the terminal notification. Codex may
+    // deliver the final delta and `turn/completed` in the same microtask; a
+    // plain `while (!done)` would observe the terminal first and drop the
+    // already-queued delta.
+    while (!done || eventQueue.length > 0) {
       await waitForEvent();
 
       // Drain side-channel events (from approval bridge)
@@ -358,10 +489,6 @@ export async function* sendCodexMessage(
       while (eventQueue.length > 0) {
         const event = eventQueue.shift()!;
         yield event;
-        if (event.type === "done" || event.type === "error") {
-          done = true;
-          break;
-        }
       }
     }
 
@@ -370,7 +497,27 @@ export async function* sendCodexMessage(
       yield sideEvent;
     }
 
-    // Finalize assistant message
+    const terminal = terminalState.value;
+    if (!terminal) {
+      throw new CodexChatTerminalError(
+        "Codex stream ended without a terminal turn status"
+      );
+    }
+    if (terminal.status === "cancelled") {
+      throw new CodexChatCancelledError(terminal.message);
+    }
+    if (terminal.status === "failed") {
+      throw new CodexChatTerminalError(terminal.message);
+    }
+    if (!fullText.trim()) {
+      throw new CodexChatTerminalError(
+        "Codex completed without assistant output"
+      );
+    }
+
+    // Finalize durable state before exposing the public terminal event. The
+    // SSE route stops consuming after `done`; writing first prevents iterator
+    // return() from skipping persistence.
     await updateMessageContent(assistantMsg.id, fullText);
     await updateMessageStatus(assistantMsg.id, "complete");
 
@@ -378,76 +525,48 @@ export async function* sendCodexMessage(
     const textEntities = await detectEntities(fullText, conversation.projectId);
     const quickAccess = deduplicateByEntityId(textEntities);
 
-    // Save usage metadata
-    const metadata = JSON.stringify({
-      modelId:
-        usage.modelId ??
-        targetOverride?.effectiveModelId ??
-        conversation.modelId,
-      runtimeId,
-      requestedRuntimeId:
-        targetOverride?.requestedRuntimeId ?? conversation.runtimeId,
-      requestedModelId:
-        targetOverride?.requestedModelId ?? conversation.modelId,
+    await persistMetadata(quickAccess);
+    await recordTurn("completed");
+    recordPrimaryTermination("stream.completed");
+    yield {
+      type: "done",
+      messageId: assistantMsg.id,
+      quickAccess,
       ...(targetOverride?.fallbackReason
         ? { fallbackReason: targetOverride.fallbackReason }
         : {}),
-      inputTokens: usage.inputTokens,
-      outputTokens: usage.outputTokens,
-      ...(quickAccess.length > 0 ? { quickAccess } : {}),
-    });
-    const { chatMessages } = await import("@/lib/db/schema");
-    await db
-      .update(chatMessages)
-      .set({ metadata })
-      .where(eq(chatMessages.id, assistantMsg.id));
-
-    // Record usage
-    await recordUsageLedgerEntry({
-      projectId: conversation.projectId,
-      activityType: "chat_turn",
-      runtimeId,
-      providerId,
-      modelId:
-        usage.modelId ??
-        targetOverride?.effectiveModelId ??
-        conversation.modelId ??
-        null,
-      inputTokens: usage.inputTokens ?? null,
-      outputTokens: usage.outputTokens ?? null,
-      totalTokens: usage.totalTokens ?? null,
-      status: "completed",
-      startedAt,
-      finishedAt: new Date(),
-    });
+      ...(effectiveModelId() ? { modelId: effectiveModelId()! } : {}),
+    };
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const cancelled =
+      signal?.aborted === true ||
+      error instanceof CodexChatCancelledError ||
+      terminalState.value?.status === "cancelled";
+    const errorMessage = cancelled
+      ? "Request cancelled"
+      : error instanceof Error
+        ? error.message
+        : "Unknown error";
 
     await updateMessageContent(assistantMsg.id, fullText || errorMessage);
     await updateMessageStatus(assistantMsg.id, "error");
-
-    await recordUsageLedgerEntry({
-      projectId: conversation.projectId,
-      activityType: "chat_turn",
-      runtimeId,
-      providerId,
-      modelId:
-        usage.modelId ??
-        targetOverride?.effectiveModelId ??
-        conversation.modelId ??
-        null,
-      inputTokens: usage.inputTokens ?? null,
-      outputTokens: usage.outputTokens ?? null,
-      totalTokens: usage.totalTokens ?? null,
-      status: signal?.aborted ? "cancelled" : "failed",
-      startedAt,
-      finishedAt: new Date(),
-    });
-
+    await persistMetadata();
+    await recordTurn(cancelled ? "cancelled" : "failed");
+    recordPrimaryTermination(
+      signal?.aborted ? "stream.aborted.signal" : "stream.finalized.error",
+      errorMessage
+    );
     yield { type: "error", message: errorMessage };
   } finally {
+    signal?.removeEventListener("abort", forwardAbort);
+    try {
+      await finalizeStreamingMessage(assistantMsg.id, fullText);
+    } catch (error) {
+      console.error("[chat] Codex finalize safety net failed:", error);
+    }
+    unregisterChatStream(conversationId);
     cleanupConversation(conversationId);
+    await interruptPromise;
     if (client) {
       await client.close();
     }

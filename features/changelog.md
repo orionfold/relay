@@ -1,5 +1,26 @@
 # Feature Changelog
 
+## 2026-07-14 — G-072 cross-provider Chat boundary contracts
+
+### Completed
+
+- Added one exhaustive boundary registry for all seven runtime identities. Chat
+  creation and dispatch now derive from the five supported Chat runtimes while
+  Anthropic Direct and OpenAI Direct remain named task-only exceptions; no
+  unsupported runtime can fall through to a different provider.
+- Made provider terminals truthful and durable. Codex and Claude failures,
+  interruption, empty output, cancellation, unexpected stream EOF/throw, and
+  batched delta-plus-terminal delivery now agree across SSE events, message
+  state, usage receipts, runtime/model metadata, telemetry, and active-stream
+  accounting. Requested unavailable Codex models fail instead of silently
+  using a provider default.
+- Preserved the `server-only` client boundary for the shared compatible-runtime
+  transport while adding a CLI-only build shim. The release quality profile
+  passed all 19 lanes: 431 test files, 3,334 passing tests plus one intentional
+  skip, all 11 coverage ratchets, 7/7 required mutants, the real Ollama/
+  LiteLLM/LM Studio runtime graph, and the CLI bundle. G-070 and G-071 remain
+  open as independent testing investments.
+
 ## 2026-07-14 — G-069 LiteLLM and LM Studio runtimes
 
 ### Completed

@@ -354,6 +354,27 @@ Git-diff-scoped quality check for pre-ship confidence.
 5. **Check feature spec coverage** — If changed files relate to features with acceptance criteria, verify criteria have tests
 6. **Report** — Produce regression guard report
 
+### Streaming Provider Contract Guard
+
+When a change crosses more than one Chat/runtime provider, add an exhaustive
+runtime matrix rather than assuming similar payload shapes imply equivalent
+behavior. The matrix must name supported and intentionally unsupported
+runtimes and protect these application-level invariants while retaining each
+provider's real wire protocol:
+
+- persist message, usage, runtime/model identity, and telemetry before exposing
+  a public success terminal;
+- exercise batched delta-plus-terminal delivery, empty/truncated/terminal-free
+  output, provider failure, iterator abandonment, and cancellation both before
+  and after the provider returns its turn ID;
+- fail visibly on unavailable requested models instead of silently accepting a
+  provider default, and never invent usage or cost;
+- test the route consumer's unexpected EOF/throw and first-terminal-wins paths,
+  not only the engine generator;
+- when server-only modules are transitively reachable from a CLI bundle or
+  runtime registry, retain their client-boundary marker and verify the real CLI
+  build plus runtime-module-graph smoke rather than weakening the source guard.
+
 ### Regression Guard Output
 
 ```markdown

@@ -45,12 +45,27 @@ describe("POST /api/chat/conversations — runtime allow-list (#30)", () => {
     expect(body.runtimeId).toBe("ollama");
   });
 
-  it("still accepts the cloud runtimes", async () => {
-    for (const runtimeId of ["claude-code", "openai-codex-app-server"]) {
+  it("accepts every runtime with a declared Chat engine", async () => {
+    for (const runtimeId of [
+      "claude-code",
+      "openai-codex-app-server",
+      "litellm",
+      "lmstudio",
+    ]) {
       const res = await POST(makePostRequest({ runtimeId }) as never);
       expect(res.status).toBe(201);
     }
   });
+
+  it.each(["anthropic-direct", "openai-direct"])(
+    "rejects task-only runtime %s instead of falling through to another Chat engine",
+    async (runtimeId) => {
+      const res = await POST(makePostRequest({ runtimeId }) as never);
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toContain("Invalid runtimeId");
+    }
+  );
 
   it("still rejects an unknown runtimeId with 400", async () => {
     const res = await POST(

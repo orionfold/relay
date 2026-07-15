@@ -62,7 +62,6 @@ export async function* sendOllamaMessage(
   let ledgerRecorded = false;
   const recordTurn = async (status: "completed" | "failed" | "cancelled") => {
     if (ledgerRecorded) return;
-    ledgerRecorded = true;
     await recordUsageLedgerEntry({
       projectId: conversation?.projectId ?? null,
       activityType: "chat_turn",
@@ -79,6 +78,7 @@ export async function* sendOllamaMessage(
       startedAt,
       finishedAt: new Date(),
     });
+    ledgerRecorded = true;
   };
   const captureTokenCounts = (parsed: {
     prompt_eval_count?: unknown;

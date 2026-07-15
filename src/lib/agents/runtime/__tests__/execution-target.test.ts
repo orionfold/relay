@@ -280,6 +280,19 @@ describe("execution target resolver", () => {
     });
   });
 
+  it.each(["anthropic-direct", "openai-direct"] as const)(
+    "rejects task-only runtime %s for Chat instead of falling through",
+    async (runtimeId) => {
+      await expect(
+        resolveChatExecutionTarget({ requestedRuntimeId: runtimeId })
+      ).rejects.toMatchObject({
+        name: "RuntimeCapabilityMismatchError",
+        message: expect.stringContaining("does not have a Relay Chat engine"),
+      });
+      expect(mockTestRuntimeConnection).not.toHaveBeenCalled();
+    }
+  );
+
   it("fails an unavailable LM Studio selection instead of falling back", async () => {
     mockGetRuntimeSetupStates.mockResolvedValue(makeStates(["lmstudio"]));
     mockTestRuntimeConnection.mockResolvedValue({

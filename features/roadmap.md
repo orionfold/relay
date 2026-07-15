@@ -175,6 +175,8 @@ via marker comments, not dropped. See `_SPECS/2026-06-29-211534_feature-cut-free
 | [e2e-test-automation](e2e-test-automation.md) | P2 | completed | provider-runtime-abstraction, workflow-engine, agent-profile-catalog |
 | [runtime-validation-hardening](runtime-validation-hardening.md) | P1 | completed | provider-runtime-abstraction, multi-agent-routing |
 | [routing-cascade-dual-provider](routing-cascade-dual-provider.md) | P1 | completed | provider-runtime-abstraction, runtime-capability-matrix |
+| [openai-compatible-runtimes](openai-compatible-runtimes.md) | P1 | completed | provider-runtime-abstraction, chat-engine, usage-metering-ledger |
+| [cross-provider-chat-runtime-contracts](cross-provider-chat-runtime-contracts.md) | P1 | completed | chat-engine, codex-chat-engine, ollama-runtime-provider, openai-compatible-runtimes |
 
 ### Governance & Analytics
 
