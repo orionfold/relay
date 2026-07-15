@@ -42,8 +42,14 @@ export const budgetPolicySchema = z.object({
   }),
   runtimes: z.object(
     Object.fromEntries(
-      SUPPORTED_AGENT_RUNTIMES.map((runtimeId) => [runtimeId, runtimeBudgetPolicySchema])
-    ) as Record<(typeof SUPPORTED_AGENT_RUNTIMES)[number], typeof runtimeBudgetPolicySchema>
+      SUPPORTED_AGENT_RUNTIMES.map((runtimeId) => [
+        runtimeId,
+        runtimeBudgetPolicySchema.default({ monthlySpendCapUsd: null }),
+      ])
+    ) as Record<
+      (typeof SUPPORTED_AGENT_RUNTIMES)[number],
+      z.ZodDefault<typeof runtimeBudgetPolicySchema>
+    >
   ),
 });
 

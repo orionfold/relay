@@ -11,6 +11,7 @@ import { WebSearchSection } from "@/components/settings/web-search-section";
 import { EnvironmentSection } from "@/components/settings/environment-section";
 import { LearningContextSection } from "@/components/settings/learning-context-section";
 import { OllamaSection } from "@/components/settings/ollama-section";
+import { OpenAICompatibleSection } from "@/components/settings/openai-compatible-section";
 import { ChannelsSection } from "@/components/settings/channels-section";
 import { GitHubSection } from "@/components/settings/github-section";
 import { InstanceSection } from "@/components/instance/instance-section";
@@ -54,6 +55,9 @@ export default function SettingsPage() {
         </SettingsAnchor>
         <SettingsAnchor id="settings-ollama-section">
           <OllamaSection />
+        </SettingsAnchor>
+        <SettingsAnchor id="settings-openai-compatible">
+          <OpenAICompatibleSection />
         </SettingsAnchor>
         <SettingsAnchor id="settings-chat-section">
           <ChatSettingsSection />

@@ -68,10 +68,13 @@ export async function PUT(req: NextRequest) {
     }
     const validStaticModel = CHAT_MODELS.some((m) => m.id === body.defaultModel);
     const validOllamaModel = body.defaultModel.startsWith("ollama:");
-    if (!validStaticModel && !validOllamaModel) {
+    const validCompatibleModel =
+      body.defaultModel.startsWith("litellm:") ||
+      body.defaultModel.startsWith("lmstudio:");
+    if (!validStaticModel && !validOllamaModel && !validCompatibleModel) {
       return NextResponse.json(
         {
-          error: `Invalid model. Must be one of: ${CHAT_MODELS.map((m) => m.id).join(", ")} or an "ollama:*" id`,
+          error: `Invalid model. Must be one of: ${CHAT_MODELS.map((m) => m.id).join(", ")} or a namespaced ollama:*, litellm:*, or lmstudio:* id`,
         },
         { status: 400 }
       );

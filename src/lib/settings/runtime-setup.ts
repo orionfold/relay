@@ -7,6 +7,7 @@ import {
 import { getAuthSettings } from "./auth";
 import { getOpenAIAuthSettings } from "./openai-auth";
 import type { ApiKeySource, AuthMethod } from "@/lib/constants/settings";
+import { getOpenAICompatibleRuntimeConfig } from "@/lib/agents/runtime/openai-compatible";
 
 export type RuntimeBillingMode = "usage" | "subscription";
 export type RuntimeSetupMethod = AuthMethod | "none";
@@ -14,7 +15,7 @@ export type RuntimeSetupMethod = AuthMethod | "none";
 export interface RuntimeSetupState {
   runtimeId: AgentRuntimeId;
   label: string;
-  providerId: "anthropic" | "openai" | "ollama";
+  providerId: "anthropic" | "openai" | "ollama" | "litellm" | "lmstudio";
   configured: boolean;
   authMethod: RuntimeSetupMethod;
   apiKeySource: ApiKeySource;
@@ -24,9 +25,11 @@ export interface RuntimeSetupState {
 export async function getRuntimeSetupStates(): Promise<
   Record<AgentRuntimeId, RuntimeSetupState>
 > {
-  const [claudeAuth, openAIAuth] = await Promise.all([
+  const [claudeAuth, openAIAuth, liteLLM, lmStudio] = await Promise.all([
     getAuthSettings(),
     getOpenAIAuthSettings(),
+    getOpenAICompatibleRuntimeConfig("litellm").catch(() => null),
+    getOpenAICompatibleRuntimeConfig("lmstudio").catch(() => null),
   ]);
 
   const claudeRuntime = getRuntimeCatalogEntry("claude-code");
@@ -96,6 +99,24 @@ export async function getRuntimeSetupStates(): Promise<
       authMethod: "none",
       apiKeySource: "unknown",
       billingMode: "usage", // $0 usage
+    },
+    litellm: {
+      runtimeId: "litellm",
+      label: getRuntimeCatalogEntry("litellm").label,
+      providerId: "litellm",
+      configured: liteLLM?.configured ?? false,
+      authMethod: liteLLM?.apiKey ? "api_key" : "none",
+      apiKeySource: liteLLM?.apiKeySource ?? "unknown",
+      billingMode: "usage",
+    },
+    lmstudio: {
+      runtimeId: "lmstudio",
+      label: getRuntimeCatalogEntry("lmstudio").label,
+      providerId: "lmstudio",
+      configured: lmStudio?.configured ?? false,
+      authMethod: lmStudio?.apiKey ? "api_key" : "none",
+      apiKeySource: lmStudio?.apiKeySource ?? "unknown",
+      billingMode: "usage",
     },
   } satisfies Record<AgentRuntimeId, RuntimeSetupState>;
 

@@ -138,6 +138,34 @@ describe("runtime catalog", () => {
           "supportsPluginMcpServers": true,
           "supportsSkillComposition": true,
         },
+        "litellm": {
+          "ainativeInjectsSkills": true,
+          "autoLoadsInstructions": null,
+          "hasBash": false,
+          "hasFilesystemTools": false,
+          "hasHooks": false,
+          "hasNativeSkills": false,
+          "hasProgressiveDisclosure": false,
+          "hasSubagentDelegation": false,
+          "hasTodoWrite": false,
+          "maxActiveSkills": 3,
+          "supportsPluginMcpServers": false,
+          "supportsSkillComposition": true,
+        },
+        "lmstudio": {
+          "ainativeInjectsSkills": true,
+          "autoLoadsInstructions": null,
+          "hasBash": false,
+          "hasFilesystemTools": false,
+          "hasHooks": false,
+          "hasNativeSkills": false,
+          "hasProgressiveDisclosure": false,
+          "hasSubagentDelegation": false,
+          "hasTodoWrite": false,
+          "maxActiveSkills": 3,
+          "supportsPluginMcpServers": false,
+          "supportsSkillComposition": true,
+        },
         "ollama": {
           "ainativeInjectsSkills": true,
           "autoLoadsInstructions": null,
@@ -194,6 +222,8 @@ describe("runtime catalog", () => {
       "anthropic-direct": true,
       "openai-direct": true,
       "ollama": false,
+      "litellm": false,
+      "lmstudio": false,
     };
     for (const [runtimeId, expectedValue] of Object.entries(expected)) {
       expect(

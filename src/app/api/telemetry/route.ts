@@ -31,6 +31,8 @@ const SDK_PACKAGE_BY_PROVIDER: Record<string, string | null> = {
   anthropic: "@anthropic-ai/claude-agent-sdk",
   openai: "openai",
   ollama: null,
+  litellm: null,
+  lmstudio: null,
 };
 
 // Resolve the *installed* version of an SDK package. The package's `exports`

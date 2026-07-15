@@ -6,9 +6,12 @@ import { randomUUID } from "crypto";
 import { tickScheduler } from "../scheduler";
 import { registerChatStream, unregisterChatStream } from "@/lib/chat/active-streams";
 
-// Stub the runtime — we're testing coordination, not the SDK
-vi.mock("@/lib/agents/runtime", () => ({
-  executeTaskWithRuntime: vi.fn().mockResolvedValue(undefined),
+// Hold claimed executions at the dispatch boundary. Resolving immediately lets
+// the scheduler's background finalizer drain queued rows before this test can
+// observe the cap, while reaching the real target resolver makes the outcome
+// depend on whichever provider credentials exist on the machine.
+vi.mock("@/lib/agents/task-dispatch", () => ({
+  startTaskExecution: vi.fn(() => new Promise<void>(() => {})),
 }));
 
 function seedProject(): string {

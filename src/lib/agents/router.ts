@@ -67,6 +67,8 @@ const LATENCY_SCORE: Record<AgentRuntimeId, number> = {
   "claude-code": 1, // Subprocess spawn overhead
   "openai-codex-app-server": 1,
   ollama: 2, // Local, no network round-trip, but model load time
+  litellm: 2, // Operator-configured gateway; latency depends on its upstream
+  lmstudio: 2, // Operator-configured server; no locality assumption
 };
 
 const COST_SCORE: Record<AgentRuntimeId, number> = {
@@ -75,6 +77,8 @@ const COST_SCORE: Record<AgentRuntimeId, number> = {
   "claude-code": 1, // SDK overhead + potential OAuth subscription
   "openai-codex-app-server": 1,
   ollama: 5, // Free — always $0
+  litellm: 1, // Unknown until the gateway reports cost
+  lmstudio: 1, // Unknown; do not infer zero cost from product identity
 };
 
 const QUALITY_SCORE: Record<AgentRuntimeId, number> = {
@@ -83,6 +87,8 @@ const QUALITY_SCORE: Record<AgentRuntimeId, number> = {
   "anthropic-direct": 2,
   "openai-direct": 2,
   ollama: 1, // Local models, smaller parameter counts
+  litellm: 1, // Model-dependent; no quality inference from gateway identity
+  lmstudio: 1, // Model-dependent; no quality inference from server identity
 };
 
 // ── Core routing function ────────────────────────────────────────────

@@ -218,9 +218,11 @@ clone-local directory, so a literal fresh clone starts empty and does not reuse
 `~/.relay`. You can verify either gate independently by removing the other one.
 
 Provider credentials are optional at boot. Open [Settings](http://localhost:3000/settings)
-to save or test Anthropic, OpenAI, or Ollama configuration and receive a visible
-success or failure result. Keep real keys in `.env.local` or enter them through
-Settings; never commit them.
+to save or test Anthropic, OpenAI, Ollama, LiteLLM, or LM Studio configuration
+and receive a visible success or failure result. Keep real keys in `.env.local`
+or enter them through Settings; never commit them. See the
+[LiteLLM and LM Studio setup guide](docs/openai-compatible-runtimes.md) for
+server-origin networking, authentication, and capability details.
 
 To exercise customer-instance bootstrap deliberately from a development checkout,
 run it only against isolated data with `RELAY_INSTANCE_MODE=true`; this explicit

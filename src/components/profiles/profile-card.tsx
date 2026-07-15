@@ -33,6 +33,8 @@ const RUNTIME_SHORT_LABEL: Record<AgentRuntimeId, string> = {
   "anthropic-direct": "Anthropic",
   "openai-direct": "OpenAI",
   ollama: "Ollama (Local)",
+  litellm: "LiteLLM",
+  lmstudio: "LM Studio",
 };
 
 export function ProfileCard({ profile, isBuiltin = false, packName = null, onClick }: ProfileCardProps) {

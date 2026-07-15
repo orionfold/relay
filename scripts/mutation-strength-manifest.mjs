@@ -70,14 +70,14 @@ export const MUTATION_STRENGTH_MANIFEST = [
     surface: "runtime-target-resolution",
     file: "src/lib/agents/runtime/execution-target.ts",
     find:
-      "          fallbackApplied: true,\n          fallbackReason: buildRuntimeFallbackReason({",
+      "        candidateRuntimeId !== requestedRuntimeId ||\n        candidateModelId !== requestedModelId,",
     replace:
-      "          fallbackApplied: false,\n          fallbackReason: buildRuntimeFallbackReason({",
+      "        candidateRuntimeId !== requestedRuntimeId &&\n        candidateModelId === requestedModelId,",
     testArgs: ["src/lib/agents/runtime/__tests__/execution-target.test.ts"],
     expectedOutcome: "killed",
     failureEvidence:
-      "falls back from an unavailable requested task runtime to a compatible alternate",
-    invariant: "Requested/effective runtime substitution is reported truthfully",
+      "falls back chat turns to the mapped alternate model when the requested runtime is unavailable",
+    invariant: "Requested/effective Chat runtime substitution is reported truthfully",
   },
   {
     id: "chat-stale-finalization-error",

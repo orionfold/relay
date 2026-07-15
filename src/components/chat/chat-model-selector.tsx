@@ -32,6 +32,8 @@ const tierEmoji: Record<string, string> = {
   Balanced: "\u2728",
   Best: "\uD83D\uDC8E",
   Local: "\uD83C\uDFE0",
+  Gateway: "\u21C4",
+  Server: "\u25C9",
 };
 
 export function ChatModelSelector({
@@ -67,6 +69,8 @@ export function ChatModelSelector({
     (m) => m.provider === "anthropic"
   );
   const openaiModels = models.filter((m) => m.provider === "openai");
+  const liteLLMModels = models.filter((m) => m.provider === "litellm");
+  const lmStudioModels = models.filter((m) => m.provider === "lmstudio");
 
   return (
     <DropdownMenu>
@@ -122,6 +126,44 @@ export function ChatModelSelector({
             </DropdownMenuLabel>
             <DropdownMenuGroup>
               {ollamaModels.map((m) => (
+                <ModelMenuItem
+                  key={m.id}
+                  model={m}
+                  isSelected={m.id === modelId}
+                  onSelect={onModelChange}
+                />
+              ))}
+            </DropdownMenuGroup>
+          </>
+        )}
+
+        {liteLLMModels.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground">
+              LiteLLM gateway
+            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              {liteLLMModels.map((m) => (
+                <ModelMenuItem
+                  key={m.id}
+                  model={m}
+                  isSelected={m.id === modelId}
+                  onSelect={onModelChange}
+                />
+              ))}
+            </DropdownMenuGroup>
+          </>
+        )}
+
+        {lmStudioModels.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground">
+              LM Studio server
+            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              {lmStudioModels.map((m) => (
                 <ModelMenuItem
                   key={m.id}
                   model={m}

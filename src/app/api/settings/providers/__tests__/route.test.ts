@@ -13,6 +13,8 @@ vi.mock("@/lib/settings/runtime-setup", () => ({
     },
     "openai-direct": { runtimeId: "openai-direct", configured: false },
     ollama: { runtimeId: "ollama", configured: true },
+    litellm: { runtimeId: "litellm", configured: false },
+    lmstudio: { runtimeId: "lmstudio", configured: false },
   })),
 }));
 vi.mock("@/lib/settings/routing", () => ({

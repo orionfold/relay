@@ -237,9 +237,9 @@ describe("budget guardrails", () => {
 
     expect(overallDaily?.limitValue).toBe(10_000_000);
     expect(claudeMonthly).toBe(310);
-    // With anthropic-direct also configured (shares API key), the normalization
-    // enters multi-runtime mode and assigns 0 to unconfigured OpenAI runtime
-    expect(openAIMonthly).toBe(0);
+    // Anthropic Direct shares the configured key, so the Anthropic group gets
+    // the full cap while the unconfigured OpenAI group stays unlimited.
+    expect(openAIMonthly).toBeNull();
   });
 
   it("exposes metered spend separately from the plan-priced budget basis under subscription billing", async () => {
@@ -339,5 +339,29 @@ describe("budget guardrails", () => {
     expect(snapshot.policy.runtimes["openai-codex-app-server"].monthlySpendCapUsd).toBe(
       180
     );
+  });
+
+  it("preserves proportional LiteLLM and LM Studio caps without inventing cloud-provider allocation", async () => {
+    vi.stubEnv("ANTHROPIC_API_KEY", "");
+    vi.stubEnv("OPENAI_API_KEY", "");
+    vi.stubEnv("LITELLM_BASE_URL", "http://localhost:4000/v1");
+    vi.stubEnv("LMSTUDIO_BASE_URL", "http://localhost:1234/v1");
+    const { setBudgetPolicy, getBudgetGuardrailSnapshot } = await loadModules();
+
+    await setBudgetPolicy({
+      overall: { monthlySpendCapUsd: 100 },
+      runtimes: {
+        litellm: { monthlySpendCapUsd: 40 },
+        lmstudio: { monthlySpendCapUsd: 60 },
+      },
+    });
+
+    const snapshot = await getBudgetGuardrailSnapshot();
+    expect(snapshot.policy.runtimes.litellm.monthlySpendCapUsd).toBe(40);
+    expect(snapshot.policy.runtimes.lmstudio.monthlySpendCapUsd).toBe(60);
+    expect(snapshot.policy.runtimes["claude-code"].monthlySpendCapUsd).toBeNull();
+    expect(
+      snapshot.policy.runtimes["openai-codex-app-server"].monthlySpendCapUsd
+    ).toBeNull();
   });
 });

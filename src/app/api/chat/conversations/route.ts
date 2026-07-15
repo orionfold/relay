@@ -54,7 +54,13 @@ export async function POST(req: NextRequest) {
   // "ollama" is first-class: getRuntimeForModel() returns it for local models,
   // engine.ts routes it to sendOllamaMessage. Omitting it here 400'd the
   // "Best privacy (local only)" tier's first chat/compose on a fresh install (#30).
-  const validRuntimes = ["claude-code", "openai-codex-app-server", "ollama"];
+  const validRuntimes = [
+    "claude-code",
+    "openai-codex-app-server",
+    "ollama",
+    "litellm",
+    "lmstudio",
+  ];
   if (!validRuntimes.includes(runtimeId)) {
     return NextResponse.json(
       { error: `Invalid runtimeId. Must be one of: ${validRuntimes.join(", ")}` },

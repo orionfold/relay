@@ -69,6 +69,16 @@ function buildFormState(policy: BudgetPolicy): BudgetFormState {
       ollama: {
         monthlySpendCapUsd: "", // Ollama is always $0
       },
+      litellm: {
+        monthlySpendCapUsd: toInputValue(
+          policy.runtimes.litellm.monthlySpendCapUsd
+        ),
+      },
+      lmstudio: {
+        monthlySpendCapUsd: toInputValue(
+          policy.runtimes.lmstudio.monthlySpendCapUsd
+        ),
+      },
     },
   };
 }
@@ -102,6 +112,16 @@ function buildPayload(form: BudgetFormState): BudgetPolicy {
       },
       ollama: {
         monthlySpendCapUsd: null, // Ollama is always $0 — no budget needed
+      },
+      litellm: {
+        monthlySpendCapUsd: toNullableNumber(
+          form.runtimes.litellm.monthlySpendCapUsd
+        ),
+      },
+      lmstudio: {
+        monthlySpendCapUsd: toNullableNumber(
+          form.runtimes.lmstudio.monthlySpendCapUsd
+        ),
       },
     },
   };
@@ -205,12 +225,16 @@ function applyBudgetSplit(
   };
 
   if (overall == null || activeRuntimeIds.length === 0) {
-    next.runtimes["claude-code"].monthlySpendCapUsd = "";
-    next.runtimes["openai-codex-app-server"].monthlySpendCapUsd = "";
-    next.runtimes["anthropic-direct"].monthlySpendCapUsd = "";
-    next.runtimes["openai-direct"].monthlySpendCapUsd = "";
+    for (const runtimeId of Object.keys(next.runtimes) as AgentRuntimeId[]) {
+      next.runtimes[runtimeId].monthlySpendCapUsd = "";
+    }
     return next;
   }
+
+  // Compatible runtimes use the overall cap unless a future allocation UI
+  // explicitly assigns them a share. Do not silently double-count the budget.
+  next.runtimes.litellm.monthlySpendCapUsd = "";
+  next.runtimes.lmstudio.monthlySpendCapUsd = "";
 
   // Determine which providers have active runtimes
   const hasAnthropic = activeRuntimeIds.some(
@@ -219,6 +243,10 @@ function applyBudgetSplit(
   const hasOpenAI = activeRuntimeIds.some(
     (id) => id === "openai-codex-app-server" || id === "openai-direct"
   );
+
+  if (!hasAnthropic && !hasOpenAI) {
+    return next;
+  }
 
   if (hasAnthropic && !hasOpenAI) {
     // Single provider: Anthropic gets 100%
@@ -363,6 +391,13 @@ export function BudgetGuardrailsSection() {
     (r) => r.providerId === "openai"
   );
   const showSplitSlider = hasAnthropicRuntimes && hasOpenAIRuntimes;
+  const activeProviderIds = new Set(
+    activeRuntimes.map((runtime) => runtime.providerId)
+  );
+  const providerCapLabel =
+    activeProviderIds.size === 1
+      ? activeRuntimes[0]?.label ?? "Configured runtime"
+      : "All configured runtimes";
   const usageAccountingIncomplete =
     snapshot.meteredSpend.dailyCompleteness !== "complete" ||
     snapshot.meteredSpend.monthlyCompleteness !== "complete";
@@ -529,7 +564,7 @@ export function BudgetGuardrailsSection() {
               <div className="surface-panel rounded-2xl p-4">
                 <SectionEyebrow icon={Wallet} label="Provider Cap" />
                 <h3 className="mt-1 text-sm font-semibold">
-                  {hasAnthropicRuntimes ? "Anthropic" : "OpenAI"}
+                  {providerCapLabel}
                 </h3>
                 <p className="mt-2 text-lg font-semibold">
                   {formatCurrencyUsd(

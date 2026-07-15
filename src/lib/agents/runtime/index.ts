@@ -12,6 +12,10 @@ import { openAICodexRuntimeAdapter } from "./openai-codex";
 import { anthropicDirectRuntimeAdapter } from "./anthropic-direct";
 import { openAIDirectRuntimeAdapter } from "./openai-direct";
 import { ollamaRuntimeAdapter } from "./ollama-adapter";
+import {
+  liteLLMRuntimeAdapter,
+  lmStudioRuntimeAdapter,
+} from "./openai-compatible-adapter";
 import { getProfile } from "@/lib/agents/profiles/registry";
 import { resolveProfileRuntimePayload } from "@/lib/agents/profiles/compatibility";
 import type {
@@ -34,6 +38,8 @@ const runtimeRegistry: Record<AgentRuntimeId, AgentRuntimeAdapter> = {
   "anthropic-direct": anthropicDirectRuntimeAdapter,
   "openai-direct": openAIDirectRuntimeAdapter,
   ollama: ollamaRuntimeAdapter,
+  litellm: liteLLMRuntimeAdapter,
+  lmstudio: lmStudioRuntimeAdapter,
 };
 
 function getRuntimeAdapter(runtimeId?: string | null): AgentRuntimeAdapter {

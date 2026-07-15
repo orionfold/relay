@@ -1,5 +1,26 @@
 # Feature Changelog
 
+## 2026-07-14 — G-069 LiteLLM and LM Studio runtimes
+
+### Completed
+
+- Added LiteLLM and LM Studio as two explicit runtime/provider identities over
+  one server-side OpenAI-compatible transport. Both support model discovery,
+  Chat, tasks, workflow steps, and scheduled firings with strict requested /
+  effective runtime-model truth and no fallback.
+- Added independently redacted Settings with environment-key precedence,
+  endpoint testing, model discovery/defaults, loopback defaults, explicit
+  consent for non-loopback HTTP, redirect refusal, model-cache invalidation,
+  and the shared configured operation timeout.
+- Added truthful receipts: endpoint-reported token usage only, optional valid
+  LiteLLM cost only, and unknown LM Studio cost/locality/privacy rather than
+  inferred zero/local claims. Unsupported tool loops, resume, MCP, and
+  filesystem capabilities fail visibly or remain unadvertised.
+- Extended the real Next.js runtime-graph smoke across compatible-runtime task,
+  workflow, schedule, and both Chat paths. Added operator setup and trust/data
+  flow documentation. The deterministic machine-local topology passes; an
+  unavailable customer three-host LAN is explicitly not claimed as verified.
+
 ## 2026-07-14 — Next regression investments and G-057 completion
 
 ### Groomed

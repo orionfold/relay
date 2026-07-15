@@ -61,6 +61,8 @@ function makeStates(configured: AgentRuntimeId[]) {
     "anthropic-direct",
     "openai-direct",
     "ollama",
+    "litellm",
+    "lmstudio",
   ];
 
   return Object.fromEntries(
@@ -256,6 +258,57 @@ describe("execution target resolver", () => {
     expect(target.effectiveRuntimeId).toBe("openai-codex-app-server");
     expect(target.effectiveModelId).toBe("gpt-5.3-codex");
     expect(target.fallbackApplied).toBe(true);
+  });
+
+  it("keeps an explicit LiteLLM model on LiteLLM without fallback", async () => {
+    mockGetRuntimeSetupStates.mockResolvedValue(makeStates(["litellm"]));
+    mockTestRuntimeConnection.mockImplementation((runtimeId: AgentRuntimeId) =>
+      Promise.resolve({ connected: runtimeId === "litellm" })
+    );
+
+    const target = await resolveChatExecutionTarget({
+      requestedRuntimeId: "litellm",
+      requestedModelId: "litellm:support-alias",
+    });
+
+    expect(target).toMatchObject({
+      requestedRuntimeId: "litellm",
+      effectiveRuntimeId: "litellm",
+      requestedModelId: "litellm:support-alias",
+      effectiveModelId: "support-alias",
+      fallbackApplied: false,
+    });
+  });
+
+  it("fails an unavailable LM Studio selection instead of falling back", async () => {
+    mockGetRuntimeSetupStates.mockResolvedValue(makeStates(["lmstudio"]));
+    mockTestRuntimeConnection.mockResolvedValue({
+      connected: false,
+      error: "LM Studio endpoint is offline",
+    });
+
+    await expect(
+      resolveChatExecutionTarget({
+        requestedRuntimeId: "lmstudio",
+        requestedModelId: "lmstudio:loaded-model",
+      })
+    ).rejects.toMatchObject({
+      name: "RequestedModelUnavailableError",
+      message: expect.stringContaining("explicit target was not changed"),
+    });
+  });
+
+  it("refuses a compatible model namespace that conflicts with an explicit runtime", async () => {
+    await expect(
+      resolveChatExecutionTarget({
+        requestedRuntimeId: "claude-code",
+        requestedModelId: "litellm:support-alias",
+      })
+    ).rejects.toMatchObject({
+      name: "RequestedModelUnavailableError",
+      message: expect.stringContaining("belongs to LiteLLM, not Claude Code"),
+    });
+    expect(mockTestRuntimeConnection).not.toHaveBeenCalled();
   });
 
   it("refuses resume when the last effective runtime is unavailable", async () => {

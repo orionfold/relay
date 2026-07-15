@@ -35,6 +35,7 @@ flowchart LR
     subgraph providers["Model providers — only those YOU configure"]
         ant["api.anthropic.com"]
         oai["api.openai.com"]
+        compatible["LiteLLM / LM Studio<br/>endpoint (loopback, LAN, or remote)"]
     end
 
     subgraph optin["Only if you enable them"]
@@ -49,6 +50,7 @@ flowchart LR
     relay -->|"download only"| pidx
     relay -->|"prompts, instructions,<br/>attached document content,<br/>tool results"| ant
     relay -->|"prompts, instructions,<br/>attached document content,<br/>tool results"| oai
+    relay -->|"prompts, instructions,<br/>attached document content"| compatible
     relay -.-> chan
     relay -.-> tools
     relay -.->|"generated static-site files"| pages
@@ -81,7 +83,7 @@ no update check, and no license activation server** anywhere in the codebase.
 | # | Call | When | Destination | What is sent | Off switch / gate |
 |---|---|---|---|---|---|
 | 1 | Prebuilt server build download | First launch of each version | `github.com/orionfold/relay/releases` | Nothing — bare GET; response is sha256-verified ([`prebuilt-download.ts`](../../src/lib/desktop/prebuilt-download.ts)) | `RELAY_BUILD_ARTIFACT_URL` (mirror or `file://` for air-gap) |
-| 2 | Model API calls | An agent run, chat, or scheduled workflow executes | Only providers you hold keys for: `api.anthropic.com`, `api.openai.com`, or local Ollama (`localhost:11434`) | Prompts, profile instructions, conversation history, **attached document/table content in scope**, tool results | Don't configure the key; route work to Ollama for $0-egress |
+| 2 | Model API calls | An agent run, chat, or scheduled workflow executes | Only runtimes you configure: `api.anthropic.com`, `api.openai.com`, Ollama, LiteLLM, or LM Studio. Compatible endpoints are called from the Relay server and may be loopback, LAN, or remote; LiteLLM may route to additional upstreams. | Prompts, profile instructions, conversation history, **attached document/table content in scope**, and supported tool results | Do not configure the runtime; choose the runtime per execution. Relay requires explicit consent for non-loopback plain HTTP. |
 | 3 | Server-side web search | Agent runs on the OpenAI-direct runtime (**on by default** there); or `WebSearch`/`WebFetch` granted to Claude profiles | Executed provider-side (OpenAI / Anthropic) | The agent's search queries / fetched URLs | Profile tool permissions; runtime choice |
 | 4 | License file fetch | You run `relay license add <url>` / `pack add --license-url` with an **http(s) URL** | The fulfilment URL you pasted | Nothing — bare GET | Pass a local file path instead; verification itself is always offline ([`load.ts`](../../src/lib/licensing/load.ts)) |
 | 5 | Channel delivery | Only for channels you created with your own tokens | `api.telegram.org`, `slack.com`, or your webhook URL | The notification/message text you routed to that channel | Don't create the channel; pollers no-op with no active bidirectional channels |
@@ -112,7 +114,9 @@ Your levers, all first-class in the product:
 
 - **Provider choice per task, per schedule, per workflow step** — including
   routing sensitive work to a local Ollama model, where row 2 never leaves
-  `localhost`.
+  `localhost`. LiteLLM and LM Studio are not assumed to be local, private,
+  offline, or zero-cost; their configured network path and upstream determine
+  those properties.
 - **Tool permissions per profile** — a profile with no web tools cannot
   exfiltrate context to arbitrary URLs.
 - **Document scoping per project** — agents see the documents scoped to

@@ -252,6 +252,23 @@ export async function* sendMessage(
     return;
   }
 
+  if (
+    target.effectiveRuntimeId === "litellm" ||
+    target.effectiveRuntimeId === "lmstudio"
+  ) {
+    const { sendOpenAICompatibleMessage } = await import(
+      "./openai-compatible-engine"
+    );
+    yield* sendOpenAICompatibleMessage(
+      target.effectiveRuntimeId,
+      conversationId,
+      userContent,
+      signal,
+      target
+    );
+    return;
+  }
+
   const runtimeId = target.effectiveRuntimeId;
   const providerId = getProviderForRuntime(runtimeId);
 

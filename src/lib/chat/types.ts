@@ -53,14 +53,16 @@ export interface QuickAccessItem {
 export interface ChatModelOption {
   id: string;
   label: string;
-  provider: "anthropic" | "openai" | "ollama";
+  provider: "anthropic" | "openai" | "ollama" | "litellm" | "lmstudio";
   tier: string; // "Fast" | "Balanced" | "Best"
   costLabel: string; // "$" | "$$" | "$$$" | "Free"
 }
 
 /** Runtime → provider mapping */
-export function getProviderForRuntime(runtimeId: string): "anthropic" | "openai" | "ollama" {
+export function getProviderForRuntime(runtimeId: string): ChatModelOption["provider"] {
   if (runtimeId === "ollama") return "ollama";
+  if (runtimeId === "litellm") return "litellm";
+  if (runtimeId === "lmstudio") return "lmstudio";
   return (runtimeId === "openai-codex-app-server" || runtimeId === "openai-direct") ? "openai" : "anthropic";
 }
 
@@ -117,6 +119,8 @@ export function getRuntimeForModel(modelId: string): string {
   }
   // Check dynamically added Ollama models (prefixed with "ollama:")
   if (modelId.startsWith("ollama:")) return "ollama";
+  if (modelId.startsWith("litellm:")) return "litellm";
+  if (modelId.startsWith("lmstudio:")) return "lmstudio";
   // Fallback: OpenAI models start with "gpt" or "o"
   return /^(gpt|o\d)/.test(modelId) ? "openai-codex-app-server" : "claude-code";
 }

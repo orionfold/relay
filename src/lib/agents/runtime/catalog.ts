@@ -4,6 +4,8 @@ export const SUPPORTED_AGENT_RUNTIMES = [
   "anthropic-direct",
   "openai-direct",
   "ollama",
+  "litellm",
+  "lmstudio",
 ] as const;
 
 export type AgentRuntimeId = (typeof SUPPORTED_AGENT_RUNTIMES)[number];
@@ -101,7 +103,7 @@ export interface RuntimeCatalogEntry {
   id: AgentRuntimeId;
   label: string;
   description: string;
-  providerId: "anthropic" | "openai" | "ollama";
+  providerId: "anthropic" | "openai" | "ollama" | "litellm" | "lmstudio";
   capabilities: RuntimeCapabilities;
   features: RuntimeFeatures;
   /** Model catalog — default and supported model IDs for this runtime */
@@ -296,6 +298,68 @@ const RUNTIME_CATALOG: Record<AgentRuntimeId, RuntimeCatalogEntry> = {
       default: "llama3",
       supported: [],  // Dynamic — populated from Ollama API at runtime
     },
+  },
+  litellm: {
+    id: "litellm",
+    label: "LiteLLM",
+    description: "Operator-configured LiteLLM gateway using OpenAI-compatible Chat Completions.",
+    providerId: "litellm",
+    capabilities: {
+      resume: false,
+      cancel: true,
+      approvals: false,
+      mcpServers: false,
+      profileTests: false,
+      taskAssist: false,
+      profileAssist: false,
+      authHealthCheck: true,
+    },
+    features: {
+      hasNativeSkills: false,
+      hasProgressiveDisclosure: false,
+      hasFilesystemTools: false,
+      hasBash: false,
+      hasTodoWrite: false,
+      hasSubagentDelegation: false,
+      hasHooks: false,
+      autoLoadsInstructions: null,
+      ainativeInjectsSkills: true,
+      supportsSkillComposition: true,
+      maxActiveSkills: 3,
+      supportsPluginMcpServers: false,
+    },
+    models: { default: "", supported: [] },
+  },
+  lmstudio: {
+    id: "lmstudio",
+    label: "LM Studio",
+    description: "Operator-configured LM Studio server using OpenAI-compatible Chat Completions.",
+    providerId: "lmstudio",
+    capabilities: {
+      resume: false,
+      cancel: true,
+      approvals: false,
+      mcpServers: false,
+      profileTests: false,
+      taskAssist: false,
+      profileAssist: false,
+      authHealthCheck: true,
+    },
+    features: {
+      hasNativeSkills: false,
+      hasProgressiveDisclosure: false,
+      hasFilesystemTools: false,
+      hasBash: false,
+      hasTodoWrite: false,
+      hasSubagentDelegation: false,
+      hasHooks: false,
+      autoLoadsInstructions: null,
+      ainativeInjectsSkills: true,
+      supportsSkillComposition: true,
+      maxActiveSkills: 3,
+      supportsPluginMcpServers: false,
+    },
+    models: { default: "", supported: [] },
   },
 };
 

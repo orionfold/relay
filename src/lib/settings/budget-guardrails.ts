@@ -30,7 +30,6 @@ import {
 } from "@/lib/usage/pricing-registry";
 import {
   getRuntimeSetupStates,
-  listConfiguredRuntimeIds,
   type RuntimeSetupState,
 } from "./runtime-setup";
 
@@ -275,7 +274,6 @@ function normalizeBudgetPolicyWithRuntimeSetup(input: {
 }): BudgetPolicy {
   const next = createEmptyBudgetPolicy();
   const overallMonthly = input.policy.overall.monthlySpendCapUsd;
-  const configuredRuntimeIds = listConfiguredRuntimeIds(input.runtimeStates);
 
   next.overall.monthlySpendCapUsd = overallMonthly;
   next.runtimes["claude-code"].claudeOAuthPlan =
@@ -284,32 +282,55 @@ function normalizeBudgetPolicyWithRuntimeSetup(input: {
       ? "pro"
       : undefined);
 
-  if (overallMonthly == null || configuredRuntimeIds.length === 0) {
-    return next;
-  }
-
-  if (configuredRuntimeIds.length === 1) {
-    next.runtimes[configuredRuntimeIds[0]].monthlySpendCapUsd = overallMonthly;
-    return next;
-  }
-
-  const activeRuntimeIds = configuredRuntimeIds.filter(
-    (runtimeId) => input.runtimeStates[runtimeId].configured
+  const budgetGroups: AgentRuntimeId[][] = [
+    ["claude-code", "anthropic-direct"],
+    ["openai-codex-app-server", "openai-direct"],
+    ["litellm"],
+    ["lmstudio"],
+  ];
+  const activeGroups = budgetGroups.filter((group) =>
+    group.some((runtimeId) => input.runtimeStates[runtimeId].configured)
   );
-  const totalRequested = activeRuntimeIds.reduce(
-    (sum, runtimeId) => sum + (input.policy.runtimes[runtimeId].monthlySpendCapUsd ?? 0),
+
+  if (overallMonthly == null || activeGroups.length === 0) {
+    return next;
+  }
+
+  const requested = activeGroups.map(
+    (group) =>
+      group
+        .map((runtimeId) => input.policy.runtimes[runtimeId].monthlySpendCapUsd)
+        .find((value) => value != null) ?? null
+  );
+  const requestedGroupIndexes = requested.flatMap((value, index) =>
+    value == null ? [] : [index]
+  );
+  const totalRequested = requestedGroupIndexes.reduce(
+    (sum, index) => sum + (requested[index] ?? 0),
     0
   );
+  let assigned = 0;
 
-  const claudeShare =
-    totalRequested > 0
-      ? (input.policy.runtimes["claude-code"].monthlySpendCapUsd ?? 0) / totalRequested
-      : 0.5;
-  const claudeMonthly = roundUsd(overallMonthly * claudeShare);
-  const openAIMonthly = roundUsd(Math.max(overallMonthly - claudeMonthly, 0));
-
-  next.runtimes["claude-code"].monthlySpendCapUsd = claudeMonthly;
-  next.runtimes["openai-codex-app-server"].monthlySpendCapUsd = openAIMonthly;
+  activeGroups.forEach((group, index) => {
+    let allocation: number | null;
+    if (requestedGroupIndexes.length === 0) {
+      // The overall cap remains the combined safety boundary. Giving each
+      // active group the same ceiling avoids inventing an allocation the
+      // operator did not choose.
+      allocation = overallMonthly;
+    } else if (!requestedGroupIndexes.includes(index)) {
+      allocation = null;
+    } else {
+      const isLastRequested = index === requestedGroupIndexes.at(-1);
+      allocation = isLastRequested
+        ? roundUsd(Math.max(overallMonthly - assigned, 0))
+        : roundUsd(overallMonthly * ((requested[index] ?? 0) / totalRequested));
+      assigned = roundUsd(assigned + allocation);
+    }
+    for (const runtimeId of group) {
+      next.runtimes[runtimeId].monthlySpendCapUsd = allocation;
+    }
+  });
 
   return next;
 }

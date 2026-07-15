@@ -57,6 +57,7 @@ export function ChatSettingsSection() {
     ModelPreference | "none"
   >("none");
   const [ollamaModels, setOllamaModels] = useState<ChatModelOption[]>([]);
+  const [compatibleModels, setCompatibleModels] = useState<ChatModelOption[]>([]);
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -87,6 +88,17 @@ export function ChatSettingsSection() {
             tier: "Local",
             costLabel: "Free",
           }))
+        );
+      })
+      .catch(() => {});
+    fetch("/api/chat/models")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((models: ChatModelOption[]) => {
+        setCompatibleModels(
+          models.filter(
+            (model) =>
+              model.provider === "litellm" || model.provider === "lmstudio"
+          )
         );
       })
       .catch(() => {});
@@ -133,6 +145,8 @@ export function ChatSettingsSection() {
     (m) => m.provider === "anthropic"
   );
   const openaiModels = CHAT_MODELS.filter((m) => m.provider === "openai");
+  const liteLLMModels = compatibleModels.filter((m) => m.provider === "litellm");
+  const lmStudioModels = compatibleModels.filter((m) => m.provider === "lmstudio");
 
   return (
     <Card id="settings-chat" className="scroll-mt-4">
@@ -199,6 +213,26 @@ export function ChatSettingsSection() {
                 <SelectGroup>
                   <SelectLabel>Ollama (Local)</SelectLabel>
                   {ollamaModels.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.label} — {m.tier} ({m.costLabel})
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              )}
+              {liteLLMModels.length > 0 && (
+                <SelectGroup>
+                  <SelectLabel>LiteLLM gateway</SelectLabel>
+                  {liteLLMModels.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.label} — {m.tier} ({m.costLabel})
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              )}
+              {lmStudioModels.length > 0 && (
+                <SelectGroup>
+                  <SelectLabel>LM Studio server</SelectLabel>
+                  {lmStudioModels.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
                       {m.label} — {m.tier} ({m.costLabel})
                     </SelectItem>

@@ -6,12 +6,21 @@ import { getLaunchCwd } from "@/lib/environment/workspace-context";
 import { listPulledOllamaModels } from "@/lib/agents/runtime/ollama-model-resolver";
 import { getSetting } from "@/lib/settings/helpers";
 import { SETTINGS_KEYS } from "@/lib/constants/settings";
+import {
+  listOpenAICompatibleModels,
+  type OpenAICompatibleRuntimeId,
+} from "@/lib/agents/runtime/openai-compatible";
 
 // ── Cache ──────────────────────────────────────────────────────────────
 
 let cachedModels: ChatModelOption[] | null = null;
 let cacheExpiry = 0;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+export function invalidateModelDiscoveryCache(): void {
+  cachedModels = null;
+  cacheExpiry = 0;
+}
 
 // ── Claude SDK model discovery ─────────────────────────────────────────
 
@@ -100,6 +109,23 @@ async function discoverOllamaModels(): Promise<ChatModelOption[]> {
   }
 }
 
+async function discoverOpenAICompatibleModels(
+  runtimeId: OpenAICompatibleRuntimeId
+): Promise<ChatModelOption[]> {
+  try {
+    const models = await listOpenAICompatibleModels(runtimeId);
+    return models.map((model) => ({
+      id: `${runtimeId}:${model.id}`,
+      label: model.id,
+      provider: runtimeId,
+      tier: runtimeId === "litellm" ? "Gateway" : "Server",
+      costLabel: "Cost unknown",
+    }));
+  } catch {
+    return [];
+  }
+}
+
 // ── Public API ─────────────────────────────────────────────────────────
 
 /**
@@ -115,9 +141,11 @@ export async function discoverModels(): Promise<ChatModelOption[]> {
   }
 
   try {
-    const [claudeModels, ollamaModels] = await Promise.all([
+    const [claudeModels, ollamaModels, liteLLMModels, lmStudioModels] = await Promise.all([
       discoverClaudeModels(),
       discoverOllamaModels(),
+      discoverOpenAICompatibleModels("litellm"),
+      discoverOpenAICompatibleModels("lmstudio"),
     ]);
 
     // Merge discovered models with hardcoded Anthropic models so that
@@ -134,7 +162,13 @@ export async function discoverModels(): Promise<ChatModelOption[]> {
     const openaiModels = CHAT_MODELS.filter((m) => m.provider === "openai");
     // Ollama models are discovered live from the configured server (empty if
     // Ollama is absent/unreachable, so cloud-only users see no change).
-    const models = [...mergedClaude, ...openaiModels, ...ollamaModels];
+    const models = [
+      ...mergedClaude,
+      ...openaiModels,
+      ...ollamaModels,
+      ...liteLLMModels,
+      ...lmStudioModels,
+    ];
 
     // Only cache if we got real results
     if (models.length > 0) {

@@ -17,6 +17,10 @@ import { getSetting } from "@/lib/settings/helpers";
 import { SETTINGS_KEYS } from "@/lib/constants/settings";
 import { resolvePreferredModel } from "./model-preference";
 import { resolveOllamaModel } from "./ollama-model-resolver";
+import {
+  isOpenAICompatibleRuntimeId,
+  resolveOpenAICompatibleModel,
+} from "./openai-compatible";
 
 const FILESYSTEM_TOOL_NAMES = new Set([
   "Read",
@@ -240,6 +244,14 @@ async function resolveTaskModel(
       baseUrl || "http://localhost:11434",
       requestedModelId,
       defaultModel
+    );
+    return { requestedModelId, effectiveModelId };
+  }
+
+  if (isOpenAICompatibleRuntimeId(runtimeId)) {
+    const effectiveModelId = await resolveOpenAICompatibleModel(
+      runtimeId,
+      requestedModelId
     );
     return { requestedModelId, effectiveModelId };
   }
@@ -538,6 +550,8 @@ function buildChatFallbackReason(input: {
 function isRecognizedChatModelId(modelId: string): boolean {
   if (CHAT_MODELS.some((m) => m.id === modelId)) return true;
   if (modelId.startsWith("ollama:")) return true;
+  if (modelId.startsWith("litellm:")) return true;
+  if (modelId.startsWith("lmstudio:")) return true;
   return false;
 }
 
@@ -550,6 +564,56 @@ export async function resolveChatExecutionTarget(input: {
     (input.requestedRuntimeId
       ? getRuntimeCatalogEntry(resolveAgentRuntime(input.requestedRuntimeId)).models.default
       : DEFAULT_CHAT_MODEL);
+
+  const explicitRuntimeId = input.requestedRuntimeId
+    ? resolveAgentRuntime(input.requestedRuntimeId)
+    : null;
+  const prefixedRuntimeId = rawRequestedModelId.startsWith("litellm:")
+    ? "litellm"
+    : rawRequestedModelId.startsWith("lmstudio:")
+      ? "lmstudio"
+      : null;
+  if (
+    explicitRuntimeId &&
+    prefixedRuntimeId &&
+    explicitRuntimeId !== prefixedRuntimeId
+  ) {
+    throw new RequestedModelUnavailableError(
+      `${rawRequestedModelId} belongs to ${getRuntimeLabel(prefixedRuntimeId)}, not ${getRuntimeLabel(explicitRuntimeId)}.`
+    );
+  }
+  const compatibleRuntimeId =
+    explicitRuntimeId && isOpenAICompatibleRuntimeId(explicitRuntimeId)
+      ? explicitRuntimeId
+      : prefixedRuntimeId;
+
+  if (compatibleRuntimeId) {
+    if (prefixedRuntimeId && prefixedRuntimeId !== compatibleRuntimeId) {
+      throw new RequestedModelUnavailableError(
+        `${rawRequestedModelId} belongs to ${getRuntimeLabel(prefixedRuntimeId)}, not ${getRuntimeLabel(compatibleRuntimeId)}.`
+      );
+    }
+    const availability = await checkRuntimeAvailability(compatibleRuntimeId);
+    if (!availability.available) {
+      throw new RequestedModelUnavailableError(
+        `${availability.reason ?? `${getRuntimeLabel(compatibleRuntimeId)} is unavailable`}. The explicit target was not changed.`
+      );
+    }
+    const effectiveModelId = await resolveOpenAICompatibleModel(
+      compatibleRuntimeId,
+      rawRequestedModelId || null
+    );
+    return {
+      requestedRuntimeId: compatibleRuntimeId,
+      effectiveRuntimeId: compatibleRuntimeId,
+      requestedModelId: rawRequestedModelId || null,
+      effectiveModelId,
+      fallbackApplied: false,
+      fallbackReason: null,
+      selectionMode: "chat",
+      selectionReason: "Explicit OpenAI-compatible Chat model selection",
+    };
+  }
 
   // If the requested model isn't a recognized alias (e.g. a stale raw ID
   // like "claude-sonnet-4-5-20250514" left over from a deprecated SDK
@@ -579,7 +643,9 @@ export async function resolveChatExecutionTarget(input: {
     if (
       candidateRuntimeId !== "claude-code" &&
       candidateRuntimeId !== "openai-codex-app-server" &&
-      candidateRuntimeId !== "ollama"
+      candidateRuntimeId !== "ollama" &&
+      candidateRuntimeId !== "litellm" &&
+      candidateRuntimeId !== "lmstudio"
     ) {
       continue;
     }

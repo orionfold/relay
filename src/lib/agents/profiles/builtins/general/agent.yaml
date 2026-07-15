@@ -3,7 +3,7 @@ name: General
 version: "1.0.0"
 domain: work
 tags: [general, default, task, help, assistant]
-supportedRuntimes: [claude-code, openai-codex-app-server, anthropic-direct, openai-direct, ollama]
+supportedRuntimes: [claude-code, openai-codex-app-server, anthropic-direct, openai-direct, ollama, litellm, lmstudio]
 preferredRuntime: anthropic-direct
 runtimeOverrides:
   openai-codex-app-server:

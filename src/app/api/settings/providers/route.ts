@@ -126,8 +126,13 @@ export async function GET() {
       baseUrl: ollamaBaseRaw || "http://localhost:11434",
       defaultModel: ollamaDefaultModelRaw || "",
     },
+    compatibleRuntimes: [runtimeStates.litellm, runtimeStates.lmstudio],
     chatDefaultModel: chatDefaultModelRaw ?? null,
     routingPreference,
-    configuredProviderCount: Number(anthropicConfigured) + Number(openaiConfigured),
+    configuredProviderCount:
+      Number(anthropicConfigured) +
+      Number(openaiConfigured) +
+      Number(runtimeStates.litellm.configured) +
+      Number(runtimeStates.lmstudio.configured),
   });
 }
