@@ -4,6 +4,7 @@ import { mkdtempSync, rmSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import pkg from "../../../../package.json";
 
 const mocks = vi.hoisted(() => ({
   query: vi.fn(),
@@ -161,15 +162,15 @@ describe("Claude SDK Chat provider contract", () => {
 
   it("persists versioned knowledge receipts and affordances on a help turn", async () => {
     const result = await run(
-      [delta("Use Runtime settings (Guide · Relay 0.41.0)."), { type: "result", is_error: false }],
+      [delta(`Use Runtime settings (Guide · Relay ${pkg.version}).`), { type: "result", is_error: false }],
       "Where do I configure the Ollama runtime?"
     );
     const assistant = result.messages.find((row) => row.role === "assistant");
     const metadata = JSON.parse(assistant?.metadata ?? "{}");
-    expect(metadata.knowledge).toMatchObject({ status: "ready", releaseVersion: "0.41.0" });
+    expect(metadata.knowledge).toMatchObject({ status: "ready", releaseVersion: pkg.version });
     expect(metadata.quickAccess).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ kind: "knowledge-source", releaseVersion: "0.41.0" }),
+        expect.objectContaining({ kind: "knowledge-source", releaseVersion: pkg.version }),
         expect.objectContaining({ kind: "knowledge-action", href: expect.stringMatching(/^\//) }),
       ])
     );
@@ -184,7 +185,7 @@ describe("Claude SDK Chat provider contract", () => {
     expect(mocks.query).not.toHaveBeenCalled();
     expect(result.events).toEqual([
       expect.objectContaining({ type: "status" }),
-      expect.objectContaining({ type: "delta", content: expect.stringContaining("don’t have a verified Relay 0.41.0") }),
+      expect.objectContaining({ type: "delta", content: expect.stringContaining(`don’t have a verified Relay ${pkg.version}`) }),
       expect.objectContaining({ type: "done", quickAccess: [] }),
     ]);
     const assistant = result.messages.find((row) => row.role === "assistant");

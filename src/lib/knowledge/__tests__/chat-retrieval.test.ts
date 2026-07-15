@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
+import pkg from "../../../../package.json";
 import {
   KNOWLEDGE_MAX_SECTIONS,
   KNOWLEDGE_MAX_TOKENS,
@@ -81,7 +82,7 @@ describe("Relay knowledge ranking and retrieval", () => {
     const turn = prepareRelayKnowledgeTurn(query, { rootDir: ROOT });
     expect(turn.status).toBe("ready");
     if (turn.status === "ready") {
-      expect(turn.receipt.releaseVersion).toBe("0.41.0");
+      expect(turn.receipt.releaseVersion).toBe(pkg.version);
       expect(turn.receipt.sections.length).toBeGreaterThan(0);
     }
   });
@@ -99,7 +100,7 @@ describe("Relay knowledge ranking and retrieval", () => {
     const turn = prepareRelayKnowledgeTurn("Where do I configure the Ollama runtime?", { rootDir: ROOT });
     expect(turn.status).toBe("ready");
     if (turn.status !== "ready") return;
-    expect(turn.receipt.releaseVersion).toBe("0.41.0");
+    expect(turn.receipt.releaseVersion).toBe(pkg.version);
     expect(turn.receipt.sections.length).toBeGreaterThan(0);
     expect(turn.receipt.sections.length).toBeLessThanOrEqual(KNOWLEDGE_MAX_SECTIONS);
     expect(turn.prompt).toContain("Verified current Relay knowledge");

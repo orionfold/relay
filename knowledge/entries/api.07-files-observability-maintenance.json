@@ -16,7 +16,7 @@
     "/api/uploads/{id}",
     "/api/uploads/cleanup"
   ],
-  "contentHash": "f2bc3e39e6b4d5dfdf9fa21c63ad852984de5468380133073ca6f5bc84ecb25b",
+  "contentHash": "23553f671c58855fad741c0ba3b425e98644e086913028fe8e989931f94c769d",
   "features": [],
   "id": "api:07-files-observability-maintenance",
   "journeys": [],
@@ -177,8 +177,8 @@
       "heading": "GET /api/telemetry",
       "id": "get-api-telemetry",
       "level": 3,
-      "markdown": "Aggregates a live telemetry snapshot: task, project, and workflow counts, cost windows, runtime info, trend sparklines, and host metrics.\n\n- **Request**: none.\n- **Response** `200`: a snapshot object with, among others, `tasksRunning`, `tasksFailed`, `completedToday`, `activeProjects`, `activeWorkflows`, `reviewPending`, `costTodayMicros`, `costToDateMicros`, `budgetMonthlyCapMicros`, `runtimeLabel`, `providerId`, `runtimeSdkVersion`, a `trends` block (`agentActivity24h`, `completions7d`, `failures7d`), and a `host` block (`cwd`, `folderName`, `branch`, `cpuLoadPct`, `memUsedPct`). Costs are integer micro-dollars. `cpuLoadPct` and `memUsedPct` are null on a platform that does not report them.\n- **Errors**: `500` on failure: `{ \"error\": \"TelemetrySnapshotError\", \"message\": \"<message>\" }`.\n- **Side effects**: reads only. The route is not cached.",
-      "wordCount": 90
+      "markdown": "Aggregates a live telemetry snapshot: task, project, and workflow counts, cost windows, runtime info, trend sparklines, and host metrics.\n\n- **Request**: none.\n- **Response** `200`: a snapshot object with, among others, `tasksRunning`, `tasksFailed`, `completedToday`, `activeProjects`, `activeWorkflows`, `reviewPending`, `costTodayMicros`, `costToDateMicros`, `budgetMonthlyCapMicros`, `planPricedMonthlyMicros`, `runtimeLabel`, `providerId`, `runtimeSdkVersion`, a `trends` block (`agentActivity24h`, `completions7d`, `failures7d`), and a `host` block (`cwd`, `folderName`, `branch`, `cpuLoadPct`, `memUsedPct`). Costs are integer micro-dollars. `providerId` can identify Anthropic, OpenAI, Ollama, LiteLLM, or LM Studio; `runtimeSdkVersion` is null when the active provider has no first-party SDK package to report. Host percentages are null on a platform that does not report them.\n- **Errors**: `500` on failure: `{ \"error\": \"TelemetrySnapshotError\", \"message\": \"<message>\" }`.\n- **Side effects**: reads only. The route is not cached.",
+      "wordCount": 114
     },
     {
       "heading": "GET /api/diagnostics/chat-streams",
@@ -216,9 +216,9 @@
       "wordCount": 105
     }
   ],
-  "sourceHash": "aef4b6e31ece91c8159a1570b1e9a334b84548f2d2b2bb2d5cc91a6452a8c761",
+  "sourceHash": "1b89930966f893486fc9268d013b9d9b58e01c5f2cc13851291f56891df4d9b0",
   "sourcePath": "api/reference/07-files-observability-maintenance.md",
-  "sourceStateHash": "7b84f8f017c69b8bfa3808e6099d3153bd0005dca09cae847c08c1fe78882ce7",
+  "sourceStateHash": "9927036fbf49673203fe31daee8a9376b500928b3fc350cb0772938fef98f7b0",
   "stability": "admin-local",
   "summary": "Document upload, snapshot, logs, telemetry, diagnostics, seed/clear, and plugin routes.",
   "title": "Files, Observability, And Maintenance API"

@@ -36,7 +36,7 @@
     "/api/settings/test",
     "/api/settings/web-search"
   ],
-  "contentHash": "1c09204695965d2ae40358eb7555ef85bc4fb278d9e2e0732e66c9a45b3a9af3",
+  "contentHash": "4398613ff2a3e4e206bedda39ca53c80d985a7a5933ab7b09716eb5de1243012",
   "features": [],
   "id": "api:06-settings-license-instance",
   "journeys": [],
@@ -85,8 +85,8 @@
       "heading": "Endpoints",
       "id": "endpoints",
       "level": 2,
-      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/environment/rescan-if-stale` | `app-internal` | `src/app/api/environment/rescan-if-stale/route.ts` |\n| `GET` | `/api/environment/skills` | `app-internal` | `src/app/api/environment/skills/route.ts` |\n| `GET` | `/api/instance/config` | `app-internal` | `src/app/api/instance/config/route.ts` |\n| `GET` | `/api/instance/identity` | `app-internal` | `src/app/api/instance/identity/route.ts` |\n| `POST` | `/api/instance/init` | `app-internal` | `src/app/api/instance/init/route.ts` |\n| `POST` | `/api/instance/upgrade` | `app-internal` | `src/app/api/instance/upgrade/route.ts` |\n| `POST` | `/api/instance/upgrade/check` | `app-internal` | `src/app/api/instance/upgrade/check/route.ts` |\n| `GET` | `/api/instance/upgrade/status` | `app-internal` | `src/app/api/instance/upgrade/status/route.ts` |\n| `GET`, `POST` | `/api/license` | `app-internal` | `src/app/api/license/route.ts` |\n| `DELETE` | `/api/license/{id}` | `app-internal` | `src/app/api/license/[id]/route.ts` |\n| `GET` | `/api/onboarding/progress` | `app-internal` | `src/app/api/onboarding/progress/route.ts` |\n| `GET`, `POST` | `/api/settings` | `app-internal` | `src/app/api/settings/route.ts` |\n| `GET`, `POST` | `/api/settings/apps` | `app-internal` | `src/app/api/settings/apps/route.ts` |\n| `GET` | `/api/settings/author-default` | `app-internal` | `src/app/api/settings/author-default/route.ts` |\n| `GET`, `POST` | `/api/settings/browser-tools` | `app-internal` | `src/app/api/settings/browser-tools/route.ts` |\n| `GET`, `POST` | `/api/settings/budgets` | `app-internal` | `src/app/api/settings/budgets/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat` | `app-internal` | `src/app/api/settings/chat/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/pins` | `app-internal` | `src/app/api/settings/chat/pins/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/saved-searches` | `app-internal` | `src/app/api/settings/chat/saved-searches/route.ts` |\n| `GET`, `POST` | `/api/settings/environment` | `app-internal` | `src/app/api/settings/environment/route.ts` |\n| `GET` | `/api/settings/glance` | `app-internal` | `src/app/api/settings/glance/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/github` | `app-internal` | `src/app/api/settings/github/route.ts` |\n| `GET` | `/api/settings/github/repositories` | `app-internal` | `src/app/api/settings/github/repositories/route.ts` |\n| `GET`, `POST` | `/api/settings/learning` | `app-internal` | `src/app/api/settings/learning/route.ts` |\n| `GET`, `POST` | `/api/settings/ollama` | `app-internal` | `src/app/api/settings/ollama/route.ts` |\n| `GET`, `POST` | `/api/settings/openai` | `app-internal` | `src/app/api/settings/openai/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/openai/login` | `app-internal` | `src/app/api/settings/openai/login/route.ts` |\n| `POST` | `/api/settings/openai/logout` | `app-internal` | `src/app/api/settings/openai/logout/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/settings/openai-compatible/{runtimeId}` | `app-internal` | `src/app/api/settings/openai-compatible/[runtimeId]/route.ts` |\n| `GET`, `POST` | `/api/settings/pricing` | `app-internal` | `src/app/api/settings/pricing/route.ts` |\n| `GET` | `/api/settings/providers` | `app-internal` | `src/app/api/settings/providers/route.ts` |\n| `GET`, `POST` | `/api/settings/routing` | `app-internal` | `src/app/api/settings/routing/route.ts` |\n| `GET`, `POST` | `/api/settings/runtime` | `app-internal` | `src/app/api/settings/runtime/route.ts` |\n| `POST` | `/api/settings/test` | `app-internal` | `src/app/api/settings/test/route.ts` |\n| `GET`, `POST` | `/api/settings/web-search` | `app-internal` | `src/app/api/settings/web-search/route.ts` |",
-      "wordCount": 459
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/environment/rescan-if-stale` | `app-internal` | `src/app/api/environment/rescan-if-stale/route.ts` |\n| `GET` | `/api/environment/skills` | `app-internal` | `src/app/api/environment/skills/route.ts` |\n| `GET` | `/api/instance/config` | `app-internal` | `src/app/api/instance/config/route.ts` |\n| `GET` | `/api/instance/identity` | `app-internal` | `src/app/api/instance/identity/route.ts` |\n| `POST` | `/api/instance/init` | `app-internal` | `src/app/api/instance/init/route.ts` |\n| `POST` | `/api/instance/upgrade` | `app-internal` | `src/app/api/instance/upgrade/route.ts` |\n| `POST` | `/api/instance/upgrade/check` | `app-internal` | `src/app/api/instance/upgrade/check/route.ts` |\n| `GET` | `/api/instance/upgrade/status` | `app-internal` | `src/app/api/instance/upgrade/status/route.ts` |\n| `GET`, `POST` | `/api/license` | `app-internal` | `src/app/api/license/route.ts` |\n| `DELETE` | `/api/license/{id}` | `app-internal` | `src/app/api/license/[id]/route.ts` |\n| `GET` | `/api/onboarding/progress` | `app-internal` | `src/app/api/onboarding/progress/route.ts` |\n| `GET`, `POST` | `/api/settings` | `app-internal` | `src/app/api/settings/route.ts` |\n| `GET`, `POST` | `/api/settings/apps` | `app-internal` | `src/app/api/settings/apps/route.ts` |\n| `GET` | `/api/settings/author-default` | `app-internal` | `src/app/api/settings/author-default/route.ts` |\n| `GET`, `POST` | `/api/settings/browser-tools` | `app-internal` | `src/app/api/settings/browser-tools/route.ts` |\n| `GET`, `POST` | `/api/settings/budgets` | `app-internal` | `src/app/api/settings/budgets/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat` | `app-internal` | `src/app/api/settings/chat/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/pins` | `app-internal` | `src/app/api/settings/chat/pins/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/saved-searches` | `app-internal` | `src/app/api/settings/chat/saved-searches/route.ts` |\n| `GET`, `POST` | `/api/settings/environment` | `app-internal` | `src/app/api/settings/environment/route.ts` |\n| `GET` | `/api/settings/glance` | `app-internal` | `src/app/api/settings/glance/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/github` | `app-internal` | `src/app/api/settings/github/route.ts` |\n| `GET` | `/api/settings/github/repositories` | `app-internal` | `src/app/api/settings/github/repositories/route.ts` |\n| `GET`, `POST` | `/api/settings/learning` | `app-internal` | `src/app/api/settings/learning/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/ollama` | `app-internal` | `src/app/api/settings/ollama/route.ts` |\n| `GET`, `POST` | `/api/settings/openai` | `app-internal` | `src/app/api/settings/openai/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/openai/login` | `app-internal` | `src/app/api/settings/openai/login/route.ts` |\n| `POST` | `/api/settings/openai/logout` | `app-internal` | `src/app/api/settings/openai/logout/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/settings/openai-compatible/{runtimeId}` | `app-internal` | `src/app/api/settings/openai-compatible/[runtimeId]/route.ts` |\n| `GET`, `POST` | `/api/settings/pricing` | `app-internal` | `src/app/api/settings/pricing/route.ts` |\n| `GET` | `/api/settings/providers` | `app-internal` | `src/app/api/settings/providers/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/routing` | `app-internal` | `src/app/api/settings/routing/route.ts` |\n| `GET`, `POST` | `/api/settings/runtime` | `app-internal` | `src/app/api/settings/runtime/route.ts` |\n| `POST` | `/api/settings/test` | `app-internal` | `src/app/api/settings/test/route.ts` |\n| `GET`, `POST` | `/api/settings/web-search` | `app-internal` | `src/app/api/settings/web-search/route.ts` |",
+      "wordCount": 461
     },
     {
       "heading": "Endpoint Reference",
@@ -106,8 +106,8 @@
       "heading": "POST /api/settings",
       "id": "post-api-settings",
       "level": 3,
-      "markdown": "Updates the Anthropic auth settings.\n\n- **Request** body (JSON), validated by Zod, all optional:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `method` | `string` | no | `api_key` or `oauth`. |\n| `apiKey` | `string` | no | Must start with `sk-ant-`. Encrypted before storage. |\n| `model` | `string` | no | The Anthropic direct model id. |\n\n- **Response** `200`: the re-read auth settings (same shape as `GET`, no secret).\n- **Errors**: `400` on validation failure: `{ \"error\": <flattened Zod error> }`.\n- **Side effects**: writes the auth method; encrypts and stores a supplied key; switching to `oauth` deletes any stored key.",
-      "wordCount": 80
+      "markdown": "Updates the Anthropic auth settings.\n\n- **Request** body (JSON), validated by Zod, all optional:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `method` | `string` | no | `api_key` or `oauth`. |\n| `apiKey` | `string` | no | Must start with `sk-ant-`. Encrypted before storage. |\n| `model` | `string` | no | The Anthropic direct model id. |\n\n- **Response** `200`: the re-read auth settings (same shape as `GET`, no secret).\n- **Errors**: `400` on validation failure: `{ \"error\": <flattened Zod error> }`.\n- **Side effects**: writes the auth method; encrypts and stores a supplied key; switching to `oauth` deletes any stored key; invalidates cached runtime health.",
+      "wordCount": 84
     },
     {
       "heading": "GET /api/settings/apps",
@@ -267,15 +267,22 @@
       "heading": "GET /api/settings/ollama",
       "id": "get-api-settings-ollama",
       "level": 3,
-      "markdown": "Returns the Ollama base URL and default model.\n\n- **Request**: none.\n- **Response** `200`: `{ \"baseUrl\": \"http://localhost:11434\", \"defaultModel\": \"string\" }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
-      "wordCount": 26
+      "markdown": "Returns the redacted Ollama runtime configuration.\n\n- **Request**: none.\n- **Response** `200`: `{ \"runtimeId\": \"ollama\", \"label\": \"Ollama\", \"configured\": true, \"baseUrl\": \"http://localhost:11434\", \"defaultModel\": \"string\", \"allowInsecureRemote\": false, \"hasApiKey\": false, \"apiKeySource\": \"unknown\" }`. The raw key is never returned.\n- **Errors**: `400` when the effective stored or environment configuration is invalid.\n- **Side effects**: reads only.",
+      "wordCount": 49
     },
     {
       "heading": "POST /api/settings/ollama",
       "id": "post-api-settings-ollama",
       "level": 3,
-      "markdown": "Updates the Ollama settings.\n\n- **Request** body (JSON), all optional: `baseUrl`, `defaultModel`.\n- **Response** `200`: `{ \"ok\": true }`. It does not echo the updated values.\n- **Errors**: none returned explicitly.\n- **Side effects**: writes the provided Ollama settings.",
-      "wordCount": 33
+      "markdown": "Compatibility alias for `PUT /api/settings/ollama`; the request and response contracts are identical.",
+      "wordCount": 14
+    },
+    {
+      "heading": "PUT /api/settings/ollama",
+      "id": "put-api-settings-ollama",
+      "level": 3,
+      "markdown": "Atomically validates and updates Ollama connection and model defaults.\n\n- **Request** body (JSON), all optional: `baseUrl` (non-empty URL), `apiKey` (non-empty), `clearApiKey` (boolean), `defaultModel` (blank clears), and `allowInsecureRemote` (boolean). `apiKey` and `clearApiKey` are mutually exclusive. A non-loopback `http://` URL requires `allowInsecureRemote: true`; HTTPS is otherwise required.\n- **Response** `200`: `{ \"ok\": true, ...redactedConfiguration }`, using the same redacted fields as `GET`.\n- **Errors**:\n  - `400` for malformed or invalid strict input, unsafe or invalid base URLs, or an invalid effective configuration.\n  - `500` when persistence fails: `{ \"error\": \"Failed to save Ollama settings: <message>\" }`.\n- **Side effects**: applies the settings patch atomically, invalidates model discovery, and invalidates cached runtime health.",
+      "wordCount": 100
     },
     {
       "heading": "GET /api/settings/openai",
@@ -288,8 +295,8 @@
       "heading": "POST /api/settings/openai",
       "id": "post-api-settings-openai",
       "level": 3,
-      "markdown": "Updates the OpenAI auth settings.\n\n- **Request** body (JSON), validated by Zod, all optional:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `method` | `string` | no | `api_key` or `oauth`. |\n| `apiKey` | `string` | no | Must start with `sk-`. Encrypted before storage. |\n| `model` | `string` | no | The OpenAI direct model id. |\n\n- **Response** `200`: the re-read OpenAI auth settings (no secret).\n- **Errors**: `400` on validation failure: `{ \"error\": <flattened Zod error> }`.\n- **Side effects**: writes the method; encrypts and stores a supplied key; writes the model.",
-      "wordCount": 72
+      "markdown": "Updates the OpenAI auth settings.\n\n- **Request** body (JSON), validated by Zod, all optional:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `method` | `string` | no | `api_key` or `oauth`. |\n| `apiKey` | `string` | no | Must start with `sk-`. Encrypted before storage. |\n| `model` | `string` | no | The OpenAI direct model id. |\n\n- **Response** `200`: the re-read OpenAI auth settings (no secret).\n- **Errors**: `400` on validation failure: `{ \"error\": <flattened Zod error> }`.\n- **Side effects**: writes the method; encrypts and stores a supplied key; writes the model; invalidates cached runtime health.",
+      "wordCount": 76
     },
     {
       "heading": "GET /api/settings/openai/login",
@@ -323,22 +330,22 @@
       "heading": "GET /api/settings/openai-compatible/{runtimeId}",
       "id": "get-api-settings-openai-compatible-runtimeid",
       "level": 3,
-      "markdown": "Returns the LiteLLM or LM Studio configuration summary, including `configured`, `baseUrl`, `defaultModel`, `allowInsecureRemote`, `hasApiKey`, and `apiKeySource`. It never returns the API key.",
-      "wordCount": 22
+      "markdown": "Returns the LiteLLM or LM Studio configuration summary, including `runtimeId`, `label`, `configured`, `baseUrl`, `defaultModel`, `allowInsecureRemote`, `hasApiKey`, and `apiKeySource`. It never returns the API key. Unknown runtime ids return `404`; invalid effective configuration returns `400`.",
+      "wordCount": 34
     },
     {
       "heading": "PUT /api/settings/openai-compatible/{runtimeId}",
       "id": "put-api-settings-openai-compatible-runtimeid",
       "level": 3,
-      "markdown": "Updates `baseUrl`, `apiKey`, `defaultModel`, or `allowInsecureRemote` for `litellm` or `lmstudio`. Relay validates the effective URL before writing any field and returns `400` for invalid or unsafe configuration.",
-      "wordCount": 27
+      "markdown": "Updates `baseUrl`, `apiKey`, `clearApiKey`, `defaultModel`, or `allowInsecureRemote` for `litellm` or `lmstudio`. Relay validates the effective URL before writing any field, applies the patch atomically, and returns the redacted effective configuration. Invalid or unsafe configuration returns `400`. A successful write invalidates model discovery and cached runtime health.",
+      "wordCount": 46
     },
     {
       "heading": "DELETE /api/settings/openai-compatible/{runtimeId}",
       "id": "delete-api-settings-openai-compatible-runtimeid",
       "level": 3,
-      "markdown": "Removes stored compatible-runtime settings and invalidates model discovery. All three methods return `404` for runtime ids other than `litellm` and `lmstudio`.",
-      "wordCount": 21
+      "markdown": "Removes stored compatible-runtime settings and invalidates model discovery plus cached runtime health. All three methods return `404` for runtime ids other than `litellm` and `lmstudio`.",
+      "wordCount": 25
     },
     {
       "heading": "GET /api/settings/pricing",
@@ -358,22 +365,29 @@
       "heading": "GET /api/settings/providers",
       "id": "get-api-settings-providers",
       "level": 3,
-      "markdown": "Returns a consolidated provider configuration and auth overview across Anthropic, OpenAI, and Ollama. It never returns raw API keys.\n\n- **Request**: none.\n- **Response** `200`: a `providers` object (each with `configured`, `authMethod`, `hasKey`, `apiKeySource`, per-runtime states, and provider-specific fields such as OpenAI's `oauthConnected`, `account`, and `login`), an `ollama` block (`configured`, `connected`, `baseUrl`, `defaultModel`), `chatDefaultModel`, `routingPreference`, and `configuredProviderCount`.\n- **Errors**: none returned explicitly.\n- **Side effects**: probes the Ollama connection (cached briefly) and may refresh live OpenAI OAuth state.",
-      "wordCount": 74
+      "markdown": "Returns a consolidated provider, runtime, routing-policy, and health overview. It never returns raw API keys or provider credentials.\n\n- **Request** optional query: `refreshRuntimeHealth=1` bypasses the 15-second runtime-health cache for this request.\n- **Response** `200`: a `providers` object (each with auth and per-runtime state plus provider-specific OAuth fields), a redacted `ollama` block, `compatibleRuntimes` for LiteLLM and LM Studio, `chatDefaultModel`, the legacy `routingPreference`, the complete versioned `routing` snapshot, `runtimeRoutingStatuses` for all registered runtimes, and `configuredProviderCount`. Each status names configuration, health, selected model, comparable cost when known, capability summary, capability limits, and a bounded reason.\n- **Errors**: none returned explicitly.\n- **Side effects**: may refresh live OpenAI OAuth state and probes every configured runtime through a bounded, all-settled health snapshot. Probe failures remain per-runtime states instead of failing the aggregate response.",
+      "wordCount": 125
     },
     {
       "heading": "GET /api/settings/routing",
       "id": "get-api-settings-routing",
       "level": 3,
-      "markdown": "Returns the routing preference.\n\n- **Request**: none.\n- **Response** `200`: `{ \"preference\": \"cost\" }`. One of `cost`, `latency`, `quality`, `manual`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
-      "wordCount": 24
+      "markdown": "Returns the routing preference and versioned eligible-runtime policy.\n\n- **Request**: none.\n- **Response** `200`: `{ \"preference\": \"latency\", \"policy\": { \"version\": 1, \"eligibleRuntimeIds\": [ ... ], \"manualDefaultRuntimeId\": \"claude-code\", \"automaticFallback\": true }, \"source\": \"stored\", \"needsPersistence\": false, \"repairReason\": null }`. A missing policy returns the safe v1 default; corrupt or future values return a conservative repaired policy with a visible reason and fallback disabled.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 60
     },
     {
       "heading": "POST /api/settings/routing",
       "id": "post-api-settings-routing",
       "level": 3,
-      "markdown": "Sets the routing preference.\n\n- **Request** body (JSON): `{ \"preference\": \"cost\" }`.\n- **Response** `200`: `{ \"preference\": \"cost\" }`.\n- **Errors**: `400` on an invalid value: `{ \"error\": \"preference must be one of: cost, latency, quality, manual\" }`.\n- **Side effects**: writes the preference.",
-      "wordCount": 34
+      "markdown": "Compatibility alias for `PUT /api/settings/routing`; preference-only bodies are rejected so they cannot discard pool edits.",
+      "wordCount": 17
+    },
+    {
+      "heading": "PUT /api/settings/routing",
+      "id": "put-api-settings-routing",
+      "level": 3,
+      "markdown": "Atomically replaces the routing preference and v1 policy.\n\n- **Request** strict body: `{ \"preference\": \"cost | latency | quality | manual\", \"policy\": { \"version\": 1, \"eligibleRuntimeIds\": [\"<unique registered runtime ids>\"], \"manualDefaultRuntimeId\": \"<registered runtime id>\", \"automaticFallback\": true } }`.\n- **Response** `200`: the normalized stored snapshot, with the same shape as `GET`.\n- **Errors**:\n  - `400` for malformed JSON, unknown fields, duplicate or unknown runtime ids, an invalid preference or default, or the wrong policy version.\n  - `500` when atomic persistence fails.\n- **Side effects**: writes preference and policy together. It does not mutate provider authentication, provider models, compatible-runtime settings, or the Chat default.",
+      "wordCount": 90
     },
     {
       "heading": "GET /api/settings/runtime",
@@ -502,9 +516,9 @@
       "wordCount": 129
     }
   ],
-  "sourceHash": "060aeb84a7583ebbdc85aa8b7a2feca7f848d57208fe9323a021c16aa13fdd76",
+  "sourceHash": "0382d55fce661196a89eeac5887665ad37a68c4db703944ce18832d6cc3387fa",
   "sourcePath": "api/reference/06-settings-license-instance.md",
-  "sourceStateHash": "9467b3cd9f3ea25643b4b47cf0c8de80745ee49ff9699be723e09138a5aec5e4",
+  "sourceStateHash": "46498c371f7dc6485c5a95f05cf030ca9162a0336e8ccc2acb7cff29d57c857d",
   "stability": "admin-local",
   "summary": "Document local settings, license lifecycle, instance identity, upgrade, environment, and onboarding routes.",
   "title": "Settings, License, And Instance API"

@@ -184,7 +184,13 @@ bundle or any integrity drift blocks packing and publishing.
 - Determinism: two consecutive real-corpus builds produced bundle hash
   `1f998e896c0aa3f2ce5562e3e89989600892f68e83b1bea18e3c475ba3d8f777`;
   the second build wrote zero files.
-- Artifact: Relay `0.41.0`, 17 entries, 418 sections, 1,362,456 bytes.
+- Initial artifact: Relay `0.41.0`, 17 entries, 418 sections, 1,362,456 bytes.
+- Release refresh (`0.42.0`): the ten changed runtime, routing, provider, and
+  telemetry routes were source-reviewed in `_ASSETS`; the API and product-stats
+  gates passed with zero warnings; two consecutive builds produced bundle hash
+  `5ea2b331fa4253d9b331cbffb2ef34f0bf47de95dc55676169019bf8646e1e0a`,
+  17 entries, 421 sections, and 1,379,807 bytes, with the second build writing
+  zero files.
 - Regression: 10 focused knowledge/source-sync tests and 8 npm-package contract
   tests pass; TypeScript and documentation-link checks pass.
 - Package: real `npm pack` ran the `prepack` verifier, produced a 9,528,282-byte

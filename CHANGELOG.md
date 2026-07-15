@@ -8,6 +8,8 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.42.0] — 2026-07-15
+
 ### Added
 
 - **Task routing now uses an explicit eligible-runtime pool.** Operators can
@@ -26,6 +28,10 @@ them; the current package and repository identity is Orionfold Relay.
   reference into versioned local entries and an index for bounded future Chat
   retrieval. Dirty source state, changed route inventories, tampering, unsafe
   paths, private residue, and package-version drift fail before pack or publish.
+- **Grounded Relay help now links evidence and relevant product surfaces.** Chat
+  responses can cite release-matched guides and API references with external
+  source links, then present clearly separated buttons that navigate to the
+  corresponding Relay interface.
 
 ## [0.41.0] — 2026-07-14
 
