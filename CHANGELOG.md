@@ -8,6 +8,14 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+### Added
+
+- **Every Relay package now carries release-matched product knowledge.** A
+  deterministic, incremental bundle compiles verified operator guides and API
+  reference into versioned local entries and an index for bounded future Chat
+  retrieval. Dirty source state, changed route inventories, tampering, unsafe
+  paths, private residue, and package-version drift fail before pack or publish.
+
 ## [0.41.0] — 2026-07-14
 
 ### Added

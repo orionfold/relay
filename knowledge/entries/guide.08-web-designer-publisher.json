@@ -1,0 +1,351 @@
+{
+  "apiPaths": [],
+  "contentHash": "7be414d758b3bcaf2596ac09acb31390dbb5280d83c7f7ed60ea2100c876f9aa",
+  "features": [
+    "Current bundled pack families",
+    "Installed packs/apps",
+    "Responsive detail and action rows",
+    "Tables",
+    "Web Designer and Publisher",
+    "Web templates"
+  ],
+  "id": "guide:08-web-designer-publisher",
+  "journeys": [
+    "agency",
+    "app-builder",
+    "web-publisher"
+  ],
+  "kind": "guide",
+  "productRoutes": [
+    "/agents",
+    "/apps",
+    "/apps/demo-agency-ops",
+    "/apps/demo-web-designer",
+    "/packs",
+    "/schedules",
+    "/tables",
+    "/tables/demo_table_support_queue"
+  ],
+  "schemaVersion": 1,
+  "screenshots": [
+    {
+      "id": "agents-list",
+      "path": "dark/agents/agents-list__desktop.png",
+      "productRoute": "/agents",
+      "sha256": "978838ca1b69f887eb0183e5c943daaaae58813a0592979abbce16e89f9e7e1c",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "agents-list",
+      "path": "dark/agents/agents-list__mobile.png",
+      "productRoute": "/agents",
+      "sha256": "6213f828ef42f1c8737b12131c79974a1884240bfbb73588e7a06605071a541c",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "agency-app-detail",
+      "path": "dark/apps/agency-app-detail__desktop.png",
+      "productRoute": "/apps/demo-agency-ops",
+      "sha256": "e4f10dee14fdf1a2353c757b6a4322b5a5853da503ceeb3c0d6a8da457628bbc",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "agency-app-detail",
+      "path": "dark/apps/agency-app-detail__mobile.png",
+      "productRoute": "/apps/demo-agency-ops",
+      "sha256": "c8b6b1a1617e0f62b63f9ddc954592e81d031b87a49fe392d351051df4a59ce1",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "apps-list",
+      "path": "dark/apps/apps-list__desktop.png",
+      "productRoute": "/apps",
+      "sha256": "f817867b64c7caceaa0af1025fdcafd5ea8c064b1eb403bc9bbd9669fb4abe44",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "apps-list",
+      "path": "dark/apps/apps-list__mobile.png",
+      "productRoute": "/apps",
+      "sha256": "9fbf55c7b47d15d04519162096aca35a4f1f8edadeacf6507faa00f4ca583627",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "packs-gallery",
+      "path": "dark/packs/packs-gallery__desktop.png",
+      "productRoute": "/packs",
+      "sha256": "1398ecc3759fa8308d801774f747a541743d1f59404b6fa0039afb3e0da534e5",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "packs-gallery",
+      "path": "dark/packs/packs-gallery__mobile.png",
+      "productRoute": "/packs",
+      "sha256": "5bce477901b24f7ec1db85d5629f001cd89c185da2d2b0da1eac8dec0692e12a",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "web-designer-app",
+      "path": "dark/publisher/web-designer-app__desktop.png",
+      "productRoute": "/apps/demo-web-designer",
+      "sha256": "67e15b8da9925fb0070631f6f9a112a074383fab7e6beb3e8c15a4d2c82b5a22",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "web-designer-app",
+      "path": "dark/publisher/web-designer-app__mobile.png",
+      "productRoute": "/apps/demo-web-designer",
+      "sha256": "474f787e49e00a0fbdbc160ecff25e54cacf644ca589b69fd300d0e42d8d4148",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "schedules-list",
+      "path": "dark/schedules/schedules-list__desktop.png",
+      "productRoute": "/schedules",
+      "sha256": "73de41077b78a8a03986d59f704e247b37ff5f9e763f20a14b9791ca0c4bcc6d",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "schedules-list",
+      "path": "dark/schedules/schedules-list__mobile.png",
+      "productRoute": "/schedules",
+      "sha256": "d24d1a8a0a812441928a5f38f949dca1e23e272297d57cf3cc2e2d7c435bbe5e",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "support-queue-table",
+      "path": "dark/tables/support-queue-table__desktop.png",
+      "productRoute": "/tables/demo_table_support_queue",
+      "sha256": "082aeb7ab49448ff05675530d4d634a3222d9acb50e4529dd85dc2eaa693f821",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "support-queue-table",
+      "path": "dark/tables/support-queue-table__mobile.png",
+      "productRoute": "/tables/demo_table_support_queue",
+      "sha256": "b346e816d6b12502cec92f182d7530fd91aa18b84900a81bb0e7a514331f70c9",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "tables-list",
+      "path": "dark/tables/tables-list__desktop.png",
+      "productRoute": "/tables",
+      "sha256": "9a9a5d0d37ca28462ad124daff15f1923d261adae344641c3c149fcbe06977ba",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "tables-list",
+      "path": "dark/tables/tables-list__mobile.png",
+      "productRoute": "/tables",
+      "sha256": "f176e9aa01bbaef88b23819a890c58626705ca422b4bbca0f2f1fc03ef679211",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "agents-list",
+      "path": "light/agents/agents-list__desktop.png",
+      "productRoute": "/agents",
+      "sha256": "30dc34ffead313cf6bd2a6ed82f2ae23e66b6b5b722f0110b9ffd2c488937023",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "agents-list",
+      "path": "light/agents/agents-list__mobile.png",
+      "productRoute": "/agents",
+      "sha256": "fd14e2980f247d6d29ba3a2c9edb300cc3d6654779bf929c8290e4bbda9242bf",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "agency-app-detail",
+      "path": "light/apps/agency-app-detail__desktop.png",
+      "productRoute": "/apps/demo-agency-ops",
+      "sha256": "5da8b27671aae4807c9732ec4c38f1192abd8f3014aa7feda75595205a21e1ad",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "agency-app-detail",
+      "path": "light/apps/agency-app-detail__mobile.png",
+      "productRoute": "/apps/demo-agency-ops",
+      "sha256": "d3d423d92d06a44a754283fc1efc64ad9dd0b03e9137de1880c714783b02ce11",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "apps-list",
+      "path": "light/apps/apps-list__desktop.png",
+      "productRoute": "/apps",
+      "sha256": "22f01daffd27a89f22a6d61fb567dbe0734799578d80b095bdc58851b37a881a",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "apps-list",
+      "path": "light/apps/apps-list__mobile.png",
+      "productRoute": "/apps",
+      "sha256": "6ab59c0acf44f2c6d6d93cbdd078f9a454c28f8ae354f6715ec4bf22edc92c2c",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "packs-gallery",
+      "path": "light/packs/packs-gallery__desktop.png",
+      "productRoute": "/packs",
+      "sha256": "21e5f1ca5e6590c07f58247cbc2c29fa0a45aa556d2e92550e1593cfecf83070",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "packs-gallery",
+      "path": "light/packs/packs-gallery__mobile.png",
+      "productRoute": "/packs",
+      "sha256": "c2f57875b8e63e60c03cc10aefbb4419196ac505cbabc92183e69ca6daa05b39",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "web-designer-app",
+      "path": "light/publisher/web-designer-app__desktop.png",
+      "productRoute": "/apps/demo-web-designer",
+      "sha256": "76d28567329fba00eb53c78383b334cfc0a9115534210a39f610eb923bbade8b",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "web-designer-app",
+      "path": "light/publisher/web-designer-app__mobile.png",
+      "productRoute": "/apps/demo-web-designer",
+      "sha256": "a1c2928efa3f655fdfb868ef09ed2965137ba6eca7fa90f1466f7340bd379162",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "schedules-list",
+      "path": "light/schedules/schedules-list__desktop.png",
+      "productRoute": "/schedules",
+      "sha256": "cafa6be8ad9859767ff8422d8f88e9e8f769ffc4897875b854266497e7486b46",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "schedules-list",
+      "path": "light/schedules/schedules-list__mobile.png",
+      "productRoute": "/schedules",
+      "sha256": "3712b664393a2d9f6fad907ddd0b55892beb14fb60a29ecbf88d71515538939b",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "support-queue-table",
+      "path": "light/tables/support-queue-table__desktop.png",
+      "productRoute": "/tables/demo_table_support_queue",
+      "sha256": "847a6cb57b97976839ad5c17075775dee5064b7a0d9736062ac60638cb02ed95",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "support-queue-table",
+      "path": "light/tables/support-queue-table__mobile.png",
+      "productRoute": "/tables/demo_table_support_queue",
+      "sha256": "cc9f043cbe24a7005ed0cf69b204f3ba65b3e698debc528de2089df65a908309",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "tables-list",
+      "path": "light/tables/tables-list__desktop.png",
+      "productRoute": "/tables",
+      "sha256": "a65ce367aeb7b5af5723e5b8fe6eb55142bb8c4e8bbe7de716c81453124b46e1",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "tables-list",
+      "path": "light/tables/tables-list__mobile.png",
+      "productRoute": "/tables",
+      "sha256": "77f7686f9621f2b8fe4130aff9fb7e37a096c8ec09b235b7f8fb67d84df6ac40",
+      "theme": "light",
+      "viewport": "mobile"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "What This Chapter Helps You Do",
+      "id": "what-this-chapter-helps-you-do",
+      "level": 2,
+      "markdown": "This chapter helps you use Web Designer and Publisher to prepare a small static website from Relay table data.",
+      "wordCount": 19
+    },
+    {
+      "heading": "The Operator Story",
+      "id": "the-operator-story",
+      "level": 2,
+      "markdown": "Studio Vale needs a simple site for a new offer. The content already has structure: services, proof points, calls to action, and sections that can live in rows. The operator does not want to hand-copy that data into a separate website builder and then wonder whether the preview matches the published result.\n\nRelay Web Designer and Publisher exist for that kind of work. Web packs can turn structured Relay rows into a static site. The publish path can send the artifact to a user-owned GitHub Pages target. The important promise is not \"one click website magic.\" The important promise is that content, preview, and publish state stay connected inside a local Relay workspace.\n\nThis chapter shows how to inspect the app surface, the tables behind it, and the pack state before publishing.",
+      "wordCount": 132
+    },
+    {
+      "heading": "What This Part Of Relay Is For",
+      "id": "what-this-part-of-relay-is-for",
+      "level": 2,
+      "markdown": "Web packs let Relay build a static site from table rows. Web Designer lets you set the theme, density, hero layout, accent, section style, whether CTAs show, and the template. Web Publisher handles preview and publish behavior.\n\nThe goal is simple. The preview should match what you publish. Unsafe site links should be rejected. Empty gallery thumbnail frames should not make the product look broken.\n\nThis is not a replacement for every web tool. It is a structured path for small sites that fit Relay's table and pack model. That makes it useful for agencies, service businesses, and operators who want repeatable web assets tied to local business records.\n\nThe web flow also proves why the asset corpus exists. Screenshots, guide text, demo fixtures, and website claims should all point at the same product behavior. If Web Designer says a preview was stored, the guide should describe that behavior, the demo should simulate it, and the screenshots should show the same surface.",
+      "wordCount": 162
+    },
+    {
+      "heading": "Walk The Screen Like An Operator",
+      "id": "walk-the-screen-like-an-operator",
+      "level": 2,
+      "markdown": "Open **Apps**. Then open Web Designer if it is installed.\n\nWhat you should notice:\n\n- Installed app cards.\n- A web app screen with controls and related tables.\n- Pack context that shows where the app came from.\n\n[Figure: Installed apps list with web pack surfaces]\n\nThe Apps list tells you whether the web operating surface exists. If Web Designer is missing, do not hunt through unrelated screens. You likely need the web pack family installed.\n\nAfter you open the app, read the Web Designer surface before changing controls.\n\n[Figure: Web Designer app surface with site controls]\n\nThis figure is the workbench. It should show site controls, related data, and publish or preview context. Read it like a production screen. Which template is selected? Which visual controls are available? Is there a preview or deployment record? Is the app tied to the expected pack?",
+      "wordCount": 141
+    },
+    {
+      "heading": "Run The Work Carefully",
+      "id": "run-the-work-carefully",
+      "level": 2,
+      "markdown": "Check the tables that feed the site. Web templates and site content come from rows, not from a private project folder.\n\nWhat you should see:\n\n- Tables for site content or pack data.\n- Template rows where the web template pack provides them.\n- Preview or publish state when available.\n\n[Figure: Tables list used by pack-backed app surfaces]\n\nThe Tables list is where you confirm that site content is structured. A site generated from table rows is easier to repeat than a one-off pasted page. It also gives the future static demo a clean source of truth.\n\nOpen a content table or another structured example to inspect row shape before publishing.\n\n[Figure: Support queue style table used as an example structured data surface]\n\nThis example is a support queue, not a website table, but it shows the same principle. Rows carry fields. Fields become inputs. If the data shape is wrong, the generated output will be wrong. Fix the rows before blaming the generator.\n\nWhen the data is ready, return to Web Designer. Set the site controls. Choose the template and visual controls you want. Preview the site before you publish.\n\nUse **Packs** if the web pack family is not installed yet.\n\n[Figure: Packs gallery with web pack family entries]\n\nThe Packs gallery is the recovery path for missing web surfaces. Look for Relay Web Assets, Relay Web Publisher, Relay Web Templates, and Relay Web Designer. Install only the parts needed for the job and confirm the resulting app surface.\n\nAfter the pack is installed, return to Apps instead of staying in Packs. Packs answer \"what can I add?\" Apps answer \"what can I operate now?\" That distinction keeps the operator focused on the site, not on the package list.",
+      "wordCount": 287
+    },
+    {
+      "heading": "What To Do When The State Looks Wrong",
+      "id": "what-to-do-when-the-state-looks-wrong",
+      "level": 2,
+      "markdown": "If Web Designer is missing, open Packs and install the web pack family you need. Then return to Apps.\n\nIf preview and publish do not match, keep the preview path and publish path for review. The product should store and reuse preview artifacts so the published artifact matches the preview path.\n\nIf a link is rejected, fix the site content before you publish. Link safety exists to prevent unsafe generated-site links from shipping.\n\nIf a gallery thumbnail is empty, check whether the app has a safe thumbnail. Empty frames should be omitted or made useful.\n\nIf publish targets point to the wrong place, stop. A user-owned GitHub Pages target is still a real destination. Confirm ownership before publishing.\n\nIf the generated site looks correct but the data source looks wrong, fix the data source first. A site generated from stale rows will keep reproducing stale content. The strength of this path is repeatability, so the source rows need the same care as the visual controls.",
+      "wordCount": 165
+    },
+    {
+      "heading": "What This Changes In Daily Work",
+      "id": "what-this-changes-in-daily-work",
+      "level": 2,
+      "markdown": "The daily habit is to treat web output as structured work. Content lives in tables. Design choices live in Web Designer controls. Preview and publish state should be visible. Packs provide the web family when the surface is missing.\n\nFor a small agency, this turns a website pattern into a repeatable service. For a founder, it makes a simple site easier to revise from data. For an app builder, it shows how pack apps can combine tables, templates, and publish actions.\n\nDo not publish from a guess. Read the app, read the rows, preview, and then publish.\n\nThis habit also helps after launch. When a client asks for a section change, you can update the row or template choice, preview again, and publish a new artifact. The process stays inside Relay instead of becoming a hunt through loose files.",
+      "wordCount": 139
+    },
+    {
+      "heading": "Where To Go Next",
+      "id": "where-to-go-next",
+      "level": 2,
+      "markdown": "Next, read **Set Trust, Runtime, And Local Controls** before publishing customer-facing work from a real workspace.",
+      "wordCount": 16
+    }
+  ],
+  "sourceHash": "c499414b4b53be8ad416d925cfbfa1594fdf5ae5cf7746cacac6dabcb4c2cce2",
+  "sourcePath": "docs/guides/08-build-and-publish-a-small-website.md",
+  "sourceStateHash": "be45f10dae998607594b3d56700a5094da69922035803c29b0c5e4a7f90ef932",
+  "summary": "Walk through structured site content, design controls, preview, and publish behavior.",
+  "title": "Build And Publish A Small Website"
+}

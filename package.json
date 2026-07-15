@@ -29,6 +29,7 @@
   },
   "files": [
     "dist/",
+    "knowledge/",
     "src/",
     "!src/**/__tests__/**",
     "!src/**/*.test.ts",
@@ -45,6 +46,8 @@
     "public/icon-512.png",
     "public/icon-512-maskable.png",
     "public/brand/",
+    "scripts/lib/knowledge-bundle.mjs",
+    "scripts/verify-knowledge-bundle.mjs",
     "next.config.mjs",
     "tsconfig.json",
     "postcss.config.mjs",
@@ -69,6 +72,7 @@
     "test:hooks": "node --test .codex/hooks/*.test.mjs",
     "test:public-boundary": "node --test scripts/check-public-boundary.test.mjs",
     "test:doc-links": "node --test scripts/check-local-doc-links.test.mjs",
+    "test:knowledge": "node --test scripts/knowledge-bundle.test.mjs scripts/knowledge-source-sync.test.mjs",
     "test:quality-gate": "node --test scripts/quality-gate.test.mjs",
     "smoke:fresh-clone-dev": "node scripts/fresh-clone-dev-smoke.mjs",
     "test:watch": "vitest",
@@ -89,9 +93,12 @@
     "check:public-boundary": "node scripts/check-public-boundary.mjs tracked",
     "check:public-artifacts": "node scripts/check-public-boundary.mjs artifacts",
     "check:doc-links": "node scripts/check-local-doc-links.mjs",
+    "knowledge:build": "node scripts/build-knowledge-bundle.mjs",
+    "knowledge:verify": "node scripts/verify-knowledge-bundle.mjs",
     "demo:refresh": "node scripts/refresh-relay-demo.mjs",
     "sync-worktree": "bash bin/sync-worktree.sh",
-    "prepublishOnly": "npm run test:public-boundary && npm run check:public-boundary && npm run build:cli"
+    "prepack": "npm run knowledge:verify",
+    "prepublishOnly": "npm run test:public-boundary && npm run check:public-boundary && npm run knowledge:verify && npm run build:cli"
   },
   "engines": {
     "node": ">=20.0.0"

@@ -1,0 +1,427 @@
+{
+  "apiPaths": [
+    "/api/blueprints",
+    "/api/blueprints/{id}",
+    "/api/blueprints/{id}/instantiate",
+    "/api/blueprints/import",
+    "/api/notifications",
+    "/api/notifications/{id}",
+    "/api/notifications/mark-all-read",
+    "/api/notifications/pending-approvals",
+    "/api/notifications/pending-approvals/stream",
+    "/api/permissions",
+    "/api/permissions/presets",
+    "/api/schedules",
+    "/api/schedules/{id}",
+    "/api/schedules/{id}/budget",
+    "/api/schedules/{id}/execute",
+    "/api/schedules/{id}/heartbeat-history",
+    "/api/schedules/parse",
+    "/api/workflows",
+    "/api/workflows/{id}",
+    "/api/workflows/{id}/debug",
+    "/api/workflows/{id}/documents",
+    "/api/workflows/{id}/execute",
+    "/api/workflows/{id}/resume",
+    "/api/workflows/{id}/status",
+    "/api/workflows/{id}/steps/{stepId}/retry",
+    "/api/workflows/{id}/stop",
+    "/api/workflows/{id}/target",
+    "/api/workflows/from-assist",
+    "/api/workflows/optimize"
+  ],
+  "contentHash": "54440d75adcd411dc749fd7c1244bb18f8e374008f8c710834c9a302839c1828",
+  "features": [],
+  "id": "api:04-workflows-automation",
+  "journeys": [],
+  "kind": "api",
+  "productRoutes": [],
+  "schemaVersion": 1,
+  "screenshots": [],
+  "sections": [
+    {
+      "heading": "Who This Is For",
+      "id": "who-this-is-for",
+      "level": 2,
+      "markdown": "This group is for a developer automating multi-step work in a local Relay instance. It covers workflows and the way they run, resume, and stop; blueprints that turn a template into a workflow; schedules that fire tasks on a cron; the notifications that carry approvals and alerts; and the permission rules that govern what agents may do without asking. Read this if you are launching workflow runs, scripting scheduled tasks, polling for pending approvals, or managing an agent's permission allow-list.",
+      "wordCount": 80
+    },
+    {
+      "heading": "Stability",
+      "id": "stability",
+      "level": 2,
+      "markdown": "`app-internal`\n\nThese routes power the Relay web app. They are documented so you can build against a local instance, but their request and response shapes are tied to the app's own screens and may change between releases. Branch on HTTP status codes rather than on the internal structure of an error body, and treat every response field as additive.",
+      "wordCount": 59
+    },
+    {
+      "heading": "Local Access Model",
+      "id": "local-access-model",
+      "level": 2,
+      "markdown": "Relay API routes run inside the local Relay app. Use `http://127.0.0.1:<port>` in examples, where `<port>` is the port your instance is bound to (3000 by default).\n\nDo not expose these routes on a public network without your own access controls. These routes read and write the local SQLite database, run agent work in the background, and read and write blueprint files on disk.",
+      "wordCount": 68
+    },
+    {
+      "heading": "Conventions For This Group",
+      "id": "conventions-for-this-group",
+      "level": 2,
+      "markdown": "These behaviors hold across the routes below, so they are stated once here rather than repeated per endpoint:\n\n- **Workflow status vocabulary.** A workflow's top-level `status` is one of `draft`, `active`, `paused`, `completed`, `failed`. A run in progress is `active`, not \"running\". `paused` covers two cases: a delay step waiting for its time (the workflow carries a `resumeAt`) and a step waiting for human input. There is no separate `stopped` or `cancelled` status; a stopped workflow becomes `failed`.\n- **Background execution.** `execute`, `resume`, and step `retry` return `202` and run the work in the background. A `202` means the run was claimed and dispatched, not that it finished or even that it will succeed. Poll the status route for the outcome. The `stop` route is the exception: it acts synchronously and returns `200`.\n- **Timestamps.** `createdAt`, `updatedAt`, and similar fields serialize to ISO date strings on the wire.\n- **Malformed request bodies.** Most write routes read the JSON body without a guard. A malformed or empty body throws before validation and surfaces as an unhandled `500`, not a structured `400`. Send well-formed JSON with `Content-Type: application/json`.\n- **Validation.** These routes validate by hand or with plain validator functions rather than a shared schema. Error bodies are `{ \"error\": \"<message>\" }` with the specific message noted per route.",
+      "wordCount": 211
+    },
+    {
+      "heading": "Endpoint Families",
+      "id": "endpoint-families",
+      "level": 2,
+      "markdown": "- `blueprints`\n- `workflows`\n- `schedules`\n- `notifications`\n- `permissions`",
+      "wordCount": 5
+    },
+    {
+      "heading": "Endpoints",
+      "id": "endpoints",
+      "level": 2,
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `GET`, `POST` | `/api/blueprints` | `app-internal` | `src/app/api/blueprints/route.ts` |\n| `DELETE`, `GET` | `/api/blueprints/{id}` | `app-internal` | `src/app/api/blueprints/[id]/route.ts` |\n| `POST` | `/api/blueprints/{id}/instantiate` | `app-internal` | `src/app/api/blueprints/[id]/instantiate/route.ts` |\n| `POST` | `/api/blueprints/import` | `app-internal` | `src/app/api/blueprints/import/route.ts` |\n| `GET`, `POST` | `/api/workflows` | `app-internal` | `src/app/api/workflows/route.ts` |\n| `DELETE`, `PATCH` | `/api/workflows/{id}` | `app-internal` | `src/app/api/workflows/[id]/route.ts` |\n| `GET` | `/api/workflows/{id}/debug` | `app-internal` | `src/app/api/workflows/[id]/debug/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/workflows/{id}/documents` | `app-internal` | `src/app/api/workflows/[id]/documents/route.ts` |\n| `POST` | `/api/workflows/{id}/execute` | `app-internal` | `src/app/api/workflows/[id]/execute/route.ts` |\n| `POST` | `/api/workflows/{id}/resume` | `app-internal` | `src/app/api/workflows/[id]/resume/route.ts` |\n| `GET` | `/api/workflows/{id}/status` | `app-internal` | `src/app/api/workflows/[id]/status/route.ts` |\n| `GET` | `/api/workflows/{id}/target` | `app-internal` | `src/app/api/workflows/[id]/target/route.ts` |\n| `POST` | `/api/workflows/{id}/steps/{stepId}/retry` | `app-internal` | `src/app/api/workflows/[id]/steps/[stepId]/retry/route.ts` |\n| `POST` | `/api/workflows/{id}/stop` | `app-internal` | `src/app/api/workflows/[id]/stop/route.ts` |\n| `POST` | `/api/workflows/from-assist` | `app-internal` | `src/app/api/workflows/from-assist/route.ts` |\n| `POST` | `/api/workflows/optimize` | `app-internal` | `src/app/api/workflows/optimize/route.ts` |\n| `GET` | `/api/notifications` | `app-internal` | `src/app/api/notifications/route.ts` |\n| `DELETE`, `PATCH` | `/api/notifications/{id}` | `app-internal` | `src/app/api/notifications/[id]/route.ts` |\n| `PATCH` | `/api/notifications/mark-all-read` | `app-internal` | `src/app/api/notifications/mark-all-read/route.ts` |\n| `GET` | `/api/notifications/pending-approvals` | `app-internal` | `src/app/api/notifications/pending-approvals/route.ts` |\n| `GET` | `/api/notifications/pending-approvals/stream` | `app-internal` | `src/app/api/notifications/pending-approvals/stream/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/permissions` | `app-internal` | `src/app/api/permissions/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/permissions/presets` | `app-internal` | `src/app/api/permissions/presets/route.ts` |\n| `GET`, `POST` | `/api/schedules` | `app-internal` | `src/app/api/schedules/route.ts` |\n| `DELETE`, `GET`, `PATCH` | `/api/schedules/{id}` | `app-internal` | `src/app/api/schedules/[id]/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/schedules/{id}/budget` | `app-internal` | `src/app/api/schedules/[id]/budget/route.ts` |\n| `POST` | `/api/schedules/{id}/execute` | `app-internal` | `src/app/api/schedules/[id]/execute/route.ts` |\n| `GET` | `/api/schedules/{id}/heartbeat-history` | `app-internal` | `src/app/api/schedules/[id]/heartbeat-history/route.ts` |\n| `POST` | `/api/schedules/parse` | `app-internal` | `src/app/api/schedules/parse/route.ts` |",
+      "wordCount": 389
+    },
+    {
+      "heading": "Endpoint Reference",
+      "id": "endpoint-reference",
+      "level": 2,
+      "markdown": "",
+      "wordCount": 0
+    },
+    {
+      "heading": "GET /api/blueprints",
+      "id": "get-api-blueprints",
+      "level": 3,
+      "markdown": "Lists all workflow blueprints: built-in, user-installed, and any provided by plugins.\n\n- **Request**: none.\n- **Response** `200`: a JSON array of blueprints. Each element:\n  ```json\n  {\n    \"id\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"version\": \"string\",\n    \"domain\": \"work\",\n    \"tags\": [\"string\"],\n    \"pattern\": \"sequence\",\n    \"variables\": [ { \"id\": \"string\", \"type\": \"text\", \"label\": \"string\", \"required\": true } ],\n    \"steps\": [ { \"name\": \"string\", \"requiresApproval\": false } ],\n    \"author\": \"string\",\n    \"source\": \"string\",\n    \"estimatedDuration\": \"string\",\n    \"difficulty\": \"beginner\",\n    \"isBuiltin\": false\n  }\n  ```\n  `domain` is one of `work`, `personal`. `pattern` is one of `sequence`, `planner-executor`, `checkpoint`. `difficulty` is one of `beginner`, `intermediate`, `advanced`.\n- **Errors**: none returned explicitly. A filesystem failure propagates unhandled.\n- **Side effects**: reads only.",
+      "wordCount": 94
+    },
+    {
+      "heading": "POST /api/blueprints",
+      "id": "post-api-blueprints",
+      "level": 3,
+      "markdown": "Creates a user blueprint from a supplied YAML document.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `yaml` | `string` | yes | The blueprint YAML. Parsed and validated after the request is received; needs a `pattern` and at least one step. |\n\n- **Response** `201`: the created blueprint (same shape as a `GET /api/blueprints` element, with `isBuiltin` false).\n- **Errors**:\n  - `400` when `yaml` is missing: `{ \"error\": \"yaml field is required\" }`.\n  - `400` on an invalid blueprint: `{ \"error\": \"Invalid blueprint: <issues>\" }`.\n  - `400` when the id already exists: `{ \"error\": \"Blueprint \\\"<id>\\\" already exists\" }`, or another failure message.\n- **Side effects**: writes the blueprint file to the user blueprints directory and refreshes the blueprint cache.",
+      "wordCount": 105
+    },
+    {
+      "heading": "GET /api/blueprints/{id}",
+      "id": "get-api-blueprints-id",
+      "level": 3,
+      "markdown": "Fetches a single blueprint by id.\n\n- **Request**: none.\n- **Response** `200`: the blueprint object.\n- **Errors**: `404` when not found: `{ \"error\": \"Blueprint not found\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 26
+    },
+    {
+      "heading": "DELETE /api/blueprints/{id}",
+      "id": "delete-api-blueprints-id",
+      "level": 3,
+      "markdown": "Deletes a user blueprint file by id. Built-in blueprints cannot be deleted.\n\n- **Request**: none.\n- **Response** `200`: `{ \"ok\": true }`.\n- **Errors**:\n  - `403` when the blueprint is built-in: `{ \"error\": \"Cannot delete built-in blueprints\" }`.\n  - `400` when the user blueprint is not found: `{ \"error\": \"Blueprint \\\"<id>\\\" not found\" }`, or `{ \"error\": \"Failed to delete blueprint\" }`.\n- **Side effects**: removes the blueprint file and refreshes the cache.",
+      "wordCount": 59
+    },
+    {
+      "heading": "POST /api/blueprints/{id}/instantiate",
+      "id": "post-api-blueprints-id-instantiate",
+      "level": 3,
+      "markdown": "Instantiates a blueprint into a new draft workflow, resolving its variables and skipping steps whose conditions are not met.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `variables` | object | yes | A map of blueprint variable id to value. Required variables must be provided. |\n| `projectId` | `string` | no | Links the new workflow to a project. |\n\n- **Response** `201`:\n  ```json\n  { \"workflowId\": \"string\", \"name\": \"string\", \"stepsCount\": 0, \"skippedSteps\": [\"string\"] }\n  ```\n- **Errors**:\n  - `400` when `variables` is missing or not an object: `{ \"error\": \"variables object is required\" }`.\n  - `400` when the blueprint is not found: `{ \"error\": \"Blueprint \\\"<id>\\\" not found\" }`.\n  - `400` when a required variable is missing: `{ \"error\": \"Missing required variables: ...\" }`.\n  - `400` when every step is skipped by its conditions: `{ \"error\": \"All steps were skipped by conditions ...\" }`, or another failure message.\n- **Side effects**: inserts one workflow row in `draft` status. It does not create tasks or start a run.",
+      "wordCount": 139
+    },
+    {
+      "heading": "POST /api/blueprints/import",
+      "id": "post-api-blueprints-import",
+      "level": 3,
+      "markdown": "Imports a blueprint by fetching a YAML file from a GitHub URL.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `url` | `string` | yes | A GitHub URL to the blueprint YAML. |\n\n- **Response** `201`: `{ \"ok\": true, \"id\": \"string\", \"name\": \"string\" }`.\n- **Errors**:\n  - `400` when `url` is missing: `{ \"error\": \"url is required\" }`.\n  - `400` on a non-GitHub URL: `{ \"error\": \"Only GitHub URLs are supported\" }`.\n  - `400` when the fetch fails: `{ \"error\": \"Failed to fetch blueprint: <status>\" }`.\n  - `400` on any other failure, including a duplicate id: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Import failed\" }`.\n- **Side effects**: fetches from GitHub and writes a new user blueprint on disk.",
+      "wordCount": 97
+    },
+    {
+      "heading": "GET /api/workflows",
+      "id": "get-api-workflows",
+      "level": 3,
+      "markdown": "Lists all workflows with per-workflow task and document rollups.\n\n- **Request**: none.\n- **Response** `200`: a JSON array, newest first. Each element:\n  ```json\n  {\n    \"id\": \"string\",\n    \"name\": \"string\",\n    \"projectId\": \"string | null\",\n    \"definition\": \"string\",\n    \"status\": \"draft\",\n    \"runNumber\": 0,\n    \"createdAt\": \"string\",\n    \"updatedAt\": \"string\",\n    \"taskCount\": 0,\n    \"liveTaskCount\": 0,\n    \"outputDocCount\": 0\n  }\n  ```\n  `status` is one of `draft`, `active`, `paused`, `completed`, `failed`. `definition` is a raw JSON string. `liveTaskCount` counts running and queued tasks.\n- **Errors**: none returned explicitly. A database failure propagates unhandled.\n- **Side effects**: reads only.",
+      "wordCount": 78
+    },
+    {
+      "heading": "POST /api/workflows",
+      "id": "post-api-workflows",
+      "level": 3,
+      "markdown": "Creates a workflow in `draft` status from a name and a definition.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `name` | `string` | yes | Non-empty. |\n| `definition` | object | yes | A workflow definition with a `pattern` and at least one step. |\n| `projectId` | `string` | no | |\n\n  The `pattern` is one of `sequence`, `planner-executor`, `checkpoint`, `loop`, `parallel`, `swarm`, each with its own step-shape rules.\n- **Response** `201`: the created workflow row (`status` is `draft`, `runNumber` is 0).\n- **Errors**:\n  - `400` when `name` is missing: `{ \"error\": \"Name is required\" }`.\n  - `400` when the definition is invalid: `{ \"error\": \"Definition must include pattern and at least one step\" }`, or a specific validation message.\n  - `400` when a step's runtime and profile are incompatible: `{ \"error\": \"<message>\" }`.\n- **Side effects**: inserts one workflow row. It does not create tasks or start a run.",
+      "wordCount": 126
+    },
+    {
+      "heading": "PATCH /api/workflows/{id}",
+      "id": "patch-api-workflows-id",
+      "level": 3,
+      "markdown": "Edits a workflow's name or definition, or pauses it. Editing is allowed only for `draft`, `completed`, or `failed` workflows.\n\n- **Request** body (JSON):\n\n| Field | Type | Notes |\n|---|---|---|\n| `name` | `string` | Edit mode. Non-empty. |\n| `definition` | object | Edit mode. Re-validated. |\n| `status` | `string` | Transition mode. Only `paused` is a real transition. |\n\n- **Response** `200`: in edit mode, the updated workflow row; in pause mode, `{ \"id\": \"string\", \"status\": \"paused\" }`.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Workflow not found\" }`.\n  - `409` when editing an active or paused workflow: `{ \"error\": \"Cannot edit active or paused workflows\" }`.\n  - `400` when nothing to change: `{ \"error\": \"status, name, or definition is required\" }`.\n  - `409` when pausing a non-active workflow: `{ \"error\": \"Can only pause an active workflow\" }`.\n  - `400` when asked to set `active`: `{ \"error\": \"Use POST /api/workflows/[id]/execute to resume a workflow\" }`.\n  - `400` on an unsupported transition: `{ \"error\": \"Invalid status transition: <status>\" }`.\n- **Side effects**: updates the workflow. Editing a completed or failed workflow resets it to `draft` and discards its execution state. Pausing flips the status but does not cancel running tasks.",
+      "wordCount": 167
+    },
+    {
+      "heading": "DELETE /api/workflows/{id}",
+      "id": "delete-api-workflows-id",
+      "level": 3,
+      "markdown": "Deletes a workflow and cascade-deletes its tasks, documents, logs, and usage records.\n\n- **Request**: none.\n- **Response** `200`: `{ \"deleted\": true }`.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Workflow not found\" }`.\n  - `409` when the workflow is active with live tasks: `{ \"error\": \"Cannot delete an active workflow ...\" }`.\n  - `500` on failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Delete failed\" }`.\n- **Side effects**: cascade-deletes the workflow's dependent records, then the workflow row.",
+      "wordCount": 62
+    },
+    {
+      "heading": "GET /api/workflows/{id}/debug",
+      "id": "get-api-workflows-id-debug",
+      "level": 3,
+      "markdown": "Returns a failure analysis for a workflow: a root cause, a timeline, fix suggestions, and per-step errors.\n\n- **Request**: none.\n- **Response** `200`:\n  ```json\n  {\n    \"rootCause\": { \"type\": \"unknown\", \"summary\": \"string\" },\n    \"timeline\": [ { \"timestamp\": \"string\", \"event\": \"string\", \"severity\": \"error\", \"details\": \"string\", \"stepId\": \"string\" } ],\n    \"suggestions\": [ { \"tier\": \"quick\", \"title\": \"string\", \"description\": \"string\", \"action\": \"string\" } ],\n    \"stepErrors\": [ { \"stepId\": \"string\", \"stepName\": \"string\", \"error\": \"string\" } ]\n  }\n  ```\n  `rootCause.type` is one of `budget_exceeded`, `timeout`, `transient`, `unknown`. `timeline[].severity` is one of `success`, `warning`, `error`. `suggestions[].tier` is one of `quick`, `better`, `best`.\n- **Errors**: `500` on failure, including a workflow that does not exist: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Analysis failed\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 99
+    },
+    {
+      "heading": "GET /api/workflows/{id}/documents",
+      "id": "get-api-workflows-id-documents",
+      "level": 3,
+      "markdown": "Lists a workflow's document bindings with the attached document metadata. A workflow with no bindings, and a workflow that does not exist, both return an empty array.\n\n- **Request**: none.\n- **Response** `200`: a JSON array:\n  ```json\n  [\n    {\n      \"bindingId\": \"string\",\n      \"documentId\": \"string\",\n      \"stepId\": \"string | null\",\n      \"createdAt\": \"string\",\n      \"document\": { \"id\": \"string\", \"originalName\": \"string\", \"filename\": \"string\", \"mimeType\": \"string\", \"size\": 0, \"direction\": \"output\", \"status\": \"ready\", \"category\": \"string | null\" }\n    }\n  ]\n  ```\n  `document` is `null` when the bound document row is missing.\n- **Errors**: `500` on failure: `{ \"error\": \"Failed to fetch workflow documents\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 86
+    },
+    {
+      "heading": "POST /api/workflows/{id}/documents",
+      "id": "post-api-workflows-id-documents",
+      "level": 3,
+      "markdown": "Attaches existing documents to a workflow, optionally scoped to a step.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `documentIds` | `string[]` | yes | Non-empty. |\n| `stepId` | `string` | no | Scopes the bindings to one step. |\n\n- **Response** `201`: `{ \"attached\": 0, \"workflowId\": \"string\", \"stepId\": \"string | null\" }`. `attached` is the number of ids requested; duplicates are skipped.\n- **Errors**:\n  - `400` when `documentIds` is empty: `{ \"error\": \"documentIds must be a non-empty array\" }`.\n  - `404` when the workflow is not found: `{ \"error\": \"Workflow not found\" }`.\n  - `404` when a document is not found: `{ \"error\": \"Documents not found: <ids>\" }`.\n  - `500` on other failure: `{ \"error\": \"Failed to attach documents\" }`.\n- **Side effects**: inserts one document binding per id, skipping duplicates.",
+      "wordCount": 105
+    },
+    {
+      "heading": "DELETE /api/workflows/{id}/documents",
+      "id": "delete-api-workflows-id-documents",
+      "level": 3,
+      "markdown": "Removes document bindings from a workflow. With no body, removes all of them.\n\n- **Request** body (JSON), optional:\n\n| Field | Type | Notes |\n|---|---|---|\n| `documentIds` | `string[]` | The bindings to remove. Omit to remove all. |\n| `stepId` | `string` | Limits removal to one step. |\n\n- **Response** `200`: `{ \"ok\": true }`.\n- **Errors**: `500` on failure: `{ \"error\": \"Failed to remove document bindings\" }`. A workflow that does not exist still returns `{ \"ok\": true }`.\n- **Side effects**: removes the matching bindings, or all bindings when no ids are given.",
+      "wordCount": 75
+    },
+    {
+      "heading": "POST /api/workflows/{id}/execute",
+      "id": "post-api-workflows-id-execute",
+      "level": 3,
+      "markdown": "Starts or re-runs a workflow. It atomically claims the workflow into `active` and dispatches execution in the background.\n\n- **Request**: none.\n- **Response** `202`: `{ \"status\": \"started\", \"workflowId\": \"string\" }`.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Workflow not found\" }`.\n  - `409` when the workflow is already running: `{ \"error\": \"Workflow is already running\" }`.\n  - `500` when the pre-run reset fails: `{ \"error\": \"Failed to reset workflow state\" }`.\n- **Side effects**: for a completed, failed, or crashed run, cancels orphaned tasks and resets the workflow to `draft`, then claims it into `active` (the guard against double-execution) and runs it in the background. The run later moves the workflow to `completed`, `failed`, or `paused`.",
+      "wordCount": 103
+    },
+    {
+      "heading": "POST /api/workflows/{id}/resume",
+      "id": "post-api-workflows-id-resume",
+      "level": 3,
+      "markdown": "Resumes a delay-paused workflow now, rather than waiting for its `resumeAt`. This supports the sequence pattern.\n\n- **Request**: none.\n- **Response** `202`: `{ \"status\": \"resuming\", \"workflowId\": \"string\" }`.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Workflow not found\" }`.\n  - `409` when the workflow is not paused: `{ \"error\": \"Workflow is not paused (current status: <status>)\", \"status\": \"<status>\" }`.\n- **Side effects**: clears the pause and continues the run in the background from the next step.",
+      "wordCount": 66
+    },
+    {
+      "heading": "GET /api/workflows/{id}/status",
+      "id": "get-api-workflows-id-status",
+      "level": 3,
+      "markdown": "Returns a workflow's full status: its per-step state, run history, and document lists. The shape depends on the workflow pattern.\n\n- **Request**: none.\n- **Response** `200`: an object keyed on `pattern`. Common fields include `id`, `name`, `status`, `projectId`, `definition`, `liveTaskCount`, `runNumber`, `runHistory`, `stepDocuments`, and `parentDocuments`. The non-loop patterns add a `resumeAt` (epoch milliseconds or `null`), per-step `state`, and a `workflowState`; the loop pattern adds `loopState` and `loopConfig`. `runHistory` entries are `{ runNumber, taskCount, completedCount, failedCount }`.\n- **Errors**: `404` when not found: `{ \"error\": \"Workflow not found\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 85
+    },
+    {
+      "heading": "POST /api/workflows/{id}/steps/{stepId}/retry",
+      "id": "post-api-workflows-id-steps-stepid-retry",
+      "level": 3,
+      "markdown": "Retries a single failed step after validating the workflow and step state, then dispatches the continued run in the background.\n\n- **Request**: none.\n- **Response** `202`: `{ \"status\": \"retry_started\", \"workflowId\": \"string\", \"stepId\": \"string\" }`.\n- **Errors**:\n  - `404` when the workflow or step is not found.\n  - `409` when the workflow is active or the step is not failed.\n  - `500` for an unclassified retry failure.\n- **Side effects**: when the step is failed and the workflow is not active, resets the step, moves the workflow to `active`, and re-runs the step in the background.",
+      "wordCount": 85
+    },
+    {
+      "heading": "POST /api/workflows/{id}/stop",
+      "id": "post-api-workflows-id-stop",
+      "level": 3,
+      "markdown": "Stops a running workflow. It cancels the workflow's live tasks and marks the workflow and its state failed. This route acts synchronously.\n\n- **Request**: none.\n- **Response** `200`: `{ \"status\": \"stopped\", \"workflowId\": \"string\", \"cancelledTasks\": 0 }`.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Workflow not found\" }`.\n  - `409` when the workflow is not running: `{ \"error\": \"Workflow is not running (current status: <status>)\" }`.\n  - `500` when the workflow state cannot be parsed: `{ \"error\": \"Failed to parse workflow state\" }`.\n- **Side effects**: cancels each live task, marks running and waiting steps failed, and sets the workflow status to `failed`. There is no `stopped` status.",
+      "wordCount": 94
+    },
+    {
+      "heading": "GET /api/workflows/{id}/target",
+      "id": "get-api-workflows-id-target",
+      "level": 3,
+      "markdown": "Previews every effective execution target Relay would use for the workflow without starting it.\n\n- **Request**: none.\n- **Response** `200`: `{ \"kind\": \"workflow\", \"ready\": true, \"targets\": [ ], \"error\": null }`, with one target per executable step.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Workflow not found\" }`.\n  - `409` when any target cannot be resolved: `{ \"kind\": \"workflow\", \"ready\": false, \"targets\": [], \"error\": { } }`.\n- **Side effects**: reads workflow, profile, routing, and runtime configuration only.",
+      "wordCount": 63
+    },
+    {
+      "heading": "POST /api/workflows/from-assist",
+      "id": "post-api-workflows-from-assist",
+      "level": 3,
+      "markdown": "Creates a workflow and its per-step tasks together, and optionally starts the run immediately.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `name` | `string` | yes | Non-empty. |\n| `definition` | object | yes | A workflow definition, validated as in `POST /api/workflows`. |\n| `projectId` | `string` | no | |\n| `priority` | `number` | no | Task priority. Defaults to `2`. |\n| `assignedAgent` | `string` | no | Fallback runtime for steps that do not set their own. |\n| `executeImmediately` | `boolean` | no | When `true`, creates the workflow `active` and starts it. |\n\n- **Response** `201`:\n  ```json\n  { \"workflow\": { }, \"taskIds\": [\"string\"], \"parentTaskId\": null, \"status\": \"created\" }\n  ```\n  `status` is `started` when `executeImmediately` is set, otherwise `created`. `workflow` is the full workflow row.\n- **Errors**:\n  - `400` when `name` is missing: `{ \"error\": \"Name is required\" }`.\n  - `400` when the definition is missing or invalid: `{ \"error\": \"Definition must include pattern and at least one step\" }`, or a specific message.\n  - `400` when a step's runtime and profile are incompatible: `{ \"error\": \"<message>\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to create workflow and tasks\" }`.\n- **Side effects**: in one transaction, inserts the workflow and one planned task per step. When `executeImmediately` is set, also starts the run in the background.",
+      "wordCount": 176
+    },
+    {
+      "heading": "POST /api/workflows/optimize",
+      "id": "post-api-workflows-optimize",
+      "level": 3,
+      "markdown": "Returns advisory optimization suggestions for a workflow definition. Suggestions are advisory; the route changes nothing.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `definition` | object | yes | The workflow definition to analyze. |\n| `workflowId` | `string` | no | Enables a budget estimate from past runs. |\n\n- **Response** `200`:\n  ```json\n  {\n    \"suggestions\": [\n      { \"type\": \"budget_estimate\", \"title\": \"string\", \"description\": \"string\", \"data\": {}, \"action\": { \"label\": \"string\", \"type\": \"string\", \"payload\": {} } }\n    ]\n  }\n  ```\n  `type` is one of `document_binding`, `budget_estimate`, `runtime_recommendation`, `pattern_insight`. The list may be empty.\n- **Errors**:\n  - `400` when `definition` is missing: `{ \"error\": \"definition is required\" }`.\n  - `500` on failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Optimization failed\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 88
+    },
+    {
+      "heading": "GET /api/notifications",
+      "id": "get-api-notifications",
+      "level": 3,
+      "markdown": "Lists up to 100 notifications, newest first, or just a count.\n\n- **Request** query parameters, all optional:\n\n| Parameter | Type | Notes |\n|---|---|---|\n| `unread` | `\"true\"` | Returns only unread notifications. |\n| `type` | `string` | Filters by notification type. |\n| `countOnly` | `\"true\"` | Returns `{ \"count\": 0 }` instead of the rows. |\n\n- **Response** `200`: `{ \"count\": 0 }` when `countOnly` is set, otherwise a JSON array of notification rows:\n  ```json\n  [\n    {\n      \"id\": \"string\",\n      \"taskId\": \"string | null\",\n      \"type\": \"permission_required\",\n      \"title\": \"string\",\n      \"body\": \"string | null\",\n      \"read\": false,\n      \"toolName\": \"string | null\",\n      \"toolInput\": \"string | null\",\n      \"response\": \"string | null\",\n      \"respondedAt\": \"string | null\",\n      \"createdAt\": \"string\"\n    }\n  ]\n  ```\n  `type` is one of `permission_required`, `task_completed`, `task_failed`, `agent_message`, `budget_alert`, `context_proposal`, `context_proposal_batch`, `tier_limit`. Resolved learning-proposal notifications are hidden from this list.\n- **Errors**: none returned explicitly. A database failure propagates unhandled.\n- **Side effects**: reads only.",
+      "wordCount": 108
+    },
+    {
+      "heading": "PATCH /api/notifications/{id}",
+      "id": "patch-api-notifications-id",
+      "level": 3,
+      "markdown": "Sets a notification's read flag and returns the updated row.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `read` | `boolean` | no | Defaults to `true`. |\n\n- **Response** `200`: the updated notification row.\n- **Errors**: `404` when not found: `{ \"error\": \"Not found\" }`.\n- **Side effects**: updates the notification's read flag.",
+      "wordCount": 44
+    },
+    {
+      "heading": "DELETE /api/notifications/{id}",
+      "id": "delete-api-notifications-id",
+      "level": 3,
+      "markdown": "Deletes a notification by id.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true }`.\n- **Errors**: none returned. Deleting an id that does not exist still returns `{ \"success\": true }`.\n- **Side effects**: deletes the notification row.",
+      "wordCount": 31
+    },
+    {
+      "heading": "PATCH /api/notifications/mark-all-read",
+      "id": "patch-api-notifications-mark-all-read",
+      "level": 3,
+      "markdown": "Marks every unread notification as read.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: sets all unread notifications to read.",
+      "wordCount": 24
+    },
+    {
+      "heading": "GET /api/notifications/pending-approvals",
+      "id": "get-api-notifications-pending-approvals",
+      "level": 3,
+      "markdown": "Returns the current pending approval and learning notifications as enriched payloads for an inbox.\n\n- **Request**: none.\n- **Response** `200`: a JSON array. Each element includes `channel`, `notificationId`, `taskId`, `workflowId`, `toolName`, `permissionLabel`, `compactSummary`, `deepLink`, `supportedActionIds`, `title`, `body`, `taskTitle`, `workflowName`, `toolInput`, `createdAt`, `read`, and `notificationType`. `supportedActionIds` lists the actions the client may offer, such as `allow_once`, `always_allow`, `deny`, `open_inbox`.\n- **Errors**: none returned explicitly. A database failure propagates unhandled.\n- **Side effects**: reads only.",
+      "wordCount": 66
+    },
+    {
+      "heading": "GET /api/notifications/pending-approvals/stream",
+      "id": "get-api-notifications-pending-approvals-stream",
+      "level": 3,
+      "markdown": "Streams the pending-approvals list as Server-Sent Events, pushing a new frame whenever the list changes.\n\n- **Request**: none. The stream ends when the client disconnects.\n- **Response** `200`, streaming, with headers `Content-Type: text/event-stream`, `Cache-Control: no-cache`, `Connection: keep-alive`. Each data frame is the same pending-approvals array as the non-streaming route:\n  ```\n  data: [ ... ]\n  ```\n  The first frame is always sent, and a new frame follows only when the list changes. A keepalive comment (`: keepalive`) is sent every 15 seconds. The list is polled about every 0.75 seconds.\n- **Errors**: none as an HTTP status; the route always returns the stream. A database poll failure is retried silently and does not produce a client frame.\n- **Side effects**: reads only.",
+      "wordCount": 113
+    },
+    {
+      "heading": "GET /api/permissions",
+      "id": "get-api-permissions",
+      "level": 3,
+      "markdown": "Returns all saved permission allow-patterns.\n\n- **Request**: none.\n- **Response** `200`: `{ \"permissions\": [\"string\"] }`. Each entry is a pattern string such as `Read` or `Bash(command:git *)`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 32
+    },
+    {
+      "heading": "POST /api/permissions",
+      "id": "post-api-permissions",
+      "level": 3,
+      "markdown": "Adds a permission pattern to the allow-list. Adding a pattern that already exists is a no-op.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `pattern` | `string` | yes | Non-empty. |\n\n- **Response** `200`: `{ \"success\": true }`.\n- **Errors**: `400` when `pattern` is missing: `{ \"error\": \"pattern (string) is required\" }`.\n- **Side effects**: appends the pattern to the allow-list.",
+      "wordCount": 50
+    },
+    {
+      "heading": "DELETE /api/permissions",
+      "id": "delete-api-permissions",
+      "level": 3,
+      "markdown": "Removes a permission pattern from the allow-list. The pattern to remove is given in the body. Removing a pattern that is not present still succeeds.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `pattern` | `string` | yes | The exact pattern to remove. |\n\n- **Response** `200`: `{ \"success\": true }`.\n- **Errors**: `400` when `pattern` is missing: `{ \"error\": \"pattern (string) is required\" }`.\n- **Side effects**: removes the pattern from the allow-list.",
+      "wordCount": 63
+    },
+    {
+      "heading": "GET /api/permissions/presets",
+      "id": "get-api-permissions-presets",
+      "level": 3,
+      "markdown": "Lists the built-in permission presets, each marked with whether it is currently fully active.\n\n- **Request**: none.\n- **Response** `200`:\n  ```json\n  {\n    \"presets\": [\n      { \"id\": \"string\", \"name\": \"string\", \"description\": \"string\", \"risk\": \"low\", \"patterns\": [\"string\"], \"active\": false }\n    ]\n  }\n  ```\n  `risk` is one of `low`, `medium`, `high`. A preset is `active` when all of its patterns are on the allow-list.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 60
+    },
+    {
+      "heading": "POST /api/permissions/presets",
+      "id": "post-api-permissions-presets",
+      "level": 3,
+      "markdown": "Enables a preset by adding all of its patterns to the allow-list. This is additive and skips patterns already present.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `presetId` | `string` | yes | The preset to enable. |\n\n- **Response** `200`: `{ \"success\": true }`.\n- **Errors**:\n  - `400` when `presetId` is missing: `{ \"error\": \"presetId (string) is required\" }`.\n  - `404` when the preset is unknown: `{ \"error\": \"Unknown preset: <presetId>\" }`.\n- **Side effects**: adds the preset's patterns to the allow-list.",
+      "wordCount": 68
+    },
+    {
+      "heading": "DELETE /api/permissions/presets",
+      "id": "delete-api-permissions-presets",
+      "level": 3,
+      "markdown": "Disables a preset by removing the patterns unique to it. Patterns shared with another still-active preset are kept.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `presetId` | `string` | yes | The preset to disable. |\n\n- **Response** `200`: `{ \"success\": true }`.\n- **Errors**:\n  - `400` when `presetId` is missing: `{ \"error\": \"presetId (string) is required\" }`.\n  - `404` when the preset is unknown: `{ \"error\": \"Unknown preset: <presetId>\" }`.\n- **Side effects**: removes the preset's unique patterns from the allow-list.",
+      "wordCount": 67
+    },
+    {
+      "heading": "GET /api/schedules",
+      "id": "get-api-schedules",
+      "level": 3,
+      "markdown": "Lists all schedules, newest first.\n\n- **Request**: none.\n- **Response** `200`: a JSON array of schedule rows. Key fields include `id`, `projectId`, `name`, `prompt`, `cronExpression`, `assignedAgent`, `agentProfile`, `recurs`, `status`, `maxFirings`, `firingCount`, `expiresAt`, `lastFiredAt`, `nextFireAt`, `type`, `heartbeatChecklist`, `createdAt`, `updatedAt`. `status` is one of `active`, `paused`, `completed`, `expired`. `type` is one of `scheduled`, `heartbeat`.\n- **Errors**: none returned explicitly. A database failure propagates unhandled.\n- **Side effects**: reads only.",
+      "wordCount": 63
+    },
+    {
+      "heading": "POST /api/schedules",
+      "id": "post-api-schedules",
+      "level": 3,
+      "markdown": "Creates a scheduled or heartbeat schedule, turning the interval into a cron expression and staggering it to avoid collisions with other schedules in the same project.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `name` | `string` | yes | Non-empty. |\n| `interval` | `string` | yes | A natural-language or cron interval. |\n| `prompt` | `string` | for scheduled type | The task prompt. |\n| `type` | `\"scheduled\" \\| \"heartbeat\"` | no | Defaults to `scheduled`. |\n| `projectId` | `string` | no | |\n| `assignedAgent` | `string` | no | |\n| `agentProfile` | `string` | no | Checked for runtime compatibility. |\n| `recurs` | `boolean` | no | Defaults to `true`. |\n| `maxFirings` | `number` | no | |\n| `expiresInHours` | `number` | no | Sets an expiry. |\n| `heartbeatChecklist` | array | for heartbeat type | At least one `{ id, instruction, priority }` item. |\n| `activeHoursStart` | `number` | no | Heartbeat only. 0 to 23. |\n| `activeHoursEnd` | `number` | no | Heartbeat only. 0 to 23. |\n| `activeTimezone` | `string` | no | Defaults to `UTC`. |\n| `heartbeatBudgetPerDay` | `number` | no | |\n| `documentIds` | `string[]` | no | Documents to link to the schedule. |\n\n- **Response** `201`:\n  ```json\n  {\n    \"schedule\": { },\n    \"warnings\": [ { \"type\": \"cron_collision\", \"overlappingSchedules\": [\"string\"], \"overlappingMinutes\": [0], \"estimatedConcurrentSteps\": 0 } ]\n  }\n  ```\n  `schedule` is the created schedule row. `warnings` is empty unless the new schedule overlaps a busy schedule in the same project.\n- **Errors**:\n  - `400` when `name` is missing: `{ \"error\": \"Name is required\" }`.\n  - `400` when `interval` is missing: `{ \"error\": \"Interval is required\" }`.\n  - `400` when a scheduled schedule has no prompt: `{ \"error\": \"Prompt is required\" }`.\n  - `400` when a heartbeat schedule has no checklist: `{ \"error\": \"Heartbeat schedules require at least one checklist item\" }`.\n  - `400` on out-of-range active hours: `{ \"error\": \"Active hours start must be 0-23\" }`, or the end equivalent.\n  - `400` when the interval cannot be parsed, or a profile is incompatible: `{ \"error\": \"<message>\" }`.\n- **Side effects**: inserts one schedule row, staggering its cron minute to avoid collisions, and links any documents. It does not fire the schedule.",
+      "wordCount": 268
+    },
+    {
+      "heading": "GET /api/schedules/{id}",
+      "id": "get-api-schedules-id",
+      "level": 3,
+      "markdown": "Fetches one schedule with its firing history.\n\n- **Request**: none.\n- **Response** `200`: the schedule row, with `heartbeatChecklist` parsed to an array (or `null`), plus a `firingHistory` array of the tasks this schedule has fired, newest first.\n- **Errors**: `404` when not found: `{ \"error\": \"Schedule not found\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 48
+    },
+    {
+      "heading": "PATCH /api/schedules/{id}",
+      "id": "patch-api-schedules-id",
+      "level": 3,
+      "markdown": "Updates a schedule, including pausing and resuming it.\n\n- **Request** body (JSON), all fields optional:\n\n| Field | Type | Notes |\n|---|---|---|\n| `status` | `\"paused\" \\| \"active\"` | Pause or resume. |\n| `name` | `string` | Non-empty when given. |\n| `prompt` | `string` | Non-empty when given. |\n| `interval` | `string` | Re-parsed to a new cron expression. |\n| `assignedAgent` | `string` | |\n| `agentProfile` | `string` | |\n| `heartbeatChecklist` | array | |\n| `activeHoursStart` | `number \\| null` | |\n| `activeHoursEnd` | `number \\| null` | |\n| `activeTimezone` | `string` | |\n| `heartbeatBudgetPerDay` | `number \\| null` | |\n\n- **Response** `200`:\n  ```json\n  { \"schedule\": { }, \"warnings\": [ ] }\n  ```\n  `schedule` is the updated row; `warnings` follows the same collision shape as `POST /api/schedules`.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Schedule not found\" }`.\n  - `409` when pausing a non-active schedule: `{ \"error\": \"Can only pause an active schedule\" }`.\n  - `409` when resuming a non-paused schedule: `{ \"error\": \"Can only resume a paused schedule\" }`.\n  - `400` on an invalid status: `{ \"error\": \"Invalid status: <status>\" }`.\n  - `400` when a provided name or prompt is blank: `{ \"error\": \"Name cannot be empty\" }`, or the prompt equivalent.\n  - `400` when the interval cannot be parsed, or a profile is incompatible: `{ \"error\": \"<message>\" }`.\n- **Side effects**: updates the schedule. Pausing clears the next fire time; resuming recomputes it. It does not fire the schedule.",
+      "wordCount": 174
+    },
+    {
+      "heading": "DELETE /api/schedules/{id}",
+      "id": "delete-api-schedules-id",
+      "level": 3,
+      "markdown": "Deletes a schedule by id.\n\n- **Request**: none.\n- **Response** `200`: `{ \"deleted\": true }`.\n- **Errors**: `404` when not found: `{ \"error\": \"Schedule not found\" }`.\n- **Side effects**: deletes the schedule row.",
+      "wordCount": 26
+    },
+    {
+      "heading": "POST /api/schedules/{id}/execute",
+      "id": "post-api-schedules-id-execute",
+      "level": 3,
+      "markdown": "Fires a schedule now: it creates a queued task, atomically claims a concurrency slot, and dispatches the task in the background. Add `?force=true` to bypass the concurrency cap.\n\n- **Request** query parameter:\n\n| Parameter | Type | Notes |\n|---|---|---|\n| `force` | `\"true\"` | Bypasses the concurrency cap and records an audit entry. |\n\n- **Response** `200`: `{ \"taskId\": \"string\", \"forced\": false }`.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"schedule_not_found\" }`.\n  - `429` when the concurrency cap is full and `force` is not set: `{ \"error\": \"capacity_full\", \"message\": \"Swarm at capacity (<running>/<cap>). Retry in ~60s or add ?force=true to bypass.\", \"slotEtaSec\": 60 }`.\n- **Side effects**: creates a queued task, claims a run slot, and runs the task in the background. When the slot cannot be claimed, the task is deleted again. This route does not advance the schedule's own firing count or next fire time.",
+      "wordCount": 130
+    },
+    {
+      "heading": "GET /api/schedules/{id}/heartbeat-history",
+      "id": "get-api-schedules-id-heartbeat-history",
+      "level": 3,
+      "markdown": "Returns recent heartbeat evaluation entries and summary stats for a heartbeat schedule.\n\n- **Request**: none.\n- **Response** `200`:\n  ```json\n  {\n    \"history\": [ { \"id\": \"string\", \"taskId\": \"string | null\", \"event\": \"heartbeat_action\", \"payload\": \"string | null\", \"timestamp\": \"string\" } ],\n    \"stats\": { \"suppressionCount\": 0, \"lastActionAt\": \"string | null\", \"firingCount\": 0, \"heartbeatSpentToday\": 0, \"heartbeatBudgetPerDay\": \"number | null\" }\n  }\n  ```\n  `event` is one of `heartbeat_action`, `heartbeat_suppressed`.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Schedule not found\" }`.\n  - `400` when the schedule is not a heartbeat: `{ \"error\": \"Not a heartbeat schedule\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 72
+    },
+    {
+      "heading": "GET /api/schedules/{id}/budget",
+      "id": "get-api-schedules-id-budget",
+      "level": 3,
+      "markdown": "Returns the schedule's usage-budget policy and current usage snapshot.\n\n- **Request**: none.\n- **Response** `200`: the schedule budget snapshot.\n- **Errors**: `404` when the schedule is not found; `500` for snapshot failures.\n- **Side effects**: reads the schedule, budget policy, and usage records only.",
+      "wordCount": 40
+    },
+    {
+      "heading": "PUT /api/schedules/{id}/budget",
+      "id": "put-api-schedules-id-budget",
+      "level": 3,
+      "markdown": "Creates or replaces the schedule's usage-budget policy.\n\n- **Request**: a budget policy accepted by Relay's usage-budget schema.\n- **Response** `200`: the updated schedule budget snapshot.\n- **Errors**: `400` with `issues` for an invalid policy, `404` when the schedule is not found, and `400` for other policy errors.\n- **Side effects**: writes the policy for this schedule.",
+      "wordCount": 52
+    },
+    {
+      "heading": "DELETE /api/schedules/{id}/budget",
+      "id": "delete-api-schedules-id-budget",
+      "level": 3,
+      "markdown": "Removes the schedule's explicit usage-budget policy.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true, \"removed\": true | false }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: removes the matching policy when present.",
+      "wordCount": 27
+    },
+    {
+      "heading": "POST /api/schedules/parse",
+      "id": "post-api-schedules-parse",
+      "level": 3,
+      "markdown": "Parses a natural-language or cron interval into a cron expression, a description, the next fire times, and a confidence score. It creates nothing.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `expression` | `string` | yes | The interval to parse. |\n\n- **Response** `200`:\n  ```json\n  {\n    \"cronExpression\": \"string\",\n    \"description\": \"string\",\n    \"nextFireTimes\": [\"string\"],\n    \"confidence\": 1.0\n  }\n  ```\n  `nextFireTimes` holds three ISO timestamps.\n- **Errors**:\n  - `400` when `expression` is missing: `{ \"error\": \"Expression is required\" }`.\n  - `400` when it cannot be parsed: `{ \"error\": \"Could not parse \\\"<input>\\\". Try expressions like \\\"every weekday at 9am\\\", \\\"hourly\\\", \\\"5m\\\", or a cron expression.\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 92
+    },
+    {
+      "heading": "Examples",
+      "id": "examples",
+      "level": 2,
+      "markdown": "Instantiate a blueprint into a draft workflow, then run it:\n\n```bash\ncurl -X POST http://127.0.0.1:3000/api/blueprints/<blueprintId>/instantiate \\\n  -H \"Content-Type: application/json\" \\\n  -d '{ \"variables\": { \"topic\": \"Q3 launch\" } }'\n\ncurl -X POST http://127.0.0.1:3000/api/workflows/<workflowId>/execute\n```\n\nPoll a running workflow's status:\n\n```bash\ncurl http://127.0.0.1:3000/api/workflows/<workflowId>/status\n```\n\nStream pending approvals into an inbox:\n\n```bash\ncurl -N http://127.0.0.1:3000/api/notifications/pending-approvals/stream\n```\n\nThe `-N` flag keeps `curl` from buffering, so you see each frame as it arrives.\n\nCheck what a schedule interval resolves to before creating it:\n\n```bash\ncurl -X POST http://127.0.0.1:3000/api/schedules/parse \\\n  -H \"Content-Type: application/json\" \\\n  -d '{ \"expression\": \"every weekday at 9am\" }'\n```",
+      "wordCount": 130
+    },
+    {
+      "heading": "Do Not Depend On",
+      "id": "do-not-depend-on",
+      "level": 2,
+      "markdown": "- A workflow's top-level status has no `running`, `stopped`, or `cancelled` value. A run in progress is `active`; a stopped workflow is `failed`. `paused` covers both a delay wait and a human-input wait; tell them apart by the presence of `resumeAt` and the per-step state, not the top-level status.\n- `execute`, `resume`, and step `retry` return `202` before the work runs. A `202` means the run was claimed and dispatched, not that it succeeded. Poll the status route.\n- `POST /api/workflows/{id}/steps/{stepId}/retry` returns `202` before it validates anything, so an invalid retry looks identical to a valid one over HTTP. Confirm the outcome by polling the status route.\n- `GET /api/workflows/{id}/debug` returns `500`, not `404`, for a workflow that does not exist, because the analysis throws on a missing workflow.\n- `GET` and `DELETE` on `/api/workflows/{id}/documents` do not check that the workflow exists; a missing workflow yields an empty list or a success. Only `POST` validates the workflow.\n- Pausing a workflow through `PATCH /api/workflows/{id}` flips the status but does not stop tasks that are already running. Use `POST /api/workflows/{id}/stop` to cancel live tasks.\n- The `POST /api/schedules/{id}/execute` not-found body is `{ \"error\": \"schedule_not_found\" }`, while the other schedule routes use `{ \"error\": \"Schedule not found\" }`. Do not match on one spelling across all schedule routes.\n- Permission mutations return only `{ \"success\": true }`; they do not echo the resulting allow-list. Re-read `GET /api/permissions` to observe the new state.",
+      "wordCount": 245
+    }
+  ],
+  "sourceHash": "90974e98243783cde0597430d9e728655137bfff005e5321a59ca5f361826d5d",
+  "sourcePath": "api/reference/04-workflows-automation.md",
+  "sourceStateHash": "52e9801fcb8fa38779a68051870c2b2b8c13e2568798b477108a616786709dfe",
+  "stability": "app-internal",
+  "summary": "Document workflow execution, blueprints, schedules, human approvals, and permission controls.",
+  "title": "Workflows And Automation API"
+}

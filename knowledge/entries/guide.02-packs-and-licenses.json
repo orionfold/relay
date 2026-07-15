@@ -1,0 +1,253 @@
+{
+  "apiPaths": [],
+  "contentHash": "add180e4faccbd67747aaa0c35875aadeba849a5f6c966281b4d5b9d7c1c9ddc",
+  "features": [
+    "Current bundled pack families",
+    "Offline license lifecycle",
+    "Pack install",
+    "Pack update",
+    "Packs gallery",
+    "Packs-first navigation",
+    "Premium-pack value recap"
+  ],
+  "id": "guide:02-packs-and-licenses",
+  "journeys": [
+    "admin-trust",
+    "agency",
+    "app-builder"
+  ],
+  "kind": "guide",
+  "productRoutes": [
+    "/agents",
+    "/packs",
+    "/schedules",
+    "/settings",
+    "/settings#license"
+  ],
+  "schemaVersion": 1,
+  "screenshots": [
+    {
+      "id": "agents-list",
+      "path": "dark/agents/agents-list__desktop.png",
+      "productRoute": "/agents",
+      "sha256": "978838ca1b69f887eb0183e5c943daaaae58813a0592979abbce16e89f9e7e1c",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "agents-list",
+      "path": "dark/agents/agents-list__mobile.png",
+      "productRoute": "/agents",
+      "sha256": "6213f828ef42f1c8737b12131c79974a1884240bfbb73588e7a06605071a541c",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "packs-gallery",
+      "path": "dark/packs/packs-gallery__desktop.png",
+      "productRoute": "/packs",
+      "sha256": "1398ecc3759fa8308d801774f747a541743d1f59404b6fa0039afb3e0da534e5",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "packs-gallery",
+      "path": "dark/packs/packs-gallery__mobile.png",
+      "productRoute": "/packs",
+      "sha256": "5bce477901b24f7ec1db85d5629f001cd89c185da2d2b0da1eac8dec0692e12a",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "schedules-list",
+      "path": "dark/schedules/schedules-list__desktop.png",
+      "productRoute": "/schedules",
+      "sha256": "73de41077b78a8a03986d59f704e247b37ff5f9e763f20a14b9791ca0c4bcc6d",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "schedules-list",
+      "path": "dark/schedules/schedules-list__mobile.png",
+      "productRoute": "/schedules",
+      "sha256": "d24d1a8a0a812441928a5f38f949dca1e23e272297d57cf3cc2e2d7c435bbe5e",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-license",
+      "path": "dark/settings/settings-license__desktop.png",
+      "productRoute": "/settings#license",
+      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-license",
+      "path": "dark/settings/settings-license__mobile.png",
+      "productRoute": "/settings#license",
+      "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-summary",
+      "path": "dark/settings/settings-summary__desktop.png",
+      "productRoute": "/settings",
+      "sha256": "c4a65ffd595941e26bad8b446e7976787ea777462cd8df0ef3bc816083799f3e",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-summary",
+      "path": "dark/settings/settings-summary__mobile.png",
+      "productRoute": "/settings",
+      "sha256": "56d668062a3b9cab9f1394daf175ad4e8e88e357f502b9ed2ade59aebea93b00",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "agents-list",
+      "path": "light/agents/agents-list__desktop.png",
+      "productRoute": "/agents",
+      "sha256": "30dc34ffead313cf6bd2a6ed82f2ae23e66b6b5b722f0110b9ffd2c488937023",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "agents-list",
+      "path": "light/agents/agents-list__mobile.png",
+      "productRoute": "/agents",
+      "sha256": "fd14e2980f247d6d29ba3a2c9edb300cc3d6654779bf929c8290e4bbda9242bf",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "packs-gallery",
+      "path": "light/packs/packs-gallery__desktop.png",
+      "productRoute": "/packs",
+      "sha256": "21e5f1ca5e6590c07f58247cbc2c29fa0a45aa556d2e92550e1593cfecf83070",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "packs-gallery",
+      "path": "light/packs/packs-gallery__mobile.png",
+      "productRoute": "/packs",
+      "sha256": "c2f57875b8e63e60c03cc10aefbb4419196ac505cbabc92183e69ca6daa05b39",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "schedules-list",
+      "path": "light/schedules/schedules-list__desktop.png",
+      "productRoute": "/schedules",
+      "sha256": "cafa6be8ad9859767ff8422d8f88e9e8f769ffc4897875b854266497e7486b46",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "schedules-list",
+      "path": "light/schedules/schedules-list__mobile.png",
+      "productRoute": "/schedules",
+      "sha256": "3712b664393a2d9f6fad907ddd0b55892beb14fb60a29ecbf88d71515538939b",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-license",
+      "path": "light/settings/settings-license__desktop.png",
+      "productRoute": "/settings#license",
+      "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-license",
+      "path": "light/settings/settings-license__mobile.png",
+      "productRoute": "/settings#license",
+      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-summary",
+      "path": "light/settings/settings-summary__desktop.png",
+      "productRoute": "/settings",
+      "sha256": "a8626db9367e1186c2cbfbb0e3f463f838bf1f13a44a6bbdf857dc8b8aed1790",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-summary",
+      "path": "light/settings/settings-summary__mobile.png",
+      "productRoute": "/settings",
+      "sha256": "2784383451f5803a9174566ffb67974384530734e89d0b130ab85086b09897a7",
+      "theme": "light",
+      "viewport": "mobile"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "What This Chapter Helps You Do",
+      "id": "what-this-chapter-helps-you-do",
+      "level": 2,
+      "markdown": "This chapter helps you read the Packs gallery, choose the right bundled pack, and understand how license state affects premium installs and updates.",
+      "wordCount": 23
+    },
+    {
+      "heading": "The Operator Story",
+      "id": "the-operator-story",
+      "level": 2,
+      "markdown": "Northstar Automation Studio sells repeatable services. One client needs a renewal desk. Another needs a support triage loop. A third wants help turning structured website content into a published site. Maya could build each workflow, table, schedule, and agent by hand. That would work once. It would not create a repeatable service line.\n\nPacks are how Relay turns a pattern into something an operator can install, inspect, run, and update. A pack can add agents, workflows, tables, schedules, apps, and app screens. The Packs page is not a place to browse vague ideas. It is where an operator decides which operating layer belongs in a local workspace.\n\nLicenses sit beside packs because some packs are premium. A license should never feel like a mystery lock. Relay should show what is installed, what can be installed, what can be updated, and what remains available if a license expires.\n\nIn this chapter, you are not trying to install every pack. You are learning how to read pack state before you make a change.",
+      "wordCount": 171
+    },
+    {
+      "heading": "What This Part Of Relay Is For",
+      "id": "what-this-part-of-relay-is-for",
+      "level": 2,
+      "markdown": "A pack is a bundle of Relay parts. It can add agents, blueprints, workflows, tables, schedules, and app screens. Use packs when you want a working starting point instead of building each part by hand.\n\nLicenses control new premium installs and premium updates. If a premium license expires, already installed pack content stays installed. Relay should not take away local work you already have.\n\nThis matters for two reasons. First, a small business should be able to try a working pattern without designing the whole system. Second, a small business should not lose local work because a license state changed. Installed content and new premium access are different things.\n\nThink of a pack as a named operating kit. Think of a license as permission to add or update certain premium kits. The pack card should help you understand both.",
+      "wordCount": 139
+    },
+    {
+      "heading": "Walk The Screen Like An Operator",
+      "id": "walk-the-screen-like-an-operator",
+      "level": 2,
+      "markdown": "Open **Packs** from the top navigation. Scan the gallery before you install anything.\n\nWhat you should notice:\n\n- Pack cards show what each pack adds.\n- Cards show free or premium status.\n- Installed packs show installed state.\n- Premium packs point you to license activation when needed.\n\n[Figure: Packs gallery showing bundled Relay packs and install state]\n\nThe gallery is the first decision point. Do not read it as a set of pretty cards. Read it as a map of installed capability. Look for the pack family, the action, the install state, and the short value description.\n\nFor an agency, the important question might be, \"Which pack gives me a client-service base?\" For an app builder, it might be, \"Which pack gives me the tables and workflow shapes I can reuse?\" For an admin, it might be, \"Which premium actions require a valid license before I plan this rollout?\"\n\nRead a pack card like a contract:\n\n- What job does this pack help with?\n- Which parts will it add?\n- Is it free or premium?\n- Is it already installed?\n- Does it need a license before install or update?\n\nThe gallery should make free and premium behavior clear. It should not send the operator into a dead end. If a premium pack cannot be installed, the next useful action is license activation or license review.",
+      "wordCount": 219
+    },
+    {
+      "heading": "Run The Work Carefully",
+      "id": "run-the-work-carefully",
+      "level": 2,
+      "markdown": "Install or update one pack only after you understand what it adds. The app can handle pack actions, and the CLI can install or update packs too:\n\n```bash\nrelay pack add <pack-id>\nrelay pack update <pack-id>\n```\n\nAfter install, do not stop at the Packs page. Open **Apps** to see whether the pack added an operating surface.\n\n[Figure: Installed app surfaces created by packs]\n\nApps are where pack content becomes day-to-day work. A pack might add a support surface, a web designer surface, or an agency operations surface. This screen tells you which installed modules now have a place to operate.\n\nNext, open **Agents**. Some packs add reusable instruction profiles. These are not the same as workflows. They are named behavior profiles that can help with repeated work.\n\n[Figure: Agents list with reusable instruction profiles]\n\nThe Agents list helps you see what new work styles are available after a pack install. If the pack came from a known family, the card should preserve that source context so the workspace does not become a pile of unnamed helpers.\n\nOpen **Schedules** if the pack includes recurring work. A schedule means Relay can run a task or workflow on a cadence. That is useful for reviews, reports, checks, and routines that should not depend on someone remembering to click a button.\n\n[Figure: Schedules list with pack-aware recurring work]\n\nSchedules are where pack installs can become ongoing operations. Before you trust one, check its state, cadence, and source. Pack updates should preserve schedule state. If an update would replace user-edited files, Relay should back them up rather than overwrite without a trace.\n\nFinally, open **Settings** and review License. This is the place to confirm premium access before a pack update matters.\n\n[Figure: License panel used for premium pack access]\n\nThe license panel reads the same saved license store as the CLI. License verification is offline. That means Relay can verify a license file locally, without turning your local workspace into an Orionfold-hosted account.",
+      "wordCount": 328
+    },
+    {
+      "heading": "What To Do When The State Looks Wrong",
+      "id": "what-to-do-when-the-state-looks-wrong",
+      "level": 2,
+      "markdown": "If a premium pack asks for a license, open Settings and check License. Do not keep clicking install. The card is telling you which prerequisite is missing.\n\nIf a pack update is blocked, keep using the installed version while you fix the license state. A blocked premium update should not remove installed local content.\n\nIf a pack installs but a screen looks empty, open Apps first. Some pack parts live inside an app surface instead of the top-level list. Also check Workflows, Tables, Agents, and Schedules depending on what the pack said it added.\n\nIf a CLI install succeeds but the running app does not reflect the change, refresh the app. The current product is designed to pick up CLI-installed bundled packs without a full restart, but a refresh is still the simplest first check.\n\nIf a pack update mentions backups, read the backup path before you continue. Backups matter when someone has edited pack files locally.",
+      "wordCount": 157
+    },
+    {
+      "heading": "What This Changes In Daily Work",
+      "id": "what-this-changes-in-daily-work",
+      "level": 2,
+      "markdown": "The Packs page changes Relay from a blank workspace into a set of named operating choices. An agency can install a service base. A nonprofit operator can install a grant or donor process. A web-services operator can install the web design family. An app builder can study the parts and reuse the pattern.\n\nThe daily habit is to read pack state before you act. Ask what the pack adds, where those parts will appear, and what license state applies. Then confirm the installed result in Apps, Agents, Schedules, Tables, or Workflows.\n\nThis is also how you avoid pack sprawl. Install the pack that serves the next job. Confirm the surfaces it created. Leave the rest alone until a real process needs them.",
+      "wordCount": 122
+    },
+    {
+      "heading": "Where To Go Next",
+      "id": "where-to-go-next",
+      "level": 2,
+      "markdown": "Next, read **Organize Customers, Projects, And Tasks** to see how pack work connects to day-to-day records.",
+      "wordCount": 16
+    }
+  ],
+  "sourceHash": "19f71df161c96f451a6d5000ee87f737bbbe49b16f6a7cd7f3673f1ffe38302e",
+  "sourcePath": "docs/guides/02-use-packs-and-licenses.md",
+  "sourceStateHash": "775ceee772572075b1afa884844a1df95f7886b9b45d61b9dcb0f1ab5bc4d29e",
+  "summary": "Explain what packs are, how to install or update them, and how license state affects premium pack actions.",
+  "title": "Use Packs And Licenses"
+}

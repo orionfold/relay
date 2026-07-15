@@ -1,0 +1,519 @@
+{
+  "apiPaths": [
+    "/api/apps",
+    "/api/apps/{id}",
+    "/api/apps/{id}/budgets",
+    "/api/apps/{id}/deployments",
+    "/api/apps/{id}/deployments/{deploymentId}",
+    "/api/apps/{id}/pack/community-submission",
+    "/api/apps/{id}/pack/export",
+    "/api/apps/{id}/pack/inspect",
+    "/api/apps/{id}/pack/publish",
+    "/api/apps/{id}/preview",
+    "/api/apps/{id}/previews/{artifactId}/{path*}",
+    "/api/apps/{id}/publish",
+    "/api/apps/{id}/publish-targets",
+    "/api/apps/{id}/publish-targets/{targetId}",
+    "/api/apps/{id}/publish-targets/{targetId}/test",
+    "/api/apps/{id}/site-settings",
+    "/api/packs/install",
+    "/api/packs/update",
+    "/api/tables",
+    "/api/tables/{id}",
+    "/api/tables/{id}/charts",
+    "/api/tables/{id}/charts/{chartId}",
+    "/api/tables/{id}/columns",
+    "/api/tables/{id}/enrich",
+    "/api/tables/{id}/enrich/plan",
+    "/api/tables/{id}/enrich/runs",
+    "/api/tables/{id}/export",
+    "/api/tables/{id}/history",
+    "/api/tables/{id}/import",
+    "/api/tables/{id}/rows",
+    "/api/tables/{id}/rows/{rowId}",
+    "/api/tables/{id}/rows/{rowId}/history",
+    "/api/tables/{id}/triggers",
+    "/api/tables/{id}/triggers/{triggerId}",
+    "/api/tables/templates",
+    "/api/views",
+    "/api/views/{id}"
+  ],
+  "contentHash": "4741fe29dfed350d16b1c23d064c8ede5004be34758c15fa13433968a30f28ed",
+  "features": [],
+  "id": "api:05-packs-apps-tables-publishing",
+  "journeys": [],
+  "kind": "api",
+  "productRoutes": [],
+  "schemaVersion": 1,
+  "screenshots": [],
+  "sections": [
+    {
+      "heading": "Who This Is For",
+      "id": "who-this-is-for",
+      "level": 2,
+      "markdown": "This group is for a developer working with Relay's composable building blocks: installing and updating packs, inspecting and deleting the apps a pack installs, building and querying user tables (the spreadsheet-like data store), enriching table rows with agent work, and publishing a generated site to a target you own. Read this if you are installing a pack programmatically, driving a table's rows and columns, wiring a row trigger, or automating a publish to GitHub Pages.",
+      "wordCount": 75
+    },
+    {
+      "heading": "Stability",
+      "id": "stability",
+      "level": 2,
+      "markdown": "`app-internal`\n\nThese routes power the Relay web app. They are documented so you can build against a local instance, but their request and response shapes are tied to the app's own screens and may change between releases. Branch on HTTP status codes rather than on the internal structure of an error body, and treat every response field as additive.",
+      "wordCount": 59
+    },
+    {
+      "heading": "Local Access Model",
+      "id": "local-access-model",
+      "level": 2,
+      "markdown": "Relay API routes run inside the local Relay app. Use `http://127.0.0.1:<port>` in examples, where `<port>` is the port your instance is bound to (3000 by default).\n\nDo not expose these routes on a public network without your own access controls. These routes read and write the local SQLite database, read and write files on disk, run background jobs, and in the publish path make outbound calls to a git host on your behalf.",
+      "wordCount": 78
+    },
+    {
+      "heading": "Conventions For This Group",
+      "id": "conventions-for-this-group",
+      "level": 2,
+      "markdown": "These behaviors hold across the routes below, so they are stated once here rather than repeated per endpoint:\n\n- **Packs install by bundled id only.** The install and update routes accept a bundled template id, not a filesystem path or a git URL. Installing a pack from a git URL is a separate command-line flow, not one of these routes.\n- **Licensing.** A paid pack that is not licensed returns `402` with `code` `license_required`. The `installPack` path checks the persisted license store, with no development bypass.\n- **JSON-string columns are returned as-is.** Table rows, column configs, trigger conditions, and view filters are stored as JSON strings and, on the raw-select routes, come back as strings, not parsed objects. Parse them client-side. The chart routes are the exception and parse `config` for you.\n- **Row writes fire triggers.** Adding, updating, or deleting a row evaluates that table's triggers in the background (row-added, row-updated, row-deleted). Trigger evaluation and any workflow it launches are fire-and-forget: a `2xx` from the row route does not mean a trigger finished or even ran to completion.\n- **Enrichment and publish are background jobs.** The enrich and publish routes return `202` and run the actual work asynchronously. Poll the run-list or deployment route for the outcome.\n- **Timestamps.** Database timestamp columns serialize to ISO date strings on the wire. Two responses are exceptions and carry a numeric value instead: an app's `createdAt` is a filesystem modification time in milliseconds, noted where it appears.\n- **Secrets are masked on read.** Publish-target configs mask credential keys (`token`, `githubToken`, `apiKey`) to `****` plus the last four characters. The unmasked value is stored only on disk.\n- **Validation.** Some routes validate with Zod and some by hand. Error bodies are `{ \"error\": \"<message>\" }`, with several routes adding a `code` field; the shape is noted per route. A Zod failure returns the flattened error object as the `error` value, not a string.",
+      "wordCount": 308
+    },
+    {
+      "heading": "Endpoint Families",
+      "id": "endpoint-families",
+      "level": 2,
+      "markdown": "- `packs`\n- `apps`\n- `tables`\n- `views`",
+      "wordCount": 4
+    },
+    {
+      "heading": "Endpoints",
+      "id": "endpoints",
+      "level": 2,
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/packs/install` | `app-internal` | `src/app/api/packs/install/route.ts` |\n| `POST` | `/api/packs/update` | `app-internal` | `src/app/api/packs/update/route.ts` |\n| `GET` | `/api/apps` | `app-internal` | `src/app/api/apps/route.ts` |\n| `DELETE`, `GET` | `/api/apps/{id}` | `app-internal` | `src/app/api/apps/[id]/route.ts` |\n| `GET` | `/api/apps/{id}/deployments` | `app-internal` | `src/app/api/apps/[id]/deployments/route.ts` |\n| `GET` | `/api/apps/{id}/deployments/{deploymentId}` | `app-internal` | `src/app/api/apps/[id]/deployments/[deploymentId]/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/apps/{id}/budgets` | `app-internal` | `src/app/api/apps/[id]/budgets/route.ts` |\n| `POST` | `/api/apps/{id}/pack/community-submission` | `app-internal` | `src/app/api/apps/[id]/pack/community-submission/route.ts` |\n| `POST` | `/api/apps/{id}/pack/export` | `app-internal` | `src/app/api/apps/[id]/pack/export/route.ts` |\n| `POST` | `/api/apps/{id}/pack/inspect` | `app-internal` | `src/app/api/apps/[id]/pack/inspect/route.ts` |\n| `POST` | `/api/apps/{id}/pack/publish` | `app-internal` | `src/app/api/apps/[id]/pack/publish/route.ts` |\n| `GET`, `POST` | `/api/apps/{id}/preview` | `app-internal` | `src/app/api/apps/[id]/preview/route.ts` |\n| `GET` | `/api/apps/{id}/previews/{artifactId}/{path*}` | `app-internal` | `src/app/api/apps/[id]/previews/[artifactId]/[[...path]]/route.ts` |\n| `POST` | `/api/apps/{id}/publish` | `app-internal` | `src/app/api/apps/[id]/publish/route.ts` |\n| `GET`, `POST` | `/api/apps/{id}/publish-targets` | `app-internal` | `src/app/api/apps/[id]/publish-targets/route.ts` |\n| `DELETE` | `/api/apps/{id}/publish-targets/{targetId}` | `app-internal` | `src/app/api/apps/[id]/publish-targets/[targetId]/route.ts` |\n| `POST` | `/api/apps/{id}/publish-targets/{targetId}/test` | `app-internal` | `src/app/api/apps/[id]/publish-targets/[targetId]/test/route.ts` |\n| `GET`, `PUT` | `/api/apps/{id}/site-settings` | `app-internal` | `src/app/api/apps/[id]/site-settings/route.ts` |\n| `GET`, `POST` | `/api/tables` | `app-internal` | `src/app/api/tables/route.ts` |\n| `DELETE`, `GET`, `PATCH` | `/api/tables/{id}` | `app-internal` | `src/app/api/tables/[id]/route.ts` |\n| `GET`, `POST` | `/api/tables/{id}/charts` | `app-internal` | `src/app/api/tables/[id]/charts/route.ts` |\n| `DELETE`, `PATCH` | `/api/tables/{id}/charts/{chartId}` | `app-internal` | `src/app/api/tables/[id]/charts/[chartId]/route.ts` |\n| `PATCH`, `POST` | `/api/tables/{id}/columns` | `app-internal` | `src/app/api/tables/[id]/columns/route.ts` |\n| `POST` | `/api/tables/{id}/enrich` | `app-internal` | `src/app/api/tables/[id]/enrich/route.ts` |\n| `POST` | `/api/tables/{id}/enrich/plan` | `app-internal` | `src/app/api/tables/[id]/enrich/plan/route.ts` |\n| `GET` | `/api/tables/{id}/enrich/runs` | `app-internal` | `src/app/api/tables/[id]/enrich/runs/route.ts` |\n| `GET` | `/api/tables/{id}/export` | `app-internal` | `src/app/api/tables/[id]/export/route.ts` |\n| `GET` | `/api/tables/{id}/history` | `app-internal` | `src/app/api/tables/[id]/history/route.ts` |\n| `POST` | `/api/tables/{id}/import` | `app-internal` | `src/app/api/tables/[id]/import/route.ts` |\n| `GET`, `POST` | `/api/tables/{id}/rows` | `app-internal` | `src/app/api/tables/[id]/rows/route.ts` |\n| `DELETE`, `PATCH` | `/api/tables/{id}/rows/{rowId}` | `app-internal` | `src/app/api/tables/[id]/rows/[rowId]/route.ts` |\n| `GET`, `POST` | `/api/tables/{id}/rows/{rowId}/history` | `app-internal` | `src/app/api/tables/[id]/rows/[rowId]/history/route.ts` |\n| `GET`, `PATCH`, `POST` | `/api/tables/{id}/triggers` | `app-internal` | `src/app/api/tables/[id]/triggers/route.ts` |\n| `DELETE`, `PATCH` | `/api/tables/{id}/triggers/{triggerId}` | `app-internal` | `src/app/api/tables/[id]/triggers/[triggerId]/route.ts` |\n| `GET`, `POST` | `/api/tables/templates` | `app-internal` | `src/app/api/tables/templates/route.ts` |\n| `GET`, `POST` | `/api/views` | `app-internal` | `src/app/api/views/route.ts` |\n| `DELETE`, `PATCH` | `/api/views/{id}` | `app-internal` | `src/app/api/views/[id]/route.ts` |",
+      "wordCount": 554
+    },
+    {
+      "heading": "Endpoint Reference",
+      "id": "endpoint-reference",
+      "level": 2,
+      "markdown": "",
+      "wordCount": 0
+    },
+    {
+      "heading": "POST /api/packs/install",
+      "id": "post-api-packs-install",
+      "level": 3,
+      "markdown": "Installs a bundled pack into the local instance.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `id` | `string` | yes | A bundled template id. Not a path or git URL. |\n\n- **Response** `200`: an install report:\n  ```json\n  {\n    \"packId\": \"string\",\n    \"packVersion\": \"string\",\n    \"projectCreated\": true,\n    \"tablesCreated\": 0,\n    \"customersSeeded\": 0,\n    \"profilesDropped\": 0,\n    \"blueprintsDropped\": 0,\n    \"rowsSeeded\": 0,\n    \"schedulesRegistered\": 0,\n    \"tier\": \"official\",\n    \"tierVerified\": true,\n    \"tierLabel\": \"string\"\n  }\n  ```\n  `tier` is `official`, `partner`, or `community`.\n- **Errors**:\n  - `400` when the body is not JSON: `{ \"error\": \"Request body must be JSON.\", \"code\": \"bad_request\" }`.\n  - `400` on validation failure: `{ \"error\": \"<joined issues>\", \"code\": \"validation_failed\" }`.\n  - `404` when no bundled pack matches: `{ \"error\": \"No bundled pack named \\\"<id>\\\".\", \"code\": \"not_found\" }`.\n  - `402` when the pack requires a license: `{ \"error\": \"<message>\", \"code\": \"license_required\" }`.\n  - `422` when the pack fails validation: `{ \"error\": \"<message>\", \"code\": \"pack_invalid\" }`.\n  - `500` on any other failure: `{ \"error\": \"<message>\", \"code\": \"install_failed\" }`.\n- **Side effects**: creates the parent project, user tables, and seed rows; drops profile and blueprint files; registers schedules; checks the license store.",
+      "wordCount": 149
+    },
+    {
+      "heading": "POST /api/packs/update",
+      "id": "post-api-packs-update",
+      "level": 3,
+      "markdown": "Updates an already-installed bundled pack to the bundled version.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `id` | `string` | yes | A bundled template id. |\n\n- **Response** `200`: an update report `{ \"packId\": \"string\", \"previousVersion\": \"string\", \"newVersion\": \"string\", \"upToDate\": false, \"backedUp\": [\"string\"], \"install\": { ... } }`. `install` is the install report shape above and is absent when `upToDate` is true.\n- **Errors**:\n  - `400` when the body is not JSON: `{ \"error\": \"Request body must be JSON.\", \"code\": \"bad_request\" }`.\n  - `400` on validation failure: `{ \"error\": \"<joined issues>\", \"code\": \"validation_failed\" }`.\n  - `404` when no bundled pack matches: `{ \"error\": \"No bundled pack named \\\"<id>\\\".\", \"code\": \"not_found\" }`.\n  - `409` when the pack is not installed: `{ \"error\": \"<message>\", \"code\": \"not_installed\" }`.\n  - `402` when a license is required: `{ \"error\": \"<message>\", \"code\": \"license_required\" }`.\n  - `422` when the pack fails validation: `{ \"error\": \"<message>\", \"code\": \"pack_invalid\" }`.\n  - `500` on any other failure: `{ \"error\": \"<message>\", \"code\": \"update_failed\" }`.\n- **Side effects**: backs up user-modified files, then runs the install path (same database and file writes), and checks the license store.",
+      "wordCount": 146
+    },
+    {
+      "heading": "GET /api/apps",
+      "id": "get-api-apps",
+      "level": 3,
+      "markdown": "Lists all installed apps from the file-based app registry.\n\n- **Request**: none.\n- **Response** `200`: a JSON array of app summaries, newest first. Each:\n  ```json\n  {\n    \"id\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"rootDir\": \"string\",\n    \"primitivesSummary\": \"string\",\n    \"profileCount\": 0,\n    \"blueprintCount\": 0,\n    \"tableCount\": 0,\n    \"scheduleCount\": 0,\n    \"scheduleHuman\": \"string\",\n    \"createdAt\": 0,\n    \"files\": [\"string\"],\n    \"entitlement\": \"string\"\n  }\n  ```\n  `createdAt` here is a filesystem modification time in milliseconds, not an ISO string. `description`, `scheduleHuman`, and `entitlement` may be null.\n- **Errors**: `500` on failure: `{ \"error\": \"Failed to list apps\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 82
+    },
+    {
+      "heading": "GET /api/apps/{id}",
+      "id": "get-api-apps-id",
+      "level": 3,
+      "markdown": "Returns one app's full detail: the summary plus its parsed manifest.\n\n- **Request**: none.\n- **Response** `200`: the app summary fields plus `manifest`, the full parsed `manifest.yaml` object (`id`, `version`, `name`, `profiles`, `blueprints`, `tables`, `schedules`, `view`, and more).\n- **Errors**: `404` when not found: `{ \"error\": \"Pack not found\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 50
+    },
+    {
+      "heading": "DELETE /api/apps/{id}",
+      "id": "delete-api-apps-id",
+      "level": 3,
+      "markdown": "Cascade-deletes an app: its manifest directory, its project, its namespaced profiles and blueprints, and its schedule rows.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true, \"filesRemoved\": true, \"projectRemoved\": true, \"profilesRemoved\": 0, \"blueprintsRemoved\": 0 }`.\n- **Errors**:\n  - `400` when the id is empty: `{ \"error\": \"Pack id is required\" }`.\n  - `404` when nothing was removed: `{ \"error\": \"Pack not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to delete pack\" }`.\n- **Side effects**: deletes the app directory, the project (cascade), the app's profile directories and blueprint files, and its schedule rows, then invalidates the apps cache.",
+      "wordCount": 85
+    },
+    {
+      "heading": "GET /api/apps/{id}/deployments",
+      "id": "get-api-apps-id-deployments",
+      "level": 3,
+      "markdown": "Lists deployments for an app, optionally filtered by page.\n\n- **Request** query params:\n\n| Param | Type | Required | Notes |\n|---|---|---|---|\n| `pageSlug` | `string` | no | Filters to one page. The default `index` also matches rows with no page. |\n\n- **Response** `200`: a JSON array of deployment rows, newest first:\n  ```json\n  {\n    \"id\": \"string\",\n    \"appId\": \"string\",\n    \"targetId\": \"string\",\n    \"status\": \"success\",\n    \"url\": \"string\",\n    \"finalUrl\": \"string\",\n    \"commit\": \"string\",\n    \"artifactHash\": \"string\",\n    \"generatorConfig\": \"string\",\n    \"pageSlug\": \"string\",\n    \"startedAt\": \"2026-01-01T00:00:00.000Z\",\n    \"finishedAt\": \"2026-01-01T00:00:00.000Z\",\n    \"error\": null\n  }\n  ```\n  `status` is `pending`, `publishing`, `success`, or `failed`. `startedAt` and `finishedAt` are ISO strings.\n- **Errors**:\n  - `404` when the app is not found: `{ \"error\": \"App not found\", \"code\": \"APP_NOT_FOUND\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to list deployments\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 113
+    },
+    {
+      "heading": "GET /api/apps/{id}/deployments/{deploymentId}",
+      "id": "get-api-apps-id-deployments-deploymentid",
+      "level": 3,
+      "markdown": "Returns a single deployment row.\n\n- **Request**: none.\n- **Response** `200`: one deployment row (same shape as the list element).\n- **Errors**:\n  - `404` when the deployment is not found: `{ \"error\": \"Deployment not found\" }`.\n  - `404` when the app is not found: `{ \"error\": \"App not found\", \"code\": \"APP_NOT_FOUND\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to read deployment\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 54
+    },
+    {
+      "heading": "GET /api/apps/{id}/budgets",
+      "id": "get-api-apps-id-budgets",
+      "level": 3,
+      "markdown": "Returns the app's combined app-level and schedule-level budget snapshot. A missing app returns `404`; other snapshot failures return `500`.",
+      "wordCount": 19
+    },
+    {
+      "heading": "PUT /api/apps/{id}/budgets",
+      "id": "put-api-apps-id-budgets",
+      "level": 3,
+      "markdown": "Creates or replaces an app or app-schedule budget policy. The body is `{ \"scopeType\": \"app | schedule\", \"scopeId\": \"string\", \"policy\": { } }`. Relay returns `400` when the scope does not belong to this app or the policy is invalid, and `404` when the target is missing.",
+      "wordCount": 42
+    },
+    {
+      "heading": "DELETE /api/apps/{id}/budgets",
+      "id": "delete-api-apps-id-budgets",
+      "level": 3,
+      "markdown": "Deletes an app or app-schedule budget policy. The body identifies `scopeType` and `scopeId`; the `200` response is `{ \"success\": true, \"removed\": true | false }`.",
+      "wordCount": 22
+    },
+    {
+      "heading": "POST /api/apps/{id}/pack/inspect",
+      "id": "post-api-apps-id-pack-inspect",
+      "level": 3,
+      "markdown": "Builds an in-memory pack preview without publishing it. The optional body accepts `includeSampleData` and `author`. The `200` response includes `packId`, `version`, a SHA-256 `hash`, `sampleRowsIncluded`, and file path/byte metadata without file contents.",
+      "wordCount": 33
+    },
+    {
+      "heading": "POST /api/apps/{id}/pack/export",
+      "id": "post-api-apps-id-pack-export",
+      "level": 3,
+      "markdown": "Exports the app as a gzip tar archive containing `pack.yaml` and `base`. The optional body accepts `includeSampleData` and `author`. Validation and export errors return `400`, a missing app returns `404`, and an unexpected failure returns `500`.",
+      "wordCount": 37
+    },
+    {
+      "heading": "POST /api/apps/{id}/pack/publish",
+      "id": "post-api-apps-id-pack-publish",
+      "level": 3,
+      "markdown": "Starts an asynchronous pack deployment. The strict body requires `targetId`, `confirm: true`, and the 64-character `expectedHash`; `includeSampleData` and `author` are optional. A successful claim returns `202` with deployment data. Inspect first and pass its hash to prevent publishing a changed artifact.",
+      "wordCount": 41
+    },
+    {
+      "heading": "POST /api/apps/{id}/pack/community-submission",
+      "id": "post-api-apps-id-pack-community-submission",
+      "level": 3,
+      "markdown": "Prepares a community-pack submission for a configured target. The body requires `targetId` and the 64-character `expectedHash`. The response describes the prepared submission; named target, hash, and connection failures retain their mapped status codes.",
+      "wordCount": 33
+    },
+    {
+      "heading": "POST /api/apps/{id}/preview",
+      "id": "post-api-apps-id-preview",
+      "level": 3,
+      "markdown": "Generates a preview artifact from the app's generate binding and stores it.\n\n- **Request** query params:\n\n| Param | Type | Required | Notes |\n|---|---|---|---|\n| `pageSlug` | `string` | no | Which page to generate. |\n\n- **Response** `201`: `{ \"artifactId\": \"string\", \"url\": \"string\", \"hash\": \"string\", \"createdAt\": \"2026-01-01T00:00:00.000Z\", \"expiresAt\": \"2026-01-02T00:00:00.000Z\" }`. The preview expires 24 hours after creation.\n- **Errors** (each carries a `code`):\n  - `404` `{ \"error\": \"App not found\", \"code\": \"APP_NOT_FOUND\" }`.\n  - `400` `{ \"error\": \"App manifest does not declare view.bindings.generate\", \"code\": \"APP_GENERATE_NOT_CONFIGURED\" }`.\n  - `404` `{ \"error\": \"Page not found: <slug>\", \"code\": \"PAGE_NOT_FOUND\" }`.\n  - `400` `{ \"error\": \"Generate table not found: <id>\", \"code\": \"GENERATE_TABLE_NOT_FOUND\" }`.\n  - `500` `{ \"error\": \"Generate row <id> contains invalid JSON: ...\", \"code\": \"GENERATE_ROW_INVALID\" }`.\n  - `500` on any other failure: `{ \"error\": \"Failed to create preview\" }`.\n- **Side effects**: writes the preview artifact files to disk and cleans up expired previews.",
+      "wordCount": 121
+    },
+    {
+      "heading": "GET /api/apps/{id}/preview",
+      "id": "get-api-apps-id-preview",
+      "level": 3,
+      "markdown": "Returns a preview's status, including whether the stored artifact is stale versus the current source.\n\n- **Request** query params:\n\n| Param | Type | Required | Notes |\n|---|---|---|---|\n| `artifactId` | `string` | yes | The preview artifact to check. |\n| `pageSlug` | `string` | no | Which page. |\n\n- **Response** `200`: `{ \"artifactId\": \"string\", \"hash\": \"string\", \"createdAt\": \"2026-01-01T00:00:00.000Z\", \"expiresAt\": \"2026-01-02T00:00:00.000Z\", \"stale\": false }`.\n- **Errors**:\n  - `400` when `artifactId` is missing: `{ \"error\": \"Missing artifactId\", \"code\": \"PREVIEW_ARTIFACT_REQUIRED\" }`.\n  - `404` `{ \"error\": \"Preview artifact not found: <id>\", \"code\": \"PREVIEW_NOT_FOUND\" }`.\n  - `409` when the preview has expired: `{ \"error\": \"Preview artifact has expired; generate a new preview\", \"code\": \"PREVIEW_EXPIRED\" }`.\n  - `404` or `400` for app-not-found and app-mismatch cases with their codes.\n  - `500` on any other failure: `{ \"error\": \"Failed to create preview\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 112
+    },
+    {
+      "heading": "GET /api/apps/{id}/previews/{artifactId}/{path*}",
+      "id": "get-api-apps-id-previews-artifactid-path",
+      "level": 3,
+      "markdown": "Serves the raw bytes of a preview artifact file. With no path it serves the entrypoint.\n\n- **Request**: none. The optional trailing path selects a file within the artifact.\n- **Response** `200`: raw file bytes (not JSON), with a content type derived from the extension, `X-Content-Type-Options: nosniff`, and `Cache-Control: no-store`. HTML files are served with a strict `Content-Security-Policy` that blocks scripts.\n- **Errors**:\n  - `404` `{ \"error\": \"Preview artifact not found: <id>\", \"code\": \"PREVIEW_NOT_FOUND\" }`, or a not-found for the specific file.\n  - `410` when the preview has expired: `{ \"error\": \"Preview artifact has expired; generate a new preview\", \"code\": \"PREVIEW_EXPIRED\" }`.\n  - `409` `{ \"error\": \"Preview artifact file hash does not match metadata\", \"code\": \"PREVIEW_HASH_INVALID\" }`.\n  - `400` for app-mismatch or invalid-path cases with their codes.\n  - `500` on any other failure: `{ \"error\": \"Failed to load preview\" }`.\n- **Side effects**: reads only, hash-verifying each served file.",
+      "wordCount": 129
+    },
+    {
+      "heading": "POST /api/apps/{id}/publish",
+      "id": "post-api-apps-id-publish",
+      "level": 3,
+      "markdown": "Creates a pending deployment and starts the publish in the background.\n\n- **Request** body (JSON), validated by Zod (extra keys rejected):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `targetId` | `string` | yes | The publish target to deploy to. |\n| `artifactId` | `string` | no | A specific preview artifact to publish. |\n| `pageSlug` | `string` | no | Which page to publish. |\n\n- **Response** `202`: `{ \"deployment\": { ... } }`, the newly-created deployment row with `status` `pending`.\n- **Errors**:\n  - `400` on unparseable JSON: `{ \"error\": \"Invalid JSON body\" }`.\n  - `400` on schema failure: `{ \"error\": <flattened Zod error> }`.\n  - `404` `{ \"error\": \"App not found\", \"code\": \"APP_NOT_FOUND\" }`.\n  - `404` `{ \"error\": \"Publish target not found\", \"code\": \"PUBLISH_TARGET_NOT_FOUND\" }`.\n  - `500` on any other failure: `{ \"error\": \"Failed to start publish\" }`.\n- **Side effects**: inserts a pending deployment row and runs the deployment in the background, which updates the row's status and calls the publisher (for example, a push to a git host).",
+      "wordCount": 130
+    },
+    {
+      "heading": "GET /api/apps/{id}/publish-targets",
+      "id": "get-api-apps-id-publish-targets",
+      "level": 3,
+      "markdown": "Lists an app's publish targets, with credentials masked.\n\n- **Request**: none.\n- **Response** `200`: a JSON array, newest first: `{ \"id\": \"string\", \"appId\": \"string\", \"targetType\": \"github-pages\", \"config\": \"string\", \"createdAt\": \"2026-01-01T00:00:00.000Z\" }`. `config` is a JSON string with credential keys masked to `****<last4>`.\n- **Errors**:\n  - `404` `{ \"error\": \"App not found\", \"code\": \"APP_NOT_FOUND\" }`.\n  - `500` on failure: `{ \"error\": \"Publish target request failed\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 60
+    },
+    {
+      "heading": "POST /api/apps/{id}/publish-targets",
+      "id": "post-api-apps-id-publish-targets",
+      "level": 3,
+      "markdown": "Creates a publish target.\n\n- **Request** body (JSON), validated by Zod (extra keys rejected):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `targetType` | `string` | yes | Currently `github-pages`. |\n| `config` | `object` | yes | Target settings, including credentials. |\n\n- **Response** `201`: the created publish-target row (masked, same shape as the list element).\n- **Errors**:\n  - `400` on unparseable JSON: `{ \"error\": \"Invalid JSON body\" }`.\n  - `400` on schema failure: `{ \"error\": <flattened Zod error> }`.\n  - `404` `{ \"error\": \"App not found\", \"code\": \"APP_NOT_FOUND\" }`.\n  - `500` `{ \"error\": \"Publish target request failed\" }`.\n- **Side effects**: inserts a publish-target row. The config is stored unmasked on disk.",
+      "wordCount": 84
+    },
+    {
+      "heading": "DELETE /api/apps/{id}/publish-targets/{targetId}",
+      "id": "delete-api-apps-id-publish-targets-targetid",
+      "level": 3,
+      "markdown": "Deletes a publish target and its deployment history, unless a deploy is in flight.\n\n- **Request**: none.\n- **Response** `200`: `{ \"id\": \"string\", \"deletedDeployments\": 0 }`.\n- **Errors**:\n  - `404` `{ \"error\": \"App not found\", \"code\": \"APP_NOT_FOUND\" }`.\n  - `404` `{ \"error\": \"Publish target not found\", \"code\": \"PUBLISH_TARGET_NOT_FOUND\" }`.\n  - `409` `{ \"error\": \"Publish target has an active deployment; wait for it to finish before deleting\", \"code\": \"PUBLISH_TARGET_HAS_ACTIVE_DEPLOYMENT\" }`.\n  - `500` `{ \"error\": \"Publish target delete failed\" }`.\n- **Side effects**: deletes the target's deployment rows, then the target row.",
+      "wordCount": 69
+    },
+    {
+      "heading": "POST /api/apps/{id}/publish-targets/{targetId}/test",
+      "id": "post-api-apps-id-publish-targets-targetid-test",
+      "level": 3,
+      "markdown": "Tests a publish target's connectivity and credentials via its adapter.\n\n- **Request**: none.\n- **Response** `200`: `{ \"testStatus\": \"ok\", \"error\": \"string\" }`. `error` is present only on failure.\n- **Errors**:\n  - `404` `{ \"error\": \"App not found\", \"code\": \"APP_NOT_FOUND\" }`.\n  - `404` `{ \"error\": \"Publish target not found\", \"code\": \"PUBLISH_TARGET_NOT_FOUND\" }`.\n  - `500` on a test failure: `{ \"testStatus\": \"failed\", \"error\": \"Publish target test failed\" }`.\n- **Side effects**: makes an outbound reachability check to the target's host.",
+      "wordCount": 61
+    },
+    {
+      "heading": "GET /api/apps/{id}/site-settings",
+      "id": "get-api-apps-id-site-settings",
+      "level": 3,
+      "markdown": "Returns the app's static-site settings, the defaults, and the available templates.\n\n- **Request**: none.\n- **Response** `200`: `{ \"settings\": { ... }, \"defaults\": { ... }, \"templates\": [ ... ] }`. A settings object is `{ \"templateId\": \"relay-default\", \"theme\": \"calm\", \"density\": \"comfortable\", \"heroLayout\": \"split\", \"accent\": \"tide\", \"showCtas\": true, \"sectionStyle\": \"cards\" }`. `theme` is `calm`, `contrast`, or `editorial`; `density` is `comfortable` or `compact`; `heroLayout` is `split`, `stacked`, or `text-first`; `accent` is `tide`, `indigo`, `emerald`, or `coral`; `sectionStyle` is `cards`, `ruled`, or `banded`.\n- **Errors**:\n  - `404` `{ \"error\": \"App not found\", \"code\": \"APP_NOT_FOUND\" }`.\n  - `400` `{ \"error\": \"<message>\", \"code\": \"STATIC_SITE_SETTINGS_INVALID\", \"issues\": [\"string\"] }`.\n  - `400` `{ \"error\": \"<message>\", \"code\": \"STATIC_SITE_TEMPLATE_INVALID\", \"issues\": [\"string\"] }`.\n  - `500` on failure: `{ \"error\": \"Failed to load static-site settings\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 98
+    },
+    {
+      "heading": "PUT /api/apps/{id}/site-settings",
+      "id": "put-api-apps-id-site-settings",
+      "level": 3,
+      "markdown": "Validates and persists new static-site settings. The chosen template must support the settings.\n\n- **Request** body (JSON): the settings shape above. All fields are optional (defaults applied); extra keys are rejected.\n- **Response** `200`: `{ \"settings\": { ... }, \"defaults\": { ... }, \"templates\": [ ... ] }` with the saved settings.\n- **Errors**:\n  - `404` `{ \"error\": \"App not found\", \"code\": \"APP_NOT_FOUND\" }`.\n  - `400` on unparseable JSON: `{ \"error\": \"Invalid JSON body\", \"code\": \"INVALID_JSON\" }`.\n  - `400` `{ \"error\": \"<message>\", \"code\": \"STATIC_SITE_SETTINGS_INVALID\", \"issues\": [\"string\"] }`.\n  - `400` `{ \"error\": \"<message>\", \"code\": \"STATIC_SITE_TEMPLATE_INVALID\", \"issues\": [] }`.\n  - `500` on failure: `{ \"error\": \"Failed to load static-site settings\" }`.\n- **Side effects**: persists the settings for the app.",
+      "wordCount": 83
+    },
+    {
+      "heading": "GET /api/tables",
+      "id": "get-api-tables",
+      "level": 3,
+      "markdown": "Lists user tables, optionally filtered.\n\n- **Request** query params, all optional: `projectId`, `source` (`manual`, `imported`, `agent`, or `template`), and `search` (matches name or description).\n- **Response** `200`: a JSON array, newest first. Each row spreads the table columns plus `projectName` and `columnCount`:\n  ```json\n  {\n    \"id\": \"string\",\n    \"projectId\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"columnSchema\": \"string\",\n    \"rowCount\": 0,\n    \"source\": \"manual\",\n    \"templateId\": \"string\",\n    \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n    \"updatedAt\": \"2026-01-01T00:00:00.000Z\",\n    \"projectName\": \"string\",\n    \"columnCount\": 0\n  }\n  ```\n  `columnSchema` is a JSON string.\n- **Errors**: `500` on failure: `{ \"error\": \"Failed to list tables\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 89
+    },
+    {
+      "heading": "POST /api/tables",
+      "id": "post-api-tables",
+      "level": 3,
+      "markdown": "Creates a table, or clones one from a template when `templateId` is present.\n\n- **Request** body (JSON), validated by Zod. Create path:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `name` | `string` | yes | 1 to 256 characters. |\n| `description` | `string` | no | Up to 1024 characters. |\n| `projectId` | `string` | no | Associates the table with a project. |\n| `columns` | array | no | Column definitions. Each: `{ name, displayName, dataType, position, required?, defaultValue?, config? }`. |\n| `source` | `string` | no | `manual`, `imported`, `agent`, or `template`. |\n\n  Clone path: `{ templateId (required), name (required), projectId?, includeSampleData? }`. `dataType` is one of `text`, `number`, `date`, `boolean`, `select`, `url`, `email`, `relation`, `computed`.\n- **Response** `201`: the created table row.\n- **Errors**:\n  - `400` on schema failure: `{ \"error\": <flattened Zod error> }`.\n  - `500` on failure: `{ \"error\": \"Failed to create table\" }`.\n- **Side effects**: inserts the table and its column rows. The clone path with sample data inserts rows, which fires the table's row-added triggers.",
+      "wordCount": 136
+    },
+    {
+      "heading": "GET /api/tables/{id}",
+      "id": "get-api-tables-id",
+      "level": 3,
+      "markdown": "Returns one table with its expanded column records.\n\n- **Request**: none.\n- **Response** `200`: the table row plus `columns`, an array of column records: `{ id, tableId, name, displayName, dataType, position, required, defaultValue, config, createdAt, updatedAt }`. `config` is a raw JSON string.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Table not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to get table\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 60
+    },
+    {
+      "heading": "PATCH /api/tables/{id}",
+      "id": "patch-api-tables-id",
+      "level": 3,
+      "markdown": "Updates a table's name, description, or project.\n\n- **Request** body (JSON), all optional: `name` (1 to 256), `description` (up to 1024), `projectId`.\n- **Response** `200`: the updated table row.\n- **Errors**:\n  - `400` on schema failure: `{ \"error\": <flattened Zod error> }`.\n  - `404` when not found: `{ \"error\": \"Table not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to update table\" }`.\n- **Side effects**: updates the table row.",
+      "wordCount": 58
+    },
+    {
+      "heading": "DELETE /api/tables/{id}",
+      "id": "delete-api-tables-id",
+      "level": 3,
+      "markdown": "Deletes a table and its rows and columns.\n\n- **Request**: none.\n- **Response** `204`: empty body.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Table not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to delete table\" }`.\n- **Side effects**: deletes the table's rows, then columns, then the table row.",
+      "wordCount": 43
+    },
+    {
+      "heading": "GET /api/tables/{id}/charts",
+      "id": "get-api-tables-id-charts",
+      "level": 3,
+      "markdown": "Lists the chart views for a table.\n\n- **Request**: none.\n- **Response** `200`: a JSON array of chart-view rows: `{ id, tableId, name, type, config, isDefault, createdAt, updatedAt }`. `config` is parsed to an object here, or null.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 42
+    },
+    {
+      "heading": "POST /api/tables/{id}/charts",
+      "id": "post-api-tables-id-charts",
+      "level": 3,
+      "markdown": "Saves a new chart configuration.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `type` | `string` | yes | Chart type. |\n| `title` | `string` | yes | Chart title, stored as the view name. |\n| `xColumn` | `string` | yes | The x-axis column. |\n| `yColumn` | `string` | no | The y-axis column. |\n| `aggregation` | `string` | no | How values are aggregated. |\n\n- **Response** `201`: `{ \"id\": \"string\", \"name\": \"string\" }`.\n- **Errors**:\n  - `404` when the table is not found: `{ \"error\": \"Table not found\" }`.\n  - `400` when required fields are missing: `{ \"error\": \"type, title, and xColumn are required\" }`.\n- **Side effects**: inserts a chart-type view row.",
+      "wordCount": 84
+    },
+    {
+      "heading": "PATCH /api/tables/{id}/charts/{chartId}",
+      "id": "patch-api-tables-id-charts-chartid",
+      "level": 3,
+      "markdown": "Updates a chart view's title and configuration.\n\n- **Request** body (JSON), all optional: `title`, `type`, `xColumn`, `yColumn`, `aggregation`. Provided config fields are merged into the existing config.\n- **Response** `200`: the updated chart-view row, with `config` parsed to an object.\n- **Errors**: `404` when the chart is not found: `{ \"error\": \"Chart not found\" }`.\n- **Side effects**: updates the chart-view row.",
+      "wordCount": 56
+    },
+    {
+      "heading": "DELETE /api/tables/{id}/charts/{chartId}",
+      "id": "delete-api-tables-id-charts-chartid",
+      "level": 3,
+      "markdown": "Deletes a chart view.\n\n- **Request**: none.\n- **Response** `204`: empty body.\n- **Errors**: `404` when the chart is not found: `{ \"error\": \"Chart not found\" }`.\n- **Side effects**: deletes the chart-view row.",
+      "wordCount": 28
+    },
+    {
+      "heading": "POST /api/tables/{id}/columns",
+      "id": "post-api-tables-id-columns",
+      "level": 3,
+      "markdown": "Adds a column to a table.\n\n- **Request** body (JSON), validated by Zod:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `name` | `string` | yes | 1 to 64 characters. |\n| `displayName` | `string` | yes | 1 to 128 characters. |\n| `dataType` | `string` | yes | One of the nine column data types. |\n| `required` | `boolean` | no | Defaults to false. |\n| `defaultValue` | `string` | no | Nullable. |\n| `config` | `object` | no | Type-specific configuration. |\n\n- **Response** `201`: the created column row. `position` is assigned to the end of the column list.\n- **Errors**:\n  - `404` when the table is not found: `{ \"error\": \"Table not found\" }`.\n  - `400` on schema failure: `{ \"error\": <flattened Zod error> }`.\n  - `500` on failure: `{ \"error\": \"Failed to add column\" }`.\n- **Side effects**: inserts the column and re-syncs the table's denormalized column schema.",
+      "wordCount": 111
+    },
+    {
+      "heading": "PATCH /api/tables/{id}/columns",
+      "id": "patch-api-tables-id-columns",
+      "level": 3,
+      "markdown": "Reorders a table's columns.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `columnIds` | `string[]` | yes | The column ids in their new order. At least one. |\n\n- **Response** `200`: the reordered column rows.\n- **Errors**:\n  - `404` when the table is not found: `{ \"error\": \"Table not found\" }`.\n  - `400` on schema failure: `{ \"error\": <flattened Zod error> }`.\n  - `500` on failure: `{ \"error\": \"Failed to reorder columns\" }`.\n- **Side effects**: updates each column's position and re-syncs the column schema.",
+      "wordCount": 69
+    },
+    {
+      "heading": "POST /api/tables/{id}/enrich",
+      "id": "post-api-tables-id-enrich",
+      "level": 3,
+      "markdown": "Starts a background workflow that fills a target column across the table's unpopulated rows.\n\n- **Request** body (JSON), validated by Zod. Key fields:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `targetColumn` | `string` | yes | The column to fill (1 to 128 characters). |\n| `promptMode` | `string` | no | `auto` or `custom`. |\n| `prompt` | `string` | no | Required when `promptMode` is `custom`. |\n| `filter` | object | no | Restricts which rows are enriched. |\n| `agentProfile` | `string` | no | The agent profile to run. |\n| `batchSize` | `number` | no | Clamped to a maximum of 200. |\n\n- **Response** `202`: `{ \"workflowId\": \"string\", \"rowCount\": 0 }`, where `rowCount` is the number of eligible rows.\n- **Errors**:\n  - `400` on unparseable JSON: `{ \"error\": \"Invalid JSON body\" }`.\n  - `400` on schema failure: `{ \"error\": [ { \"path\": \"string\", \"message\": \"string\" } ] }`.\n  - `404` when the table is not found: `{ \"error\": \"<message>\" }` (the message contains \"not found\").\n  - `400` when the target column does not exist or is unsupported: `{ \"error\": \"<message>\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to start enrichment workflow\" }`.\n- **Side effects**: inserts a draft workflow and starts it in the background.",
+      "wordCount": 156
+    },
+    {
+      "heading": "POST /api/tables/{id}/enrich/plan",
+      "id": "post-api-tables-id-enrich-plan",
+      "level": 3,
+      "markdown": "Previews the enrichment plan (strategy, steps, target contract) without creating a workflow.\n\n- **Request** body (JSON), validated by Zod: the same fields as the enrich route, minus the workflow-creation fields (`projectId`, `itemVariable`, `workflowName`, `plan`).\n- **Response** `200`: an enrichment plan `{ \"promptMode\": \"auto\", \"strategy\": \"single-pass-lookup\", \"agentProfile\": \"string\", \"reasoning\": \"string\", \"steps\": [ ... ], \"targetContract\": { ... }, \"eligibleRowCount\": 0, \"sampleBindings\": [ ... ] }`. `strategy` is one of `single-pass-lookup`, `single-pass-classify`, `research-and-synthesize`.\n- **Errors**: same shapes as the enrich route, ending in `500` `{ \"error\": \"Failed to build enrichment plan\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 78
+    },
+    {
+      "heading": "GET /api/tables/{id}/enrich/runs",
+      "id": "get-api-tables-id-enrich-runs",
+      "level": 3,
+      "markdown": "Lists recent enrichment workflow runs for a table.\n\n- **Request** query params: `limit` (default 5, clamped to 1 through 10).\n- **Response** `200`: a JSON array, newest first: `{ \"workflowId\": \"string\", \"name\": \"string\", \"status\": \"string\", \"updatedAt\": \"2026-01-01T00:00:00.000Z\", \"targetColumn\": \"string\", \"targetColumnLabel\": \"string\", \"rowCount\": 0, \"strategy\": \"single-pass-lookup\", \"promptMode\": \"auto\" }`.\n- **Errors**: `500` on failure: `{ \"error\": \"Failed to load recent enrichment runs\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 62
+    },
+    {
+      "heading": "GET /api/tables/{id}/export",
+      "id": "get-api-tables-id-export",
+      "level": 3,
+      "markdown": "Exports all table rows as CSV, JSON, or XLSX.\n\n- **Request** query params: `format` (`csv` by default, or `json`, or `xlsx`).\n- **Response** `200`: a file download (not JSON), with `Content-Disposition: attachment` and a filename of `<table name>.<ext>`. JSON export is a pretty-printed array of row data; CSV and XLSX use column display names as headers. Up to 10,000 rows are exported.\n- **Errors**:\n  - `404` when the table is not found: `{ \"error\": \"Table not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to export table\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 86
+    },
+    {
+      "heading": "GET /api/tables/{id}/history",
+      "id": "get-api-tables-id-history",
+      "level": 3,
+      "markdown": "Returns recent row-change history for the whole table.\n\n- **Request** query params: `limit` (default 100, capped at 500).\n- **Response** `200`: a JSON array, newest first: `{ \"id\": \"string\", \"rowId\": \"string\", \"tableId\": \"string\", \"previousData\": \"string\", \"changedBy\": \"string\", \"changeType\": \"update\", \"createdAt\": \"2026-01-01T00:00:00.000Z\" }`. `changeType` is `update` or `delete`; `previousData` is a raw JSON string.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 60
+    },
+    {
+      "heading": "POST /api/tables/{id}/import",
+      "id": "post-api-tables-id-import",
+      "level": 3,
+      "markdown": "Imports structured data from a document into the table, with an optional preview mode.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `documentId` | `string` | yes | The uploaded document to import. |\n| `columnMapping` | array | no | Maps source columns to table columns. Each: `{ name, displayName, dataType, skip? }`. |\n| `preview` | `boolean` | no | When true, returns inferred columns and sample rows without importing. |\n\n- **Response** `200`:\n  - Preview mode: `{ \"headers\": [\"string\"], \"sampleRows\": [ ... ], \"totalRows\": 0, \"inferredColumns\": [ ... ] }`.\n  - Import mode: `{ \"importId\": \"string\", \"rowsImported\": 0, \"rowsSkipped\": 0, \"errors\": [ { \"row\": 0, \"error\": \"string\" } ], \"columns\": [ ... ] }`.\n- **Errors**:\n  - `404` when the table is not found: `{ \"error\": \"Table not found\" }`.\n  - `400` when `documentId` is missing: `{ \"error\": \"documentId is required\" }`.\n  - `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: in import mode, adds any missing columns, inserts rows (firing row-added triggers), and records an import audit row.",
+      "wordCount": 126
+    },
+    {
+      "heading": "GET /api/tables/{id}/rows",
+      "id": "get-api-tables-id-rows",
+      "level": 3,
+      "markdown": "Lists rows with optional pagination, filters, and sorts.\n\n- **Request** query params: `limit` (1 to 1000), `offset` (0 or more), `filters` (a URL-encoded JSON array), and `sorts` (a URL-encoded JSON array). A filter is `{ column, operator, value? }`; a sort is `{ column, direction }` where `direction` is `asc` or `desc`.\n- **Response** `200`: a JSON array of row records: `{ \"id\": \"string\", \"tableId\": \"string\", \"data\": \"string\", \"dataHash\": \"string\", \"position\": 0, \"createdBy\": \"string\", \"createdAt\": \"2026-01-01T00:00:00.000Z\", \"updatedAt\": \"2026-01-01T00:00:00.000Z\" }`. `data` is a raw JSON string.\n- **Errors**:\n  - `404` when the table is not found: `{ \"error\": \"Table not found\" }`.\n  - `400` on invalid filter JSON: `{ \"error\": \"Invalid filters JSON\" }`.\n  - `400` on invalid sort JSON: `{ \"error\": \"Invalid sorts JSON\" }`.\n  - `400` on schema failure: `{ \"error\": <flattened Zod error> }`.\n  - `500` on failure: `{ \"error\": \"Failed to list rows\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 133
+    },
+    {
+      "heading": "POST /api/tables/{id}/rows",
+      "id": "post-api-tables-id-rows",
+      "level": 3,
+      "markdown": "Bulk-adds rows, deduplicating by content.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `rows` | array | yes | 1 to 1000 rows. Each: `{ data (object), createdBy? }`. |\n\n- **Response** `201`: `{ \"ids\": [\"string\"], \"skipped\": 0 }`, where `ids` are the actually-inserted rows and `skipped` counts deduplicated rows.\n- **Errors**:\n  - `404` when the table is not found: `{ \"error\": \"Table not found\" }`.\n  - `400` on schema failure: `{ \"error\": <flattened Zod error> }`.\n  - `500` on failure: `{ \"error\": \"Failed to add rows\" }`.\n- **Side effects**: inserts deduplicated rows, updates the table's row count, fires row-added triggers, and revalidates the app runtime cache.",
+      "wordCount": 87
+    },
+    {
+      "heading": "PATCH /api/tables/{id}/rows/{rowId}",
+      "id": "patch-api-tables-id-rows-rowid",
+      "level": 3,
+      "markdown": "Updates one row, merging the patch into the existing data.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `data` | `object` | yes | The fields to merge into the row. |\n\n- **Response** `200`: the updated row record.\n- **Errors**:\n  - `400` on schema failure: `{ \"error\": <flattened Zod error> }`.\n  - `404` when the row is not found: `{ \"error\": \"Row not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to update row\" }`.\n- **Side effects**: snapshots the prior row state into history, updates the row, and fires row-updated triggers.",
+      "wordCount": 77
+    },
+    {
+      "heading": "DELETE /api/tables/{id}/rows/{rowId}",
+      "id": "delete-api-tables-id-rows-rowid",
+      "level": 3,
+      "markdown": "Deletes one row.\n\n- **Request**: none.\n- **Response** `204`: empty body. Deleting a row that does not exist still returns `204`.\n- **Errors**: `500` on failure: `{ \"error\": \"Failed to delete row\" }`.\n- **Side effects**: snapshots the row into history, fires row-deleted triggers, deletes the row, and updates the table's row count.",
+      "wordCount": 47
+    },
+    {
+      "heading": "GET /api/tables/{id}/rows/{rowId}/history",
+      "id": "get-api-tables-id-rows-rowid-history",
+      "level": 3,
+      "markdown": "Returns the version history for one row.\n\n- **Request** query params: `limit` (default 50, capped at 200).\n- **Response** `200`: a JSON array of history records (same shape as the table history route), newest first, for this row.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 44
+    },
+    {
+      "heading": "POST /api/tables/{id}/rows/{rowId}/history",
+      "id": "post-api-tables-id-rows-rowid-history",
+      "level": 3,
+      "markdown": "Rolls a row back to a previous history snapshot.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `historyEntryId` | `string` | yes | The history snapshot to restore. |\n\n- **Response** `200`: `{ \"ok\": true }`.\n- **Errors**:\n  - `400` when `historyEntryId` is missing: `{ \"error\": \"historyEntryId is required\" }`.\n  - `404` when the history entry is not found: `{ \"error\": \"History entry not found\" }`.\n- **Side effects**: snapshots the current row into history, then restores the row's data from the chosen entry.",
+      "wordCount": 68
+    },
+    {
+      "heading": "GET /api/tables/{id}/triggers",
+      "id": "get-api-tables-id-triggers",
+      "level": 3,
+      "markdown": "Lists all triggers for a table.\n\n- **Request**: none.\n- **Response** `200`: a JSON array: `{ \"id\": \"string\", \"tableId\": \"string\", \"name\": \"string\", \"triggerEvent\": \"row_added\", \"condition\": \"string\", \"actionType\": \"run_workflow\", \"actionConfig\": \"string\", \"status\": \"active\", \"fireCount\": 0, \"lastFiredAt\": \"2026-01-01T00:00:00.000Z\", \"createdAt\": \"2026-01-01T00:00:00.000Z\", \"updatedAt\": \"2026-01-01T00:00:00.000Z\" }`. `triggerEvent` is `row_added`, `row_updated`, or `row_deleted`; `actionType` is `run_workflow` or `create_task`; `status` is `active` or `paused`. `condition` and `actionConfig` are raw JSON strings.\n- **Errors**:\n  - `404` when the table is not found: `{ \"error\": \"Table not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to list triggers\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 86
+    },
+    {
+      "heading": "POST /api/tables/{id}/triggers",
+      "id": "post-api-tables-id-triggers",
+      "level": 3,
+      "markdown": "Creates a trigger.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `name` | `string` | yes | Trigger name. |\n| `triggerEvent` | `string` | yes | `row_added`, `row_updated`, or `row_deleted`. |\n| `actionType` | `string` | yes | `run_workflow` or `create_task`. |\n| `actionConfig` | `object` | yes | Action-specific configuration. |\n| `condition` | `object` | no | An optional firing condition. |\n\n- **Response** `201`: the created trigger row. New triggers start `active` with a fire count of 0.\n- **Errors**:\n  - `404` when the table is not found: `{ \"error\": \"Table not found\" }`.\n  - `400` when required fields are missing: `{ \"error\": \"name, triggerEvent, actionType, and actionConfig are required\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to create trigger\" }`.\n- **Side effects**: inserts the trigger row.",
+      "wordCount": 91
+    },
+    {
+      "heading": "PATCH /api/tables/{id}/triggers",
+      "id": "patch-api-tables-id-triggers",
+      "level": 3,
+      "markdown": "Updates a trigger's status. The trigger is identified in the body.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `triggerId` | `string` | yes | The trigger to update. |\n| `status` | `string` | yes | `active` or `paused`. |\n\n- **Response** `200`: `{ \"success\": true }`.\n- **Errors**:\n  - `400` when a field is missing: `{ \"error\": \"triggerId and status are required\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to update trigger\" }`.\n- **Side effects**: updates the trigger's status.",
+      "wordCount": 62
+    },
+    {
+      "heading": "PATCH /api/tables/{id}/triggers/{triggerId}",
+      "id": "patch-api-tables-id-triggers-triggerid",
+      "level": 3,
+      "markdown": "Updates a trigger's fields, scoped to the table and trigger in the path.\n\n- **Request** body (JSON), all optional: `name`, `triggerEvent`, `status`, `condition`, `actionType`, `actionConfig`.\n- **Response** `200`: the updated trigger row. `condition` and `actionConfig` remain JSON strings.\n- **Errors**: `404` when the trigger is not found: `{ \"error\": \"Trigger not found\" }`.\n- **Side effects**: updates the trigger row.",
+      "wordCount": 54
+    },
+    {
+      "heading": "DELETE /api/tables/{id}/triggers/{triggerId}",
+      "id": "delete-api-tables-id-triggers-triggerid",
+      "level": 3,
+      "markdown": "Deletes a trigger.\n\n- **Request**: none.\n- **Response** `204`: empty body.\n- **Errors**: `404` when the trigger is not found: `{ \"error\": \"Trigger not found\" }`.\n- **Side effects**: deletes the trigger row.",
+      "wordCount": 27
+    },
+    {
+      "heading": "GET /api/tables/templates",
+      "id": "get-api-tables-templates",
+      "level": 3,
+      "markdown": "Lists table templates, optionally filtered.\n\n- **Request** query params: `category` (`business`, `personal`, `pm`, `finance`, or `content`) and `scope` (`system` or `user`).\n- **Response** `200`: a JSON array, ordered by name: `{ \"id\": \"string\", \"name\": \"string\", \"description\": \"string\", \"category\": \"business\", \"columnSchema\": \"string\", \"sampleData\": \"string\", \"scope\": \"system\", \"icon\": \"string\", \"createdAt\": \"2026-01-01T00:00:00.000Z\", \"updatedAt\": \"2026-01-01T00:00:00.000Z\" }`. `columnSchema` and `sampleData` are raw JSON strings.\n- **Errors**:\n  - `400` on schema failure: `{ \"error\": <flattened Zod error> }`.\n  - `500` on failure: `{ \"error\": \"Failed to list templates\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 82
+    },
+    {
+      "heading": "POST /api/tables/templates",
+      "id": "post-api-tables-templates",
+      "level": 3,
+      "markdown": "Saves an existing table as a user-scoped template.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `tableId` | `string` | yes | The source table. |\n| `name` | `string` | yes | Template name. |\n| `description` | `string` | no | Defaults to the table's description. |\n| `category` | `string` | no | Defaults to `personal`. |\n| `includeSampleData` | `boolean` | no | Stores the first five rows as sample data. |\n\n- **Response** `201`: `{ \"id\": \"string\", \"name\": \"string\" }`.\n- **Errors**:\n  - `400` when a required field is missing: `{ \"error\": \"tableId and name are required\" }`.\n  - `404` when the table is not found: `{ \"error\": \"Table not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to save template\" }`.\n- **Side effects**: inserts a user-scoped template row.",
+      "wordCount": 97
+    },
+    {
+      "heading": "GET /api/views",
+      "id": "get-api-views",
+      "level": 3,
+      "markdown": "Lists saved views for a surface.\n\n- **Request** query params: `surface` (required).\n- **Response** `200`: a JSON array, defaults first then by name: `{ \"id\": \"string\", \"surface\": \"string\", \"name\": \"string\", \"filters\": \"string\", \"sorting\": \"string\", \"columns\": \"string\", \"density\": \"comfortable\", \"isDefault\": false, \"createdAt\": \"2026-01-01T00:00:00.000Z\", \"updatedAt\": \"2026-01-01T00:00:00.000Z\" }`. `density` is `compact`, `comfortable`, or `spacious`; `filters`, `sorting`, and `columns` are raw JSON strings.\n- **Errors**: `400` when `surface` is missing: `{ \"error\": \"surface param required\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 75
+    },
+    {
+      "heading": "POST /api/views",
+      "id": "post-api-views",
+      "level": 3,
+      "markdown": "Creates a saved view. Marking a view default clears any existing default on that surface.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `surface` | `string` | yes | The surface this view belongs to. |\n| `name` | `string` | yes | View name. |\n| `filters` | `object` | no | Stored as a JSON string. |\n| `sorting` | `object` | no | Stored as a JSON string. |\n| `columns` | `object` | no | Stored as a JSON string. |\n| `density` | `string` | no | Defaults to `comfortable`. |\n| `isDefault` | `boolean` | no | Defaults to false. |\n\n- **Response** `201`: the created view row.\n- **Errors**: `400` when a required field is missing: `{ \"error\": \"surface and name are required\" }`.\n- **Side effects**: inserts the view row and, when default, clears other defaults on that surface.",
+      "wordCount": 107
+    },
+    {
+      "heading": "PATCH /api/views/{id}",
+      "id": "patch-api-views-id",
+      "level": 3,
+      "markdown": "Updates a saved view. Marking it default clears any existing default on that surface.\n\n- **Request** body (JSON), all optional: `name`, `filters`, `sorting`, `columns`, `density`, `isDefault`.\n- **Response** `200`: the updated view row.\n- **Errors**: `404` when the view is not found: `{ \"error\": \"View not found\" }`.\n- **Side effects**: updates the view row and, when default, clears other defaults.",
+      "wordCount": 55
+    },
+    {
+      "heading": "DELETE /api/views/{id}",
+      "id": "delete-api-views-id",
+      "level": 3,
+      "markdown": "Deletes a saved view.\n\n- **Request**: none.\n- **Response** `200`: `{ \"ok\": true }`.\n- **Errors**: `404` when the view is not found: `{ \"error\": \"View not found\" }`.\n- **Side effects**: deletes the view row.",
+      "wordCount": 28
+    },
+    {
+      "heading": "Do Not Depend On",
+      "id": "do-not-depend-on",
+      "level": 2,
+      "markdown": "- JSON-string columns (`data`, `columnSchema`, `config`, `condition`, `actionConfig`, `filters`, `sorting`, `columns`, `previousData`, `sampleData`) are returned as strings on the raw-select routes and must be parsed client-side. Only the chart routes parse `config` for you.\n- Trigger evaluation and any workflow a trigger launches are fire-and-forget. A `2xx` from a row route does not confirm a trigger fired or completed.\n- An app's `createdAt` in the app-list and app-detail responses is a filesystem modification time in milliseconds, not an ISO timestamp; do not compare it against ISO timestamps from other routes.\n- Several list routes (charts, row history, views) have no explicit error handling; an internal failure surfaces as an unhandled `500` rather than a structured error body.\n- Currently `github-pages` is the only publish target type. Do not hardcode the assumption that it is the only one that will ever exist.",
+      "wordCount": 136
+    }
+  ],
+  "sourceHash": "383fbd28d175368369080f818055d402970f632773efc89e819ce17201d26e64",
+  "sourcePath": "api/reference/05-packs-apps-tables-publishing.md",
+  "sourceStateHash": "a8369935d94476cbd6c845fca6b809cb2e426eb0d3399975661af1724a79ba55",
+  "stability": "app-internal",
+  "summary": "Document pack lifecycle, installed app surfaces, user tables, views, Web Designer preview, and publishing routes.",
+  "title": "Packs, Apps, Tables, And Publishing API"
+}

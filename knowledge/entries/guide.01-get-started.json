@@ -1,0 +1,218 @@
+{
+  "apiPaths": [],
+  "contentHash": "7841815ddfe60bf41aa0fd1d0dabe0060df80e0de444efabf14de20087afafc1",
+  "features": [
+    "Command palette and navigation",
+    "Dashboard and settings drill-downs",
+    "Local-first trust posture",
+    "One-command local install",
+    "Production bundle launcher",
+    "Settings summary and top chrome"
+  ],
+  "id": "guide:01-get-started",
+  "journeys": [
+    "admin-trust",
+    "solo-founder"
+  ],
+  "kind": "guide",
+  "productRoutes": [
+    "/",
+    "/settings",
+    "/settings#license",
+    "/settings#runtime"
+  ],
+  "schemaVersion": 1,
+  "screenshots": [
+    {
+      "id": "home-cockpit",
+      "path": "dark/home/home-cockpit__desktop.png",
+      "productRoute": "/",
+      "sha256": "4863ba6cf5b44394f8e678d0698fbffb04ae13ee62eaa6a4897023fca5f0d885",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "dark/home/home-cockpit__mobile.png",
+      "productRoute": "/",
+      "sha256": "5cc6d08d266d86b442b2fdc31c794d59dc08673676d08f17619a34d81c00cfbf",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-license",
+      "path": "dark/settings/settings-license__desktop.png",
+      "productRoute": "/settings#license",
+      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-license",
+      "path": "dark/settings/settings-license__mobile.png",
+      "productRoute": "/settings#license",
+      "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "dark/settings/settings-runtime__desktop.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "dark/settings/settings-runtime__mobile.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "74d7110d1ba5a3e63aef651e58361aad164fbb316e08ed35d875a8d8ff41c1a3",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-summary",
+      "path": "dark/settings/settings-summary__desktop.png",
+      "productRoute": "/settings",
+      "sha256": "c4a65ffd595941e26bad8b446e7976787ea777462cd8df0ef3bc816083799f3e",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-summary",
+      "path": "dark/settings/settings-summary__mobile.png",
+      "productRoute": "/settings",
+      "sha256": "56d668062a3b9cab9f1394daf175ad4e8e88e357f502b9ed2ade59aebea93b00",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "light/home/home-cockpit__desktop.png",
+      "productRoute": "/",
+      "sha256": "af2a9d9388ff64178cfa7d823881bab6223eae209dfb0e761c0dbe607bba99e7",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "light/home/home-cockpit__mobile.png",
+      "productRoute": "/",
+      "sha256": "1aa905fce1a571762e5a07be1037967abed30bf2a9b4634b4307a50dd8d2eeb5",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-license",
+      "path": "light/settings/settings-license__desktop.png",
+      "productRoute": "/settings#license",
+      "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-license",
+      "path": "light/settings/settings-license__mobile.png",
+      "productRoute": "/settings#license",
+      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "light/settings/settings-runtime__desktop.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "e3e4ba5ef17e207de5dc8a4d69860eee24d17b112dd8e2e6c72843b24b97f8ee",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "light/settings/settings-runtime__mobile.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-summary",
+      "path": "light/settings/settings-summary__desktop.png",
+      "productRoute": "/settings",
+      "sha256": "a8626db9367e1186c2cbfbb0e3f463f838bf1f13a44a6bbdf857dc8b8aed1790",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-summary",
+      "path": "light/settings/settings-summary__mobile.png",
+      "productRoute": "/settings",
+      "sha256": "2784383451f5803a9174566ffb67974384530734e89d0b130ab85086b09897a7",
+      "theme": "light",
+      "viewport": "mobile"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "What This Chapter Helps You Do",
+      "id": "what-this-chapter-helps-you-do",
+      "level": 2,
+      "markdown": "This chapter helps you start Relay, read the first screen like an operator, and check the local controls before real business work enters the app.",
+      "wordCount": 25
+    },
+    {
+      "heading": "The Operator Story",
+      "id": "the-operator-story",
+      "level": 2,
+      "markdown": "Maya runs Northstar Automation Studio. She has client work in motion, a support reply waiting for review, a renewal workflow still active, and one research task that already failed once. She does not need a product tour. She needs to know what is running, what is waiting, what is safe to touch, and what settings will govern the next run.\n\nThat is the first job Relay must do for an SMB operator. It should not start as an empty chat box or a pile of menus. It should open as a local cockpit with named work, visible state, and clear controls.\n\nWhen you open Relay for the first time, do not click around at random. Start with a short trust check. Confirm that the app opened from the command you ran. Read the Home screen before you start more work. Then open Settings and check the license and runtime state. This habit matters because Relay can run workflows, route tool approvals, record usage, and publish local business data through pack-backed apps.\n\nThe screenshots in this guide use a synthetic workspace. The names are not private customer data. They exist so you can learn the product with work that feels real: Northstar Automation Studio, Harbor & Field Advisors, Brightline Books, CivicSpring Foundation, and Studio Vale.",
+      "wordCount": 213
+    },
+    {
+      "heading": "What This Part Of Relay Is For",
+      "id": "what-this-part-of-relay-is-for",
+      "level": 2,
+      "markdown": "Relay runs as a local web app. Your work state lives in a local SQLite database. You can use Relay for customer work, tasks, workflows, tables, packs, and agent runs without sending your business records to Orionfold.\n\nThat local-first model is useful only if you know which local state you are looking at. A founder may have one workspace for real work and another for demos. An agency may test packs in a seeded data directory before running client work. An admin may bind Relay to a local network for a team review. Each case needs the same opening question: which instance is this, and what is it allowed to do?\n\nThe first Relay session should prove four things:\n\n- Relay opened from the local command.\n- The Home screen shows the work you expect.\n- Settings shows license, runtime, and trust controls.\n- Navigation gives you fast paths to the next useful screen.\n\nHome answers, \"What is happening?\" Settings answers, \"What rules apply?\" Treat those two screens as a pair.",
+      "wordCount": 167
+    },
+    {
+      "heading": "Walk The Screen Like An Operator",
+      "id": "walk-the-screen-like-an-operator",
+      "level": 2,
+      "markdown": "Start Relay from your terminal:\n\n```bash\nnpx orionfold-relay\n```\n\nOpen the local URL that Relay prints. In a normal local setup, this is a loopback address. If you bind Relay to a network hostname, read the warning copy first. A network bind can expose the app to other devices on that network.\n\nWhen the app opens, read the shell from top to bottom. The top chrome shows version, connection state, and high-level controls. Relay uses a two-tier top navigation bar. The first tier holds the product-area sections: Home, Packs, Compose, Data, and Observe. When you pick a section, the second tier shows that section's screens. The Home section's row gives fast access to Dashboard, Tasks, Inbox, and Chat.\n\nWhat you should notice:\n\n- The Home screen loads inside the Relay shell.\n- The top nav sections are Home, Packs, Compose, Data, and Observe. Compose holds Projects, Workflows, Blueprints, Agents, and Presets. Data holds Customers, Schedules, Documents, Tables, and Schemas. Observe holds Monitor and Cost & Usage.\n- Settings is a gear icon in the top-right controls, not a section.\n- The main screen shows live local data, not a public cloud account.\n\n[Figure: Relay Home screen with seeded work, tasks, and operating panels]\n\nThis figure is the opening operating picture. The top rail shows host and runtime state. The dashboard message says there is running work, active workflows, pending review, and a failed task. The left panel names work that needs attention. The right panel shows recent agent activity. A careful operator reads those states before starting anything new.\n\nThe details matter. \"High-Cost Research Sweep\" is failed. \"CRE Renewal Decision Engine\" is active. \"Approve refund-policy reply\" is queued. These labels tell you that Relay is tracking business work with state. If you ignore the labels and start another run, you may add noise instead of solving the next problem.\n\nUse the Home screen to answer four questions:\n\n- What needs attention?\n- Which tasks or workflows are active?\n- Where can I jump next?\n- Does anything look stale or blocked?\n\nIf a page is empty, Relay should show a clear empty state. If work failed, it should remain visible. If a workflow waits for a person, the next useful screen should be Inbox, not another Run button.",
+      "wordCount": 368
+    },
+    {
+      "heading": "Run The Work Carefully",
+      "id": "run-the-work-carefully",
+      "level": 2,
+      "markdown": "Before you run new work, open Settings. Start with the summary. This is where Relay shows the local instance controls that govern the rest of the product.\n\nWhat you should see:\n\n- Settings summary gives a quick account of the local instance.\n- License shows saved license state and pack access.\n- Runtime shows which model paths Relay can use.\n- Anchors and panels should move you to the right setting without losing context.\n\n[Figure: Settings summary with local instance controls]\n\nThe Settings summary changes the question from \"what is happening\" to \"what rules apply?\" In a real workspace, this is where you check dev mode, license state, runtime configuration, budget controls, permissions, and other local setup signals.\n\nNext, open Runtime. Runtime choice can affect chat, task execution, workflow steps, and AI-assist work unless a more specific setting overrides it.\n\n[Figure: Runtime settings for model and provider choices]\n\nRead Runtime before client work. You do not need to memorize every provider. You need to know which path Relay will try next and whether it matches the job. A local Ollama path, a Claude Code path, and a direct provider path carry different cost and capability expectations.\n\nAfter Runtime, open License. License state affects new premium pack installs and premium updates. Installed local content should remain installed even if a premium license later expires.\n\n[Figure: License settings for saved offline license state]\n\nThe license panel is part of the opening trust check. If you expect Community Edition, no license may be fine. If you expect premium pack access, check the license before you debug pack actions.",
+      "wordCount": 261
+    },
+    {
+      "heading": "What To Do When The State Looks Wrong",
+      "id": "what-to-do-when-the-state-looks-wrong",
+      "level": 2,
+      "markdown": "If the app does not open, copy the terminal error before retrying. Relay should print a visible failure. A silent failure is a bug worth capturing.\n\nIf the page opens but the data looks wrong, check the data directory. Relay can only show the local state it was started with. Keep demo data separate from real local work.\n\nIf Home shows failed or waiting work, do not click Run from habit. Failed work belongs in Monitor or task detail. Waiting work often belongs in Inbox.\n\nIf the runtime panel is empty or wrong, fix it before running client work. The wrong runtime can change cost, tool access, and output quality.\n\nIf the license panel does not match what you expect, pause pack work. A missing license explains many premium install and update blocks.",
+      "wordCount": 133
+    },
+    {
+      "heading": "What This Changes In Daily Work",
+      "id": "what-this-changes-in-daily-work",
+      "level": 2,
+      "markdown": "The first Relay habit is simple: read state before action. Home tells you what needs attention. Settings tells you what rules apply. Together they prevent the common small-business mistake of starting more automation before current work is understood.\n\nFor a solo founder, this means the day starts with a clear operating picture. For an agency operator, it means client work is not mixed with guesswork. For an admin, it means trust and runtime settings are visible before people rely on the system.\n\nYou do not need to be cautious forever. You need a repeatable opening check. Start Relay. Read Home. Check Settings when work will cost money, touch client records, use a premium pack, or depend on a model runtime. Then move to the work surface.",
+      "wordCount": 126
+    },
+    {
+      "heading": "Where To Go Next",
+      "id": "where-to-go-next",
+      "level": 2,
+      "markdown": "Next, read **Use Packs And Licenses** if you need packaged workflows. Read **Set Trust, Runtime, And Local Controls** before running real customer work.",
+      "wordCount": 23
+    }
+  ],
+  "sourceHash": "e5919ad7dba144293158ce7eaeaa52558176e66ad629def7be0600744b5e0538",
+  "sourcePath": "docs/guides/01-get-started-with-relay.md",
+  "sourceStateHash": "10a2df1e1fd2f32703648fd7221de18456ef973d15ffec7bce2d9a5fa34f998c",
+  "summary": "Help a new reader start Relay, understand the local app, and know where to look first.",
+  "title": "Get Started With Relay"
+}

@@ -1,0 +1,318 @@
+{
+  "apiPaths": [],
+  "contentHash": "0069902b9a4f98d1bb79d7363053e6a5f595c917e4d4d566ab38e9d6aa0057f1",
+  "features": [
+    "Installed packs/apps",
+    "Kit-aware app layouts",
+    "Row-triggered automation",
+    "Schedules",
+    "Schemas",
+    "Tables"
+  ],
+  "id": "guide:06-tables-schedules-automation",
+  "journeys": [
+    "app-builder",
+    "smb",
+    "solo-founder"
+  ],
+  "kind": "guide",
+  "productRoutes": [
+    "/apps",
+    "/apps/demo-agency-ops",
+    "/apps/demo-web-designer",
+    "/schedules",
+    "/schemas",
+    "/tables",
+    "/tables/demo_table_support_queue"
+  ],
+  "schemaVersion": 1,
+  "screenshots": [
+    {
+      "id": "agency-app-detail",
+      "path": "dark/apps/agency-app-detail__desktop.png",
+      "productRoute": "/apps/demo-agency-ops",
+      "sha256": "e4f10dee14fdf1a2353c757b6a4322b5a5853da503ceeb3c0d6a8da457628bbc",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "agency-app-detail",
+      "path": "dark/apps/agency-app-detail__mobile.png",
+      "productRoute": "/apps/demo-agency-ops",
+      "sha256": "c8b6b1a1617e0f62b63f9ddc954592e81d031b87a49fe392d351051df4a59ce1",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "apps-list",
+      "path": "dark/apps/apps-list__desktop.png",
+      "productRoute": "/apps",
+      "sha256": "f817867b64c7caceaa0af1025fdcafd5ea8c064b1eb403bc9bbd9669fb4abe44",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "apps-list",
+      "path": "dark/apps/apps-list__mobile.png",
+      "productRoute": "/apps",
+      "sha256": "9fbf55c7b47d15d04519162096aca35a4f1f8edadeacf6507faa00f4ca583627",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "web-designer-app",
+      "path": "dark/publisher/web-designer-app__desktop.png",
+      "productRoute": "/apps/demo-web-designer",
+      "sha256": "67e15b8da9925fb0070631f6f9a112a074383fab7e6beb3e8c15a4d2c82b5a22",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "web-designer-app",
+      "path": "dark/publisher/web-designer-app__mobile.png",
+      "productRoute": "/apps/demo-web-designer",
+      "sha256": "474f787e49e00a0fbdbc160ecff25e54cacf644ca589b69fd300d0e42d8d4148",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "schedules-list",
+      "path": "dark/schedules/schedules-list__desktop.png",
+      "productRoute": "/schedules",
+      "sha256": "73de41077b78a8a03986d59f704e247b37ff5f9e763f20a14b9791ca0c4bcc6d",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "schedules-list",
+      "path": "dark/schedules/schedules-list__mobile.png",
+      "productRoute": "/schedules",
+      "sha256": "d24d1a8a0a812441928a5f38f949dca1e23e272297d57cf3cc2e2d7c435bbe5e",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "schemas-list",
+      "path": "dark/schemas/schemas-list__desktop.png",
+      "productRoute": "/schemas",
+      "sha256": "92810ef53c82d40209f5362cfb3749bbd12328ce582e8b98dd21e81c9cfafe46",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "schemas-list",
+      "path": "dark/schemas/schemas-list__mobile.png",
+      "productRoute": "/schemas",
+      "sha256": "f5968350009f5443a8ddb368eaeae4ccbaef191e7b0c41ae69affbea3d9db3ae",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "support-queue-table",
+      "path": "dark/tables/support-queue-table__desktop.png",
+      "productRoute": "/tables/demo_table_support_queue",
+      "sha256": "082aeb7ab49448ff05675530d4d634a3222d9acb50e4529dd85dc2eaa693f821",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "support-queue-table",
+      "path": "dark/tables/support-queue-table__mobile.png",
+      "productRoute": "/tables/demo_table_support_queue",
+      "sha256": "b346e816d6b12502cec92f182d7530fd91aa18b84900a81bb0e7a514331f70c9",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "tables-list",
+      "path": "dark/tables/tables-list__desktop.png",
+      "productRoute": "/tables",
+      "sha256": "9a9a5d0d37ca28462ad124daff15f1923d261adae344641c3c149fcbe06977ba",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "tables-list",
+      "path": "dark/tables/tables-list__mobile.png",
+      "productRoute": "/tables",
+      "sha256": "f176e9aa01bbaef88b23819a890c58626705ca422b4bbca0f2f1fc03ef679211",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "agency-app-detail",
+      "path": "light/apps/agency-app-detail__desktop.png",
+      "productRoute": "/apps/demo-agency-ops",
+      "sha256": "5da8b27671aae4807c9732ec4c38f1192abd8f3014aa7feda75595205a21e1ad",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "agency-app-detail",
+      "path": "light/apps/agency-app-detail__mobile.png",
+      "productRoute": "/apps/demo-agency-ops",
+      "sha256": "d3d423d92d06a44a754283fc1efc64ad9dd0b03e9137de1880c714783b02ce11",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "apps-list",
+      "path": "light/apps/apps-list__desktop.png",
+      "productRoute": "/apps",
+      "sha256": "22f01daffd27a89f22a6d61fb567dbe0734799578d80b095bdc58851b37a881a",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "apps-list",
+      "path": "light/apps/apps-list__mobile.png",
+      "productRoute": "/apps",
+      "sha256": "6ab59c0acf44f2c6d6d93cbdd078f9a454c28f8ae354f6715ec4bf22edc92c2c",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "web-designer-app",
+      "path": "light/publisher/web-designer-app__desktop.png",
+      "productRoute": "/apps/demo-web-designer",
+      "sha256": "76d28567329fba00eb53c78383b334cfc0a9115534210a39f610eb923bbade8b",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "web-designer-app",
+      "path": "light/publisher/web-designer-app__mobile.png",
+      "productRoute": "/apps/demo-web-designer",
+      "sha256": "a1c2928efa3f655fdfb868ef09ed2965137ba6eca7fa90f1466f7340bd379162",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "schedules-list",
+      "path": "light/schedules/schedules-list__desktop.png",
+      "productRoute": "/schedules",
+      "sha256": "cafa6be8ad9859767ff8422d8f88e9e8f769ffc4897875b854266497e7486b46",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "schedules-list",
+      "path": "light/schedules/schedules-list__mobile.png",
+      "productRoute": "/schedules",
+      "sha256": "3712b664393a2d9f6fad907ddd0b55892beb14fb60a29ecbf88d71515538939b",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "schemas-list",
+      "path": "light/schemas/schemas-list__desktop.png",
+      "productRoute": "/schemas",
+      "sha256": "a37489ea3b5e05692597592cbd6e1ebd2954448db1362bc49f67ee25c8bfaac0",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "schemas-list",
+      "path": "light/schemas/schemas-list__mobile.png",
+      "productRoute": "/schemas",
+      "sha256": "3d4185b545cbc54a0608680ffc6a2a2e52ecfcd04de793c383cf6d9ed34af503",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "support-queue-table",
+      "path": "light/tables/support-queue-table__desktop.png",
+      "productRoute": "/tables/demo_table_support_queue",
+      "sha256": "847a6cb57b97976839ad5c17075775dee5064b7a0d9736062ac60638cb02ed95",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "support-queue-table",
+      "path": "light/tables/support-queue-table__mobile.png",
+      "productRoute": "/tables/demo_table_support_queue",
+      "sha256": "cc9f043cbe24a7005ed0cf69b204f3ba65b3e698debc528de2089df65a908309",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "tables-list",
+      "path": "light/tables/tables-list__desktop.png",
+      "productRoute": "/tables",
+      "sha256": "a65ce367aeb7b5af5723e5b8fe6eb55142bb8c4e8bbe7de716c81453124b46e1",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "tables-list",
+      "path": "light/tables/tables-list__mobile.png",
+      "productRoute": "/tables",
+      "sha256": "77f7686f9621f2b8fe4130aff9fb7e37a096c8ec09b235b7f8fb67d84df6ac40",
+      "theme": "light",
+      "viewport": "mobile"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "What This Chapter Helps You Do",
+      "id": "what-this-chapter-helps-you-do",
+      "level": 2,
+      "markdown": "This chapter helps you use tables, row triggers, schemas, and schedules as the backbone for repeatable operations.",
+      "wordCount": 17
+    },
+    {
+      "heading": "The Operator Story",
+      "id": "the-operator-story",
+      "level": 2,
+      "markdown": "Brightline Books has a support queue. Each row is a customer issue with status, owner, notes, and enough context for a reply. Some rows only need tracking. Some rows should start a workflow. Some work should recur every week without waiting for a person to remember it.\n\nThis is where tables, triggers, schemas, schedules, and apps meet. A table gives the business data a shape. A trigger can start work from a row. A schema can define a reusable table structure. A schedule can run recurring work. An app can bring those parts into one operating surface.\n\nWithout this structure, an SMB operator has to copy data from spreadsheets into chat prompts and then copy results back again. That can work once. It breaks down when the process repeats.",
+      "wordCount": 129
+    },
+    {
+      "heading": "What This Part Of Relay Is For",
+      "id": "what-this-part-of-relay-is-for",
+      "level": 2,
+      "markdown": "Tables hold structured local data. A row can represent a support ticket, lead, property, donation, campaign item, or internal request. Relay can use that row as the source for a workflow when a pack or app defines a row trigger.\n\nSchedules handle recurring work. Schemas define reusable table shapes. Installed apps bring the pieces together into focused operating screens.\n\nThe important idea is that data is not only reference material. In Relay, data can be the starting point for work. A new row can become a workflow input. A schedule can run a review. A pack app can show the table, workflow, and last run in one place.",
+      "wordCount": 108
+    },
+    {
+      "heading": "Walk The Screen Like An Operator",
+      "id": "walk-the-screen-like-an-operator",
+      "level": 2,
+      "markdown": "Open **Tables**. Pick the table that matches the process you want to run.\n\nWhat you should notice:\n\n- A list of local tables.\n- Table names that match installed packs or local work.\n- Rows that can be edited without leaving Relay.\n\n[Figure: Tables list for structured local records]\n\nThe Tables list is the map of structured local records. Read it before you automate. The table name should tell you what business process it supports. If the table came from a pack, that source gives context. If the table is custom, the name should still be clear enough for another operator to understand.\n\nOpen a working table, such as the support queue. Read the columns before you add or change a row.\n\n[Figure: Support queue table with rows used by automation]\n\nThis figure shows why row shape matters. A row-triggered workflow can only use values that exist in the row or defaults supplied by the blueprint. If a required variable has no matching column and no default, the trigger should fail visibly during setup or dispatch. Silent trigger failure is the worst outcome because the operator thinks work started when it did not.\n\nOpen **Schemas** when you need to inspect reusable table structure.\n\n[Figure: Schemas list for reusable table shapes]\n\nSchemas help when a pattern repeats. If several packs or apps need the same kind of table, a schema gives that table a reusable shape. Use schemas to make structure explicit instead of relying on memory.",
+      "wordCount": 243
+    },
+    {
+      "heading": "Run The Work Carefully",
+      "id": "run-the-work-carefully",
+      "level": 2,
+      "markdown": "Use a row-triggered process when a new row should start work. Required variables must be filled from row data or defaults. Relay should catch invalid trigger variable setup visibly.\n\nUse **Schedules** when work should run on a cadence.\n\nWhat you should see:\n\n- A row insert can start a workflow when the pack or app defines that trigger.\n- A schedule can run a task or workflow on its configured cadence.\n- Pack schedules should keep their state across pack updates.\n\n[Figure: Schedules list with recurring task and workflow entries]\n\nSchedules are for routines. A weekly review, a daily support sweep, or a recurring report should not depend on a person remembering to start it. Before you trust a schedule, read its cadence, state, and source. A schedule that ships with a pack should stay stable across pack updates.\n\nOpen **Apps** to see pack operating surfaces that combine tables, workflows, schedules, and views.\n\n[Figure: Installed apps list with operating surfaces]\n\nApps are where the pieces become a workbench. An app can show KPI tiles, workflow cards, tables, manifests, and primitive-specific sections. If a table edit changes app data, the app surface should reflect that state after the update.",
+      "wordCount": 195
+    },
+    {
+      "heading": "What To Do When The State Looks Wrong",
+      "id": "what-to-do-when-the-state-looks-wrong",
+      "level": 2,
+      "markdown": "If a row does not trigger work, check that the required fields exist in the row. Then check whether the trigger expects defaults.\n\nIf a schedule does not run, open the schedule and check its state before changing the cadence. A disabled or blocked schedule needs a different fix than a wrong cadence.\n\nIf an app view looks stale after table edits, reload the app surface and confirm the table update saved. Table mutations should invalidate affected app-runtime cache.\n\nIf a schema does not match the table you expected, do not force the workflow forward. Fix the table shape first.\n\nIf a row trigger starts too much work, review the trigger contract. Row inserts are convenient, but they should still match the business event you intend.",
+      "wordCount": 126
+    },
+    {
+      "heading": "What This Changes In Daily Work",
+      "id": "what-this-changes-in-daily-work",
+      "level": 2,
+      "markdown": "The daily habit is to put repeated work into structured records. A table row is easier to audit than a loose chat message. A schedule is easier to review than a calendar reminder. A schema is easier to reuse than a copied column list.\n\nFor an SMB operations lead, this means support, leads, grants, renewals, and content can each have a clear local data source. For an app builder, it means pack-backed screens can be composed from known parts. For a solo founder, it means small routines do not disappear into memory.\n\nRelay becomes more useful when data and work stay connected.",
+      "wordCount": 102
+    },
+    {
+      "heading": "Where To Go Next",
+      "id": "where-to-go-next",
+      "level": 2,
+      "markdown": "Next, read **Watch Runs, Costs, And Budget Signals** to review what those automations did.",
+      "wordCount": 14
+    }
+  ],
+  "sourceHash": "73fbcce4c96bf933d9c4a23163be1695d3a4df40eafbfa4a32e57d2caee2bbf6",
+  "sourcePath": "docs/guides/06-use-tables-triggers-and-schedules.md",
+  "sourceStateHash": "2977286169ff7c207d32efc1963e48cc2282cc8a463a9f614214840cc4d7c518",
+  "summary": "Show how a table can become the source of a repeatable process and how schedules keep work moving.",
+  "title": "Use Tables, Triggers, And Schedules"
+}

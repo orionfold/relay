@@ -1,0 +1,384 @@
+{
+  "apiPaths": [],
+  "contentHash": "580ef34fba4c74d780f1c0e4a934959e7730e880ab468905131a5713d5aa83ff",
+  "features": [
+    "Dashboard and settings drill-downs",
+    "Local-first trust posture",
+    "Offline license lifecycle",
+    "Runtime selection",
+    "Settings summary and top chrome",
+    "Tool permissions and approvals"
+  ],
+  "id": "guide:09-settings-trust",
+  "journeys": [
+    "admin-trust",
+    "smb",
+    "solo-founder"
+  ],
+  "kind": "guide",
+  "productRoutes": [
+    "/",
+    "/chat",
+    "/costs",
+    "/inbox",
+    "/monitor",
+    "/settings",
+    "/settings#license",
+    "/settings#runtime",
+    "/tasks"
+  ],
+  "schemaVersion": 1,
+  "screenshots": [
+    {
+      "id": "chat-workspace",
+      "path": "dark/chat/chat-workspace__desktop.png",
+      "productRoute": "/chat",
+      "sha256": "61dfb6e43f51b316df4c88357e9774f957cf1cdea6a0560c6059934eb8ed417d",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "chat-workspace",
+      "path": "dark/chat/chat-workspace__mobile.png",
+      "productRoute": "/chat",
+      "sha256": "6158d7916a9e0507d3e402db137acbc101b57f5e49fc9058e405280d1add4b86",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "costs",
+      "path": "dark/costs/costs__desktop.png",
+      "productRoute": "/costs",
+      "sha256": "064532735001aba3d4053757d0e470c6bd38ea721d9d20387da5b2e9bdde42d6",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "costs",
+      "path": "dark/costs/costs__mobile.png",
+      "productRoute": "/costs",
+      "sha256": "66059a1472c942885467f86e706d3cb31f15329d7bd7eae74fef01d6bd1ff264",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "dark/home/home-cockpit__desktop.png",
+      "productRoute": "/",
+      "sha256": "4863ba6cf5b44394f8e678d0698fbffb04ae13ee62eaa6a4897023fca5f0d885",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "dark/home/home-cockpit__mobile.png",
+      "productRoute": "/",
+      "sha256": "5cc6d08d266d86b442b2fdc31c794d59dc08673676d08f17619a34d81c00cfbf",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "inbox-approvals",
+      "path": "dark/inbox/inbox-approvals__desktop.png",
+      "productRoute": "/inbox",
+      "sha256": "ce0f9a40cd5b139ddd9f4b49c4608bdb39e3a75e8b3ccc15d144d3169294c7c4",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "inbox-approvals",
+      "path": "dark/inbox/inbox-approvals__mobile.png",
+      "productRoute": "/inbox",
+      "sha256": "bdc78d557ac421470bed01cc511c5122ea3070a4e7c4fbec062bde78919d6eb0",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "monitor",
+      "path": "dark/monitor/monitor__desktop.png",
+      "productRoute": "/monitor",
+      "sha256": "6fc0033a16d9c050ecac1be7c2f1612a65717f75b0c256338cd57e6b337b1132",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "monitor",
+      "path": "dark/monitor/monitor__mobile.png",
+      "productRoute": "/monitor",
+      "sha256": "91f889887d5119589e49f57407d645559611a0e914fb0ef5a13699d99f2aa093",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-license",
+      "path": "dark/settings/settings-license__desktop.png",
+      "productRoute": "/settings#license",
+      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-license",
+      "path": "dark/settings/settings-license__mobile.png",
+      "productRoute": "/settings#license",
+      "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "dark/settings/settings-runtime__desktop.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "dark/settings/settings-runtime__mobile.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "74d7110d1ba5a3e63aef651e58361aad164fbb316e08ed35d875a8d8ff41c1a3",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-summary",
+      "path": "dark/settings/settings-summary__desktop.png",
+      "productRoute": "/settings",
+      "sha256": "c4a65ffd595941e26bad8b446e7976787ea777462cd8df0ef3bc816083799f3e",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-summary",
+      "path": "dark/settings/settings-summary__mobile.png",
+      "productRoute": "/settings",
+      "sha256": "56d668062a3b9cab9f1394daf175ad4e8e88e357f502b9ed2ade59aebea93b00",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "tasks-board",
+      "path": "dark/tasks/tasks-board__desktop.png",
+      "productRoute": "/tasks",
+      "sha256": "c417c82b16cac7599bd3bcdb2ead7829c836bbe54ebab99bdcfb6ef2d2d6074f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "tasks-board",
+      "path": "dark/tasks/tasks-board__mobile.png",
+      "productRoute": "/tasks",
+      "sha256": "d90cf1e49df41fbc159cc9c1f17aeda54abcc1298f2a196c9e7216e8e69eb0b8",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "chat-workspace",
+      "path": "light/chat/chat-workspace__desktop.png",
+      "productRoute": "/chat",
+      "sha256": "3b8aa9b3b718114248e430b438bf5e46f3513b011a682a81756b467ddc321b37",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "chat-workspace",
+      "path": "light/chat/chat-workspace__mobile.png",
+      "productRoute": "/chat",
+      "sha256": "85888d5ebfbb5591ca5efa56be0a33eb776717bc0419b82c5c2c8400200a711b",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "costs",
+      "path": "light/costs/costs__desktop.png",
+      "productRoute": "/costs",
+      "sha256": "fdc51e83e12e2c256835161e0abe62881d4b433e897ae652204954a1a6c85257",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "costs",
+      "path": "light/costs/costs__mobile.png",
+      "productRoute": "/costs",
+      "sha256": "3811a10e3c36b3520934931fbc8d48d27425140cd8fd687e6c6174e5ca586ea5",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "light/home/home-cockpit__desktop.png",
+      "productRoute": "/",
+      "sha256": "af2a9d9388ff64178cfa7d823881bab6223eae209dfb0e761c0dbe607bba99e7",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "light/home/home-cockpit__mobile.png",
+      "productRoute": "/",
+      "sha256": "1aa905fce1a571762e5a07be1037967abed30bf2a9b4634b4307a50dd8d2eeb5",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "inbox-approvals",
+      "path": "light/inbox/inbox-approvals__desktop.png",
+      "productRoute": "/inbox",
+      "sha256": "bc2d7ddc06198fc654bcbb1ec9efd69be37babc57e7b701b52b2663e900ab22a",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "inbox-approvals",
+      "path": "light/inbox/inbox-approvals__mobile.png",
+      "productRoute": "/inbox",
+      "sha256": "306b41d9c4076e0d4a972330e06167f763bfe1ffc021f59c3ef86e21650a6f45",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "monitor",
+      "path": "light/monitor/monitor__desktop.png",
+      "productRoute": "/monitor",
+      "sha256": "b748842372e0edf9231a87c1fcd63ab163bfb9d75766d65f02f598a54bc6f65d",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "monitor",
+      "path": "light/monitor/monitor__mobile.png",
+      "productRoute": "/monitor",
+      "sha256": "4c50f002cef2da073508c4c26b3be89fc901e82e64269db4f7a815261233e964",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-license",
+      "path": "light/settings/settings-license__desktop.png",
+      "productRoute": "/settings#license",
+      "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-license",
+      "path": "light/settings/settings-license__mobile.png",
+      "productRoute": "/settings#license",
+      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "light/settings/settings-runtime__desktop.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "e3e4ba5ef17e207de5dc8a4d69860eee24d17b112dd8e2e6c72843b24b97f8ee",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "light/settings/settings-runtime__mobile.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-summary",
+      "path": "light/settings/settings-summary__desktop.png",
+      "productRoute": "/settings",
+      "sha256": "a8626db9367e1186c2cbfbb0e3f463f838bf1f13a44a6bbdf857dc8b8aed1790",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-summary",
+      "path": "light/settings/settings-summary__mobile.png",
+      "productRoute": "/settings",
+      "sha256": "2784383451f5803a9174566ffb67974384530734e89d0b130ab85086b09897a7",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "tasks-board",
+      "path": "light/tasks/tasks-board__desktop.png",
+      "productRoute": "/tasks",
+      "sha256": "6c0e24aae432b64a435be23a2332292349a5c6602eb226631ef46f2a95d23702",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "tasks-board",
+      "path": "light/tasks/tasks-board__mobile.png",
+      "productRoute": "/tasks",
+      "sha256": "e2aeb20f857e53c686e8f15d14e2c8b335c12629654cf80892cf98003b0a57b0",
+      "theme": "light",
+      "viewport": "mobile"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "What This Chapter Helps You Do",
+      "id": "what-this-chapter-helps-you-do",
+      "level": 2,
+      "markdown": "This chapter helps you check the trust, runtime, approval, and license controls that matter before you run real business work.",
+      "wordCount": 20
+    },
+    {
+      "heading": "The Operator Story",
+      "id": "the-operator-story",
+      "level": 2,
+      "markdown": "Before Northstar Automation Studio lets Relay touch client work, Maya does one final admin pass. She checks whether the app is running locally, which runtime will carry model work, what license state is saved, and where approvals will appear. She also wants to know where to inspect cost and failures after a run.\n\nThis is not security theater. It is the practical setup a small business needs before trusting an agentic tool. Relay can run tasks, use tools, route approvals, record costs, and publish artifacts. A local-first app still needs rules.\n\nTrust in Relay is built from visible controls. Settings tells you what is configured. Inbox tells you what needs a person. Monitor tells you what happened. Costs tells you what usage means. Together, these screens form the control loop.\n\nThis control loop should be easy to explain to a non-technical owner. Before work starts, check Settings. While work waits, check Inbox. After work runs, check Monitor. When spend matters, check Costs. That simple path is stronger than a long policy nobody follows.",
+      "wordCount": 173
+    },
+    {
+      "heading": "What This Part Of Relay Is For",
+      "id": "what-this-part-of-relay-is-for",
+      "level": 2,
+      "markdown": "Relay is local-first. Product state lives locally, and Relay does not send customer data to Orionfold. That does not mean every action is risk-free. A runtime may call a model provider. A workflow may use tools. A premium pack may depend on license state. A publish action may target a real remote.\n\nSettings is the preflight screen for those decisions. Use it before real customer work, before premium pack changes, before publish actions, and before changing runtime defaults.\n\nThe trust question is not \"Can I click this?\" The better question is, \"Do I understand what will happen if I click this?\"\n\nThis is especially important for local-first software. Local state reduces one kind of risk, but it does not remove operational risk. A local app can still call a provider, write files, start a workflow, or publish to a configured destination.",
+      "wordCount": 141
+    },
+    {
+      "heading": "Walk The Screen Like An Operator",
+      "id": "walk-the-screen-like-an-operator",
+      "level": 2,
+      "markdown": "Open **Settings**. Start with the summary so you can see the current instance state.\n\nWhat you should notice:\n\n- Summary cards for the local app.\n- Links or sections for runtime, license, and other controls.\n- Top chrome that helps you confirm where you are.\n\n[Figure: Settings summary for local Relay controls]\n\nThe summary is where the admin story starts. It should show enough state to orient you before you change anything. In a dev repo, dev mode may be visible. In a real local install, you should still be able to understand license, runtime, and control posture from Settings.\n\nOpen **Runtime** next. Check which model paths are configured before you run chat, tasks, workflows, or AI-assist actions.\n\n[Figure: Runtime settings with model and provider controls]\n\nRuntime is a trust setting because it controls where model work goes. A local path, a provider path, and an SDK-backed path do not carry the same cost or data-flow expectations. Read this screen before a buyer demo, a client workflow, or a budget-sensitive run.",
+      "wordCount": 168
+    },
+    {
+      "heading": "Run The Work Carefully",
+      "id": "run-the-work-carefully",
+      "level": 2,
+      "markdown": "Open **License**. Check saved license state before installing or updating premium packs.\n\nWhat you should see:\n\n- Offline license verification state.\n- Premium install and update access when a valid license is saved.\n- Existing installed premium content remains installed even if a license later expires.\n\n[Figure: License settings with saved offline license state]\n\nThe license panel matters because it explains pack behavior. If a premium install is blocked, this is where you look. If a license expires, installed local content should remain installed. The gate applies to new premium installs and updates, not to the local work you already have.\n\nWhile work runs, use **Inbox** as the human control point.\n\n[Figure: Inbox approval queue for human control]\n\nInbox shows approvals, workflow questions, budget alerts, and other operator decisions. If an approval is waiting, answer it before starting more work. A waiting approval is not clutter. It is Relay asking for human judgment.\n\nAfter the action, use Monitor to inspect execution.\n\n[Figure: Monitor view for execution and failure checks]\n\nMonitor is where you check what ran, what failed, and which runtime or provider identity Relay can show. If a run fails, this is the evidence screen.\n\nFinally, open **Cost & Usage** from the Observe section to understand spend and usage.\n\n[Figure: Costs view for spend and usage checks]\n\nCosts completes the trust loop. It helps separate local-free usage, metered usage, budget context, and attribution. Use it before changing budgets or rerunning expensive work.\n\nTogether, these screens create a review rhythm. Settings defines intent. Inbox captures judgment. Monitor records execution. Costs records usage. A team can use that rhythm in a weekly review or before a buyer demo.",
+      "wordCount": 273
+    },
+    {
+      "heading": "What To Do When The State Looks Wrong",
+      "id": "what-to-do-when-the-state-looks-wrong",
+      "level": 2,
+      "markdown": "If a runtime is missing, do not run client work until you configure or select the right path. A missing runtime is not a prompt problem.\n\nIf an approval is waiting, answer it from Inbox before you start more work. A second run may duplicate the first issue.\n\nIf a premium pack action is blocked, fix the license state or keep using the installed version you already have.\n\nIf a run fails, use Monitor and Costs to understand the effect before retrying. Keep the error text.\n\nIf a publish target or network bind points outside your local loopback setup, stop and review the destination. Local-first does not mean every configured action stays private.\n\nIf trust settings look correct but behavior still surprises you, capture the evidence. Save the settings state, the Inbox item, the Monitor row, and the Costs view. Those four pieces make a useful bug report or internal review note.",
+      "wordCount": 152
+    },
+    {
+      "heading": "What This Changes In Daily Work",
+      "id": "what-this-changes-in-daily-work",
+      "level": 2,
+      "markdown": "The daily habit is to run a trust loop around important work. Settings before action. Inbox during action. Monitor after action. Costs when spend or budget matters.\n\nFor an admin, this creates a simple review path. For an agency, it makes client work explainable. For an SMB owner, it lowers the risk of silent automation.\n\nRelay gives you local control, but control only helps when you use the screens that show it.\n\nThe best outcome is a calm operating habit. People should not need to ask where approvals live or why a model path was used. The answer should be visible in the product.",
+      "wordCount": 104
+    },
+    {
+      "heading": "Where To Go Next",
+      "id": "where-to-go-next",
+      "level": 2,
+      "markdown": "Next, return to the chapter for the work you plan to run: packs, projects, chat, workflows, tables, costs, or web publishing.",
+      "wordCount": 21
+    }
+  ],
+  "sourceHash": "c0ccc8ce1d9066ea54193d357ea1860c1c5e2ad3b57b04e313866b4204d4a144",
+  "sourcePath": "docs/guides/09-set-trust-runtime-and-local-controls.md",
+  "sourceStateHash": "0f768d9c6a4bd21cebc3953bc9cbe08afde59b0e3633d2f7004b863f7819216f",
+  "summary": "Explain the settings an SMB should check before trusting Relay with real work.",
+  "title": "Set Trust, Runtime, And Local Controls"
+}

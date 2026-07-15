@@ -1,0 +1,510 @@
+{
+  "apiPaths": [
+    "/api/environment/rescan-if-stale",
+    "/api/environment/skills",
+    "/api/instance/config",
+    "/api/instance/identity",
+    "/api/instance/init",
+    "/api/instance/upgrade",
+    "/api/instance/upgrade/check",
+    "/api/instance/upgrade/status",
+    "/api/license",
+    "/api/license/{id}",
+    "/api/onboarding/progress",
+    "/api/settings",
+    "/api/settings/apps",
+    "/api/settings/author-default",
+    "/api/settings/browser-tools",
+    "/api/settings/budgets",
+    "/api/settings/chat",
+    "/api/settings/chat/pins",
+    "/api/settings/chat/saved-searches",
+    "/api/settings/environment",
+    "/api/settings/github",
+    "/api/settings/github/repositories",
+    "/api/settings/glance",
+    "/api/settings/learning",
+    "/api/settings/ollama",
+    "/api/settings/openai",
+    "/api/settings/openai-compatible/{runtimeId}",
+    "/api/settings/openai/login",
+    "/api/settings/openai/logout",
+    "/api/settings/pricing",
+    "/api/settings/providers",
+    "/api/settings/routing",
+    "/api/settings/runtime",
+    "/api/settings/test",
+    "/api/settings/web-search"
+  ],
+  "contentHash": "1d8f51de6a37f8184680ac9822d24772ee9f7930f8b2f79ee76b38f95ab8047c",
+  "features": [],
+  "id": "api:06-settings-license-instance",
+  "journeys": [],
+  "kind": "api",
+  "productRoutes": [],
+  "schemaVersion": 1,
+  "screenshots": [],
+  "sections": [
+    {
+      "heading": "Who This Is For",
+      "id": "who-this-is-for",
+      "level": 2,
+      "markdown": "This group is for a developer configuring and inspecting a local Relay instance: reading and writing settings (auth, models, routing, budgets, chat, snapshots, browser tools), activating and removing licenses, checking instance identity and upgrade state, scanning the local environment, and tracking onboarding progress. Read this if you are wiring a settings screen, automating license activation, polling for an available upgrade, or building a runtime-connection test.",
+      "wordCount": 65
+    },
+    {
+      "heading": "Stability",
+      "id": "stability",
+      "level": 2,
+      "markdown": "`app-internal`\n\nThese routes power the Relay Settings and onboarding screens. Their request and response shapes are tied to the app's own screens and may change between releases, so branch on HTTP status codes rather than on the internal structure of a response body, and treat every response field as additive.",
+      "wordCount": 50
+    },
+    {
+      "heading": "Local Access Model",
+      "id": "local-access-model",
+      "level": 2,
+      "markdown": "Relay API routes run inside the local Relay app. Use `http://127.0.0.1:<port>` in examples, where `<port>` is the port your instance is bound to (3000 by default).\n\nDo not expose these routes on a public network without your own access controls. These routes read and write settings and license files, run git operations for the upgrade flow, scan the local filesystem, and can spawn subprocesses to test provider connections.",
+      "wordCount": 73
+    },
+    {
+      "heading": "Conventions For This Group",
+      "id": "conventions-for-this-group",
+      "level": 2,
+      "markdown": "These behaviors hold across the routes below, so they are stated once here rather than repeated per endpoint:\n\n- **Secrets are never returned.** No settings, license, or instance route returns a raw or decrypted API key, an OAuth token, or a license signature. API keys are encrypted at rest and only ever surface as a `hasKey` boolean and an `apiKeySource` label. Licenses surface only summary fields and a display label, never the signed envelope.\n- **Auth-status labels.** An `apiKeySource` is `db`, `env`, `oauth`, or `unknown`. It is `oauth` only when an OAuth credential is actually present (an OAuth token in the environment or a cached credential file), not merely because OAuth is the selected method. A blank install with no credential reports `unknown`.\n- **Settings values are often strings.** Several settings routes store and return their values as strings even when they represent numbers or booleans (for example the runtime tuning and learning-limit routes). The shape is noted per route.\n- **Timestamps split two ways.** Budget, pricing, license, and login responses use ISO date strings. Instance config, guardrails, and upgrade state use numeric epoch values, and OpenAI rate-limit resets are numeric epochs too. The shape is noted where it matters.\n- **Test routes never fail with a non-200.** The runtime connection-test routes return `200` with a `connected: false` body on failure rather than an error status, so a client can always read the result.\n- **Validation.** Some routes validate with Zod and some by hand. Error bodies are `{ \"error\": \"<message>\" }`, with several adding a `code` field; a Zod failure returns the flattened error object as the `error` value.",
+      "wordCount": 262
+    },
+    {
+      "heading": "Endpoint Families",
+      "id": "endpoint-families",
+      "level": 2,
+      "markdown": "- `settings`\n- `license`\n- `instance`\n- `environment`\n- `onboarding`",
+      "wordCount": 5
+    },
+    {
+      "heading": "Endpoints",
+      "id": "endpoints",
+      "level": 2,
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/environment/rescan-if-stale` | `app-internal` | `src/app/api/environment/rescan-if-stale/route.ts` |\n| `GET` | `/api/environment/skills` | `app-internal` | `src/app/api/environment/skills/route.ts` |\n| `GET` | `/api/instance/config` | `app-internal` | `src/app/api/instance/config/route.ts` |\n| `GET` | `/api/instance/identity` | `app-internal` | `src/app/api/instance/identity/route.ts` |\n| `POST` | `/api/instance/init` | `app-internal` | `src/app/api/instance/init/route.ts` |\n| `POST` | `/api/instance/upgrade` | `app-internal` | `src/app/api/instance/upgrade/route.ts` |\n| `POST` | `/api/instance/upgrade/check` | `app-internal` | `src/app/api/instance/upgrade/check/route.ts` |\n| `GET` | `/api/instance/upgrade/status` | `app-internal` | `src/app/api/instance/upgrade/status/route.ts` |\n| `GET`, `POST` | `/api/license` | `app-internal` | `src/app/api/license/route.ts` |\n| `DELETE` | `/api/license/{id}` | `app-internal` | `src/app/api/license/[id]/route.ts` |\n| `GET` | `/api/onboarding/progress` | `app-internal` | `src/app/api/onboarding/progress/route.ts` |\n| `GET`, `POST` | `/api/settings` | `app-internal` | `src/app/api/settings/route.ts` |\n| `GET`, `POST` | `/api/settings/apps` | `app-internal` | `src/app/api/settings/apps/route.ts` |\n| `GET` | `/api/settings/author-default` | `app-internal` | `src/app/api/settings/author-default/route.ts` |\n| `GET`, `POST` | `/api/settings/browser-tools` | `app-internal` | `src/app/api/settings/browser-tools/route.ts` |\n| `GET`, `POST` | `/api/settings/budgets` | `app-internal` | `src/app/api/settings/budgets/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat` | `app-internal` | `src/app/api/settings/chat/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/pins` | `app-internal` | `src/app/api/settings/chat/pins/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/saved-searches` | `app-internal` | `src/app/api/settings/chat/saved-searches/route.ts` |\n| `GET`, `POST` | `/api/settings/environment` | `app-internal` | `src/app/api/settings/environment/route.ts` |\n| `GET` | `/api/settings/glance` | `app-internal` | `src/app/api/settings/glance/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/github` | `app-internal` | `src/app/api/settings/github/route.ts` |\n| `GET` | `/api/settings/github/repositories` | `app-internal` | `src/app/api/settings/github/repositories/route.ts` |\n| `GET`, `POST` | `/api/settings/learning` | `app-internal` | `src/app/api/settings/learning/route.ts` |\n| `GET`, `POST` | `/api/settings/ollama` | `app-internal` | `src/app/api/settings/ollama/route.ts` |\n| `GET`, `POST` | `/api/settings/openai` | `app-internal` | `src/app/api/settings/openai/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/openai/login` | `app-internal` | `src/app/api/settings/openai/login/route.ts` |\n| `POST` | `/api/settings/openai/logout` | `app-internal` | `src/app/api/settings/openai/logout/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/settings/openai-compatible/{runtimeId}` | `app-internal` | `src/app/api/settings/openai-compatible/[runtimeId]/route.ts` |\n| `GET`, `POST` | `/api/settings/pricing` | `app-internal` | `src/app/api/settings/pricing/route.ts` |\n| `GET` | `/api/settings/providers` | `app-internal` | `src/app/api/settings/providers/route.ts` |\n| `GET`, `POST` | `/api/settings/routing` | `app-internal` | `src/app/api/settings/routing/route.ts` |\n| `GET`, `POST` | `/api/settings/runtime` | `app-internal` | `src/app/api/settings/runtime/route.ts` |\n| `POST` | `/api/settings/test` | `app-internal` | `src/app/api/settings/test/route.ts` |\n| `GET`, `POST` | `/api/settings/web-search` | `app-internal` | `src/app/api/settings/web-search/route.ts` |",
+      "wordCount": 459
+    },
+    {
+      "heading": "Endpoint Reference",
+      "id": "endpoint-reference",
+      "level": 2,
+      "markdown": "",
+      "wordCount": 0
+    },
+    {
+      "heading": "GET /api/settings",
+      "id": "get-api-settings",
+      "level": 3,
+      "markdown": "Returns the Anthropic auth settings summary. It never returns the raw API key.\n\n- **Request**: none.\n- **Response** `200`: `{ \"method\": \"oauth\", \"hasKey\": false, \"apiKeySource\": \"unknown\" }`. `method` is `api_key` or `oauth` (defaulting to `oauth`). `hasKey` is true when a stored key or an `ANTHROPIC_API_KEY` environment variable is present. `apiKeySource` is `db`, `env`, `oauth`, or `unknown`, where `oauth` requires an actual OAuth credential to be present, not just the method being selected.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 74
+    },
+    {
+      "heading": "POST /api/settings",
+      "id": "post-api-settings",
+      "level": 3,
+      "markdown": "Updates the Anthropic auth settings.\n\n- **Request** body (JSON), validated by Zod, all optional:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `method` | `string` | no | `api_key` or `oauth`. |\n| `apiKey` | `string` | no | Must start with `sk-ant-`. Encrypted before storage. |\n| `model` | `string` | no | The Anthropic direct model id. |\n\n- **Response** `200`: the re-read auth settings (same shape as `GET`, no secret).\n- **Errors**: `400` on validation failure: `{ \"error\": <flattened Zod error> }`.\n- **Side effects**: writes the auth method; encrypts and stores a supplied key; switching to `oauth` deletes any stored key.",
+      "wordCount": 80
+    },
+    {
+      "heading": "GET /api/settings/apps",
+      "id": "get-api-settings-apps",
+      "level": 3,
+      "markdown": "Returns `{ \"showInferenceDiagnostics\": true | false }` for app-shell diagnostics.",
+      "wordCount": 7
+    },
+    {
+      "heading": "POST /api/settings/apps",
+      "id": "post-api-settings-apps",
+      "level": 3,
+      "markdown": "Stores the strict body `{ \"showInferenceDiagnostics\": true | false }` and returns the updated setting. Invalid input returns `400` with validation issues.",
+      "wordCount": 19
+    },
+    {
+      "heading": "GET /api/settings/author-default",
+      "id": "get-api-settings-author-default",
+      "level": 3,
+      "markdown": "Returns the operating-system username to use as a default author.\n\n- **Request**: none.\n- **Response** `200`: `{ \"author\": \"string\" }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 24
+    },
+    {
+      "heading": "GET /api/settings/browser-tools",
+      "id": "get-api-settings-browser-tools",
+      "level": 3,
+      "markdown": "Returns the browser MCP tool enable flags and their config strings.\n\n- **Request**: none.\n- **Response** `200`: `{ \"chromeDevtoolsEnabled\": false, \"playwrightEnabled\": false, \"chromeDevtoolsConfig\": \"string\", \"playwrightConfig\": \"string\" }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 31
+    },
+    {
+      "heading": "POST /api/settings/browser-tools",
+      "id": "post-api-settings-browser-tools",
+      "level": 3,
+      "markdown": "Updates any subset of the browser tool settings.\n\n- **Request** body (JSON), all optional: `chromeDevtoolsEnabled`, `playwrightEnabled`, `chromeDevtoolsConfig`, `playwrightConfig`.\n- **Response** `200`: the re-read state (same shape as `GET`).\n- **Errors**: none returned explicitly.\n- **Side effects**: writes the provided browser-tool settings.",
+      "wordCount": 37
+    },
+    {
+      "heading": "GET /api/settings/budgets",
+      "id": "get-api-settings-budgets",
+      "level": 3,
+      "markdown": "Returns the budget guardrail snapshot.\n\n- **Request**: none.\n- **Response** `200`: a snapshot with `policy` (overall and per-runtime monthly caps), `statuses` (per-scope spend status with `health` one of `unlimited`, `ok`, `warning`, `blocked`), `dailyResetAtIso`, `monthlyResetAtIso`, `runtimeStates`, `pricing`, `meteredSpend` (`dailyMicros`, `monthlyMicros`), and `planPricedMonthlyMicros`. Costs are integer micro-dollars.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 51
+    },
+    {
+      "heading": "POST /api/settings/budgets",
+      "id": "post-api-settings-budgets",
+      "level": 3,
+      "markdown": "Updates the budget policy.\n\n- **Request** body (JSON), validated by Zod: `{ \"overall\": { \"monthlySpendCapUsd\": <number or null> }, \"runtimes\": { \"<runtimeId>\": { \"monthlySpendCapUsd\": <number or null>, \"claudeOAuthPlan\": \"pro\" } } }`. `claudeOAuthPlan` is `pro`, `max_5x`, or `max_20x`.\n- **Response** `200`: the re-read budget snapshot.\n- **Errors**: `400` on validation failure: `{ \"error\": <flattened Zod error> }`.\n- **Side effects**: normalizes and persists the budget policy and clears the warning state.",
+      "wordCount": 55
+    },
+    {
+      "heading": "GET /api/settings/chat",
+      "id": "get-api-settings-chat",
+      "level": 3,
+      "markdown": "Returns the chat model settings.\n\n- **Request**: none.\n- **Response** `200`: `{ \"defaultModel\": \"string\", \"defaultModelRecorded\": false, \"modelPreference\": \"balanced\" }`. `modelPreference` is `quality`, `cost`, `privacy`, `balanced`, or null.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 31
+    },
+    {
+      "heading": "PUT /api/settings/chat",
+      "id": "put-api-settings-chat",
+      "level": 3,
+      "markdown": "Updates the default model and/or the model preference.\n\n- **Request** body (JSON), all optional: `defaultModel` (a known model id or an `ollama:` id) and `modelPreference` (null or `quality`, `cost`, `privacy`, `balanced`).\n- **Response** `200`: the same shape as `GET`.\n- **Errors**:\n  - `400` when `defaultModel` is not a string: `{ \"error\": \"defaultModel must be a string\" }`.\n  - `400` on an invalid model: `{ \"error\": \"Invalid model. Must be one of: <ids> or an \\\"ollama:*\\\" id\" }`.\n  - `400` on an invalid preference: `{ \"error\": \"Invalid modelPreference. Must be null or one of: quality, cost, privacy, balanced\" }`.\n- **Side effects**: writes the provided chat settings.",
+      "wordCount": 94
+    },
+    {
+      "heading": "GET /api/settings/chat/pins",
+      "id": "get-api-settings-chat-pins",
+      "level": 3,
+      "markdown": "Returns the pinned chat entities.\n\n- **Request**: none.\n- **Response** `200`: `{ \"pins\": [ { \"id\": \"string\", \"type\": \"task\", \"label\": \"string\", \"description\": \"string\", \"status\": \"string\", \"pinnedAt\": \"2026-01-01T00:00:00.000Z\" } ] }`. A malformed stored value degrades to an empty list.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 42
+    },
+    {
+      "heading": "PUT /api/settings/chat/pins",
+      "id": "put-api-settings-chat-pins",
+      "level": 3,
+      "markdown": "Replaces the entire pin list.\n\n- **Request** body (JSON), validated by Zod: `{ \"pins\": [ ... ] }`.\n- **Response** `200`: `{ \"pins\": [ ... ] }`, deduplicated by id.\n- **Errors**:\n  - `400` on unparseable JSON: `{ \"error\": \"invalid JSON body\" }`.\n  - `400` on schema failure: `{ \"error\": \"invalid pins payload\", \"issues\": [ ... ] }`.\n- **Side effects**: writes the pin list.",
+      "wordCount": 42
+    },
+    {
+      "heading": "GET /api/settings/chat/saved-searches",
+      "id": "get-api-settings-chat-saved-searches",
+      "level": 3,
+      "markdown": "Returns the saved chat filter searches.\n\n- **Request**: none.\n- **Response** `200`: `{ \"searches\": [ { \"id\": \"string\", \"surface\": \"task\", \"label\": \"string\", \"filterInput\": \"string\", \"createdAt\": \"2026-01-01T00:00:00.000Z\" } ] }`. A malformed stored value degrades to an empty list.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 41
+    },
+    {
+      "heading": "PUT /api/settings/chat/saved-searches",
+      "id": "put-api-settings-chat-saved-searches",
+      "level": 3,
+      "markdown": "Replaces the entire saved-search list.\n\n- **Request** body (JSON), validated by Zod: `{ \"searches\": [ ... ] }`.\n- **Response** `200`: `{ \"searches\": [ ... ] }`, deduplicated by id.\n- **Errors**:\n  - `400` on unparseable JSON: `{ \"error\": \"invalid JSON body\" }`.\n  - `400` on schema failure: `{ \"error\": \"invalid searches payload\", \"issues\": [ ... ] }`.\n- **Side effects**: writes the saved-search list.",
+      "wordCount": 42
+    },
+    {
+      "heading": "GET /api/settings/environment",
+      "id": "get-api-settings-environment",
+      "level": 3,
+      "markdown": "Returns the auto-promote-skills flag.\n\n- **Request**: none.\n- **Response** `200`: `{ \"autoPromoteSkills\": false }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 18
+    },
+    {
+      "heading": "POST /api/settings/environment",
+      "id": "post-api-settings-environment",
+      "level": 3,
+      "markdown": "Toggles the auto-promote-skills flag.\n\n- **Request** body (JSON): `{ \"autoPromoteSkills\": <boolean> }`.\n- **Response** `200`: `{ \"autoPromoteSkills\": false }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: writes the flag.",
+      "wordCount": 22
+    },
+    {
+      "heading": "GET /api/settings/glance",
+      "id": "get-api-settings-glance",
+      "level": 3,
+      "markdown": "Returns a consolidated settings-at-a-glance summary. Every field is independently nullable; a failure in one source nulls only that field.\n\n- **Request**: none.\n- **Response** `200`: fields including `activeRuntimeLabel`, `activeModel`, `routingPreference`, `configuredRuntimeCount`, `sdkTimeoutSeconds`, `maxTurns`, a `licenseTag` (a display label or community marker, no secret), `budgetMonthlyCapUsd`, `activePreset`, `allowedPermissionCount`, `webSearchEnabled`, `channelCount`, and `autoPromoteSkills`. Any field may be null when its source is unavailable.\n- **Errors**: `500` on total failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only. No secret values are included.",
+      "wordCount": 74
+    },
+    {
+      "heading": "GET /api/settings/github",
+      "id": "get-api-settings-github",
+      "level": 3,
+      "markdown": "Returns the current GitHub connection and GitHub CLI availability without exposing a token.",
+      "wordCount": 13
+    },
+    {
+      "heading": "POST /api/settings/github",
+      "id": "post-api-settings-github",
+      "level": 3,
+      "markdown": "Connects using `{ \"token\": \"...\" }` or `{ \"method\": \"github-cli\" }`, or verifies the current connection with `{ \"verify\": true }`. Invalid bodies return `400`; named connection failures retain their mapped status codes.",
+      "wordCount": 26
+    },
+    {
+      "heading": "DELETE /api/settings/github",
+      "id": "delete-api-settings-github",
+      "level": 3,
+      "markdown": "Disconnects GitHub and returns the resulting connection and CLI status. The raw credential is never returned.",
+      "wordCount": 16
+    },
+    {
+      "heading": "GET /api/settings/github/repositories",
+      "id": "get-api-settings-github-repositories",
+      "level": 3,
+      "markdown": "Lists repositories visible to the current GitHub connection. Connection failures retain their mapped status codes; unexpected failures return `500`.",
+      "wordCount": 19
+    },
+    {
+      "heading": "GET /api/settings/learning",
+      "id": "get-api-settings-learning",
+      "level": 3,
+      "markdown": "Returns the learning-context character limit.\n\n- **Request**: none.\n- **Response** `200`: `{ \"contextCharLimit\": \"8000\" }`. The value is a string.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 24
+    },
+    {
+      "heading": "POST /api/settings/learning",
+      "id": "post-api-settings-learning",
+      "level": 3,
+      "markdown": "Updates the learning-context character limit.\n\n- **Request** body (JSON): `{ \"contextCharLimit\": <number> }`.\n- **Response** `200`: `{ \"contextCharLimit\": \"8000\" }`.\n- **Errors**: `400` when out of range: `{ \"error\": \"contextCharLimit must be between 2,000 and 32,000 (step 1,000)\" }`.\n- **Side effects**: writes the limit as a string.",
+      "wordCount": 41
+    },
+    {
+      "heading": "GET /api/settings/ollama",
+      "id": "get-api-settings-ollama",
+      "level": 3,
+      "markdown": "Returns the Ollama base URL and default model.\n\n- **Request**: none.\n- **Response** `200`: `{ \"baseUrl\": \"http://localhost:11434\", \"defaultModel\": \"string\" }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 26
+    },
+    {
+      "heading": "POST /api/settings/ollama",
+      "id": "post-api-settings-ollama",
+      "level": 3,
+      "markdown": "Updates the Ollama settings.\n\n- **Request** body (JSON), all optional: `baseUrl`, `defaultModel`.\n- **Response** `200`: `{ \"ok\": true }`. It does not echo the updated values.\n- **Errors**: none returned explicitly.\n- **Side effects**: writes the provided Ollama settings.",
+      "wordCount": 33
+    },
+    {
+      "heading": "GET /api/settings/openai",
+      "id": "get-api-settings-openai",
+      "level": 3,
+      "markdown": "Returns the OpenAI auth settings, enriched with live OAuth state when the method is `oauth`. It never returns the raw API key.\n\n- **Request**: none.\n- **Response** `200`: `{ \"method\": \"api_key\", \"hasKey\": false, \"apiKeySource\": \"unknown\", \"oauthConnected\": false, \"account\": null, \"rateLimits\": null }`. `apiKeySource` for OpenAI is `db`, `env`, or `unknown` (never `oauth`). `account` carries the connected ChatGPT account type, email, and plan when present.\n- **Errors**: none returned explicitly (an OAuth read failure degrades to disconnected).\n- **Side effects**: when the method is `oauth`, refreshes the live OAuth state, which may persist status.",
+      "wordCount": 86
+    },
+    {
+      "heading": "POST /api/settings/openai",
+      "id": "post-api-settings-openai",
+      "level": 3,
+      "markdown": "Updates the OpenAI auth settings.\n\n- **Request** body (JSON), validated by Zod, all optional:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `method` | `string` | no | `api_key` or `oauth`. |\n| `apiKey` | `string` | no | Must start with `sk-`. Encrypted before storage. |\n| `model` | `string` | no | The OpenAI direct model id. |\n\n- **Response** `200`: the re-read OpenAI auth settings (no secret).\n- **Errors**: `400` on validation failure: `{ \"error\": <flattened Zod error> }`.\n- **Side effects**: writes the method; encrypts and stores a supplied key; writes the model.",
+      "wordCount": 72
+    },
+    {
+      "heading": "GET /api/settings/openai/login",
+      "id": "get-api-settings-openai-login",
+      "level": 3,
+      "markdown": "Returns the current ChatGPT OAuth login state.\n\n- **Request**: none.\n- **Response** `200`: `{ \"phase\": \"idle\", \"loginId\": null, \"authUrl\": null, \"account\": null, \"rateLimits\": null, \"error\": null, \"startedAt\": null, \"updatedAt\": \"2026-01-01T00:00:00.000Z\" }`. `phase` is `idle`, `pending`, `connected`, `cancelled`, or `failed`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 46
+    },
+    {
+      "heading": "POST /api/settings/openai/login",
+      "id": "post-api-settings-openai-login",
+      "level": 3,
+      "markdown": "Starts a ChatGPT OAuth login flow.\n\n- **Request**: none.\n- **Response** `200`: a login state, typically `pending` with an `authUrl` and `loginId`, or `connected` if already authenticated, or `failed` with an `error`. Failures are represented in the state, not as an error status.\n- **Errors**: none at the HTTP layer.\n- **Side effects**: sets the OpenAI auth method to `oauth`, spawns a Codex app-server client, and starts the login flow.",
+      "wordCount": 66
+    },
+    {
+      "heading": "DELETE /api/settings/openai/login",
+      "id": "delete-api-settings-openai-login",
+      "level": 3,
+      "markdown": "Cancels an in-progress login.\n\n- **Request**: none.\n- **Response** `200`: a login state (`cancelled`, or unchanged if nothing is active).\n- **Errors**: none at the HTTP layer.\n- **Side effects**: cancels the login, clears OAuth status, and closes the client.",
+      "wordCount": 36
+    },
+    {
+      "heading": "POST /api/settings/openai/logout",
+      "id": "post-api-settings-openai-logout",
+      "level": 3,
+      "markdown": "Logs out of OpenAI Codex.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: sends a logout to the Codex client and removes the isolated Codex credential file.",
+      "wordCount": 31
+    },
+    {
+      "heading": "GET /api/settings/openai-compatible/{runtimeId}",
+      "id": "get-api-settings-openai-compatible-runtimeid",
+      "level": 3,
+      "markdown": "Returns the LiteLLM or LM Studio configuration summary, including `configured`, `baseUrl`, `defaultModel`, `allowInsecureRemote`, `hasApiKey`, and `apiKeySource`. It never returns the API key.",
+      "wordCount": 22
+    },
+    {
+      "heading": "PUT /api/settings/openai-compatible/{runtimeId}",
+      "id": "put-api-settings-openai-compatible-runtimeid",
+      "level": 3,
+      "markdown": "Updates `baseUrl`, `apiKey`, `defaultModel`, or `allowInsecureRemote` for `litellm` or `lmstudio`. Relay validates the effective URL before writing any field and returns `400` for invalid or unsafe configuration.",
+      "wordCount": 27
+    },
+    {
+      "heading": "DELETE /api/settings/openai-compatible/{runtimeId}",
+      "id": "delete-api-settings-openai-compatible-runtimeid",
+      "level": 3,
+      "markdown": "Removes stored compatible-runtime settings and invalidates model discovery. All three methods return `404` for runtime ids other than `litellm` and `lmstudio`.",
+      "wordCount": 21
+    },
+    {
+      "heading": "GET /api/settings/pricing",
+      "id": "get-api-settings-pricing",
+      "level": 3,
+      "markdown": "Returns the pricing registry snapshot.\n\n- **Request**: none.\n- **Response** `200`: `{ \"providers\": { ... }, \"lastUpdatedIso\": \"2026-01-01T00:00:00.000Z\", \"stale\": false }`. Each provider carries a `sourceType` (`bundled_default` or `official_pricing_page`), a `fetchedAtIso`, a `version`, a `refreshError`, and `rows` of per-model or per-plan pricing in micro-dollars.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 46
+    },
+    {
+      "heading": "POST /api/settings/pricing",
+      "id": "post-api-settings-pricing",
+      "level": 3,
+      "markdown": "Forces a refresh of pricing from the official provider pages.\n\n- **Request**: none.\n- **Response** `200`: the refreshed pricing snapshot (same shape). A per-provider `refreshError` is captured in the snapshot rather than thrown.\n- **Errors**: none returned explicitly.\n- **Side effects**: makes outbound calls to the provider pricing pages and persists the updated registry.",
+      "wordCount": 50
+    },
+    {
+      "heading": "GET /api/settings/providers",
+      "id": "get-api-settings-providers",
+      "level": 3,
+      "markdown": "Returns a consolidated provider configuration and auth overview across Anthropic, OpenAI, and Ollama. It never returns raw API keys.\n\n- **Request**: none.\n- **Response** `200`: a `providers` object (each with `configured`, `authMethod`, `hasKey`, `apiKeySource`, per-runtime states, and provider-specific fields such as OpenAI's `oauthConnected`, `account`, and `login`), an `ollama` block (`configured`, `connected`, `baseUrl`, `defaultModel`), `chatDefaultModel`, `routingPreference`, and `configuredProviderCount`.\n- **Errors**: none returned explicitly.\n- **Side effects**: probes the Ollama connection (cached briefly) and may refresh live OpenAI OAuth state.",
+      "wordCount": 74
+    },
+    {
+      "heading": "GET /api/settings/routing",
+      "id": "get-api-settings-routing",
+      "level": 3,
+      "markdown": "Returns the routing preference.\n\n- **Request**: none.\n- **Response** `200`: `{ \"preference\": \"cost\" }`. One of `cost`, `latency`, `quality`, `manual`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 24
+    },
+    {
+      "heading": "POST /api/settings/routing",
+      "id": "post-api-settings-routing",
+      "level": 3,
+      "markdown": "Sets the routing preference.\n\n- **Request** body (JSON): `{ \"preference\": \"cost\" }`.\n- **Response** `200`: `{ \"preference\": \"cost\" }`.\n- **Errors**: `400` on an invalid value: `{ \"error\": \"preference must be one of: cost, latency, quality, manual\" }`.\n- **Side effects**: writes the preference.",
+      "wordCount": 34
+    },
+    {
+      "heading": "GET /api/settings/runtime",
+      "id": "get-api-settings-runtime",
+      "level": 3,
+      "markdown": "Returns the SDK timeout and max-turns tuning.\n\n- **Request**: none.\n- **Response** `200`: `{ \"sdkTimeoutSeconds\": \"60\", \"maxTurns\": \"10\" }`. Both values are strings.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 27
+    },
+    {
+      "heading": "POST /api/settings/runtime",
+      "id": "post-api-settings-runtime",
+      "level": 3,
+      "markdown": "Updates the runtime tuning.\n\n- **Request** body (JSON), all optional: `sdkTimeoutSeconds` (10 to 300) and `maxTurns` (1 to 50).\n- **Response** `200`: `{ \"sdkTimeoutSeconds\": \"60\", \"maxTurns\": \"10\" }`.\n- **Errors**:\n  - `400` on an out-of-range timeout: `{ \"error\": \"sdkTimeoutSeconds must be between 10 and 300\" }`.\n  - `400` on an out-of-range turn count: `{ \"error\": \"maxTurns must be between 1 and 50\" }`.\n- **Side effects**: writes the tuning as strings.",
+      "wordCount": 59
+    },
+    {
+      "heading": "POST /api/settings/test",
+      "id": "post-api-settings-test",
+      "level": 3,
+      "markdown": "Tests a runtime connection.\n\n- **Request** body (JSON), optional: `{ \"runtime\": \"string\" }`. Defaults to the default runtime.\n- **Response** `200`: the connection result spread with `runtime` and `capabilities`. On failure it still returns `200` with `{ \"connected\": false, \"error\": \"<message>\" }`.\n- **Errors**: none at the HTTP layer.\n- **Side effects**: runs the runtime's live health check, which may spawn a subprocess or call the provider.",
+      "wordCount": 59
+    },
+    {
+      "heading": "GET /api/settings/web-search",
+      "id": "get-api-settings-web-search",
+      "level": 3,
+      "markdown": "Returns the web-search enable flag.\n\n- **Request**: none.\n- **Response** `200`: `{ \"exaSearchEnabled\": false }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 19
+    },
+    {
+      "heading": "POST /api/settings/web-search",
+      "id": "post-api-settings-web-search",
+      "level": 3,
+      "markdown": "Toggles web search.\n\n- **Request** body (JSON): `{ \"exaSearchEnabled\": <boolean> }`.\n- **Response** `200`: `{ \"exaSearchEnabled\": false }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: writes the flag.",
+      "wordCount": 21
+    },
+    {
+      "heading": "GET /api/license",
+      "id": "get-api-license",
+      "level": 3,
+      "markdown": "Lists persisted licenses, each re-verified at read time. It never returns the signed envelope.\n\n- **Request**: none.\n- **Response** `200`: `{ \"licenses\": [ { \"licenseId\": \"string\", \"filePath\": \"string\", \"valid\": true, \"reason\": \"string\", \"issuedTo\": { \"email\": \"string\", \"name\": \"string\", \"org\": \"string\" }, \"issuedAt\": \"2026-01-01T00:00:00.000Z\", \"expiresAt\": \"2027-01-01T00:00:00.000Z\", \"seats\": 1, \"entitlements\": [\"string\"] } ] }`.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\", \"code\": \"store_error\" }`.\n- **Side effects**: reads and verifies license files.",
+      "wordCount": 62
+    },
+    {
+      "heading": "POST /api/license",
+      "id": "post-api-license",
+      "level": 3,
+      "markdown": "Activates a license from a pasted or uploaded envelope.\n\n- **Request** body (JSON): `{ \"envelope\": { \"payload\": <object>, \"signature\": <string> } }`.\n- **Response** `200`: the stored license summary (same shape as a `GET` element, `valid` true, no signature).\n- **Errors**:\n  - `400` when the body is not JSON: `{ \"error\": \"Request body must be JSON.\", \"code\": \"bad_request\" }`.\n  - `400` on a shape mismatch, with `code` `validation_failed`. The message asks for an envelope of `{ payload, signature }` and directs the user to paste the license file from their fulfilment email.\n  - `422` when the license is rejected (for example a signature that does not verify): `{ \"error\": \"<message>\", \"code\": \"license_rejected\" }`.\n  - `500` on any other failure: `{ \"error\": \"<message>\", \"code\": \"store_error\" }`.\n- **Side effects**: verifies the signature and writes the license file with restrictive permissions.",
+      "wordCount": 115
+    },
+    {
+      "heading": "DELETE /api/license/{id}",
+      "id": "delete-api-license-id",
+      "level": 3,
+      "markdown": "Removes one persisted license. Installed packs are left in place.\n\n- **Request**: none.\n- **Response** `200`: `{ \"removed\": true }`.\n- **Errors**:\n  - `404` when no license matches: `{ \"error\": \"No stored license with id \\\"<id>\\\".\", \"code\": \"not_found\" }`.\n  - `500` on failure: `{ \"error\": \"<message>\", \"code\": \"store_error\" }`.\n- **Side effects**: deletes the license file.",
+      "wordCount": 42
+    },
+    {
+      "heading": "GET /api/onboarding/progress",
+      "id": "get-api-onboarding-progress",
+      "level": 3,
+      "markdown": "Returns the six onboarding milestones, computed from database counts.\n\n- **Request**: none.\n- **Response** `200`: `{ \"milestones\": [ { \"id\": \"string\", \"label\": \"string\", \"completed\": false } ], \"completedCount\": 0, \"totalCount\": 6 }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 32
+    },
+    {
+      "heading": "GET /api/instance/config",
+      "id": "get-api-instance-config",
+      "level": 3,
+      "markdown": "Returns the full instance state: config, guardrails, and upgrade state in one payload. Timestamps here are numeric epoch values.\n\n- **Request**: none.\n- **Response** `200`: one of three shapes. In dev mode, `{ \"devMode\": true, \"config\": null, \"guardrails\": null, \"upgrade\": null }`. With no git directory, `{ \"devMode\": false, \"skippedReason\": \"no_git\", \"config\": null, \"guardrails\": null, \"upgrade\": null }`. Otherwise `{ \"devMode\": false, \"config\": { ... }, \"guardrails\": { ... }, \"upgrade\": { ... } }`, where `config` carries `instanceId`, `branchName`, `isPrivateInstance`, and a numeric `createdAt`; `guardrails` carries the pre-push hook state and `consentStatus`; and `upgrade` carries the poll and upgrade-availability state.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 93
+    },
+    {
+      "heading": "GET /api/instance/identity",
+      "id": "get-api-instance-identity",
+      "level": 3,
+      "markdown": "Returns the instance identity: version, active model, and license tag. It never returns license key material.\n\n- **Request**: none.\n- **Response** `200`: `{ \"version\": \"string\", \"activeModel\": \"string\", \"licenseTag\": { \"kind\": \"licensed\", \"label\": \"string\" } }`. `version` is null when the build has no valid version. `activeModel` is null when no runtime resolves. `licenseTag` is either `{ \"kind\": \"licensed\", \"label\": \"string\" }` or `{ \"kind\": \"community\" }`.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 66
+    },
+    {
+      "heading": "POST /api/instance/init",
+      "id": "post-api-instance-init",
+      "level": 3,
+      "markdown": "Re-runs the instance bootstrap. It is idempotent.\n\n- **Request**: none.\n- **Response** `200`: `{ \"ensureResult\": { ... }, \"config\": { ... }, \"guardrails\": { ... }, \"upgrade\": { ... } }`. `ensureResult` reports a possible `skipped` reason and a list of bootstrap steps with `ok`, `skipped`, or `failed` statuses.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: runs bootstrap, which may write git config, install a pre-push hook, repoint branches, fetch, and write instance settings.",
+      "wordCount": 59
+    },
+    {
+      "heading": "POST /api/instance/upgrade",
+      "id": "post-api-instance-upgrade",
+      "level": 3,
+      "markdown": "Starts a background upgrade task using the upgrade-assistant profile.\n\n- **Request**: none.\n- **Response** `202`: `{ \"taskId\": \"string\" }`.\n- **Errors**:\n  - `409` when the instance is not initialized. The error message states that the instance is not yet initialized and to run the instance-init route first.\n  - `409` when no upgrade is available: `{ \"error\": \"No upgrade available\", \"upgradeState\": { ... } }`.\n  - `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: inserts a planned upgrade task, optimistically updates the upgrade state, and runs the task in the background.",
+      "wordCount": 76
+    },
+    {
+      "heading": "POST /api/instance/upgrade/check",
+      "id": "post-api-instance-upgrade-check",
+      "level": 3,
+      "markdown": "Force-runs the upgrade poller, rate-limited by a lock file.\n\n- **Request**: none.\n- **Response**:\n  - `200` when the state was updated: `{ \"ok\": true, \"state\": { ... } }`.\n  - `202` when the check was skipped: `{ \"ok\": false, \"skipped\": \"<reason>\", \"error\": \"<message>\" }`. `skipped` is `in_progress`, `dev_mode_or_no_git`, `lock_held`, or `fetch_failed`; `error` is present only on `fetch_failed`.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: acquires a lock, runs a git fetch, writes the upgrade state, and may create or clear a poll-failure notification.",
+      "wordCount": 68
+    },
+    {
+      "heading": "GET /api/instance/upgrade/status",
+      "id": "get-api-instance-upgrade-status",
+      "level": 3,
+      "markdown": "Returns the current upgrade state for polling.\n\n- **Request**: none.\n- **Response** `200`: in dev mode, a synthetic idle state with `devMode` true; otherwise `{ \"devMode\": false, ...upgradeState }`, with numeric epoch timestamps.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 39
+    },
+    {
+      "heading": "POST /api/environment/rescan-if-stale",
+      "id": "post-api-environment-rescan-if-stale",
+      "level": 3,
+      "markdown": "Triggers a fresh environment scan when the last scan is stale. It is intended for chat-session activation and never returns an error status.\n\n- **Request**: none.\n- **Response** `200`: `{ \"scanned\": false }` when a recent scan already exists, or `{ \"scanned\": true }` when a scan was attempted. A `true` reports that a scan was attempted, not that it succeeded.\n- **Errors**: none surfaced to the client; a scan failure is logged and the route still returns `200`.\n- **Side effects**: runs and persists an environment scan when stale.",
+      "wordCount": 82
+    },
+    {
+      "heading": "GET /api/environment/skills",
+      "id": "get-api-environment-skills",
+      "level": 3,
+      "markdown": "Returns the enriched skill list from the latest persisted environment scan. It reads the cached scan and does not touch the filesystem.\n\n- **Request**: none.\n- **Response** `200`: a JSON array of enriched skills, or an empty array when no scan is persisted. Each skill carries `id`, `name`, `tool`, `scope`, `preview`, `sizeBytes`, `absPath`, a `healthScore` (`healthy`, `stale`, `aging`, `broken`, or `unknown`), a `syncStatus` (`synced`, `claude-only`, `codex-only`, or `shared`), a `linkedProfileId`, and `absPaths`.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 80
+    },
+    {
+      "heading": "Do Not Depend On",
+      "id": "do-not-depend-on",
+      "level": 2,
+      "markdown": "- The exact field set of the glance, providers, and budget snapshots is an internal aggregation and grows over time. Read the fields you need and tolerate new ones.\n- Settings values that are stored as strings (runtime tuning, the learning limit, snapshot settings) are returned as strings even when they represent numbers. Do not assume a numeric JSON type.\n- Instance config, guardrails, and upgrade timestamps are numeric epoch values, unlike the ISO timestamps used by budget, pricing, license, and login responses. Do not mix the two.\n- The runtime-test routes report failure inside a `200` body. Do not treat a non-200 as the only failure signal.\n- No settings, license, or instance route exposes a raw key, token, or license signature; do not build an integration that expects to read one back.",
+      "wordCount": 129
+    }
+  ],
+  "sourceHash": "060aeb84a7583ebbdc85aa8b7a2feca7f848d57208fe9323a021c16aa13fdd76",
+  "sourcePath": "api/reference/06-settings-license-instance.md",
+  "sourceStateHash": "9467b3cd9f3ea25643b4b47cf0c8de80745ee49ff9699be723e09138a5aec5e4",
+  "stability": "admin-local",
+  "summary": "Document local settings, license lifecycle, instance identity, upgrade, environment, and onboarding routes.",
+  "title": "Settings, License, And Instance API"
+}

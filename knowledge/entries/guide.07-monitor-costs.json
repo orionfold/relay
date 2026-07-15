@@ -1,0 +1,384 @@
+{
+  "apiPaths": [],
+  "contentHash": "df36e88eb9038666363c9f2445b45abf813b773a140b733d606c5c051a3943eb",
+  "features": [
+    "Cost and Usage",
+    "Customers and spend attribution",
+    "Dashboard and settings drill-downs",
+    "Monitor",
+    "Runtime selection"
+  ],
+  "id": "guide:07-monitor-costs",
+  "journeys": [
+    "admin-trust",
+    "agency",
+    "smb",
+    "solo-founder"
+  ],
+  "kind": "guide",
+  "productRoutes": [
+    "/",
+    "/chat",
+    "/costs",
+    "/customers",
+    "/monitor",
+    "/settings",
+    "/settings#license",
+    "/settings#runtime",
+    "/tasks"
+  ],
+  "schemaVersion": 1,
+  "screenshots": [
+    {
+      "id": "chat-workspace",
+      "path": "dark/chat/chat-workspace__desktop.png",
+      "productRoute": "/chat",
+      "sha256": "61dfb6e43f51b316df4c88357e9774f957cf1cdea6a0560c6059934eb8ed417d",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "chat-workspace",
+      "path": "dark/chat/chat-workspace__mobile.png",
+      "productRoute": "/chat",
+      "sha256": "6158d7916a9e0507d3e402db137acbc101b57f5e49fc9058e405280d1add4b86",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "costs",
+      "path": "dark/costs/costs__desktop.png",
+      "productRoute": "/costs",
+      "sha256": "064532735001aba3d4053757d0e470c6bd38ea721d9d20387da5b2e9bdde42d6",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "costs",
+      "path": "dark/costs/costs__mobile.png",
+      "productRoute": "/costs",
+      "sha256": "66059a1472c942885467f86e706d3cb31f15329d7bd7eae74fef01d6bd1ff264",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "customers-list",
+      "path": "dark/customers/customers-list__desktop.png",
+      "productRoute": "/customers",
+      "sha256": "6ed081c221f075a01300a1f1ca367add1e8bb92c0b534d49fc8d408480b48645",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "customers-list",
+      "path": "dark/customers/customers-list__mobile.png",
+      "productRoute": "/customers",
+      "sha256": "8df457371dfc7d58ce3be31a73caa185a4bc33b1b1c2a93d098a5dbc58ee7025",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "dark/home/home-cockpit__desktop.png",
+      "productRoute": "/",
+      "sha256": "4863ba6cf5b44394f8e678d0698fbffb04ae13ee62eaa6a4897023fca5f0d885",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "dark/home/home-cockpit__mobile.png",
+      "productRoute": "/",
+      "sha256": "5cc6d08d266d86b442b2fdc31c794d59dc08673676d08f17619a34d81c00cfbf",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "monitor",
+      "path": "dark/monitor/monitor__desktop.png",
+      "productRoute": "/monitor",
+      "sha256": "6fc0033a16d9c050ecac1be7c2f1612a65717f75b0c256338cd57e6b337b1132",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "monitor",
+      "path": "dark/monitor/monitor__mobile.png",
+      "productRoute": "/monitor",
+      "sha256": "91f889887d5119589e49f57407d645559611a0e914fb0ef5a13699d99f2aa093",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-license",
+      "path": "dark/settings/settings-license__desktop.png",
+      "productRoute": "/settings#license",
+      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-license",
+      "path": "dark/settings/settings-license__mobile.png",
+      "productRoute": "/settings#license",
+      "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "dark/settings/settings-runtime__desktop.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "dark/settings/settings-runtime__mobile.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "74d7110d1ba5a3e63aef651e58361aad164fbb316e08ed35d875a8d8ff41c1a3",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-summary",
+      "path": "dark/settings/settings-summary__desktop.png",
+      "productRoute": "/settings",
+      "sha256": "c4a65ffd595941e26bad8b446e7976787ea777462cd8df0ef3bc816083799f3e",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-summary",
+      "path": "dark/settings/settings-summary__mobile.png",
+      "productRoute": "/settings",
+      "sha256": "56d668062a3b9cab9f1394daf175ad4e8e88e357f502b9ed2ade59aebea93b00",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "tasks-board",
+      "path": "dark/tasks/tasks-board__desktop.png",
+      "productRoute": "/tasks",
+      "sha256": "c417c82b16cac7599bd3bcdb2ead7829c836bbe54ebab99bdcfb6ef2d2d6074f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "tasks-board",
+      "path": "dark/tasks/tasks-board__mobile.png",
+      "productRoute": "/tasks",
+      "sha256": "d90cf1e49df41fbc159cc9c1f17aeda54abcc1298f2a196c9e7216e8e69eb0b8",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "chat-workspace",
+      "path": "light/chat/chat-workspace__desktop.png",
+      "productRoute": "/chat",
+      "sha256": "3b8aa9b3b718114248e430b438bf5e46f3513b011a682a81756b467ddc321b37",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "chat-workspace",
+      "path": "light/chat/chat-workspace__mobile.png",
+      "productRoute": "/chat",
+      "sha256": "85888d5ebfbb5591ca5efa56be0a33eb776717bc0419b82c5c2c8400200a711b",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "costs",
+      "path": "light/costs/costs__desktop.png",
+      "productRoute": "/costs",
+      "sha256": "fdc51e83e12e2c256835161e0abe62881d4b433e897ae652204954a1a6c85257",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "costs",
+      "path": "light/costs/costs__mobile.png",
+      "productRoute": "/costs",
+      "sha256": "3811a10e3c36b3520934931fbc8d48d27425140cd8fd687e6c6174e5ca586ea5",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "customers-list",
+      "path": "light/customers/customers-list__desktop.png",
+      "productRoute": "/customers",
+      "sha256": "94857c6407139713d2670482d69e99c089368b04ba2f851d00affa0e9c91e03f",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "customers-list",
+      "path": "light/customers/customers-list__mobile.png",
+      "productRoute": "/customers",
+      "sha256": "d9a1de177cd7eb555ec8d4807d7914fde90fe92a0c2c3ba84c1c46febc7d752e",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "light/home/home-cockpit__desktop.png",
+      "productRoute": "/",
+      "sha256": "af2a9d9388ff64178cfa7d823881bab6223eae209dfb0e761c0dbe607bba99e7",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "home-cockpit",
+      "path": "light/home/home-cockpit__mobile.png",
+      "productRoute": "/",
+      "sha256": "1aa905fce1a571762e5a07be1037967abed30bf2a9b4634b4307a50dd8d2eeb5",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "monitor",
+      "path": "light/monitor/monitor__desktop.png",
+      "productRoute": "/monitor",
+      "sha256": "b748842372e0edf9231a87c1fcd63ab163bfb9d75766d65f02f598a54bc6f65d",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "monitor",
+      "path": "light/monitor/monitor__mobile.png",
+      "productRoute": "/monitor",
+      "sha256": "4c50f002cef2da073508c4c26b3be89fc901e82e64269db4f7a815261233e964",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-license",
+      "path": "light/settings/settings-license__desktop.png",
+      "productRoute": "/settings#license",
+      "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-license",
+      "path": "light/settings/settings-license__mobile.png",
+      "productRoute": "/settings#license",
+      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "light/settings/settings-runtime__desktop.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "e3e4ba5ef17e207de5dc8a4d69860eee24d17b112dd8e2e6c72843b24b97f8ee",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "light/settings/settings-runtime__mobile.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-summary",
+      "path": "light/settings/settings-summary__desktop.png",
+      "productRoute": "/settings",
+      "sha256": "a8626db9367e1186c2cbfbb0e3f463f838bf1f13a44a6bbdf857dc8b8aed1790",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-summary",
+      "path": "light/settings/settings-summary__mobile.png",
+      "productRoute": "/settings",
+      "sha256": "2784383451f5803a9174566ffb67974384530734e89d0b130ab85086b09897a7",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "tasks-board",
+      "path": "light/tasks/tasks-board__desktop.png",
+      "productRoute": "/tasks",
+      "sha256": "6c0e24aae432b64a435be23a2332292349a5c6602eb226631ef46f2a95d23702",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "tasks-board",
+      "path": "light/tasks/tasks-board__mobile.png",
+      "productRoute": "/tasks",
+      "sha256": "e2aeb20f857e53c686e8f15d14e2c8b335c12629654cf80892cf98003b0a57b0",
+      "theme": "light",
+      "viewport": "mobile"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "What This Chapter Helps You Do",
+      "id": "what-this-chapter-helps-you-do",
+      "level": 2,
+      "markdown": "This chapter helps you audit what ran, what it cost, and where to tune runtime choices.",
+      "wordCount": 16
+    },
+    {
+      "heading": "The Operator Story",
+      "id": "the-operator-story",
+      "level": 2,
+      "markdown": "Harbor & Field Advisors asks Northstar for a renewal analysis. The workflow starts, a research task runs, and one step fails before synthesis because a demo budget threshold is reached. Maya now has a choice. She can rerun the task and hope, or she can inspect what happened.\n\nGood operators inspect first. They need to know which runtime was used, what failed, whether the work was local-free or metered, and which customer or project should carry the cost. Relay has two main surfaces for this habit: Monitor and Cost & Usage. Cost & Usage sits under the Observe section in the top navigation. This guide calls it the cost view for short.\n\nThe purpose is not accounting theater. The purpose is to make agent work explainable enough for a small business.",
+      "wordCount": 128
+    },
+    {
+      "heading": "What This Part Of Relay Is For",
+      "id": "what-this-part-of-relay-is-for",
+      "level": 2,
+      "markdown": "Relay work should leave a trail. Monitor helps you inspect runs, activity, and failures. Costs helps you separate plan price, budget cap, local-free usage, and metered spend. Customer and project attribution help you understand who the work belonged to.\n\nThese screens matter before you rerun failed work or raise a budget. A failed provider call, a waiting approval, and a budget stop all require different next actions. If you cannot tell which one happened, you are guessing.\n\nRuntime selection also belongs in this chapter because model path affects cost and behavior. A local path, a direct provider path, and an SDK-backed runtime should not be treated as the same operational event.\n\nThe cost screen is also where Relay has to be honest about limits. A plan price is not the same as a budget cap. A budget cap is not the same as metered usage. Local-free usage is not the same as free provider usage. The guide uses these plain distinctions because they are the words an operator needs when a client asks, \"What did this run cost us?\"",
+      "wordCount": 179
+    },
+    {
+      "heading": "Walk The Screen Like An Operator",
+      "id": "walk-the-screen-like-an-operator",
+      "level": 2,
+      "markdown": "Open **Monitor** after a task, workflow, or chat-backed action runs.\n\nWhat you should notice:\n\n- Run rows or activity entries.\n- Runtime or provider identity where Relay has it.\n- Failure context when a run did not complete.\n\n[Figure: Monitor screen for run state and failures]\n\nMonitor is the place to slow down. Read the latest run before clicking Re-run. Look for status, runtime, failure text, and the related task or workflow. A visible error is better than a quiet miss. If the generator threw, the failure should be visible enough to start diagnosis.\n\nNext, compare that with the task board. Tasks show the operator-facing state of work.\n\n[Figure: Task board showing visible work states]\n\nThe task board helps you avoid mixing up states. Failed work needs diagnosis. Waiting work needs a person. Running work needs patience or a Stop decision. Completed work needs review. Relay should not imply that active rows are live if their child tasks are stale.",
+      "wordCount": 157
+    },
+    {
+      "heading": "Run The Work Carefully",
+      "id": "run-the-work-carefully",
+      "level": 2,
+      "markdown": "Open **Cost & Usage** from the Observe section. Read spend by provider, model, customer, or project where the data is available.\n\nWhat you should see:\n\n- Spend and usage signals.\n- Local-free usage separated from metered usage.\n- Customer or project attribution where runs are linked.\n- Budget context that does not confuse plan price with actual usage.\n\n[Figure: Costs screen with usage, spend, and budget signals]\n\nCosts is not only for finance. It is an operating screen. It helps an agency understand margin, a founder understand burn, and an admin explain why a budget limit stopped work. Read actual metered usage separately from plan price and budget cap.\n\nIf runtime choice looks wrong, open Runtime settings.\n\n[Figure: Runtime settings for provider and model choices]\n\nRuntime settings are the upstream control. If a run used the wrong path, the fix may not be in Costs. It may be in model preference, provider configuration, or a more specific runtime pin.\n\nA careful review links three screens. Monitor tells you what happened. Tasks or Workflows tell you what business item changed. Costs tells you what usage was recorded. If those three screens disagree, treat that as a signal. Do not hide it in a report.",
+      "wordCount": 198
+    },
+    {
+      "heading": "What To Do When The State Looks Wrong",
+      "id": "what-to-do-when-the-state-looks-wrong",
+      "level": 2,
+      "markdown": "If a run is missing from Monitor, check the task or workflow detail first. The work may have been created but not started.\n\nIf spend is not attributed to a customer, check whether the run was linked to a customer or project. Missing attribution is not always a bug, but it weakens review.\n\nIf local-free usage is not shown as expected, confirm the runtime path in Settings. Do not assume a model name proves the execution path.\n\nIf a task failed, keep the error text. A named failure can be fixed. A vague memory of a failure cannot.\n\nIf costs look high, do not raise a budget immediately. First ask which customer, project, runtime, and workflow produced the spend.\n\nIf a cost row shows blocked or failed work, read it as part of the story. A failed run can still have usage. A blocked run can still teach you that a limit worked. The point of Costs is not only to count success. It is to show the cost of attempts, stops, and retries too.",
+      "wordCount": 175
+    },
+    {
+      "heading": "What This Changes In Daily Work",
+      "id": "what-this-changes-in-daily-work",
+      "level": 2,
+      "markdown": "The daily habit is to audit before repeating. When work fails, inspect Monitor. When spend matters, inspect Costs. When the path looks wrong, inspect Runtime.\n\nFor an agency, this makes client margin visible. For an SMB, it keeps recurring automation from becoming a mystery bill. For a solo founder, it helps choose when to use local paths and when to pay for a provider path.\n\nRelay is most useful when work has a trail. The trail lets you explain decisions later.\n\nThat trail also improves future planning. When a workflow is costly, you can decide to use a local path for drafts and a paid provider path for final review. When a customer consumes more work than expected, you can revisit scope. When a failed task repeats, you can fix the workflow instead of paying for the same mistake again.",
+      "wordCount": 140
+    },
+    {
+      "heading": "Where To Go Next",
+      "id": "where-to-go-next",
+      "level": 2,
+      "markdown": "Next, read **Build And Publish A Small Website** if your work includes web pages or publishing.",
+      "wordCount": 16
+    }
+  ],
+  "sourceHash": "92f4ceaa250b5cd917878b46786f47c6710d94e920fdba704672099a8d348a74",
+  "sourcePath": "docs/guides/07-watch-runs-costs-and-budget-signals.md",
+  "sourceStateHash": "767f6d2356d8161bf9b67879e1357c7a38a6b5a17c9d075d7c5f688e58a7a7be",
+  "summary": "Teach the reader how to audit what ran, what it cost, and where to tune the setup.",
+  "title": "Watch Runs, Costs, And Budget Signals"
+}

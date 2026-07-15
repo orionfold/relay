@@ -1,0 +1,409 @@
+{
+  "apiPaths": [
+    "/api/agents",
+    "/api/agents/{id}",
+    "/api/agents/{id}/context",
+    "/api/agents/{id}/test",
+    "/api/agents/{id}/test-results",
+    "/api/agents/{id}/test-single",
+    "/api/agents/assist",
+    "/api/agents/import",
+    "/api/agents/import-repo",
+    "/api/agents/import-repo/apply-updates",
+    "/api/agents/import-repo/check-updates",
+    "/api/agents/import-repo/confirm",
+    "/api/agents/import-repo/preview",
+    "/api/agents/import-repo/scan",
+    "/api/chat/branching/flag",
+    "/api/chat/conversations",
+    "/api/chat/conversations/{id}",
+    "/api/chat/conversations/{id}/branches",
+    "/api/chat/conversations/{id}/messages",
+    "/api/chat/conversations/{id}/redo",
+    "/api/chat/conversations/{id}/respond",
+    "/api/chat/conversations/{id}/rewind",
+    "/api/chat/conversations/{id}/skills/activate",
+    "/api/chat/conversations/{id}/skills/deactivate",
+    "/api/chat/entities/search",
+    "/api/chat/export",
+    "/api/chat/files/search",
+    "/api/chat/models",
+    "/api/chat/suggested-prompts",
+    "/api/runtimes/ollama",
+    "/api/runtimes/openai-compatible/{runtimeId}",
+    "/api/runtimes/suggest"
+  ],
+  "contentHash": "e82cee30e512efa8b955c86b570a2aa7450043642b16a6558f426712a5bdda1e",
+  "features": [],
+  "id": "api:03-agents-chat-runtimes",
+  "journeys": [],
+  "kind": "api",
+  "productRoutes": [],
+  "schemaVersion": 1,
+  "screenshots": [],
+  "sections": [
+    {
+      "heading": "Who This Is For",
+      "id": "who-this-is-for",
+      "level": 2,
+      "markdown": "This group is for a developer working with the agents that do the work, the chat surface that talks to them, and the runtimes that back them. It covers agent profiles and importing them from GitHub, chat conversations with their streaming responses and branching, per-conversation skill composition, and runtime discovery for local Ollama and model routing. Read this if you are creating or testing agent profiles, driving a chat turn programmatically, or building on the streaming message contract.",
+      "wordCount": 78
+    },
+    {
+      "heading": "Stability",
+      "id": "stability",
+      "level": 2,
+      "markdown": "`app-internal`\n\nThese routes power the Relay web app. They are documented so you can build against a local instance, but their request and response shapes are tied to the app's own screens and may change between releases. Branch on HTTP status codes rather than on the internal structure of an error body, and treat every response field as additive.",
+      "wordCount": 59
+    },
+    {
+      "heading": "Local Access Model",
+      "id": "local-access-model",
+      "level": 2,
+      "markdown": "Relay API routes run inside the local Relay app. Use `http://127.0.0.1:<port>` in examples, where `<port>` is the port your instance is bound to (3000 by default).\n\nDo not expose these routes on a public network without your own access controls. The agent routes read and write agent files on disk, the chat routes read and write the local SQLite database, and the runtime routes reach out to local model servers.",
+      "wordCount": 75
+    },
+    {
+      "heading": "Conventions For This Group",
+      "id": "conventions-for-this-group",
+      "level": 2,
+      "markdown": "These behaviors hold across the routes below, so they are stated once here rather than repeated per endpoint:\n\n- **Agent profiles are files, not rows.** A profile lives on disk as an `agent.yaml` config plus a `SKILL.md` body, under the local skills directory. Creating, updating, or deleting a profile writes or removes those files; it does not touch a database table. Built-in profiles ship with Relay and are read-only. Learned context, test results, and repo-import records do use the database.\n- **Timestamps.** `createdAt`, `updatedAt`, and similar fields serialize to ISO date strings on the wire.\n- **Malformed request bodies.** Most write routes read the JSON body without a guard. A malformed or empty body throws before validation and surfaces as an unhandled `500`, not a structured `400`. The exceptions are noted per route (for example, skill activation returns a `400` for invalid JSON).\n- **Runtime ids.** Where a route names a runtime, the value is one of `claude-code`, `openai-codex-app-server`, `anthropic-direct`, `openai-direct`, `ollama`. Chat conversation creation accepts a narrower set, noted at that route.",
+      "wordCount": 171
+    },
+    {
+      "heading": "Endpoint Families",
+      "id": "endpoint-families",
+      "level": 2,
+      "markdown": "- `agents`\n- `chat`\n- `runtimes`",
+      "wordCount": 3
+    },
+    {
+      "heading": "Endpoints",
+      "id": "endpoints",
+      "level": 2,
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `GET`, `POST` | `/api/agents` | `app-internal` | `src/app/api/agents/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/agents/{id}` | `app-internal` | `src/app/api/agents/[id]/route.ts` |\n| `GET`, `PATCH`, `POST` | `/api/agents/{id}/context` | `app-internal` | `src/app/api/agents/[id]/context/route.ts` |\n| `POST` | `/api/agents/{id}/test` | `app-internal` | `src/app/api/agents/[id]/test/route.ts` |\n| `GET` | `/api/agents/{id}/test-results` | `app-internal` | `src/app/api/agents/[id]/test-results/route.ts` |\n| `POST` | `/api/agents/{id}/test-single` | `app-internal` | `src/app/api/agents/[id]/test-single/route.ts` |\n| `POST` | `/api/agents/assist` | `app-internal` | `src/app/api/agents/assist/route.ts` |\n| `POST` | `/api/agents/import` | `app-internal` | `src/app/api/agents/import/route.ts` |\n| `GET` | `/api/agents/import-repo` | `app-internal` | `src/app/api/agents/import-repo/route.ts` |\n| `POST` | `/api/agents/import-repo/apply-updates` | `app-internal` | `src/app/api/agents/import-repo/apply-updates/route.ts` |\n| `POST` | `/api/agents/import-repo/check-updates` | `app-internal` | `src/app/api/agents/import-repo/check-updates/route.ts` |\n| `POST` | `/api/agents/import-repo/confirm` | `app-internal` | `src/app/api/agents/import-repo/confirm/route.ts` |\n| `POST` | `/api/agents/import-repo/preview` | `app-internal` | `src/app/api/agents/import-repo/preview/route.ts` |\n| `POST` | `/api/agents/import-repo/scan` | `app-internal` | `src/app/api/agents/import-repo/scan/route.ts` |\n| `GET` | `/api/chat/branching/flag` | `app-internal` | `src/app/api/chat/branching/flag/route.ts` |\n| `GET`, `POST` | `/api/chat/conversations` | `app-internal` | `src/app/api/chat/conversations/route.ts` |\n| `DELETE`, `GET`, `PATCH` | `/api/chat/conversations/{id}` | `app-internal` | `src/app/api/chat/conversations/[id]/route.ts` |\n| `GET` | `/api/chat/conversations/{id}/branches` | `app-internal` | `src/app/api/chat/conversations/[id]/branches/route.ts` |\n| `GET`, `POST` | `/api/chat/conversations/{id}/messages` | `app-internal` | `src/app/api/chat/conversations/[id]/messages/route.ts` |\n| `POST` | `/api/chat/conversations/{id}/redo` | `app-internal` | `src/app/api/chat/conversations/[id]/redo/route.ts` |\n| `POST` | `/api/chat/conversations/{id}/respond` | `app-internal` | `src/app/api/chat/conversations/[id]/respond/route.ts` |\n| `POST` | `/api/chat/conversations/{id}/rewind` | `app-internal` | `src/app/api/chat/conversations/[id]/rewind/route.ts` |\n| `POST` | `/api/chat/conversations/{id}/skills/activate` | `app-internal` | `src/app/api/chat/conversations/[id]/skills/activate/route.ts` |\n| `POST` | `/api/chat/conversations/{id}/skills/deactivate` | `app-internal` | `src/app/api/chat/conversations/[id]/skills/deactivate/route.ts` |\n| `GET` | `/api/chat/entities/search` | `app-internal` | `src/app/api/chat/entities/search/route.ts` |\n| `POST` | `/api/chat/export` | `app-internal` | `src/app/api/chat/export/route.ts` |\n| `GET` | `/api/chat/files/search` | `app-internal` | `src/app/api/chat/files/search/route.ts` |\n| `GET` | `/api/chat/models` | `app-internal` | `src/app/api/chat/models/route.ts` |\n| `GET` | `/api/chat/suggested-prompts` | `app-internal` | `src/app/api/chat/suggested-prompts/route.ts` |\n| `GET`, `POST` | `/api/runtimes/ollama` | `app-internal` | `src/app/api/runtimes/ollama/route.ts` |\n| `GET` | `/api/runtimes/openai-compatible/{runtimeId}` | `app-internal` | `src/app/api/runtimes/openai-compatible/[runtimeId]/route.ts` |\n| `POST` | `/api/runtimes/suggest` | `app-internal` | `src/app/api/runtimes/suggest/route.ts` |",
+      "wordCount": 457
+    },
+    {
+      "heading": "Endpoint Reference",
+      "id": "endpoint-reference",
+      "level": 2,
+      "markdown": "",
+      "wordCount": 0
+    },
+    {
+      "heading": "GET /api/agents",
+      "id": "get-api-agents",
+      "level": 3,
+      "markdown": "Lists agent profiles. By default this returns your own profiles plus the built-ins.\n\n- **Request** query parameters, both optional:\n\n| Parameter | Type | Notes |\n|---|---|---|\n| `scope` | `string` | `project` returns only project-scoped profiles; `all` returns built-in, user, and project profiles; any other value returns user plus built-in. |\n| `projectId` | `string` | Required to resolve project-scoped profiles. |\n\n- **Response** `200`: a JSON array of profiles, ordered by name. Each element includes `id`, `name`, `description`, `domain`, `tags`, `skillMd`, `supportedRuntimes`, `isBuiltin`, `scope`, `readOnly`, and the optional config fields (`allowedTools`, `mcpServers`, `canUseToolPolicy`, `maxTurns`, `outputFormat`, `version`, `author`, `source`, `tests`, `importMeta`, `runtimeOverrides`). A `project` scope with no resolvable project directory returns an empty array.\n- **Errors**: none returned explicitly. A database or filesystem failure propagates unhandled.\n- **Side effects**: reads only. On first load, built-in profiles are copied into the local skills directory.",
+      "wordCount": 127
+    },
+    {
+      "heading": "POST /api/agents",
+      "id": "post-api-agents",
+      "level": 3,
+      "markdown": "Creates a custom profile on disk from a config and a `SKILL.md` body.\n\n- **Request** body (JSON): the profile config fields at the top level, with `skillMd` alongside them.\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `id` | `string` | yes | Non-empty. Must be unique. |\n| `name` | `string` | yes | Non-empty. |\n| `version` | `string` | yes | Semantic version, `MAJOR.MINOR.PATCH`. |\n| `domain` | `\"work\" \\| \"personal\"` | yes | |\n| `tags` | `string[]` | yes | |\n| `skillMd` | `string` | no | The skill body. Defaults to empty. |\n| `allowedTools` | `string[]` | no | |\n| `mcpServers` | object | no | |\n| `canUseToolPolicy` | object | no | `{ autoApprove?, autoDeny? }`. |\n| `hooks` | object | no | `{ preToolCall?, postToolCall? }`. |\n| `maxTurns` | `number` | no | Positive. |\n| `outputFormat` | `string` | no | |\n| `author` | `string` | no | |\n| `source` | `string` | no | A URL. |\n| `tests` | array | no | `{ task, expectedKeywords }` entries. |\n| `supportedRuntimes` | `string[]` | no | Runtime ids. |\n| `preferredRuntime` | `string` | no | A runtime id. |\n| `runtimeOverrides` | object | no | Per-runtime overrides. |\n| `capabilityOverrides` | object | no | Per-runtime capability overrides. |\n\n- **Response** `201`: `{ \"ok\": true }`.\n- **Errors**:\n  - `400` on validation failure: `{ \"error\": \"<joined issue messages>\" }`.\n  - `400` on any other failure, including a duplicate id: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Failed to create profile\" }`.\n- **Side effects**: writes `agent.yaml` and `SKILL.md` for the new profile and reloads the profile registry.",
+      "wordCount": 174
+    },
+    {
+      "heading": "GET /api/agents/{id}",
+      "id": "get-api-agents-id",
+      "level": 3,
+      "markdown": "Fetches one profile by id.\n\n- **Request**: none.\n- **Response** `200`: the full profile object, including `skillMd`, `supportedRuntimes`, `isBuiltin`, `scope`, and `readOnly`.\n- **Errors**: `404` when not found: `{ \"error\": \"Profile not found\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 33
+    },
+    {
+      "heading": "PUT /api/agents/{id}",
+      "id": "put-api-agents-id",
+      "level": 3,
+      "markdown": "Updates a custom profile's config and `SKILL.md`. Project-scoped and built-in profiles are read-only.\n\n- **Request** body (JSON): the same shape as `POST /api/agents`.\n- **Response** `200`: `{ \"ok\": true }`.\n- **Errors**:\n  - `403` when the profile is project-scoped or read-only: `{ \"error\": \"Project-scoped profiles are read-only. Edit them in your project's .claude/skills/ directory.\" }`.\n  - `403` when the profile is built-in: `{ \"error\": \"Cannot modify built-in profiles\" }`.\n  - `400` on validation failure: `{ \"error\": \"<joined issue messages>\" }`.\n  - `400` on any other failure, including an unknown id: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Failed to update profile\" }`.\n- **Side effects**: overwrites the profile's `agent.yaml` and `SKILL.md` and reloads the registry.",
+      "wordCount": 100
+    },
+    {
+      "heading": "DELETE /api/agents/{id}",
+      "id": "delete-api-agents-id",
+      "level": 3,
+      "markdown": "Deletes a custom profile's directory from disk. Project-scoped and built-in profiles cannot be deleted.\n\n- **Request**: none.\n- **Response** `200`: `{ \"ok\": true }`.\n- **Errors**:\n  - `403` when the profile is project-scoped or read-only: `{ \"error\": \"Project-scoped profiles are read-only. Edit them in your project's .claude/skills/ directory.\" }`.\n  - `403` when the profile is built-in: `{ \"error\": \"Cannot delete built-in profiles\" }`.\n  - `400` on any other failure, including an unknown id: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Failed to delete profile\" }`.\n- **Side effects**: removes the profile directory and reloads the registry.",
+      "wordCount": 80
+    },
+    {
+      "heading": "GET /api/agents/{id}/context",
+      "id": "get-api-agents-id-context",
+      "level": 3,
+      "markdown": "Returns a profile's learned-context version history plus its current size.\n\n- **Request**: none.\n- **Response** `200`:\n  ```json\n  {\n    \"history\": [\n      {\n        \"id\": \"string\",\n        \"profileId\": \"string\",\n        \"version\": 1,\n        \"content\": \"string | null\",\n        \"diff\": \"string | null\",\n        \"changeType\": \"approved\",\n        \"sourceTaskId\": \"string | null\",\n        \"proposalNotificationId\": \"string | null\",\n        \"proposedAdditions\": \"string | null\",\n        \"approvedBy\": \"string | null\",\n        \"createdAt\": \"string\"\n      }\n    ],\n    \"currentSize\": 0,\n    \"limit\": 0,\n    \"needsSummarization\": false\n  }\n  ```\n  `changeType` is one of `proposal`, `approved`, `rejected`, `rollback`, `summarization`. `history` is ordered newest version first.\n- **Errors**: none returned explicitly. A database failure propagates unhandled.\n- **Side effects**: reads only.",
+      "wordCount": 78
+    },
+    {
+      "heading": "POST /api/agents/{id}/context",
+      "id": "post-api-agents-id-context",
+      "level": 3,
+      "markdown": "Appends learned context directly, bypassing the proposal flow. The addition is recorded as approved.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `additions` | `string` | yes | Non-empty. |\n\n- **Response** `200`: `{ \"ok\": true }`.\n- **Errors**: `400` when `additions` is missing or blank: `{ \"error\": \"additions is required\" }`.\n- **Side effects**: inserts an approved learned-context version. When the merged content exceeds the summarization threshold, it also runs a model to summarize and records a summarization version.",
+      "wordCount": 68
+    },
+    {
+      "heading": "PATCH /api/agents/{id}/context",
+      "id": "patch-api-agents-id-context",
+      "level": 3,
+      "markdown": "Approves or rejects a context proposal, or rolls back to a prior version.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `action` | `string` | yes | One of `approve`, `reject`, `rollback`. |\n| `notificationId` | `string` | for `approve` and `reject` | The proposal to act on. |\n| `targetVersion` | `number` | for `rollback` | The version to roll back to. |\n| `editedContent` | `string` | no | An optional override applied on approve. |\n\n- **Response** `200`: `{ \"ok\": true }`.\n- **Errors**:\n  - `400` when `action` is missing: `{ \"error\": \"action is required (approve | reject | rollback)\" }`.\n  - `400` when a required id or version for the action is missing: `{ \"error\": \"notificationId is required for approve\" }`, the same for `reject`, or `{ \"error\": \"targetVersion is required for rollback\" }`.\n  - `400` on an unknown action: `{ \"error\": \"Unknown action: <action>\" }`.\n  - `400` on any failure inside the action, such as a missing proposal or version: `{ \"error\": \"<message>\" }`.\n- **Side effects**: on approve, records an approved version, updates the proposal notification, and may summarize. On reject, records a rejected version and updates the notification. On rollback, records a rollback version.",
+      "wordCount": 160
+    },
+    {
+      "heading": "POST /api/agents/{id}/test",
+      "id": "post-api-agents-id-test",
+      "level": 3,
+      "markdown": "Runs a profile's full behavioral test suite on a runtime and stores the report.\n\n- **Request** body (JSON), optional:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `runtimeId` | `string` | no | Defaults to `claude-code`. An unknown value falls back to the default rather than erroring. |\n\n- **Response** `200`:\n  ```json\n  {\n    \"profileId\": \"string\",\n    \"profileName\": \"string\",\n    \"runtimeId\": \"claude-code\",\n    \"results\": [\n      { \"task\": \"string\", \"expectedKeywords\": [\"string\"], \"foundKeywords\": [\"string\"], \"missingKeywords\": [\"string\"], \"passed\": true }\n    ],\n    \"totalPassed\": 0,\n    \"totalFailed\": 0,\n    \"unsupported\": false,\n    \"unsupportedReason\": \"string\"\n  }\n  ```\n  `unsupported` and `unsupportedReason` appear when the runtime cannot run the suite.\n- **Errors**:\n  - `429` when a budget guardrail blocks the run: `{ \"error\": \"<message>\" }`.\n  - `400` on any other failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Test execution failed\" }`.\n- **Side effects**: runs the profile's tests live against the runtime, which uses model calls and records usage. When the suite is supported, replaces the stored test report for that profile and runtime.",
+      "wordCount": 133
+    },
+    {
+      "heading": "GET /api/agents/{id}/test-results",
+      "id": "get-api-agents-id-test-results",
+      "level": 3,
+      "markdown": "Returns the most recent stored test report for a profile and runtime.\n\n- **Request** query parameter:\n\n| Parameter | Type | Notes |\n|---|---|---|\n| `runtimeId` | `string` | Defaults to `claude-code`. |\n\n- **Response** `200`: a test report, the same shape as the `POST /api/agents/{id}/test` response.\n- **Errors**: `404` with a `null` body when no report is stored.\n- **Side effects**: reads only.",
+      "wordCount": 54
+    },
+    {
+      "heading": "POST /api/agents/{id}/test-single",
+      "id": "post-api-agents-id-test-single",
+      "level": 3,
+      "markdown": "Runs a single test case from a profile's suite, for per-test progress.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `testIndex` | `number` | yes | The index of the test to run. |\n| `runtimeId` | `string` | no | Defaults to `claude-code`. |\n\n- **Response** `200`: a single test result:\n  ```json\n  { \"task\": \"string\", \"expectedKeywords\": [\"string\"], \"foundKeywords\": [\"string\"], \"missingKeywords\": [\"string\"], \"passed\": true }\n  ```\n- **Errors**:\n  - `404` when the profile is not found: `{ \"error\": \"Profile not found\" }`.\n  - `400` when the test index is out of range or the runtime is unsupported: `{ \"error\": \"Invalid test index or unsupported runtime\" }`.\n  - `429` when a budget guardrail blocks the run: `{ \"error\": \"<message>\" }`.\n  - `400` on any other failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Test execution failed\" }`.\n- **Side effects**: runs one test live against the runtime. The single-test route does not store a report.",
+      "wordCount": 124
+    },
+    {
+      "heading": "POST /api/agents/assist",
+      "id": "post-api-agents-assist",
+      "level": 3,
+      "markdown": "Drafts or refines an agent profile from a natural-language goal: it can generate a new `SKILL.md`, refine an existing one, or suggest tests. It calls a model before responding.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `goal` | `string` | yes | Non-empty. |\n| `domain` | `\"work\" \\| \"personal\"` | no | |\n| `mode` | `string` | no | One of `generate`, `refine-skillmd`, `suggest-tests`. Defaults to `generate`. |\n| `existingSkillMd` | `string` | no | For the refine and suggest-tests modes. |\n| `existingTags` | `string[]` | no | |\n\n- **Response** `200`:\n  ```json\n  {\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"domain\": \"work\",\n    \"tags\": [\"string\"],\n    \"skillMd\": \"string\",\n    \"allowedTools\": [\"string\"],\n    \"canUseToolPolicy\": { \"autoApprove\": [\"string\"], \"autoDeny\": [\"string\"] },\n    \"maxTurns\": 0,\n    \"outputFormat\": \"string\",\n    \"supportedRuntimes\": [\"string\"],\n    \"tests\": [ { \"task\": \"string\", \"expectedKeywords\": [\"string\"] } ],\n    \"reasoning\": \"string\"\n  }\n  ```\n- **Errors**:\n  - `400` when `goal` is missing or blank: `{ \"error\": \"Provide a goal description\" }`.\n  - `429` when a budget guardrail blocks the call: `{ \"error\": \"<message>\" }`.\n  - `500` on any other failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Profile assist failed\" }`.\n- **Side effects**: runs a model to produce the draft. It does not write a profile.",
+      "wordCount": 151
+    },
+    {
+      "heading": "POST /api/agents/import",
+      "id": "post-api-agents-import",
+      "level": 3,
+      "markdown": "Imports a single profile from a GitHub URL, fetching its `profile.yaml` and adjacent `SKILL.md`.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `url` | `string` | yes | A `github.com` or `raw.githubusercontent.com` URL. |\n\n- **Response** `201`: `{ \"ok\": true, \"id\": \"string\", \"name\": \"string\" }`.\n- **Errors**:\n  - `400` when `url` is missing: `{ \"error\": \"url is required\" }`.\n  - `400` when the URL is not a GitHub URL: `{ \"error\": \"Only GitHub URLs are supported (github.com or raw.githubusercontent.com)\" }`.\n  - `400` when the `profile.yaml` cannot be fetched: `{ \"error\": \"Failed to fetch profile.yaml: <status>\" }`.\n  - `400` when the `profile.yaml` is invalid: `{ \"error\": \"Invalid profile.yaml: <issues>\" }`.\n  - `400` on any other failure, including a duplicate id: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Import failed\" }`.\n- **Side effects**: fetches from GitHub and writes a new profile on disk. A missing `SKILL.md` is tolerated; the profile is created with an empty body.",
+      "wordCount": 141
+    },
+    {
+      "heading": "GET /api/agents/import-repo",
+      "id": "get-api-agents-import-repo",
+      "level": 3,
+      "markdown": "Lists all recorded repository imports, newest first.\n\n- **Request**: none.\n- **Response** `200`: a JSON array:\n  ```json\n  [\n    {\n      \"id\": \"string\",\n      \"repoUrl\": \"string\",\n      \"repoOwner\": \"string\",\n      \"repoName\": \"string\",\n      \"branch\": \"string\",\n      \"commitSha\": \"string\",\n      \"profileIds\": [\"string\"],\n      \"skillCount\": 0,\n      \"lastCheckedAt\": \"number | null\",\n      \"createdAt\": \"number\"\n    }\n  ]\n  ```\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Failed to list repo imports\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 53
+    },
+    {
+      "heading": "POST /api/agents/import-repo/scan",
+      "id": "post-api-agents-import-repo-scan",
+      "level": 3,
+      "markdown": "Scans a GitHub repository to discover importable skills.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `url` | `string` | yes | The repository URL. |\n\n- **Response** `200`:\n  ```json\n  {\n    \"owner\": \"string\",\n    \"repo\": \"string\",\n    \"branch\": \"string\",\n    \"commitSha\": \"string\",\n    \"discoveredSkills\": [\n      { \"name\": \"string\", \"path\": \"string\", \"format\": \"ainative\", \"hasProfileYaml\": true, \"hasSkillMd\": true, \"hasSkillMdTmpl\": false, \"hasReadme\": true, \"description\": \"string\", \"frontmatter\": {} }\n    ],\n    \"repoReadme\": \"string\",\n    \"scanDurationMs\": 0\n  }\n  ```\n  `format` is one of `ainative`, `skillmd-only`, `unknown`.\n- **Errors**:\n  - `400` when `url` is missing: `{ \"error\": \"url is required\" }`.\n  - `400` on any other failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Scan failed\" }`.\n- **Side effects**: reads the repository over the GitHub API. No writes.",
+      "wordCount": 93
+    },
+    {
+      "heading": "POST /api/agents/import-repo/preview",
+      "id": "post-api-agents-import-repo-preview",
+      "level": 3,
+      "markdown": "Fetches the selected skills' content, adapts their format, and checks each against existing profiles for duplicates.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `owner` | `string` | yes | |\n| `repo` | `string` | yes | |\n| `branch` | `string` | yes | |\n| `skills` | array | yes | The discovered skills to preview. Non-empty. |\n| `commitSha` | `string` | no | |\n| `repoUrl` | `string` | no | |\n| `repoReadme` | `string` | no | Enrichment context. |\n\n- **Response** `200`: `{ \"previews\": [ ... ] }`. Each preview is a success shape (`skill`, `config`, `skillMd`, `dedup`, `error: null`) or a per-skill failure shape (`config: null`, `skillMd: null`, `dedup: null`, `error: \"<message>\"`).\n- **Errors**:\n  - `400` when a required field is missing: `{ \"error\": \"Missing required fields\" }`.\n  - `400` on any other failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Preview failed\" }`.\n- **Side effects**: fetches each skill from GitHub and reads existing profiles. No writes.",
+      "wordCount": 116
+    },
+    {
+      "heading": "POST /api/agents/import-repo/confirm",
+      "id": "post-api-agents-import-repo-confirm",
+      "level": 3,
+      "markdown": "Runs a batch import (create, replace, or skip per item) and records the repository import.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `repoUrl` | `string` | yes | |\n| `imports` | array | yes | `{ config, skillMd, action }` entries where `action` is `import`, `replace`, or `skip`. Non-empty. |\n| `owner` | `string` | no | Recorded on the import. |\n| `repo` | `string` | no | Recorded on the import. |\n| `branch` | `string` | no | Recorded on the import. |\n| `commitSha` | `string` | no | Recorded on the import. |\n\n- **Response** `201`:\n  ```json\n  { \"ok\": true, \"imported\": 0, \"replaced\": 0, \"skipped\": 0, \"profileIds\": [\"string\"], \"errors\": [\"string\"] }\n  ```\n  `errors` is present only when at least one item failed; per-item failures do not fail the request.\n- **Errors**:\n  - `400` when a required field is missing: `{ \"error\": \"Missing required fields\" }`.\n  - `400` on any other failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Import failed\" }`.\n- **Side effects**: writes profiles on disk (creating or replacing per item) and reloads the registry. When any profile succeeded, records one repository-import row.",
+      "wordCount": 146
+    },
+    {
+      "heading": "POST /api/agents/import-repo/check-updates",
+      "id": "post-api-agents-import-repo-check-updates",
+      "level": 3,
+      "markdown": "Checks whether imported profiles have newer content in their source repositories.\n\n- **Request** body (JSON), provide one selector:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `repoImportId` | `string` | one of | Checks all profiles in that recorded import. |\n| `profileId` | `string` | one of | Checks a single imported profile. |\n\n- **Response** `200`:\n  ```json\n  {\n    \"hasUpdates\": false,\n    \"updates\": [\n      { \"profileId\": \"string\", \"profileName\": \"string\", \"localHash\": \"string\", \"remoteHash\": \"string\", \"hasUpdate\": false }\n    ]\n  }\n  ```\n  A `remoteHash` of `unknown` or `fetch-error` means the source could not be read, and `hasUpdate` is `false` for that entry.\n- **Errors**:\n  - `404` when a `repoImportId` is not found: `{ \"error\": \"Repo import not found\" }`.\n  - `400` when a `profileId` has no import metadata: `{ \"error\": \"Profile has no import metadata\" }`.\n  - `400` when neither selector is provided: `{ \"error\": \"Provide repoImportId or profileId\" }`.\n  - `400` on any other failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Update check failed\" }`.\n- **Side effects**: reads the source repositories over the GitHub API. When a `repoImportId` is given, updates that import's last-checked time.",
+      "wordCount": 147
+    },
+    {
+      "heading": "POST /api/agents/import-repo/apply-updates",
+      "id": "post-api-agents-import-repo-apply-updates",
+      "level": 3,
+      "markdown": "Re-fetches and applies accepted updates to previously imported profiles.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `updates` | array | yes | `{ profileId, accept }` entries. Non-empty. |\n\n- **Response** `200`:\n  ```json\n  { \"ok\": true, \"applied\": 0, \"skipped\": 0, \"errors\": [\"string\"] }\n  ```\n  Entries with `accept` false count as skipped; `errors` is present only when at least one item failed.\n- **Errors**:\n  - `400` when `updates` is empty or missing: `{ \"error\": \"No updates provided\" }`.\n  - `400` on any other failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Apply updates failed\" }`.\n- **Side effects**: fetches from GitHub and rewrites each accepted profile's `agent.yaml` and `SKILL.md`, then reloads the registry.",
+      "wordCount": 94
+    },
+    {
+      "heading": "GET /api/chat/branching/flag",
+      "id": "get-api-chat-branching-flag",
+      "level": 3,
+      "markdown": "Reports whether the chat-branching feature is enabled on this instance.\n\n- **Request**: none.\n- **Response** `200`: `{ \"enabled\": false }`.\n- **Errors**: none returned.\n- **Side effects**: reads only.",
+      "wordCount": 23
+    },
+    {
+      "heading": "GET /api/chat/conversations",
+      "id": "get-api-chat-conversations",
+      "level": 3,
+      "markdown": "Lists conversations, newest updated first, with optional filters.\n\n- **Request** query parameters, all optional:\n\n| Parameter | Type | Notes |\n|---|---|---|\n| `status` | `\"active\" \\| \"archived\"` | |\n| `projectId` | `string` | |\n| `limit` | `number` | |\n\n- **Response** `200`: a JSON array of conversation rows:\n  ```json\n  [\n    {\n      \"id\": \"string\",\n      \"projectId\": \"string | null\",\n      \"title\": \"string | null\",\n      \"runtimeId\": \"string\",\n      \"modelId\": \"string | null\",\n      \"status\": \"active\",\n      \"sessionId\": \"string | null\",\n      \"contextScope\": \"string | null\",\n      \"activeSkillId\": \"string | null\",\n      \"activeSkillIds\": [\"string\"],\n      \"parentConversationId\": \"string | null\",\n      \"branchedFromMessageId\": \"string | null\",\n      \"createdAt\": \"string\",\n      \"updatedAt\": \"string\"\n    }\n  ]\n  ```\n  `status` is one of `active`, `archived`.\n- **Errors**: none returned explicitly. A database failure propagates unhandled.\n- **Side effects**: reads only.",
+      "wordCount": 87
+    },
+    {
+      "heading": "POST /api/chat/conversations",
+      "id": "post-api-chat-conversations",
+      "level": 3,
+      "markdown": "Creates a conversation, optionally as a branch of an existing one. When the project has a working directory, its environment is scanned in the background.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `runtimeId` | `string` | yes | One of `claude-code`, `openai-codex-app-server`, `ollama`. |\n| `projectId` | `string` | no | Triggers an environment scan when the project has a working directory. |\n| `title` | `string` | no | |\n| `modelId` | `string` | no | |\n| `parentConversationId` | `string` | no | Must be paired with `branchedFromMessageId`. |\n| `branchedFromMessageId` | `string` | no | Must be paired with `parentConversationId`, and must belong to the parent. |\n\n- **Response** `201`: the created conversation row (same shape as the list element).\n- **Errors**:\n  - `400` when `runtimeId` is missing: `{ \"error\": \"runtimeId is required\" }`.\n  - `400` on an invalid `runtimeId`: `{ \"error\": \"Invalid runtimeId. Must be one of: claude-code, openai-codex-app-server, ollama\" }`.\n  - `400` when only one of the branch pair is provided: `{ \"error\": \"parentConversationId and branchedFromMessageId must both be provided when creating a branch\" }`.\n  - `404` when the parent conversation is not found: `{ \"error\": \"Parent conversation <id> not found\" }`.\n  - `400` when the branch point does not belong to the parent: `{ \"error\": \"branchedFromMessageId <id> does not belong to conversation <id>\" }`.\n- **Side effects**: inserts one conversation row. When the project has a working directory, scans its environment in the background.",
+      "wordCount": 194
+    },
+    {
+      "heading": "GET /api/chat/conversations/{id}",
+      "id": "get-api-chat-conversations-id",
+      "level": 3,
+      "markdown": "Returns a conversation and its message count.\n\n- **Request**: none.\n- **Response** `200`: the conversation row plus `messageCount`.\n- **Errors**: `404` when not found: `{ \"error\": \"Conversation not found\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 29
+    },
+    {
+      "heading": "PATCH /api/chat/conversations/{id}",
+      "id": "patch-api-chat-conversations-id",
+      "level": 3,
+      "markdown": "Updates a conversation's title, status, model, or runtime.\n\n- **Request** body (JSON), all fields optional:\n\n| Field | Type | Notes |\n|---|---|---|\n| `title` | `string \\| null` | |\n| `status` | `\"active\" \\| \"archived\"` | |\n| `modelId` | `string \\| null` | |\n| `runtimeId` | `string` | Not restricted to the creation allowlist here. |\n\n- **Response** `200`: the updated conversation row.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Conversation not found\" }`.\n  - `400` on an invalid status: `{ \"error\": \"status must be 'active' or 'archived'\" }`.\n- **Side effects**: updates the conversation row.",
+      "wordCount": 68
+    },
+    {
+      "heading": "DELETE /api/chat/conversations/{id}",
+      "id": "delete-api-chat-conversations-id",
+      "level": 3,
+      "markdown": "Deletes a conversation and all of its messages.\n\n- **Request**: none.\n- **Response** `204`: no body.\n- **Errors**: `404` when not found: `{ \"error\": \"Conversation not found\" }`.\n- **Side effects**: deletes the conversation's messages, then the conversation.",
+      "wordCount": 32
+    },
+    {
+      "heading": "GET /api/chat/conversations/{id}/branches",
+      "id": "get-api-chat-conversations-id-branches",
+      "level": 3,
+      "markdown": "Returns every conversation in the same branch tree. Available only when chat branching is enabled.\n\n- **Request**: none.\n- **Response** `200`: `{ \"family\": [ <conversation rows> ] }`.\n- **Errors**:\n  - `404` when branching is disabled: `{ \"error\": \"Not found\" }`.\n  - `404` when the conversation is not found: `{ \"error\": \"Conversation not found\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 46
+    },
+    {
+      "heading": "GET /api/chat/conversations/{id}/messages",
+      "id": "get-api-chat-conversations-id-messages",
+      "level": 3,
+      "markdown": "Fetches a conversation's message history, optionally after a cursor.\n\n- **Request** query parameters, both optional:\n\n| Parameter | Type | Notes |\n|---|---|---|\n| `after` | `string` | A message id. Returns messages newer than it. |\n| `limit` | `number` | |\n\n- **Response** `200`: a JSON array of message rows, oldest first:\n  ```json\n  [\n    {\n      \"id\": \"string\",\n      \"conversationId\": \"string\",\n      \"role\": \"user\",\n      \"content\": \"string\",\n      \"metadata\": \"string | null\",\n      \"status\": \"complete\",\n      \"rewoundAt\": \"string | null\",\n      \"createdAt\": \"string\"\n    }\n  ]\n  ```\n  `role` is one of `user`, `assistant`, `system`. `status` is one of `pending`, `streaming`, `complete`, `error`.\n- **Errors**: `404` when the conversation is not found: `{ \"error\": \"Conversation not found\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 89
+    },
+    {
+      "heading": "POST /api/chat/conversations/{id}/messages",
+      "id": "post-api-chat-conversations-id-messages",
+      "level": 3,
+      "markdown": "Persists a user message and streams the assistant's response as Server-Sent Events. This is the main chat turn.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `content` | `string` | yes | Non-empty. |\n| `mentions` | any | no | Entity mentions passed through to the engine. |\n\n- **Response** `200`, streaming, with headers `Content-Type: text/event-stream`, `Cache-Control: no-cache`, `Connection: keep-alive`. Each event is `data: <JSON>`, with a keepalive comment (`: keepalive`) every 15 seconds. The event shapes are:\n  - `{ \"type\": \"delta\", \"content\": \"string\" }`\n  - `{ \"type\": \"status\", \"phase\": \"string\", \"message\": \"string\" }`\n  - `{ \"type\": \"done\", \"messageId\": \"string\", \"quickAccess\": [ ... ], \"modelId\": \"string\" }`\n  - `{ \"type\": \"error\", \"message\": \"string\" }`\n  - `{ \"type\": \"permission_request\", \"requestId\": \"string\", \"messageId\": \"string\", \"toolName\": \"string\", \"toolInput\": {} }`\n  - `{ \"type\": \"question\", \"requestId\": \"string\", \"messageId\": \"string\", \"questions\": [ ... ] }`\n  - `{ \"type\": \"screenshot\", \"documentId\": \"string\", \"thumbnailUrl\": \"string\", \"originalUrl\": \"string\", \"width\": 0, \"height\": 0 }`\n\n  The stream ends after a `done` or `error` event. A `permission_request` or `question` event pauses the turn until you answer it through `POST /api/chat/conversations/{id}/respond`.\n- **Errors** (before the stream starts, as JSON):\n  - `400` when `content` is missing or not a string: `{ \"error\": \"content is required and must be a string\" }`.\n  - `404` when the conversation is not found: `{ \"error\": \"Conversation not found\" }`.\n  - Once streaming has started, failures arrive as `error` events, not HTTP status codes.\n- **Side effects**: persists the user message, runs the agent turn against the conversation's runtime, streams the assistant reply, and persists it. The turn may create documents such as screenshots and may request tool permissions.",
+      "wordCount": 226
+    },
+    {
+      "heading": "POST /api/chat/conversations/{id}/redo",
+      "id": "post-api-chat-conversations-id-redo",
+      "level": 3,
+      "markdown": "Restores the most recently rewound message pair. Available only when chat branching is enabled.\n\n- **Request**: none.\n- **Response** `200`: `{ \"restoredMessageIds\": [\"string\"] }`. The array is empty when nothing was rewound.\n- **Errors**:\n  - `404` when branching is disabled: `{ \"error\": \"Not found\" }`.\n  - `404` when the conversation is not found: `{ \"error\": \"Conversation not found\" }`.\n- **Side effects**: clears the rewound mark on the most recent rewound pair.",
+      "wordCount": 60
+    },
+    {
+      "heading": "POST /api/chat/conversations/{id}/respond",
+      "id": "post-api-chat-conversations-id-respond",
+      "level": 3,
+      "markdown": "Answers a pending permission request or question raised during a streaming chat turn, unblocking the turn.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `requestId` | `string` | yes | The pending request to resolve. |\n| `behavior` | `string` | yes | `allow` or `deny`. |\n| `messageId` | `string` | no | Updates that message's status when present. |\n| `updatedInput` | any | no | Forwarded on allow. |\n| `message` | `string` | no | Forwarded on deny. |\n| `alwaysAllow` | `boolean` | no | Persists a permission rule when allowing. |\n| `permissionPattern` | `string` | no | The rule pattern. |\n| `toolName` | `string` | no | Used with `toolInput` to build a pattern when none is given. |\n| `toolInput` | object | no | |\n\n- **Response** `200`: `{ \"ok\": true, \"stale\": false }`. `stale` is `true` when the pending request had already been resolved.\n- **Errors**:\n  - `400` when `requestId` or `behavior` is missing: `{ \"error\": \"requestId and behavior are required\" }`.\n  - `500` when the pending request could not be resolved: `{ \"error\": \"Failed to resolve request\" }`.\n- **Side effects**: resolves the in-flight request so the streaming turn continues. When allowing with `alwaysAllow`, persists a permission rule. When `messageId` is present, updates that message's status.",
+      "wordCount": 162
+    },
+    {
+      "heading": "POST /api/chat/conversations/{id}/rewind",
+      "id": "post-api-chat-conversations-id-rewind",
+      "level": 3,
+      "markdown": "Marks the message pair containing a given assistant message as rewound, returning the user's original content for the composer. Available only when chat branching is enabled.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `assistantMessageId` | `string` | yes | The assistant message to rewind from. |\n\n- **Response** `200`: `{ \"rewoundUserContent\": \"string | null\" }`.\n- **Errors**:\n  - `404` when branching is disabled: `{ \"error\": \"Not found\" }`.\n  - `404` when the conversation is not found: `{ \"error\": \"Conversation not found\" }`.\n  - `400` when `assistantMessageId` is missing: `{ \"error\": \"assistantMessageId is required\" }`.\n- **Side effects**: marks the assistant message and its preceding user message as rewound.",
+      "wordCount": 89
+    },
+    {
+      "heading": "POST /api/chat/conversations/{id}/skills/activate",
+      "id": "post-api-chat-conversations-id-skills-activate",
+      "level": 3,
+      "markdown": "Activates a skill on a conversation, with conflict detection against already-active skills.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `skillId` | `string` | yes | Non-empty. |\n| `mode` | `\"replace\" \\| \"add\"` | no | Defaults to `replace`. |\n| `force` | `boolean` | no | Bypasses the conflict block. Defaults to `false`. |\n\n- **Response** `200` in both success and conflict cases:\n  - Success: `{ \"activatedSkillId\": \"string\", \"activeSkillIds\": [\"string\"], \"skillName\": \"string\", \"note\": \"string\" }` (`note` only when present).\n  - Conflict: `{ \"requiresConfirmation\": true, \"conflicts\": [ { \"skillA\": \"string\", \"skillB\": \"string\", \"sharedTopic\": \"string\", \"excerptA\": \"string\", \"excerptB\": \"string\" } ], \"hint\": \"Re-call with force=true to add anyway\" }`.\n- **Errors**:\n  - `400` on invalid JSON: `{ \"error\": \"Invalid JSON body\" }`.\n  - `400` on validation failure: `{ \"error\": \"<joined issue messages>\" }`.\n  - `404` when the conversation or skill is not found: `{ \"error\": \"<message>\" }`.\n  - `400` on any other activation failure, such as an unsupported runtime or too many active skills: `{ \"error\": \"<message>\" }`.\n- **Side effects**: on success, updates the conversation's active skills.",
+      "wordCount": 138
+    },
+    {
+      "heading": "POST /api/chat/conversations/{id}/skills/deactivate",
+      "id": "post-api-chat-conversations-id-skills-deactivate",
+      "level": 3,
+      "markdown": "Clears all active skills on a conversation. This is idempotent.\n\n- **Request**: none.\n- **Response** `200`: `{ \"previousSkillId\": \"string | null\" }`.\n- **Errors**:\n  - `404` when the conversation is not found: `{ \"error\": \"<message>\" }`.\n  - `400` on any other failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: clears the conversation's active skills.",
+      "wordCount": 41
+    },
+    {
+      "heading": "GET /api/chat/entities/search",
+      "id": "get-api-chat-entities-search",
+      "level": 3,
+      "markdown": "Searches across projects, tasks, workflows, documents, schedules, tables, and agent profiles, returning one flat result list.\n\n- **Request** query parameters, both optional:\n\n| Parameter | Type | Notes |\n|---|---|---|\n| `q` | `string` | The search text. An empty query returns the most recent items per type. |\n| `limit` | `number` | Defaults to 20, capped at 30. |\n\n- **Response** `200`:\n  ```json\n  {\n    \"results\": [\n      { \"entityType\": \"project\", \"entityId\": \"string\", \"label\": \"string\", \"status\": \"string\", \"description\": \"string\" }\n    ]\n  }\n  ```\n  `entityType` is one of `project`, `task`, `workflow`, `document`, `schedule`, `table`, `profile`. `status` and `description` appear where the entity has them.\n- **Errors**: none returned explicitly. A failure propagates unhandled.\n- **Side effects**: reads only.",
+      "wordCount": 93
+    },
+    {
+      "heading": "POST /api/chat/export",
+      "id": "post-api-chat-export",
+      "level": 3,
+      "markdown": "Exports chat markdown to a file and registers it as a document.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `title` | `string` | yes | 1 to 200 characters. |\n| `markdown` | `string` | yes | Non-empty. |\n| `conversationId` | `string \\| null` | no | Recorded on the document. |\n\n- **Response** `201`: `{ \"id\": \"string\", \"filename\": \"string\" }`.\n- **Errors**: `400` on an invalid or unparseable body: `{ \"error\": \"Invalid body\", \"details\": [ ... ] }`.\n- **Side effects**: writes a Markdown file to the chat-exports directory and inserts an output document row with source `chat-export`.",
+      "wordCount": 75
+    },
+    {
+      "heading": "GET /api/chat/files/search",
+      "id": "get-api-chat-files-search",
+      "level": 3,
+      "markdown": "Searches files under the active project's working directory, or the launch directory, honoring `.gitignore`. The search root is resolved on the server; a client cannot point it at an arbitrary path.\n\n- **Request** query parameters, all optional:\n\n| Parameter | Type | Notes |\n|---|---|---|\n| `q` | `string` | Matches file name or path. An empty query returns all tracked files. |\n| `limit` | `number` | Defaults to 20, clamped to 1 through 50. |\n| `projectId` | `string` | Selects the project whose working directory is searched. |\n\n- **Response** `200`:\n  ```json\n  { \"results\": [ { \"path\": \"string\", \"sizeBytes\": 0, \"mtime\": 0 } ] }\n  ```\n  `path` is relative to the search root; `mtime` is an epoch in milliseconds. When the root is not a git repository, the result is an empty list.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"file search failed\" }`.\n- **Side effects**: reads only. Runs `git ls-files` under the search root with a short timeout.",
+      "wordCount": 136
+    },
+    {
+      "heading": "GET /api/chat/models",
+      "id": "get-api-chat-models",
+      "level": 3,
+      "markdown": "Returns the chat models available from the configured SDKs, falling back to a built-in list when a provider cannot be reached.\n\n- **Request**: none.\n- **Response** `200`: a JSON array:\n  ```json\n  [\n    { \"id\": \"string\", \"label\": \"string\", \"provider\": \"anthropic\", \"tier\": \"string\", \"costLabel\": \"string\" }\n  ]\n  ```\n  `provider` is one of `anthropic`, `openai`, `ollama`.\n- **Errors**: none returned. Provider probes fall back to the built-in list.\n- **Side effects**: reads only. May probe the configured SDKs and cache the result.",
+      "wordCount": 70
+    },
+    {
+      "heading": "GET /api/chat/suggested-prompts",
+      "id": "get-api-chat-suggested-prompts",
+      "level": 3,
+      "markdown": "Returns context-aware suggested-prompt categories for the chat composer.\n\n- **Request**: none.\n- **Response** `200`: a JSON array:\n  ```json\n  [\n    { \"id\": \"string\", \"label\": \"string\", \"icon\": \"string\", \"prompts\": [ { \"label\": \"string\", \"prompt\": \"string\" } ] }\n  ]\n  ```\n  `icon` is an icon name.\n- **Errors**: none returned.\n- **Side effects**: reads only.",
+      "wordCount": 39
+    },
+    {
+      "heading": "GET /api/runtimes/ollama",
+      "id": "get-api-runtimes-ollama",
+      "level": 3,
+      "markdown": "Proxies the local Ollama server's model list. The response is whatever the local Ollama server returns for its tags endpoint.\n\n- **Request**: none.\n- **Response** `200`: the Ollama server's model-list JSON, passed through unchanged.\n- **Errors**:\n  - `502` when Ollama responds with a non-success status: `{ \"error\": \"Ollama responded with status <status>\" }`.\n  - `502` on a connection failure or timeout: `{ \"error\": \"<message>\", \"hint\": \"Make sure Ollama is running (ollama serve).\" }`.\n- **Side effects**: reads the local Ollama base URL setting and calls the local Ollama server. No database writes.",
+      "wordCount": 82
+    },
+    {
+      "heading": "POST /api/runtimes/ollama",
+      "id": "post-api-runtimes-ollama",
+      "level": 3,
+      "markdown": "Pulls a model on the local Ollama server. This blocks until the pull finishes.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `action` | `string` | yes | Must be `pull`. |\n| `model` | `string` | yes | The model to pull. |\n\n- **Response** `200`: `{ \"status\": \"ok\", \"model\": \"string\" }`, merged with the fields Ollama returns for the pull.\n- **Errors**:\n  - `400` on an unknown action: `{ \"error\": \"Unknown action: <action>\" }`.\n  - `400` when `model` is missing: `{ \"error\": \"model is required\" }`.\n  - `502` when the Ollama pull responds with a non-success status: `{ \"error\": \"Ollama pull failed (<status>): <text>\" }`.\n  - `502` on any other failure: `{ \"error\": \"<message>\" }`, or `{ \"error\": \"Pull failed\" }`.\n- **Side effects**: instructs the local Ollama server to download the model.",
+      "wordCount": 106
+    },
+    {
+      "heading": "POST /api/runtimes/suggest",
+      "id": "post-api-runtimes-suggest",
+      "level": 3,
+      "markdown": "Recommends the best runtime for a task, given its title and description, your routing preference, and which runtimes are configured.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `title` | `string` | yes | Used for keyword scoring. |\n| `description` | `string` | no | Combined with the title for scoring. |\n| `profileId` | `string` | no | When the profile prefers an available runtime, that runtime wins. |\n\n- **Response** `200`:\n  ```json\n  { \"runtimeId\": \"claude-code\", \"reason\": \"string\" }\n  ```\n  `runtimeId` is one of the five runtime ids.\n- **Errors**: `400` when `title` is missing: `{ \"error\": \"title is required\" }`.\n- **Side effects**: reads only. Reads the routing preference and which runtimes are configured; the scoring itself runs in memory.",
+      "wordCount": 100
+    },
+    {
+      "heading": "GET /api/runtimes/openai-compatible/{runtimeId}",
+      "id": "get-api-runtimes-openai-compatible-runtimeid",
+      "level": 3,
+      "markdown": "Lists models exposed by a configured OpenAI-compatible LiteLLM or LM Studio endpoint.\n\n- **Request**: `runtimeId` must be `litellm` or `lmstudio`.\n- **Response** `200`: `{ \"runtimeId\": \"litellm | lmstudio\", \"models\": [ ] }`.\n- **Errors**:\n  - `404` for any other runtime id: `{ \"error\": \"runtimeId must be litellm or lmstudio\" }`.\n  - `502` when configuration, connection, or upstream model discovery fails: `{ \"error\": \"<message>\" }`.\n- **Side effects**: calls the configured compatible endpoint and reads settings only.",
+      "wordCount": 61
+    },
+    {
+      "heading": "Examples",
+      "id": "examples",
+      "level": 2,
+      "markdown": "Create a conversation, then send a message and read the streamed reply:\n\n```bash\ncurl -X POST http://127.0.0.1:3000/api/chat/conversations \\\n  -H \"Content-Type: application/json\" \\\n  -d '{ \"runtimeId\": \"claude-code\" }'\n\ncurl -N -X POST http://127.0.0.1:3000/api/chat/conversations/<conversationId>/messages \\\n  -H \"Content-Type: application/json\" \\\n  -d '{ \"content\": \"List the open tasks on the Acme project.\" }'\n```\n\nThe `-N` flag keeps `curl` from buffering, so you see each streamed event as it arrives.\n\nAnswer a permission request the stream raised, so the turn can continue:\n\n```bash\ncurl -X POST http://127.0.0.1:3000/api/chat/conversations/<conversationId>/respond \\\n  -H \"Content-Type: application/json\" \\\n  -d '{ \"requestId\": \"<requestId>\", \"behavior\": \"allow\" }'\n```\n\nCreate a custom agent profile:\n\n```bash\ncurl -X POST http://127.0.0.1:3000/api/agents \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n        \"id\": \"release-notes\",\n        \"name\": \"Release Notes Writer\",\n        \"version\": \"1.0.0\",\n        \"domain\": \"work\",\n        \"tags\": [\"writing\"],\n        \"skillMd\": \"# Release Notes Writer\\n\\nWrite customer-facing release notes.\"\n      }'\n```\n\nList the models discovered from your configured providers:\n\n```bash\ncurl http://127.0.0.1:3000/api/chat/models\n```",
+      "wordCount": 177
+    },
+    {
+      "heading": "Do Not Depend On",
+      "id": "do-not-depend-on",
+      "level": 2,
+      "markdown": "- Agent profiles are files on disk, not database rows. A profile's identity is its directory, and built-in and project-scoped profiles are read-only through this API. Edit project-scoped profiles in the project's own skills directory.\n- The chat message stream reports in-turn failures as `error` events after a `200` has already been sent. Do not treat the `200` as proof the turn succeeded; watch for the `done` event and handle `error` events.\n- A `permission_request` or `question` event pauses the turn until you answer it through the respond route. A turn can stall indefinitely if you never answer.\n- The branching routes (`branches`, `redo`, `rewind`) return `404` with `{ \"error\": \"Not found\" }` when chat branching is disabled. This is indistinguishable from a genuinely missing conversation on that first check; confirm the feature is enabled before relying on them.\n- Conversation creation validates `runtimeId` against Relay's current runtime catalog, which includes direct providers and configured OpenAI-compatible runtimes. Treat the catalog as extensible instead of hardcoding a fixed list.\n- The `GET /api/runtimes/ollama` and `POST /api/runtimes/ollama` success bodies are passed through from the local Ollama server. Their exact fields are defined by Ollama, not by Relay, and can change with the Ollama version.\n- A test report is stored only by the full-suite `POST /api/agents/{id}/test`. The single-test route runs live but stores nothing, so a later `GET /api/agents/{id}/test-results` will not reflect single-test runs.",
+      "wordCount": 232
+    }
+  ],
+  "sourceHash": "7fd41ff02c9a7b7e273f5eaab73558aae22b370e521410e942aab28a94c8933a",
+  "sourcePath": "api/reference/03-agents-chat-runtimes.md",
+  "sourceStateHash": "1ff93afed39d5ca3a44abc8f9e5299ae6d4c6d5101ea881a76c20f8b774af535",
+  "stability": "app-internal",
+  "summary": "Document agent profiles, chat conversations, model lists, runtime suggestions, and related context endpoints.",
+  "title": "Agents, Chat, And Runtimes API"
+}

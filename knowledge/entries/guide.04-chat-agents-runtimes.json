@@ -1,0 +1,350 @@
+{
+  "apiPaths": [],
+  "contentHash": "85a73271b75ba82f9632a044fc81e2b76c4163d9b5e6ec72ae499f7b8e6e2db0",
+  "features": [
+    "Agents",
+    "Chat workspace",
+    "Command palette and navigation",
+    "Runtime selection",
+    "Tool permissions and approvals"
+  ],
+  "id": "guide:04-chat-agents-runtimes",
+  "journeys": [
+    "admin-trust",
+    "app-builder",
+    "solo-founder"
+  ],
+  "kind": "guide",
+  "productRoutes": [
+    "/agents",
+    "/chat",
+    "/costs",
+    "/inbox",
+    "/monitor",
+    "/settings",
+    "/settings#runtime",
+    "/tasks"
+  ],
+  "schemaVersion": 1,
+  "screenshots": [
+    {
+      "id": "agents-list",
+      "path": "dark/agents/agents-list__desktop.png",
+      "productRoute": "/agents",
+      "sha256": "978838ca1b69f887eb0183e5c943daaaae58813a0592979abbce16e89f9e7e1c",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "agents-list",
+      "path": "dark/agents/agents-list__mobile.png",
+      "productRoute": "/agents",
+      "sha256": "6213f828ef42f1c8737b12131c79974a1884240bfbb73588e7a06605071a541c",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "chat-workspace",
+      "path": "dark/chat/chat-workspace__desktop.png",
+      "productRoute": "/chat",
+      "sha256": "61dfb6e43f51b316df4c88357e9774f957cf1cdea6a0560c6059934eb8ed417d",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "chat-workspace",
+      "path": "dark/chat/chat-workspace__mobile.png",
+      "productRoute": "/chat",
+      "sha256": "6158d7916a9e0507d3e402db137acbc101b57f5e49fc9058e405280d1add4b86",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "costs",
+      "path": "dark/costs/costs__desktop.png",
+      "productRoute": "/costs",
+      "sha256": "064532735001aba3d4053757d0e470c6bd38ea721d9d20387da5b2e9bdde42d6",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "costs",
+      "path": "dark/costs/costs__mobile.png",
+      "productRoute": "/costs",
+      "sha256": "66059a1472c942885467f86e706d3cb31f15329d7bd7eae74fef01d6bd1ff264",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "inbox-approvals",
+      "path": "dark/inbox/inbox-approvals__desktop.png",
+      "productRoute": "/inbox",
+      "sha256": "ce0f9a40cd5b139ddd9f4b49c4608bdb39e3a75e8b3ccc15d144d3169294c7c4",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "inbox-approvals",
+      "path": "dark/inbox/inbox-approvals__mobile.png",
+      "productRoute": "/inbox",
+      "sha256": "bdc78d557ac421470bed01cc511c5122ea3070a4e7c4fbec062bde78919d6eb0",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "monitor",
+      "path": "dark/monitor/monitor__desktop.png",
+      "productRoute": "/monitor",
+      "sha256": "6fc0033a16d9c050ecac1be7c2f1612a65717f75b0c256338cd57e6b337b1132",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "monitor",
+      "path": "dark/monitor/monitor__mobile.png",
+      "productRoute": "/monitor",
+      "sha256": "91f889887d5119589e49f57407d645559611a0e914fb0ef5a13699d99f2aa093",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "dark/settings/settings-runtime__desktop.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "dark/settings/settings-runtime__mobile.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "74d7110d1ba5a3e63aef651e58361aad164fbb316e08ed35d875a8d8ff41c1a3",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-summary",
+      "path": "dark/settings/settings-summary__desktop.png",
+      "productRoute": "/settings",
+      "sha256": "c4a65ffd595941e26bad8b446e7976787ea777462cd8df0ef3bc816083799f3e",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-summary",
+      "path": "dark/settings/settings-summary__mobile.png",
+      "productRoute": "/settings",
+      "sha256": "56d668062a3b9cab9f1394daf175ad4e8e88e357f502b9ed2ade59aebea93b00",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "tasks-board",
+      "path": "dark/tasks/tasks-board__desktop.png",
+      "productRoute": "/tasks",
+      "sha256": "c417c82b16cac7599bd3bcdb2ead7829c836bbe54ebab99bdcfb6ef2d2d6074f",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "tasks-board",
+      "path": "dark/tasks/tasks-board__mobile.png",
+      "productRoute": "/tasks",
+      "sha256": "d90cf1e49df41fbc159cc9c1f17aeda54abcc1298f2a196c9e7216e8e69eb0b8",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "agents-list",
+      "path": "light/agents/agents-list__desktop.png",
+      "productRoute": "/agents",
+      "sha256": "30dc34ffead313cf6bd2a6ed82f2ae23e66b6b5b722f0110b9ffd2c488937023",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "agents-list",
+      "path": "light/agents/agents-list__mobile.png",
+      "productRoute": "/agents",
+      "sha256": "fd14e2980f247d6d29ba3a2c9edb300cc3d6654779bf929c8290e4bbda9242bf",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "chat-workspace",
+      "path": "light/chat/chat-workspace__desktop.png",
+      "productRoute": "/chat",
+      "sha256": "3b8aa9b3b718114248e430b438bf5e46f3513b011a682a81756b467ddc321b37",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "chat-workspace",
+      "path": "light/chat/chat-workspace__mobile.png",
+      "productRoute": "/chat",
+      "sha256": "85888d5ebfbb5591ca5efa56be0a33eb776717bc0419b82c5c2c8400200a711b",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "costs",
+      "path": "light/costs/costs__desktop.png",
+      "productRoute": "/costs",
+      "sha256": "fdc51e83e12e2c256835161e0abe62881d4b433e897ae652204954a1a6c85257",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "costs",
+      "path": "light/costs/costs__mobile.png",
+      "productRoute": "/costs",
+      "sha256": "3811a10e3c36b3520934931fbc8d48d27425140cd8fd687e6c6174e5ca586ea5",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "inbox-approvals",
+      "path": "light/inbox/inbox-approvals__desktop.png",
+      "productRoute": "/inbox",
+      "sha256": "bc2d7ddc06198fc654bcbb1ec9efd69be37babc57e7b701b52b2663e900ab22a",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "inbox-approvals",
+      "path": "light/inbox/inbox-approvals__mobile.png",
+      "productRoute": "/inbox",
+      "sha256": "306b41d9c4076e0d4a972330e06167f763bfe1ffc021f59c3ef86e21650a6f45",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "monitor",
+      "path": "light/monitor/monitor__desktop.png",
+      "productRoute": "/monitor",
+      "sha256": "b748842372e0edf9231a87c1fcd63ab163bfb9d75766d65f02f598a54bc6f65d",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "monitor",
+      "path": "light/monitor/monitor__mobile.png",
+      "productRoute": "/monitor",
+      "sha256": "4c50f002cef2da073508c4c26b3be89fc901e82e64269db4f7a815261233e964",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "light/settings/settings-runtime__desktop.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "e3e4ba5ef17e207de5dc8a4d69860eee24d17b112dd8e2e6c72843b24b97f8ee",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-runtime",
+      "path": "light/settings/settings-runtime__mobile.png",
+      "productRoute": "/settings#runtime",
+      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-summary",
+      "path": "light/settings/settings-summary__desktop.png",
+      "productRoute": "/settings",
+      "sha256": "a8626db9367e1186c2cbfbb0e3f463f838bf1f13a44a6bbdf857dc8b8aed1790",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-summary",
+      "path": "light/settings/settings-summary__mobile.png",
+      "productRoute": "/settings",
+      "sha256": "2784383451f5803a9174566ffb67974384530734e89d0b130ab85086b09897a7",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "tasks-board",
+      "path": "light/tasks/tasks-board__desktop.png",
+      "productRoute": "/tasks",
+      "sha256": "6c0e24aae432b64a435be23a2332292349a5c6602eb226631ef46f2a95d23702",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "tasks-board",
+      "path": "light/tasks/tasks-board__mobile.png",
+      "productRoute": "/tasks",
+      "sha256": "e2aeb20f857e53c686e8f15d14e2c8b335c12629654cf80892cf98003b0a57b0",
+      "theme": "light",
+      "viewport": "mobile"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "What This Chapter Helps You Do",
+      "id": "what-this-chapter-helps-you-do",
+      "level": 2,
+      "markdown": "This chapter helps you use chat, agents, and runtime settings without losing control of the work.",
+      "wordCount": 16
+    },
+    {
+      "heading": "The Operator Story",
+      "id": "the-operator-story",
+      "level": 2,
+      "markdown": "Evan runs a one-person launch studio. He uses Relay to turn scattered product notes into tasks, client updates, and repeatable workflows. On a busy morning, he does not want to decide from scratch which model to use, which instructions to give it, or which tools it may touch. He wants a guided way to plan the work, choose the right agent, and keep approvals visible.\n\nChat is the place where the planning conversation happens. Agents are reusable instruction profiles that shape how work is done. Runtimes are the execution paths that carry the work, such as Claude Code, OpenAI Codex App Server, direct provider paths, or local Ollama when configured.\n\nThese three ideas belong together. If you use chat without knowing the agent, you may get a plan that does not match the job. If you use an agent without knowing the runtime, you may be surprised by cost or capability. If you use a runtime without approvals, you may let a tool action move faster than the business should allow.\n\nThe goal is not to become a model-routing expert. The goal is to know what Relay will do before you ask it to act.",
+      "wordCount": 195
+    },
+    {
+      "heading": "What This Part Of Relay Is For",
+      "id": "what-this-part-of-relay-is-for",
+      "level": 2,
+      "markdown": "Relay chat is not only a message box. It can plan work with local context, mention Relay entities, use tools, branch or rewind a conversation, and create work from existing primitives. That makes it useful, but it also makes it worth governing.\n\nAgents give repeatable shape to the work. A support agent, a research agent, and a launch-planning agent should not behave the same way. Runtimes decide where the work runs. Your model preference can apply beyond chat to tasks, workflows, and AI-assist paths unless a more specific setting wins.\n\nApprovals are the safety layer. Sensitive tool actions can route through confirmation flows. When Relay asks for approval, it is not being slow for no reason. It is keeping a person in charge of actions that may affect files, data, customer work, or cost.",
+      "wordCount": 134
+    },
+    {
+      "heading": "Walk The Screen Like An Operator",
+      "id": "walk-the-screen-like-an-operator",
+      "level": 2,
+      "markdown": "Open **Agents** first. Choose an agent that matches the job before you start a serious chat.\n\nWhat you should notice:\n\n- Agent cards have names, status, and source pack context.\n- Built-in presets provide starting points.\n- The current UI uses the name \"Agents,\" not the older \"Profiles\" label.\n\n[Figure: Agents list with presets and pack source context]\n\nThis figure shows why agents matter before chat. The list gives you named ways of working. If an agent came from a pack, that context helps you understand why it exists. A pack-backed agent may fit a workflow family. A built-in preset may be better for general planning.\n\nAfter you choose the agent style, open **Settings** and review Runtime. The runtime panel tells you which model paths are configured and which defaults Relay can use.\n\n[Figure: Runtime settings before model-backed work]\n\nRead this screen as a control panel, not as a developer-only page. If local Ollama is configured, local chat usage should be recorded as local-free usage. If a provider path is selected, cost and capability may differ. If a runtime is missing, fix that before you ask Relay to run client work.",
+      "wordCount": 188
+    },
+    {
+      "heading": "Run The Work Carefully",
+      "id": "run-the-work-carefully",
+      "level": 2,
+      "markdown": "Now open **Chat**. Use it to plan, not just to ask. Name the customer, project, table, or task when that context matters. If you want Relay to create work from existing primitives, say that directly.\n\nWhat you should see:\n\n- Conversation history stays visible.\n- Model selection is visible.\n- Tool access and permission prompts are explicit.\n- Local model failures surface as errors instead of clearing the answer.\n\n[Figure: Chat workspace with local Relay context]\n\nThe Chat workspace is where the plan becomes concrete. A good prompt is not \"do the launch work.\" A better prompt names the goal, the customer or project, the constraints, and the kind of output you want. For example: \"Plan the next Studio Vale publish review. Use the existing web designer app, keep the output as tasks, and ask before any publish action.\"\n\nIf Relay needs to use a sensitive tool, you should see a permission path. That path may send an item to Inbox.\n\n[Figure: Inbox approval queue for governed actions]\n\nInbox turns chat from an uncontrolled agent session into governed work. If an approval waits there, answer it before you start more work. The approval is part of the run, not a side quest.\n\nWhen work starts from chat, keep Monitor and Tasks in mind. Chat is the conversation. Tasks and Monitor are where you audit what happened.",
+      "wordCount": 222
+    },
+    {
+      "heading": "What To Do When The State Looks Wrong",
+      "id": "what-to-do-when-the-state-looks-wrong",
+      "level": 2,
+      "markdown": "If chat cannot use a runtime, return to Runtime settings and check provider setup. Do not keep rewriting the prompt if the execution path is missing.\n\nIf a tool prompt appears twice, answer the visible prompt and watch Inbox or Monitor for the resulting state. Back-to-back prompts should not leave the run hanging.\n\nIf work starts but you cannot tell what is happening, open Monitor before starting another run. A second run can hide the first problem.\n\nIf output looks unrelated to the project, check whether you named the right customer, project, or task. Local context helps only when Relay can connect the request to the right record.\n\nIf local model usage does not appear as expected in cost views, confirm the runtime path. A model setting and a runtime path are related, but they are not the same evidence.",
+      "wordCount": 140
+    },
+    {
+      "heading": "What This Changes In Daily Work",
+      "id": "what-this-changes-in-daily-work",
+      "level": 2,
+      "markdown": "The daily habit is to separate planning, identity, and execution. Chat is for planning. Agents carry reusable work style. Runtime settings control where the work runs. Inbox keeps sensitive actions visible.\n\nFor a solo founder, this prevents the common pattern of one long chat thread becoming the whole operating system. For an agency, it helps different client services use different agents and approvals. For an admin, it gives a place to explain why a run used one model path instead of another.\n\nGood Relay work starts with the right agent, the right runtime, and a clear approval path. The prompt is only one part of the system.",
+      "wordCount": 107
+    },
+    {
+      "heading": "Where To Go Next",
+      "id": "where-to-go-next",
+      "level": 2,
+      "markdown": "Next, read **Run Workflows With Human Checkpoints** when you want repeatable work with approval steps.",
+      "wordCount": 15
+    }
+  ],
+  "sourceHash": "5c1f44d52a0b9574ae8af6f98c460d603e6d72c4431d0a6e8fe07feb4bdf430e",
+  "sourcePath": "docs/guides/04-plan-work-with-chat-agents-and-runtimes.md",
+  "sourceStateHash": "14ad106c3ff587367d9c13084e68cb7d8498c3902d4b9adbba19170d409a4620",
+  "summary": "Teach the reader how chat, agents, model choices, and approvals fit together.",
+  "title": "Plan Work With Chat, Agents, And Runtimes"
+}

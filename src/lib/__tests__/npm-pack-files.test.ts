@@ -19,7 +19,7 @@ describe("npm publish contract", () => {
   const PROJECT_ROOT = resolve(__dirname, "..", "..", "..");
   const pkg = JSON.parse(
     readFileSync(join(PROJECT_ROOT, "package.json"), "utf-8")
-  ) as { files: string[] };
+  ) as { files: string[]; scripts: Record<string, string> };
 
   const filesSet = new Set(pkg.files);
 
@@ -43,9 +43,12 @@ describe("npm publish contract", () => {
     ).toBe(false);
   });
 
-  it("includes dist/ and src/ — CLI entry + Next.js server code", () => {
+  it("includes dist/, src/, and the release-matched knowledge bundle", () => {
     expect(filesSet.has("dist/")).toBe(true);
     expect(filesSet.has("src/")).toBe(true);
+    expect(filesSet.has("knowledge/")).toBe(true);
+    expect(filesSet.has("scripts/lib/knowledge-bundle.mjs")).toBe(true);
+    expect(filesSet.has("scripts/verify-knowledge-bundle.mjs")).toBe(true);
   });
 
   it("does NOT publish docs/ — User Guide UI removed; docs are authoring-only", () => {
@@ -57,6 +60,18 @@ describe("npm publish contract", () => {
       shipsDocs,
       `package.json files must NOT include docs/ — User Guide removed, docs generation extracted. Current files: ${JSON.stringify(pkg.files)}`
     ).toBe(false);
+  });
+
+  it("publishes generated knowledge only, never its strategy-owned authoring inputs", () => {
+    expect(pkg.files.some((file) => file.startsWith("_ASSETS"))).toBe(false);
+    expect(pkg.files.some((file) => file.startsWith("_IDEAS"))).toBe(false);
+    expect(pkg.files.some((file) => file.startsWith("_SPECS"))).toBe(false);
+    expect(pkg.files.some((file) => file.startsWith("screengrabs"))).toBe(false);
+  });
+
+  it("blocks pack and publish when the committed bundle does not match the release", () => {
+    expect(pkg.scripts.prepack).toBe("npm run knowledge:verify");
+    expect(pkg.scripts.prepublishOnly).toContain("npm run knowledge:verify");
   });
 
   it("book content is no longer git-tracked in this repo", () => {

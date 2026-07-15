@@ -1,0 +1,145 @@
+{
+  "apiPaths": [
+    "/api/channels",
+    "/api/channels/{id}",
+    "/api/channels/{id}/test",
+    "/api/channels/inbound/slack",
+    "/api/channels/inbound/telegram",
+    "/api/channels/inbound/telegram/poll"
+  ],
+  "contentHash": "f00b53f9b22b04d70fa856d8fb72e737ebaa1981c00760771ae58fda35137f86",
+  "features": [],
+  "id": "api:08-webhooks-and-channels",
+  "journeys": [],
+  "kind": "api",
+  "productRoutes": [],
+  "schemaVersion": 1,
+  "screenshots": [],
+  "sections": [
+    {
+      "heading": "Who This Is For",
+      "id": "who-this-is-for",
+      "level": 2,
+      "markdown": "This group is for a developer connecting a local Relay instance to an outside messaging surface: Slack, Telegram, or a generic outbound webhook. It covers creating and managing channel configurations, live-testing a channel's connection, and the inbound endpoints that receive third-party events and turn them into chat turns. Read this if you are wiring Relay into a team chat, receiving messages from a bot, or building an integration that posts into Relay from an external service.\n\nUnlike the other groups in this reference, the two inbound endpoints are genuinely externally facing: they receive requests signed or secret-gated by a third party, not the local app. They are documented with that trust boundary in mind.",
+      "wordCount": 114
+    },
+    {
+      "heading": "Stability",
+      "id": "stability",
+      "level": 2,
+      "markdown": "`webhook`\n\nThese routes implement webhook and channel plumbing. The management routes power the Relay Settings screens and may change their request and response shapes between releases, so branch on HTTP status codes rather than on the internal structure of a response body. The two inbound webhook routes follow the Slack and Telegram platform contracts; the shape of what they accept is set by those platforms, not by Relay.",
+      "wordCount": 68
+    },
+    {
+      "heading": "Local Access Model",
+      "id": "local-access-model",
+      "level": 2,
+      "markdown": "Relay API routes run inside the local Relay app. Use `http://127.0.0.1:<port>` in examples, where `<port>` is the port your instance is bound to (3000 by default).\n\nThe management routes (`GET`/`POST`/`PATCH`/`DELETE` on `/api/channels`) are local app routes and should not be exposed publicly. The inbound routes (`/api/channels/inbound/slack`, `/api/channels/inbound/telegram`) are the exception by design: they must be reachable by Slack or Telegram, so they carry their own request authentication (an HMAC signature for Slack, a shared secret for Telegram) rather than relying on network isolation. Only expose those two paths, and only after a channel is configured with the matching secret.",
+      "wordCount": 114
+    },
+    {
+      "heading": "Conventions For This Group",
+      "id": "conventions-for-this-group",
+      "level": 2,
+      "markdown": "These behaviors hold across the routes below, so they are stated once here rather than repeated per endpoint:\n\n- **Channel types.** A channel's `channelType` is one of `slack`, `telegram`, `webhook`. Each type requires specific `config` fields: Slack needs `webhookUrl`; Telegram needs `botToken` and `chatId`; a generic webhook needs `url`.\n- **Secrets are masked on read, stored in cleartext.** Every response that returns a channel serializes its `config` through a mask: the keys `botToken`, `signingSecret`, and `webhookSecret` come back as `****` followed by the last four characters, never in full. All other config keys (such as `webhookUrl` or `chatId`) are returned as-is. Note that at rest these secrets are stored in the local database as plaintext JSON; the masking applies only to what the API returns.\n- **Direction.** A channel's `direction` is `outbound` or `bidirectional`, defaulting to `outbound`. Inbound messages are only processed for a `bidirectional` channel; an inbound message to an outbound-only channel is accepted at the HTTP layer but silently dropped by the gateway.\n- **Timestamps.** `createdAt` and `updatedAt` serialize to ISO date strings on the wire.\n- **Inbound acknowledgement semantics.** The Slack and Telegram inbound routes return `200 { \"ok\": true }` immediately and process the message in the background, so a `200` means the event was accepted, not that a reply was sent or that processing succeeded. The Telegram poll route is the exception: it processes updates synchronously and returns counts.\n- **Validation.** These routes validate by hand rather than with a shared schema. Error bodies are `{ \"error\": \"<message>\" }` with the specific message noted per route.",
+      "wordCount": 250
+    },
+    {
+      "heading": "Endpoint Families",
+      "id": "endpoint-families",
+      "level": 2,
+      "markdown": "- `channels`",
+      "wordCount": 1
+    },
+    {
+      "heading": "Endpoints",
+      "id": "endpoints",
+      "level": 2,
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `GET`, `POST` | `/api/channels` | `webhook` | `src/app/api/channels/route.ts` |\n| `DELETE`, `GET`, `PATCH` | `/api/channels/{id}` | `webhook` | `src/app/api/channels/[id]/route.ts` |\n| `POST` | `/api/channels/{id}/test` | `webhook` | `src/app/api/channels/[id]/test/route.ts` |\n| `POST` | `/api/channels/inbound/slack` | `webhook` | `src/app/api/channels/inbound/slack/route.ts` |\n| `POST` | `/api/channels/inbound/telegram` | `webhook` | `src/app/api/channels/inbound/telegram/route.ts` |\n| `POST` | `/api/channels/inbound/telegram/poll` | `webhook` | `src/app/api/channels/inbound/telegram/poll/route.ts` |",
+      "wordCount": 88
+    },
+    {
+      "heading": "Endpoint Reference",
+      "id": "endpoint-reference",
+      "level": 2,
+      "markdown": "",
+      "wordCount": 0
+    },
+    {
+      "heading": "GET /api/channels",
+      "id": "get-api-channels",
+      "level": 3,
+      "markdown": "Lists all channel configurations, newest first.\n\n- **Request**: none.\n- **Response** `200`: a JSON array of channel objects, ordered by `createdAt` descending. Each element:\n  ```json\n  {\n    \"id\": \"string\",\n    \"channelType\": \"slack\",\n    \"name\": \"string\",\n    \"config\": \"{\\\"webhookUrl\\\":\\\"https://...\\\"}\",\n    \"status\": \"active\",\n    \"testStatus\": \"untested\",\n    \"direction\": \"outbound\",\n    \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n    \"updatedAt\": \"2026-01-01T00:00:00.000Z\"\n  }\n  ```\n  `config` is a JSON string with secret keys masked to `****<last4>`. `channelType` is one of `slack`, `telegram`, `webhook`. `status` is `active` or `disabled`. `testStatus` is `untested`, `ok`, or `failed`. `direction` is `outbound` or `bidirectional`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 90
+    },
+    {
+      "heading": "POST /api/channels",
+      "id": "post-api-channels",
+      "level": 3,
+      "markdown": "Creates a channel configuration.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `name` | `string` | yes | Display name for the channel. |\n| `channelType` | `string` | yes | One of `slack`, `telegram`, `webhook`. |\n| `config` | `object` | yes | Type-specific settings (see below). |\n\n  Required `config` keys by type: Slack requires `webhookUrl`; Telegram requires `botToken` and `chatId`; a generic webhook requires `url`.\n- **Response** `201`: the created channel object (same masked shape as a `GET` element). Created with `status` `active` and `testStatus` `untested`; `direction` defaults to `outbound`.\n- **Errors** (all `400`):\n  - `{ \"error\": \"Name is required\" }`.\n  - `{ \"error\": \"Invalid channel type. Must be one of: slack, telegram, webhook\" }`.\n  - `{ \"error\": \"Config object is required\" }`.\n  - `{ \"error\": \"Slack channels require a webhookUrl\" }`.\n  - `{ \"error\": \"Telegram channels require botToken and chatId\" }`.\n  - `{ \"error\": \"Webhook channels require a url\" }`.\n- **Side effects**: inserts a row into the channel-config table. The `config` is stored as plaintext JSON.",
+      "wordCount": 134
+    },
+    {
+      "heading": "GET /api/channels/{id}",
+      "id": "get-api-channels-id",
+      "level": 3,
+      "markdown": "Fetches one channel configuration by id.\n\n- **Request**: none.\n- **Response** `200`: the channel object (masked).\n- **Errors**: `404` when not found: `{ \"error\": \"Channel not found\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 27
+    },
+    {
+      "heading": "PATCH /api/channels/{id}",
+      "id": "patch-api-channels-id",
+      "level": 3,
+      "markdown": "Partially updates a channel configuration. Every supplied field is optional; only provided fields change.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `name` | `string` | no | Trimmed. Must not be blank if provided. |\n| `config` | `object` | no | Replaces the stored config. Supplying it also resets `testStatus` to `untested`. |\n| `status` | `string` | no | `active` or `disabled`. |\n| `direction` | `string` | no | `outbound` or `bidirectional`. |\n\n- **Response** `200`: the updated channel object (masked). `updatedAt` is refreshed on every update.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Channel not found\" }`.\n  - `400` when `name` is provided but blank: `{ \"error\": \"Name cannot be empty\" }`.\n  - `400` on an invalid status: `{ \"error\": \"Invalid status\" }`.\n  - `400` on an invalid direction: `{ \"error\": \"Invalid direction\" }`.\n- **Side effects**: updates the channel-config row.",
+      "wordCount": 113
+    },
+    {
+      "heading": "DELETE /api/channels/{id}",
+      "id": "delete-api-channels-id",
+      "level": 3,
+      "markdown": "Deletes a channel configuration by id.\n\n- **Request**: none.\n- **Response** `200`: `{ \"deleted\": true }`.\n- **Errors**: `404` when not found: `{ \"error\": \"Channel not found\" }`.\n- **Side effects**: removes the channel-config row.",
+      "wordCount": 27
+    },
+    {
+      "heading": "POST /api/channels/{id}/test",
+      "id": "post-api-channels-id-test",
+      "level": 3,
+      "markdown": "Live-tests a channel by asking its adapter to make a real connection, then persists the result.\n\n- **Request**: none.\n- **Response** `200`: `{ \"testStatus\": \"ok\" | \"failed\", \"error\": \"string\" }`. `error` is present only on failure. The route also writes the resulting `testStatus` back to the channel row.\n  - Slack sends a test post to the configured `webhookUrl`.\n  - Telegram sends a test message via the Bot API using `botToken` and `chatId`.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Channel not found\" }`.\n  - `500` on unparseable stored config: `{ \"error\": \"Invalid channel config JSON\" }`.\n  - `500` when the adapter throws (for example an unknown channel type): `{ \"testStatus\": \"failed\", \"error\": \"<message>\" }`.\n- **Side effects**: makes an outbound call to the channel's platform and updates the row's `testStatus` and `updatedAt`.",
+      "wordCount": 116
+    },
+    {
+      "heading": "POST /api/channels/inbound/slack",
+      "id": "post-api-channels-inbound-slack",
+      "level": 3,
+      "markdown": "Receives Slack Events API callbacks. This endpoint is externally facing and verifies Slack's request signature before doing any work. It handles the one-time URL-verification challenge and ongoing message events.\n\n- **Request**:\n  - Query param `configId` identifies the channel (required except for the URL-verification challenge).\n  - Body is the raw Slack event payload. The handler reads the raw text first so it can verify the signature, then parses it as JSON.\n  - **Signature verification**: the stored channel config must contain a `signingSecret`. The handler reads the `x-slack-request-timestamp` and `x-slack-signature` headers, rejects timestamps more than five minutes old (replay protection), and compares an HMAC-SHA256 of the raw body against the signature using a constant-time check.\n  - A message event is only processed when it is a real user message: events with a bot id or a subtype, and non-message events, are accepted and ignored.\n- **Response**:\n  - URL-verification challenge: `200` `{ \"challenge\": \"<value>\" }`.\n  - Any accepted or ignored event: `200` `{ \"ok\": true }`, returned immediately. Message handling runs in the background.\n- **Errors**:\n  - `400` on an unparseable body: `{ \"error\": \"Invalid JSON\" }`.\n  - `400` when `configId` is missing (and the request is not a challenge): `{ \"error\": \"Missing configId\" }`.\n  - `404` when the channel is not found: `{ \"error\": \"Channel not found\" }`.\n  - `500` on unparseable stored config: `{ \"error\": \"Invalid channel config\" }`.\n  - `401` when the stored config has no `signingSecret`, so the request cannot be verified. The error body states that the channel config is missing its signing secret and the request cannot be verified.\n  - `403` on a signature mismatch: `{ \"error\": \"Invalid signature\" }`.\n- **Side effects**: reads the channel config. For an accepted message it dispatches to the inbound gateway without waiting, which may create a conversation, run the chat engine, and post a reply back to Slack. A message to a channel that is not `bidirectional` is dropped by the gateway.",
+      "wordCount": 292
+    },
+    {
+      "heading": "POST /api/channels/inbound/telegram",
+      "id": "post-api-channels-inbound-telegram",
+      "level": 3,
+      "markdown": "Receives Telegram Bot API webhook updates. This endpoint is externally facing and authenticates with a shared secret carried in the query string, matching Telegram's `secret_token` design.\n\n- **Request**:\n  - Query params `configId` (required) and `secret` (required), where `secret` is compared against the channel's stored `webhookSecret`.\n  - Body is the Telegram update object, parsed as JSON.\n  - Only text messages are processed. Updates without message text (edits, photos, and similar) are accepted and ignored, as are messages from a bot (loop prevention).\n  - Because the secret rides in the query string, it can appear in access logs; treat it as sensitive and rotate it if a log is exposed.\n- **Response**:\n  - Any accepted or ignored update: `200` `{ \"ok\": true }`, returned immediately. Message handling runs in the background.\n- **Errors**:\n  - `400` when `configId` is missing: `{ \"error\": \"Missing configId\" }`.\n  - `404` when the channel is not found: `{ \"error\": \"Channel not found\" }`.\n  - `500` on unparseable stored config: `{ \"error\": \"Invalid channel config\" }`.\n  - `401` when the stored config has no `webhookSecret`, so the request cannot be verified. The error body states that the channel config is missing its webhook secret and the request cannot be verified.\n  - `403` on a secret mismatch: `{ \"error\": \"Invalid secret\" }`.\n  - `400` on an unparseable body: `{ \"error\": \"Invalid JSON body\" }`.\n- **Side effects**: reads the channel config. For an accepted message it dispatches to the inbound gateway without waiting, which may create a conversation, run the chat engine, and reply via the Telegram Bot API. A message to a channel that is not `bidirectional` is dropped by the gateway.",
+      "wordCount": 246
+    },
+    {
+      "heading": "POST /api/channels/inbound/telegram/poll",
+      "id": "post-api-channels-inbound-telegram-poll",
+      "level": 3,
+      "markdown": "Polls Telegram for pending updates and processes them, for local development where Telegram cannot reach a localhost webhook. This route is for internal callers only and is driven by the local scheduler, not by a third party.\n\n- **Request**:\n  - Requires the header `x-ainative-internal` set to `poll`; any other value is rejected.\n  - Query param `configId` (required).\n  - Optional body `{ \"offset\": number }`; a missing or malformed body is tolerated.\n- **Response** `200`:\n  - When there are no updates: `{ \"processed\": 0, \"nextOffset\": <offset or null> }`.\n  - When updates were processed: `{ \"processed\": <number>, \"total\": <number>, \"nextOffset\": <number> }`, where `nextOffset` is the highest update id seen plus one.\n- **Errors**:\n  - `401` when the internal header is absent or wrong. The error body states that the endpoint is for internal use only.\n  - `400` when `configId` is missing: `{ \"error\": \"Missing configId\" }`.\n  - `404` when the channel is not found: `{ \"error\": \"Channel not found\" }`.\n  - `403` when the channel is not active: `{ \"error\": \"Channel is not active\" }`.\n  - `500` on unparseable stored config: `{ \"error\": \"Invalid channel config\" }`.\n  - `400` when the config has no bot token: `{ \"error\": \"Missing botToken in config\" }`.\n  - `502` when Telegram's `getUpdates` reports failure: `{ \"error\": \"Telegram getUpdates failed\" }`.\n  - `502` when the call to Telegram throws: `{ \"error\": \"<message>\" }`.\n- **Side effects**: calls Telegram's `getUpdates`, processes each non-bot text update synchronously through the inbound gateway (which may run the chat engine and reply), then calls `getUpdates` again with the advanced offset to acknowledge consumed updates.",
+      "wordCount": 227
+    },
+    {
+      "heading": "Do Not Depend On",
+      "id": "do-not-depend-on",
+      "level": 2,
+      "markdown": "- The exact masking format for secrets (`****` plus the last four characters) is a display convenience and may change; never parse a masked value back into a usable credential.\n- The background, fire-and-forget dispatch of inbound Slack and Telegram messages is an implementation detail. Do not assume a `200` means a reply was delivered; observe the channel itself for the reply.\n- The internal poll route (`/telegram/poll`) exists for local development and is gated to the scheduler. Do not build against it as a public integration point.\n- The internal gateway's rejection of outbound-only channels is silent at the HTTP layer. Set a channel to `bidirectional` explicitly if you expect inbound handling.",
+      "wordCount": 109
+    }
+  ],
+  "sourceHash": "67ee7fbdff5e38c4a687ba6059d087a36dfd848f9a5202a552987a559675599d",
+  "sourcePath": "api/reference/08-webhooks-and-channels.md",
+  "sourceStateHash": "5a80e8873e1e44dd3aa50d2d909c401b278e1308dc6422d2ecd9a29b8177c53b",
+  "stability": "webhook",
+  "summary": "Document channel setup, testing, and inbound Slack/Telegram webhook routes.",
+  "title": "Channels And Webhooks API"
+}

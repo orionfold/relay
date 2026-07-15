@@ -1,0 +1,224 @@
+{
+  "apiPaths": [
+    "/api/data/clear",
+    "/api/data/seed",
+    "/api/diagnostics/chat-streams",
+    "/api/logs/stream",
+    "/api/plugins",
+    "/api/plugins/reload",
+    "/api/plugins/scaffold",
+    "/api/snapshots",
+    "/api/snapshots/{id}",
+    "/api/snapshots/{id}/restore",
+    "/api/snapshots/settings",
+    "/api/telemetry",
+    "/api/uploads",
+    "/api/uploads/{id}",
+    "/api/uploads/cleanup"
+  ],
+  "contentHash": "516b0c62d38de341b1119079f04fa2e0e42ed8641eb1e646d4cedfa5e8f1c307",
+  "features": [],
+  "id": "api:07-files-observability-maintenance",
+  "journeys": [],
+  "kind": "api",
+  "productRoutes": [],
+  "schemaVersion": 1,
+  "screenshots": [],
+  "sections": [
+    {
+      "heading": "Who This Is For",
+      "id": "who-this-is-for",
+      "level": 2,
+      "markdown": "This group is for a developer running and maintaining a local Relay instance: uploading and serving files, taking and restoring full-state snapshots, loading and scaffolding plugins, reading live telemetry and stream diagnostics, and seeding or clearing data in a staging build. Read this if you are building a backup workflow, wiring an upload flow into a task, polling a live log stream, or standing up a disposable staging instance with realistic sample data.\n\nSeveral routes here are destructive or gated. Restore overwrites the live database; data seed and clear only run on a staging build; diagnostics is disabled in production. Each such gate is called out on the route.",
+      "wordCount": 109
+    },
+    {
+      "heading": "Stability",
+      "id": "stability",
+      "level": 2,
+      "markdown": "`app-internal`\n\nThese routes power the Relay web app and its maintenance surfaces. Their request and response shapes are tied to the app's own screens and may change between releases, so branch on HTTP status codes rather than on the internal structure of a response body, and treat every response field as additive.",
+      "wordCount": 52
+    },
+    {
+      "heading": "Local Access Model",
+      "id": "local-access-model",
+      "level": 2,
+      "markdown": "Relay API routes run inside the local Relay app. Use `http://127.0.0.1:<port>` in examples, where `<port>` is the port your instance is bound to (3000 by default).\n\nDo not expose these routes on a public network without your own access controls. These routes read and write the local SQLite database, read and write files on disk, run background jobs, and in the case of restore and clear, delete data irreversibly.",
+      "wordCount": 74
+    },
+    {
+      "heading": "Conventions For This Group",
+      "id": "conventions-for-this-group",
+      "level": 2,
+      "markdown": "These behaviors hold across the routes below, so they are stated once here rather than repeated per endpoint:\n\n- **Staging gate.** The data-seed and data-clear routes only run when data operations are allowed, which means either a non-production build or a build launched with `RELAY_STAGING` set to `true`. On a normal production build they return `403` and do nothing.\n- **Diagnostics gate.** The chat-stream diagnostics route returns `403` when `NODE_ENV` is `production`.\n- **Timestamps.** Database timestamp columns (`agentLogs.timestamp`, `snapshots.createdAt`, `documents.createdAt`) serialize to ISO date strings on the wire. Two responses are exceptions and carry a numeric epoch in milliseconds instead: the diagnostics `TerminationEvent.timestamp`, which is noted where it appears.\n- **Raw file responses.** The upload-download route returns raw file bytes, not JSON, with a content type derived from the file extension and `X-Content-Type-Options: nosniff`. Downloads are forced with `Content-Disposition: attachment` so a stored file cannot render inline as HTML.\n- **Streaming responses.** The log-stream route is Server-Sent Events (`text/event-stream`), not a single JSON response. Its format is described on the route.\n- **Validation.** Most write routes here read the JSON body without a shared schema; the plugin-scaffold route is the exception and validates with Zod. Error bodies are `{ \"error\": \"<message>\" }`, with some routes adding a `code` field, noted per route.",
+      "wordCount": 207
+    },
+    {
+      "heading": "Endpoint Families",
+      "id": "endpoint-families",
+      "level": 2,
+      "markdown": "- `uploads`\n- `snapshots`\n- `plugins`\n- `telemetry`\n- `diagnostics`\n- `data`",
+      "wordCount": 6
+    },
+    {
+      "heading": "Endpoints",
+      "id": "endpoints",
+      "level": 2,
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/data/clear` | `app-internal` | `src/app/api/data/clear/route.ts` |\n| `POST` | `/api/data/seed` | `app-internal` | `src/app/api/data/seed/route.ts` |\n| `GET` | `/api/diagnostics/chat-streams` | `app-internal` | `src/app/api/diagnostics/chat-streams/route.ts` |\n| `GET` | `/api/logs/stream` | `app-internal` | `src/app/api/logs/stream/route.ts` |\n| `GET` | `/api/plugins` | `app-internal` | `src/app/api/plugins/route.ts` |\n| `POST` | `/api/plugins/reload` | `app-internal` | `src/app/api/plugins/reload/route.ts` |\n| `POST` | `/api/plugins/scaffold` | `app-internal` | `src/app/api/plugins/scaffold/route.ts` |\n| `GET`, `POST` | `/api/snapshots` | `app-internal` | `src/app/api/snapshots/route.ts` |\n| `DELETE`, `GET` | `/api/snapshots/{id}` | `app-internal` | `src/app/api/snapshots/[id]/route.ts` |\n| `POST` | `/api/snapshots/{id}/restore` | `app-internal` | `src/app/api/snapshots/[id]/restore/route.ts` |\n| `GET`, `PUT` | `/api/snapshots/settings` | `app-internal` | `src/app/api/snapshots/settings/route.ts` |\n| `GET` | `/api/telemetry` | `app-internal` | `src/app/api/telemetry/route.ts` |\n| `POST` | `/api/uploads` | `app-internal` | `src/app/api/uploads/route.ts` |\n| `DELETE`, `GET` | `/api/uploads/{id}` | `app-internal` | `src/app/api/uploads/[id]/route.ts` |\n| `POST` | `/api/uploads/cleanup` | `app-internal` | `src/app/api/uploads/cleanup/route.ts` |",
+      "wordCount": 183
+    },
+    {
+      "heading": "Endpoint Reference",
+      "id": "endpoint-reference",
+      "level": 2,
+      "markdown": "",
+      "wordCount": 0
+    },
+    {
+      "heading": "POST /api/uploads",
+      "id": "post-api-uploads",
+      "level": 3,
+      "markdown": "Accepts a file upload, writes it to disk, records a document row, and starts background processing.\n\n- **Request** `multipart/form-data`:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `file` | File | yes | Maximum 50 MB. |\n| `taskId` | `string` | no | Associates the upload with a task. |\n\n- **Response** `201`:\n  ```json\n  {\n    \"id\": \"string\",\n    \"filename\": \"string\",\n    \"originalName\": \"string\",\n    \"size\": 12345,\n    \"type\": \"application/pdf\",\n    \"taskId\": \"string\"\n  }\n  ```\n  `filename` is a generated `<uuid>.<ext>`. `taskId` is null when not supplied.\n- **Errors**:\n  - `400` when no file is present: `{ \"error\": \"No file provided\" }`.\n  - `400` when the file is over the limit: `{ \"error\": \"File too large (max 50MB)\" }`.\n- **Side effects**: writes the file to the uploads directory, inserts a `documents` row with `status` `uploaded`, and starts background text extraction. If extraction fails, the row is updated to `status` `error`.",
+      "wordCount": 122
+    },
+    {
+      "heading": "GET /api/uploads/{id}",
+      "id": "get-api-uploads-id",
+      "level": 3,
+      "markdown": "Streams an uploaded file's bytes back as a forced download.\n\n- **Request**: none. Matches the first on-disk file whose name starts with `id`.\n- **Response** `200`: raw file bytes (not JSON), with a content type derived from the extension, `Content-Disposition: attachment`, and `X-Content-Type-Options: nosniff`.\n- **Errors**: `404` when no matching file is found: `{ \"error\": \"File not found\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 58
+    },
+    {
+      "heading": "DELETE /api/uploads/{id}",
+      "id": "delete-api-uploads-id",
+      "level": 3,
+      "markdown": "Deletes an uploaded file and its document row.\n\n- **Request**: none.\n- **Response** `204`: empty body.\n- **Errors**:\n  - `404` when no matching file exists: `{ \"error\": \"File not found\" }`.\n  - `500` on a delete failure: `{ \"error\": \"Failed to delete file\" }`.\n- **Side effects**: removes the file from disk and deletes the `documents` row.",
+      "wordCount": 47
+    },
+    {
+      "heading": "POST /api/uploads/cleanup",
+      "id": "post-api-uploads-cleanup",
+      "level": 3,
+      "markdown": "Deletes orphaned upload files: files older than 24 hours with no matching document row.\n\n- **Request**: none.\n- **Response** `200`: `{ \"deleted\": [\"string\"], \"errors\": [\"string\"] }`. `deleted` lists removed filenames; `errors` lists `\"<filename>: <message>\"` strings for files that could not be removed.\n- **Errors**: none returned at the HTTP layer; a directory-read failure is logged and the route still returns `200` with whatever was collected.\n- **Side effects**: removes orphaned files from disk.",
+      "wordCount": 67
+    },
+    {
+      "heading": "GET /api/snapshots",
+      "id": "get-api-snapshots",
+      "level": 3,
+      "markdown": "Lists all snapshots, newest first, with total disk usage.\n\n- **Request**: none.\n- **Response** `200`:\n  ```json\n  {\n    \"snapshots\": [\n      {\n        \"id\": \"string\",\n        \"label\": \"string\",\n        \"type\": \"manual\",\n        \"status\": \"completed\",\n        \"filePath\": \"string\",\n        \"sizeBytes\": 0,\n        \"dbSizeBytes\": 0,\n        \"filesSizeBytes\": 0,\n        \"fileCount\": 0,\n        \"error\": null,\n        \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n        \"filesMissing\": false\n      }\n    ],\n    \"totalBytes\": 0,\n    \"snapshotCount\": 0\n  }\n  ```\n  `type` is `manual` or `auto`. `status` is `in_progress`, `completed`, or `failed`. `filesMissing` is true only when a completed snapshot's file is absent from disk.\n- **Errors**: `500` on failure: `{ \"error\": \"Failed to list snapshots\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 82
+    },
+    {
+      "heading": "POST /api/snapshots",
+      "id": "post-api-snapshots",
+      "level": 3,
+      "markdown": "Creates a manual full-state snapshot: a database backup plus a tarball of the data directories and a manifest.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `label` | `string` | no | Trimmed. Defaults to `Manual snapshot` when absent or blank. |\n\n- **Response** `201`: the created snapshot object (same shape as a `GET` element).\n- **Errors**:\n  - `409` when another snapshot operation is in progress: `{ \"error\": \"Another snapshot operation is already in progress\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to create snapshot\" }`.\n- **Side effects**: inserts an `in_progress` row, backs up the database, tars the data directories, writes a manifest, and updates the row to `completed`. On failure the row is marked `failed` and the partial directory is removed. Only one snapshot operation runs at a time.",
+      "wordCount": 117
+    },
+    {
+      "heading": "GET /api/snapshots/{id}",
+      "id": "get-api-snapshots-id",
+      "level": 3,
+      "markdown": "Returns one snapshot with its parsed manifest.\n\n- **Request**: none.\n- **Response** `200`: the snapshot object plus `filesMissing` and `manifest`. `manifest` is the parsed manifest object, or `null` when the manifest file is missing or corrupt. The manifest carries `version`, `timestamp` (ISO), `label`, `type`, `includedDirs`, `excludedDirs`, per-directory `dirStats`, and the byte totals.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Snapshot not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to get snapshot\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 71
+    },
+    {
+      "heading": "DELETE /api/snapshots/{id}",
+      "id": "delete-api-snapshots-id",
+      "level": 3,
+      "markdown": "Deletes a snapshot's row and its on-disk files.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true }`.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Snapshot not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to delete snapshot\" }`.\n- **Side effects**: removes the snapshot directory and deletes the row.",
+      "wordCount": 41
+    },
+    {
+      "heading": "POST /api/snapshots/{id}/restore",
+      "id": "post-api-snapshots-id-restore",
+      "level": 3,
+      "markdown": "Restores the database and files from a snapshot. This is destructive: it overwrites the live database and data directories. It first takes a pre-restore safety snapshot and refuses to run while any task is running.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true, \"requiresRestart\": true, \"preRestoreSnapshotId\": \"string\", \"message\": \"Restore complete. Please restart the server to load the restored database.\" }`.\n- **Errors**:\n  - `409` when another snapshot operation is in progress: `{ \"error\": \"Another snapshot operation is already in progress\" }`.\n  - `409` when tasks are running: `{ \"error\": \"<n> task(s) are currently running. Stop them before restoring.\", \"runningTasks\": [ { \"id\": \"string\", \"title\": \"string\" } ] }`.\n  - `500` on failure: `{ \"error\": \"Failed to restore snapshot\" }`. This covers a missing or incomplete snapshot and missing snapshot files.\n- **Side effects**: creates an auto pre-restore snapshot, replaces the live data directories from the tarball, copies the snapshot database over the live database, and clears the write-ahead log files. A server restart is required afterward.",
+      "wordCount": 149
+    },
+    {
+      "heading": "GET /api/snapshots/settings",
+      "id": "get-api-snapshots-settings",
+      "level": 3,
+      "markdown": "Reads the auto-backup and retention settings, with defaults applied.\n\n- **Request**: none.\n- **Response** `200`: `{ \"enabled\": \"false\", \"interval\": \"1d\", \"maxCount\": \"10\", \"maxAgeWeeks\": \"4\" }`. All values are strings. The shown values are the defaults when unset.\n- **Errors**: `500` on failure: `{ \"error\": \"Failed to read settings\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 46
+    },
+    {
+      "heading": "PUT /api/snapshots/settings",
+      "id": "put-api-snapshots-settings",
+      "level": 3,
+      "markdown": "Updates any provided snapshot settings.\n\n- **Request** body (JSON), all optional. Each provided value is stored as a string:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `enabled` | `string` or `boolean` | no | Coerced to a string. |\n| `interval` | `string` | no | For example `1d`. |\n| `maxCount` | `string` or `number` | no | Coerced to a string. |\n| `maxAgeWeeks` | `string` or `number` | no | Coerced to a string. |\n\n- **Response** `200`: `{ \"success\": true }`.\n- **Errors**: `500` on failure: `{ \"error\": \"Failed to save settings\" }`.\n- **Side effects**: upserts the provided settings rows.",
+      "wordCount": 75
+    },
+    {
+      "heading": "GET /api/plugins",
+      "id": "get-api-plugins",
+      "level": 3,
+      "markdown": "Rescans the plugins directory on disk and returns the full loaded-plugin list.\n\n- **Request**: none.\n- **Response** `200`: `{ \"plugins\": [ ... ] }`. Each plugin:\n  ```json\n  {\n    \"id\": \"string\",\n    \"manifest\": { \"id\": \"string\", \"version\": \"string\", \"apiVersion\": \"string\", \"kind\": \"primitives-bundle\" },\n    \"rootDir\": \"string\",\n    \"profiles\": [\"string\"],\n    \"blueprints\": [\"string\"],\n    \"tables\": [\"string\"],\n    \"schedules\": [\"string\"],\n    \"status\": \"loaded\",\n    \"error\": \"string\"\n  }\n  ```\n  `manifest.kind` is `primitives-bundle` or `chat-tools`; a `chat-tools` manifest additionally carries `capabilities`. `status` is `loaded` or `disabled`; `error` is present only on a disabled plugin.\n- **Errors**: none returned explicitly.\n- **Side effects**: despite being a `GET`, this reloads the plugin registry: it re-merges plugin profiles, blueprints, and schedules, rewrites plugin-owned table rows, upserts plugin schedules, and appends to the plugin log.",
+      "wordCount": 105
+    },
+    {
+      "heading": "POST /api/plugins/reload",
+      "id": "post-api-plugins-reload",
+      "level": 3,
+      "markdown": "Reloads all plugins and returns a compact summary.\n\n- **Request**: none.\n- **Response** `200`: `{ \"loaded\": [ { \"id\": \"string\", \"profiles\": [\"string\"], \"blueprints\": [\"string\"], \"tables\": [\"string\"] } ], \"disabled\": [ { \"id\": \"string\", \"error\": \"string\" } ] }`.\n- **Errors**: none returned explicitly.\n- **Side effects**: same as `GET /api/plugins`, a full plugin-registry reload.",
+      "wordCount": 41
+    },
+    {
+      "heading": "POST /api/plugins/scaffold",
+      "id": "post-api-plugins-scaffold",
+      "level": 3,
+      "markdown": "Scaffolds a new MCP (chat-tools) plugin directory from a validated spec. It does not register the plugin; reload afterward to pick it up.\n\n- **Request** body (JSON), validated by Zod:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `id` | `string` | yes | Kebab-case slug matching `^[a-z][a-z0-9-]*[a-z0-9]$`. |\n| `name` | `string` | yes | Non-empty. |\n| `description` | `string` | yes | Non-empty. |\n| `capabilities` | `string[]` | no | Defaults to `[]`. |\n| `transport` | `string` | no | `stdio` or `inprocess`. Defaults to `stdio`. |\n| `language` | `string` | no | `python` or `node`. Defaults to `python`. |\n| `tools` | array | yes | At least one tool. Each: `{ name (matching ^[a-z][a-z0-9_]*$), description, inputSchema? }`. |\n\n- **Response** `200`: `{ \"ok\": true, \"id\": \"string\", \"pluginDir\": \"string\", \"files\": { \"pluginYaml\": \"string\", \"mcpJson\": \"string\", \"serverPy\": \"string\", \"readme\": \"string\" }, \"tools\": [\"string\"], \"message\": \"Scaffolded <id>. Reload ainative to register.\" }`.\n- **Errors** (each body carries a `code`):\n  - `400` on unparseable JSON: `{ \"error\": \"Malformed JSON body\", \"code\": \"bad_request\" }`.\n  - `400` on validation failure: `{ \"error\": \"<joined issues>\", \"code\": \"validation_failed\" }`.\n  - `400` on an invalid id: `{ \"error\": \"<message>\", \"code\": \"invalid_id\" }`.\n  - `409` when the plugin directory already exists: `{ \"error\": \"<message>\", \"code\": \"already_exists\" }`.\n  - `500` on a write failure: `{ \"error\": \"<message>\", \"code\": \"write_failed\" }`.\n  - `500` on any other failure: `{ \"error\": \"<message>\", \"code\": \"internal_error\" }`.\n- **Side effects**: atomically writes a new plugin directory (`plugin.yaml`, `.mcp.json`, `server.py`, `README.md`) via a temp directory and rename. No database writes and no registry reload.",
+      "wordCount": 199
+    },
+    {
+      "heading": "GET /api/telemetry",
+      "id": "get-api-telemetry",
+      "level": 3,
+      "markdown": "Aggregates a live telemetry snapshot: task, project, and workflow counts, cost windows, runtime info, trend sparklines, and host metrics.\n\n- **Request**: none.\n- **Response** `200`: a snapshot object with, among others, `tasksRunning`, `tasksFailed`, `completedToday`, `activeProjects`, `activeWorkflows`, `reviewPending`, `costTodayMicros`, `costToDateMicros`, `budgetMonthlyCapMicros`, `runtimeLabel`, `providerId`, `runtimeSdkVersion`, a `trends` block (`agentActivity24h`, `completions7d`, `failures7d`), and a `host` block (`cwd`, `folderName`, `branch`, `cpuLoadPct`, `memUsedPct`). Costs are integer micro-dollars. `cpuLoadPct` and `memUsedPct` are null on a platform that does not report them.\n- **Errors**: `500` on failure: `{ \"error\": \"TelemetrySnapshotError\", \"message\": \"<message>\" }`.\n- **Side effects**: reads only. The route is not cached.",
+      "wordCount": 90
+    },
+    {
+      "heading": "GET /api/diagnostics/chat-streams",
+      "id": "get-api-diagnostics-chat-streams",
+      "level": 3,
+      "markdown": "Reports how chat SSE streams terminated, from an in-memory ring buffer. Development only.\n\n- **Request** query params:\n\n| Param | Type | Required | Notes |\n|---|---|---|---|\n| `windowMinutes` | `number` | no | Restricts counts to the last N minutes. |\n| `limit` | `number` | no | Recent-event cap. Defaults to 50, clamped to 1 through 500. |\n\n- **Response** `200`: `{ \"windowMinutes\": 0, \"totalEvents\": 0, \"counts\": { \"stream.completed\": 0, \"stream.aborted.signal\": 0, \"stream.aborted.client\": 0, \"stream.finalized.error\": 0, \"stream.abandoned\": 0, \"stream.reconciled.stale\": 0 }, \"recent\": [ ... ] }`. Each recent event carries `reason`, `conversationId`, `messageId`, `durationMs`, an optional `error`, and a numeric `timestamp` (epoch milliseconds, not ISO).\n- **Errors**: `403` in production: `{ \"error\": \"Diagnostics disabled in production\" }`.\n- **Side effects**: reads only, from a process-local buffer.",
+      "wordCount": 109
+    },
+    {
+      "heading": "GET /api/logs/stream",
+      "id": "get-api-logs-stream",
+      "level": 3,
+      "markdown": "Opens a Server-Sent Events stream of agent log rows as they arrive, optionally filtered.\n\n- **Request** query params:\n\n| Param | Type | Required | Notes |\n|---|---|---|---|\n| `taskId` | `string` | no | Filters to one task. |\n| `eventType` | `string` | no | Filters to one event type. |\n\n- **Response** `200` with `Content-Type: text/event-stream`. The stream emits:\n  - Log rows as `data: <json>` events, where the JSON is an `agentLogs` row (`id`, `taskId`, `agentType`, `event`, `payload`, and an ISO `timestamp`). Rows arrive oldest-first, up to 50 per poll cycle.\n  - On a database error, `data: {\"type\":\"error\",\"message\":\"Database query failed\"}`.\n  - Keepalive comments every 15 seconds.\n  There is no terminal event; the stream stays open until the client disconnects.\n- **Errors**: none at the HTTP layer; the route always returns `200` and surfaces failures as in-stream error events.\n- **Side effects**: polls the agent-logs table every 500 milliseconds until the client disconnects.",
+      "wordCount": 136
+    },
+    {
+      "heading": "POST /api/data/seed",
+      "id": "post-api-data-seed",
+      "level": 3,
+      "markdown": "Clears all data, then seeds realistic sample data across every entity and reseeds installed packs. Staging only.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true, \"seeded\": { ... } }`, where `seeded` is a map of per-entity insert counts plus pack-reseed counts and a `packReseedErrors` array of `{ \"packId\": \"string\", \"error\": \"string\" }`.\n- **Errors**:\n  - `403` on a non-staging build: `{ \"success\": false, \"error\": \"Sample data seeding is a staging-only tool and is disabled on this build.\" }`.\n  - `500` on failure: `{ \"success\": false, \"error\": \"<message>\" }`.\n- **Side effects**: clears all data first (see the clear route), then inserts sample rows across every table, writes and processes sample documents, and reseeds installed packs.",
+      "wordCount": 100
+    },
+    {
+      "heading": "POST /api/data/clear",
+      "id": "post-api-data-clear",
+      "level": 3,
+      "markdown": "Wipes all operational data tables and uploaded and screenshot files, in a foreign-key-safe order. Staging only. The settings and snapshots tables are preserved.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true, \"deleted\": { ... } }`, where `deleted` is a map of per-table deletion counts.\n- **Errors**:\n  - `403` on a non-staging build: `{ \"success\": false, \"error\": \"Clearing data is a staging-only tool and is disabled on this build.\" }`.\n  - `500` on failure: `{ \"success\": false, \"error\": \"<message>\" }`.\n- **Side effects**: deletes rows across the operational tables and removes all files in the uploads and screenshots directories, recreating those directories empty.",
+      "wordCount": 89
+    },
+    {
+      "heading": "Do Not Depend On",
+      "id": "do-not-depend-on",
+      "level": 2,
+      "markdown": "- The exact set of per-table keys returned by the data-seed and data-clear routes is an internal detail; new tables are added over time. Treat the maps as informational counts, not a schema.\n- The `GET /api/plugins` route reloads the registry as a side effect. Do not rely on it being a pure read, and do not call it in a hot loop.\n- Snapshot restore requires a manual server restart to take effect; there is no automatic reload of the restored database in-process.\n- The staging and diagnostics gates are enforced by build configuration. Do not build a production integration against the seed, clear, or diagnostics routes.",
+      "wordCount": 105
+    }
+  ],
+  "sourceHash": "aef4b6e31ece91c8159a1570b1e9a334b84548f2d2b2bb2d5cc91a6452a8c761",
+  "sourcePath": "api/reference/07-files-observability-maintenance.md",
+  "sourceStateHash": "7b84f8f017c69b8bfa3808e6099d3153bd0005dca09cae847c08c1fe78882ce7",
+  "stability": "admin-local",
+  "summary": "Document upload, snapshot, logs, telemetry, diagnostics, seed/clear, and plugin routes.",
+  "title": "Files, Observability, And Maintenance API"
+}
