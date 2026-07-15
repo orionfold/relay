@@ -8,8 +8,17 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.41.0] — 2026-07-14
+
 ### Added
 
+- **LiteLLM and LM Studio are first-class self-hosted runtimes.** Each has
+  independent Settings, model discovery, truthful requested/effective target
+  receipts, and supported Chat, task, workflow, and schedule execution through
+  the shared OpenAI-compatible transport.
+- **Apps and schedules can enforce explicit operating budgets.** Operators can
+  configure per-run, daily, and monthly ceilings with visible notify or pause
+  behavior, and portable Packs preserve schedule-scoped policies.
 - **Workflow recovery now has an executable state-transition contract.** The
   bounded matrix protects sequence, parallel, loop, delay, human-input, stop,
   and step-retry recovery with real SQLite state and deterministic concurrency
@@ -21,6 +30,9 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Changed
 
+- **Release qualification now uses one risk-tiered quality contract.** Local,
+  merge, and tag workflows share coverage ratchets, mutation checks, runtime
+  graph smoke, harness safety, public-boundary checks, and packaged CLI guards.
 - **Manual and explicit runtime choices now have distinct, truthful behavior.**
   Manual routing uses Relay's default runtime with auto-routing disabled, while
   a compatible explicit runtime/model is honored exactly. Automatic routing

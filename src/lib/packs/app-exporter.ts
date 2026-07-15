@@ -464,7 +464,10 @@ export async function buildAppPackArtifact(
     name: manifest.name,
     author: options.author ?? manifest.author ?? "Relay community",
     description: manifest.description,
-    relayCore: ">=0.36.0",
+    // Exported manifests include budgetPolicies, introduced in Relay 0.41.
+    // Older strict AppManifest schemas reject that field, so advertise the
+    // true minimum core instead of allowing a misleading late parse failure.
+    relayCore: ">=0.41.0",
     customers: [],
   });
 

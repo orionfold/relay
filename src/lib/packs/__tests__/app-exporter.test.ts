@@ -160,6 +160,9 @@ describe("buildAppPackArtifact", () => {
     vi.stubGlobal("fetch", fetchSpy);
 
     const artifact = await buildAppPackArtifact(APP_ID);
+    const meta = yaml.load(artifactText(artifact.files, "pack.yaml")) as {
+      relayCore: string;
+    };
     const manifest = yaml.load(artifactText(artifact.files, "base/manifest.yaml")) as {
       tables: Array<Record<string, unknown>>;
       blueprints: Array<{ trigger: { table: string } }>;
@@ -168,6 +171,7 @@ describe("buildAppPackArtifact", () => {
       view: { bindings: { hero: { table: string }; cadence: { schedule: string } } };
     };
 
+    expect(meta.relayCore).toBe(">=0.41.0");
     expect(manifest.tables[0]).toMatchObject({
       id: `${APP_ID}--metrics`,
       name: "Metrics",
@@ -222,7 +226,7 @@ describe("buildAppPackArtifact", () => {
     await exportAppPackToDirectory(APP_ID, { outputDir });
     await removeRuntimeApp();
 
-    await installPack(outputDir, { coreVersion: "0.36.5" });
+    await installPack(outputDir, { coreVersion: "0.41.0" });
 
     const installed = getApp(APP_ID);
     expect(installed).not.toBeNull();
