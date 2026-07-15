@@ -5,7 +5,7 @@ import { buildNoCompatibleRuntimeError } from "../execution-target";
 const {
   mockGetRuntimeSetupStates,
   mockListConfiguredRuntimeIds,
-  mockGetRoutingPreference,
+  mockGetRoutingSettings,
   mockTestRuntimeConnection,
   mockGetProfile,
   mockProfileSupportsRuntime,
@@ -13,7 +13,7 @@ const {
 } = vi.hoisted(() => ({
   mockGetRuntimeSetupStates: vi.fn(),
   mockListConfiguredRuntimeIds: vi.fn(),
-  mockGetRoutingPreference: vi.fn(),
+  mockGetRoutingSettings: vi.fn(),
   mockTestRuntimeConnection: vi.fn(),
   mockGetProfile: vi.fn(),
   mockProfileSupportsRuntime: vi.fn(),
@@ -26,7 +26,7 @@ vi.mock("@/lib/settings/runtime-setup", () => ({
 }));
 
 vi.mock("@/lib/settings/routing", () => ({
-  getRoutingPreference: mockGetRoutingPreference,
+  getRoutingSettings: mockGetRoutingSettings,
 }));
 
 vi.mock("@/lib/agents/runtime/index", () => ({
@@ -54,8 +54,8 @@ import {
   resolveTaskExecutionTarget,
 } from "../execution-target";
 
-function makeStates(configured: AgentRuntimeId[]) {
-  const all: AgentRuntimeId[] = [
+function runtimeIdsForTest(): AgentRuntimeId[] {
+  return [
     "claude-code",
     "openai-codex-app-server",
     "anthropic-direct",
@@ -64,6 +64,10 @@ function makeStates(configured: AgentRuntimeId[]) {
     "litellm",
     "lmstudio",
   ];
+}
+
+function makeStates(configured: AgentRuntimeId[]) {
+  const all = runtimeIdsForTest();
 
   return Object.fromEntries(
     all.map((runtimeId) => [
@@ -76,6 +80,35 @@ function makeStates(configured: AgentRuntimeId[]) {
   );
 }
 
+function routingSettings(input?: {
+  preference?: "latency" | "cost" | "quality" | "manual";
+  eligibleRuntimeIds?: AgentRuntimeId[];
+  manualDefaultRuntimeId?: AgentRuntimeId;
+  automaticFallback?: boolean;
+}) {
+  return {
+    preference: input?.preference ?? "latency",
+    policy: {
+      version: 1,
+      eligibleRuntimeIds: input?.eligibleRuntimeIds ?? [
+        "claude-code",
+        "openai-codex-app-server",
+        "anthropic-direct",
+        "openai-direct",
+        "ollama",
+        "litellm",
+        "lmstudio",
+      ],
+      manualDefaultRuntimeId:
+        input?.manualDefaultRuntimeId ?? "claude-code",
+      automaticFallback: input?.automaticFallback ?? true,
+    },
+    source: "stored",
+    needsPersistence: false,
+    repairReason: null,
+  };
+}
+
 describe("execution target resolver", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -86,17 +119,19 @@ describe("execution target resolver", () => {
       "claude-code",
       "openai-codex-app-server",
     ]);
-    mockGetRoutingPreference.mockResolvedValue("latency");
+    mockGetRoutingSettings.mockResolvedValue(routingSettings());
     mockProfileSupportsRuntime.mockReturnValue(true);
     mockSuggestRuntime.mockImplementation(
       (
         _title: string,
         _description: string | undefined,
         _profileId: string | undefined,
-        availableRuntimeIds: AgentRuntimeId[]
+        candidates: Array<{ runtimeId: AgentRuntimeId }>
       ) => ({
-        runtimeId: availableRuntimeIds[0],
+        runtimeId: candidates[0].runtimeId,
+        orderedRuntimeIds: candidates.map((candidate) => candidate.runtimeId),
         reason: "test",
+        evidence: "pool-order",
       })
     );
     mockTestRuntimeConnection.mockImplementation((runtimeId: AgentRuntimeId) => {
@@ -124,6 +159,30 @@ describe("execution target resolver", () => {
         profileId: "upgrade-assistant",
       })
     ).rejects.toBeInstanceOf(RuntimeUnavailableError);
+  });
+
+  it("redacts provider credential fingerprints from target errors", async () => {
+    mockGetRuntimeSetupStates.mockResolvedValue(makeStates(["openai-direct"]));
+    mockListConfiguredRuntimeIds.mockReturnValue(["openai-direct"]);
+    mockGetProfile.mockReturnValue({ id: "general", allowedTools: [] });
+    mockTestRuntimeConnection.mockResolvedValue({
+      connected: false,
+      error: "401 Invalid API key sk-proj-****************_0MA",
+    });
+
+    const error = await resolveTaskExecutionTarget({
+      title: "Provider health",
+      requestedRuntimeId: "openai-direct",
+      profileId: "general",
+    }).then(
+      () => null,
+      (caught) => caught as Error,
+    );
+
+    expect(error).toBeInstanceOf(RuntimeUnavailableError);
+    expect(error?.message).toContain("[redacted credential]");
+    expect(error?.message).not.toContain("sk-proj-");
+    expect(error?.message).not.toContain("_0MA");
   });
 
   it("names a capability mismatch for an explicit runtime", async () => {
@@ -191,7 +250,9 @@ describe("execution target resolver", () => {
     });
     mockSuggestRuntime.mockReturnValue({
       runtimeId: "openai-codex-app-server",
+      orderedRuntimeIds: ["openai-codex-app-server", "claude-code"],
       reason: "test",
+      evidence: "pool-order",
     });
 
     const target = await resolveTaskExecutionTarget({
@@ -207,7 +268,15 @@ describe("execution target resolver", () => {
   });
 
   it("uses the default runtime without auto-routing when routing is Manual", async () => {
-    mockGetRoutingPreference.mockResolvedValue("manual");
+    mockGetRoutingSettings.mockResolvedValue({
+      preference: "manual",
+      policy: {
+        version: 1,
+        eligibleRuntimeIds: ["claude-code"],
+        manualDefaultRuntimeId: "openai-codex-app-server",
+        automaticFallback: true,
+      },
+    });
     mockGetProfile.mockReturnValue({
       id: "general",
       allowedTools: [],
@@ -220,9 +289,9 @@ describe("execution target resolver", () => {
     });
 
     expect(target.requestedRuntimeId).toBeNull();
-    expect(target.effectiveRuntimeId).toBe("claude-code");
+    expect(target.effectiveRuntimeId).toBe("openai-codex-app-server");
     expect(target.selectionMode).toBe("manual-default");
-    expect(target.selectionReason).toContain("auto-routing is off");
+    expect(target.selectionReason).toContain("Manual routing is strict");
     expect(mockSuggestRuntime).not.toHaveBeenCalled();
   });
 
@@ -242,10 +311,148 @@ describe("execution target resolver", () => {
         unavailableReasons: { "claude-code": "Claude Code failed to launch" },
       })
     ).rejects.toMatchObject({
-      name: "RuntimeUnavailableError",
-      message: "Claude Code failed to launch",
+      name: "NoEligibleRuntimeError",
+      message: expect.stringContaining("Claude Code failed to launch"),
     });
     expect(mockSuggestRuntime).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["claude-code", "sonnet"],
+    ["openai-codex-app-server", "gpt-5.3-codex"],
+    ["anthropic-direct", "claude-sonnet-4-6"],
+    ["openai-direct", "gpt-5.4-mini"],
+    ["ollama", "qwen3:8b"],
+    ["litellm", "support-alias"],
+    ["lmstudio", "loaded-model"],
+  ] as const)(
+    "selects eligible runtime %s with its profile-pinned model",
+    async (runtimeId, modelId) => {
+      mockGetRuntimeSetupStates.mockResolvedValue(makeStates([...runtimeIdsForTest()]));
+      mockListConfiguredRuntimeIds.mockReturnValue([...runtimeIdsForTest()]);
+      mockGetRoutingSettings.mockResolvedValue(
+        routingSettings({ eligibleRuntimeIds: [runtimeId] }),
+      );
+      mockGetProfile.mockReturnValue({
+        id: "general",
+        name: "General",
+        allowedTools: [],
+        capabilityOverrides: { [runtimeId]: { modelId } },
+      });
+      mockTestRuntimeConnection.mockResolvedValue({ connected: true });
+
+      const target = await resolveTaskExecutionTarget({
+        title: "Run the eligible target",
+        profileId: "general",
+      });
+      expect(target).toMatchObject({
+        effectiveRuntimeId: runtimeId,
+        effectiveModelId: modelId,
+        selectionMode: "automatic",
+        consideredRuntimeIds: [runtimeId],
+      });
+    },
+  );
+
+  it("keeps an explicit target outside the automatic pool strict and unchanged", async () => {
+    mockGetRoutingSettings.mockResolvedValue(
+      routingSettings({ eligibleRuntimeIds: ["ollama"] }),
+    );
+    mockGetProfile.mockReturnValue({ id: "general", allowedTools: [] });
+    mockTestRuntimeConnection.mockResolvedValue({ connected: true });
+    const target = await resolveTaskExecutionTarget({
+      title: "Explicit override",
+      profileId: "general",
+      requestedRuntimeId: "openai-codex-app-server",
+    });
+    expect(target).toMatchObject({
+      effectiveRuntimeId: "openai-codex-app-server",
+      selectionMode: "explicit",
+      automaticFallbackEnabled: false,
+    });
+    expect(mockSuggestRuntime).not.toHaveBeenCalled();
+  });
+
+  it("fails visibly when the automatic eligible pool is empty", async () => {
+    mockGetRoutingSettings.mockResolvedValue(
+      routingSettings({ eligibleRuntimeIds: [] }),
+    );
+    mockGetProfile.mockReturnValue({ id: "general", allowedTools: [] });
+    await expect(
+      resolveTaskExecutionTarget({ title: "No pool", profileId: "general" }),
+    ).rejects.toMatchObject({
+      name: "EmptyEligibleRuntimePoolError",
+      message: expect.stringContaining("no eligible runtimes"),
+    });
+  });
+
+  it("does not probe the next candidate when automatic fallback is disabled", async () => {
+    mockGetRoutingSettings.mockResolvedValue(
+      routingSettings({
+        eligibleRuntimeIds: ["claude-code", "openai-codex-app-server"],
+        automaticFallback: false,
+      }),
+    );
+    mockGetProfile.mockReturnValue({ id: "general", allowedTools: [] });
+    await expect(
+      resolveTaskExecutionTarget({
+        title: "No fallback",
+        profileId: "general",
+      }),
+    ).rejects.toMatchObject({
+      name: "RuntimeUnavailableError",
+      message: expect.stringContaining("Automatic fallback is disabled"),
+    });
+    expect(mockTestRuntimeConnection).toHaveBeenCalledWith("claude-code");
+    expect(mockTestRuntimeConnection).not.toHaveBeenCalledWith(
+      "openai-codex-app-server",
+    );
+  });
+
+  it("falls through unhealthy candidates only inside the eligible pool and records every skip", async () => {
+    mockGetRoutingSettings.mockResolvedValue(
+      routingSettings({
+        eligibleRuntimeIds: ["claude-code", "openai-codex-app-server"],
+        automaticFallback: true,
+      }),
+    );
+    mockGetProfile.mockReturnValue({ id: "general", allowedTools: [] });
+    const target = await resolveTaskExecutionTarget({
+      title: "Fallback",
+      profileId: "general",
+    });
+    expect(target).toMatchObject({
+      effectiveRuntimeId: "openai-codex-app-server",
+      fallbackApplied: true,
+      automaticFallbackEnabled: true,
+      skippedRuntimes: [
+        {
+          runtimeId: "claude-code",
+          reason: "Claude Code process exited with code 1",
+        },
+      ],
+    });
+  });
+
+  it("reports configuration drift and capability exclusions without broadening the pool", async () => {
+    mockGetRuntimeSetupStates.mockResolvedValue(makeStates(["ollama"]));
+    mockListConfiguredRuntimeIds.mockReturnValue(["ollama"]);
+    mockGetRoutingSettings.mockResolvedValue(
+      routingSettings({
+        eligibleRuntimeIds: ["lmstudio", "ollama"],
+      }),
+    );
+    mockGetProfile.mockReturnValue({
+      id: "writer",
+      allowedTools: ["Read", "Write"],
+    });
+    await expect(
+      resolveTaskExecutionTarget({ title: "Write", profileId: "writer" }),
+    ).rejects.toMatchObject({
+      name: "NoEligibleRuntimeError",
+      message: expect.stringMatching(/LM Studio is not configured.*Ollama lacks filesystem tools/),
+    });
+    expect(mockTestRuntimeConnection).not.toHaveBeenCalled();
   });
 
   it("falls back chat turns to the mapped alternate model when the requested runtime is unavailable", async () => {

@@ -12,6 +12,19 @@ import {
   RetryableRuntimeLaunchError,
 } from "@/lib/agents/runtime/launch-failure";
 import { getRuntimeCatalogEntry } from "@/lib/agents/runtime/catalog";
+import { sanitizeProviderError } from "@/lib/agents/runtime/provider-endpoint";
+
+function toSafeLaunchError(
+  error: RetryableRuntimeLaunchError,
+): RetryableRuntimeLaunchError {
+  const message = sanitizeProviderError(error.message);
+  if (message === error.message) return error;
+  return new RetryableRuntimeLaunchError({
+    runtimeId: error.runtimeId,
+    message,
+    cause: new Error(message),
+  });
+}
 
 async function persistExecutionTarget(
   taskId: string,
@@ -26,6 +39,27 @@ async function persistExecutionTarget(
       updatedAt: new Date(),
     })
     .where(eq(tasks.id, taskId));
+
+  await db.insert(agentLogs).values({
+    id: crypto.randomUUID(),
+    taskId,
+    agentType: "runtime-router",
+    event: "runtime_selected",
+    payload: JSON.stringify({
+      selectionMode: target.selectionMode,
+      routingPreference: target.routingPreference ?? null,
+      effectiveRuntimeId: target.effectiveRuntimeId,
+      effectiveModelId: target.effectiveModelId,
+      selectionReason: target.selectionReason.slice(0, 500),
+      automaticFallbackEnabled: target.automaticFallbackEnabled ?? false,
+      consideredRuntimeIds: (target.consideredRuntimeIds ?? []).slice(0, 7),
+      skippedRuntimes: (target.skippedRuntimes ?? []).slice(0, 7).map((skip) => ({
+        runtimeId: skip.runtimeId,
+        reason: skip.reason.slice(0, 500),
+      })),
+    }),
+    timestamp: new Date(),
+  });
 
   if (target.fallbackApplied && target.fallbackReason) {
     await db.insert(agentLogs).values({
@@ -47,6 +81,7 @@ async function logRuntimeLaunchFailure(
   taskId: string,
   error: RetryableRuntimeLaunchError
 ) {
+  const safeMessage = sanitizeProviderError(error.message);
   await db.insert(agentLogs).values({
     id: crypto.randomUUID(),
     taskId,
@@ -54,7 +89,7 @@ async function logRuntimeLaunchFailure(
     event: "runtime_launch_failed",
     payload: JSON.stringify({
       runtimeId: error.runtimeId,
-      error: error.message,
+      error: safeMessage,
     }),
     timestamp: new Date(),
   });
@@ -65,7 +100,9 @@ async function markTaskLaunchFailed(
   taskTitle: string,
   error: unknown
 ) {
-  const message = error instanceof Error ? error.message : String(error);
+  const message = sanitizeProviderError(
+    error instanceof Error ? error.message : String(error),
+  );
   await db
     .update(tasks)
     .set({
@@ -94,6 +131,7 @@ function buildLaunchFallbackTarget(input: {
   retryTarget: ResolvedExecutionTarget;
   launchError: RetryableRuntimeLaunchError;
 }): ResolvedExecutionTarget {
+  const safeLaunchMessage = sanitizeProviderError(input.launchError.message);
   const effectiveLabel = getRuntimeCatalogEntry(
     input.retryTarget.effectiveRuntimeId
   ).label;
@@ -101,7 +139,7 @@ function buildLaunchFallbackTarget(input: {
   return {
     ...input.retryTarget,
     fallbackApplied: true,
-    fallbackReason: `${input.launchError.message}. Fell back to ${effectiveLabel}.`,
+    fallbackReason: `${safeLaunchMessage}. Fell back to ${effectiveLabel}.`,
     requestedRuntimeId:
       input.retryTarget.requestedRuntimeId ?? input.originalTarget.requestedRuntimeId,
     requestedModelId:
@@ -109,7 +147,7 @@ function buildLaunchFallbackTarget(input: {
     effectiveModelId: input.retryTarget.effectiveModelId,
     effectiveRuntimeId: input.retryTarget.effectiveRuntimeId,
     selectionMode: "automatic",
-    selectionReason: `${input.launchError.message}; selected the next healthy compatible runtime`,
+    selectionReason: `${safeLaunchMessage}; selected the next healthy compatible runtime`,
   };
 }
 
@@ -118,7 +156,8 @@ async function retryTaskWithFallback(
   originalTarget: ResolvedExecutionTarget,
   launchError: RetryableRuntimeLaunchError
 ) {
-  await logRuntimeLaunchFailure(task.id, launchError);
+  const safeLaunchError = toSafeLaunchError(launchError);
+  await logRuntimeLaunchFailure(task.id, safeLaunchError);
 
   let retryTarget: ResolvedExecutionTarget;
   try {
@@ -129,7 +168,7 @@ async function retryTaskWithFallback(
       profileId: task.agentProfile,
       unavailableRuntimeIds: [launchError.runtimeId],
       unavailableReasons: {
-        [launchError.runtimeId]: launchError.message,
+        [safeLaunchError.runtimeId]: safeLaunchError.message,
       },
     });
   } catch (error) {
@@ -140,7 +179,7 @@ async function retryTaskWithFallback(
   const fallbackTarget = buildLaunchFallbackTarget({
     originalTarget,
     retryTarget,
-    launchError,
+    launchError: safeLaunchError,
   });
 
   await db
@@ -159,7 +198,9 @@ async function retryTaskWithFallback(
     return await executeTaskWithRuntime(task.id, fallbackTarget.effectiveRuntimeId);
   } catch (error) {
     if (error instanceof RetryableRuntimeLaunchError) {
-      await markTaskLaunchFailed(task.id, task.title, error);
+      const safeError = toSafeLaunchError(error);
+      await markTaskLaunchFailed(task.id, task.title, safeError);
+      throw safeError;
     }
     throw error;
   }
@@ -195,12 +236,17 @@ export async function startTaskExecution(
     return await executeTaskWithRuntime(taskId, target.effectiveRuntimeId);
   } catch (error) {
     if (error instanceof RetryableRuntimeLaunchError) {
-      if (target.requestedRuntimeId) {
-        await logRuntimeLaunchFailure(task.id, error);
-        await markTaskLaunchFailed(task.id, task.title, error);
-        throw error;
+      const safeError = toSafeLaunchError(error);
+      if (
+        target.requestedRuntimeId ||
+        target.selectionMode !== "automatic" ||
+        target.automaticFallbackEnabled !== true
+      ) {
+        await logRuntimeLaunchFailure(task.id, safeError);
+        await markTaskLaunchFailed(task.id, task.title, safeError);
+        throw safeError;
       }
-      return retryTaskWithFallback(task, target, error);
+      return retryTaskWithFallback(task, target, safeError);
     }
     throw error;
   }

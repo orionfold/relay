@@ -117,6 +117,10 @@ export async function PUT(req: NextRequest, context: RouteContext) {
       "@/lib/chat/model-discovery"
     );
     invalidateModelDiscoveryCache();
+    const { clearRuntimeRoutingStatusCache } = await import(
+      "@/lib/settings/runtime-routing-status"
+    );
+    clearRuntimeRoutingStatusCache();
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : String(error) },
@@ -151,5 +155,9 @@ export async function DELETE(_req: NextRequest, context: RouteContext) {
     "@/lib/chat/model-discovery"
   );
   invalidateModelDiscoveryCache();
+  const { clearRuntimeRoutingStatusCache } = await import(
+    "@/lib/settings/runtime-routing-status"
+  );
+  clearRuntimeRoutingStatusCache();
   return NextResponse.json({ ok: true });
 }

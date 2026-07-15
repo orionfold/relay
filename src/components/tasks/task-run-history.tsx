@@ -29,6 +29,7 @@ const ACTIVITY_LABELS: Record<string, string> = {
 
 const EVENT_LABELS: Record<string, string> = {
   started: "Started",
+  runtime_selected: "Runtime selected",
   resumed: "Resumed",
   session_resumed: "Session resumed",
   runtime_fallback: "Runtime fallback",
@@ -65,7 +66,14 @@ function payloadText(payload: string | null): { preview: string; detail: string 
   if (!payload) return { preview: "", detail: null };
   try {
     const parsed = JSON.parse(payload) as Record<string, unknown>;
-    const candidate = parsed.error ?? parsed.result ?? parsed.text ?? parsed.tool ?? parsed.message ?? parsed.title;
+    const candidate =
+      parsed.selectionReason ??
+      parsed.error ??
+      parsed.result ??
+      parsed.text ??
+      parsed.tool ??
+      parsed.message ??
+      parsed.title;
     const preview = typeof candidate === "string" ? candidate : payload;
     return {
       preview: preview.replace(/\s+/g, " ").slice(0, 120),

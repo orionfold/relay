@@ -10,6 +10,12 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Added
 
+- **Task routing now uses an explicit eligible-runtime pool.** Operators can
+  keep Latency, Cost, Quality, or strict Manual policy while independently
+  choosing and ordering eligible runtimes, previewing current health and
+  evidence, controlling automatic fallback, and reviewing a durable runtime
+  selection receipt after each attempt. Routing no longer rewrites provider
+  credentials, provider models, or the Chat default.
 - **Ollama, LiteLLM, and LM Studio now share one truthful setup workflow.**
   Settings consistently validates and saves before testing, redacts optional
   credentials, discovers provider-reported model details, and presents Ollama

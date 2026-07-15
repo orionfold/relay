@@ -1,6 +1,6 @@
 ---
 title: Routing Cascade — Dual-Provider Auth & Model Recommendations
-status: completed
+status: superseded
 shipped-date: 2026-05-03
 priority: P1
 milestone: post-mvp
@@ -8,7 +8,10 @@ source: conversation — 2026-04-18 task-routing UX audit
 dependencies: []
 ---
 
-> Verified shipped 2026-05-03 via Ship Verification on prior `planned` drift. All ACs PASS at `src/lib/settings/routing-recommendation.ts`, `src/components/settings/providers-runtimes-section.tsx`, `src/lib/settings/__tests__/routing-recommendation.test.ts`.
+> Historical implementation record: verified shipped 2026-05-03, then
+> superseded on 2026-07-15 by G-077 (`explicit-eligible-runtime-pool.md`).
+> Routing policy no longer mutates provider authentication or model defaults;
+> the former recommendation helper and cascade regressions were removed.
 
 # Routing Cascade — Dual-Provider Auth & Model Recommendations
 

@@ -70,6 +70,10 @@ describe("startTaskExecution", () => {
         fallbackReason: null,
         selectionMode: "automatic",
         selectionReason: "test",
+        routingPreference: "latency",
+        automaticFallbackEnabled: true,
+        consideredRuntimeIds: ["claude-code", "openai-codex-app-server"],
+        skippedRuntimes: [],
       })
       .mockResolvedValueOnce({
         requestedRuntimeId: null,
@@ -80,6 +84,12 @@ describe("startTaskExecution", () => {
         fallbackReason: null,
         selectionMode: "automatic",
         selectionReason: "test fallback",
+        routingPreference: "latency",
+        automaticFallbackEnabled: true,
+        consideredRuntimeIds: ["openai-codex-app-server"],
+        skippedRuntimes: [
+          { runtimeId: "claude-code", reason: "launch failed" },
+        ],
       });
 
     mockExecuteTaskWithRuntime
@@ -125,6 +135,17 @@ describe("startTaskExecution", () => {
       .all();
     expect(logs.map((log) => log.event)).toContain("runtime_launch_failed");
     expect(logs.map((log) => log.event)).toContain("runtime_fallback");
+    expect(logs.filter((log) => log.event === "runtime_selected")).toHaveLength(2);
+    expect(
+      JSON.parse(
+        logs.find((log) => log.event === "runtime_selected")?.payload ?? "{}",
+      ),
+    ).toMatchObject({
+      selectionMode: "automatic",
+      routingPreference: "latency",
+      effectiveRuntimeId: "claude-code",
+      automaticFallbackEnabled: true,
+    });
   });
 
   it("marks an explicit target failed without silently retrying another runtime", async () => {
@@ -139,6 +160,7 @@ describe("startTaskExecution", () => {
         fallbackReason: null,
         selectionMode: "explicit",
         selectionReason: "Explicit runtime override",
+        automaticFallbackEnabled: false,
       });
 
     mockExecuteTaskWithRuntime.mockRejectedValueOnce(
@@ -166,5 +188,87 @@ describe("startTaskExecution", () => {
       .where(eq(notifications.taskId, taskId))
       .all();
     expect(taskNotifications).toHaveLength(1);
+  });
+
+  it("redacts credential fingerprints from launch failures before persistence and rethrow", async () => {
+    const taskId = seedTask();
+    mockResolveTaskExecutionTarget.mockResolvedValueOnce({
+      requestedRuntimeId: "claude-code",
+      effectiveRuntimeId: "claude-code",
+      requestedModelId: null,
+      effectiveModelId: null,
+      fallbackApplied: false,
+      fallbackReason: null,
+      selectionMode: "explicit",
+      selectionReason: "Explicit runtime override",
+      automaticFallbackEnabled: false,
+    });
+    mockExecuteTaskWithRuntime.mockRejectedValueOnce(
+      new RetryableRuntimeLaunchError({
+        runtimeId: "claude-code",
+        message: "Authentication failed for sk-proj-****************_0MA",
+        cause: new Error("provider rejected credential"),
+      }),
+    );
+
+    const error = await startTaskExecution(taskId).then(
+      () => null,
+      (caught) => caught as Error,
+    );
+    const row = db.select().from(tasks).where(eq(tasks.id, taskId)).get();
+    const logs = db
+      .select({ payload: agentLogs.payload })
+      .from(agentLogs)
+      .where(eq(agentLogs.taskId, taskId))
+      .all();
+
+    expect(error?.message).toContain("[redacted credential]");
+    expect(row?.result).toContain("[redacted credential]");
+    expect(JSON.stringify(logs)).not.toContain("sk-proj-");
+    expect(JSON.stringify(logs)).not.toContain("_0MA");
+  });
+
+  it("does not retry a Manual or automatic-no-fallback target", async () => {
+    for (const target of [
+      {
+        requestedRuntimeId: null,
+        effectiveRuntimeId: "claude-code",
+        requestedModelId: null,
+        effectiveModelId: null,
+        fallbackApplied: false,
+        fallbackReason: null,
+        selectionMode: "manual-default",
+        selectionReason: "Manual routing is strict",
+        automaticFallbackEnabled: false,
+      },
+      {
+        requestedRuntimeId: null,
+        effectiveRuntimeId: "claude-code",
+        requestedModelId: null,
+        effectiveModelId: null,
+        fallbackApplied: false,
+        fallbackReason: null,
+        selectionMode: "automatic",
+        selectionReason: "Pool order",
+        automaticFallbackEnabled: false,
+      },
+    ]) {
+      const taskId = seedTask(null);
+      mockResolveTaskExecutionTarget.mockResolvedValueOnce(target);
+      mockExecuteTaskWithRuntime.mockRejectedValueOnce(
+        new RetryableRuntimeLaunchError({
+          runtimeId: "claude-code",
+          message: "Claude Code failed to launch",
+        }),
+      );
+      await expect(startTaskExecution(taskId)).rejects.toThrow(
+        "Claude Code failed to launch",
+      );
+      expect(
+        db.select().from(tasks).where(eq(tasks.id, taskId)).get()?.status,
+      ).toBe("failed");
+    }
+    expect(mockResolveTaskExecutionTarget).toHaveBeenCalledTimes(2);
+    expect(mockExecuteTaskWithRuntime).toHaveBeenCalledTimes(2);
   });
 });

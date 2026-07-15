@@ -184,7 +184,7 @@ const RUNTIME_CATALOG: Record<AgentRuntimeId, RuntimeCatalogEntry> = {
   "anthropic-direct": {
     id: "anthropic-direct",
     label: "Anthropic Direct API",
-    description: "Direct Anthropic Messages API — fast, cost-optimized, no CLI required.",
+    description: "Direct Anthropic Messages API with no CLI required.",
     providerId: "anthropic",
     capabilities: {
       resume: true,

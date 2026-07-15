@@ -104,8 +104,8 @@ export function ChatSettingsSection() {
       .catch(() => {});
   }, [fetchSettings]);
 
-  // Stay in sync with cascades from other surfaces (routing cascade on the
-  // same page, chat pane on /chat). Same CustomEvent the provider listens to.
+  // Stay in sync with explicit default-model changes from onboarding and Chat.
+  // Task routing policy deliberately does not mutate the Chat default.
   useEffect(() => {
     const handler = (event: Event) => {
       const detail = (event as CustomEvent<{ modelId?: string }>).detail;

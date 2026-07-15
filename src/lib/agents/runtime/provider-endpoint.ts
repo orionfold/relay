@@ -153,6 +153,23 @@ function redactProviderSecrets(
   return redacted;
 }
 
+/**
+ * Redact credential-shaped values from provider-controlled diagnostics before
+ * they cross a server-to-client or durable-log boundary. Providers sometimes
+ * echo a masked key fingerprint even when Relay never includes the raw secret
+ * in its own error text.
+ */
+export function sanitizeProviderError(
+  value: string,
+  maxLength = 500,
+  secrets: readonly (string | null | undefined)[] = []
+): string {
+  return redactProviderSecrets(value, secrets)
+    .replace(/\bsk-[A-Za-z0-9_.*-]{8,}\b/g, "[redacted credential]")
+    .replace(/\b(?:Bearer|Basic)\s+[A-Za-z0-9+/_=.-]{8,}/gi, "[redacted credential]")
+    .slice(0, maxLength);
+}
+
 export async function readBoundedProviderError(
   response: Response,
   maxLength = 500,
@@ -160,10 +177,11 @@ export async function readBoundedProviderError(
 ): Promise<string> {
   const raw = await readBoundedResponseText(response, maxLength);
   if (!raw) {
-    return redactProviderSecrets(
+    return sanitizeProviderError(
       response.statusText || "Unknown error",
+      maxLength,
       secrets
-    ).slice(0, maxLength);
+    );
   }
   let detail = raw;
   try {
@@ -185,5 +203,5 @@ export async function readBoundedProviderError(
   } catch {
     // Preserve a bounded plain-text provider error.
   }
-  return redactProviderSecrets(detail, secrets).slice(0, maxLength);
+  return sanitizeProviderError(detail, maxLength, secrets);
 }

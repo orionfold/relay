@@ -18,7 +18,18 @@ vi.mock("@/lib/settings/runtime-setup", () => ({
   })),
 }));
 vi.mock("@/lib/settings/routing", () => ({
-  getRoutingPreference: vi.fn(async () => "manual"),
+  getRoutingSettings: vi.fn(async () => ({
+    preference: "manual",
+    policy: {
+      version: 1,
+      eligibleRuntimeIds: ["claude-code", "ollama"],
+      manualDefaultRuntimeId: "claude-code",
+      automaticFallback: true,
+    },
+    source: "stored",
+    needsPersistence: false,
+    repairReason: null,
+  })),
 }));
 vi.mock("@/lib/settings/auth", () => ({
   getAuthSettings: vi.fn(async () => ({
@@ -43,8 +54,31 @@ vi.mock("@/lib/settings/openai-login-manager", () => ({
 vi.mock("@/lib/settings/helpers", () => ({
   getSetting: vi.fn(async () => null),
 }));
-vi.mock("@/lib/agents/runtime", () => ({
-  testRuntimeConnection: vi.fn(async () => ({ connected: true })),
+vi.mock("@/lib/settings/runtime-routing-status", () => ({
+  getRuntimeRoutingStatuses: vi.fn(async () => [
+    {
+      runtimeId: "claude-code",
+      label: "Claude Code",
+      configured: true,
+      health: "healthy",
+      healthReason: null,
+      checkedAt: "2026-07-15T00:00:00.000Z",
+      modelId: "sonnet",
+      capabilitySummary: ["Filesystem"],
+      capabilityLimits: [],
+    },
+    {
+      runtimeId: "ollama",
+      label: "Ollama",
+      configured: true,
+      health: "healthy",
+      healthReason: null,
+      checkedAt: "2026-07-15T00:00:00.000Z",
+      modelId: null,
+      capabilitySummary: [],
+      capabilityLimits: ["No filesystem tools"],
+    },
+  ]),
 }));
 vi.mock("@/lib/agents/runtime/ollama-config", () => ({
   getOllamaRuntimeConfig: vi.fn(async () => ({
@@ -68,6 +102,11 @@ describe("GET /api/settings/providers", () => {
     expect(body.ollama.baseUrl).toBe("https://ollama.example");
     expect(body.ollama.hasApiKey).toBe(true);
     expect(body.ollama.apiKeySource).toBe("env");
+    expect(body.routing).toMatchObject({
+      preference: "manual",
+      policy: { eligibleRuntimeIds: ["claude-code", "ollama"] },
+    });
+    expect(body.runtimeRoutingStatuses).toHaveLength(2);
     expect(JSON.stringify(body)).not.toContain("never-return-this-secret");
   });
 });

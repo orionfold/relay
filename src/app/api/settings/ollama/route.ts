@@ -103,6 +103,10 @@ export async function PUT(req: NextRequest) {
       "@/lib/chat/model-discovery"
     );
     invalidateModelDiscoveryCache();
+    const { clearRuntimeRoutingStatusCache } = await import(
+      "@/lib/settings/runtime-routing-status"
+    );
+    clearRuntimeRoutingStatusCache();
     return NextResponse.json({ ok: true, ...(await responsePayload()) });
   } catch (error) {
     return NextResponse.json(

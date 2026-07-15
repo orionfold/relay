@@ -10,7 +10,8 @@ import {
   type AgentRuntimeId,
 } from "./catalog";
 import { testRuntimeConnection } from "./index";
-import { getRoutingPreference } from "@/lib/settings/routing";
+import { getRoutingSettings } from "@/lib/settings/routing";
+import type { RoutingPreference } from "@/lib/constants/settings";
 import { getRuntimeSetupStates, listConfiguredRuntimeIds } from "@/lib/settings/runtime-setup";
 import { CHAT_MODELS, DEFAULT_CHAT_MODEL, getRuntimeForModel } from "@/lib/chat/types";
 import { getSetting } from "@/lib/settings/helpers";
@@ -22,6 +23,7 @@ import {
   resolveOpenAICompatibleModel,
 } from "./openai-compatible";
 import { getChatRuntimeContract } from "@/lib/chat/runtime-contract";
+import { sanitizeProviderError } from "./provider-endpoint";
 
 const FILESYSTEM_TOOL_NAMES = new Set([
   "Read",
@@ -66,6 +68,20 @@ export class RuntimeCapabilityMismatchError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "RuntimeCapabilityMismatchError";
+  }
+}
+
+export class EmptyEligibleRuntimePoolError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EmptyEligibleRuntimePoolError";
+  }
+}
+
+export class NoEligibleRuntimeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NoEligibleRuntimeError";
   }
 }
 
@@ -114,6 +130,15 @@ export interface ResolvedExecutionTarget {
   fallbackReason: string | null;
   selectionMode: "explicit" | "manual-default" | "automatic" | "resume" | "chat";
   selectionReason: string;
+  routingPreference?: RoutingPreference | null;
+  automaticFallbackEnabled?: boolean;
+  consideredRuntimeIds?: AgentRuntimeId[];
+  skippedRuntimes?: RuntimeSelectionSkip[];
+}
+
+export interface RuntimeSelectionSkip {
+  runtimeId: AgentRuntimeId;
+  reason: string;
 }
 
 type RuntimeRequirements = {
@@ -273,6 +298,11 @@ async function buildResolvedTaskTarget(input: {
   profileId?: string | null;
   selectionMode: "explicit" | "manual-default" | "automatic";
   selectionReason: string;
+  routingPreference: RoutingPreference;
+  automaticFallbackEnabled: boolean;
+  consideredRuntimeIds: AgentRuntimeId[];
+  skippedRuntimes: RuntimeSelectionSkip[];
+  fallbackReason?: string | null;
 }): Promise<ResolvedExecutionTarget> {
   const model = await resolveTaskModel(input.runtimeId, input.profileId);
   return {
@@ -281,35 +311,22 @@ async function buildResolvedTaskTarget(input: {
     effectiveRuntimeId: input.runtimeId,
     requestedModelId: model.requestedModelId,
     effectiveModelId: model.effectiveModelId,
-    fallbackApplied: false,
-    fallbackReason: null,
+    fallbackApplied: Boolean(input.fallbackReason),
+    fallbackReason: input.fallbackReason ?? null,
     selectionMode: input.selectionMode,
     selectionReason: input.selectionReason,
+    routingPreference: input.routingPreference,
+    automaticFallbackEnabled: input.automaticFallbackEnabled,
+    consideredRuntimeIds: input.consideredRuntimeIds,
+    skippedRuntimes: input.skippedRuntimes,
   };
 }
 
-function filterCompatibleRuntimes(
-  runtimeIds: AgentRuntimeId[],
-  profileId?: string | null
-): AgentRuntimeId[] {
-  if (!profileId) {
-    return runtimeIds;
-  }
-
-  const profile = getProfile(profileId);
-  if (!profile) {
-    return [];
-  }
-
-  return runtimeIds.filter((runtimeId) =>
-    profileSupportsRuntime(profile, runtimeId)
-  );
-}
-
 async function checkRuntimeAvailability(
-  runtimeId: AgentRuntimeId
+  runtimeId: AgentRuntimeId,
+  setupStates?: Awaited<ReturnType<typeof getRuntimeSetupStates>>,
 ): Promise<RuntimeAvailability> {
-  const states = await getRuntimeSetupStates();
+  const states = setupStates ?? (await getRuntimeSetupStates());
   if (!states[runtimeId]?.configured) {
     return {
       available: false,
@@ -325,15 +342,30 @@ async function checkRuntimeAvailability(
     return {
       available: false,
       reason:
-        connection.error ??
+        (connection.error ? sanitizeProviderError(connection.error) : null) ??
         `${getRuntimeLabel(runtimeId)} is unavailable`,
     };
   } catch (error) {
     return {
       available: false,
-      reason: error instanceof Error ? error.message : String(error),
+      reason: sanitizeProviderError(
+        error instanceof Error ? error.message : String(error),
+      ),
     };
   }
+}
+
+async function getComparableRoutingCost(
+  runtimeId: AgentRuntimeId,
+  profileId?: string | null,
+): Promise<number | null> {
+  const { getComparableRuntimeCost } = await import(
+    "@/lib/settings/runtime-routing-evidence"
+  );
+  return getComparableRuntimeCost({
+    runtimeId,
+    modelId: getProfileModelPin(profileId, runtimeId),
+  });
 }
 
 export async function resolveTaskExecutionTarget(input: {
@@ -355,16 +387,7 @@ export async function resolveTaskExecutionTarget(input: {
   );
   const states = await getRuntimeSetupStates();
   const configuredRuntimeIds = listConfiguredRuntimeIds(states) as AgentRuntimeId[];
-  const configuredCandidates = filterCompatibleRuntimes(
-    configuredRuntimeIds,
-    input.profileId
-  );
-  const compatibleCandidates = configuredCandidates.filter((runtimeId) =>
-    runtimeMeetsRequirements(runtimeId, requirements)
-  );
-  const launchableCandidates = compatibleCandidates.filter(
-    (runtimeId) => !unavailableRuntimeIds.has(runtimeId)
-  );
+  const routing = await getRoutingSettings();
 
   if (requestedRuntimeId) {
     const profile = input.profileId ? getProfile(input.profileId) : undefined;
@@ -391,10 +414,14 @@ export async function resolveTaskExecutionTarget(input: {
       ? {
           available: false,
           reason:
-            input.unavailableReasons?.[requestedRuntimeId] ??
+            (input.unavailableReasons?.[requestedRuntimeId]
+              ? sanitizeProviderError(
+                  input.unavailableReasons[requestedRuntimeId],
+                )
+              : null) ??
             `${getRuntimeLabel(requestedRuntimeId)} is temporarily unavailable`,
         }
-      : await checkRuntimeAvailability(requestedRuntimeId);
+      : await checkRuntimeAvailability(requestedRuntimeId, states);
     if (!availability.available) {
       throw new RuntimeUnavailableError(
         `${availability.reason ?? `${getRuntimeLabel(requestedRuntimeId)} is unavailable`}. ` +
@@ -407,11 +434,15 @@ export async function resolveTaskExecutionTarget(input: {
       profileId: input.profileId,
       selectionMode: "explicit",
       selectionReason: "Explicit runtime override",
+      routingPreference: routing.preference,
+      automaticFallbackEnabled: false,
+      consideredRuntimeIds: [requestedRuntimeId],
+      skippedRuntimes: [],
     });
   }
 
-  if (compatibleCandidates.length === 0) {
-    const profile = input.profileId ? getProfile(input.profileId) : undefined;
+  const profile = input.profileId ? getProfile(input.profileId) : undefined;
+  if (input.profileId && !profile) {
     throw buildNoCompatibleRuntimeError({
       profileId: input.profileId,
       profile,
@@ -420,10 +451,9 @@ export async function resolveTaskExecutionTarget(input: {
     });
   }
 
-  const routingPreference = await getRoutingPreference();
+  const routingPreference = routing.preference;
   if (routingPreference === "manual") {
-    const defaultRuntimeId = DEFAULT_AGENT_RUNTIME;
-    const profile = input.profileId ? getProfile(input.profileId) : undefined;
+    const defaultRuntimeId = routing.policy.manualDefaultRuntimeId;
     if (
       (profile && !profileSupportsRuntime(profile, defaultRuntimeId)) ||
       !runtimeMeetsRequirements(defaultRuntimeId, requirements)
@@ -434,7 +464,7 @@ export async function resolveTaskExecutionTarget(input: {
         requirements,
       });
     }
-    const availability = await checkRuntimeAvailability(defaultRuntimeId);
+    const availability = await checkRuntimeAvailability(defaultRuntimeId, states);
     if (!availability.available) {
       throw new RuntimeUnavailableError(
         `${availability.reason ?? `${getRuntimeLabel(defaultRuntimeId)} is unavailable`}. ` +
@@ -445,48 +475,120 @@ export async function resolveTaskExecutionTarget(input: {
       runtimeId: defaultRuntimeId,
       profileId: input.profileId,
       selectionMode: "manual-default",
-      selectionReason: "Manual routing — auto-routing is off; using the default runtime",
+      selectionReason: `Manual routing is strict; using ${getRuntimeLabel(defaultRuntimeId)}`,
+      routingPreference,
+      automaticFallbackEnabled: false,
+      consideredRuntimeIds: [defaultRuntimeId],
+      skippedRuntimes: [],
     });
   }
 
-  if (launchableCandidates.length === 0) {
-    const reasons = Array.from(unavailableRuntimeIds)
-      .map((runtimeId) => input.unavailableReasons?.[runtimeId])
-      .filter((reason): reason is string => Boolean(reason));
-    throw new RuntimeUnavailableError(
-      reasons[0] ?? "No healthy runtime is currently available to execute this task."
+  if (routing.policy.eligibleRuntimeIds.length === 0) {
+    throw new EmptyEligibleRuntimePoolError(
+      "Automatic routing has no eligible runtimes. Select at least one runtime in Settings or use an explicit task target.",
     );
   }
 
+  const skippedRuntimes: RuntimeSelectionSkip[] = [];
+  const launchableCandidates: AgentRuntimeId[] = [];
+  for (const runtimeId of routing.policy.eligibleRuntimeIds) {
+    if (!states[runtimeId]?.configured) {
+      skippedRuntimes.push({
+        runtimeId,
+        reason: `${getRuntimeLabel(runtimeId)} is not configured`,
+      });
+      continue;
+    }
+    if (profile && !profileSupportsRuntime(profile, runtimeId)) {
+      skippedRuntimes.push({
+        runtimeId,
+        reason: `Profile \`${profile.id}\` does not support ${getRuntimeLabel(runtimeId)}`,
+      });
+      continue;
+    }
+    const missing = getMissingRuntimeCapabilities(runtimeId, requirements);
+    if (missing.length > 0) {
+      skippedRuntimes.push({
+        runtimeId,
+        reason: `${getRuntimeLabel(runtimeId)} lacks ${missing.join(" and ")}`,
+      });
+      continue;
+    }
+    if (unavailableRuntimeIds.has(runtimeId)) {
+      skippedRuntimes.push({
+        runtimeId,
+        reason:
+          (input.unavailableReasons?.[runtimeId]
+            ? sanitizeProviderError(input.unavailableReasons[runtimeId])
+            : null) ??
+          `${getRuntimeLabel(runtimeId)} is temporarily unavailable`,
+      });
+      continue;
+    }
+    launchableCandidates.push(runtimeId);
+  }
+
+  if (launchableCandidates.length === 0) {
+    const detail = skippedRuntimes.map((skip) => skip.reason).join("; ");
+    throw new NoEligibleRuntimeError(
+      detail
+        ? `No eligible runtime can execute this task. ${detail}`
+        : "No eligible runtime can execute this task.",
+    );
+  }
+
+  const routingCandidates = await Promise.all(
+    launchableCandidates.map(async (runtimeId) => ({
+      runtimeId,
+      comparableCostPerMillionMicros: await getComparableRoutingCost(
+        runtimeId,
+        input.profileId,
+      ),
+    })),
+  );
   const suggestion = suggestRuntime(
     input.title,
     input.description,
     input.profileId,
-    launchableCandidates,
+    routingCandidates,
     routingPreference
   );
   const suggested = suggestion.runtimeId;
-  const autoOrder = unique([
-    suggested,
-    ...launchableCandidates,
-  ]);
+  const autoOrder = unique(suggestion.orderedRuntimeIds);
+  const probeOrder = routing.policy.automaticFallback
+    ? autoOrder
+    : autoOrder.slice(0, 1);
 
-  for (const candidate of autoOrder) {
-    const availability = await checkRuntimeAvailability(candidate);
+  for (const candidate of probeOrder) {
+    const availability = await checkRuntimeAvailability(candidate, states);
     if (availability.available) {
+      const fallbackReason =
+        suggested === candidate
+          ? null
+          : `${getRuntimeLabel(suggested)} was unavailable; selected ${getRuntimeLabel(candidate)} from the eligible pool`;
       return buildResolvedTaskTarget({
         runtimeId: candidate,
         profileId: input.profileId,
         selectionMode: "automatic",
-        selectionReason: suggested === candidate
-          ? suggestion.reason
-          : `${getRuntimeLabel(suggested)} was unavailable; selected the next healthy compatible runtime`,
+        selectionReason: fallbackReason ?? suggestion.reason,
+        routingPreference,
+        automaticFallbackEnabled: routing.policy.automaticFallback,
+        consideredRuntimeIds: autoOrder,
+        skippedRuntimes,
+        fallbackReason,
       });
     }
+    skippedRuntimes.push({
+      runtimeId: candidate,
+      reason:
+        availability.reason ?? `${getRuntimeLabel(candidate)} is unavailable`,
+    });
   }
 
   throw new RuntimeUnavailableError(
-    "No healthy runtime is currently available to execute this task."
+    routing.policy.automaticFallback
+      ? `No healthy runtime is currently available in the eligible pool. ${skippedRuntimes.map((skip) => skip.reason).join("; ")}`
+      : `${skippedRuntimes.at(-1)?.reason ?? `${getRuntimeLabel(suggested)} is unavailable`}. Automatic fallback is disabled.`,
   );
 }
 

@@ -8,6 +8,7 @@ import type { UsageCompleteness } from "@/lib/usage/ledger";
 const RUN_LIMIT = 20;
 const RAW_LOG_LIMIT = 600;
 const PERMISSION_LIMIT = 100;
+const PREFLIGHT_RECEIPT_LOOKBACK_MS = 5 * 60 * 1000;
 export const SEMANTIC_EVENT_LIMIT = 160;
 export const SEMANTIC_PAYLOAD_LIMIT = 2_000;
 const EXECUTION_ACTIVITY_TYPES = [
@@ -126,6 +127,11 @@ const RESPONSE_NOISE_EVENTS = new Set([
   "content_block_start",
   "content_block_delta",
   "stream",
+]);
+const PREFLIGHT_RECEIPT_EVENTS = new Set([
+  "runtime_selected",
+  "runtime_launch_failed",
+  "runtime_fallback",
 ]);
 
 function permissionEvent(permission: TaskPermissionRow): TaskRunLog {
@@ -247,12 +253,18 @@ export function assembleTaskRunHistory(input: {
     rawLogs,
     input.permissions,
   );
-  const runs: TaskRunHistoryItem[] = executions.map((execution) => {
+  const runs: TaskRunHistoryItem[] = executions.map((execution, index) => {
     const startedAt = execution.startedAt.getTime();
     const finishedAt = execution.finishedAt.getTime();
+    const olderRunFinishedAt = executions[index + 1]?.finishedAt.getTime();
     const runLogs = logs.filter((log) => {
       const timestamp = new Date(log.timestamp).getTime();
-      return timestamp >= startedAt && timestamp <= finishedAt;
+      const duringRun = timestamp >= startedAt && timestamp <= finishedAt;
+      const preflightReceipt =
+        PREFLIGHT_RECEIPT_EVENTS.has(log.event) &&
+        timestamp < startedAt &&
+        (olderRunFinishedAt == null || timestamp > olderRunFinishedAt);
+      return duringRun || preflightReceipt;
     });
 
     return {
@@ -376,10 +388,16 @@ export async function getTaskRunHistory(taskId: string): Promise<TaskRunHistory 
   ]);
 
   const oldestIncludedStart = executions.at(-1)?.startedAt;
+  const oldestIncludedReceiptStart = oldestIncludedStart
+    ? new Date(oldestIncludedStart.getTime() - PREFLIGHT_RECEIPT_LOOKBACK_MS)
+    : null;
   const logWhere = oldestIncludedStart
     ? and(
         eq(agentLogs.taskId, taskId),
-        gte(agentLogs.timestamp, oldestIncludedStart),
+        gte(
+          agentLogs.timestamp,
+          oldestIncludedReceiptStart ?? oldestIncludedStart,
+        ),
       )
     : eq(agentLogs.taskId, taskId);
   const permissionWhere = oldestIncludedStart

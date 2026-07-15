@@ -16,6 +16,10 @@ export async function POST(req: NextRequest) {
   }
 
   await setAuthSettings(parsed.data);
+  const { clearRuntimeRoutingStatusCache } = await import(
+    "@/lib/settings/runtime-routing-status"
+  );
+  clearRuntimeRoutingStatusCache();
   const updated = await getAuthSettings();
   return NextResponse.json(updated);
 }

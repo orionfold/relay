@@ -12,6 +12,8 @@ export type ExecutionTargetErrorCode =
   | "runtime_unavailable"
   | "model_unavailable"
   | "no_compatible_runtime"
+  | "empty_eligible_runtime_pool"
+  | "no_eligible_runtime"
   | "target_resolution_failed";
 
 export interface ExecutionTargetPreviewItem {
@@ -26,6 +28,10 @@ export interface ExecutionTargetPreviewItem {
   effectiveModelId: string | null;
   selectionMode: ExecutionTargetSelectionMode;
   selectionReason: string;
+  routingPreference: string | null;
+  automaticFallbackEnabled: boolean;
+  consideredRuntimeIds: string[];
+  skippedRuntimes: Array<{ runtimeId: string; reason: string }>;
 }
 
 export interface ExecutionTargetPreviewResponse {

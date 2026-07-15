@@ -11,12 +11,13 @@ interface TaskRow {
   [key: string]: unknown;
 }
 
-const { mockState } = vi.hoisted(() => ({
+const { mockState, mockExecuteTaskWithAgent } = vi.hoisted(() => ({
   mockState: {
     rows: [] as TaskRow[],
     lastInsertValues: null as Record<string, unknown> | null,
     lastUpdateValues: null as Record<string, unknown> | null,
   },
+  mockExecuteTaskWithAgent: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock("@/lib/db", () => {
@@ -102,7 +103,7 @@ vi.mock("@/lib/agents/runtime/catalog", () => ({
 
 // Mock the router so execute_task's dynamic import doesn't explode.
 vi.mock("@/lib/agents/router", () => ({
-  executeTaskWithAgent: () => Promise.resolve(),
+  executeTaskWithAgent: mockExecuteTaskWithAgent,
 }));
 
 import { taskTools } from "../task-tools";
@@ -132,6 +133,7 @@ beforeEach(() => {
   mockState.rows = [];
   mockState.lastInsertValues = null;
   mockState.lastUpdateValues = null;
+  mockExecuteTaskWithAgent.mockClear();
 });
 
 describe("create_task agentProfile Zod validation", () => {
@@ -326,6 +328,17 @@ describe("execute_task assignedAgent runtime validation", () => {
     const text = getToolResultText(result);
     expect(text).toContain("claude-bogus");
     expect(text).toMatch(/Invalid runtime/i);
+  });
+
+  it("uses automatic routing when neither the request nor task pins a runtime", async () => {
+    const result = await callHandler("execute_task", { taskId: "task-1" });
+
+    expect(result.isError).toBeFalsy();
+    expect(mockExecuteTaskWithAgent).toHaveBeenCalledWith("task-1", null);
+    expect(JSON.parse(getToolResultText(result))).toMatchObject({
+      taskId: "task-1",
+      runtime: "automatic",
+    });
   });
 });
 

@@ -27,6 +27,7 @@ export const SETTINGS_KEYS = {
   BROWSER_MCP_PLAYWRIGHT_CONFIG: "browser.playwrightConfig",
   EXA_SEARCH_MCP_ENABLED: "web.exaSearchEnabled",
   ROUTING_PREFERENCE: "routing.preference",
+  ROUTING_POLICY: "routing.policy",
   OLLAMA_BASE_URL: "ollama.baseUrl",
   OLLAMA_API_KEY: "ollama.apiKey",
   OLLAMA_DEFAULT_MODEL: "ollama.defaultModel",

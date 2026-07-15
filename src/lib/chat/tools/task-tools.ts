@@ -5,7 +5,6 @@ import { tasks } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { ok, err, resolveEntityId, type ToolContext } from "./helpers";
 import {
-  DEFAULT_AGENT_RUNTIME,
   isAgentRuntimeId,
   SUPPORTED_AGENT_RUNTIMES,
 } from "@/lib/agents/runtime/catalog";
@@ -292,7 +291,7 @@ export function taskTools(ctx: ToolContext) {
           .string()
           .optional()
           .describe(
-            `Runtime ID: ${SUPPORTED_AGENT_RUNTIMES.join(", ")}. Defaults to task's assigned agent or ${DEFAULT_AGENT_RUNTIME}.`
+            `Runtime ID: ${SUPPORTED_AGENT_RUNTIMES.join(", ")}. Defaults to the task's assigned runtime, or the configured automatic routing policy when unset.`
           ),
       },
       async (args) => {
@@ -340,7 +339,7 @@ export function taskTools(ctx: ToolContext) {
           return ok({
             message: "Execution started",
             taskId,
-            runtime: runtimeId ?? DEFAULT_AGENT_RUNTIME,
+            runtime: runtimeId ?? "automatic",
           });
         } catch (e) {
           return err(e instanceof Error ? e.message : "Failed to execute task");

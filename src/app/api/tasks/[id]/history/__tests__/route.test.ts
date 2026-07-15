@@ -114,12 +114,28 @@ describe("GET /api/tasks/[id]/history", () => {
     ]).run();
     db.insert(agentLogs).values([
       {
+        id: "selection-first",
+        taskId: "multiple-runs",
+        agentType: "runtime-router",
+        event: "runtime_selected",
+        payload: '{"selectionReason":"first target"}',
+        timestamp: new Date("2026-07-12T14:59:59.000Z"),
+      },
+      {
         id: "log-first",
         taskId: "multiple-runs",
         agentType: "general",
         event: "completed",
         payload: '{"result":"first"}',
         timestamp: firstFinish,
+      },
+      {
+        id: "selection-second",
+        taskId: "multiple-runs",
+        agentType: "runtime-router",
+        event: "runtime_selected",
+        payload: '{"selectionReason":"second target"}',
+        timestamp: new Date("2026-07-12T15:59:59.000Z"),
       },
       {
         id: "log-second",
@@ -144,11 +160,17 @@ describe("GET /api/tasks/[id]/history", () => {
       status: "failed",
       activityType: "task_resume",
       runtimeId: "openai-direct",
-      logs: [{ id: "log-second", event: "failed" }],
+      logs: [
+        { id: "selection-second", event: "runtime_selected" },
+        { id: "log-second", event: "failed" },
+      ],
     });
     expect(body.runs[1]).toMatchObject({
       status: "completed",
-      logs: [{ id: "log-first", event: "completed" }],
+      logs: [
+        { id: "selection-first", event: "runtime_selected" },
+        { id: "log-first", event: "completed" },
+      ],
     });
   });
 

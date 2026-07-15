@@ -29,6 +29,10 @@ describe("ExecutionTargetPreview", () => {
               selectionMode: "manual-default",
               selectionReason:
                 "Manual routing — auto-routing is off; using the default runtime",
+              routingPreference: "manual",
+              automaticFallbackEnabled: false,
+              consideredRuntimeIds: ["claude-code"],
+              skippedRuntimes: [],
             },
           ],
         }),
@@ -41,6 +45,43 @@ describe("ExecutionTargetPreview", () => {
     expect(screen.getByText("Claude Code")).toBeInTheDocument();
     expect(screen.getByText("sonnet")).toBeInTheDocument();
     expect(screen.getByText(/Manual routing — auto-routing is off/)).toBeInTheDocument();
+  });
+
+  it("shows why automatic candidates were skipped", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        json: async () => ({
+          kind: "task",
+          ready: true,
+          error: null,
+          targets: [
+            {
+              key: "task-2",
+              label: "Summarize",
+              profileId: "general",
+              requestedRuntimeId: null,
+              requestedRuntimeLabel: null,
+              effectiveRuntimeId: "anthropic-direct",
+              effectiveRuntimeLabel: "Anthropic Direct API",
+              requestedModelId: null,
+              effectiveModelId: "claude-haiku-4-5",
+              selectionMode: "automatic",
+              selectionReason: "Lowest comparable configured-model token price",
+              routingPreference: "cost",
+              automaticFallbackEnabled: true,
+              consideredRuntimeIds: ["anthropic-direct", "ollama"],
+              skippedRuntimes: [
+                { runtimeId: "ollama", reason: "Ollama endpoint is unavailable" },
+              ],
+            },
+          ],
+        }),
+      }),
+    );
+    render(<ExecutionTargetPreview kind="task" id="task-2" />);
+    expect(await screen.findByText("1 runtime skipped")).toBeInTheDocument();
+    expect(screen.getByText(/Ollama endpoint is unavailable/)).toBeInTheDocument();
   });
 
   it("renders a named blocking state without inventing an alternative", async () => {

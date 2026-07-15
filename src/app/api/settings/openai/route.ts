@@ -39,6 +39,10 @@ export async function POST(req: NextRequest) {
   }
 
   await setOpenAIAuthSettings(parsed.data);
+  const { clearRuntimeRoutingStatusCache } = await import(
+    "@/lib/settings/runtime-routing-status"
+  );
+  clearRuntimeRoutingStatusCache();
   const updated = await getOpenAIAuthSettings();
   return NextResponse.json(updated);
 }

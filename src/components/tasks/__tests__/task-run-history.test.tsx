@@ -124,15 +124,25 @@ describe("TaskRunHistory", () => {
             usageCompleteness: "complete",
             current: false,
             logsUnavailable: false,
-            logs: [{
-              id: "response-1",
-              agentType: "general",
-              event: "response_progress",
-              eventCount: 48,
-              payloadTruncated: true,
-              payload: '{"message":"Generated response content"}',
-              timestamp: "2026-07-12T15:00:30.000Z",
-            }],
+            logs: [
+              {
+                id: "runtime-1",
+                agentType: "runtime-router",
+                event: "runtime_selected",
+                payload:
+                  '{"selectionReason":"Profile preferred Claude Code","effectiveRuntimeId":"claude-code"}',
+                timestamp: "2026-07-12T15:00:01.000Z",
+              },
+              {
+                id: "response-1",
+                agentType: "general",
+                event: "response_progress",
+                eventCount: 48,
+                payloadTruncated: true,
+                payload: '{"message":"Generated response content"}',
+                timestamp: "2026-07-12T15:00:30.000Z",
+              },
+            ],
           }],
         }}
       />,
@@ -144,6 +154,8 @@ describe("TaskRunHistory", () => {
     const responseDetails = responseSummary?.closest("details");
     fireEvent.keyDown(responseSummary!, { key: "Enter" });
     expect(responseDetails).toHaveAttribute("open");
+    expect(screen.getByText("Runtime selected")).toBeInTheDocument();
+    expect(screen.getByText("Profile preferred Claude Code")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /view monitor logs/i })).toHaveAttribute(
       "href",
       "/monitor?taskId=terminal-task",

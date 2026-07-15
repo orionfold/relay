@@ -1,37 +1,21 @@
 import { NextResponse } from "next/server";
 import { readCodexAuthState } from "@/lib/agents/runtime/openai-codex-auth";
 import { getRuntimeSetupStates } from "@/lib/settings/runtime-setup";
-import { getRoutingPreference } from "@/lib/settings/routing";
+import { getRoutingSettings } from "@/lib/settings/routing";
 import { getAuthSettings } from "@/lib/settings/auth";
 import { getOpenAIAuthSettings } from "@/lib/settings/openai-auth";
 import { getOpenAILoginState } from "@/lib/settings/openai-login-manager";
 import { getSetting } from "@/lib/settings/helpers";
 import { SETTINGS_KEYS } from "@/lib/constants/settings";
-import { testRuntimeConnection } from "@/lib/agents/runtime";
 import { getOllamaRuntimeConfig } from "@/lib/agents/runtime/ollama-config";
+import { getRuntimeRoutingStatuses } from "@/lib/settings/runtime-routing-status";
 
-const OLLAMA_PROBE_TTL_MS = 15_000;
-let ollamaProbeCache: { expiresAt: number; connected: boolean } | null = null;
-
-async function getOllamaConnected(): Promise<boolean> {
-  const now = Date.now();
-  if (ollamaProbeCache && ollamaProbeCache.expiresAt > now) {
-    return ollamaProbeCache.connected;
-  }
-  try {
-    const result = await testRuntimeConnection("ollama");
-    const connected = !!result.connected;
-    ollamaProbeCache = { expiresAt: now + OLLAMA_PROBE_TTL_MS, connected };
-    return connected;
-  } catch {
-    ollamaProbeCache = { expiresAt: now + OLLAMA_PROBE_TTL_MS, connected: false };
-    return false;
-  }
-}
-
-export async function GET() {
+export async function GET(request?: Request) {
+  const forceHealth = request
+    ? new URL(request.url).searchParams.get("refreshRuntimeHealth") === "1"
+    : false;
   const [
-    routingPreference,
+    routing,
     anthropicAuth,
     initialOpenaiAuth,
     ollamaConfig,
@@ -39,7 +23,7 @@ export async function GET() {
     openaiDirectModelRaw,
     chatDefaultModelRaw,
   ] = await Promise.all([
-    getRoutingPreference(),
+    getRoutingSettings(),
     getAuthSettings(),
     getOpenAIAuthSettings(),
     getOllamaRuntimeConfig(),
@@ -69,6 +53,9 @@ export async function GET() {
   }
 
   const runtimeStates = await getRuntimeSetupStates();
+  const runtimeRoutingStatuses = await getRuntimeRoutingStatuses({
+    force: forceHealth,
+  });
 
   const anthropicConfigured =
     runtimeStates["claude-code"].configured ||
@@ -84,7 +71,9 @@ export async function GET() {
   const anthropicHasApiKey = anthropicAuth.hasKey;
   const anthropicDualBilling = anthropicHasOAuth && anthropicHasApiKey;
 
-  const ollamaConnected = await getOllamaConnected();
+  const ollamaConnected =
+    runtimeRoutingStatuses.find((status) => status.runtimeId === "ollama")
+      ?.health === "healthy";
   const ollamaConfigured = runtimeStates["ollama"].configured;
 
   return NextResponse.json({
@@ -129,7 +118,9 @@ export async function GET() {
     },
     compatibleRuntimes: [runtimeStates.litellm, runtimeStates.lmstudio],
     chatDefaultModel: chatDefaultModelRaw ?? null,
-    routingPreference,
+    routingPreference: routing.preference,
+    routing,
+    runtimeRoutingStatuses,
     configuredProviderCount:
       Number(anthropicConfigured) +
       Number(openaiConfigured) +

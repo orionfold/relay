@@ -1,6 +1,8 @@
 import { getRuntimeCatalogEntry } from "./catalog";
 import {
   NoCompatibleRuntimeError,
+  EmptyEligibleRuntimePoolError,
+  NoEligibleRuntimeError,
   RequestedModelUnavailableError,
   RuntimeCapabilityMismatchError,
   RuntimeUnavailableError,
@@ -33,6 +35,11 @@ export function toExecutionTargetPreviewItem(input: {
     effectiveModelId: input.target.effectiveModelId,
     selectionMode: input.target.selectionMode,
     selectionReason: input.target.selectionReason,
+    routingPreference: input.target.routingPreference ?? null,
+    automaticFallbackEnabled:
+      input.target.automaticFallbackEnabled ?? false,
+    consideredRuntimeIds: input.target.consideredRuntimeIds ?? [],
+    skippedRuntimes: input.target.skippedRuntimes ?? [],
   };
 }
 
@@ -53,6 +60,12 @@ export function classifyExecutionTargetError(error: unknown): {
   }
   if (cause instanceof NoCompatibleRuntimeError) {
     return { code: "no_compatible_runtime", message };
+  }
+  if (cause instanceof EmptyEligibleRuntimePoolError) {
+    return { code: "empty_eligible_runtime_pool", message };
+  }
+  if (cause instanceof NoEligibleRuntimeError) {
+    return { code: "no_eligible_runtime", message };
   }
   if (
     cause instanceof Error &&

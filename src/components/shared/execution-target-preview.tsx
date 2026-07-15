@@ -121,6 +121,24 @@ export function ExecutionTargetPreview({
             <p className="text-muted-foreground sm:col-span-2">
               {target.selectionReason}
             </p>
+            {target.skippedRuntimes.length > 0 && (
+              <details className="sm:col-span-2">
+                <summary className="text-xs font-medium text-muted-foreground">
+                  {target.skippedRuntimes.length} runtime
+                  {target.skippedRuntimes.length === 1 ? "" : "s"} skipped
+                </summary>
+                <ul className="mt-1 space-y-1 pl-4 text-xs text-muted-foreground">
+                  {target.skippedRuntimes.map((skip) => (
+                    <li key={`${target.key}-${skip.runtimeId}`}>
+                      <span className="font-medium text-foreground">
+                        {skip.runtimeId}:
+                      </span>{" "}
+                      {skip.reason}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
           </div>
         ))}
       </div>
