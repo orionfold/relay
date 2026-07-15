@@ -306,6 +306,7 @@ Runtime-native skills, filesystem context, file mentions, and a command-namespac
 | [tables-nl-creation](tables-nl-creation.md) | P3 | completed | tables-chat-queries |
 | [tables-export](tables-export.md) | P3 | completed | tables-spreadsheet-editor |
 | [tables-versioning](tables-versioning.md) | P3 | completed | tables-spreadsheet-editor |
+| [enterprise-structured-data-connectors](enterprise-structured-data-connectors.md) | P1 | planned | tables-data-layer, tables-document-import, tables-export, tables-agent-integration, chat-tools-plugin-kind-1, scheduled-prompt-loops |
 
 ### Entity Relationships
 

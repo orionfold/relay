@@ -1,5 +1,22 @@
 # Feature Changelog
 
+## 2026-07-15 — G-073 enterprise structured-data connectors
+
+### Groomed
+
+- Added a durable goal and specification for securely connecting Notion,
+  Airtable, relational databases, and enterprise applications to Relay Tables
+  through one observable snapshot/delta/push synchronization substrate.
+- Defined a versioned capability-driven adapter contract and MCP extension
+  boundary using resources for catalogs/schemas and tools for explicit
+  operations, while keeping checkpoints, mapping, conflict policy, auditing,
+  secrets, and Table mutations host-owned.
+- Required an authoritative research refresh, source-family capability matrix,
+  TDR, threat model, codebase-grounded plan, representative real-source adapter
+  tranche, conformance fixture, browser evidence, and regression coverage before
+  completion. Adapter selection, OAuth topology, secret ownership, public
+  extension compatibility, and conflict/delete defaults remain operator gates.
+
 ## 2026-07-14 — G-070 critical API route contracts
 
 ### Completed
