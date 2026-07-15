@@ -9,16 +9,15 @@ mode: next-steps
 
 ### Recommendation
 
-**Do this:** Begin G-057, `Reproduce the distributed Ollama profile and workflow failure`, when the matching three-host environment or reporter evidence is available.
+**Do this:** Begin G-056, `Preview and honor the effective execution target`.
 
-**Why:** The G-063 testing-improvement series is now complete through G-067, including G-051's
-rendered browser-state fixture. The operator's next priority is the distributed/self-hosted runtime
-series, and G-057 is the evidence-gathering boundary that separates client→Relay networking,
-Relay→Ollama networking, model/capability errors, and execution-target fallback before code changes.
+**Why:** G-057 is closed as `not reproduced locally; external topology unverified` after the
+operator removed the unavailable customer-environment gate. Its local controls confirmed that
+compatible Ollama Chat/task/workflow execution completes without fallback, while identifying
+requested/effective target, capability-message, and provider-summary truth gaps owned by G-056.
 
-**Invoke:** use the G-033 diagnostic discipline with the exact browser client → Relay Linux VM →
-remote Ollama LAN server topology. Do not change customer network or Ollama configuration without
-approval.
+**Invoke:** specify and implement the shared preflight/receipt target contract, preserving Manual →
+default as a distinct choice from explicit Ollama selection and naming incompatible capabilities.
 
 **Priority category:** Customer reliability — first goal in the operator-prioritized distributed
 runtime sequence.
@@ -26,10 +25,9 @@ runtime sequence.
 ### Context
 
 - Completed testing goals: G-022, G-064, G-065, G-066, G-067, G-068, plus bounded G-051.
-- Runtime sequence: G-057 distributed Ollama diagnosis, G-056 execution-target truth informed by
-  that evidence, then G-069 LiteLLM/LM Studio support.
-- G-057 remains environment/customer-evidence gated; it must end in a named reproduction,
-  `not reproduced`, or `needs-info` disposition rather than a speculative fix.
+- Runtime sequence: completed G-057 distributed Ollama diagnosis, G-056 execution-target truth
+  informed by that evidence, then G-069 LiteLLM/LM Studio support.
+- G-057 ended with a named local-only disposition and no speculative customer-network fix.
 
 ---
 

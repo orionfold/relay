@@ -1,104 +1,88 @@
 ---
-generated: 2026-07-11
-mode: integration
+generated: 2026-07-14
+mode: impact
 ---
 
 # Architect Report
 
-## Integration Design — Explicit GitHub credential providers and Pack distribution journeys
+## Change Impact Analysis — Distributed Ollama topology
 
-### Capability
+### Proposed outcome
 
-Generalize the customer N=1 private-repository request into three balanced
-outcomes: publish a Pack to a creator-owned private repository, publish it to a
-creator-owned public repository, or submit an exact public publication for
-Relay Community review. GitHub setup happens once and is reused by both Pack
-and GitHub Pages publishers. Customers with an existing authenticated GitHub
-CLI can explicitly reuse it without copying its token into Relay.
+Diagnose Relay running on a Linux VM/server, reached by a separate browser
+client and calling Ollama on a third LAN host. Separate both network legs from
+model, profile/capability, and execution-target failures; never count fallback
+to a cloud runtime as Ollama success.
 
-### Decision
+### Current dependency trace
 
 ```text
-Settings: explicit GitHub connection provider
-       ┌────────────┼────────────┐
-       ▼            ▼            ▼
- encrypted token  GitHub CLI   GITHUB_TOKEN
- (Relay stores)   (gh stores)  (environment)
-       └────────────┼────────────┘
-                    ▼
-       server-side credential resolver
-                    │
-        ┌────────┴─────────┐
-        ▼                  ▼
-GitHub Pages target   Pack repository target
-(owner/repo/branch)   (owner/repo/branch/directory)
-                           │
-                 public exact-hash publish
-                           ▼
-              Community review request
-              (index links; never hosts)
+browser
+  -> same-origin Relay Settings/runtime/Chat/task/workflow APIs
+  -> persisted ollama.baseUrl + ollama.defaultModel
+  -> server-side model discovery / connection test / execution adapter
+  -> remote Ollama /api/tags + /api/chat
+  -> task, workflow child, Chat message, logs, diagnostics, usage receipts
 ```
 
-- Credentials belong to the GitHub account connection, not individual apps.
-- GitHub CLI is a provider, not a token-import path: Relay invokes
-  `gh auth token` server-side per operation and never persists or returns the
-  result. The active CLI identity is never adopted silently.
-- Settings discovery checks only whether the local `gh` executable exists.
-  Credential access and GitHub validation occur only after the
-  user clicks **Use GitHub CLI**, preserving the no-background-egress promise.
-- Publish targets remain app-specific and credential-free.
-- Public/private visibility is read from GitHub and displayed neutrally; Relay
-  does not create or change repository visibility.
-- Community submission requires the same target, successful deployment, and
-  artifact hash as the preview. It generates a structured review request and
-  does not write into an Orionfold-owned Pack repository.
-- Existing targets containing `githubToken` remain supported and masked as a
-  pre-adoption compatibility fallback. A newly supplied legacy token is
-  verified and migrated into the shared encrypted connection; explicit shared
-  adoption or disconnect disables silent legacy fallback.
+There is no browser → Ollama call in the supported path. Browser CORS cannot
+explain the Relay → Ollama leg. The current adapter interface and persisted Base
+URL already permit non-loopback endpoints without a new runtime type.
 
 ### Blast radius
 
-**High — four layers, approximately 20 files:** credential-provider settings and API;
-publisher credential resolution; two app-detail publishing surfaces; Pack
-community review plus trust/spec/TDR documentation. No schema migration is
-required because the existing settings key/value table holds the encrypted
-connection and target config is JSON-in-TEXT.
+| Layer | Current surface | Impact |
+|---|---|---|
+| Settings/API | Ollama settings, runtime probe, provider summary | URL validation/normalization, truthful default model, typed probe errors |
+| Runtime | model resolver, Ollama adapter, execution target | endpoint/model identity, timeout and error mapping, no-fallback receipt |
+| Chat/workflow | Ollama engine, task/workflow execution, SSE telemetry | shared endpoint/model selection and terminal-state parity |
+| Usage/trust | usage cost derivation, UI labels, trust/data-flow docs | distinguish zero token billing from infrastructure cost; local from remote |
 
-### Safeguards
+**Classification: High — four layers.** A diagnostic requires no schema or
+migration. A complete product correction may touch approximately 15–25 files
+across server, UI, tests, and public documentation.
 
-- The raw token is never returned to the browser or chat. Saved tokens are
-  encrypted; CLI tokens remain owned by `gh` and exist in Relay process memory
-  only for the operation that needs them. Settings exposes safe provider,
-  connected, login, verification, and optional saved-token hint metadata.
-- Missing CLI, expired login, absent PATH, network failure, and revoked
-  credentials produce named visible states with token setup retained as the
-  fallback.
-- Repository listing returns only repositories the credential can push to and
-  labels both public and private visibility.
-- Adapters resolve credentials server-side immediately before test/publish.
-- Community review is unavailable for private repositories and stale or
-  unpublished artifacts.
-- Community review sends metadata and a repository link only; Pack files stay
-  creator-owned and install-state telemetry remains absent.
-- Named failures remain visible at Settings, target-test, publish, deployment,
-  and community-submission boundaries.
+### Confirmed drift
 
-### TDR result
+- `POST /api/settings/ollama` accepts unvalidated strings; normalization and a
+  stable network/error contract are absent.
+- The provider summary synthesizes `llama3` when the persisted default is empty,
+  while the runtime resolver may select the first actually pulled model.
+- `document-writer` declares Ollama support but its filesystem tools cause the
+  target resolver to filter Ollama; the emitted error names the supported list
+  rather than the missing filesystem capability. This is not a network probe.
+- Manual routing intentionally returns the default runtime. Without a separate
+  explicit runtime request, Manual → Claude is current behavior, though the UI
+  contract is easy to misread.
+- Runtime/model calls originate server-side as intended, but DNS, refusal,
+  timeout, authentication, missing-model, malformed-response, and upstream
+  failures do not share stable named reason codes.
+- UI and trust documentation equate the `ollama` provider id with localhost,
+  privacy, free operation, and zero egress. Those claims are only true for a
+  loopback/operator-owned topology. The ledger's `$0` is specifically zero
+  per-token provider billing, not proof of zero infrastructure cost.
 
-TDR-039 gains an evolution note for shared credential providers. TDR-040 now records
-repository-visibility neutrality and the public-publish-then-review community
-model plus explicit GitHub CLI selection. A new TDR is unnecessary because these changes refine, rather than
-replace, the accepted publisher and community-Pack decisions.
+### Architectural recommendation
 
-### Verification requirement
+1. Close G-057 as `not reproduced locally; external topology unverified`; do
+   not infer a customer-network cause from loopback evidence.
+2. Feed the confirmed phantom-default and requested/effective parity findings
+   into G-056.
+3. Centralize validated endpoint configuration and typed connection errors
+   before G-069 adds LiteLLM and LM Studio; reuse transport mechanics without
+   collapsing provider identity or trust/cost truth.
+4. Treat public trust/cost/privacy wording as a separate operator-gated change.
+5. Preserve the real-module-graph smoke in deterministic mode and use its new
+   configured-endpoint mode for Relay-host → Ollama evidence. Test the browser
+   client → Relay leg separately on the actual client host.
 
-Run connection/API/adapter/community tests, the existing Pages and Pack
-publisher regression suites, TypeScript, production build, a real runtime task
-because chat tools remain in the runtime graph, and browser checks of Settings,
-Pack repository selection, and GitHub Pages target creation. Before release,
-run a credentialed smoke using both a public and private disposable repository.
+### TDR disposition
+
+No new decision is accepted yet. If G-056/G-069 adopts one shared remote
+endpoint-validation/error contract across Ollama, LiteLLM, and LM Studio, record
+that boundary in a runtime TDR before implementation. The current G-057 work is
+diagnostic evidence, not an architectural commitment.
 
 ---
 
-*Generated by `/architect` — integration design mode*
+*Generated by `/architect` — change impact mode*

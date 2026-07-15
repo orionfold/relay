@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+// Default: use the credential-free deterministic Ollama fixture.
+// G-057 diagnostic mode: set RELAY_RUNTIME_SMOKE_OLLAMA_BASE_URL and optionally
+// RELAY_RUNTIME_SMOKE_OLLAMA_MODEL to exercise a configured endpoint. Receipts
+// classify rather than print the URL and never print generated response text.
+
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import {
@@ -31,9 +36,14 @@ const projectRoot = join(
   `.runtime-smoke-project-${process.pid}-${randomUUID().slice(0, 8)}`
 );
 const nextBin = join(repoRoot, "node_modules/next/dist/bin/next");
+const configuredOllamaBaseUrl =
+  process.env.RELAY_RUNTIME_SMOKE_OLLAMA_BASE_URL?.trim().replace(/\/+$/, "") ||
+  null;
+const configuredOllamaModel =
+  process.env.RELAY_RUNTIME_SMOKE_OLLAMA_MODEL?.trim() || null;
 const serverLog = [];
 let nextProcess = null;
-let fakeOllama = null;
+let ollamaTarget = null;
 
 class RuntimeGraphSmokeError extends Error {
   constructor(message) {
@@ -138,7 +148,55 @@ async function startFakeOllama() {
   if (typeof address !== "object" || !address) {
     throw new RuntimeGraphSmokeError("Fake Ollama did not expose a TCP port");
   }
-  return { server, baseUrl: `http://127.0.0.1:${address.port}` };
+  return {
+    server,
+    baseUrl: `http://127.0.0.1:${address.port}`,
+    modelId: "relay-smoke",
+    transport: "deterministic-fixture",
+  };
+}
+
+async function inspectConfiguredOllama(baseUrl) {
+  let response;
+  try {
+    response = await fetch(`${baseUrl}/api/tags`, {
+      signal: AbortSignal.timeout(8_000),
+    });
+  } catch (error) {
+    throw new RuntimeGraphSmokeError(
+      `Configured Ollama model discovery failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
+  if (!response.ok) {
+    throw new RuntimeGraphSmokeError(
+      `Configured Ollama model discovery returned ${response.status}`
+    );
+  }
+  const payload = await response.json();
+  const modelIds = Array.isArray(payload.models)
+    ? payload.models
+        .map((model) => model?.name ?? model?.model)
+        .filter((model) => typeof model === "string" && model.length > 0)
+    : [];
+  const modelId = configuredOllamaModel ?? modelIds[0] ?? null;
+  if (!modelId) {
+    throw new RuntimeGraphSmokeError(
+      "Configured Ollama has no pulled model; set RELAY_RUNTIME_SMOKE_OLLAMA_MODEL after pulling one"
+    );
+  }
+  if (configuredOllamaModel && !modelIds.includes(configuredOllamaModel)) {
+    throw new RuntimeGraphSmokeError(
+      `Configured Ollama does not report requested model ${configuredOllamaModel}`
+    );
+  }
+  return {
+    server: null,
+    baseUrl,
+    modelId,
+    transport: "configured-external",
+  };
 }
 
 async function requestJson(baseUrl, path, options = {}) {
@@ -224,7 +282,10 @@ try {
     join(projectRoot, "node_modules"),
     process.platform === "win32" ? "junction" : "dir"
   );
-  fakeOllama = await startFakeOllama();
+  ollamaTarget = configuredOllamaBaseUrl
+    ? await inspectConfiguredOllama(configuredOllamaBaseUrl)
+    : await startFakeOllama();
+  const strictSentinels = ollamaTarget.transport === "deterministic-fixture";
   const nextPort = await reservePort();
   const relayBaseUrl = `http://127.0.0.1:${nextPort}`;
   nextProcess = spawn(
@@ -258,8 +319,8 @@ try {
   await requestJson(relayBaseUrl, "/api/settings/ollama", {
     method: "POST",
     body: JSON.stringify({
-      baseUrl: fakeOllama.baseUrl,
-      defaultModel: "relay-smoke",
+      baseUrl: ollamaTarget.baseUrl,
+      defaultModel: ollamaTarget.modelId,
     }),
   });
 
@@ -289,7 +350,12 @@ try {
   assert(completedTask.assignedAgent === "ollama", "Task requested runtime drifted");
   assert(completedTask.effectiveRuntimeId === "ollama", "Task effective runtime drifted");
   assert(completedTask.runtimeFallbackReason == null, "Task unexpectedly fell back");
-  assert(completedTask.result === "TASK_RUNTIME_GRAPH_OK", "Task sentinel mismatch");
+  assert(
+    strictSentinels
+      ? completedTask.result === "TASK_RUNTIME_GRAPH_OK"
+      : typeof completedTask.result === "string" && completedTask.result.length > 0,
+    strictSentinels ? "Task sentinel mismatch" : "Configured Ollama task result was empty"
+  );
 
   const workflow = await requestJson(relayBaseUrl, "/api/workflows", {
     method: "POST",
@@ -326,7 +392,7 @@ try {
     body: JSON.stringify({
       title: "G-066 Chat module graph",
       runtimeId: "ollama",
-      modelId: "ollama:relay-smoke",
+      modelId: `ollama:${ollamaTarget.modelId}`,
     }),
   });
   const chatResponse = await fetch(
@@ -343,11 +409,25 @@ try {
     .split("\n")
     .filter((line) => line.startsWith("data: "))
     .map((line) => JSON.parse(line.slice(6)));
+  const chatEventSummary = chatEvents.map((event) => ({
+    type: event.type,
+    phase: typeof event.phase === "string" ? event.phase : undefined,
+    contentLength:
+      typeof event.content === "string" ? event.content.length : undefined,
+    message:
+      event.type === "error" && typeof event.message === "string"
+        ? event.message.slice(0, 300)
+        : undefined,
+  }));
   assert(
-    chatEvents.some(
-      (event) => event.type === "delta" && event.content === "CHAT_RUNTIME_GRAPH_OK"
+    chatEvents.some((event) =>
+      strictSentinels
+        ? event.type === "delta" && event.content === "CHAT_RUNTIME_GRAPH_OK"
+        : event.type === "delta" && typeof event.content === "string" && event.content.length > 0
     ),
-    `Chat SSE sentinel missing: ${sseText}`
+    strictSentinels
+      ? `Chat SSE sentinel missing: ${sseText}`
+      : `Configured Ollama Chat SSE had no content delta: ${JSON.stringify(chatEventSummary)}`
   );
   assert(chatEvents.some((event) => event.type === "done"), "Chat SSE done missing");
 
@@ -357,7 +437,12 @@ try {
   );
   const assistant = messages.find((message) => message.role === "assistant");
   assert(assistant?.status === "complete", "Chat assistant row was not finalized");
-  assert(assistant?.content === "CHAT_RUNTIME_GRAPH_OK", "Chat durable sentinel mismatch");
+  assert(
+    strictSentinels
+      ? assistant?.content === "CHAT_RUNTIME_GRAPH_OK"
+      : typeof assistant?.content === "string" && assistant.content.length > 0,
+    strictSentinels ? "Chat durable sentinel mismatch" : "Configured Ollama durable Chat result was empty"
+  );
   const diagnostics = await requestJson(
     relayBaseUrl,
     "/api/diagnostics/chat-streams?windowMinutes=10"
@@ -389,8 +474,10 @@ try {
     "Workflow child effective runtime drifted"
   );
   assert(
-    workflowTask?.result === "WORKFLOW_RUNTIME_GRAPH_OK",
-    "Workflow child sentinel mismatch"
+    strictSentinels
+      ? workflowTask?.result === "WORKFLOW_RUNTIME_GRAPH_OK"
+      : typeof workflowTask?.result === "string" && workflowTask.result.length > 0,
+    strictSentinels ? "Workflow child sentinel mismatch" : "Configured Ollama workflow result was empty"
   );
 
   const logs = serverLog.join("");
@@ -405,6 +492,13 @@ try {
         ok: true,
         taskId: task.id,
         taskLogs,
+        ollamaTransport: ollamaTarget.transport,
+        ollamaModel: ollamaTarget.modelId,
+        ollamaEndpointClass: /^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/i.test(
+          ollamaTarget.baseUrl
+        )
+          ? "loopback"
+          : "non-loopback",
         requestedRuntimeId: completedTask.assignedAgent,
         effectiveRuntimeId: completedTask.effectiveRuntimeId,
         workflowId: workflow.id,
@@ -422,8 +516,8 @@ try {
   process.exitCode = 1;
 } finally {
   await stopNext();
-  if (fakeOllama) {
-    await new Promise((resolveClose) => fakeOllama.server.close(resolveClose));
+  if (ollamaTarget?.server) {
+    await new Promise((resolveClose) => ollamaTarget.server.close(resolveClose));
   }
   rmSync(projectRoot, { recursive: true, force: true });
   rmSync(fixtureRoot, { recursive: true, force: true });

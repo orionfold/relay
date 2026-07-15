@@ -1,5 +1,48 @@
 # Feature Changelog
 
+## 2026-07-14 — Next regression investments and G-057 completion
+
+### Groomed
+
+- Added G-070 as the next bounded regression investment: inventory and protect
+  the load-bearing API mutation/execution tranche at the real route, SQLite,
+  dispatch, and receipt boundary instead of generating shallow tests for all
+  182 routes.
+- Added G-071 for workflow recovery/state-transition coverage across sequential,
+  loop, parallel, HITL/delay, cancellation, retry, restart, and duplicate-event
+  paths, with real state/concurrency boundaries and mutation evidence.
+- Added G-072 after G-069 for a shared Chat/runtime contract across every
+  shipped provider, retaining provider-specific protocol exceptions and
+  credential-free real-module-graph evidence.
+
+### Started
+
+- G-057 moved to evidence gathering. The code/data-flow and local controls run
+  first; an actual three-host browser → Relay Linux VM → Ollama LAN server
+  packet or sufficient reporter evidence remains required for the dispositive
+  reproduction.
+- Extended the existing isolated runtime-graph smoke with an opt-in configured
+  Ollama endpoint mode and redacted receipt. Both the deterministic fixture and
+  a real loopback Ollama `0.31.2` task/workflow/Chat control completed with
+  requested and effective runtime `ollama`; a stale-model control returned a
+  visible 404 without fallback. The result is explicitly not LAN evidence.
+- Routed a confirmed provider-summary truth gap to G-056: when the persisted
+  Ollama default is empty, Relay must not synthesize `llama3` while execution
+  resolves a different pulled model. Remote-endpoint privacy/cost copy remains
+  an operator-gated G-057 finding.
+
+### Completed
+
+- Closed G-057 with the explicit disposition `not reproduced locally; external
+  topology unverified`. Relay has no access to the customer environment, and
+  the operator approved closure on this machine rather than retaining an
+  unactionable evidence gate. The code-path audit, deterministic fixture, and
+  real loopback Ollama `0.31.2` Chat/task/workflow controls pass without runtime
+  fallback. No customer-network cause is inferred.
+- Preserved the configured-endpoint diagnostic for future use and routed every
+  confirmed actionable finding into G-056 or the subsequent runtime series.
+  Customer-topology validation is explicitly out of scope for this closure.
+
 ## 2026-07-14 — G-067 test environments and G-051 browser-state fixture
 
 ### Completed
