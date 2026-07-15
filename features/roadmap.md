@@ -72,6 +72,7 @@ via marker comments, not dropped. See `_SPECS/2026-06-29-211534_feature-cut-free
 | [document-manager](document-manager.md) | P2 | completed | file-attachment-data-layer, document-preprocessing |
 | [document-output-generation](document-output-generation.md) | P3 | completed | file-attachment-data-layer, agent-document-context |
 | [workflow-document-pool](workflow-document-pool.md) | P1 | completed | workflow-engine, file-attachment-data-layer, document-preprocessing, agent-document-context, document-output-generation, workflow-ux-overhaul |
+| [enterprise-document-connectors](enterprise-document-connectors.md) | P1 | planned | file-attachment-data-layer, document-preprocessing, document-manager, agent-document-context, document-output-generation, enterprise-structured-data-connectors, chat-tools-plugin-kind-1, scheduled-prompt-loops |
 
 ### Agent Intelligence
 

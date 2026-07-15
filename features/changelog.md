@@ -1,5 +1,23 @@
 # Feature Changelog
 
+## 2026-07-15 — G-074 enterprise document connectors
+
+### Groomed
+
+- Added a durable goal and specification for securely connecting Notion,
+  SharePoint/OneDrive, Quip, document repositories, object stores, and enterprise
+  knowledge applications to Relay Documents.
+- Kept authorization, secrets, scheduling, checkpoints, receipts, and MCP host
+  behavior in the shared G-073 connector kernel while defining a separate
+  document layer for hierarchy, binary transfer, source-native structure,
+  versions, ACL/policy drift, extraction lineage, content safety, and guarded
+  publication.
+- Required primary-source research, a provider/fidelity/security matrix, joint
+  TDR, threat model, phased plan, representative three-family adapter tranche,
+  real-source sandbox smokes, and regression/browser evidence. Storage mode,
+  permission-loss retention, malware/parser isolation, provider tranche, OAuth
+  topology, and publication semantics remain operator gates.
+
 ## 2026-07-15 — G-073 enterprise structured-data connectors
 
 ### Groomed
