@@ -157,7 +157,7 @@ Every current runtime consumes the context-builder output; they don't need chang
 - Split from: [chat-advanced-ux](chat-advanced-ux.md) §5 — largest of the 5 sub-features by design surface
 - Existing code: `src/lib/chat/context-builder.ts`, `src/lib/db/schema.ts` (conversations + messages), `src/components/chat/`
 - MEMORY.md cross-references: `addColumnIfMissing` + CREATE TABLE ordering; runtime-registry-adjacent smoke-test budget
-- Plan: `docs/superpowers/plans/2026-05-03-chat-conversation-branches-phase-2.md`
+- Historical plan and implementation: Relay git commit `17a6fc5b`
 
 ## Verification — Claude smoke (2026-05-03 / Phase 2)
 

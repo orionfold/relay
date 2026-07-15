@@ -105,11 +105,11 @@ CLAUDE.local.md
 /book/
 /ai-native-notes/
 
-# User Guide / docs generated corpus — generation moved to a private authoring
-# repository and the in-app User Guide UI was
-# removed (2026-06). The generated docs no longer ship (dropped from npm
-# `files` + cli hoist). Kept local on disk; only un-tracked from git.
-# Session-local implementation plans/specs are internal continuity records.
+# Retired User Guide / generated-doc corpus. The authoritative customer-facing
+# asset and guide source is strategy/relay/_ASSETS; these ignores prevent old
+# generators from silently recreating the root corpus. The in-app User Guide UI
+# and generated docs stopped shipping in 2026-06. Session-local plans/specs are
+# internal continuity records.
 # Keep hand-written contributor documentation such as docs/plugin-security.md
 # tracked, but never publish the superpowers scratch history.
 /docs/superpowers/plans/

@@ -9,8 +9,8 @@ dependencies:
   - AppMaterializedCard (Phase 2+3, shipped 2026-04-20)
   - ExtensionFallbackCard (Phase 6, shipped 2026-04-20)
   - chat-tools-plugin-kind-1 (M3, shipped 2026-04-20)
-design: docs/superpowers/specs/2026-04-21-m4.5-nl-to-composition-design.md
-plan: docs/superpowers/plans/2026-04-21-m4.5-implementation.md
+design: Relay git commit 3fb1ac51
+plan: Relay git commit c5869f71
 handoff: internal history record
 ---
 

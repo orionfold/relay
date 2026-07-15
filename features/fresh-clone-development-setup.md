@@ -133,7 +133,7 @@ Excluded:
 - Source: strategy `_IDEAS/triage.md` TRIAGE-014 (groomed 2026-07-13)
 - Existing bootstrap contract: `features/instance-bootstrap.md`
 - Existing bootstrap tests: `src/lib/instance/__tests__/bootstrap.test.ts`
-- Implementation plan: `docs/superpowers/plans/2026-07-13-g-048-fresh-clone-development-setup.md`
+- Historical implementation plan: Relay git commit `2006cf99`
 
 ## Verification run — 2026-07-13 (local acceptance)
 

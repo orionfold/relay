@@ -16,7 +16,7 @@ dependencies: [app-shell, task-board, homepage-dashboard, keyboard-shortcut-syst
 
 The current sidebar has three IA drifts from product positioning:
 
-1. **Profiles and Schedules are misclassified.** `docs/why-ainative.md` names "Projects, Profiles, Workflows, Schedules" as co-equal primitives ("your AI team", "recurring ops"). Today Profiles and Schedules live under **Manage** — a group intended for observability — which makes them feel like admin surfaces rather than composition primitives. Users compose Profiles while building Workflows; proximity matters.
+1. **Profiles and Schedules are misclassified.** The product positioning now preserved in `_ASSETS/features-catalog.md` treats Projects, Profiles, Workflows, and Schedules as co-equal primitives. Today Profiles and Schedules live under **Manage** — a group intended for observability — which makes them feel like admin surfaces rather than composition primitives. Users compose Profiles while building Workflows; proximity matters.
 
 2. **The real dashboard has no sidebar entry.** The route `/` renders a genuine dashboard (greeting + 5 stat tiles with sparklines + priority queue + activity feed + recent projects + quick actions), but it's only reachable via logo click. First-time users and anyone who navigates away from `/` cannot easily return. The word "Dashboard" is currently squatting on the kanban task board at `/dashboard`.
 
@@ -28,7 +28,7 @@ The change is being bundled with the brand pivot content refresh — `/refresh-c
 
 ## User Story
 
-As a team-lead persona (Jordan in `docs/journeys/work-use.md`), I want the sidebar groups to mirror my cognitive modes — morning check-ins, mid-day composition, retrospective observation — so that the first click of the day lands me on the right surface without scanning a flat list.
+As a team-lead persona (the SMB operator journey now maintained in `_ASSETS/journeys/smb.md`), I want the sidebar groups to mirror my cognitive modes — morning check-ins, mid-day composition, retrospective observation — so that the first click of the day lands me on the right surface without scanning a flat list.
 
 As a developer contributing a new list route (e.g. a future `/agents` or `/queues`), I want a written TDR telling me to name routes after the object, not the view type, so that this drift does not re-accumulate.
 
@@ -93,9 +93,9 @@ Create `.claude/skills/architect/references/tdr-033-route-object-label-conventio
 Run `/refresh-content-pipeline` as the final step, bundled with the already-planned brand pivot cascade. This regenerates:
 
 - 15 docs files referencing `/dashboard` (listed in architect report)
-- 10 screengrab PNGs whose filenames begin with `dashboard-*` in both `public/readme/` and `screengrabs/`
-- Feature reference docs under `docs/features/` (notably `dashboard-kanban.md` should be renamed to `tasks.md`)
-- User-guide journey pages (`docs/journeys/*.md`)
+- Historical `dashboard-*` README images under `public/readme/`; current product capture belongs only in `_ASSETS/screenshots/`
+- Dirty guide units in `_ASSETS/docs/guide-tracker.json`
+- Current product journeys under `_ASSETS/journeys/`
 - Any book chapters whose alt-text or narrative references the kanban as "dashboard"
 
 Book content has zero current `/dashboard` references (verified via grep); no manual book edits required.
@@ -166,9 +166,9 @@ Book content has zero current `/dashboard` references (verified via grep); no ma
 
 - [x] TDR-033 file created at `.claude/skills/architect/references/tdr-033-route-object-label-convention.md` with status `accepted` and the rule stated in Technical Approach §5
 - [x] `/refresh-content-pipeline` cascade completes without errors; stats snapshot regenerated
-- [x] Zero `/dashboard` references remain in `docs/**/*.md` after cascade (except any intentional historical/changelog mentions)
-- [x] `docs/features/dashboard-kanban.md` renamed to `docs/features/tasks.md` (or equivalent per doc-generator conventions)
-- [x] Screengrab filenames under `public/readme/dashboard-*.png` and `screengrabs/dashboard-*.png` regenerated with `tasks-*` names, OR the old names kept with doc references updated — decision made during `/screengrab` run
+- [x] Zero live `/dashboard` references remain in the `_ASSETS` guide/journey corpus after the cascade
+- [x] The retired dashboard guide identity was replaced by the Tasks guide identity before the old generated corpus was removed
+- [x] Historical README images use the `tasks-*` names; future product capture is declared and generated only through `_ASSETS/screenshots/`
 
 ### State preservation — `/` (Dashboard overview)
 
@@ -248,8 +248,8 @@ Book content has zero current `/dashboard` references (verified via grep); no ma
 
 - **Architect impact report:** `features/architect-report.md` (2026-04-18 — blast radius MEDIUM, ~50 files, single frontend layer)
 - **TDR (to be written):** `.claude/skills/architect/references/tdr-033-route-object-label-convention.md`
-- **Product positioning:** `docs/why-ainative.md` — "Projects, Profiles, Workflows, Schedules" as co-equal primitives
-- **User journey evidence:** `docs/journeys/work-use.md` — Jordan's composition sequence maps to the proposed Compose group
+- **Product positioning:** `_ASSETS/features-catalog.md`
+- **User journey evidence:** `_ASSETS/journeys/smb.md`
 - **Design decisions:** DD-016 (hierarchical dimming), DD-020 (single-line subtext ≤35 chars), pattern-library entry for AppSidebar
 - **Related specs:**
   - `app-shell.md` — originating sidebar scaffold

@@ -418,7 +418,7 @@ Personal portfolio check-ins for a self-directed investor.
 
 These limits reflect what the PLATFORM supports today. None require this skill to change — they shape what artifacts emit.
 
-1. **Schedules have no YAML registry.** This skill uses the `create_schedule` chat tool in Phase 4 instead of writing a `~/.ainative/schedules/<id>.yaml`. When a schedule registry lands (proposed in `output/screengrabs/dogfood-log-2026-04-14.md` §8), this skill should switch to writing YAML and dropping the chat-tool call.
+1. **Schedules have no YAML registry.** This skill uses the `create_schedule` chat tool in Phase 4 instead of writing a `~/.ainative/schedules/<id>.yaml`. Re-evaluate this only when the shipped schedule registry contract changes; the historical 2026-04-14 dogfood output is intentionally not retained.
 
 2. **Permission rules are not declarative.** `src/lib/settings/permission-presets.ts:19-66` hardcodes 3 presets. This skill picks from those three or leaves `permissions.preset: custom` as a signal for the user to configure via `/settings` after install.
 

@@ -112,6 +112,6 @@ As a workflow operator, I want to see what my workflows are doing in real-time, 
 ## References
 
 - Source: `ideas/analysis-chat-issues.md` — EXPAND additions beyond the 9 original issues
-- Design spec: `docs/superpowers/specs/2026-04-06-workflow-intelligence-stack-design.md` — Feature 4 (all sub-capabilities)
+- Historical design: Relay git commit `da666406` — Feature 4 (all sub-capabilities)
 - Related features: `workflow-budget-governance` (dependency — budget estimation reused), `workflow-runtime-configuration` (dependency — runtime catalog for recommendations), `workflow-execution-resilience` (dependency — reliable state for metrics/debugging), `usage-metering-ledger` (dependency — cost data source), `monitoring-dashboard` (dependency — SSE streaming pattern)
 - Key files: `src/lib/workflows/engine.ts`, `src/components/workflows/workflow-status-view.tsx`, `src/components/workflows/workflow-form-view.tsx`, `src/app/api/logs/stream/route.ts`, `src/components/charts/`, `src/components/shared/detail-pane.tsx`, `src/components/workflows/swarm-dashboard.tsx:47-68`

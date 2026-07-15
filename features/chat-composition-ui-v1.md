@@ -3,7 +3,7 @@ title: Chat — Skill Composition UI v1 (Skills-tab + Add)
 status: completed
 priority: P1
 milestone: post-mvp
-source: output/screengrabs/dogfood-log-2026-04-14.md §1 (top-ranked observation)
+source: Historical dogfood session 2026-04-14, observation 1
 dependencies:
   - chat-skill-composition
   - chat-command-namespace-refactor
@@ -78,7 +78,7 @@ Prefer the hook (isolated, reusable in other surfaces that may need the same sta
 
 ## References
 
-- Observation source: `output/screengrabs/dogfood-log-2026-04-14.md` proposal #1
+- Observation source: historical dogfood session 2026-04-14, proposal 1 (session output intentionally not retained)
 - Runtime contract: `chat-skill-composition.md` (v1 shipped)
 - UI scaffold: `src/components/chat/chat-command-popover.tsx`
 - Conflict heuristic (already shipped): `src/lib/chat/skill-conflict.ts`

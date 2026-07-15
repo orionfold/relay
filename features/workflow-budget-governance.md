@@ -65,6 +65,6 @@ As a workflow operator, I want workflow steps to use appropriate budget caps and
 ## References
 
 - Source: `ideas/analysis-chat-issues.md` — Issues 1, 3, 6
-- Design spec: `docs/superpowers/specs/2026-04-06-workflow-intelligence-stack-design.md` — Feature 1
+- Historical design: Relay git commit `da666406` — Feature 1
 - Related features: `spend-budget-guardrails` (completed, this extends it), `workflow-intelligence-observability` (enabled by this)
 - Key files: `src/lib/constants/task-status.ts:55-58`, `src/lib/agents/claude-agent.ts:458,572`, `src/lib/chat/tools/settings-tools.ts:12-67`, `src/lib/workflows/engine.ts:720`, `src/lib/documents/context-builder.ts:16-18`

@@ -90,7 +90,7 @@ Produce a 7-dimension health dashboard with green/yellow/red signals.
 | **Design Consistency** | Design system tokens used consistently, no forbidden patterns | Minor inconsistencies | Hardcoded colors, missing tokens, forbidden patterns |
 | **Documentation** | README, changelog, roadmap current AND all features have journey coverage | 1 artifact stale OR <5 features missing journey coverage | Multiple artifacts stale OR >5 features missing journey coverage OR entire feature family missing from journeys |
 | **Book Health** | All 12 chapters have ≥2 case study callouts AND "Building with ainative" examples AND none stale | Some chapters missing case studies or API examples OR 1-2 chapters stale | Multiple chapters stale OR missing case study integration OR no roadmap section |
-| **User Guide Sync** | All three timestamps (`screengrabs/.last-run`, `docs/.last-generated`, `public/readme/.last-synced`) within 24h | One layer >24h stale | Missing timestamps or broken references |
+| **Asset Corpus Sync** | `_ASSETS/flow/asset-flow-report.json` says `fullyVerified: true` and the screenshot/docs stages pass | Validators pass but prerequisites are skipped, or one tracker is dirty | Any executed validator fails, provenance is ambiguous, or required outputs are missing |
 
 ### Process
 
@@ -99,7 +99,7 @@ Produce a 7-dimension health dashboard with green/yellow/red signals.
 3. **Identify top concern** — the dimension most urgently needing attention
 4. **Recommend action** — specific skill invocation to address the top concern
 5. **Write report** — output to `features/supervisor-report.md`
-6. **Read journey coverage data** — check `docs/.coverage-gaps.json` if it exists. Factor the gap count into the Documentation dimension score. If the file doesn't exist, check `screengrabs/manifest.json` features against `docs/journeys/*.md` references manually.
+6. **Read asset coverage data** — inspect `_ASSETS/journeys/coverage-matrix.md`, `_ASSETS/screenshots/metadata/manifest.json`, `_ASSETS/docs/guide-tracker.json`, and the latest `_ASSETS/flow/asset-flow-report.json`. Treat skipped validators as incomplete evidence, not green.
 
 ### Health Check Output
 
@@ -511,20 +511,20 @@ mode: [health-check | next-steps | sprint-planning | vision-alignment | retrospe
 
 Some skills produce artifacts consumed by other skills. When the supervisor detects staleness in any link of these chains, it should recommend running the downstream skill(s).
 
-### Documentation Pipeline
+### Product Asset Pipeline
 
 ```
-/screengrab → /doc-generator (with coverage analysis) → /user-guide-sync (validates + writes .coverage-gaps.json)
-                    ↑                                              │
-                    └──────────── if gaps remain ──────────────────┘
+_ASSETS/features-catalog.md → journeys/ → seed/ → screenshots/ → docs/ → demo/
+              ↑                                                       │
+              └────────── assets-flow fails closed on drift ──────────┘
 ```
 
-- `/screengrab` produces `screengrabs/*.png` + `screengrabs/manifest.json`
-- `/doc-generator` reads screengrab manifest, runs journey coverage analysis (Phase 4.5), writes `docs/journeys/*.md` and `docs/features/*.md` with 100% feature coverage target
-- `/user-guide-sync` copies images to `public/readme/`, validates references, audits content alignment, writes `docs/.coverage-gaps.json`
-- **Feedback loop:** If `/user-guide-sync` detects coverage gaps, recommend re-running `/doc-generator` which reads `.coverage-gaps.json` and remediates journey content
-- **Staleness signal:** Compare `screengrabs/.last-run` vs `docs/.last-generated` vs `public/readme/.last-synced`
-- **Coverage signal:** Check `docs/.coverage-gaps.json` — if `summary.gapCount > 0`, the Documentation dimension is degraded
+- `assets-capture` produces `_ASSETS/screenshots/{light,dark}/**` plus the metadata manifest from the live seeded product.
+- `assets-narrative` updates only `_ASSETS/docs/guides/*.md` units marked dirty by `guide-tracker.json` and runs the docs verifier.
+- `assets-demo` captures real Relay structure; `npm run demo:refresh` verifies the seed-structure fingerprint, derives fixtures, rebuilds, and behaviorally verifies the demo.
+- `assets-flow` executes the whole corpus gate. Only `fullyVerified: true` is green; skipped prerequisites are amber.
+- **Coverage signal:** reconcile `_ASSETS/journeys/coverage-matrix.md`, screenshot targets/manifest, and docs guide tracker.
+- The tracked `public/readme/` images are README presentation assets, not the authoring source and not a sync timestamp.
 
 ### Freshness Checks (Health Check mode)
 
@@ -532,9 +532,11 @@ Add a 7th dimension to the Health Check:
 
 | Dimension | Green | Yellow | Red |
 |-----------|-------|--------|-----|
-| **User Guide Sync** | All three timestamps within 24h of each other | One layer >24h stale | Missing timestamps or broken references |
+| **Asset Corpus Sync** | Latest flow report is fully verified and screenshot/docs trackers are clean | Flow is amber or a tracker is dirty | Flow is red, provenance is wrong, or references are broken |
 
-Read these timestamps:
-- `screengrabs/.last-run`
-- `docs/.last-generated`
-- `public/readme/.last-synced`
+Read these authoritative records:
+- `_ASSETS/flow/asset-flow-report.json`
+- `_ASSETS/screenshots/metadata/latest-run.json`
+- `_ASSETS/screenshots/metadata/manifest.json`
+- `_ASSETS/docs/guide-sync-report.json`
+- `_ASSETS/docs/guide-tracker.json`

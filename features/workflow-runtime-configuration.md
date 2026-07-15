@@ -67,6 +67,6 @@ As a workflow creator, I want to choose which AI provider runs my workflow and k
 ## References
 
 - Source: `ideas/analysis-chat-issues.md` — Issues 4, 4b, 8, 9
-- Design spec: `docs/superpowers/specs/2026-04-06-workflow-intelligence-stack-design.md` — Feature 2
+- Historical design: Relay git commit `da666406` — Feature 2
 - Related features: `provider-runtime-abstraction` (completed, extends it), `smart-runtime-router` (completed, this adds workflow-level surface), `workflow-intelligence-observability` (enabled by this)
 - Key files: `src/lib/agents/runtime/catalog.ts:24-30,119-140`, `src/lib/agents/runtime/index.ts:77`, `src/lib/agents/runtime/openai-direct.ts:234`, `src/lib/agents/runtime/anthropic-direct.ts:318`, `src/lib/db/schema.ts:53-66`, `src/lib/chat/tools/workflow-tools.ts:70-164`, `src/lib/chat/tools/settings-tools.ts:12-67,77-141`, `src/lib/chat/types.ts:57-66`

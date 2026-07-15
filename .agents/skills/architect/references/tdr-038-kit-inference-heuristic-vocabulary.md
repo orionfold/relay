@@ -5,7 +5,7 @@ status: accepted
 date: 2026-05-08
 accepted-date: 2026-05-08
 category: classification
-related-spec: docs/superpowers/specs/2026-05-08-f2-f4-kit-inference-design.md
+related-spec: git:9931d9fa
 ---
 
 # TDR-038: Kit Auto-Inference Heuristic Vocabulary
@@ -125,6 +125,6 @@ During F4 smoke verification, `loadColumnSchemas` (`src/lib/apps/view-kits/index
 
 ## Related
 
-- Spec: `docs/superpowers/specs/2026-05-08-f2-f4-kit-inference-design.md`
+- Historical design specification: Git commit `9931d9fa`
 - Phase 5 hardening precedent: `inference.test.ts` lines 553-578 (`reading-log → tracker NOT research`)
 - Existing rule structure: `src/lib/apps/view-kits/inference.ts`

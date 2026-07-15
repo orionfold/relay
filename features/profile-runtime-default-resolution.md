@@ -3,7 +3,7 @@ title: Profile Runtime Default Resolution
 status: completed
 priority: P1
 milestone: post-phase-5
-source: docs/superpowers/specs/2026-05-02-profile-runtime-default-resolution-design.md
+source: Relay git commit e9cc6d20
 dependencies: [row-trigger-blueprint-execution]
 ---
 
@@ -56,8 +56,8 @@ Unit test suite: 1947 passed, 7 failed (all pre-existing, unrelated to this feat
 
 ## References
 
-- Design spec: `docs/superpowers/specs/2026-05-02-profile-runtime-default-resolution-design.md` (commit e9cc6d20)
-- Implementation plan: `docs/superpowers/plans/2026-05-02-profile-runtime-default-resolution.md` (commit ca23f59c)
+- Historical design: Relay git commit `e9cc6d20`
+- Historical implementation plan: Relay git commit `ca23f59c`
 - Predecessor feature: `features/row-trigger-blueprint-execution.md`
 - Commit chain: `90aa707b` → `57fb3726` → `a476c857` → `31321eb8` → `f7a66b75`
 - HANDOFF: `internal history record` (predecessor) → `internal continuity record` (current, post-ship)

@@ -3,7 +3,7 @@ title: Saved Search Polish v1 — Clean filterInput + Cross-Component Revalidati
 status: completed
 priority: P2
 milestone: post-mvp
-source: output/screengrabs/dogfood-log-2026-04-14.md §§2-3
+source: Historical dogfood session 2026-04-14, observations 2-3
 dependencies:
   - chat-pinned-saved-searches
 ---
@@ -77,6 +77,6 @@ interface UseSavedSearchesReturn {
 
 ## References
 
-- Observation source: `output/screengrabs/dogfood-log-2026-04-14.md` proposals #2 + #3
+- Observation source: historical dogfood session 2026-04-14, proposals 2 and 3 (session output intentionally not retained)
 - Shipped feature: `chat-pinned-saved-searches.md` (v2 completed)
 - Affected files: `src/components/chat/chat-command-popover.tsx`, `src/components/shared/command-palette.tsx`, `src/hooks/use-saved-searches.ts`

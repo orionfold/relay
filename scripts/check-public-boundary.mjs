@@ -77,7 +77,7 @@ const RULES = [
     pattern:
       /(?:\.archive\/handoff\/|\.claude\/plans\/|\b(?:HANDOFF|CODEX-CC|OPERATOR-REQUIREMENTS)\.md\b)/gu,
     message: "internal operational-continuity reference",
-    appliesTo: (entryPath) => entryPath.endsWith(".md") || entryPath === "screengrabs/manifest.json",
+    appliesTo: (entryPath) => entryPath.endsWith(".md"),
   },
 ];
 

@@ -3,7 +3,7 @@ title: Row-Trigger Blueprint Execution
 status: completed
 priority: P1
 milestone: phase-5
-source: docs/superpowers/specs/2026-05-02-row-trigger-blueprint-execution-design.md
+source: Relay git commit c153605e
 dependencies: [composed-app-kit-inbox-and-research]
 ---
 
@@ -90,8 +90,8 @@ Smoke flow:
 
 ## References
 
-- Design spec: `docs/superpowers/specs/2026-05-02-row-trigger-blueprint-execution-design.md` (commit c153605e)
-- Implementation plan: `docs/superpowers/plans/2026-05-02-row-trigger-blueprint-execution.md` (commit 7c8354dc)
+- Historical design: Relay git commit `c153605e`
+- Historical implementation plan: Relay git commit `7c8354dc`
 - Phase 4: `features/composed-app-kit-inbox-and-research.md`
 - Memory: `feedback-use-client-non-component-helpers.md` (parallel framework-boundary lesson)
 - CLAUDE.md "Smoke-test budget for runtime-registry-adjacent features"

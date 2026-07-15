@@ -66,6 +66,6 @@ As a workflow operator, I want failed workflows to recover gracefully and retry 
 ## References
 
 - Source: `ideas/analysis-chat-issues.md` — Issues 2, 5, 7
-- Design spec: `docs/superpowers/specs/2026-04-06-workflow-intelligence-stack-design.md` — Feature 3
+- Historical design: Relay git commit `da666406` — Feature 3
 - Related features: `workflow-engine` (completed, this hardens it), `workflow-document-pool` (planned, this exposes step-level binding), `workflow-intelligence-observability` (enabled by this — needs reliable state for debug panel)
 - Key files: `src/lib/workflows/engine.ts:720-841,903-914`, `src/app/api/workflows/[id]/execute/route.ts:23-47`, `src/lib/chat/tools/workflow-tools.ts:84-89,128-144`, `src/lib/documents/context-builder.ts:143-152`

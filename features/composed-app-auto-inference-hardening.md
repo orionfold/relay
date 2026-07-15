@@ -136,7 +136,7 @@ Settings entry added to existing settings page (`src/app/settings/page.tsx`); pe
 - Related features: `composed-app-manifest-view-field` (provides initial `pickKit`), `composed-app-manifest-authoring-tools` (consumes the trace generator)
 - Reference: `src/lib/tables/types.ts` (existing column-config shape), `src/app/settings/page.tsx` (settings UX pattern)
 - Anti-pattern reminders: no scoring, no telemetry inputs, no fuzzy matching
-- Implementation plan: `docs/superpowers/plans/2026-05-02-composed-app-auto-inference-hardening.md` (the initial REDUCE slice shipped probes + the matrix; G-009 completed the evidence-triggered diagnostics follow-up on 2026-07-14)
+- Historical implementation plan: Relay git commit `e6b621bb` (the initial REDUCE slice shipped probes + the matrix; G-009 completed the evidence-triggered diagnostics follow-up on 2026-07-14)
 
 ## Completion evidence — 2026-07-14
 

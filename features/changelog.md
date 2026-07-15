@@ -1,5 +1,22 @@
 # Feature Changelog
 
+## 2026-07-15 — G-012 golden-source asset consolidation tail
+
+### Completed
+
+- Removed live Relay dependencies on the retired root `screengrabs/` and ignored
+  generated User Guide corpus while preserving tracked engineering, release,
+  browser, trust, quality, and security documentation.
+- Retargeted supervisor and installed capture/documentation skills to the
+  strategy-owned `_ASSETS/screenshots/` and `_ASSETS/docs/` pipelines.
+- Added `npm run demo:refresh`, which refuses a non-strategy `_ASSETS` source,
+  verifies a pinned seed-structure fingerprint, derives fixtures, rebuilds the
+  static demo, and runs its behavioral verifier. A deliberate shape-mutation
+  fixture proves the fingerprint fails closed.
+- Completion verification passed the consolidated stale-reference scan, public
+  boundary and local-link guards, all five catalog/screenshot/docs/API/stats
+  verifiers, 11 demo-projection regressions, and all four behavioral demo lanes.
+
 ## 2026-07-15 — G-074 enterprise document connectors
 
 ### Groomed
@@ -1290,7 +1307,7 @@ changed this session — grooming + doc-correction only.
 
 ## 2026-05-03 — `chat-conversation-branches` Phase 2 shipped (UI + Claude smoke; spec → completed)
 
-Real build session, third of the day, executes Phase 1's deferred UI work end-to-end. Phase 1 (committed in `4b080ccd` earlier today) shipped the data layer + flag; Phase 2 wires branch action, tree dialog, ⌘Z/⌘⇧Z keybindings, and verifies cross-runtime behavior on Claude. Plan at `docs/superpowers/plans/2026-05-03-chat-conversation-branches-phase-2.md`. Scope challenge replaced the spec's literal "conversation detail sheet with Branches tab" — which would have invented a one-off UI pattern — with a `BranchesTreeDialog` opened from the existing `ConversationList` row dropdown (DD-7). Spec moves `in-progress` → `completed`. AC #6 (Ollama smoke) deferred with rationale: Ollama is not exposed in the chat-model selector today (only at the agent-runtime layer); branching is purely chat-layer.
+Real build session, third of the day, executes Phase 1's deferred UI work end-to-end. Phase 1 (committed in `4b080ccd` earlier today) shipped the data layer + flag; Phase 2 wires branch action, tree dialog, ⌘Z/⌘⇧Z keybindings, and verifies cross-runtime behavior on Claude. Historical plan and implementation are anchored by git commit `17a6fc5b`. Scope challenge replaced the spec's literal "conversation detail sheet with Branches tab" — which would have invented a one-off UI pattern — with a `BranchesTreeDialog` opened from the existing `ConversationList` row dropdown (DD-7). Spec moves `in-progress` → `completed`. AC #6 (Ollama smoke) deferred with rationale: Ollama is not exposed in the chat-model selector today (only at the agent-runtime layer); branching is purely chat-layer.
 
 ### Implementation
 
@@ -1615,7 +1632,7 @@ Lands two new domain-aware view kits — Coach (markdown digest hero) and Ledger
 - **Inference verification**: existing Phase 1.2 heuristics in `src/lib/apps/view-kits/inference.ts` already pick Coach + Ledger correctly; existing 37-test inference suite covers the spec's acceptance fixtures (`weekly-portfolio-check-in → coach`, `finance-pack → ledger`). No changes required.
 - **New starter (`.claude/apps/starters/finance-pack.yaml`)**: Ledger dogfood target — currency-table + monthly-close blueprint + monthly schedule.
 - **Slot renderers**: no changes required — `hero.tsx`, `secondary.tsx`, `activity.tsx` already pass through `slot.content` as `ReactNode`. Coach + Ledger build content via `createElement(...)` per the Phase 2 frozen contract for client-component heroes.
-- **Tests (~82 new)**: see plan at `docs/superpowers/plans/2026-05-02-composed-app-kit-coach-and-ledger.md` for full breakdown. Full project: 1831/1850 pass + 12 skipped + 7 pre-existing failures (router.test.ts, settings.test.ts) unchanged from `main`. tsc clean for `src/(app|lib|components)`.
+- **Tests (~82 new)**: historical plan is anchored by git commit `2a7e2e36`. Full project: 1831/1850 pass + 12 skipped + 7 pre-existing failures (router.test.ts, settings.test.ts) unchanged from `main`. tsc clean for `src/(app|lib|components)`.
 - **Browser smoke deferred**: Coach + Ledger end-to-end browser verification at `/apps/<weekly-portfolio-check-in>` and `/apps/<finance-pack>` requires interactive session (compose app via chat surface, visit `npm run dev` URL, screenshot). See internal continuity record for the smoke checklist.
 - **NOT in scope** (deferred per HOLD): document citation strip (Phase 4 — `DocumentChipBar` is wrong primitive), top mover (24h) KPI (needs diff aggregation, Phase 5), allocation drift % (underspecified, Phase 5), `RunHistoryTimeline` primitive (Phase 4), kit-loader registry refactor (Phase 4 when 5+ branches arrive — Phase 3 ends with 4), period range customization beyond MTD/QTD/YTD, chart formats beyond AreaChart, `TableSpreadsheet` for Ledger transactions (intentional read-only choice).
 
@@ -1823,7 +1840,7 @@ New P0 post-MVP feature derived from `ideas/self-extending-machine-strategy.md`.
 
 ### Groomed — sidebar-ia-route-restructure
 
-New P1 post-MVP feature extracted from a live design session grounding IA fixes in `docs/why-ainative.md` positioning and the `docs/journeys/work-use.md` journey. Captured in `features/sidebar-ia-route-restructure.md` and added to the roadmap's UI Enhancement section.
+New P1 post-MVP feature extracted from a live design session grounding IA fixes in the then-current product positioning and work-use journey. Current durable sources are `_ASSETS/features-catalog.md` and `_ASSETS/journeys/smb.md`. Captured in `features/sidebar-ia-route-restructure.md` and added to the roadmap's UI Enhancement section.
 
 - **IA change**: sidebar moves from 4 groups to 5. Work splits into **Home** (Dashboard, Tasks, Inbox, Chat) + **Compose** (Projects, Workflows, Profiles, Schedules, Documents, Tables). Manage renames to **Observe** (Monitor, Cost & Usage, Analytics). Learn + Configure unchanged.
 - **Promoted primitives**: Profiles + Schedules move out of Manage into Compose. Positioning doc names them as co-equal with Projects and Workflows; Manage was a misclassification.
@@ -1832,7 +1849,7 @@ New P1 post-MVP feature extracted from a live design session grounding IA fixes 
 - **Keyboard shortcuts**: `g d` → `/dashboard` is replaced by `g h` → `/` and `g t` → `/tasks`.
 - **Architect impact report** (`features/architect-report.md`): MEDIUM blast radius, ~50 files, single frontend layer, no data/runtime coupling. Root-path guard in `isItemActive` already handles the new pattern.
 - **TDR-033** recommended: *Route Semantics — Object-Label Convention for List Routes*. Codifies the rule so future additions (e.g., a hypothetical `/inbox-board` or `/project-grid`) do not re-introduce view-type route names.
-- **Doc cascade**: bundled with the brand pivot `/refresh-content-pipeline` run — 15 docs files, 10 screengrab PNGs, and `docs/features/dashboard-kanban.md` → `tasks.md` rename all fold into the existing refresh, so the marginal doc cost of this feature is zero.
+- **Historical doc cascade**: bundled with the brand pivot refresh — 15 generated guide files, 10 captures, and the dashboard-guide → tasks-guide rename all folded into the existing refresh. The retired corpus was later consolidated into `_ASSETS`.
 - **Design bridge gate**: spec carries a blocker AC for `/frontend-designer` Product-Design Bridge review (state specs for `/` and `/tasks`, active-highlight regression checks, empty-state parity) before implementation starts.
 
 **Evidence trail**: product-manager IA review + frontend-designer design review (both in-session) + architect impact analysis (`features/architect-report.md`).
@@ -1930,7 +1947,7 @@ Both specs promoted from dogfood findings earlier today now complete.
 
 ### Dogfood session → 2 new feature specs + `ainative-app` skill
 
-**Dogfood findings** (full log at `output/screengrabs/dogfood-log-2026-04-14.md`, gitignored per convention):
+**Dogfood findings** (historical 2026-04-14 session output, intentionally not retained):
 
 Real-browser use of Phase 1 + Phase 2 features surfaced 9 observations. Two became new feature specs for immediate planning:
 
@@ -2898,7 +2915,7 @@ Implemented all 4 features across 2 phases with expanded scope (per-step budget 
 
 ### Groomed — Workflow Intelligence Stack (4 features)
 
-Real user session (investor research workflow) surfaced 9 cascading failures across workflow execution, budget management, model routing, and chat intelligence. Analysis at `ideas/analysis-chat-issues.md`. Brainstormed in EXPAND mode — beyond reactive fixes into proactive optimization. Design spec at `docs/superpowers/specs/2026-04-06-workflow-intelligence-stack-design.md`.
+Real user session (investor research workflow) surfaced 9 cascading failures across workflow execution, budget management, model routing, and chat intelligence. Analysis at `ideas/analysis-chat-issues.md`. Brainstormed in EXPAND mode — beyond reactive fixes into proactive optimization. Historical design is anchored by Relay git commit `da666406`.
 
 **Phase 1 — Close the Gaps (3 P1 features, parallelizable):**
 - `workflow-budget-governance` — wire dead $5 constant, writable budget settings, pre-flight cost estimation

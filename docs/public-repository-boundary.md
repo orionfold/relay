@@ -15,11 +15,12 @@ local even when they are useful to maintainers.
 | `docs/RELEASING.md`, `docs/plugin-security.md`, `docs/codex-browser-runbook.md`, this policy | Contributor documentation | Tracked and link-checked. |
 | `features/**`, `.agents/**`, application source, tests, scripts, workflows, and design-system files | Public product/contributor record | Tracked; private identifiers are prohibited except in exact negative-fixture allowlists. |
 | `.archive/handoff/**`, `HANDOFF.md`, `CODEX-CC.md`, `OPERATOR-REQUIREMENTS.md` | Internal operational continuity/history | Preserved locally, ignored by Git, and protected with `export-ignore`. |
-| `docs/superpowers/plans/**`, `docs/superpowers/specs/**`, `.claude/plans/**` | Internal session planning/history | Preserved locally and ignored by Git; tracked legacy plan/spec paths are additionally protected with `export-ignore`. Durable product decisions must be promoted to a feature spec, TDR, or changelog before relying on these files. |
+| Retired `docs/superpowers/plans/**`, `docs/superpowers/specs/**`, and `.claude/plans/**` paths | Internal session planning/history | Absent from the working tree and ignored so obsolete tooling cannot recreate them. Durable product decisions live in feature specs, TDRs, changelog entries, or historical Git commits. |
 
 The approved 2026-07-13 classification removed 125 internal records from the
-tracked tree without deleting local copies: 74 archived handoffs, 48 session
-plans/specifications, and three root continuity documents.
+tracked tree: 74 archived handoffs, 48 session plans/specifications, and three
+root continuity documents. G-012 subsequently removed the redundant local
+generated-doc and session-plan copies.
 
 ## Content policy
 

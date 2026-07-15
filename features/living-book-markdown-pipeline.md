@@ -68,7 +68,7 @@ lastGeneratedBy: null  # or task ID if auto-generated
 | `src/lib/docs/types.ts` | Modify | Add `BookDoc` type extending `ParsedDoc` with chapter/part fields |
 | `src/lib/book/content.ts` | Modify | Replace hardcoded content with calls to `reader.ts`; keep as fallback |
 | `src/lib/book/markdown-parser.ts` | Create | Parse markdown chapter body into `ContentBlock[]` array (text, code, callout, image blocks) |
-| `docs/manifest.json` | Modify | Add `book` section to manifest with chapter entries |
+| Retired generated guide manifest | Modify | Historical book section; no longer a live source |
 
 ### Markdown-to-ContentBlock Parsing
 
@@ -102,7 +102,7 @@ One-time script to extract content from `content.ts` into markdown files:
 ## Acceptance Criteria
 
 - [ ] 9 markdown chapter files exist in `docs/book/` with correct frontmatter
-- [ ] `reader.ts` reads both `docs/book/` and `docs/features/` + `docs/journeys/` from a unified API
+- [ ] Historical reader unified book chapters with the then-current generated feature and journey guides
 - [ ] `markdown-parser.ts` correctly converts markdown to `ContentBlock[]` for all 6 block types
 - [ ] Book reader renders markdown-sourced chapters identically to the original TS-sourced content
 - [ ] Fallback: if a markdown file is missing, the original content.ts chapter content is used

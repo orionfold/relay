@@ -9,6 +9,11 @@ dependencies: []
 
 # Product Messaging Refresh
 
+> Historical scope note: this feature originally updated the generated in-repo
+> User Guide corpus. That corpus was retired in June 2026. Current product-guide
+> authoring lives only under `_ASSETS/docs/`; the labels below describe the old
+> units without creating live path dependencies.
+
 ## Description
 
 Reposition all in-repo product messaging from "Governed AI Agent Workspace" to "AI Business Operating System" targeting solo founders and micro-teams. This covers README, package metadata, CLI help text, in-app welcome copy, documentation index, user journey guides, feature reference docs, and new problem statement / use case documents.
@@ -41,7 +46,7 @@ These establish the canonical new voice. All other updates reference this vocabu
 **3. `bin/cli.ts`**
 - Line 59: Update Commander `.description()` string to match new positioning
 
-**4. `docs/index.md`**
+**4. Retired generated documentation index**
 - Opening paragraph (line 9): Rewrite from "governed AI agent workspace" to AI Business OS framing
 - User Journeys table descriptions: Consider business-outcome language for persona summaries
 
@@ -53,36 +58,38 @@ These establish the canonical new voice. All other updates reference this vocabu
 
 For each file: rewrite opening 1-3 paragraphs to use new vocabulary. Leave procedural content (step-by-step instructions, screenshots) unchanged.
 
-1. `docs/getting-started.md` — "governed agent task" reframing in intro
-2. `docs/features/home-workspace.md` — 14 occurrences of old framing; intro paragraph rewrite
-3. `docs/journeys/personal-use.md` — Persona intro reframe (Alex)
-4. `docs/journeys/work-use.md` — Persona intro reframe (Jordan)
-5. `docs/journeys/power-user.md` — Intro paragraph
-6. `docs/journeys/developer.md` — Intro paragraph
-7. `docs/manifest.json` — Review section titles (likely no changes since they describe UI routes)
+1. Getting-started guide — "governed agent task" reframing in intro
+2. Home-workspace feature guide — intro paragraph rewrite
+3. Personal-use journey — persona intro reframe (Alex)
+4. Work-use journey — persona intro reframe (Jordan)
+5. Power-user journey — intro paragraph
+6. Developer journey — intro paragraph
+7. Generated guide manifest — review section titles
 
 ### Phase 3 — New Documents (3 files)
 
-**1. `docs/why-ainative.md`** (500-800 words)
+**1. Historical product-positioning essay** (500-800 words)
 - The broken AI agent stack problem
 - Five gaps: orchestration, strategy-to-execution, lifecycle, trust/governance, distribution
 - How ainative solves it (AI Business OS positioning)
 - Market validation signals (solo founder stats, failure rates, analyst projections)
 - Link to getting-started.md
 
-**2. `docs/use-cases/solo-founder.md`**
+**2. Historical solo-founder use case**
 - Maps ainative features to solo founder business operations
 - Projects = business units, Workflows = business processes, Profiles = AI team members
 - Schedules = recurring operations, Cost dashboard = business spend control
 - Example scenarios: content marketing pipeline, lead research, customer support triage
 
-**3. `docs/use-cases/agency-operator.md`**
+**3. Historical agency-operator use case**
 - Maps to AI agency deploying automations for clients
 - Multi-project management for client portfolios
 - Profile customization per client vertical
 - Workflow blueprints as repeatable service packages
 
-After creation, update `docs/index.md` to link new docs and `docs/manifest.json` to include them in playbook navigation.
+After creation, the retired generated index and manifest were updated to include
+the new material. Current guide navigation is owned by
+`_ASSETS/docs/guide-tracker.json`.
 
 ### What NOT to Change
 
@@ -109,11 +116,11 @@ The product today IS a governed agent workspace. It does not yet have marketing/
 - [ ] package.json description and keywords reflect new positioning
 - [ ] CLI help text (`npx ainative --help`) shows updated description
 - [ ] In-app welcome landing pillars reframed as business outcomes
-- [ ] docs/index.md opening paragraph uses new vocabulary
+- [ ] Generated documentation index opening paragraph uses new vocabulary
 - [ ] All 4 journey guide intros updated with business-outcome framing
-- [ ] docs/why-ainative.md exists with problem statement and five gaps
-- [ ] docs/use-cases/ directory exists with solo-founder.md and agency-operator.md
-- [ ] docs/manifest.json updated to include new documents in playbook navigation
+- [ ] Historical positioning essay exists with problem statement and five gaps
+- [ ] Historical solo-founder and agency-operator use cases exist
+- [ ] Generated guide manifest includes the new material
 - [ ] No "Governed AI Agent Workspace" phrasing remains in anchor point files (Phase 1)
 - [ ] Feature deep-dive body text and API docs remain technically accurate (not over-repositioned)
 
