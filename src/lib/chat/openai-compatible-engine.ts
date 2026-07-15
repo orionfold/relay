@@ -21,6 +21,12 @@ import { buildChatContext } from "./context-builder";
 import { finalizeStreamingMessage } from "./reconcile";
 import { recordTermination, type TerminationReason } from "./stream-telemetry";
 import type { ChatStreamEvent } from "./types";
+import {
+  appendRelayKnowledgePrompt,
+  mergeRelayKnowledgeQuickAccess,
+  relayKnowledgeMetadata,
+  type RelayKnowledgeTurn,
+} from "@/lib/knowledge/chat-retrieval";
 
 function completeness(result: CompatibleCompletionResult | null) {
   if (result?.usage.inputTokens != null && result.usage.outputTokens != null) {
@@ -37,7 +43,8 @@ export async function* sendOpenAICompatibleMessage(
   conversationId: string,
   userContent: string,
   signal: AbortSignal | undefined,
-  target: ResolvedExecutionTarget
+  target: ResolvedExecutionTarget,
+  knowledgeTurn: RelayKnowledgeTurn = { status: "not-requested" }
 ): AsyncGenerator<ChatStreamEvent> {
   const startedAt = new Date();
   let conversation: Awaited<ReturnType<typeof getConversation>> | null = null;
@@ -152,8 +159,8 @@ export async function* sendOpenAICompatibleMessage(
     });
 
     const messages = [
-      ...(context.systemPrompt
-        ? [{ role: "system" as const, content: context.systemPrompt }]
+      ...(context.systemPrompt || knowledgeTurn.status === "ready"
+        ? [{ role: "system" as const, content: appendRelayKnowledgePrompt(context.systemPrompt, knowledgeTurn) }]
         : []),
       ...context.history
         .filter((message) => message.role !== "system" && message.content)
@@ -213,6 +220,7 @@ export async function* sendOpenAICompatibleMessage(
 
     await updateMessageContent(assistantMessage.id, accumulated);
     await updateMessageStatus(assistantMessage.id, "complete");
+    const quickAccess = mergeRelayKnowledgeQuickAccess([], knowledgeTurn);
     await db
       .update(chatMessages)
       .set({
@@ -222,6 +230,8 @@ export async function* sendOpenAICompatibleMessage(
           requestedModelId: target.requestedModelId,
           modelId: completedResult.modelId,
           responseId: completedResult.responseId,
+          ...(quickAccess.length > 0 ? { quickAccess } : {}),
+          ...relayKnowledgeMetadata(knowledgeTurn),
         }),
       })
       .where(eq(chatMessages.id, assistantMessage.id));
@@ -230,7 +240,7 @@ export async function* sendOpenAICompatibleMessage(
     yield {
       type: "done",
       messageId: assistantMessage.id,
-      quickAccess: [],
+      quickAccess,
       modelId: completedResult.modelId,
     };
   } catch (error) {

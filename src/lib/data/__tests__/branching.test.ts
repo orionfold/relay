@@ -112,6 +112,33 @@ describe("chat branching data layer", () => {
     expect(u1.id).toBe(messages[0].id);
   });
 
+  it("preserves completed knowledge metadata in a branch ancestor transcript", async () => {
+    const root = await createConversation({ runtimeId: "claude-code" });
+    await addMessage({ conversationId: root.id, role: "user", content: "How do I use Packs?" });
+    const answer = await addMessage({
+      conversationId: root.id,
+      role: "assistant",
+      content: "Use the Packs gallery (Guide · Relay 0.41.0).",
+      metadata: JSON.stringify({
+        knowledge: { status: "ready", releaseVersion: "0.41.0", sections: [] },
+        quickAccess: [{
+          kind: "knowledge-action",
+          sourceId: "guide:02-packs-and-licenses",
+          label: "Open Packs",
+          href: "/packs",
+        }],
+      }),
+    });
+    const branch = await createConversation({
+      runtimeId: "claude-code",
+      parentConversationId: root.id,
+      branchedFromMessageId: answer.id,
+    });
+    const { messages } = await getMessagesWithAncestors(branch.id);
+    expect(messages.at(-1)?.metadata).toContain('"releaseVersion":"0.41.0"');
+    expect(messages.at(-1)?.metadata).toContain('"href":"/packs"');
+  });
+
   it("getMessagesWithAncestors handles 2-deep branches", async () => {
     const root = await createConversation({ runtimeId: "claude-code" });
     await addMessage({ conversationId: root.id, role: "user", content: "r1u" });

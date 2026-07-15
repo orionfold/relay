@@ -211,6 +211,46 @@ describe("Codex Chat provider contract", () => {
     expect(client.close).toHaveBeenCalledOnce();
   });
 
+  it("uses and persists the shared knowledge-turn contract", async () => {
+    const { client, conversation, sendCodexMessage } = await setup({
+      kind: "completed",
+      text: "Grounded answer",
+    });
+    const knowledgeTurn = {
+      status: "ready" as const,
+      prompt: "\n\n## Verified current Relay knowledge\nGrounded passage",
+      receipt: {
+        status: "ready" as const,
+        releaseVersion: "0.41.0",
+        sections: [],
+      },
+      quickAccess: [
+        {
+          kind: "knowledge-source" as const,
+          sourceId: "guide:04-chat-agents-runtimes",
+          sectionId: "run-the-work-carefully",
+          sourceKind: "guide" as const,
+          heading: "Run The Work Carefully",
+          releaseVersion: "0.41.0",
+          label: "Guide · Run The Work Carefully · Relay 0.41.0",
+        },
+      ],
+    };
+    const events = await drain(
+      sendCodexMessage(conversation.id, "help", undefined, target(), knowledgeTurn)
+    );
+    const startCall = client.request.mock.calls.find(([method]) => method === "thread/start");
+    expect(startCall?.[1]?.developerInstructions).toContain("Verified current Relay knowledge");
+    const { db } = await import("@/lib/db");
+    const { chatMessages } = await import("@/lib/db/schema");
+    const assistant = (await db.select().from(chatMessages)).find((row) => row.role === "assistant");
+    expect(assistant?.metadata).toContain('"releaseVersion":"0.41.0"');
+    expect(events.at(-1)).toMatchObject({
+      type: "done",
+      quickAccess: [expect.objectContaining({ kind: "knowledge-source" })],
+    });
+  });
+
   it("persists a failed provider terminal and never emits done", async () => {
     const { conversation, sendCodexMessage } = await setup({
       kind: "failed",

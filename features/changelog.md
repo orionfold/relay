@@ -1,5 +1,22 @@
 # Feature Changelog
 
+## 2026-07-15 — G-055 version-aware Relay help in Chat
+
+### Completed
+
+- Grounded instructional Relay and API questions in the release-matched,
+  integrity-verified `knowledge/` bundle through one bounded retrieval contract
+  shared by Claude, Codex, Ollama, LiteLLM, and LM Studio.
+- Restored the useful historical post-answer affordance pattern without
+  resurrecting the removed User Guide: completed messages persist exact
+  versioned source badges and only manifest-declared, safe product actions.
+- Added named fail-closed handling for missing, stale, malformed, tampered,
+  oversized, unmatched, and unsafe artifacts; unrelated or direct-action Chat
+  turns remain on the normal provider path.
+- Verified 475 affected tests, TypeScript, package/public/knowledge guards, the
+  real runtime graph, a live Next.js Chat request, and light/dark desktop plus
+  390 px in-app browser behavior. No cursor-switching code was introduced.
+
 ## 2026-07-15 — G-012 golden-source asset consolidation tail
 
 ### Completed

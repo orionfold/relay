@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { projects, tasks, workflows, documents, schedules } from "@/lib/db/schema";
-import type { QuickAccessItem } from "./types";
+import type { EntityQuickAccessItem } from "./types";
 
 /** Captured tool result from an MCP server callback */
 export interface ToolResultCapture {
@@ -18,8 +18,8 @@ export interface ToolResultCapture {
 export async function detectEntities(
   text: string,
   projectId?: string | null
-): Promise<QuickAccessItem[]> {
-  const items: QuickAccessItem[] = [];
+): Promise<EntityQuickAccessItem[]> {
+  const items: EntityQuickAccessItem[] = [];
   const lowerText = text.toLowerCase();
 
   // Fetch candidate entities (scoped to project if available, else global recent)
@@ -97,8 +97,8 @@ export async function detectEntities(
  */
 export function extractToolResultEntities(
   captures: ToolResultCapture[]
-): QuickAccessItem[] {
-  const items: QuickAccessItem[] = [];
+): EntityQuickAccessItem[] {
+  const items: EntityQuickAccessItem[] = [];
 
   for (const { toolName, result } of captures) {
     if (!result || typeof result !== "object") continue;
@@ -208,8 +208,8 @@ export function extractToolResultEntities(
 
 /** Remove duplicate Quick Access items by entityId (first occurrence wins) */
 export function deduplicateByEntityId(
-  items: QuickAccessItem[]
-): QuickAccessItem[] {
+  items: EntityQuickAccessItem[]
+): EntityQuickAccessItem[] {
   const seen = new Set<string>();
   return items.filter((item) => {
     if (seen.has(item.entityId)) return false;
@@ -232,8 +232,8 @@ export function deduplicateByEntityId(
  * iteration order makes deterministic) and suppress later same-label dups.
  */
 export function deduplicateByEntityTypeAndLabel(
-  items: QuickAccessItem[]
-): QuickAccessItem[] {
+  items: EntityQuickAccessItem[]
+): EntityQuickAccessItem[] {
   const seen = new Set<string>();
   return items.filter((item) => {
     const key = `${item.entityType}|${item.label.toLowerCase()}`;

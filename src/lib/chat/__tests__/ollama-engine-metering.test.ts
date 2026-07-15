@@ -106,6 +106,35 @@ describe("sendOllamaMessage metering", () => {
     ]);
   });
 
+  it("passes and persists the shared knowledge-turn contract", async () => {
+    const { createConversation } = await import("@/lib/data/chat");
+    const { sendOllamaMessage } = await import("../ollama-engine");
+    const conversation = await createConversation({ runtimeId: "ollama", modelId: "ollama:llama3.2" });
+    let requestBody: { messages: { content: string }[] } | null = null;
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(async (_url, init) => {
+      requestBody = JSON.parse(String(init.body));
+      return new Response(ndjsonStream([{ message: { content: "Grounded" }, done: true }]));
+    }));
+    const knowledgeTurn = {
+      status: "ready" as const,
+      prompt: "\n\n## Verified current Relay knowledge\nPassage",
+      receipt: { status: "ready" as const, releaseVersion: "0.41.0", sections: [] },
+      quickAccess: [{
+        kind: "knowledge-action" as const,
+        sourceId: "guide:01-get-started",
+        label: "Open Settings",
+        href: "/settings",
+      }],
+    };
+    const events = await drain(sendOllamaMessage(conversation.id, "help", undefined, knowledgeTurn));
+    expect(requestBody?.messages[0].content).toContain("Verified current Relay knowledge");
+    const { db } = await import("@/lib/db");
+    const { chatMessages } = await import("@/lib/db/schema");
+    const assistant = (await db.select().from(chatMessages)).find((row) => row.role === "assistant");
+    expect(assistant?.metadata).toContain('"releaseVersion":"0.41.0"');
+    expect(events.at(-1)).toMatchObject({ quickAccess: [expect.objectContaining({ href: "/settings" })] });
+  });
+
   it("writes a failed chat_turn row when Ollama is unreachable (no silent drop)", async () => {
     const { createConversation } = await import("@/lib/data/chat");
     const { sendOllamaMessage } = await import("../ollama-engine");

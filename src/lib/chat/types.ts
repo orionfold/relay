@@ -41,12 +41,90 @@ export interface ChatQuestion {
   isSecret?: boolean;
 }
 
-/** Entity link detected in an assistant response */
-export interface QuickAccessItem {
+/** Existing Relay entity link detected in an assistant response. */
+export interface EntityQuickAccessItem {
+  kind?: "entity";
   entityType: "project" | "task" | "workflow" | "document" | "schedule";
   entityId: string;
   label: string;
   href: string;
+}
+
+/** Exact bundled-knowledge attribution. It is deliberately not a link. */
+export interface KnowledgeSourceQuickAccessItem {
+  kind: "knowledge-source";
+  sourceId: string;
+  sectionId: string;
+  sourceKind: "guide" | "api";
+  heading: string;
+  releaseVersion: string;
+  label: string;
+}
+
+/** Product navigation declared by the bundled knowledge artifact. */
+export interface KnowledgeActionQuickAccessItem {
+  kind: "knowledge-action";
+  sourceId: string;
+  label: string;
+  href: string;
+}
+
+export type QuickAccessItem =
+  | EntityQuickAccessItem
+  | KnowledgeSourceQuickAccessItem
+  | KnowledgeActionQuickAccessItem;
+
+export function isSafeQuickAccessHref(value: unknown): value is string {
+  if (
+    typeof value !== "string" ||
+    !/^\/[A-Za-z0-9_./-]*(?:#[A-Za-z0-9_.-]+)?$/.test(value) ||
+    value.startsWith("//")
+  ) return false;
+  return value.split("#")[0].split("/").every((part) => part !== "." && part !== "..");
+}
+
+/** Parse persisted metadata defensively; old entity items remain compatible. */
+export function parseQuickAccessItems(value: unknown): QuickAccessItem[] {
+  if (!Array.isArray(value)) return [];
+  const items: QuickAccessItem[] = [];
+  for (const candidate of value) {
+    if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) continue;
+    const item = candidate as Record<string, unknown>;
+    if (item.kind === "knowledge-source") {
+      if (
+        typeof item.sourceId === "string" &&
+        typeof item.sectionId === "string" &&
+        (item.sourceKind === "guide" || item.sourceKind === "api") &&
+        typeof item.heading === "string" &&
+        typeof item.releaseVersion === "string" &&
+        typeof item.label === "string"
+      ) {
+        items.push(item as unknown as KnowledgeSourceQuickAccessItem);
+      }
+      continue;
+    }
+    if (item.kind === "knowledge-action") {
+      if (
+        typeof item.sourceId === "string" &&
+        typeof item.label === "string" &&
+        isSafeQuickAccessHref(item.href) &&
+        !item.href.startsWith("/api/")
+      ) {
+        items.push(item as unknown as KnowledgeActionQuickAccessItem);
+      }
+      continue;
+    }
+    if (
+      (item.kind === undefined || item.kind === "entity") &&
+      ["project", "task", "workflow", "document", "schedule"].includes(String(item.entityType)) &&
+      typeof item.entityId === "string" &&
+      typeof item.label === "string" &&
+      isSafeQuickAccessHref(item.href)
+    ) {
+      items.push(item as unknown as EntityQuickAccessItem);
+    }
+  }
+  return items;
 }
 
 /** Model catalog entry for the chat model selector */

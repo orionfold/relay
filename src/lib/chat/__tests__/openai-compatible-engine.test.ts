@@ -125,6 +125,45 @@ describe("sendOpenAICompatibleMessage", () => {
     ]);
   });
 
+  it("passes and persists the shared knowledge-turn contract", async () => {
+    compatible.streamCompletion.mockImplementation(
+      async ({ onDelta }: { onDelta: (delta: string) => Promise<void> }) => {
+        await onDelta("Grounded");
+        return {
+          text: "Grounded",
+          modelId: "model",
+          usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
+          reportedCostMicros: null,
+          responseId: "knowledge",
+        };
+      }
+    );
+    const { createConversation } = await import("@/lib/data/chat");
+    const { sendOpenAICompatibleMessage } = await import("../openai-compatible-engine");
+    const conversation = await createConversation({ runtimeId: "litellm", modelId: "litellm:model" });
+    const knowledgeTurn = {
+      status: "ready" as const,
+      prompt: "\n\n## Verified current Relay knowledge\nPassage",
+      receipt: { status: "ready" as const, releaseVersion: "0.41.0", sections: [] },
+      quickAccess: [{
+        kind: "knowledge-action" as const,
+        sourceId: "guide:01-get-started",
+        label: "Open Settings",
+        href: "/settings",
+      }],
+    };
+    const events = await drain(sendOpenAICompatibleMessage(
+      "litellm", conversation.id, "help", undefined, target("litellm"), knowledgeTurn
+    ));
+    const messages = compatible.streamCompletion.mock.calls[0][0].messages;
+    expect(messages[0].content).toContain("Verified current Relay knowledge");
+    const { db } = await import("@/lib/db");
+    const { chatMessages } = await import("@/lib/db/schema");
+    const assistant = (await db.select().from(chatMessages)).find((row) => row.role === "assistant");
+    expect(assistant?.metadata).toContain('"releaseVersion":"0.41.0"');
+    expect(events.at(-1)).toMatchObject({ quickAccess: [expect.objectContaining({ href: "/settings" })] });
+  });
+
   it("persists a named LM Studio stream failure and never leaves a streaming row", async () => {
     compatible.streamCompletion.mockImplementation(
       async ({ onDelta }: { onDelta: (delta: string) => Promise<void> }) => {

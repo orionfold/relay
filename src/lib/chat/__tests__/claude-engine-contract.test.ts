@@ -77,7 +77,7 @@ async function drain(generator: AsyncGenerator<unknown>) {
   return values;
 }
 
-async function run(values: Record<string, unknown>[]) {
+async function run(values: Record<string, unknown>[], userContent = "hello contract") {
   mocks.query.mockReturnValue(sdkEvents(values));
   const { createConversation } = await import("@/lib/data/chat");
   const conversation = await createConversation({
@@ -85,7 +85,7 @@ async function run(values: Record<string, unknown>[]) {
     modelId: "sonnet",
   });
   const { sendMessage } = await import("../engine");
-  const events = await drain(sendMessage(conversation.id, "hello contract"));
+  const events = await drain(sendMessage(conversation.id, userContent));
   const { db } = await import("@/lib/db");
   const { chatMessages, usageLedger } = await import("@/lib/db/schema");
   const { readTerminations } = await import("../stream-telemetry");
@@ -157,6 +157,41 @@ describe("Claude SDK Chat provider contract", () => {
     expect(result.terminations.map((event) => event.reason)).toEqual([
       "stream.completed",
     ]);
+  });
+
+  it("persists versioned knowledge receipts and affordances on a help turn", async () => {
+    const result = await run(
+      [delta("Use Runtime settings (Guide · Relay 0.41.0)."), { type: "result", is_error: false }],
+      "Where do I configure the Ollama runtime?"
+    );
+    const assistant = result.messages.find((row) => row.role === "assistant");
+    const metadata = JSON.parse(assistant?.metadata ?? "{}");
+    expect(metadata.knowledge).toMatchObject({ status: "ready", releaseVersion: "0.41.0" });
+    expect(metadata.quickAccess).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "knowledge-source", releaseVersion: "0.41.0" }),
+        expect.objectContaining({ kind: "knowledge-action", href: expect.stringMatching(/^\//) }),
+      ])
+    );
+    expect(result.events.at(-1)).toMatchObject({
+      type: "done",
+      quickAccess: expect.arrayContaining([expect.objectContaining({ kind: "knowledge-source" })]),
+    });
+  });
+
+  it("returns a deterministic no-current-answer receipt without invoking a runtime", async () => {
+    const result = await run([], "How do I quantum-teleport a Relay zorbium?");
+    expect(mocks.query).not.toHaveBeenCalled();
+    expect(result.events).toEqual([
+      expect.objectContaining({ type: "status" }),
+      expect.objectContaining({ type: "delta", content: expect.stringContaining("don’t have a verified Relay 0.41.0") }),
+      expect.objectContaining({ type: "done", quickAccess: [] }),
+    ]);
+    const assistant = result.messages.find((row) => row.role === "assistant");
+    expect(JSON.parse(assistant?.metadata ?? "{}").knowledge).toMatchObject({
+      status: "unavailable",
+      failureCode: "KnowledgeNoMatchError",
+    });
   });
 
   it("preserves substantial partial text while keeping an SDK error failed", async () => {

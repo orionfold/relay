@@ -67,6 +67,13 @@ import {
   buildViewEditingHint,
 } from "./planner/view-editing-hint";
 import { requireChatRuntimeContract } from "./runtime-contract";
+import {
+  appendRelayKnowledgePrompt,
+  mergeRelayKnowledgeQuickAccess,
+  prepareRelayKnowledgeTurn,
+  relayKnowledgeMetadata,
+  type RelayKnowledgeTurn,
+} from "@/lib/knowledge/chat-retrieval";
 
 // Re-exported from runtime/claude-sdk.ts so chat/engine.ts remains a stable
 // import surface for the Phase 1a test suite. The canonical definitions
@@ -224,6 +231,32 @@ export async function* sendMessage(
     return;
   }
 
+  const knowledgeTurn = prepareRelayKnowledgeTurn(userContent);
+  if (knowledgeTurn.status === "unavailable") {
+    await addMessage({
+      conversationId,
+      role: "user",
+      content: userContent,
+      status: "complete",
+    });
+    const assistantMessage = await addMessage({
+      conversationId,
+      role: "assistant",
+      content: knowledgeTurn.response,
+      status: "complete",
+      metadata: JSON.stringify(relayKnowledgeMetadata(knowledgeTurn)),
+    });
+    if (!conversation.title) {
+      await updateConversation(conversationId, {
+        title: userContent.length > 60 ? `${userContent.slice(0, 57)}...` : userContent,
+      });
+    }
+    yield { type: "status", phase: "preparing", message: "Checking current Relay knowledge..." };
+    yield { type: "delta", content: knowledgeTurn.response };
+    yield { type: "done", messageId: assistantMessage.id, quickAccess: [] };
+    return;
+  }
+
   let target;
   try {
     target = await resolveChatExecutionTarget({
@@ -250,12 +283,12 @@ export async function* sendMessage(
   switch (chatContract.engine) {
     case "codex-app-server": {
       const { sendCodexMessage } = await import("./codex-engine");
-      yield* sendCodexMessage(conversationId, userContent, signal, target);
+      yield* sendCodexMessage(conversationId, userContent, signal, target, knowledgeTurn);
       return;
     }
     case "ollama-http": {
       const { sendOllamaMessage } = await import("./ollama-engine");
-      yield* sendOllamaMessage(conversationId, userContent, signal);
+      yield* sendOllamaMessage(conversationId, userContent, signal, knowledgeTurn);
       return;
     }
     case "openai-compatible-sse": {
@@ -275,7 +308,8 @@ export async function* sendMessage(
         conversationId,
         userContent,
         signal,
-        target
+        target,
+        knowledgeTurn
       );
       return;
     }
@@ -371,7 +405,10 @@ export async function* sendMessage(
       .map((m) => ({ role: m.role, content: m.content })),
   });
 
-  let systemPreamble = context.systemPrompt + historyBlock;
+  let systemPreamble = appendRelayKnowledgePrompt(
+    context.systemPrompt + historyBlock,
+    knowledgeTurn
+  );
   if (verdict.kind === "compose") {
     systemPreamble += buildCompositionHint(verdict.plan);
   }
@@ -951,7 +988,10 @@ export async function* sendMessage(
     // Detect entities for Quick Access pills (tool results + text matching)
     const toolEntities = extractToolResultEntities(toolResults);
     const textEntities = await detectEntities(fullText, conversation.projectId);
-    const quickAccess = deduplicateByEntityId([...toolEntities, ...textEntities]);
+    const quickAccess = mergeRelayKnowledgeQuickAccess(
+      deduplicateByEntityId([...toolEntities, ...textEntities]),
+      knowledgeTurn
+    );
 
     // Detect ainative-app composition (TDR-037 self-extension surface)
     const composedApp = detectComposedApp(toolResults);
@@ -966,6 +1006,7 @@ export async function* sendMessage(
       inputTokens: usage.inputTokens,
       outputTokens: usage.outputTokens,
       ...(quickAccess.length > 0 ? { quickAccess } : {}),
+      ...relayKnowledgeMetadata(knowledgeTurn),
       ...(screenshotAttachments.length > 0 ? { attachments: screenshotAttachments } : {}),
       ...(composedApp ? { composedApp } : {}),
     });

@@ -25,7 +25,7 @@ import {
   detectEntities,
   deduplicateByEntityId,
 } from "./entity-detector";
-import type { ChatStreamEvent } from "./types";
+import type { ChatStreamEvent, QuickAccessItem } from "./types";
 import { getProviderForRuntime } from "./types";
 import {
   createSideChannel,
@@ -38,6 +38,12 @@ import type { ResolvedExecutionTarget } from "@/lib/agents/runtime/execution-tar
 import { finalizeStreamingMessage } from "./reconcile";
 import { recordTermination, type TerminationReason } from "./stream-telemetry";
 import { registerChatStream, unregisterChatStream } from "./active-streams";
+import {
+  appendRelayKnowledgePrompt,
+  mergeRelayKnowledgeQuickAccess,
+  relayKnowledgeMetadata,
+  type RelayKnowledgeTurn,
+} from "@/lib/knowledge/chat-retrieval";
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -76,7 +82,8 @@ export async function* sendCodexMessage(
   conversationId: string,
   userContent: string,
   signal?: AbortSignal,
-  targetOverride?: ResolvedExecutionTarget
+  targetOverride?: ResolvedExecutionTarget,
+  knowledgeTurn: RelayKnowledgeTurn = { status: "not-requested" }
 ): AsyncGenerator<ChatStreamEvent> {
   const conversation = await getConversation(conversationId);
   if (!conversation) {
@@ -199,7 +206,7 @@ export async function* sendCodexMessage(
     });
   };
 
-  const persistMetadata = async (quickAccess: unknown[] = []) => {
+  const persistMetadata = async (quickAccess: QuickAccessItem[] = []) => {
     const metadata = JSON.stringify({
       modelId: effectiveModelId(),
       runtimeId,
@@ -213,6 +220,7 @@ export async function* sendCodexMessage(
       inputTokens: usage.inputTokens,
       outputTokens: usage.outputTokens,
       ...(quickAccess.length > 0 ? { quickAccess } : {}),
+      ...relayKnowledgeMetadata(knowledgeTurn),
     });
     const { chatMessages } = await import("@/lib/db/schema");
     await db
@@ -434,7 +442,7 @@ export async function* sendCodexMessage(
         cwd: workspace.cwd,
         approvalPolicy: "on-request",
         sandbox: "workspace-write",
-        developerInstructions: context.systemPrompt || null,
+        developerInstructions: appendRelayKnowledgePrompt(context.systemPrompt, knowledgeTurn) || null,
       });
     } else {
       const threadResponse = (await client.request("thread/start", {
@@ -442,7 +450,7 @@ export async function* sendCodexMessage(
         approvalPolicy: "on-request",
         sandbox: "workspace-write",
         serviceName: "relay",
-        developerInstructions: context.systemPrompt || null,
+        developerInstructions: appendRelayKnowledgePrompt(context.systemPrompt, knowledgeTurn) || null,
         experimentalRawEvents: false,
         ephemeral: false,
       })) as { thread: { id: string } };
@@ -523,7 +531,10 @@ export async function* sendCodexMessage(
 
     // Detect entities for Quick Access pills
     const textEntities = await detectEntities(fullText, conversation.projectId);
-    const quickAccess = deduplicateByEntityId(textEntities);
+    const quickAccess = mergeRelayKnowledgeQuickAccess(
+      deduplicateByEntityId(textEntities),
+      knowledgeTurn
+    );
 
     await persistMetadata(quickAccess);
     await recordTurn("completed");

@@ -26,6 +26,12 @@ import {
   type TerminationReason,
 } from "./stream-telemetry";
 import type { ChatStreamEvent } from "./types";
+import {
+  appendRelayKnowledgePrompt,
+  mergeRelayKnowledgeQuickAccess,
+  relayKnowledgeMetadata,
+  type RelayKnowledgeTurn,
+} from "@/lib/knowledge/chat-retrieval";
 
 /**
  * Send a user message to Ollama and stream the response.
@@ -33,7 +39,8 @@ import type { ChatStreamEvent } from "./types";
 export async function* sendOllamaMessage(
   conversationId: string,
   userContent: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  knowledgeTurn: RelayKnowledgeTurn = { status: "not-requested" }
 ): AsyncGenerator<ChatStreamEvent> {
   const startedAt = new Date();
   let conversation: Awaited<ReturnType<typeof getConversation>> | null = null;
@@ -165,8 +172,8 @@ export async function* sendOllamaMessage(
       .orderBy(chatMessages.createdAt)
       .all();
     const messages = [
-      ...(context.systemPrompt
-        ? [{ role: "system" as const, content: context.systemPrompt }]
+      ...(context.systemPrompt || knowledgeTurn.status === "ready"
+        ? [{ role: "system" as const, content: appendRelayKnowledgePrompt(context.systemPrompt, knowledgeTurn) }]
         : []),
       ...history
         .filter((message) => message.id !== assistantMsg!.id && message.content)
@@ -289,9 +296,21 @@ export async function* sendOllamaMessage(
 
     await updateMessageContent(assistantMsg.id, accumulated);
     await updateMessageStatus(assistantMsg.id, "complete");
+    const quickAccess = mergeRelayKnowledgeQuickAccess([], knowledgeTurn);
+    await db
+      .update(chatMessages)
+      .set({
+        metadata: JSON.stringify({
+          runtimeId: "ollama",
+          modelId,
+          ...(quickAccess.length > 0 ? { quickAccess } : {}),
+          ...relayKnowledgeMetadata(knowledgeTurn),
+        }),
+      })
+      .where(eq(chatMessages.id, assistantMsg.id));
     await recordTurn("completed");
     recordPrimaryTermination("stream.completed");
-    yield { type: "done", messageId: assistantMsg.id, quickAccess: [] };
+    yield { type: "done", messageId: assistantMsg.id, quickAccess, ...(modelId ? { modelId } : {}) };
   } catch (error) {
     const message = signal?.aborted
       ? "Request cancelled"

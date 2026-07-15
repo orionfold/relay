@@ -16,7 +16,7 @@ import {
   type CreatePluginSpecInputForCard,
 } from "./extension-fallback-card";
 import { AlertCircle } from "lucide-react";
-import { resolveModelLabel, type ChatQuestion, type QuickAccessItem, type ScreenshotAttachment } from "@/lib/chat/types";
+import { parseQuickAccessItems, resolveModelLabel, type ChatQuestion, type QuickAccessItem, type ScreenshotAttachment } from "@/lib/chat/types";
 import type { ComposedAppSummary } from "@/lib/apps/composition-detector";
 import { APPS_CHANGED_EVENT } from "@/lib/apps/apps-events";
 
@@ -188,7 +188,7 @@ export function ChatMessage({ message, isStreaming, conversationId, onStatusChan
   if (!isUser && message.metadata) {
     try {
       const meta = JSON.parse(message.metadata);
-      if (Array.isArray(meta.quickAccess)) quickAccess = meta.quickAccess;
+      quickAccess = parseQuickAccessItems(meta.quickAccess);
       if (Array.isArray(meta.attachments)) attachments = meta.attachments;
       if (meta.modelId) modelLabel = resolveModelLabel(meta.modelId);
       if (meta.fallbackReason) fallbackReason = meta.fallbackReason;
@@ -257,7 +257,9 @@ export function ChatMessage({ message, isStreaming, conversationId, onStatusChan
             {isStreaming && message.content && (
               <span className="inline-block w-0.5 h-4 bg-foreground animate-pulse ml-0.5 align-text-bottom" />
             )}
-            <ChatQuickAccess items={quickAccess} />
+            <ChatQuickAccess
+              items={message.status === "complete" && !isStreaming ? quickAccess : []}
+            />
           </div>
         )}
       </div>
