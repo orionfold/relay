@@ -13,8 +13,11 @@
 
 import { db } from "@/lib/db";
 import { schedules, tasks, agentLogs, scheduleDocumentInputs, documents, workflows, scheduleFiringMetrics, notifications } from "@/lib/db/schema";
-import { eq, and, lte, inArray, sql, asc, isNotNull } from "drizzle-orm";
-import { resumeWorkflow } from "@/lib/workflows/engine";
+import { eq, and, lte, inArray, sql, asc, isNotNull, isNull } from "drizzle-orm";
+import {
+  resumeWorkflow,
+  resumeWorkflowInteraction,
+} from "@/lib/workflows/engine";
 import { computeNextFireTime } from "./interval-parser";
 import { startTaskExecution } from "@/lib/agents/task-dispatch";
 import { getSetting } from "@/lib/settings/helpers";
@@ -563,6 +566,31 @@ export async function tickScheduler(): Promise<void> {
     }
   } catch (err) {
     console.error("[scheduler] delayed-workflow check error:", err);
+  }
+
+  // Reconcile answered checkpoint inputs that were persisted before a process
+  // exit. Immediate response handling normally resumes these; this sweep is
+  // the durable shadow path when that fire-and-forget continuation was lost.
+  try {
+    const pausedInteractions = await db
+      .select({ id: workflows.id })
+      .from(workflows)
+      .where(
+        and(
+          eq(workflows.status, "paused"),
+          isNull(workflows.resumeAt)
+        )
+      );
+    for (const workflow of pausedInteractions) {
+      resumeWorkflowInteraction(workflow.id).catch((error) => {
+        console.error(
+          `[scheduler] failed to reconcile workflow input ${workflow.id}:`,
+          error
+        );
+      });
+    }
+  } catch (error) {
+    console.error("[scheduler] workflow-input reconciliation error:", error);
   }
 }
 

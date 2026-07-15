@@ -200,6 +200,12 @@ export interface WorkflowState {
   completedAt?: string;
   /** Pre-flight cost estimate — advisory, populated before execution */
   costEstimate?: unknown;
+  /** Durable correlation for a checkpoint input that survives process re-entry. */
+  pendingInteraction?: {
+    kind: "input";
+    stepIndex: number;
+    notificationId: string;
+  };
 }
 
 export function createInitialState(definition: WorkflowDefinition): WorkflowState {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { retryWorkflowStep } from "@/lib/workflows/engine";
+import { workflowTransitionErrorResponse } from "@/lib/workflows/transition-errors";
 
 export async function POST(
   _req: NextRequest,
@@ -11,9 +12,12 @@ export async function POST(
 ) {
   const { id, stepId } = await params;
 
-  retryWorkflowStep(id, stepId).catch((error) => {
-    console.error(`Workflow ${id} step ${stepId} retry failed:`, error);
-  });
+  try {
+    await retryWorkflowStep(id, stepId);
+  } catch (error) {
+    const failure = workflowTransitionErrorResponse(error);
+    return NextResponse.json(failure.body, { status: failure.status });
+  }
 
   return NextResponse.json(
     { status: "retry_started", workflowId: id, stepId },

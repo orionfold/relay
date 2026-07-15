@@ -6,8 +6,7 @@
  * rather than the positional mockWhere queue used by engine.test.ts. That keeps
  * the tests robust against incidental changes in DB-read ordering and lets us
  * assert the two new behaviors directly:
- *   1. a `requiresInput` step BLOCKS on an AskUserQuestion notification, and the
- *      typed answer is injected into the step's task prompt;
+ *   1. a `requiresInput` step durably pauses on an AskUserQuestion notification;
  *   2. a non-final step that produces empty output HALTS the run (loud `failed`),
  *      instead of cascading a false `completed`.
  * See features/fix-workflow-hitl-ask-user.md.
@@ -27,6 +26,8 @@ type Store = {
   notificationResponse: string | null;
   /** Captured task-insert values, so we can assert the injected prompt. */
   insertedTasks: Array<Record<string, unknown>>;
+  /** Captured workflow question rows. */
+  insertedNotifications: Array<Record<string, unknown>>;
   /** Captured workflows.update .set() payloads, newest last. */
   workflowSets: Array<Record<string, unknown>>;
 };
@@ -36,6 +37,7 @@ const store: Store = {
   taskResult: "",
   notificationResponse: null,
   insertedTasks: [],
+  insertedNotifications: [],
   workflowSets: [],
 };
 
@@ -86,6 +88,7 @@ vi.mock("@/lib/db", () => {
   const insert = vi.fn((t: { __table: string }) => ({
     values: async (payload: Record<string, unknown>) => {
       if (t?.__table === "tasks") store.insertedTasks.push(payload);
+      if (t?.__table === "notifications") store.insertedNotifications.push(payload);
       return undefined;
     },
   }));
@@ -112,11 +115,11 @@ vi.mock("@/lib/agents/runtime/catalog", async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   resolveAgentRuntime: vi.fn((id: string) => id),
 }));
-vi.mock("./cost-estimator", () => ({
+vi.mock("../cost-estimator", () => ({
   resolveStepBudget: vi.fn().mockResolvedValue(undefined),
   estimateWorkflowCost: vi.fn().mockResolvedValue({ warnings: [] }),
 }));
-vi.mock("./execution-stats", () => ({
+vi.mock("../execution-stats", () => ({
   updateExecutionStats: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock("@/lib/agents/learning-session", () => ({
@@ -142,11 +145,12 @@ describe("workflow HITL ask-user (BUG-3)", () => {
     store.taskResult = "";
     store.notificationResponse = null;
     store.insertedTasks = [];
+    store.insertedNotifications = [];
     store.workflowSets = [];
     vi.clearAllMocks();
   });
 
-  it("injects the user's answer into a requiresInput step's task prompt", async () => {
+  it("persists an exact recovery token and pauses before a requiresInput step", async () => {
     store.workflowRow = makeWorkflowRow([
       {
         id: "step-1",
@@ -156,28 +160,23 @@ describe("workflow HITL ask-user (BUG-3)", () => {
         inputPrompt: "What do we know about the prospect?",
       },
     ]);
-    store.taskResult = "brief done";
-    // The user has already answered — the first poll sees the response.
-    store.notificationResponse = JSON.stringify({
-      behavior: "allow",
-      updatedInput: { answer: "Acme Corp, fintech, 200 staff" },
-    });
 
     const { executeWorkflow } = await import("../engine");
     await executeWorkflow("wf-hitl");
 
-    // The single step's task description must carry the injected answer.
-    const stepTask = store.insertedTasks.find((t) =>
-      String(t.title).includes("Gather brief")
-    );
-    expect(stepTask).toBeDefined();
-    expect(String(stepTask?.description)).toContain("User-provided input:");
-    expect(String(stepTask?.description)).toContain("Acme Corp, fintech, 200 staff");
-
-    // The run paused (status:"paused") while waiting, then completed.
-    const statuses = store.workflowSets.map((s) => s.status);
-    expect(statuses).toContain("paused");
-    expect(statuses.at(-1)).toBe("completed");
+    expect(store.insertedTasks).toEqual([]);
+    expect(store.insertedNotifications).toHaveLength(1);
+    expect(store.insertedNotifications[0]).toMatchObject({
+      toolName: "AskUserQuestion",
+      type: "permission_required",
+    });
+    const pausedWrite = store.workflowSets.findLast((write) => write.status === "paused");
+    const persisted = JSON.parse(String(pausedWrite?.definition));
+    expect(persisted._state.pendingInteraction).toEqual({
+      kind: "input",
+      stepIndex: 0,
+      notificationId: store.insertedNotifications[0].id,
+    });
   });
 
   it("halts the run when a non-final step produces empty output", async () => {

@@ -10,6 +10,10 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Added
 
+- **Workflow recovery now has an executable state-transition contract.** The
+  bounded matrix protects sequence, parallel, loop, delay, human-input, stop,
+  and step-retry recovery with real SQLite state and deterministic concurrency
+  barriers.
 - **Tasks and workflows preview their exact execution target before launch.**
   Run-capable detail views show the resolved profile, runtime, model, and
   selection reason for each executable step; unresolved targets name the
@@ -24,6 +28,10 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Fixed
 
+- **Interrupted workflows now settle truthfully and resume exactly once.**
+  Failed parallel branches and loop iterations cannot produce a completed
+  parent or receipt; delayed and human-input recovery use durable atomic claims;
+  cancellation refusal and duplicate retries return named conflicts.
 - **Execution preflight no longer mutates work before target validation.** Tasks
   remain queued and workflows remain unclaimed when a profile, capability,
   runtime, or model cannot resolve; workflow preview, child-task persistence,

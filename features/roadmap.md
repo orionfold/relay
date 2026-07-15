@@ -178,6 +178,7 @@ via marker comments, not dropped. See `_SPECS/2026-06-29-211534_feature-cut-free
 | [openai-compatible-runtimes](openai-compatible-runtimes.md) | P1 | completed | provider-runtime-abstraction, chat-engine, usage-metering-ledger |
 | [cross-provider-chat-runtime-contracts](cross-provider-chat-runtime-contracts.md) | P1 | completed | chat-engine, codex-chat-engine, ollama-runtime-provider, openai-compatible-runtimes |
 | [critical-api-route-contracts](critical-api-route-contracts.md) | P1 | completed | e2e-test-automation, cross-provider-chat-runtime-contracts, workflow-engine, scheduled-prompt-loops |
+| [workflow-recovery-state-transition-contracts](workflow-recovery-state-transition-contracts.md) | P1 | completed | workflow-engine, workflow-execution-resilience, workflow-step-delays, fix-workflow-hitl-ask-user, critical-api-route-contracts |
 
 ### Governance & Analytics
 

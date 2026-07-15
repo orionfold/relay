@@ -156,5 +156,28 @@ export async function POST(
     return NextResponse.json(failure.body, { status: failure.status });
   }
 
+  // Workflow AskUserQuestion gates have no task row. Attempt immediate
+  // continuation after the response is durably committed; the scheduler also
+  // reconciles this persisted state after process re-entry.
+  if (!notification.taskId && isQuestion) {
+    try {
+      const toolInput = JSON.parse(notification.toolInput ?? "{}");
+      if (typeof toolInput.workflowId === "string") {
+        void import("@/lib/workflows/engine")
+          .then(({ resumeWorkflowInteraction }) =>
+            resumeWorkflowInteraction(toolInput.workflowId, notificationId)
+          )
+          .catch((error) => {
+            console.error(
+              `Workflow ${toolInput.workflowId} input resume failed:`,
+              error
+            );
+          });
+      }
+    } catch (error) {
+      console.error("Workflow input response has malformed tool context:", error);
+    }
+  }
+
   return NextResponse.json({ success: true });
 }

@@ -615,10 +615,14 @@ async function finalizeLoop(
   loopState: LoopState,
   stopReason: LoopStopReason
 ): Promise<void> {
-  loopState.status = "completed";
-  loopState.stopReason = stopReason;
+  const hasFailedIteration = loopState.iterations.some(
+    (iteration) => iteration.status === "failed"
+  );
+  const failed = stopReason === "error" || hasFailedIteration;
+  loopState.status = failed ? "failed" : "completed";
+  loopState.stopReason = failed ? "error" : stopReason;
   loopState.completedAt = new Date().toISOString();
   loopState.totalDurationMs =
     Date.now() - new Date(loopState.startedAt).getTime();
-  await updateLoopState(workflowId, loopState, "completed");
+  await updateLoopState(workflowId, loopState, failed ? "failed" : "completed");
 }

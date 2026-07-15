@@ -4,6 +4,10 @@ import { db } from "@/lib/db";
 import { tasks, workflows } from "@/lib/db/schema";
 import { cancelTaskWithRuntime } from "@/lib/agents/runtime";
 import type { WorkflowDefinition, WorkflowState } from "@/lib/workflows/types";
+import {
+  ensureWorkflowReceipt,
+  reportOperationsReceiptFailure,
+} from "@/lib/operations/receipts";
 
 export async function POST(
   _req: NextRequest,
@@ -41,18 +45,38 @@ export async function POST(
     );
   }
 
+  const cancelledTaskIds = new Set<string>();
+  const failedCancellations: Array<{ taskId: string; error: string }> = [];
   for (const task of liveTasks) {
-    if (task.status === "running") {
-      await cancelTaskWithRuntime(task.id, task.assignedAgent);
-    } else {
+    try {
+      if (task.status === "running") {
+        await cancelTaskWithRuntime(task.id, task.assignedAgent);
+      }
       await db
         .update(tasks)
         .set({ status: "cancelled", updatedAt: new Date() })
         .where(eq(tasks.id, task.id));
+      cancelledTaskIds.add(task.id);
+    } catch (error) {
+      failedCancellations.push({
+        taskId: task.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
-  const cancelledTaskIds = new Set(liveTasks.map((task) => task.id));
+  if (failedCancellations.length > 0) {
+    return NextResponse.json(
+      {
+        error: "One or more workflow tasks could not be cancelled",
+        code: "WORKFLOW_CANCELLATION_FAILED",
+        failedCancellations,
+        cancelledTasks: cancelledTaskIds.size,
+      },
+      { status: 409 }
+    );
+  }
+
   let definition: (WorkflowDefinition & { _state?: WorkflowState; _loopState?: unknown }) | null = null;
 
   try {
@@ -88,8 +112,15 @@ export async function POST(
       };
     }
   } catch {
+    await db
+      .update(workflows)
+      .set({ status: "failed", resumeAt: null, updatedAt: new Date() })
+      .where(eq(workflows.id, id));
     return NextResponse.json(
-      { error: "Failed to parse workflow state" },
+      {
+        error: "Failed to parse workflow state after cancelling its tasks",
+        code: "WORKFLOW_STATE_INVALID",
+      },
       { status: 500 }
     );
   }
@@ -104,9 +135,19 @@ export async function POST(
     })
     .where(eq(workflows.id, id));
 
+  try {
+    await ensureWorkflowReceipt(id, workflow.runNumber);
+  } catch (error) {
+    await reportOperationsReceiptFailure({
+      ownerType: "workflow",
+      ownerId: id,
+      error,
+    });
+  }
+
   return NextResponse.json({
     status: "stopped",
     workflowId: id,
-    cancelledTasks: liveTasks.length,
+    cancelledTasks: cancelledTaskIds.size,
   });
 }

@@ -26,8 +26,9 @@ import {
   buildPoolDocumentContext,
 } from "@/lib/documents/context-builder";
 import { resolveStepBudget, estimateWorkflowCost } from "./cost-estimator";
-import { resolveAgentRuntime } from "@/lib/agents/runtime/catalog";
+import { isAgentRuntimeId } from "@/lib/agents/runtime/catalog";
 import { updateExecutionStats } from "./execution-stats";
+import { WorkflowTransitionError } from "./transition-errors";
 
 /**
  * Execute a workflow by advancing through its steps according to the pattern.
@@ -86,12 +87,42 @@ export async function executeWorkflow(workflowId: string): Promise<void> {
     try {
       await executeLoop(workflowId, definition, workflowRuntimeId);
 
+      const [settledWorkflow] = await db
+        .select({ status: workflows.status, definition: workflows.definition })
+        .from(workflows)
+        .where(eq(workflows.id, workflowId));
+      if (!settledWorkflow) {
+        throw new WorkflowTransitionError(
+          "WORKFLOW_NOT_FOUND",
+          `Workflow ${workflowId} disappeared before loop finalization`
+        );
+      }
+
+      const settledLoop = parseWorkflowState(settledWorkflow.definition).loopState;
+      let terminalEvent: string;
+      switch (settledWorkflow.status) {
+        case "completed":
+          terminalEvent = "workflow_completed";
+          break;
+        case "failed":
+          terminalEvent = "workflow_failed";
+          break;
+        case "paused":
+          terminalEvent = "workflow_paused";
+          break;
+        default:
+          terminalEvent = "workflow_state_invalid";
+      }
       await db.insert(agentLogs).values({
         id: crypto.randomUUID(),
         taskId: null,
         agentType: "workflow-engine",
-        event: "workflow_completed",
-        payload: JSON.stringify({ workflowId }),
+        event: terminalEvent,
+        payload: JSON.stringify({
+          workflowId,
+          status: settledWorkflow.status,
+          stopReason: settledLoop?.stopReason,
+        }),
         timestamp: new Date(),
       });
     } catch (error) {
@@ -138,18 +169,22 @@ export async function executeWorkflow(workflowId: string): Promise<void> {
         break;
     }
 
-    // A delay step may have paused the workflow. The sequence executor already
-    // persisted the paused state and wrote resume_at; we just need to log the
-    // pause and return without marking the workflow "completed".
+    // A delay or durable input gate may have paused the workflow. The pattern
+    // executor already persisted the exact recovery state; log and return
+    // without marking the workflow completed.
     if (state.status === "paused") {
+      const waitingForInput = state.pendingInteraction?.kind === "input";
       await db.insert(agentLogs).values({
         id: crypto.randomUUID(),
         taskId: null,
         agentType: "workflow-engine",
-        event: "workflow_paused_for_delay",
+        event: waitingForInput
+          ? "workflow_paused_for_input"
+          : "workflow_paused_for_delay",
         payload: JSON.stringify({
           workflowId,
-          delayedStepIndex: state.currentStepIndex,
+          stepIndex: state.currentStepIndex,
+          notificationId: state.pendingInteraction?.notificationId,
         }),
         timestamp: new Date(),
       });
@@ -343,17 +378,26 @@ async function executeCheckpoint(
   definition: WorkflowDefinition,
   state: WorkflowState,
   parentTaskId?: string,
-  workflowRuntimeId?: string
+  workflowRuntimeId?: string,
+  fromStepIndex: number = 0,
+  resumedInput?: { stepIndex: number; answer: string }
 ): Promise<void> {
-  let previousOutput = "";
+  let previousOutput =
+    fromStepIndex > 0
+      ? state.stepStates[fromStepIndex - 1]?.result ?? ""
+      : "";
   let userAnswer = "";
 
-  for (let i = 0; i < definition.steps.length; i++) {
+  for (let i = fromStepIndex; i < definition.steps.length; i++) {
     const step = definition.steps[i];
     state.currentStepIndex = i;
 
     // If step requires approval and we have previous output, wait for approval
-    if (step.requiresApproval && i > 0) {
+    if (
+      step.requiresApproval &&
+      i > 0 &&
+      resumedInput?.stepIndex !== i
+    ) {
       state.stepStates[i].status = "waiting_approval";
       await updateWorkflowState(workflowId, state, "active");
 
@@ -365,22 +409,33 @@ async function executeCheckpoint(
       }
     }
 
-    // If step declares it needs data from the user, ask BEFORE running the agent
-    // and BLOCK (indefinitely) until answered. The run holds in `paused`; the
-    // typed answer is injected into this step's context. (BUG-3.)
+    // If a step needs data, persist the exact workflow/step/notification
+    // correlation and return while paused. The notification response route and
+    // scheduler can resume this state after a process restart.
     userAnswer = "";
     if (step.requiresInput) {
-      state.stepStates[i].status = "waiting_approval";
-      state.status = "paused";
-      await updateWorkflowState(workflowId, state, "paused");
-
-      const question = step.inputPrompt ?? step.prompt;
-      userAnswer = await waitForInput(workflowId, step.name, question);
-
-      // Answered — clear the pause and resume execution of this step.
-      state.status = "running";
-      state.stepStates[i].status = "running";
-      await updateWorkflowState(workflowId, state, "active");
+      if (resumedInput?.stepIndex === i) {
+        userAnswer = resumedInput.answer;
+        state.pendingInteraction = undefined;
+        state.status = "running";
+        state.stepStates[i].status = "running";
+        await updateWorkflowState(workflowId, state, "active");
+      } else {
+        const notificationId = await createWorkflowInputNotification(
+          workflowId,
+          step.name,
+          step.inputPrompt ?? step.prompt
+        );
+        state.stepStates[i].status = "waiting_approval";
+        state.status = "paused";
+        state.pendingInteraction = {
+          kind: "input",
+          stepIndex: i,
+          notificationId,
+        };
+        await updateWorkflowState(workflowId, state, "paused");
+        return;
+      }
     }
 
     const contextParts: string[] = [];
@@ -502,28 +557,37 @@ async function executeParallel(
         stepState.result = undefined;
       });
 
-      const stepBudget = await resolveStepBudget(step);
-      const stepRuntime = await resolveStepRuntime(
-        step.runtimeId ?? step.assignedAgent,
-        workflowRuntimeId
-      );
+      let result: Awaited<ReturnType<typeof executeChildTask>>;
+      try {
+        const stepBudget = await resolveStepBudget(step);
+        const stepRuntime = await resolveStepRuntime(
+          step.runtimeId ?? step.assignedAgent,
+          workflowRuntimeId
+        );
 
-      const result = await executeChildTask(
-        workflowId,
-        step.name,
-        step.prompt,
-        step.assignedAgent,
-        step.agentProfile,
-        parentTaskId,
-        step.id,
-        stepBudget,
-        stepRuntime
-      );
+        result = await executeChildTask(
+          workflowId,
+          step.name,
+          step.prompt,
+          step.assignedAgent,
+          step.agentProfile,
+          parentTaskId,
+          step.id,
+          stepBudget,
+          stepRuntime
+        );
+      } catch (error) {
+        result = {
+          taskId: "",
+          status: "failed",
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
 
       const completedAt = new Date().toISOString();
       await commitState((draft) => {
         const stepState = draft.stepStates[stepIndex];
-        stepState.taskId = result.taskId;
+        if (result.taskId) stepState.taskId = result.taskId;
         stepState.completedAt = completedAt;
 
         if (result.status === "completed") {
@@ -913,9 +977,15 @@ async function resolveStepRuntime(
   stepRuntimeId?: string,
   workflowRuntimeId?: string
 ): Promise<string | undefined> {
-  if (stepRuntimeId) return resolveAgentRuntime(stepRuntimeId);
-  if (workflowRuntimeId) return resolveAgentRuntime(workflowRuntimeId);
-  return undefined;
+  const requestedRuntimeId = stepRuntimeId ?? workflowRuntimeId;
+  if (!requestedRuntimeId) return undefined;
+  if (!isAgentRuntimeId(requestedRuntimeId)) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STATE_INVALID",
+      `Unknown agent runtime "${requestedRuntimeId}" in workflow step`
+    );
+  }
+  return requestedRuntimeId;
 }
 
 /**
@@ -1238,7 +1308,7 @@ async function waitForApproval(
 }
 
 /**
- * Ask the user a question mid-workflow and BLOCK until they answer.
+ * Persist a workflow question and return its durable notification identity.
  *
  * Reuses the existing `AskUserQuestion` answer-carrying loop that already backs
  * chat tasks: it writes a `permission_required` notification with
@@ -1247,12 +1317,12 @@ async function waitForApproval(
  * `response.updatedInput.answer`. The Inbox surfaces it (via
  * listPendingApprovalPayloads) deep-linked to the workflow page.
  *
- * Unlike waitForApproval this has NO deadline — the workflow row is marked
- * `paused` by the caller and this poll holds until a response appears. No silent
- * deny-on-timeout (BUG-3, operator decision: indefinite pause is the honest
- * default). Returns the typed answer string, or "" if the response carried none.
+ * The caller persists this ID in WorkflowState and returns while paused. The
+ * notification response route attempts immediate recovery, while the scheduler
+ * provides restart-safe reconciliation. There is no timeout: indefinite pause
+ * remains the accepted BUG-3 policy.
  */
-async function waitForInput(
+async function createWorkflowInputNotification(
   workflowId: string,
   stepName: string,
   question: string,
@@ -1271,28 +1341,7 @@ async function waitForInput(
     createdAt: new Date(),
   });
 
-  // Poll indefinitely — no deadline. The workflow is already marked `paused`, so
-  // a restart won't leave it falsely `active`; the operator answers whenever.
-  const pollInterval = 2000;
-
-  for (;;) {
-    const [notification] = await db
-      .select()
-      .from(notifications)
-      .where(eq(notifications.id, notificationId));
-
-    if (notification?.response) {
-      try {
-        const parsed = JSON.parse(notification.response);
-        const answer = parsed?.updatedInput?.answer;
-        return typeof answer === "string" ? answer : "";
-      } catch {
-        return "";
-      }
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, pollInterval));
-  }
+  return notificationId;
 }
 
 
@@ -1369,11 +1418,48 @@ export async function updateWorkflowState(
  * paused state in the first place (delay steps are sequence-only per spec).
  */
 export async function resumeWorkflow(workflowId: string): Promise<void> {
-  // Atomic status transition: only proceed if still paused.
+  const [candidate] = await db
+    .select()
+    .from(workflows)
+    .where(eq(workflows.id, workflowId));
+
+  if (!candidate || candidate.status !== "paused") return;
+
+  // Validate the durable recovery token before consuming the paused claim. A
+  // corrupt or mismatched row stays paused and inspectable instead of becoming
+  // an unrecoverable active workflow with no runner.
+  const parsed = parseWorkflowState(candidate.definition);
+  if (!parsed.state) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STATE_INVALID",
+      `Workflow ${workflowId} is marked paused but has no persisted state to resume`
+    );
+  }
+  if (parsed.definition.pattern !== "sequence") {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STATE_INVALID",
+      `Workflow ${workflowId} has pattern "${parsed.definition.pattern}" — delay resume requires sequence`
+    );
+  }
+  const candidateStep = parsed.state.stepStates[parsed.state.currentStepIndex];
+  if (!candidateStep || candidateStep.status !== "delayed") {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STATE_INVALID",
+      `Workflow ${workflowId} has no delayed step at its persisted resume index`
+    );
+  }
+
+  // Atomic status transition: only one validated snapshot can proceed.
   const updated = await db
     .update(workflows)
     .set({ status: "active", resumeAt: null, updatedAt: new Date() })
-    .where(and(eq(workflows.id, workflowId), eq(workflows.status, "paused")))
+    .where(
+      and(
+        eq(workflows.id, workflowId),
+        eq(workflows.status, "paused"),
+        eq(workflows.definition, candidate.definition)
+      )
+    )
     .returning();
 
   if (updated.length === 0) {
@@ -1383,19 +1469,7 @@ export async function resumeWorkflow(workflowId: string): Promise<void> {
   }
 
   const workflow = updated[0];
-  const { definition, state } = parseWorkflowState(workflow.definition);
-
-  if (!state) {
-    throw new Error(
-      `Workflow ${workflowId} is marked paused but has no persisted state to resume`,
-    );
-  }
-
-  if (definition.pattern !== "sequence") {
-    throw new Error(
-      `Workflow ${workflowId} has pattern "${definition.pattern}" — resume is only supported for sequence pattern`,
-    );
-  }
+  const { definition, state } = parsed;
 
   // Mark the delayed step as completed, advance to the next step.
   const delayedIdx = state.currentStepIndex;
@@ -1491,6 +1565,196 @@ export async function resumeWorkflow(workflowId: string): Promise<void> {
   }
 }
 
+export type WorkflowInteractionResumeResult =
+  | "resumed"
+  | "denied"
+  | "not_ready";
+
+/**
+ * Resume a checkpoint input from its persisted notification response.
+ *
+ * The workflow definition carries the exact step + notification correlation,
+ * so this can be called both immediately by the response route and later by a
+ * scheduler tick after process re-entry. The definition snapshot participates
+ * in the paused-to-active claim, making duplicate callers harmless.
+ */
+export async function resumeWorkflowInteraction(
+  workflowId: string,
+  expectedNotificationId?: string
+): Promise<WorkflowInteractionResumeResult> {
+  const [workflow] = await db
+    .select()
+    .from(workflows)
+    .where(eq(workflows.id, workflowId));
+  if (!workflow) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_NOT_FOUND",
+      `Workflow ${workflowId} not found`
+    );
+  }
+  if (workflow.status !== "paused" || workflow.resumeAt !== null) {
+    return "not_ready";
+  }
+
+  const { definition, state } = parseWorkflowState(workflow.definition);
+  const pending = state?.pendingInteraction;
+  if (!state || !pending || pending.kind !== "input") return "not_ready";
+  if (definition.pattern !== "checkpoint") {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STATE_INVALID",
+      `Workflow ${workflowId} has a persisted input gate outside a checkpoint pattern`
+    );
+  }
+  if (
+    expectedNotificationId &&
+    pending.notificationId !== expectedNotificationId
+  ) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_TRANSITION_CONFLICT",
+      "The answered notification is not the workflow's active input gate"
+    );
+  }
+
+  const [notification] = await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.id, pending.notificationId));
+  if (!notification?.response) return "not_ready";
+
+  let response: {
+    behavior?: unknown;
+    updatedInput?: { answer?: unknown };
+  };
+  try {
+    const toolInput = JSON.parse(notification.toolInput ?? "{}");
+    if (toolInput?.workflowId !== workflowId) {
+      throw new Error("notification workflow identity does not match");
+    }
+    response = JSON.parse(notification.response);
+  } catch (error) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STATE_INVALID",
+      `Workflow ${workflowId} has a malformed persisted input response`,
+      409,
+      { cause: error }
+    );
+  }
+
+  const stepState = state.stepStates[pending.stepIndex];
+  const step = definition.steps[pending.stepIndex];
+  if (
+    !step ||
+    !stepState ||
+    stepState.stepId !== step.id ||
+    stepState.status !== "waiting_approval"
+  ) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STATE_INVALID",
+      `Workflow ${workflowId} input gate does not match its persisted step`
+    );
+  }
+
+  if (response.behavior === "deny") {
+    state.pendingInteraction = undefined;
+    state.status = "failed";
+    state.completedAt = new Date().toISOString();
+    stepState.status = "failed";
+    stepState.error = "Input denied by user";
+    stepState.completedAt = new Date().toISOString();
+    const denied = await db
+      .update(workflows)
+      .set({
+        definition: JSON.stringify({ ...definition, _state: state }),
+        status: "failed",
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(workflows.id, workflowId),
+          eq(workflows.status, "paused"),
+          eq(workflows.definition, workflow.definition)
+        )
+      )
+      .returning();
+    if (denied.length === 0) return "not_ready";
+    await updateWorkflowState(workflowId, state, "failed");
+    return "denied";
+  }
+
+  const answer = response.updatedInput?.answer;
+  if (response.behavior !== "allow" || typeof answer !== "string") {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STATE_INVALID",
+      `Workflow ${workflowId} input response does not contain an allowed answer`
+    );
+  }
+
+  state.pendingInteraction = undefined;
+  state.status = "running";
+  stepState.status = "running";
+  const claimedDefinition = JSON.stringify({ ...definition, _state: state });
+  const claimed = await db
+    .update(workflows)
+    .set({
+      definition: claimedDefinition,
+      status: "active",
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(workflows.id, workflowId),
+        eq(workflows.status, "paused"),
+        eq(workflows.definition, workflow.definition)
+      )
+    )
+    .returning();
+  if (claimed.length === 0) return "not_ready";
+
+  openLearningSession(workflowId);
+  try {
+    await executeCheckpoint(
+      workflowId,
+      definition,
+      state,
+      definition.sourceTaskId,
+      workflow.runtimeId ?? undefined,
+      pending.stepIndex,
+      { stepIndex: pending.stepIndex, answer }
+    );
+
+    if ((state.status as WorkflowState["status"]) === "paused") {
+      return "resumed";
+    }
+
+    state.status = "completed";
+    state.completedAt = new Date().toISOString();
+    await updateWorkflowState(workflowId, state, "completed");
+  } catch (error) {
+    state.status = "failed";
+    await updateWorkflowState(workflowId, state, "failed");
+    await db.insert(agentLogs).values({
+      id: crypto.randomUUID(),
+      taskId: null,
+      agentType: "workflow-engine",
+      event: "workflow_failed",
+      payload: JSON.stringify({
+        workflowId,
+        error: error instanceof Error ? error.message : String(error),
+      }),
+      timestamp: new Date(),
+    });
+  } finally {
+    updateExecutionStats(workflowId).catch((error) => {
+      console.error("[workflow-engine] Stats update failed:", error);
+    });
+    await closeLearningSession(workflowId).catch((error) => {
+      console.error("[workflow-engine] Failed to close learning session:", error);
+    });
+  }
+
+  return "resumed";
+}
+
 /**
  * Get the current state of a workflow.
  */
@@ -1514,39 +1778,129 @@ export async function retryWorkflowStep(
     .from(workflows)
     .where(eq(workflows.id, workflowId));
 
-  if (!workflow) throw new Error(`Workflow ${workflowId} not found`);
+  if (!workflow) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_NOT_FOUND",
+      `Workflow ${workflowId} not found`
+    );
+  }
 
-  const { definition, state } = parseWorkflowState(workflow.definition);
-  if (!state) throw new Error("Workflow has no execution state");
+  let definition: WorkflowDefinition;
+  let state: WorkflowState | null;
+  try {
+    ({ definition, state } = parseWorkflowState(workflow.definition));
+  } catch (error) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STATE_INVALID",
+      "Workflow execution state is malformed",
+      409,
+      { cause: error }
+    );
+  }
+  if (!state) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STATE_INVALID",
+      "Workflow has no execution state"
+    );
+  }
 
   const stepIndex = state.stepStates.findIndex((s) => s.stepId === stepId);
-  if (stepIndex === -1) throw new Error(`Step ${stepId} not found`);
+  if (stepIndex === -1) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_STEP_NOT_FOUND",
+      `Step ${stepId} not found`,
+      404
+    );
+  }
 
   const stepState = state.stepStates[stepIndex];
   if (stepState.status !== "failed") {
-    throw new Error(`Step ${stepId} is not in failed state`);
+    throw new WorkflowTransitionError(
+      "WORKFLOW_TRANSITION_CONFLICT",
+      `Step ${stepId} is not in failed state`
+    );
   }
 
-  if (workflow.status === "active") {
-    throw new Error("Cannot retry a step while the workflow is active");
+  if (workflow.status !== "failed") {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_TRANSITION_CONFLICT",
+      `Cannot retry a step while workflow status is ${workflow.status}`
+    );
   }
 
+  if (definition.pattern !== "sequence" && definition.pattern !== "swarm") {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_TRANSITION_CONFLICT",
+      `Step retry is not supported for ${definition.pattern} workflows`
+    );
+  }
+
+  if (definition.pattern === "sequence") resetStepState(stepState);
+  state.status = "running";
+  state.currentStepIndex = stepIndex;
+  state.completedAt = undefined;
+
+  const claim = await db
+    .update(workflows)
+    .set({
+      definition: JSON.stringify({ ...definition, _state: state }),
+      status: "active",
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(workflows.id, workflowId),
+        eq(workflows.status, "failed"),
+        eq(workflows.definition, workflow.definition)
+      )
+    )
+    .returning();
+  if (claim.length === 0) {
+    throw new WorkflowTransitionError(
+      "WORKFLOW_TRANSITION_CONFLICT",
+      "Workflow retry was already claimed"
+    );
+  }
+
+  void runClaimedWorkflowStepRetry(
+    workflowId,
+    definition,
+    state,
+    stepIndex,
+    workflow.runtimeId ?? undefined
+  ).catch(async (error) => {
+    state.status = "failed";
+    const failedStep = state.stepStates[stepIndex];
+    if (failedStep.status !== "failed") {
+      failedStep.status = "failed";
+      failedStep.error = error instanceof Error ? error.message : String(error);
+      failedStep.completedAt = new Date().toISOString();
+    }
+    try {
+      await updateWorkflowState(workflowId, state, "failed");
+    } catch (persistError) {
+      console.error(
+        `[workflow-engine] Failed to persist retry failure for ${workflowId}:`,
+        persistError
+      );
+    }
+  });
+}
+
+async function runClaimedWorkflowStepRetry(
+  workflowId: string,
+  definition: WorkflowDefinition,
+  state: WorkflowState,
+  stepIndex: number,
+  workflowRtId?: string
+): Promise<void> {
   if (definition.pattern === "swarm") {
     await retrySwarmStep(workflowId, definition, state, stepIndex);
     return;
   }
 
-  // Reset step state
-  stepState.status = "pending";
-  stepState.error = undefined;
-  stepState.taskId = undefined;
-  state.status = "running";
-  state.currentStepIndex = stepIndex;
-  await updateWorkflowState(workflowId, state, "active");
-
   // Re-execute from this step
   const step = definition.steps[stepIndex];
-  const workflowRtId = workflow.runtimeId ?? undefined;
   const result = await executeStep(
     workflowId,
     step.id,
@@ -1562,36 +1916,37 @@ export async function retryWorkflowStep(
   );
 
   if (result.status === "completed") {
-    // Continue with remaining steps if this was a sequence
-    if (definition.pattern === "sequence") {
-      let previousOutput = result.result ?? "";
-      for (let i = stepIndex + 1; i < definition.steps.length; i++) {
-        const nextStep = definition.steps[i];
-        state.currentStepIndex = i;
-        const contextPrompt = `Previous step output:\n${previousOutput}\n\n---\n\n${nextStep.prompt}`;
-        const nextResult = await executeStep(
-          workflowId,
-          nextStep.id,
-          nextStep.name,
-          contextPrompt,
-          state,
-          nextStep.assignedAgent,
-          nextStep.agentProfile,
-          undefined,
-          nextStep.budgetUsd,
-          nextStep.runtimeId,
-          workflowRtId
-        );
-        if (nextResult.status === "failed") break;
-        previousOutput = nextResult.result ?? "";
-      }
+    let previousOutput = result.result ?? "";
+    for (let i = stepIndex + 1; i < definition.steps.length; i++) {
+      const nextStep = definition.steps[i];
+      state.currentStepIndex = i;
+      const contextPrompt = `Previous step output:\n${previousOutput}\n\n---\n\n${nextStep.prompt}`;
+      const nextResult = await executeStep(
+        workflowId,
+        nextStep.id,
+        nextStep.name,
+        contextPrompt,
+        state,
+        nextStep.assignedAgent,
+        nextStep.agentProfile,
+        undefined,
+        nextStep.budgetUsd,
+        nextStep.runtimeId,
+        workflowRtId
+      );
+      if (nextResult.status === "failed") break;
+      previousOutput = nextResult.result ?? "";
     }
-
-    const allCompleted = state.stepStates.every((s) => s.status === "completed");
-    state.status = allCompleted ? "completed" : "failed";
-    state.completedAt = allCompleted ? new Date().toISOString() : undefined;
-    await updateWorkflowState(workflowId, state, allCompleted ? "completed" : "failed");
   }
+
+  const allCompleted = state.stepStates.every((s) => s.status === "completed");
+  state.status = allCompleted ? "completed" : "failed";
+  state.completedAt = allCompleted ? new Date().toISOString() : undefined;
+  await updateWorkflowState(
+    workflowId,
+    state,
+    allCompleted ? "completed" : "failed"
+  );
 }
 
 function resetStepState(stepState: StepState): void {

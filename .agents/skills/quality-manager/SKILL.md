@@ -403,6 +403,36 @@ files.
   API file. Preserve deeper engine/protocol suites and cite them from the
   boundary inventory instead of duplicating them.
 
+### Workflow Recovery Transition Guard
+
+For a persisted workflow engine, define an executable transition matrix before
+adding broad recovery tests. Each row should name its state family, from state,
+event, required terminal state, invariant, and protecting test. Select the
+transitions where partial work, duplicate delivery, or process re-entry could
+make parent and child state disagree.
+
+- Exercise the real engine/route export and real SQLite state. Substitute only
+  provider dispatch with deterministic completion, failure, or a promise
+  barrier; keep state JSON, notifications, receipts, and atomic queries real.
+- A child failure must agree across child row, step/iteration state, parent
+  terminal, and run receipt. Assert that downstream or synthesis work was not
+  created when its dependency failed.
+- Parallel branches must settle setup/dispatch exceptions before the terminal
+  parent write. Never let an early Promise rejection leave sibling workers able
+  to write `active` after the parent has failed.
+- Derive loop terminal truth from every iteration. Row fan-out may continue to
+  settle independent rows, but any failed iteration must prevent a silent
+  completed parent unless the product has an explicit partial-success status.
+- Persist delay/HITL recovery correlation before returning: workflow, step,
+  notification, and definition snapshot. Validate before consuming a paused
+  claim, and retain a scheduler/reconciler shadow path for process re-entry.
+- Claim retry/resume with a compare-and-swap over status plus the observed
+  definition snapshot. Prove competing callers with a deterministic barrier;
+  require one suffix dispatch and no repeated completed prefix.
+- Cancellation refusal is a retryable named conflict. Settle successful child
+  cancellations, expose failed child IDs, and do not falsely terminalize the
+  parent until the remaining live children are settled.
+
 ### Regression Guard Output
 
 ```markdown
