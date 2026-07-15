@@ -37,12 +37,15 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: "22"
+          # Coverage ratchets are exact executable-line ratios and V8's source
+          # mapping can change between Node patch releases. Keep this in sync
+          # with COVERAGE_RATCHET_BASELINE in scripts/quality-policy.mjs.
+          node-version: "22.18.0"
           cache: npm
 
       - name: Use the release npm line
         run: |
-          npm install --global npm@11
+          npm install --global npm@11.6.0
           npm --version
 
       - name: Install dependencies

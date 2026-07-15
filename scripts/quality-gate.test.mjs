@@ -17,6 +17,7 @@ import {
 import {
   ALWAYS_LANES,
   CONDITIONAL_LANES,
+  COVERAGE_RATCHET_BASELINE,
   planQualityGate,
   QualityPolicyError,
   RELEASE_ONLY_LANES,
@@ -317,6 +318,25 @@ test("workflow contract is always-on, reusable, read-only, and release-blocking"
   assert.equal(qualitySource.includes("paths:"), false);
   assert.match(qualitySource, /npm run quality:gate -- --profile pr/);
   assert.match(qualitySource, /persist-credentials: false/);
+
+  const qualitySetupNode = quality.jobs.quality.steps.find(
+    (step) => step.uses === "actions/setup-node@v5"
+  );
+  const publishSetupNode = publish.jobs.publish.steps.find(
+    (step) => step.uses === "actions/setup-node@v5"
+  );
+  assert.equal(qualitySetupNode?.with?.["node-version"], COVERAGE_RATCHET_BASELINE.node);
+  assert.equal(publishSetupNode?.with?.["node-version"], COVERAGE_RATCHET_BASELINE.node);
+  assert.equal(
+    qualitySource.includes(
+      `npm install --global npm@${COVERAGE_RATCHET_BASELINE.npm}`
+    ),
+    true
+  );
+  assert.equal(
+    publishSource.includes(`npm install -g npm@${COVERAGE_RATCHET_BASELINE.npm}`),
+    true
+  );
 
   assert.equal(
     publish.jobs.quality.uses,

@@ -185,7 +185,7 @@ bundle or any integrity drift blocks packing and publishing.
   `1f998e896c0aa3f2ce5562e3e89989600892f68e83b1bea18e3c475ba3d8f777`;
   the second build wrote zero files.
 - Initial artifact: Relay `0.41.0`, 17 entries, 418 sections, 1,362,456 bytes.
-- Release refresh (`0.42.0`): the ten changed runtime, routing, provider, and
+- Release refresh (`0.42.1`): the ten changed runtime, routing, provider, and
   telemetry routes were source-reviewed in `_ASSETS`; the API and product-stats
   gates passed with zero warnings; two consecutive builds produced bundle hash
   `5ea2b331fa4253d9b331cbffb2ef34f0bf47de95dc55676169019bf8646e1e0a`,

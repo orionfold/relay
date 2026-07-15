@@ -37,7 +37,9 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: "22" # Trusted publishing needs Node >= 22.14.0
+          # Match the quality ratchet environment. Trusted publishing needs
+          # Node >= 22.14.0; 22.18.0 satisfies that requirement.
+          node-version: "22.18.0"
           registry-url: "https://registry.npmjs.org"
 
       # npm >= 11.5.1 is required for OIDC trusted publishing. The Node 22 image
@@ -55,7 +57,7 @@ jobs:
       # bump here, verified by the binding check below.
       - name: Ensure npm supports trusted publishing
         run: |
-          npm install -g npm@11
+          npm install -g npm@11.6.0
           npm --version
 
       - name: Install dependencies
