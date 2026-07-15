@@ -19,6 +19,13 @@ vi.mock("../openai-auth", () => ({
   })),
 }));
 
+vi.mock("@/lib/agents/runtime/ollama-config", () => ({
+  getOllamaRuntimeConfig: vi.fn(async () => ({
+    apiKey: "ollama-secret",
+    apiKeySource: "db",
+  })),
+}));
+
 describe("runtime setup states", () => {
   it("marks Codex App Server subscription-backed when ChatGPT auth is connected", async () => {
     const { getRuntimeSetupStates } = await import("../runtime-setup");
@@ -29,6 +36,8 @@ describe("runtime setup states", () => {
     expect(states["openai-codex-app-server"].billingMode).toBe("subscription");
     expect(states["openai-direct"].configured).toBe(true);
     expect(states["openai-direct"].billingMode).toBe("usage");
+    expect(states.ollama.authMethod).toBe("api_key");
+    expect(states.ollama.apiKeySource).toBe("db");
   });
 });
 

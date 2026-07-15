@@ -267,8 +267,8 @@ const RUNTIME_CATALOG: Record<AgentRuntimeId, RuntimeCatalogEntry> = {
   },
   ollama: {
     id: "ollama",
-    label: "Ollama (Local)",
-    description: "Local model execution via Ollama — free, private, no API key required.",
+    label: "Ollama",
+    description: "Operator-configured Ollama server or cloud API; locality, cost, and authentication depend on the endpoint.",
     providerId: "ollama",
     capabilities: {
       resume: false,

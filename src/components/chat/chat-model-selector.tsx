@@ -31,7 +31,7 @@ const tierEmoji: Record<string, string> = {
   Fast: "\u26A1",
   Balanced: "\u2728",
   Best: "\uD83D\uDC8E",
-  Local: "\uD83C\uDFE0",
+  "Configured endpoint": "\u25C9",
   Gateway: "\u21C4",
   Server: "\u25C9",
 };
@@ -54,8 +54,8 @@ export function ChatModelSelector({
           id: `ollama:${m.name}`,
           label: m.name.replace(/:latest$/, ""),
           provider: "ollama" as const,
-          tier: "Local",
-          costLabel: "Free",
+          tier: "Configured endpoint",
+          costLabel: "Cost varies",
         }));
         setOllamaModels(models);
       })
@@ -122,7 +122,7 @@ export function ChatModelSelector({
           <>
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Ollama (Local)
+              Ollama
             </DropdownMenuLabel>
             <DropdownMenuGroup>
               {ollamaModels.map((m) => (

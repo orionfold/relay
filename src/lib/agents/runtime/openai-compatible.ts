@@ -3,6 +3,12 @@ import "server-only";
 import { SETTINGS_KEYS, type ApiKeySource } from "@/lib/constants/settings";
 import { getSetting } from "@/lib/settings/helpers";
 import type { AgentRuntimeId } from "./catalog";
+import {
+  buildProviderRequestInit,
+  normalizeProviderBaseUrl,
+  ProviderEndpointConfigurationError,
+  readBoundedProviderError,
+} from "./provider-endpoint";
 
 export type OpenAICompatibleRuntimeId = Extract<
   AgentRuntimeId,
@@ -136,63 +142,21 @@ export function isOpenAICompatibleRuntimeId(
   return value === "litellm" || value === "lmstudio";
 }
 
-function isLoopbackHostname(hostname: string): boolean {
-  const normalized = hostname.toLowerCase().replace(/^\[|\]$/g, "");
-  return (
-    normalized === "localhost" ||
-    normalized === "127.0.0.1" ||
-    normalized === "::1"
-  );
-}
-
 export function normalizeCompatibleBaseUrl(
   rawValue: string,
   options: { allowInsecureRemote: boolean; label: string }
 ): string {
-  const value = rawValue.trim();
-  if (!value) {
-    throw new CompatibleRuntimeConfigurationError(
-      `${options.label} base URL is required`
-    );
-  }
-
-  let url: URL;
   try {
-    url = new URL(value);
-  } catch {
-    throw new CompatibleRuntimeConfigurationError(
-      `${options.label} base URL is not a valid URL`
-    );
+    return normalizeProviderBaseUrl(rawValue, {
+      ...options,
+      defaultPath: "/v1",
+    });
+  } catch (error) {
+    if (error instanceof ProviderEndpointConfigurationError) {
+      throw new CompatibleRuntimeConfigurationError(error.message);
+    }
+    throw error;
   }
-
-  if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new CompatibleRuntimeConfigurationError(
-      `${options.label} base URL must use http or https`
-    );
-  }
-  if (url.username || url.password) {
-    throw new CompatibleRuntimeConfigurationError(
-      `${options.label} base URL must not contain credentials`
-    );
-  }
-  if (url.search || url.hash) {
-    throw new CompatibleRuntimeConfigurationError(
-      `${options.label} base URL must not contain a query string or fragment`
-    );
-  }
-  if (
-    url.protocol === "http:" &&
-    !isLoopbackHostname(url.hostname) &&
-    !options.allowInsecureRemote
-  ) {
-    throw new CompatibleRuntimeConfigurationError(
-      `${options.label} remote HTTP is insecure. Use HTTPS or explicitly allow insecure remote HTTP.`
-    );
-  }
-
-  const trimmedPath = url.pathname.replace(/\/+$/, "");
-  url.pathname = !trimmedPath || trimmedPath === "/" ? "/v1" : trimmedPath;
-  return url.toString().replace(/\/$/, "");
 }
 
 export async function getOpenAICompatibleRuntimeConfig(
@@ -227,30 +191,11 @@ export async function getOpenAICompatibleRuntimeConfig(
   };
 }
 
-function buildHeaders(config: OpenAICompatibleRuntimeConfig): HeadersInit {
-  return {
-    "Content-Type": "application/json",
-    ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
-  };
-}
-
-async function readErrorDetail(response: Response): Promise<string> {
-  const raw = await response.text().catch(() => "");
-  if (!raw) return response.statusText || "Unknown error";
-  try {
-    const parsed = JSON.parse(raw) as {
-      error?: string | { message?: string };
-      message?: string;
-    };
-    if (typeof parsed.error === "string") return parsed.error.slice(0, 500);
-    if (parsed.error && typeof parsed.error.message === "string") {
-      return parsed.error.message.slice(0, 500);
-    }
-    if (typeof parsed.message === "string") return parsed.message.slice(0, 500);
-  } catch {
-    // Preserve a bounded plain-text provider error.
-  }
-  return raw.slice(0, 500);
+async function readErrorDetail(
+  response: Response,
+  apiKey: string | null
+): Promise<string> {
+  return readBoundedProviderError(response, 500, [apiKey]);
 }
 
 async function request(
@@ -265,14 +210,10 @@ async function request(
   }
   let response: Response;
   try {
-    response = await fetch(`${config.baseUrl}${path}`, {
-      ...init,
-      headers: { ...buildHeaders(config), ...init?.headers },
-      signal: init?.signal ?? AbortSignal.timeout(10_000),
-      // Do not let an operator-configured endpoint redirect credentials or
-      // bypass the validated URL/security policy.
-      redirect: "manual",
-    });
+    response = await fetch(
+      `${config.baseUrl}${path}`,
+      buildProviderRequestInit(config.apiKey, init)
+    );
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       throw error;
@@ -284,7 +225,7 @@ async function request(
     throw new CompatibleRuntimeHttpError(
       config.label,
       response.status,
-      await readErrorDetail(response)
+      await readErrorDetail(response, config.apiKey)
     );
   }
   return response;

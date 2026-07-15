@@ -192,10 +192,9 @@ describe("usage ledger", () => {
     expect(unknown?.pricingVersion).toBeNull();
   });
 
-  it("records local Ollama usage as an explicit $0 row, not unknown pricing", async () => {
-    // Local inference is known-free — a $0 row is the evidence for the
-    // "prove the savings" blended-cost story (fix-chat-spend-metering-diagnose).
-    // unknown_pricing would hide exactly the runs that demonstrate savings.
+  it("records unpriced Ollama usage under the current explicit ledger policy", async () => {
+    // A provider name does not prove the configured endpoint is free: Ollama
+    // may be a remote hosted service or its cloud API.
     const { db, usageLedger, recordUsageLedgerEntry } = await loadUsageModules();
 
     await recordUsageLedgerEntry({
@@ -212,9 +211,9 @@ describe("usage ledger", () => {
     });
 
     const [row] = await db.select().from(usageLedger);
-    expect(row?.status).toBe("completed");
-    expect(row?.costMicros).toBe(0);
-    expect(row?.pricingVersion).toBe("local-free");
+    expect(row?.status).toBe("unknown_pricing");
+    expect(row?.costMicros).toBeNull();
+    expect(row?.pricingVersion).toBeNull();
   });
 
   it("aggregates daily totals, provider breakdowns, and audit entries with joins", async () => {

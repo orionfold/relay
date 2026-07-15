@@ -52,11 +52,9 @@ const RUNTIME_KEYWORD_SIGNALS: Record<string, AgentRuntimeId> = {
   // Sandbox → openai-codex (isolated execution)
   sandbox: "openai-codex-app-server",
   isolated: "openai-codex-app-server",
-  // Local/private → ollama (free, no API key)
-  local: "ollama",
-  private: "ollama",
-  offline: "ollama",
-  free: "ollama",
+  // Provider-specific intent may select Ollama. Locality, privacy, and cost
+  // cannot be inferred without inspecting the operator-configured endpoint.
+  ollama: "ollama",
 };
 
 // ── Preference-based tiebreaker scoring ──────────────────────────────
@@ -66,7 +64,7 @@ const LATENCY_SCORE: Record<AgentRuntimeId, number> = {
   "openai-direct": 3,
   "claude-code": 1, // Subprocess spawn overhead
   "openai-codex-app-server": 1,
-  ollama: 2, // Local, no network round-trip, but model load time
+  ollama: 1, // Endpoint-dependent; do not infer a local network path
   litellm: 2, // Operator-configured gateway; latency depends on its upstream
   lmstudio: 2, // Operator-configured server; no locality assumption
 };
@@ -76,7 +74,7 @@ const COST_SCORE: Record<AgentRuntimeId, number> = {
   "openai-direct": 3,
   "claude-code": 1, // SDK overhead + potential OAuth subscription
   "openai-codex-app-server": 1,
-  ollama: 5, // Free — always $0
+  ollama: 1, // Endpoint-dependent; Ollama cloud and hosted servers may cost money
   litellm: 1, // Unknown until the gateway reports cost
   lmstudio: 1, // Unknown; do not infer zero cost from product identity
 };
@@ -86,7 +84,7 @@ const QUALITY_SCORE: Record<AgentRuntimeId, number> = {
   "openai-codex-app-server": 2,
   "anthropic-direct": 2,
   "openai-direct": 2,
-  ollama: 1, // Local models, smaller parameter counts
+  ollama: 1, // Model-dependent; no quality inference from provider identity
   litellm: 1, // Model-dependent; no quality inference from gateway identity
   lmstudio: 1, // Model-dependent; no quality inference from server identity
 };

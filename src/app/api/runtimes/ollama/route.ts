@@ -1,94 +1,139 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSetting } from "@/lib/settings/helpers";
-import { SETTINGS_KEYS } from "@/lib/constants/settings";
+import { z } from "zod";
+import {
+  fetchOllama,
+  getOllamaRuntimeConfig,
+} from "@/lib/agents/runtime/ollama-config";
+import {
+  readBoundedProviderError,
+} from "@/lib/agents/runtime/provider-endpoint";
+import type { ProviderModelDetails } from "@/lib/agents/runtime/provider-models";
 
-const DEFAULT_BASE_URL = "http://localhost:11434";
+const pullSchema = z
+  .object({
+    action: z.literal("pull"),
+    model: z.string().trim().min(1),
+  })
+  .strict();
 
-async function getBaseUrl(): Promise<string> {
-  return (await getSetting(SETTINGS_KEYS.OLLAMA_BASE_URL)) || DEFAULT_BASE_URL;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-/**
- * GET /api/runtimes/ollama — List available models from Ollama.
- */
+function text(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function number(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+/** GET /api/runtimes/ollama — test and discover normalized model details. */
 export async function GET() {
   try {
-    const baseUrl = await getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/tags`, {
-      signal: AbortSignal.timeout(5000),
-    });
-
+    const config = await getOllamaRuntimeConfig();
+    const response = await fetchOllama(config, "/api/tags", {}, 5_000);
     if (!response.ok) {
       return NextResponse.json(
-        { error: `Ollama responded with status ${response.status}` },
-        { status: 502 },
+        {
+          phase: "connection",
+          error: `Ollama request failed (${response.status}): ${await readBoundedProviderError(response, 500, [config.apiKey])}`,
+        },
+        { status: 502 }
       );
     }
-
-    const data = await response.json();
-    return NextResponse.json(data);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Connection failed";
+    const payload = (await response.json()) as unknown;
+    if (!isRecord(payload) || !Array.isArray(payload.models)) {
+      return NextResponse.json(
+        { phase: "discovery", error: "Ollama returned invalid model discovery data" },
+        { status: 502 }
+      );
+    }
+    const models = payload.models.flatMap((entry): ProviderModelDetails[] => {
+      if (!isRecord(entry)) return [];
+      const id = text(entry.model) ?? text(entry.name);
+      if (!id) return [];
+      const details = isRecord(entry.details) ? entry.details : {};
+      return [
+        {
+          id,
+          name: text(entry.name) ?? id,
+          provider: "ollama",
+          family: text(details.family),
+          format: text(details.format),
+          parameterSize: text(details.parameter_size),
+          quantization: text(details.quantization_level),
+          sizeBytes: number(entry.size),
+          modifiedAt: text(entry.modified_at),
+        },
+      ];
+    });
+    return NextResponse.json({ runtimeId: "ollama", models });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Connection failed";
     return NextResponse.json(
-      { error: message, hint: "Make sure Ollama is running (ollama serve)." },
-      { status: 502 },
+      {
+        phase: "connection",
+        error: message,
+        hint: "Make sure the configured Ollama server is reachable from Relay.",
+      },
+      { status: 502 }
     );
   }
 }
 
-/**
- * POST /api/runtimes/ollama — Actions: pull a model.
- * Body: { action: "pull", model: "llama3.2" }
- */
+/** POST /api/runtimes/ollama — pull one model through the configured server. */
 export async function POST(req: NextRequest) {
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
-  }
-  const { action, model } = body as Record<string, unknown>;
-
-  if (action !== "pull") {
+  const parsed = pullSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: `Unknown action: ${action}` },
-      { status: 400 },
-    );
-  }
-
-  if (!model || typeof model !== "string") {
-    return NextResponse.json(
-      { error: "model is required" },
-      { status: 400 },
+      {
+        phase: "acquisition",
+        error: parsed.error.issues[0]?.message ?? "Invalid pull request",
+      },
+      { status: 400 }
     );
   }
 
   try {
-    const baseUrl = await getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/pull`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: model, stream: false }),
-    });
-
+    const config = await getOllamaRuntimeConfig();
+    const response = await fetchOllama(
+      config,
+      "/api/pull",
+      {
+        method: "POST",
+        body: JSON.stringify({ model: parsed.data.model, stream: false }),
+      },
+      300_000
+    );
     if (!response.ok) {
-      const errorText = await response.text().catch(() => "Unknown error");
       return NextResponse.json(
-        { error: `Ollama pull failed (${response.status}): ${errorText}` },
-        { status: 502 },
+        {
+          phase: "acquisition",
+          error: `Ollama pull failed (${response.status}): ${await readBoundedProviderError(response, 500, [config.apiKey])}`,
+        },
+        { status: 502 }
       );
     }
-
-    const data = await response.json();
-    return NextResponse.json({ status: "ok", model, ...data });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Pull failed";
+    const payload = await response.json().catch(() => ({}));
+    const { invalidateModelDiscoveryCache } = await import(
+      "@/lib/chat/model-discovery"
+    );
+    invalidateModelDiscoveryCache();
+    return NextResponse.json({
+      runtimeId: "ollama",
+      action: "pull",
+      model: parsed.data.model,
+      status: "completed",
+      ...(isRecord(payload) ? payload : {}),
+    });
+  } catch (error) {
     return NextResponse.json(
-      { error: message },
-      { status: 502 },
+      {
+        phase: "acquisition",
+        error: error instanceof Error ? error.message : "Ollama pull failed",
+      },
+      { status: 502 }
     );
   }
 }

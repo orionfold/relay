@@ -61,6 +61,9 @@ interface OllamaState {
   connected: boolean;
   baseUrl: string;
   defaultModel: string;
+  hasApiKey: boolean;
+  apiKeySource: ApiKeySource;
+  allowInsecureRemote: boolean;
 }
 
 interface ProvidersPayload {
@@ -122,7 +125,7 @@ const RUNTIME_DESCRIPTIONS: Record<string, string> = {
   "anthropic-direct": "Fast API calls, prompt caching, extended thinking",
   "openai-codex-app-server": "Sandboxed workspace execution",
   "openai-direct": "Fast API calls, code interpreter, web search",
-  ollama: "Local model execution, free, no API key",
+  ollama: "Operator-configured server or cloud API",
 };
 
 const BILLING_LABELS: Record<string, string> = {

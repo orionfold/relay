@@ -46,6 +46,15 @@ vi.mock("@/lib/settings/helpers", () => ({
 vi.mock("@/lib/agents/runtime", () => ({
   testRuntimeConnection: vi.fn(async () => ({ connected: true })),
 }));
+vi.mock("@/lib/agents/runtime/ollama-config", () => ({
+  getOllamaRuntimeConfig: vi.fn(async () => ({
+    baseUrl: "https://ollama.example",
+    defaultModel: null,
+    apiKey: "never-return-this-secret",
+    apiKeySource: "env",
+    allowInsecureRemote: false,
+  })),
+}));
 
 import { GET } from "../route";
 
@@ -56,5 +65,9 @@ describe("GET /api/settings/providers", () => {
 
     expect(body.ollama.connected).toBe(true);
     expect(body.ollama.defaultModel).toBe("");
+    expect(body.ollama.baseUrl).toBe("https://ollama.example");
+    expect(body.ollama.hasApiKey).toBe(true);
+    expect(body.ollama.apiKeySource).toBe("env");
+    expect(JSON.stringify(body)).not.toContain("never-return-this-secret");
   });
 });

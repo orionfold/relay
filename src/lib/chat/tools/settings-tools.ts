@@ -1,6 +1,7 @@
 import { defineTool } from "../tool-registry";
 import { z } from "zod";
 import { ok, err, type ToolContext } from "./helpers";
+import { normalizeProviderBaseUrl } from "@/lib/agents/runtime/provider-endpoint";
 
 /* ── Writable settings allowlist ─────────────────────────────────── */
 
@@ -56,8 +57,19 @@ const WRITABLE_SETTINGS: Record<string, WritableSetting> = {
     },
   },
   "ollama.baseUrl": {
-    description: "Ollama server base URL",
-    validate: (v) => (v.trim().length === 0 ? "Must be non-empty URL" : null),
+    description: "Ollama server base URL (HTTPS or loopback HTTP)",
+    validate: (v) => {
+      try {
+        normalizeProviderBaseUrl(v, {
+          label: "Ollama",
+          allowInsecureRemote: false,
+          defaultPath: "",
+        });
+        return null;
+      } catch (error) {
+        return error instanceof Error ? error.message : "Must be a valid URL";
+      }
+    },
   },
   "ollama.defaultModel": {
     description: "Default Ollama model name",
@@ -196,6 +208,12 @@ export function settingsTools(_ctx: ToolContext) {
           );
           const oldValue = await getSetting(args.key);
           await setSetting(args.key, args.value);
+          if (args.key === "ollama.baseUrl" || args.key === "ollama.defaultModel") {
+            const { invalidateModelDiscoveryCache } = await import(
+              "@/lib/chat/model-discovery"
+            );
+            invalidateModelDiscoveryCache();
+          }
           return ok({
             key: args.key,
             oldValue: oldValue ?? "(unset)",

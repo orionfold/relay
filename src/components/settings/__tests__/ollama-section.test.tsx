@@ -1,6 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
 import { OllamaSection } from "@/components/settings/ollama-section";
 
 const { toastError, toastSuccess } = vi.hoisted(() => ({
@@ -8,142 +7,114 @@ const { toastError, toastSuccess } = vi.hoisted(() => ({
   toastSuccess: vi.fn(),
 }));
 
-vi.mock("sonner", () => ({
-  toast: { error: toastError, success: toastSuccess },
-}));
+vi.mock("sonner", () => ({ toast: { error: toastError, success: toastSuccess } }));
 
-type FetchResult = {
-  ok: boolean;
-  json: () => Promise<unknown>;
-};
-
-function response(ok: boolean, body: unknown): FetchResult {
-  return { ok, json: async () => body };
+function response(ok: boolean, body: unknown) {
+  return { ok, json: async () => body } as Response;
 }
 
+const savedSettings = {
+  runtimeId: "ollama",
+  configured: true,
+  baseUrl: "http://localhost:11434",
+  defaultModel: "llama3.2",
+  allowInsecureRemote: false,
+  hasApiKey: true,
+  apiKeySource: "db",
+};
+
 describe("OllamaSection", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  beforeEach(() => vi.clearAllMocks());
+  afterEach(() => vi.unstubAllGlobals());
 
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it("shows unavailable Test feedback and clears stale models", async () => {
-    let probes = 0;
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL) => {
-        const url = String(input);
-        if (url === "/api/settings/ollama") {
-          return response(true, { baseUrl: "http://localhost:11434" });
-        }
-        if (url === "/api/runtimes/ollama") {
-          probes += 1;
-          if (probes === 1) {
-            return response(true, {
-              models: [{ name: "llama3.2", size: 2_000_000_000, modified_at: "now" }],
-            });
-          }
-          return response(false, { error: "Ollama is not running" });
-        }
-        throw new Error(`Unexpected fetch: ${url}`);
-      }),
-    );
+  it("uses the shared setup controls without exposing the saved secret", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => response(true, savedSettings)));
 
     render(<OllamaSection />);
-    const testButton = screen.getByRole("button", { name: "Test Connection" });
-    fireEvent.click(testButton);
-    expect(await screen.findByText("Connected. 1 model available")).toBeInTheDocument();
-    expect(screen.getByText("llama3.2")).toBeInTheDocument();
 
-    fireEvent.click(testButton);
-    expect(await screen.findByText("Ollama is not running")).toBeInTheDocument();
-    expect(screen.queryByText("llama3.2")).not.toBeInTheDocument();
+    expect(await screen.findByDisplayValue("http://localhost:11434")).toBeInTheDocument();
+    expect(screen.getByLabelText("API key (optional)")).toHaveValue("");
+    expect(screen.getByPlaceholderText("Configured via saved setting")).toHaveValue("");
+    expect(screen.getByLabelText("Default model or alias")).toHaveValue("llama3.2");
+    expect(screen.getByRole("switch", { name: "Allow insecure remote HTTP" })).not.toBeChecked();
+    expect(screen.getByRole("button", { name: "Clear" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Pull" })).toBeDisabled();
   });
 
-  it("shows available Test feedback with the returned model count", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL) => {
-        const url = String(input);
-        if (url === "/api/settings/ollama") return response(true, {});
-        if (url === "/api/runtimes/ollama") {
-          return response(true, {
-            models: [
-              { name: "llama3.2", size: 2_000_000_000, modified_at: "now" },
-              { name: "mistral", size: 4_000_000_000, modified_at: "now" },
-            ],
-          });
-        }
-        throw new Error(`Unexpected fetch: ${url}`);
-      }),
-    );
-
-    render(<OllamaSection />);
-    fireEvent.click(screen.getByRole("button", { name: "Test Connection" }));
-    expect(await screen.findByText("Connected. 2 models available")).toBeInTheDocument();
-  });
-
-  it("shows Save success and re-tests the saved endpoint", async () => {
+  it("auto-saves edits before testing and renders discovered model details", async () => {
+    const calls: string[] = [];
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       const method = init?.method ?? "GET";
-      if (url === "/api/settings/ollama" && method === "GET") return response(true, {});
-      if (url === "/api/settings/ollama" && method === "POST") return response(true, { ok: true });
-      if (url === "/api/runtimes/ollama") return response(true, { models: [] });
+      calls.push(`${method} ${url}`);
+      if (url === "/api/settings/ollama" && method === "GET") {
+        return response(true, { ...savedSettings, hasApiKey: false, apiKeySource: "unknown" });
+      }
+      if (url === "/api/settings/ollama" && method === "PUT") {
+        return response(true, {
+          ...savedSettings,
+          baseUrl: "http://127.0.0.1:11435",
+          hasApiKey: false,
+          apiKeySource: "unknown",
+        });
+      }
+      if (url === "/api/settings/test") return response(true, { connected: true });
+      if (url === "/api/runtimes/ollama") {
+        return response(true, {
+          runtimeId: "ollama",
+          models: [{
+            id: "llama3.2:latest",
+            name: "llama3.2:latest",
+            family: "llama",
+            parameterSize: "3.2B",
+            quantization: "Q4_K_M",
+            sizeBytes: 2_000_000_000,
+          }],
+        });
+      }
       throw new Error(`Unexpected fetch: ${method} ${url}`);
     });
     vi.stubGlobal("fetch", fetchMock);
 
     render(<OllamaSection />);
-    fireEvent.change(screen.getByLabelText("Base URL"), {
+    fireEvent.change(await screen.findByLabelText("Server base URL"), {
       target: { value: "http://127.0.0.1:11435" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Test and discover models" }));
 
-    await waitFor(() => {
-      expect(toastSuccess).toHaveBeenCalledWith("Ollama base URL saved");
-    });
-    expect(fetchMock).toHaveBeenCalledWith(
-      "/api/settings/ollama",
-      expect.objectContaining({
-        method: "POST",
-        body: JSON.stringify({ baseUrl: "http://127.0.0.1:11435" }),
-      }),
-    );
-    expect(await screen.findByText("Connected. 0 models available")).toBeInTheDocument();
+    expect(await screen.findByText("Connected · 1 model")).toBeInTheDocument();
+    expect(calls.slice(-3)).toEqual([
+      "PUT /api/settings/ollama",
+      "POST /api/settings/test",
+      "GET /api/runtimes/ollama",
+    ]);
+    expect(screen.getByText("llama3.2:latest")).toBeInTheDocument();
+    expect(screen.getByText("3.2B")).toBeInTheDocument();
+    expect(screen.getByText("Q4_K_M")).toBeInTheDocument();
+    expect(screen.getByText("2.0 GB")).toBeInTheDocument();
   });
 
-  it("shows Save failure for HTTP and network errors and re-enables Save", async () => {
-    let saveAttempts = 0;
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-        const url = String(input);
-        const method = init?.method ?? "GET";
-        if (url === "/api/settings/ollama" && method === "GET") return response(true, {});
-        if (url === "/api/settings/ollama" && method === "POST") {
-          saveAttempts += 1;
-          if (saveAttempts === 1) return response(false, {});
-          throw new TypeError("Failed to fetch");
-        }
-        throw new Error(`Unexpected fetch: ${method} ${url}`);
-      }),
-    );
+  it("names the acquisition phase and remains retryable after a pull failure", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/settings/ollama") return response(true, savedSettings);
+      if (url === "/api/runtimes/ollama" && init?.method === "POST") {
+        return response(false, { phase: "acquisition", error: "Model not found" });
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    }));
 
     render(<OllamaSection />);
-    const saveButton = screen.getByRole("button", { name: "Save" });
-
-    fireEvent.click(saveButton);
-    await waitFor(() => expect(toastError).toHaveBeenCalledWith("Failed to save base URL"));
-    expect(saveButton).toBeEnabled();
-
-    fireEvent.click(saveButton);
-    await waitFor(() => {
-      expect(toastError).toHaveBeenCalledWith("Failed to save base URL: Failed to fetch");
+    const card = (await screen.findByRole("heading", { name: "Ollama" })).closest("[data-slot=card]") as HTMLElement;
+    fireEvent.change(within(card).getByLabelText("Pull a model"), {
+      target: { value: "missing/model" },
     });
-    expect(saveButton).toBeEnabled();
+    const pull = within(card).getByRole("button", { name: "Pull" });
+    fireEvent.click(pull);
+
+    expect(await within(card).findByText("Acquiring model")).toBeInTheDocument();
+    expect(within(card).getByText("Model not found")).toBeInTheDocument();
+    await waitFor(() => expect(pull).toBeEnabled());
+    expect(toastError).toHaveBeenCalledWith("Model not found");
   });
 });

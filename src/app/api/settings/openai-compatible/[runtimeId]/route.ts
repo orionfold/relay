@@ -7,9 +7,9 @@ import {
   OPENAI_COMPATIBLE_RUNTIME_DEFINITIONS,
 } from "@/lib/agents/runtime/openai-compatible";
 import {
+  applySettingsPatch,
   deleteSetting,
   getSetting,
-  setSetting,
 } from "@/lib/settings/helpers";
 
 type RouteContext = { params: Promise<{ runtimeId: string }> };
@@ -18,10 +18,14 @@ const updateSchema = z
   .object({
     baseUrl: z.string().trim().min(1).optional(),
     apiKey: z.string().optional(),
+    clearApiKey: z.boolean().optional(),
     defaultModel: z.string().trim().optional(),
     allowInsecureRemote: z.boolean().optional(),
   })
-  .strict();
+  .strict()
+  .refine((value) => !(value.apiKey?.trim() && value.clearApiKey), {
+    message: "Provide apiKey or clearApiKey, not both",
+  });
 
 async function resolveRuntime(context: RouteContext) {
   const { runtimeId } = await context.params;
@@ -85,33 +89,30 @@ export async function PUT(req: NextRequest, context: RouteContext) {
       allowInsecureRemote,
       label: definition.label,
     });
+    const patch: Record<string, string | null> = {};
     if (parsed.data.baseUrl !== undefined) {
       const baseUrl = normalizeCompatibleBaseUrl(parsed.data.baseUrl, {
         allowInsecureRemote,
         label: definition.label,
       });
-      await setSetting(definition.baseUrlSetting, baseUrl);
+      patch[definition.baseUrlSetting] = baseUrl;
     }
     if (parsed.data.apiKey !== undefined) {
       if (parsed.data.apiKey.trim()) {
-        await setSetting(definition.apiKeySetting, parsed.data.apiKey.trim());
-      } else {
-        await deleteSetting(definition.apiKeySetting);
+        patch[definition.apiKeySetting] = parsed.data.apiKey.trim();
       }
+    } else if (parsed.data.clearApiKey) {
+      patch[definition.apiKeySetting] = null;
     }
     if (parsed.data.defaultModel !== undefined) {
-      if (parsed.data.defaultModel) {
-        await setSetting(definition.defaultModelSetting, parsed.data.defaultModel);
-      } else {
-        await deleteSetting(definition.defaultModelSetting);
-      }
+      patch[definition.defaultModelSetting] = parsed.data.defaultModel || null;
     }
     if (parsed.data.allowInsecureRemote !== undefined) {
-      await setSetting(
-        definition.allowInsecureRemoteSetting,
-        String(parsed.data.allowInsecureRemote)
+      patch[definition.allowInsecureRemoteSetting] = String(
+        parsed.data.allowInsecureRemote
       );
     }
+    await applySettingsPatch(patch);
     const { invalidateModelDiscoveryCache } = await import(
       "@/lib/chat/model-discovery"
     );

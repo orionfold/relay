@@ -4,10 +4,10 @@ version: "1.0.0"
 domain: work
 tags: [sensitive-data, local-only, donor-pii, confidential, ollama]
 supportedRuntimes: [ollama]
-# Local-only by design: sensitive-client work (donor PII, confidential
-# financials) never leaves the machine. Accept the quality trade-off; route
-# work needing frontier quality to a non-sensitive profile with the data
-# minimized first.
+# Intended for an operator-verified local Ollama endpoint. Runtime identity
+# alone does not guarantee locality; confirm the configured base URL and its
+# network path before processing sensitive material. Route work needing
+# frontier quality to a non-sensitive profile with the data minimized first.
 preferredRuntime: ollama
 allowedTools:
   - Read

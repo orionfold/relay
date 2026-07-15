@@ -8,6 +8,7 @@ import { getAuthSettings } from "./auth";
 import { getOpenAIAuthSettings } from "./openai-auth";
 import type { ApiKeySource, AuthMethod } from "@/lib/constants/settings";
 import { getOpenAICompatibleRuntimeConfig } from "@/lib/agents/runtime/openai-compatible";
+import { getOllamaRuntimeConfig } from "@/lib/agents/runtime/ollama-config";
 
 export type RuntimeBillingMode = "usage" | "subscription";
 export type RuntimeSetupMethod = AuthMethod | "none";
@@ -25,9 +26,10 @@ export interface RuntimeSetupState {
 export async function getRuntimeSetupStates(): Promise<
   Record<AgentRuntimeId, RuntimeSetupState>
 > {
-  const [claudeAuth, openAIAuth, liteLLM, lmStudio] = await Promise.all([
+  const [claudeAuth, openAIAuth, ollama, liteLLM, lmStudio] = await Promise.all([
     getAuthSettings(),
     getOpenAIAuthSettings(),
+    getOllamaRuntimeConfig().catch(() => null),
     getOpenAICompatibleRuntimeConfig("litellm").catch(() => null),
     getOpenAICompatibleRuntimeConfig("lmstudio").catch(() => null),
   ]);
@@ -96,9 +98,9 @@ export async function getRuntimeSetupStates(): Promise<
       label: getRuntimeCatalogEntry("ollama").label,
       providerId: "ollama",
       configured: true, // Ollama is always "configured" — availability checked at connection time
-      authMethod: "none",
-      apiKeySource: "unknown",
-      billingMode: "usage", // $0 usage
+      authMethod: ollama?.apiKey ? "api_key" : "none",
+      apiKeySource: ollama?.apiKeySource ?? "unknown",
+      billingMode: "usage",
     },
     litellm: {
       runtimeId: "litellm",

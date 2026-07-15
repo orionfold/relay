@@ -237,14 +237,12 @@ async function resolveTaskModel(
   }
 
   if (runtimeId === "ollama") {
-    const [baseUrl, defaultModel] = await Promise.all([
-      getSetting(SETTINGS_KEYS.OLLAMA_BASE_URL),
-      getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL),
-    ]);
+    const { getOllamaRuntimeConfig } = await import("./ollama-config");
+    const config = await getOllamaRuntimeConfig();
     const effectiveModelId = await resolveOllamaModel(
-      baseUrl || "http://localhost:11434",
+      config,
       requestedModelId,
-      defaultModel
+      config.defaultModel
     );
     return { requestedModelId, effectiveModelId };
   }

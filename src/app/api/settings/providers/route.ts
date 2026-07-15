@@ -8,6 +8,7 @@ import { getOpenAILoginState } from "@/lib/settings/openai-login-manager";
 import { getSetting } from "@/lib/settings/helpers";
 import { SETTINGS_KEYS } from "@/lib/constants/settings";
 import { testRuntimeConnection } from "@/lib/agents/runtime";
+import { getOllamaRuntimeConfig } from "@/lib/agents/runtime/ollama-config";
 
 const OLLAMA_PROBE_TTL_MS = 15_000;
 let ollamaProbeCache: { expiresAt: number; connected: boolean } | null = null;
@@ -33,8 +34,7 @@ export async function GET() {
     routingPreference,
     anthropicAuth,
     initialOpenaiAuth,
-    ollamaBaseRaw,
-    ollamaDefaultModelRaw,
+    ollamaConfig,
     anthropicDirectModelRaw,
     openaiDirectModelRaw,
     chatDefaultModelRaw,
@@ -42,8 +42,7 @@ export async function GET() {
     getRoutingPreference(),
     getAuthSettings(),
     getOpenAIAuthSettings(),
-    getSetting(SETTINGS_KEYS.OLLAMA_BASE_URL),
-    getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL),
+    getOllamaRuntimeConfig(),
     getSetting(SETTINGS_KEYS.ANTHROPIC_DIRECT_MODEL),
     getSetting(SETTINGS_KEYS.OPENAI_DIRECT_MODEL),
     getSetting("chat.defaultModel"),
@@ -86,8 +85,7 @@ export async function GET() {
   const anthropicDualBilling = anthropicHasOAuth && anthropicHasApiKey;
 
   const ollamaConnected = await getOllamaConnected();
-  const ollamaConfigured =
-    runtimeStates["ollama"].configured || !!ollamaBaseRaw || !!ollamaDefaultModelRaw;
+  const ollamaConfigured = runtimeStates["ollama"].configured;
 
   return NextResponse.json({
     providers: {
@@ -123,8 +121,11 @@ export async function GET() {
     ollama: {
       configured: ollamaConfigured,
       connected: ollamaConnected,
-      baseUrl: ollamaBaseRaw || "http://localhost:11434",
-      defaultModel: ollamaDefaultModelRaw || "",
+      baseUrl: ollamaConfig.baseUrl,
+      defaultModel: ollamaConfig.defaultModel || "",
+      hasApiKey: Boolean(ollamaConfig.apiKey),
+      apiKeySource: ollamaConfig.apiKeySource,
+      allowInsecureRemote: ollamaConfig.allowInsecureRemote,
     },
     compatibleRuntimes: [runtimeStates.litellm, runtimeStates.lmstudio],
     chatDefaultModel: chatDefaultModelRaw ?? null,

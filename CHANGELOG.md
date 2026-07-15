@@ -10,6 +10,11 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Added
 
+- **Ollama, LiteLLM, and LM Studio now share one truthful setup workflow.**
+  Settings consistently validates and saves before testing, redacts optional
+  credentials, discovers provider-reported model details, and presents Ollama
+  Pull, LM Studio Download, or LiteLLM gateway guidance according to the
+  provider's actual capabilities.
 - **Every Relay package now carries release-matched product knowledge.** A
   deterministic, incremental bundle compiles verified operator guides and API
   reference into versioned local entries and an index for bounded future Chat

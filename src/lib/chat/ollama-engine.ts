@@ -8,8 +8,6 @@
 import { db } from "@/lib/db";
 import { chatMessages, projects } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { getSetting } from "@/lib/settings/helpers";
-import { SETTINGS_KEYS } from "@/lib/constants/settings";
 import {
   getConversation,
   addMessage,
@@ -114,13 +112,17 @@ export async function* sendOllamaMessage(
       message: "Connecting to Ollama...",
     };
 
-    const baseUrl =
-      (await getSetting(SETTINGS_KEYS.OLLAMA_BASE_URL)) ||
-      "http://localhost:11434";
+    const { fetchOllama, getOllamaRuntimeConfig } = await import(
+      "@/lib/agents/runtime/ollama-config"
+    );
+    const config = await getOllamaRuntimeConfig();
     const requestedModel = conversation.modelId?.replace(/^ollama:/, "");
-    const defaultModel = await getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL);
     try {
-      modelId = await resolveOllamaModel(baseUrl, requestedModel, defaultModel);
+      modelId = await resolveOllamaModel(
+        config,
+        requestedModel,
+        config.defaultModel
+      );
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "No Ollama model configured";
@@ -183,7 +185,7 @@ export async function* sendOllamaMessage(
         })),
     ];
 
-    const response = await fetch(`${baseUrl}/api/chat`, {
+    const response = await fetchOllama(config, "/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

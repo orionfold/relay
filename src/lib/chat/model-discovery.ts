@@ -4,8 +4,6 @@ import { buildClaudeSdkEnv } from "@/lib/agents/runtime/claude-sdk";
 import { CHAT_MODELS, type ChatModelOption } from "./types";
 import { getLaunchCwd } from "@/lib/environment/workspace-context";
 import { listPulledOllamaModels } from "@/lib/agents/runtime/ollama-model-resolver";
-import { getSetting } from "@/lib/settings/helpers";
-import { SETTINGS_KEYS } from "@/lib/constants/settings";
 import {
   listOpenAICompatibleModels,
   type OpenAICompatibleRuntimeId,
@@ -77,7 +75,9 @@ function inferCost(modelId: string): string {
 
 /**
  * Enumerate the models pulled into the configured Ollama and expose them as
- * chat options (id `ollama:<name>`, provider `ollama`, cost Free).
+ * chat options (id `ollama:<name>`, provider `ollama`). Cost and locality are
+ * intentionally not inferred from the provider name because Ollama may point
+ * at a LAN server or its authenticated cloud API.
  *
  * Without this, `/api/chat/models` returned ONLY Anthropic + OpenAI models, so
  * a user whose only working provider is Ollama had NO Ollama model to pick in
@@ -93,16 +93,18 @@ function inferCost(modelId: string): string {
  */
 async function discoverOllamaModels(): Promise<ChatModelOption[]> {
   try {
-    const baseUrl =
-      (await getSetting(SETTINGS_KEYS.OLLAMA_BASE_URL)) ||
-      "http://localhost:11434";
-    const pulled = await listPulledOllamaModels(baseUrl);
+    const { getOllamaRuntimeConfig } = await import(
+      "@/lib/agents/runtime/ollama-config"
+    );
+    const pulled = await listPulledOllamaModels(
+      await getOllamaRuntimeConfig()
+    );
     return pulled.map((name) => ({
       id: `ollama:${name}`,
       label: name,
       provider: "ollama" as const,
-      tier: "Local",
-      costLabel: "Free",
+      tier: "Configured endpoint",
+      costLabel: "Cost varies",
     }));
   } catch {
     return [];

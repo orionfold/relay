@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { CRITICAL_API_ROUTE_CONTRACTS } from "@/test/critical-api-contracts";
 
 describe("G-070 critical API route inventory", () => {
-  it("contains exactly the bounded 12-contract tranche with unique route methods", () => {
+  it("contains the bounded critical contracts with unique route methods", () => {
     expect(CRITICAL_API_ROUTE_CONTRACTS.map((contract) => contract.id)).toEqual([
       "task-create",
       "task-execute",
@@ -18,8 +18,12 @@ describe("G-070 critical API route inventory", () => {
       "chat-message-stream",
       "chat-permission-respond",
       "ollama-runtime-probe",
+      "ollama-runtime-pull",
       "compatible-runtime-probe",
       "runtime-connection-test",
+      "compatible-runtime-download",
+      "ollama-settings-update",
+      "compatible-settings-update",
     ]);
 
     const routeMethods = CRITICAL_API_ROUTE_CONTRACTS.map(
@@ -45,13 +49,13 @@ describe("G-070 critical API route inventory", () => {
     }
   });
 
-  it("keeps every selected risk family represented without expanding the tranche", () => {
+  it("keeps every selected risk family represented", () => {
     const counts = Object.groupBy(
       CRITICAL_API_ROUTE_CONTRACTS,
       (contract) => contract.family
     );
     expect(Object.fromEntries(
       Object.entries(counts).map(([family, contracts]) => [family, contracts?.length])
-    )).toEqual({ task: 4, workflow: 1, schedule: 2, chat: 2, runtime: 3 });
+    )).toEqual({ task: 4, workflow: 1, schedule: 2, chat: 2, runtime: 7 });
   });
 });

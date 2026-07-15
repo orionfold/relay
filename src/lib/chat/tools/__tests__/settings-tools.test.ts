@@ -236,6 +236,17 @@ describe("set_settings", () => {
       expect(isError).toBe(true);
     });
 
+    it("rejects remote Ollama HTTP because chat cannot grant transport consent", async () => {
+      const { data, isError } = parse(
+        await call("set_settings", {
+          key: "ollama.baseUrl",
+          value: "http://ollama.lan:11434",
+        })
+      );
+      expect(isError).toBe(true);
+      expect(data.error).toMatch(/Allow insecure remote HTTP/i);
+    });
+
     it("rejects budget_max_cost_per_task below 0.5", async () => {
       const { isError } = parse(
         await call("set_settings", { key: "budget_max_cost_per_task", value: "0.1" })

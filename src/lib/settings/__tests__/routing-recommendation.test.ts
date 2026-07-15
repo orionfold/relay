@@ -16,7 +16,11 @@ const chatQualityAnthropic = CHAT_MODELS.find((m) => m.provider === "anthropic" 
 
 describe("recommendForRouting", () => {
   const ollamaOff = { ollamaAvailable: false };
-  const ollamaOn = { ollamaAvailable: true, ollamaDefaultModel: "llama3" };
+  const ollamaOn = {
+    ollamaAvailable: true,
+    ollamaDefaultModel: "llama3",
+    ollamaNoUsageCostConfirmed: true,
+  };
 
   it("Manual returns null regardless of Ollama state", () => {
     expect(recommendForRouting("manual", ollamaOff)).toBeNull();
@@ -53,8 +57,20 @@ describe("recommendForRouting", () => {
     expect(rec.openai.model).toBe(openaiDirectFast);
   });
 
+  it("does not infer zero cost from a reachable Ollama endpoint", () => {
+    const rec = recommendForRouting("cost", {
+      ollamaAvailable: true,
+      ollamaDefaultModel: "cloud-model",
+    })!;
+    expect(rec.useOllama).toBe(false);
+    expect(rec.ollamaModel).toBeUndefined();
+  });
+
   it("Cost falls back to catalog's Ollama default when ollamaDefaultModel is missing", () => {
-    const rec = recommendForRouting("cost", { ollamaAvailable: true })!;
+    const rec = recommendForRouting("cost", {
+      ollamaAvailable: true,
+      ollamaNoUsageCostConfirmed: true,
+    })!;
     expect(rec.ollamaModel).toBe(ollamaDefault);
   });
 

@@ -64,9 +64,9 @@ const STATIC_OPTIONS: readonly PreferenceOption[] = [
   },
   {
     id: "privacy",
-    label: "Best privacy (local only)",
+    label: "Privacy-focused (verify endpoint)",
     capabilityNote:
-      "Runs on your own computer with Ollama. Nothing leaves your machine. It skips cloud tools and holds less at once.",
+      "Uses your configured Ollama endpoint. Choose a local endpoint and verify its network path before relying on it for sensitive data.",
     recommendedModel: "", // resolved against the Ollama discovery list at submit time
     icon: Lock,
   },
@@ -168,7 +168,7 @@ export function RuntimePreferenceModal({
       return {
         modelId: BALANCED_FALLBACK_MODEL,
         fallbackNote:
-          "We could not find a local model. We will use the balanced model for now. To use your own, point Relay at Ollama in Settings.",
+          "We could not find an Ollama model. We will use the balanced model for now. Configure and verify your Ollama endpoint in Settings to use your own.",
       };
     }
     return {

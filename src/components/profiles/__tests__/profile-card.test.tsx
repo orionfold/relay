@@ -32,7 +32,7 @@ describe("ProfileCard runtime-coverage chips", () => {
     expect(screen.getByText("Anthropic")).toBeInTheDocument();
     expect(screen.getByText("OpenAI")).toBeInTheDocument();
     // The $0-local differentiator must NOT read "Claude".
-    expect(screen.getByText("Ollama (Local)")).toBeInTheDocument();
+    expect(screen.getByText("Ollama")).toBeInTheDocument();
 
     // Regression guard: exactly one "Claude" chip (the old ternary produced four).
     expect(screen.getAllByText("Claude")).toHaveLength(1);
@@ -46,7 +46,7 @@ describe("ProfileCard runtime-coverage chips", () => {
       />
     );
 
-    expect(screen.getByText("Ollama (Local)")).toBeInTheDocument();
+    expect(screen.getByText("Ollama")).toBeInTheDocument();
     expect(screen.queryByText("Claude")).not.toBeInTheDocument();
   });
 });

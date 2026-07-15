@@ -25,14 +25,14 @@ interface ProfileCardProps {
  * Keyed by runtime id, NOT provider: claude-code vs anthropic-direct share a
  * provider, as do openai-codex vs openai-direct, so a provider-based (or the old
  * `label.includes("Codex")`) heuristic collapses distinct runtimes — notably
- * Ollama, the $0-local differentiator, which used to render as "Claude".
+ * Ollama, which used to render as "Claude".
  */
 const RUNTIME_SHORT_LABEL: Record<AgentRuntimeId, string> = {
   "claude-code": "Claude",
   "openai-codex-app-server": "Codex",
   "anthropic-direct": "Anthropic",
   "openai-direct": "OpenAI",
-  ollama: "Ollama (Local)",
+  ollama: "Ollama",
   litellm: "LiteLLM",
   lmstudio: "LM Studio",
 };

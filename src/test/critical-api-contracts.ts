@@ -5,7 +5,7 @@ export type CriticalApiFamily =
   | "schedule"
   | "chat"
   | "runtime";
-export type CriticalApiMethod = "GET" | "POST" | "PATCH";
+export type CriticalApiMethod = "GET" | "POST" | "PUT" | "PATCH";
 
 export interface CriticalApiRouteContract {
   id: string;
@@ -152,6 +152,18 @@ export const CRITICAL_API_ROUTE_CONTRACTS = [
     guards: ["src/app/api/runtimes/ollama/__tests__/route.test.ts"],
   },
   {
+    id: "ollama-runtime-pull",
+    family: "runtime",
+    routeFile: "src/app/api/runtimes/ollama/route.ts",
+    method: "POST",
+    risk: "tier-1",
+    mutationOrSideEffect: "Pull one model through the configured Ollama endpoint",
+    validationBoundary: "strict action/model body plus configured endpoint policy",
+    persistenceOrDispatchBoundary: "authenticated upstream pull and discovery-cache invalidation",
+    terminalOutcomes: ["200 completed", "400 invalid_input", "502 upstream_or_transport"],
+    guards: ["src/app/api/runtimes/ollama/__tests__/route.test.ts"],
+  },
+  {
     id: "compatible-runtime-probe",
     family: "runtime",
     routeFile: "src/app/api/runtimes/openai-compatible/[runtimeId]/route.ts",
@@ -176,5 +188,45 @@ export const CRITICAL_API_ROUTE_CONTRACTS = [
     persistenceOrDispatchBoundary: "testRuntimeConnection adapter",
     terminalOutcomes: ["200 connected_or_readable_failure", "400 invalid_json_or_shape"],
     guards: ["src/app/api/settings/test/__tests__/route.test.ts"],
+  },
+  {
+    id: "compatible-runtime-download",
+    family: "runtime",
+    routeFile: "src/app/api/runtimes/openai-compatible/[runtimeId]/route.ts",
+    method: "POST",
+    risk: "tier-1",
+    mutationOrSideEffect: "Start one LM Studio model download",
+    validationBoundary: "runtime allow-list plus strict action/model body",
+    persistenceOrDispatchBoundary: "authenticated LM Studio management request",
+    terminalOutcomes: ["200 download_status", "400 unsupported_or_invalid", "502 upstream"],
+    guards: [
+      "src/app/api/runtimes/openai-compatible/[runtimeId]/__tests__/route.test.ts",
+    ],
+  },
+  {
+    id: "ollama-settings-update",
+    family: "runtime",
+    routeFile: "src/app/api/settings/ollama/route.ts",
+    method: "PUT",
+    risk: "tier-1",
+    mutationOrSideEffect: "Persist redacted Ollama endpoint, model, consent, and optional credential",
+    validationBoundary: "strict Zod body plus effective endpoint security policy before writes",
+    persistenceOrDispatchBoundary: "settings SQLite rows and discovery-cache invalidation",
+    terminalOutcomes: ["200 redacted_settings", "400 invalid_or_insecure", "500 persistence"],
+    guards: ["src/app/api/settings/ollama/__tests__/route.test.ts"],
+  },
+  {
+    id: "compatible-settings-update",
+    family: "runtime",
+    routeFile: "src/app/api/settings/openai-compatible/[runtimeId]/route.ts",
+    method: "PUT",
+    risk: "tier-1",
+    mutationOrSideEffect: "Persist one compatible runtime endpoint, model, consent, and optional credential",
+    validationBoundary: "runtime allow-list, strict body, effective endpoint policy before writes",
+    persistenceOrDispatchBoundary: "settings SQLite rows and discovery-cache invalidation",
+    terminalOutcomes: ["200 redacted_settings", "400 invalid_or_insecure", "404 runtime"],
+    guards: [
+      "src/app/api/settings/openai-compatible/[runtimeId]/__tests__/route.test.ts",
+    ],
   },
 ] as const satisfies readonly CriticalApiRouteContract[];

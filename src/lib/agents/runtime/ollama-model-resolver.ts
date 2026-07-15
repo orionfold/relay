@@ -1,9 +1,10 @@
 /**
- * Ollama model resolution — import-free leaf.
+ * Ollama model resolution — registry-independent leaf.
  *
  * Shared by the task adapter (`ollama-adapter.ts`, runtime-registry-reachable)
- * and the chat engine (`ollama-engine.ts`). Kept dependency-free (only `fetch`)
- * so it can never introduce a module-load cycle into the runtime catalog graph
+ * and the chat engine (`ollama-engine.ts`). It depends only on the import-free
+ * provider endpoint policy, never settings, Chat tools, or the runtime catalog,
+ * so it cannot introduce a module-load cycle into the registry graph
  * (see memory `shared-constant-zero-import-leaf` + the smoke-test budget rule).
  *
  * Fixes issue #25: a fresh install has no `OLLAMA_DEFAULT_MODEL` setting, so the
@@ -12,9 +13,14 @@
  * fail with a named, actionable error.
  */
 
+import {
+  buildProviderRequestInit,
+  joinProviderPath,
+} from "./provider-endpoint";
+
 /**
  * Raised when no Ollama model can be resolved — no explicit/default model is
- * set and the local Ollama has no models pulled. Named so callers surface an
+ * set and the configured Ollama has no models available. Named so callers surface an
  * actionable message instead of a raw 404 on a phantom model (CLAUDE.md #1/#2).
  */
 export class OllamaModelNotConfiguredError extends Error {
@@ -31,12 +37,27 @@ interface OllamaTagsResponse {
   models?: Array<{ name?: string }>;
 }
 
-/** List the models currently pulled into the local Ollama, newest-first order as returned. */
-export async function listPulledOllamaModels(baseUrl: string): Promise<string[]> {
+export interface OllamaModelEndpoint {
+  baseUrl: string;
+  apiKey: string | null;
+}
+
+function toEndpoint(endpoint: string | OllamaModelEndpoint): OllamaModelEndpoint {
+  return typeof endpoint === "string"
+    ? { baseUrl: endpoint, apiKey: null }
+    : endpoint;
+}
+
+/** List models available from the configured Ollama, in server-returned order. */
+export async function listPulledOllamaModels(
+  endpointInput: string | OllamaModelEndpoint
+): Promise<string[]> {
   try {
-    const response = await fetch(`${baseUrl}/api/tags`, {
-      signal: AbortSignal.timeout(5000),
-    });
+    const endpoint = toEndpoint(endpointInput);
+    const response = await fetch(
+      joinProviderPath(endpoint.baseUrl, "/api/tags"),
+      buildProviderRequestInit(endpoint.apiKey, {}, 5_000)
+    );
     if (!response.ok) return [];
     const data = (await response.json()) as OllamaTagsResponse;
     return (data.models ?? [])
@@ -57,19 +78,19 @@ export async function listPulledOllamaModels(baseUrl: string): Promise<string[]>
  * {@link OllamaModelNotConfiguredError} rather than returning a phantom that
  * would 404 at call time.
  *
- * @param baseUrl        Ollama base URL.
+ * @param endpoint       Normalized Ollama endpoint and optional API key.
  * @param requestedModel A caller-pinned model (e.g. chat's `ollama:` selection). Optional.
  * @param defaultModel   The `OLLAMA_DEFAULT_MODEL` setting value. Optional/empty on fresh install.
  */
 export async function resolveOllamaModel(
-  baseUrl: string,
+  endpoint: string | OllamaModelEndpoint,
   requestedModel?: string | null,
   defaultModel?: string | null,
 ): Promise<string> {
   const explicit = requestedModel?.trim() || defaultModel?.trim();
   if (explicit) return explicit;
 
-  const pulled = await listPulledOllamaModels(baseUrl);
+  const pulled = await listPulledOllamaModels(endpoint);
   if (pulled.length > 0) return pulled[0];
 
   throw new OllamaModelNotConfiguredError();

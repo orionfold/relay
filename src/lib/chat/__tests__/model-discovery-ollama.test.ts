@@ -28,7 +28,8 @@ vi.mock("@/lib/agents/runtime/ollama-model-resolver", () => ({
   listPulledOllamaModels: (...args: unknown[]) => mockListPulled(...(args as [])),
 }));
 vi.mock("@/lib/settings/helpers", () => ({
-  getSetting: async () => "http://remote-ollama:11434",
+  getSetting: async (key: string) =>
+    key === "ollama.baseUrl" ? "http://localhost:11434" : null,
 }));
 
 describe("discoverModels — Ollama enumeration (#50)", () => {
@@ -42,7 +43,7 @@ describe("discoverModels — Ollama enumeration (#50)", () => {
     vi.clearAllMocks();
   });
 
-  it("exposes pulled Ollama models as `ollama:`-prefixed, Free chat options", async () => {
+  it("exposes pulled Ollama models without inferring cost or locality", async () => {
     mockListPulled.mockResolvedValue(["qwen2.5:latest", "llama3"]);
     const { discoverModels } = await import("../model-discovery");
 
@@ -53,7 +54,8 @@ describe("discoverModels — Ollama enumeration (#50)", () => {
       "ollama:qwen2.5:latest",
       "ollama:llama3",
     ]);
-    expect(ollama.every((m) => m.costLabel === "Free")).toBe(true);
+    expect(ollama.every((m) => m.costLabel === "Cost varies")).toBe(true);
+    expect(ollama.every((m) => m.tier === "Configured endpoint")).toBe(true);
     expect(ollama[0].label).toBe("qwen2.5:latest");
   });
 

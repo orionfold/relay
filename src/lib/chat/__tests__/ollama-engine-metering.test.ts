@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
 
-// Every chat turn must land in usage_ledger — including $0 local Ollama turns,
+// Every chat turn must land in usage_ledger — including Ollama turns,
 // which are exactly the rows that prove blended-cost savings on /costs
 // (fix-chat-spend-metering-diagnose root cause (a): sendOllamaMessage routed
 // around the main engine's ledger writes and metered nothing).
@@ -51,7 +51,7 @@ async function drain(gen: AsyncGenerator<unknown>) {
 }
 
 describe("sendOllamaMessage metering", () => {
-  it("writes a completed $0 chat_turn ledger row with Ollama's token counts", async () => {
+  it("writes an unknown-pricing chat_turn ledger row with Ollama's token counts", async () => {
     const { createConversation } = await import("@/lib/data/chat");
     const { sendOllamaMessage } = await import("../ollama-engine");
     const { db } = await import("@/lib/db");
@@ -88,11 +88,11 @@ describe("sendOllamaMessage metering", () => {
         activityType: "chat_turn",
         runtimeId: "ollama",
         providerId: "ollama",
-        status: "completed",
+        status: "unknown_pricing",
         inputTokens: 42,
         outputTokens: 7,
         totalTokens: 49,
-        costMicros: 0,
+        costMicros: null,
       }),
     );
     expect(rows[0]?.modelId).toBeTruthy();

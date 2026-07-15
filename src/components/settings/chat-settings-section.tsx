@@ -47,7 +47,7 @@ const MODEL_PREFERENCE_OPTIONS: Array<{
   {
     value: "privacy",
     label: "Best privacy",
-    hint: "Local-only via Ollama. No cloud calls.",
+    hint: "Use Ollama after verifying that its configured endpoint meets your privacy requirements.",
   },
 ];
 
@@ -85,8 +85,8 @@ export function ChatSettingsSection() {
             id: `ollama:${m.name}`,
             label: m.name.replace(/:latest$/, ""),
             provider: "ollama" as const,
-            tier: "Local",
-            costLabel: "Free",
+            tier: "Configured endpoint",
+            costLabel: "Cost varies",
           }))
         );
       })
@@ -211,7 +211,7 @@ export function ChatSettingsSection() {
               )}
               {ollamaModels.length > 0 && (
                 <SelectGroup>
-                  <SelectLabel>Ollama (Local)</SelectLabel>
+                  <SelectLabel>Ollama</SelectLabel>
                   {ollamaModels.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
                       {m.label} — {m.tier} ({m.costLabel})

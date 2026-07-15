@@ -33,7 +33,7 @@ describe("POST /api/chat/conversations — runtime allow-list (#30)", () => {
   });
 
   // The regression this guards: "ollama" was omitted from validRuntimes, so the
-  // "Best privacy (local only)" tier 400'd on its first chat/compose. engine.ts
+  // The privacy-focused Ollama tier 400'd on its first chat/compose. engine.ts
   // routes "ollama" to sendOllamaMessage, so the runtime is first-class — the
   // create route must accept it.
   it("accepts runtimeId=ollama (Best-privacy local tier) with 201", async () => {

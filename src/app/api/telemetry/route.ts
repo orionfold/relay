@@ -25,7 +25,7 @@ import type { TelemetrySnapshot } from "@/components/shell/telemetry-types";
 export const dynamic = "force-dynamic";
 
 // Map each provider to the SDK package whose installed version we surface in the
-// RUNTIME cell. Direct-API runtimes (anthropic/openai) and the local Ollama
+// RUNTIME cell. Direct-API runtimes (anthropic/openai) and configured Ollama
 // runtime have no first-party agent SDK we version here → null sub-line.
 const SDK_PACKAGE_BY_PROVIDER: Record<string, string | null> = {
   anthropic: "@anthropic-ai/claude-agent-sdk",

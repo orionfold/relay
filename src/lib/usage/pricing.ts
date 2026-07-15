@@ -15,11 +15,11 @@ export async function deriveUsageCostMicros(input: {
     return { costMicros: null, pricingVersion: null };
   }
 
-  // Local inference has no per-token billing: a known-free $0, not unknown
-  // pricing. The $0 rows are the evidence for the blended-cost savings story —
-  // null here would demote every local run to "unknown_pricing" and hide them.
+  // Ollama may be local, LAN-hosted, or the authenticated cloud API. Provider
+  // identity is not enough evidence for a zero price, so retain unknown pricing
+  // until the endpoint reports cost or Relay gains an operator-owned tariff.
   if (input.providerId === "ollama") {
-    return { costMicros: 0, pricingVersion: "local-free" };
+    return { costMicros: null, pricingVersion: null };
   }
 
   if (input.providerId !== "anthropic" && input.providerId !== "openai") {

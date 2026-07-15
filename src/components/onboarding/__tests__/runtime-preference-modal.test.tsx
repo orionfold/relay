@@ -32,12 +32,12 @@ describe("RuntimePreferenceModal", () => {
     expect(screen.getByText("Best quality")).toBeTruthy();
     expect(screen.getByText("Balanced (recommended)")).toBeTruthy();
     expect(screen.getByText("Lowest cost")).toBeTruthy();
-    expect(screen.getByText("Best privacy (local only)")).toBeTruthy();
+    expect(screen.getByText("Privacy-focused (verify endpoint)")).toBeTruthy();
     expect(
       screen.getByText(/Our smartest model \(Opus\)/i)
     ).toBeTruthy();
     expect(
-      screen.getByText(/Runs on your own computer with Ollama/i)
+      screen.getByText(/Uses your configured Ollama endpoint/i)
     ).toBeTruthy();
   });
 
@@ -111,7 +111,7 @@ describe("RuntimePreferenceModal", () => {
     ]);
     setup({ persistChoice, fetchOllamaModels });
 
-    fireEvent.click(screen.getByLabelText(/Best privacy/i));
+    fireEvent.click(screen.getByLabelText(/Privacy-focused/i));
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
     await waitFor(() => {
@@ -202,7 +202,7 @@ describe("RuntimePreferenceModal", () => {
     const onClose = vi.fn();
     setup({ persistChoice, fetchOllamaModels, onClose });
 
-    fireEvent.click(screen.getByLabelText(/Best privacy/i));
+    fireEvent.click(screen.getByLabelText(/Privacy-focused/i));
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
     // Persists user's stated privacy preference paired with the balanced
@@ -216,7 +216,7 @@ describe("RuntimePreferenceModal", () => {
     });
 
     expect(
-      await screen.findByText(/We could not find a local model/i)
+      await screen.findByText(/We could not find an Ollama model/i)
     ).toBeTruthy();
     expect(onClose).not.toHaveBeenCalled();
 

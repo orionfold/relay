@@ -4,7 +4,8 @@
  * Pure function that maps a RoutingPreference to a per-provider recommendation
  * (auth method + default model) plus a chat-default model. Used by the Settings
  * UI cascade to configure both Anthropic and OpenAI in one click, with optional
- * Ollama preference for Cost when Ollama is locally available.
+ * optional Ollama preference for Cost only when the operator has explicitly
+ * confirmed that the endpoint has no usage charge.
  *
  * All model IDs are resolved from the runtime catalog at call time — the catalog
  * owns the model inventory, so rotating a model ID there automatically flows
@@ -35,6 +36,7 @@ export interface RoutingRecommendation {
 export interface RoutingContext {
   ollamaAvailable: boolean;
   ollamaDefaultModel?: string;
+  ollamaNoUsageCostConfirmed?: boolean;
 }
 
 type Tier = "fast" | "balanced" | "quality";
@@ -83,7 +85,8 @@ export function recommendForRouting(
   }
 
   // Latency and Cost both favour direct APIs with the fastest/cheapest model.
-  // Cost additionally surfaces Ollama when locally available.
+  // Cost may surface Ollama only with explicit operator confirmation; provider
+  // identity and mere reachability do not prove that an endpoint is free.
   const base: RoutingRecommendation = {
     anthropic: {
       auth: "api_key",
@@ -99,7 +102,11 @@ export function recommendForRouting(
     useOllama: false,
   };
 
-  if (pref === "cost" && ctx.ollamaAvailable) {
+  if (
+    pref === "cost" &&
+    ctx.ollamaAvailable &&
+    ctx.ollamaNoUsageCostConfirmed === true
+  ) {
     return {
       ...base,
       useOllama: true,

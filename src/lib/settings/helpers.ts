@@ -33,6 +33,34 @@ export async function deleteSetting(key: string): Promise<void> {
   await db.delete(settings).where(eq(settings.key, key));
 }
 
+/**
+ * Apply a related group of setting upserts/deletes in one SQLite transaction.
+ * A null value deletes the key. Use this for multi-field forms so a storage
+ * error cannot leave a partially updated provider configuration behind.
+ */
+export async function applySettingsPatch(
+  patch: Readonly<Record<string, string | null>>
+): Promise<void> {
+  const entries = Object.entries(patch);
+  if (entries.length === 0) return;
+  const now = new Date();
+  db.transaction((tx) => {
+    for (const [key, value] of entries) {
+      if (value === null) {
+        tx.delete(settings).where(eq(settings.key, key)).run();
+      } else {
+        tx.insert(settings)
+          .values({ key, value, updatedAt: now })
+          .onConflictDoUpdate({
+            target: settings.key,
+            set: { value, updatedAt: now },
+          })
+          .run();
+      }
+    }
+  });
+}
+
 // ---------------------------------------------------------------------------
 // TDR-037 plugin trust model setting
 // ---------------------------------------------------------------------------
@@ -92,7 +120,7 @@ export async function setPluginTrustModel(
  *
  * - "quality"  — best output (e.g. Opus / GPT-5.4)
  * - "cost"     — cheapest cloud (e.g. Haiku / GPT-5.4 Mini)
- * - "privacy"  — local-only (Ollama)
+ * - "privacy"  — operator-verified privacy-focused Ollama endpoint
  * - "balanced" — default middle path (Sonnet)
  *
  * Settings key: `chat.modelPreference`. A null value (skipped onboarding or

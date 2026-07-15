@@ -21,19 +21,13 @@ import type {
 import type { TaskAssistResponse } from "./task-assist-types";
 import { getProfile, listProfiles } from "../profiles/registry";
 import { recordUsageLedgerEntry, resolveUsageActivityType } from "@/lib/usage/ledger";
-
-// ── Constants ───────────────────────────────────────────────────────
-
-const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
+import {
+  fetchOllama,
+  getOllamaRuntimeConfig,
+  type OllamaRuntimeConfig,
+} from "./ollama-config";
 
 // ── Settings helpers ────────────────────────────────────────────────
-
-async function getOllamaBaseUrl(): Promise<string> {
-  const { getSetting } = await import("@/lib/settings/helpers");
-  const { SETTINGS_KEYS } = await import("@/lib/constants/settings");
-  const url = await getSetting(SETTINGS_KEYS.OLLAMA_BASE_URL);
-  return url || DEFAULT_OLLAMA_BASE_URL;
-}
 
 /**
  * Resolve the effective Ollama model for a task. Uses the configured default,
@@ -41,13 +35,10 @@ async function getOllamaBaseUrl(): Promise<string> {
  * old hardcoded `llama3.2` phantom (issue #25).
  */
 async function getOllamaModel(
-  baseUrl: string,
+  config: OllamaRuntimeConfig,
   requestedModel?: string | null,
 ): Promise<string> {
-  const { getSetting } = await import("@/lib/settings/helpers");
-  const { SETTINGS_KEYS } = await import("@/lib/constants/settings");
-  const defaultModel = await getSetting(SETTINGS_KEYS.OLLAMA_DEFAULT_MODEL);
-  return resolveOllamaModel(baseUrl, requestedModel, defaultModel);
+  return resolveOllamaModel(config, requestedModel, config.defaultModel);
 }
 
 // ── NDJSON streaming chat ───────────────────────────────────────────
@@ -66,12 +57,12 @@ interface OllamaChatResponse {
 }
 
 async function streamOllamaChat(
-  baseUrl: string,
+  config: OllamaRuntimeConfig,
   model: string,
   messages: OllamaChatMessage[],
   signal?: AbortSignal,
 ): Promise<{ text: string; promptTokens: number; completionTokens: number }> {
-  const response = await fetch(`${baseUrl}/api/chat`, {
+  const response = await fetchOllama(config, "/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -141,11 +132,11 @@ async function streamOllamaChat(
 
 /** Non-streaming chat for task assist (simpler) */
 async function callOllamaChat(
-  baseUrl: string,
+  config: OllamaRuntimeConfig,
   model: string,
   messages: OllamaChatMessage[],
 ): Promise<{ text: string; promptTokens: number; completionTokens: number }> {
-  const response = await fetch(`${baseUrl}/api/chat`, {
+  const response = await fetchOllama(config, "/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -193,8 +184,8 @@ async function executeOllamaTask(taskId: string): Promise<void> {
       .where(eq(tasks.id, taskId));
 
     const ctx = await buildTaskQueryContext(task, agentProfileId);
-    const baseUrl = await getOllamaBaseUrl();
-    const modelId = await getOllamaModel(baseUrl, task.effectiveModelId);
+    const config = await getOllamaRuntimeConfig();
+    const modelId = await getOllamaModel(config, task.effectiveModelId);
 
     // Build messages
     const messages: OllamaChatMessage[] = [];
@@ -212,14 +203,14 @@ async function executeOllamaTask(taskId: string): Promise<void> {
       payload: JSON.stringify({
         runtime: "ollama",
         model: modelId,
-        baseUrl,
+        endpoint: new URL(config.baseUrl).hostname,
       }),
       timestamp: new Date(),
     });
 
     // Stream the response
     const result = await streamOllamaChat(
-      baseUrl,
+      config,
       modelId,
       messages,
       abortController.signal,
@@ -314,8 +305,8 @@ async function executeOllamaTask(taskId: string): Promise<void> {
 // ── Task Assist ─────────────────────────────────────────────────────
 
 async function runOllamaTaskAssist(input: TaskAssistInput): Promise<TaskAssistResponse> {
-  const baseUrl = await getOllamaBaseUrl();
-  const modelId = await getOllamaModel(baseUrl);
+  const config = await getOllamaRuntimeConfig();
+  const modelId = await getOllamaModel(config);
 
   const profileIds = listProfiles().map((p) => p.id);
   const profileList = profileIds.length > 0
@@ -337,7 +328,7 @@ ${profileList}`;
     input.description ? `Description: ${input.description}` : "",
   ].filter(Boolean).join("\n");
 
-  const { text } = await callOllamaChat(baseUrl, modelId, [
+  const { text } = await callOllamaChat(config, modelId, [
     { role: "system", content: systemPrompt },
     { role: "user", content: userContent || "Analyze this task" },
   ]);
@@ -360,10 +351,8 @@ ${profileList}`;
 
 async function testOllamaConnection(): Promise<RuntimeConnectionResult> {
   try {
-    const baseUrl = await getOllamaBaseUrl();
-    const response = await fetch(`${baseUrl}/api/tags`, {
-      signal: AbortSignal.timeout(5000),
-    });
+    const config = await getOllamaRuntimeConfig();
+    const response = await fetchOllama(config, "/api/tags", {}, 5_000);
 
     if (!response.ok) {
       return {
