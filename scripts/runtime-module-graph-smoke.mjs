@@ -372,7 +372,6 @@ try {
     "next.config.mjs",
     "package.json",
     "tsconfig.json",
-    "next-env.d.ts",
   ]) {
     copyFileSync(join(repoRoot, file), join(projectRoot, file));
   }

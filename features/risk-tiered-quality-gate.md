@@ -119,6 +119,8 @@ controls retain their own bounded cleanup behavior.
       test-audit validation are always required.
 - [x] A clean checkout builds the bundled CLI before default coverage executes
       the CLI environment integration tests.
+- [x] Isolated runtime and mutation harnesses construct their projects only
+      from tracked inputs and do not require ignored Next-generated files.
 - [x] Path tests prove the runtime lane is always-on and harness, mutation, and
       Pack-compatibility lanes cannot be bypassed by any mapped production,
       test, policy, or workflow change; release and merge profiles include all.

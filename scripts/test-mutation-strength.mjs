@@ -252,7 +252,7 @@ function prepareProject() {
   cpSync(join(repoRoot, "src"), join(projectRoot, "src"), {
     recursive: true,
   });
-  for (const file of ["package.json", "tsconfig.json", "next-env.d.ts"]) {
+  for (const file of ["package.json", "tsconfig.json"]) {
     copyFileSync(join(repoRoot, file), join(projectRoot, file));
   }
   mkdirSync(join(projectRoot, "scripts"));

@@ -203,6 +203,10 @@ the check is merge-required until read-only inspection confirms the live rule.
   inherited database sentinel, proves that directory remains byte-for-byte
   unchanged, and confirms the marked harness root is removed after workers
   exit.
+- Isolated runtime and mutation projects copy only tracked source and
+  configuration. They must not depend on ignored, tool-generated files such as
+  `next-env.d.ts`; the tool that owns such a file may generate it inside the
+  disposable project when needed.
 - Tests must pass alone, in the normal order, and under at least one fixed
   shuffled seed before they are considered order-independent.
 - Real concurrency claims require competing connections/processes or a barrier;

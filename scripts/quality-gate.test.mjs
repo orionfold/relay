@@ -58,6 +58,16 @@ test("CLI integration artifact is built before default coverage in every profile
   assert.equal(RELEASE_ONLY_LANES.includes("build-cli"), false);
 });
 
+test("isolated quality harnesses depend only on tracked project inputs", () => {
+  for (const path of [
+    "scripts/runtime-module-graph-smoke.mjs",
+    "scripts/test-mutation-strength.mjs",
+  ]) {
+    const source = readFileSync(resolve(repoRoot, path), "utf8");
+    assert.doesNotMatch(source, /next-env\.d\.ts/, path);
+  }
+});
+
 test("runtime graph smoke is always-on for transitive dependencies", () => {
   const plan = planQualityGate({
     profile: "pr",
