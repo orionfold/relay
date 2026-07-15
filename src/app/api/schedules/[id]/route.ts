@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db";
 import { schedules, tasks } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
@@ -18,6 +19,29 @@ import {
   listScheduleReceipts,
 } from "@/lib/operations/receipts";
 import { getScheduleBudgetSnapshot } from "@/lib/schedules/budget-policies";
+
+const schedulePatchSchema = z.object({
+  status: z.string().optional(),
+  name: z.string().optional(),
+  prompt: z.string().optional(),
+  interval: z.string().optional(),
+  assignedAgent: z.string().optional(),
+  agentProfile: z.string().optional(),
+  heartbeatChecklist: z
+    .array(
+      z.object({
+        id: z.string(),
+        instruction: z.string(),
+        priority: z.string(),
+      })
+    )
+    .optional(),
+  activeHoursStart: z.number().int().min(0).max(23).nullable().optional(),
+  activeHoursEnd: z.number().int().min(0).max(23).nullable().optional(),
+  activeTimezone: z.string().optional(),
+  heartbeatBudgetPerDay: z.number().nonnegative().nullable().optional(),
+  successCriteria: z.unknown().optional(),
+}).strict();
 
 export async function GET(
   _req: NextRequest,
@@ -86,26 +110,25 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const body = await req.json();
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  const parsed = schedulePatchSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid schedule update", issues: parsed.error.flatten() },
+      { status: 400 }
+    );
+  }
   const {
     status, name, prompt, interval, assignedAgent, agentProfile,
     heartbeatChecklist, activeHoursStart, activeHoursEnd, activeTimezone,
     heartbeatBudgetPerDay,
     successCriteria,
-  } = body as {
-    status?: string;
-    name?: string;
-    prompt?: string;
-    interval?: string;
-    assignedAgent?: string;
-    agentProfile?: string;
-    heartbeatChecklist?: Array<{ id: string; instruction: string; priority: string }>;
-    activeHoursStart?: number | null;
-    activeHoursEnd?: number | null;
-    activeTimezone?: string;
-    heartbeatBudgetPerDay?: number | null;
-    successCriteria?: unknown;
-  };
+  } = parsed.data;
 
   const [schedule] = await db
     .select()

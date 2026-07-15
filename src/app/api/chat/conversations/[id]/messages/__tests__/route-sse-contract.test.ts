@@ -67,6 +67,30 @@ afterAll(() => {
 });
 
 describe("Chat route SSE contract", () => {
+  it("rejects malformed JSON before engine dispatch", async () => {
+    const conversation = await createConversation({ runtimeId: "claude-code" });
+    const response = await POST(
+      new NextRequest(
+        `http://relay.test/api/chat/conversations/${conversation.id}/messages`,
+        { method: "POST", body: "{" }
+      ),
+      { params: Promise.resolve({ id: conversation.id }) }
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "Invalid JSON body" });
+    expect(sendMessageMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 404 for a missing conversation without engine dispatch", async () => {
+    const response = await POST(request("missing"), {
+      params: Promise.resolve({ id: "missing" }),
+    });
+
+    expect(response.status).toBe(404);
+    expect(sendMessageMock).not.toHaveBeenCalled();
+  });
+
   it("streams deltas and stops after the first successful terminal", async () => {
     sendMessageMock.mockImplementation(() =>
       events([

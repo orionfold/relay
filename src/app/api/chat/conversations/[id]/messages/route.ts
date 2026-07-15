@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getConversation, getMessages } from "@/lib/data/chat";
 import { sendMessage } from "@/lib/chat/engine";
 import { recordTermination } from "@/lib/chat/stream-telemetry";
+import type { MentionReference } from "@/lib/chat/context-builder";
 
 /**
  * GET /api/chat/conversations/[id]/messages?after=xxx&limit=100
@@ -39,14 +40,45 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const body = await req.json();
-  const { content, mentions } = body;
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json(
+      { error: "content is required and must be a string" },
+      { status: 400 }
+    );
+  }
+  const { content, mentions: rawMentions } = body as Record<string, unknown>;
 
   if (!content || typeof content !== "string") {
     return NextResponse.json(
       { error: "content is required and must be a string" },
       { status: 400 }
     );
+  }
+  let mentions: MentionReference[] | undefined;
+  if (rawMentions !== undefined) {
+    if (
+      !Array.isArray(rawMentions) ||
+      rawMentions.some(
+        (mention) =>
+          !mention ||
+          typeof mention !== "object" ||
+          typeof (mention as Record<string, unknown>).entityType !== "string" ||
+          typeof (mention as Record<string, unknown>).entityId !== "string" ||
+          typeof (mention as Record<string, unknown>).label !== "string"
+      )
+    ) {
+      return NextResponse.json(
+        { error: "mentions must contain entityType, entityId, and label strings" },
+        { status: 400 }
+      );
+    }
+    mentions = rawMentions as MentionReference[];
   }
 
   const conversation = await getConversation(id);

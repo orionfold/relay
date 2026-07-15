@@ -375,6 +375,34 @@ provider's real wire protocol:
   runtime registry, retain their client-boundary marker and verify the real CLI
   build plus runtime-module-graph smoke rather than weakening the source guard.
 
+### Critical API Route Boundary Guard
+
+For load-bearing mutation and execution routes, define a bounded typed
+inventory before adding tests. Each entry should name one method/route pair,
+risk tier, owned side effect, validation boundary, persistence or dispatch
+dependency, terminal outcomes, and protecting tests. Keep the inventory
+executable: fail on duplicate pairs, missing handler exports, or missing guard
+files.
+
+- Invoke the public route export with a real Request and real SQLite state.
+  Mock only external provider transport or long-running dispatch after the
+  route's owned claim/receipt has been persisted.
+- Validate malformed JSON, invalid shapes, missing resources, illegal
+  transitions, dependency refusal, and success with before/after database
+  assertions. A global coverage increase is evidence, not the scope.
+- Exercise double-submit races with a deterministic barrier before the atomic
+  claim; require exactly one accepted dispatch and one authoritative receipt.
+  Do not use sleeps as concurrency evidence.
+- Validate requested provider/runtime IDs against an explicit allow-list before
+  calling helpers that may apply defaults. An invalid probe must never contact
+  a different provider through fallback.
+- When a route joins in-memory state to database state, bind every identity in
+  the compound key. For Chat approvals this includes request ID, conversation
+  ID, and message ID—not merely ownership of the message row.
+- Prefer a small risk-selected tranche over shallow adjacency tests for every
+  API file. Preserve deeper engine/protocol suites and cite them from the
+  boundary inventory instead of duplicating them.
+
 ### Regression Guard Output
 
 ```markdown

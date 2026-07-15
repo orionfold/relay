@@ -1,5 +1,23 @@
 # Feature Changelog
 
+## 2026-07-14 — G-070 critical API route contracts
+
+### Completed
+
+- Added a typed executable inventory for the 12 load-bearing task, workflow,
+  schedule, Chat, and runtime/settings route-method contracts. Adjacent route
+  regressions now exercise real `Request` parsing and SQLite state while
+  isolating only provider transport or long-running dispatch.
+- Hardened malformed-body handling, schedule update validation, task
+  cancellation failures, Chat permission ownership, pending-request compound
+  identity, and explicit Settings runtime selection. Cross-conversation or
+  cross-message permission responses and unknown-provider fallback are refused.
+- The focused tranche passed 62 tests and improved from 24.52% lines / 14.67%
+  branches to 68.78% / 60.47%. The release quality profile passed all 19 lanes
+  with 3,383 passing tests plus one intentional skip; all coverage ratchets,
+  mutation guards, the real runtime graph, CLI bundle, and production build
+  passed. G-071 is now ready.
+
 ## 2026-07-14 — G-072 cross-provider Chat boundary contracts
 
 ### Completed

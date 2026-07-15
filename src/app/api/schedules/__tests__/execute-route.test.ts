@@ -6,8 +6,10 @@ import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 import { POST } from "../[id]/execute/route";
 
-vi.mock("@/lib/agents/runtime", () => ({
-  executeTaskWithRuntime: vi.fn().mockResolvedValue(undefined),
+const mockStartTaskExecution = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/agents/task-dispatch", () => ({
+  startTaskExecution: mockStartTaskExecution,
 }));
 
 function req(url: string): NextRequest {
@@ -44,6 +46,8 @@ function seedSchedule(): string {
 
 describe("POST /api/schedules/:id/execute", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
+    mockStartTaskExecution.mockReturnValue(new Promise(() => {}));
     db.delete(usageLedger).run();
     db.delete(tasks).run();
     db.delete(schedules).run();
@@ -62,6 +66,12 @@ describe("POST /api/schedules/:id/execute", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.taskId).toBeDefined();
+    expect(db.select().from(tasks).where(eq(tasks.id, body.taskId)).get()).toMatchObject({
+      scheduleId: sid,
+      status: "running",
+      sourceType: "scheduled",
+    });
+    expect(mockStartTaskExecution).toHaveBeenCalledWith(body.taskId);
   });
 
   it("returns 429 when cap is full", async () => {
@@ -83,6 +93,7 @@ describe("POST /api/schedules/:id/execute", () => {
 
     const remaining = db.select().from(tasks).all();
     expect(remaining.length).toBe(1); // only sid1's task remains; sid2's was cleaned up on refusal
+    expect(mockStartTaskExecution).toHaveBeenCalledTimes(1);
   });
 
   it("bypasses the cap when ?force=true and writes audit-log entry", async () => {
@@ -107,6 +118,7 @@ describe("POST /api/schedules/:id/execute", () => {
       .all();
     expect(ledger.length).toBe(1);
     expect(ledger[0].taskId).toBe(body2.taskId);
+    expect(mockStartTaskExecution).toHaveBeenCalledTimes(2);
   });
 
   it("returns 404 when the schedule does not exist", async () => {

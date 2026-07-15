@@ -165,10 +165,14 @@ export function createPendingRequest(
  */
 export function resolvePendingRequest(
   requestId: string,
-  response: ToolPermissionResponse
+  response: ToolPermissionResponse,
+  conversationId?: string,
+  messageId?: string
 ): boolean {
   const pending = pendingRequests.get(requestId);
   if (!pending) return false;
+  if (conversationId && pending.conversationId !== conversationId) return false;
+  if (messageId && pending.messageId !== messageId) return false;
 
   pending.resolve(response);
   pendingRequests.delete(requestId);
@@ -178,8 +182,17 @@ export function resolvePendingRequest(
 /**
  * Check if a pending request exists.
  */
-export function hasPendingRequest(requestId: string): boolean {
-  return pendingRequests.has(requestId);
+export function hasPendingRequest(
+  requestId: string,
+  conversationId?: string,
+  messageId?: string
+): boolean {
+  const pending = pendingRequests.get(requestId);
+  return Boolean(
+    pending &&
+      (!conversationId || pending.conversationId === conversationId) &&
+      (!messageId || pending.messageId === messageId)
+  );
 }
 
 /**

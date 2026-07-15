@@ -15,7 +15,15 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await cancelTaskWithRuntime(id, task.assignedAgent);
+  try {
+    await cancelTaskWithRuntime(id, task.assignedAgent);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json(
+      { error: message, code: "task_cancel_failed" },
+      { status: 409 }
+    );
+  }
 
   return NextResponse.json({ success: true });
 }

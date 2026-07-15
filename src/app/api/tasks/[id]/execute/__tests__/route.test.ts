@@ -103,4 +103,54 @@ describe("POST /api/tasks/[id]/execute target preflight", () => {
       preflightTarget: target,
     });
   });
+
+  it("returns 404 without target resolution when the task is missing", async () => {
+    const response = await POST(new Request("http://relay.test") as never, {
+      params: Promise.resolve({ id: randomUUID() }),
+    });
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: "Not found" });
+    expect(mockResolveTarget).not.toHaveBeenCalled();
+    expect(mockStartTaskExecution).not.toHaveBeenCalled();
+  });
+
+  it("rejects a non-queued task without changing state", async () => {
+    db.update(tasks).set({ status: "planned" }).where(eq(tasks.id, taskId)).run();
+
+    const response = await POST(new Request("http://relay.test") as never, {
+      params: Promise.resolve({ id: taskId }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(db.select().from(tasks).where(eq(tasks.id, taskId)).get()?.status).toBe(
+      "planned"
+    );
+    expect(mockStartTaskExecution).not.toHaveBeenCalled();
+  });
+
+  it("allows only one concurrent request to claim and dispatch the task", async () => {
+    let release!: (value: typeof target) => void;
+    mockResolveTarget.mockReturnValue(
+      new Promise<typeof target>((resolve) => {
+        release = resolve;
+      })
+    );
+
+    const first = POST(new Request("http://relay.test") as never, {
+      params: Promise.resolve({ id: taskId }),
+    });
+    const second = POST(new Request("http://relay.test") as never, {
+      params: Promise.resolve({ id: taskId }),
+    });
+    await vi.waitFor(() => expect(mockResolveTarget).toHaveBeenCalledTimes(2));
+    release(target);
+
+    const responses = await Promise.all([first, second]);
+    expect(responses.map((response) => response.status).sort()).toEqual([202, 409]);
+    expect(mockStartTaskExecution).toHaveBeenCalledTimes(1);
+    expect(db.select().from(tasks).where(eq(tasks.id, taskId)).get()?.status).toBe(
+      "running"
+    );
+  });
 });

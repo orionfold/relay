@@ -1,13 +1,38 @@
 import { NextResponse } from "next/server";
-import { DEFAULT_AGENT_RUNTIME } from "@/lib/agents/runtime/catalog";
+import { z } from "zod";
+import {
+  DEFAULT_AGENT_RUNTIME,
+  SUPPORTED_AGENT_RUNTIMES,
+} from "@/lib/agents/runtime/catalog";
 import { getRuntimeSummary, testRuntimeConnection } from "@/lib/agents/runtime";
 
+const runtimeTestRequestSchema = z.object({
+  runtime: z.enum(SUPPORTED_AGENT_RUNTIMES).optional(),
+}).strict();
+
 export async function POST(req: Request) {
+  let body: unknown = {};
+  const rawBody = await req.text();
+  if (rawBody.trim()) {
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return NextResponse.json(
+        { connected: false, error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
+  }
+  const parsed = runtimeTestRequestSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { connected: false, error: "Invalid runtime test request" },
+      { status: 400 }
+    );
+  }
+
   try {
-    const body = (await req.json().catch(() => ({}))) as {
-      runtime?: string;
-    };
-    const runtimeId = body.runtime ?? DEFAULT_AGENT_RUNTIME;
+    const runtimeId = parsed.data.runtime ?? DEFAULT_AGENT_RUNTIME;
     const result = await testRuntimeConnection(runtimeId);
     const summary = getRuntimeSummary(runtimeId);
     return NextResponse.json({

@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { workflows } from "@/lib/db/schema";
+import { workflowReceiptRuns, workflows } from "@/lib/db/schema";
 
 const { mockResolveTargets, mockClassifyTargetError, mockExecuteWorkflow } =
   vi.hoisted(() => ({
@@ -28,6 +28,8 @@ describe("POST /api/workflows/[id]/execute target preflight", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    db.delete(workflowReceiptRuns).run();
+    db.delete(workflows).run();
     workflowId = randomUUID();
     const now = new Date();
     db.insert(workflows)
@@ -44,9 +46,12 @@ describe("POST /api/workflows/[id]/execute target preflight", () => {
         updatedAt: now,
       })
       .run();
+    mockResolveTargets.mockResolvedValue([]);
+    mockExecuteWorkflow.mockReturnValue(new Promise(() => {}));
   });
 
   afterEach(() => {
+    db.delete(workflowReceiptRuns).run();
     db.delete(workflows).where(eq(workflows.id, workflowId)).run();
   });
 
@@ -67,6 +72,58 @@ describe("POST /api/workflows/[id]/execute target preflight", () => {
     const row = db.select().from(workflows).where(eq(workflows.id, workflowId)).get();
     expect(row?.status).toBe("draft");
     expect(row?.runNumber).toBe(0);
+    expect(mockExecuteWorkflow).not.toHaveBeenCalled();
+  });
+
+  it("claims one run and persists its receipt before dispatch", async () => {
+    const response = await POST(new Request("http://relay.test") as never, {
+      params: Promise.resolve({ id: workflowId }),
+    });
+
+    expect(response.status).toBe(202);
+    expect(db.select().from(workflows).where(eq(workflows.id, workflowId)).get()).toMatchObject({
+      status: "active",
+      runNumber: 1,
+    });
+    expect(
+      db.select().from(workflowReceiptRuns).where(eq(workflowReceiptRuns.workflowId, workflowId)).all()
+    ).toEqual([
+      expect.objectContaining({ workflowId, runNumber: 1, terminalStatus: null }),
+    ]);
+    expect(mockExecuteWorkflow).toHaveBeenCalledOnce();
+  });
+
+  it("allows only one concurrent launch and one run receipt", async () => {
+    let release!: (value: unknown[]) => void;
+    mockResolveTargets.mockReturnValue(
+      new Promise((resolve) => {
+        release = resolve;
+      })
+    );
+
+    const first = POST(new Request("http://relay.test") as never, {
+      params: Promise.resolve({ id: workflowId }),
+    });
+    const second = POST(new Request("http://relay.test") as never, {
+      params: Promise.resolve({ id: workflowId }),
+    });
+    await vi.waitFor(() => expect(mockResolveTargets).toHaveBeenCalledTimes(2));
+    release([]);
+
+    const responses = await Promise.all([first, second]);
+    expect(responses.map((response) => response.status).sort()).toEqual([202, 409]);
+    expect(mockExecuteWorkflow).toHaveBeenCalledTimes(1);
+    expect(
+      db.select().from(workflowReceiptRuns).where(eq(workflowReceiptRuns.workflowId, workflowId)).all()
+    ).toHaveLength(1);
+  });
+
+  it("returns 404 for a missing workflow", async () => {
+    const response = await POST(new Request("http://relay.test") as never, {
+      params: Promise.resolve({ id: randomUUID() }),
+    });
+
+    expect(response.status).toBe(404);
     expect(mockExecuteWorkflow).not.toHaveBeenCalled();
   });
 });
