@@ -6,6 +6,53 @@
 > build next. Remove accepted goals from the backlog when their durable feature/changelog record is
 > updated.
 
+## Current delivery program — customer-owned Relay Host
+
+The active architecture program is specified in
+[licensed-self-service-cloud-deploy](licensed-self-service-cloud-deploy.md) and
+sequenced in its
+[implementation program plan](licensed-self-service-cloud-deploy-plan.md).
+Dependency words have distinct meanings: hard prerequisites block work;
+conformance prerequisites block only a topology/support claim; coordination
+dependencies require contract reuse but may ship independently; trigger-gated
+goals remain outside the committed train until measured evidence activates them.
+
+### Hard dependency graph
+
+```text
+G-058 → G-060 → G-079
+                    ├─→ G-080 ─→ G-082 ─┐
+                    └─→ G-081 ──────────┼─→ G-083 → G-084 → G-085 → G-086
+```
+
+G-080 and G-081 are parallel after G-079. G-086 is required before a broad
+portability/GA claim but does not block a demand-validated DigitalOcean beta.
+
+### Iterative release order
+
+| Increment | Goals | Customer value | Gate |
+|---|---|---|---|
+| R0 — Isolation contract | G-058 → G-060 → G-079 | truthful customer/cell boundaries and approved same-Host versus separate-VM trust model | operator acceptance of vocabulary, topology, authority and TDR disposition |
+| R1 — Local Host alpha | G-034 conditional preflight; G-038 parallel quick win; G-080 | signed reproducible local Host/cell artifact and per-cell first-run reliability | local two-cell artifact smoke plus G-025 staging |
+| R2 — Secure/recoverable Host alpha | G-081 in parallel with G-082 | authenticated remote access, encrypted off-Host recovery and portable export | security review, destroyed-Host restore plus G-025 staging |
+| R3 — Licensed local Host beta | G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 | self-service paid Host/cell lifecycle with truthful estimates, retention, rescue and receipts | entitlement/lifecycle acceptance, browser evidence plus G-025 staging |
+| R4 — DigitalOcean beta | G-085 | first customer-owned cloud-server deployment with actual cost and cleanup evidence | provider credentials, spend and release approval |
+| R5 — Portable Host GA | G-086 | same appliance proven on a second provider or representative customer hardware | demand trigger, second target authorization and GA claim approval |
+
+### Parallel customer-value streams
+
+- [Enterprise structured-data connectors](enterprise-structured-data-connectors.md)
+  (G-073) may research/spec immediately and implement locally after G-079.
+  [Enterprise document connectors](enterprise-document-connectors.md) (G-074)
+  follows the shared connector kernel. Cloud-Host support for both additionally
+  conforms to G-081 and G-082; neither waits for G-085.
+- G-059 becomes executable when G-080 supplies a disposable Host/cell fixture or
+  when equivalent reporter evidence arrives.
+- G-062 can deliver general dashboard value independently, while Host/cell health
+  modules wait for G-083's typed lifecycle API.
+- G-025 repeats after each release candidate. G-036 remains trigger-only and is
+  activated only by measured npm/OCI package or installation cost.
+
 ## MVP
 
 ### Foundation Layer
@@ -848,6 +895,9 @@ Phase 4 — Runtime Expansion
 ```
 
 ## Recommended Build Order
+
+> Historical build record below. For current work, follow the live backlog and
+> the **Current delivery program — customer-owned Relay Host** sequence above.
 
 1. **Sprint 1 — Foundation**: cli-bootstrap + database-schema + app-shell (parallel)
 2. **Sprint 2 — Core Data**: project-management + task-board

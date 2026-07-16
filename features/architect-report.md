@@ -313,6 +313,46 @@ G-078 decomposes the sequence into G-079 through G-086. The durable specificatio
 research report, cost model, threat model, wireframe and executable program plan
 own the detailed acceptance and rescue contracts.
 
+### Portfolio alignment and release implications
+
+The architecture changes the ordering of adjacent goals without making every
+aligned goal a hard blocker:
+
+- G-058 must finish before G-060 is accepted, and both must finish before G-079.
+  The live queue must therefore place these goals in that order.
+- After G-079, G-080 and G-081 can progress in parallel. G-082 needs the signed
+  artifact from G-080; G-083 waits for all three implementation foundations.
+- G-034 is a conditional artifact preflight rather than an open-ended
+  modernization dependency. G-036 remains trigger-gated by measured package or
+  install cost.
+- G-020 and G-030 deliver small standalone customer improvements before G-084
+  and supply shared freshness and retain-versus-purge semantics to the Host UX.
+- G-073 may start research immediately and may implement a local connector
+  tranche after G-079. G-074 reuses its kernel. Any cloud-Host connector claim
+  additionally conforms to G-081 ingress/identity and G-082 secret/recovery
+  contracts; neither connector goal needs to wait for DigitalOcean.
+- G-059 becomes executable after G-080 supplies a disposable Host/cell fixture,
+  even if the original customer environment remains unavailable.
+- G-062 may proceed independently for general dashboard value, but Host/cell
+  health modules consume G-083's typed lifecycle API rather than scraping
+  supervisor internals.
+- G-025 is a recurring release gate after the local artifact, security/recovery,
+  licensed Host UX, and DigitalOcean slices—not a one-time prerequisite.
+
+The resulting customer-value train is:
+
+1. **R0 isolation contract:** G-058 → G-060 → G-079.
+2. **R1 local Host alpha:** G-034 is a conditional preflight, G-038 is a
+   parallel quick win, and G-080 produces the artifact.
+3. **R2 secure/recoverable Host alpha:** G-081 in parallel with G-082.
+4. **R3 licensed local Host beta:** finish G-030 before G-083 locks retention,
+   finish G-020 before G-084 locks estimate semantics, then G-083 → G-084.
+5. **R4 DigitalOcean beta:** G-085.
+6. **R5 portable Host GA:** G-086 after demand and second-target authorization.
+
+Run G-025 after each implementation increment. The program plan owns the full
+dependency matrix, conformance gates, and parallel connector stream.
+
 ## Verification and rescue
 
 - Synthetic licensed/unlicensed/expired/wrong-entitlement tests prove every

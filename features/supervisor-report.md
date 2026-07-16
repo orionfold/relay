@@ -1,34 +1,71 @@
 ---
-generated: 2026-07-14
-mode: next-steps
+generated: 2026-07-16
+mode: sprint-planning
 ---
 
 # Supervisor Report
 
-## Next Steps — 2026-07-14
+## Sprint Plan — Relay Host iterative delivery — 2026-07-16
 
-### Recommendation
+### Sprint goal
 
-**Do this:** Begin G-056, `Preview and honor the effective execution target`.
+Deliver the customer-owned Relay Host as independently useful releases: first
+truthful isolation, then a reproducible local appliance, then secure recovery,
+then paid lifecycle UX, then one live cloud provider, and finally portability.
+Keep enterprise connectors and immediate reliability fixes moving without
+turning architectural alignment into false hard dependencies.
 
-**Why:** G-057 is closed as `not reproduced locally; external topology unverified` after the
-operator removed the unavailable customer-environment gate. Its local controls confirmed that
-compatible Ollama Chat/task/workflow execution completes without fallback, while identifying
-requested/effective target, capability-message, and provider-summary truth gaps owned by G-056.
+### Capacity
 
-**Invoke:** specify and implement the shared preflight/receipt target contract, preserving Manual →
-default as a distinct choice from explicit Ollama selection and naming incompatible capabilities.
+Recent Relay work supports one consequential cross-layer goal or two bounded
+reliability/documentation goals per release slice. G-081, G-082, G-083, G-084,
+and G-085 each carry security, data, runtime, or external-provider risk and
+should retain their own completion and release gates.
 
-**Priority category:** Customer reliability — first goal in the operator-prioritized distributed
-runtime sequence.
+### Release train
 
-### Context
+| Order | Increment | Goals | Dependencies met when | Customer-visible result |
+|---|---|---|---|---|
+| 1 | R0 — Isolation contract | G-058 → G-060 → G-079 | G-058 accepted before G-060 final acceptance; both accepted before G-079 | truthful customer/cell boundaries and approved Host trust/topology |
+| 2 | R1 — Local Host alpha | G-034 conditional preflight; G-038 parallel quick win; G-080 → G-025 | G-079 accepted; artifact/native-package preflight resolved | signed reproducible local Host/cell artifact and reliable per-cell first run |
+| 3 | R2 — Secure/recoverable Host alpha | G-081 in parallel with G-082 → G-025 | G-081 needs G-079; G-082 needs G-079/G-080 | authenticated remote access, encrypted off-Host recovery and export |
+| 4 | R3 — Licensed local Host beta | G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 → G-025 | G-079/G-080/G-081/G-082 complete; pricing/retention contracts reused | paid local/fake-VM self-service lifecycle with rescue and receipts |
+| 5 | R4 — DigitalOcean beta | G-085 → G-025 | G-084 complete plus provider/security/spend gates | one customer-owned DigitalOcean deployment with actual bill and cleanup proof |
+| 6 | R5 — Portable Host GA | G-086 | G-085 accepted plus demand and second-target authorization | verified local/cloud portability claim |
 
-- Completed testing goals: G-022, G-064, G-065, G-066, G-067, G-068, plus bounded G-051.
-- Runtime sequence: completed G-057 distributed Ollama diagnosis, G-056 execution-target truth
-  informed by that evidence, then G-069 LiteLLM/LM Studio support.
-- G-057 ended with a named local-only disposition and no speculative customer-network fix.
+### Parallel streams
+
+1. G-073 research/spec can begin immediately; production implementation starts
+   after G-079. Its first local connector tranche need not wait for G-085.
+2. G-074 research may overlap G-073, but production implementation waits for the
+   shared connector kernel and G-079. Cloud-Host claims for both connector goals
+   wait for G-081/G-082 conformance.
+3. G-059 runs once G-080 supplies a disposable Host/cell fixture or equivalent
+   Linux multi-user evidence.
+4. G-062 may proceed for general dashboard value; only Host/cell modules wait
+   for G-083.
+5. G-036 stays outside the release train until G-080 package/install evidence
+   crosses its trigger.
+
+### Pre-release checklist
+
+- [ ] Every goal states hard, conformance, coordination, and trigger
+      relationships without using them interchangeably.
+- [ ] G-025 produces a customer-identical evidence bundle for every
+      implementation increment.
+- [ ] Each release keeps the last known-good npm/local path and has rollback or
+      export evidence.
+- [ ] Security, credentials, spend, publication, provider writes, and public
+      support claims stop at their named operator gates.
+- [ ] Connector state, credentials, content, and callbacks remain cell-scoped;
+      the Host registry stays content-free.
+
+### Top recommendation
+
+Begin with G-058. It is the first hard prerequisite and fixes a current customer
+truth problem before infrastructure work begins. Complete G-060 next, then use
+G-079 as the explicit operator acceptance checkpoint for the architecture.
 
 ---
 
-*Generated by `/supervisor` — Next Steps mode*
+*Generated by `/supervisor` — Sprint Planning mode*

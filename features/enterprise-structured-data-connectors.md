@@ -42,6 +42,27 @@ capability-specific adapters. MCP is the extension boundary for discoverable
 schemas/resources and explicit connector operations; it does not replace the
 durable sync engine, Table data model, or operator approval boundary.
 
+## Relationship to the Relay Host program
+
+- Research, provider comparison, capability modeling, and the connector-kernel
+  specification may proceed before the Relay Host program is implemented.
+- Production connector implementation requires G-079's accepted Host/cell trust
+  contract. A connection, its secret references, worker/scheduler, checkpoints,
+  mappings, receipts, cached payloads, and outbound-network policy belong to one
+  Relay cell and never to the content-free Host registry.
+- A local-only connector tranche may ship after G-079 without waiting for a
+  cloud provider proof.
+- Claiming connector support on a remote/cloud Host additionally requires
+  conformance with G-081 for callback, webhook, ingress, identity, routing, and
+  SSRF boundaries, and G-082 for per-cell secret roots, backup, restore, export,
+  and permission-loss recovery.
+- G-083 may supervise connector-bearing cells only through the versioned cell
+  lifecycle and resource contract. It must not inspect, centralize, or proxy
+  connector credentials or customer data.
+- G-025 runs a customer-identical connector journey for every connector release
+  candidate. G-036 remains a trigger-only packaging concern if connector SDKs
+  cause the npm or OCI artifact to cross its measured budget.
+
 ## Authoritative research baseline
 
 The implementation plan must refresh this research against current primary

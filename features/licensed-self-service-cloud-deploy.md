@@ -400,6 +400,27 @@ The detailed abuse paths and priorities live in `relay-threat-model.md`.
 - Supporting every listed provider in the first release.
 - Live paid deployments during G-078 itself.
 
+## Portfolio and release contract
+
+The implementation program must remain a sequence of independently valuable
+releases rather than one cloud-deploy launch:
+
+1. G-058 → G-060 → G-079 freezes truthful Host/cell trust and authority.
+2. G-080 and G-081 may proceed in parallel; G-082 follows the signed artifact;
+   G-083 waits for all three implementation foundations.
+3. G-084 ships the licensed local/fake-VM lifecycle before G-085 adds a live
+   DigitalOcean beta. G-086 proves portability before broad GA claims but does
+   not block a demand-validated G-085 beta.
+4. G-020, G-030, G-034, G-038, G-059, G-062, G-025, and G-036 use explicit
+   coordination, conformance, or trigger relationships rather than becoming
+   accidental hard prerequisites.
+5. G-073/G-074 may deliver local-first connector value after G-079; cloud-Host
+   support additionally conforms to G-081/G-082 without waiting for G-085.
+
+The authoritative dependency matrix, parallel work, customer-value increments,
+and recurring staging gates live in
+`features/licensed-self-service-cloud-deploy-plan.md`.
+
 ## Acceptance criteria
 
 1. A dated research matrix compares Vercel, Supabase, Cloudflare, Railway,
@@ -429,6 +450,9 @@ The detailed abuse paths and priorities live in `relay-threat-model.md`.
    decomposed into independently completable child goals.
 11. G-078 closes without provisioning cloud resources, spending money, pushing,
     publishing, releasing, or accepting the proposed TDR/provider choice.
+12. The backlog, roadmap, connector specifications, architecture report, and
+    implementation plan agree on hard prerequisites, parallel work, conformance
+    gates, trigger gates, and the R0–R5 iterative release order.
 
 ## Verification record
 

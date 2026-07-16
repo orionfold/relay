@@ -1,5 +1,25 @@
 # Feature Changelog
 
+## 2026-07-16 — Relay Host dependency and release-chain alignment
+
+### Re-prioritized
+
+- Made G-058 → G-060 → G-079 the explicit architecture-contract critical path
+  before Relay Host implementation begins.
+- Defined G-080 and G-081 as parallel foundations, G-082 as dependent on the
+  signed artifact, and G-083 → G-084 → G-085 → G-086 as the paid lifecycle,
+  DigitalOcean beta, and portability sequence.
+- Split the program into independently releasable customer-value increments:
+  isolation contract, local Host alpha, secure/recoverable Host alpha, licensed
+  local Host beta, DigitalOcean beta, and portable Host GA.
+- Classified adjacent work as hard prerequisites, conformance prerequisites,
+  coordination dependencies, or trigger gates. G-020, G-030, G-034, G-038,
+  G-059, G-062, G-025, and G-036 now have explicit roles without becoming
+  accidental blockers.
+- Connected G-073/G-074 to the Host/cell trust, ingress, secrets, recovery, and
+  lifecycle contracts while preserving an earlier local-first connector release
+  path.
+
 ## 2026-07-16 — G-078 appliance/cell architecture amendment
 
 ### Amended

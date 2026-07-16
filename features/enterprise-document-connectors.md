@@ -56,6 +56,27 @@ source-native structure, versions, containers, permission/policy metadata,
 extraction lineage, content safety, and publication. A joint TDR must settle the
 shared kernel; neither goal may implement divergent shared infrastructure.
 
+## Relationship to the Relay Host program
+
+- Research, provider/format comparison, and the joint G-073/G-074 kernel design
+  may proceed before the Relay Host implementation.
+- Production document-connector implementation requires both the accepted G-073
+  shared kernel and G-079's Host/cell trust contract.
+- Remote object identities, ACL/policy fingerprints, local blobs, extracted
+  content, parser state, checkpoints, receipts, quarantine, secret references,
+  and outbound-network policy remain inside one Relay cell. The Host registry
+  receives no document metadata or content.
+- A local-only document connector tranche may ship without waiting for
+  DigitalOcean. A remote/cloud Host support claim additionally conforms to
+  G-081 callback/webhook/identity/routing protections and G-082 secret, backup,
+  restore, export, retention, and permission-loss recovery contracts.
+- G-083 may start, stop, upgrade, back up, and resource-limit a connector-bearing
+  cell only through the typed cell lifecycle. It must not become an
+  authorization proxy or cross-cell content plane.
+- G-025 supplies the customer-identical release gate. Large provider SDKs,
+  parsers, or transfer dependencies activate G-036 only when the measured
+  package/install budget is crossed.
+
 ## Authoritative research baseline
 
 Refresh this research against current primary documentation and record exact

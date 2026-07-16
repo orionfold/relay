@@ -86,6 +86,93 @@ branch. G-078 ends after the durable decisions and decomposition are verified.
 | AC9 executable slices and regression budget | this plan + G-079–G-086 | per-goal ship verification and conformance matrix |
 | AC10 G-058/G-060 dependencies and child goals | strategy backlog amendments | goal-ledger audit |
 | AC11 no external writes/spend | G-078 closure | git/status and provider-credential absence check |
+| AC12 portfolio/release-chain agreement | dependency matrix + roadmap/backlog/connector links | cross-artifact goal/order/relation parity check |
+
+## Dependency contract
+
+The program uses four relationship types. A goal must not infer a hard block from
+mere architectural alignment:
+
+- **Hard prerequisite:** the predecessor's accepted contract or implementation is
+  required before the successor begins.
+- **Conformance prerequisite:** local/fake implementation may proceed, but a
+  customer-facing topology or support claim cannot ship until the predecessor's
+  evidence passes.
+- **Coordination dependency:** goals may proceed independently, but they must
+  reuse one named contract or record an explicit reason for divergence.
+- **Trigger gate:** the goal stays outside the committed release train until its
+  measured demand, capacity, package-size, or environment trigger occurs.
+
+### Goal dependency matrix
+
+| Goal | Hard prerequisites | Conformance or coordination dependencies | Enables / release role |
+|---|---|---|---|
+| G-058 | — | public trust copy must remain consistent with `_ASSETS/` | truthful customer/cell isolation language |
+| G-060 | G-058 for final acceptance; discovery may overlap | TDR-044 and existing `src/lib/instance/*` contracts | local Host supervisor and later content-free fleet boundary |
+| G-079 | G-058, G-060 | operator accepts Host/cell vocabulary, trust, authority and first topology | freezes the architecture contract for every implementation stream |
+| G-034 | — | complete before G-080 unless G-080 independently proves the native binding, PDF pipeline and externalization debt clean in its target artifact | lowers OCI/native-package risk without becoming an unrelated modernization umbrella |
+| G-038 | — | instance-local marker must be scoped by the same per-cell `RELAY_DATA_DIR` contract | immediate first-run reliability and a clean cell-isolation invariant |
+| G-080 | G-079 | G-034 conditional preflight; G-036 remains trigger-only based on measured tarball/install cost | signed local/cloud Host artifact and local two-cell alpha |
+| G-081 | G-079 | may run in parallel with G-080; any container/Host ingress claim must be rerun against the G-080 artifact | authenticated remote Host access and server-owned cell routing |
+| G-082 | G-079, G-080 | reuse existing snapshot contracts; connector secrets/backups consume this contract | recoverable, portable cells and per-cell secret roots |
+| G-020 | — | G-084 must reuse its dated freshness/staleness semantics or explicitly own a separate cloud-price catalog contract | prevents duplicated or falsely-current estimate behavior |
+| G-030 | — | G-083/G-084 reuse retain-by-default versus separately confirmed purge semantics | immediate removal clarity and consistent destructive-language policy |
+| G-083 | G-079, G-080, G-081, G-082 | G-030 retention semantics; entitlement and TDR-044 operator gates | paid local Host supervisor beta and stable Host/cell lifecycle API |
+| G-084 | G-083 | G-020 freshness semantics; G-030 retention language | customer-visible local-device/cloud-Host lifecycle journey |
+| G-085 | G-084 | provider account, credentials, spend, hostname, security review and release approval | first DigitalOcean customer beta |
+| G-086 | G-085 plus demand trigger | second provider/hardware authorization; does not block a demand-validated G-085 beta | portability evidence required before GA portability claims |
+| G-073 | G-079 before production implementation; research/spec may start earlier | cloud-Host support conforms to G-081/G-082; connector workers, secrets and state remain inside one cell under G-083 | structured connector kernel and local-first connector value |
+| G-074 | G-073 shared kernel and G-079 before production implementation; research may overlap | cloud-Host support conforms to G-081/G-082; document content never enters Host registry | document connector value without a second connector platform |
+| G-059 | G-080 local Host fixture or an equivalent disposable Linux multi-user environment | use the Host/cell process boundary to distinguish task cwd from executable/PATH/credential scope | closes the customer runtime report without inventing per-customer config inside one process |
+| G-062 | — for specification; G-083 before implementing Host/cell health modules | Host modules are optional typed dashboard consumers, not a blocker for core dashboard improvements | exposes deployment health later without coupling Home to the supervisor |
+| G-025 | each implementation release candidate | customer-identical isolated staging evidence; repeat after G-080, G-081/G-082, G-084 and G-085 | recurring release gate rather than a one-time prerequisite |
+| G-036 | package-size or install-performance trigger only | G-080 records the OCI/npm size evidence that may activate it | optional distribution optimization; never blocks while under budget |
+
+### Critical path and parallel work
+
+```text
+G-058 → G-060 → G-079
+                    ├─→ G-080 ─→ G-082 ─┐
+                    └─→ G-081 ──────────┼─→ G-083 → G-084 → G-085 → G-086
+
+G-034 ── conditional artifact preflight ─→ G-080
+G-038 ── independent R1 first-run quick win
+
+After G-079:
+  G-073 local connector stream → G-074 document layer
+  cloud-Host connector claims additionally wait for G-081 + G-082
+
+After G-080:
+  G-059 gains a customer-representative local Host fixture
+  G-036 runs only if the measured package/install trigger fires
+```
+
+## Iterative customer-value release train
+
+Every increment remains independently releasable. Later provider work must not
+hold back verified local reliability, isolation, authentication, or recovery
+improvements.
+
+| Increment | Ordered goals | Customer value | Release boundary |
+|---|---|---|---|
+| **R0 — Isolation contract** | G-058 → G-060 → G-079 | customers and operators can tell attribution from a real security boundary and choose same-Host versus separate-VM placement truthfully | approved Host/cell contract, trust copy and TDR disposition; no provisioning claim |
+| **R1 — Local Host alpha** | G-034 conditional preflight; G-038 parallel quick win; G-080 → G-025 | reproducible local-device installation, isolated cell data roots and a signed artifact; first-run prompts no longer recur per cell | local one-Host/two-cell smoke, package/native checks, rollback/export and customer-identical staging |
+| **R2 — Secure and recoverable Host alpha** | G-081 in parallel with G-082 → G-025 | authenticated remote use plus encrypted off-Host recovery and portable export, useful even before automated cloud provisioning | independent security review, destroyed-Host restore drill and staging journey |
+| **R3 — Licensed local Host beta** | G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 → G-025 | paid self-service Host/cell lifecycle on a local device and fake VM, with truthful estimates, retention, rescue and receipts | entitlement/lifecycle acceptance, real-browser journey and staging release candidate |
+| **R4 — DigitalOcean beta** | G-085 → G-025 | an end customer can provision and operate one customer-owned DigitalOcean Relay Host with verified bill, cleanup and recovery | operator-approved external conformance, spend reconciliation and beta release |
+| **R5 — Portable Host GA** | G-086 | the same signed appliance works on a second VM provider or representative customer hardware | second-target conformance and approved portability/GA claim |
+
+Parallel value stream after R0:
+
+1. G-073 may research/spec before R0, but production code starts only after
+   G-079. Its first local connector tranche can ship without waiting for
+   DigitalOcean.
+2. G-074 research can overlap G-073, while implementation waits for the accepted
+   shared connector kernel. Cloud-Host connector support additionally conforms
+   to G-081 identity/ingress and G-082 secret/recovery contracts.
+3. G-062 may be specified independently, but Host/cell health modules wait for
+   G-083's typed lifecycle API. This keeps the dashboard valuable without
+   turning it into a supervisor dependency.
 
 ## Program sequence
 
