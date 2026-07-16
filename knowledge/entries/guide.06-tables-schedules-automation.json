@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "10c6db3601f9f27cfe6d261de873a80bfe6b233165e551bce3d01fb1aa6a6c5c",
+  "contentHash": "f8cff0d1561f388e34429466bd176c1988940def3df60034c2bdc6b1f8f0acd1",
   "features": [
     "Installed packs/apps",
     "Kit-aware app layouts",
@@ -279,8 +279,8 @@
       "heading": "Walk The Screen Like An Operator",
       "id": "walk-the-screen-like-an-operator",
       "level": 2,
-      "markdown": "Open **Tables**. Pick the table that matches the process you want to run.\n\nWhat you should notice:\n\n- A list of local tables.\n- Table names that match installed packs or local work.\n- Rows that can be edited without leaving Relay.\n\n[Figure: Tables list for structured local records]\n\nThe Tables list is the map of structured local records. Read it before you automate. The table name should tell you what business process it supports. If the table came from a pack, that source gives context. If the table is custom, the name should still be clear enough for another operator to understand.\n\nOpen a working table, such as the support queue. Read the columns before you add or change a row.\n\n[Figure: Support queue table with rows used by automation]\n\nThis figure shows why row shape matters. A row-triggered workflow can only use values that exist in the row or defaults supplied by the blueprint. If a required variable has no matching column and no default, the trigger should fail visibly during setup or dispatch. Silent trigger failure is the worst outcome because the operator thinks work started when it did not.\n\nOpen **Schemas** when you need to inspect reusable table structure.\n\n[Figure: Schemas list for reusable table shapes]\n\nSchemas help when a pattern repeats. If several packs or apps need the same kind of table, a schema gives that table a reusable shape. Use schemas to make structure explicit instead of relying on memory.",
-      "wordCount": 243
+      "markdown": "Open **Tables**. Pick the table that matches the process you want to run.\n\nWhat you should notice:\n\n- A list of local tables.\n- Table names that match installed packs or local work.\n- Rows that can be edited without leaving Relay.\n\n[Figure: Tables list for structured local records]\n\nThe Tables list is the map of structured local records. Read it before you automate. The table name should tell you what business process it supports. If the table came from a pack, that source gives context. If the table is custom, the name should still be clear enough for another operator to understand.\n\nOpen a working table, such as the support queue. Read the columns before you add or change a row.\n\n[Figure: Support queue table with rows used by automation]\n\nThis figure shows why row shape matters. A row-triggered workflow can only use values that exist in the row or defaults supplied by the blueprint. If a required variable has no matching column and no default, the trigger should fail visibly during setup or dispatch. Silent trigger failure is the worst outcome because the operator thinks work started when it did not.\n\nUse the **Render** and **Row** switch in the table toolbar for two different jobs. Row is the default on the Tables detail screen because it keeps columns dense and makes editing, sorting, selection, import, export, and enrichment easy to reach. Render turns each record into a larger, type-aware item for scanning.\n\nRender mode chooses one short-text field as the title and can place a description or abstract below it. Safe image URLs can appear as thumbnails. Select fields and category-like columns become stable colored pills. Numeric fields show their value with a Low, Mid, High, or No range indicator based on the visible values or an explicit number domain. Dates, booleans, email addresses, web links, and other metadata use formats that match their type.\n\nColumn display roles are additive. A Pack, schema, or composed table definition can explicitly mark the title, description, image, category, metric, date, link, boolean, or metadata role. When no role is set, Relay uses the column type and familiar names such as title, summary, image, status, or amount. Unsafe image URLs, including URLs with embedded credentials, do not become thumbnails. Generic table surfaces inside apps can open in Render mode, while the Tables detail screen stays in Row mode until you switch it.\n\nOpen **Schemas** when you need to inspect reusable table structure.\n\n[Figure: Schemas list for reusable table shapes]\n\nSchemas help when a pattern repeats. If several packs or apps need the same kind of table, a schema gives that table a reusable shape. Use schemas to make structure explicit instead of relying on memory.",
+      "wordCount": 450
     },
     {
       "heading": "Run The Work Carefully",
@@ -293,15 +293,15 @@
       "heading": "What To Do When The State Looks Wrong",
       "id": "what-to-do-when-the-state-looks-wrong",
       "level": 2,
-      "markdown": "If a row does not trigger work, check that the required fields exist in the row. Then check whether the trigger expects defaults.\n\nIf a schedule does not run, open the schedule and check its state before changing the cadence. A disabled or blocked schedule needs a different fix than a wrong cadence.\n\nIf an app view looks stale after table edits, reload the app surface and confirm the table update saved. Table mutations should invalidate affected app-runtime cache.\n\nIf a schema does not match the table you expected, do not force the workflow forward. Fix the table shape first.\n\nIf a row trigger starts too much work, review the trigger contract. Row inserts are convenient, but they should still match the business event you intend.",
-      "wordCount": 126
+      "markdown": "If a row does not trigger work, check that the required fields exist in the row. Then check whether the trigger expects defaults.\n\nIf a schedule does not run, open the schedule and check its state before changing the cadence. A disabled or blocked schedule needs a different fix than a wrong cadence.\n\nIf an app view looks stale after table edits, reload the app surface and confirm the table update saved. Table mutations should invalidate affected app-runtime cache.\n\nIf Render mode chooses the wrong title or treats a field as the wrong kind of content, switch back to Row so you can see every column at once. If you own the Pack, schema, or composed definition, give that column an explicit display role. The current table-column form does not expose display-role editing for an existing operator-created table.\n\nIf a schema does not match the table you expected, do not force the workflow forward. Fix the table shape first.\n\nIf a row trigger starts too much work, review the trigger contract. Row inserts are convenient, but they should still match the business event you intend.",
+      "wordCount": 185
     },
     {
       "heading": "What This Changes In Daily Work",
       "id": "what-this-changes-in-daily-work",
       "level": 2,
-      "markdown": "The daily habit is to put repeated work into structured records. A table row is easier to audit than a loose chat message. A schedule is easier to review than a calendar reminder. A schema is easier to reuse than a copied column list.\n\nFor an SMB operations lead, this means support, leads, grants, renewals, and content can each have a clear local data source. For an app builder, it means pack-backed screens can be composed from known parts. For a solo founder, it means small routines do not disappear into memory.\n\nRelay becomes more useful when data and work stay connected.",
-      "wordCount": 102
+      "markdown": "The daily habit is to put repeated work into structured records. A table row is easier to audit than a loose chat message. Render mode helps an operator understand the record, while Row mode helps an editor work across columns. A schedule is easier to review than a calendar reminder. A schema is easier to reuse than a copied column list.\n\nFor an SMB operations lead, this means support, leads, grants, renewals, and content can each have a clear local data source. For an app builder, it means pack-backed screens can be composed from known parts. For a solo founder, it means small routines do not disappear into memory.\n\nRelay becomes more useful when data and work stay connected.",
+      "wordCount": 119
     },
     {
       "heading": "Where To Go Next",
@@ -311,9 +311,9 @@
       "wordCount": 14
     }
   ],
-  "sourceHash": "73fbcce4c96bf933d9c4a23163be1695d3a4df40eafbfa4a32e57d2caee2bbf6",
+  "sourceHash": "cfc8124ef3ab448b7ad0b2a52214a97b4f5b35e4f5311df1fb50322aad1888f5",
   "sourcePath": "docs/guides/06-use-tables-triggers-and-schedules.md",
-  "sourceStateHash": "2977286169ff7c207d32efc1963e48cc2282cc8a463a9f614214840cc4d7c518",
+  "sourceStateHash": "f8ac01e41d8af6880a0dbdf45771e0fbf4d952a77b795dbc4966a20037cfbc82",
   "summary": "Show how a table can become the source of a repeatable process and how schedules keep work moving.",
   "title": "Use Tables, Triggers, And Schedules"
 }

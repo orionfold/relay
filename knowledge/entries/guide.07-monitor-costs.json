@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "4e6e3a6bc464f4ab3a8ea4eabd1619aba1e8f5223f01a32bf2464c86c39e9af4",
+  "contentHash": "c67cc52127bc0de0fc9d9136342fe8dbe41617b7aab84afb463a382192c7f7c2",
   "features": [
     "Cost and Usage",
     "Customers and spend attribution",
@@ -352,15 +352,15 @@
       "heading": "Run The Work Carefully",
       "id": "run-the-work-carefully",
       "level": 2,
-      "markdown": "Open **Cost & Usage** from the Observe section. Read spend by provider, model, customer, or project where the data is available.\n\nWhat you should see:\n\n- Spend and usage signals.\n- Local-free usage separated from metered usage.\n- Customer or project attribution where runs are linked.\n- Budget context that does not confuse plan price with actual usage.\n\n[Figure: Costs screen with usage, spend, and budget signals]\n\nCosts is not only for finance. It is an operating screen. It helps an agency understand margin, a founder understand burn, and an admin explain why a budget limit stopped work. Read actual metered usage separately from plan price and budget cap.\n\nIf runtime choice looks wrong, open Runtime settings.\n\n[Figure: Runtime settings for provider and model choices]\n\nRuntime settings are the upstream control. If a run used the wrong path, the fix may not be in Costs. It may be in model preference, provider configuration, or a more specific runtime pin.\n\nA careful review links three screens. Monitor tells you what happened. Tasks or Workflows tell you what business item changed. Costs tells you what usage was recorded. If those three screens disagree, treat that as a signal. Do not hide it in a report.",
-      "wordCount": 198
+      "markdown": "Open **Cost & Usage** from the Observe section. Read spend by provider, model, customer, or project where the data is available.\n\nWhat you should see:\n\n- Spend and usage signals.\n- Local-free usage separated from metered usage.\n- Customer or project attribution where runs are linked.\n- Budget context that does not confuse plan price with actual usage.\n\n[Figure: Costs screen with usage, spend, and budget signals]\n\nCosts is not only for finance. It is an operating screen. It helps an agency understand margin, a founder understand burn, and an admin explain why a budget limit stopped work. Read actual metered usage separately from plan price and budget cap.\n\nIf runtime choice looks wrong, open Runtime settings.\n\n[Figure: Runtime settings for provider and model choices]\n\nRuntime settings are the upstream control. If a run used the wrong path, the fix may not be in Costs. It may be in model preference, provider configuration, or a more specific runtime pin.\n\nA careful review links three screens. Monitor tells you what happened. Tasks or Workflows tell you what business item changed. Costs tells you what usage was recorded. If those three screens disagree, treat that as a signal. Do not hide it in a report.\n\nHome can shorten the first pass. Needs attention surfaces failed, waiting, queued, and active work. Autonomous activity summarizes recent events without exposing raw provider payloads. Recent outputs points to retained results. The card links take you to Tasks, Monitor, and Documents for the full evidence.\n\nDashboard Settings controls whether pricing coverage and provider readiness appear on Home. These modules start hidden, so turn them on when missing prices or runtime configuration are part of your regular review. Smart ordering can promote failures, urgency, recent activity, and recency, but the default Needs attention, Autonomous activity, and Recent outputs cards remain a stable top row while they are visible. If an urgent item exists inside a hidden module, Home shows a notice rather than silently losing the signal.",
+      "wordCount": 324
     },
     {
       "heading": "What To Do When The State Looks Wrong",
       "id": "what-to-do-when-the-state-looks-wrong",
       "level": 2,
-      "markdown": "If a run is missing from Monitor, check the task or workflow detail first. The work may have been created but not started.\n\nIf spend is not attributed to a customer, check whether the run was linked to a customer or project. Missing attribution is not always a bug, but it weakens review.\n\nIf local-free usage is not shown as expected, confirm the runtime path in Settings. Do not assume a model name proves the execution path.\n\nIf a task failed, keep the error text. A named failure can be fixed. A vague memory of a failure cannot.\n\nIf costs look high, do not raise a budget immediately. First ask which customer, project, runtime, and workflow produced the spend.\n\nIf a cost row shows blocked or failed work, read it as part of the story. A failed run can still have usage. A blocked run can still teach you that a limit worked. The point of Costs is not only to count success. It is to show the cost of attempts, stops, and retries too.",
-      "wordCount": 175
+      "markdown": "If a run is missing from Monitor, check the task or workflow detail first. The work may have been created but not started.\n\nIf spend is not attributed to a customer, check whether the run was linked to a customer or project. Missing attribution is not always a bug, but it weakens review.\n\nIf local-free usage is not shown as expected, confirm the runtime path in Settings. Do not assume a model name proves the execution path.\n\nIf a task failed, keep the error text. A named failure can be fixed. A vague memory of a failure cannot.\n\nIf costs look high, do not raise a budget immediately. First ask which customer, project, runtime, and workflow produced the spend.\n\nIf a cost row shows blocked or failed work, read it as part of the story. A failed run can still have usage. A blocked run can still teach you that a limit worked. The point of Costs is not only to count success. It is to show the cost of attempts, stops, and retries too.\n\nIf a Home module you rely on disappears, check Dashboard Settings before assuming the underlying records are gone. Confirm its visibility and then open the named destination screen. Home is a summary, while Monitor, Costs, Tasks, Workflows, and Documents remain the evidence surfaces.",
+      "wordCount": 218
     },
     {
       "heading": "What This Changes In Daily Work",
@@ -377,9 +377,9 @@
       "wordCount": 16
     }
   ],
-  "sourceHash": "92f4ceaa250b5cd917878b46786f47c6710d94e920fdba704672099a8d348a74",
+  "sourceHash": "59127a4919218e95ebc312704e1a2ed0a9b284dc65bf77c5b9a96024d55974d2",
   "sourcePath": "docs/guides/07-watch-runs-costs-and-budget-signals.md",
-  "sourceStateHash": "5d3809604def8f7c6fb801c3d3bfad113646178e752a0415a3d3efe203305244",
+  "sourceStateHash": "387370ed5c6b86e6cd236b719b0fe1af5cfbac24185cdb96c47ddff69cd825b3",
   "summary": "Teach the reader how to audit what ran, what it cost, and where to tune the setup.",
   "title": "Watch Runs, Costs, And Budget Signals"
 }

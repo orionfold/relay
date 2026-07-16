@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "c61d424c69bcdc5c412db3380d388feb8e412d5aa41f168dfbaf94c93372dbb7",
+  "contentHash": "6f86c279ef1e2ab2bf8263d7a203902e3b2c0c0474c4ca2de453d1783fffd4cd",
   "features": [
     "Current bundled pack families",
     "Installed packs/apps",
@@ -319,15 +319,15 @@
       "heading": "Run The Work Carefully",
       "id": "run-the-work-carefully",
       "level": 2,
-      "markdown": "Check the tables that feed the site. Web templates and site content come from rows, not from a private project folder.\n\nWhat you should see:\n\n- Tables for site content or pack data.\n- Template rows where the web template pack provides them.\n- Preview or publish state when available.\n\n[Figure: Tables list used by pack-backed app surfaces]\n\nThe Tables list is where you confirm that site content is structured. A site generated from table rows is easier to repeat than a one-off pasted page. It also gives the future static demo a clean source of truth.\n\nOpen a content table or another structured example to inspect row shape before publishing.\n\n[Figure: Support queue style table used as an example structured data surface]\n\nThis example is a support queue, not a website table, but it shows the same principle. Rows carry fields. Fields become inputs. If the data shape is wrong, the generated output will be wrong. Fix the rows before blaming the generator.\n\nWhen the data is ready, return to Web Designer. Set the site controls. Choose the template and visual controls you want. Preview the site before you publish.\n\nUse **Packs** if the web pack family is not installed yet.\n\n[Figure: Packs gallery with web pack family entries]\n\nThe Packs gallery is the recovery path for missing web surfaces. Look for Relay Web Assets, Relay Web Publisher, Relay Web Templates, and Relay Web Designer. Install only the parts needed for the job and confirm the resulting app surface.\n\nAfter the pack is installed, return to Apps instead of staying in Packs. Packs answer \"what can I add?\" Apps answer \"what can I operate now?\" That distinction keeps the operator focused on the site, not on the package list.",
-      "wordCount": 287
+      "markdown": "Check the tables that feed the site. Web templates and site content come from rows, not from a private project folder.\n\nWhat you should see:\n\n- Tables for site content or pack data.\n- Template rows where the web template pack provides them.\n- Preview or publish state when available.\n\n[Figure: Tables list used by pack-backed app surfaces]\n\nThe Tables list is where you confirm that site content is structured. A site generated from table rows is easier to repeat than a one-off pasted page. It also gives the future static demo a clean source of truth.\n\nOpen a content table or another structured example to inspect row shape before publishing.\n\n[Figure: Support queue style table used as an example structured data surface]\n\nThis example is a support queue, not a website table, but it shows the same principle. Rows carry fields. Fields become inputs. If the data shape is wrong, the generated output will be wrong. Fix the rows before blaming the generator.\n\nUse **Render** when you need to scan site records as content. Relay can turn title-like text into a heading, description-like text into an abstract, safe image URLs into thumbnails, categories into pills, and numbers into Low, Mid, or High indicators. Use **Row** when you need dense column editing. The Tables detail screen starts in Row mode, while a generic table hero inside an app can start in Render mode.\n\nIf Relay infers the wrong content role, switch to Row for editing. A Pack, schema, or composed table definition can declare an explicit role instead of renaming business data only to influence presentation. The current table-column form does not expose that authoring control for an existing operator-created table. Unsafe image URLs, including URLs with embedded credentials, do not render as thumbnails. That safety rule applies before the row reaches the generated site path.\n\nWhen the data is ready, return to Web Designer. Set the site controls. Choose the template and visual controls you want. Preview the site before you publish.\n\nUse **Packs** if the web pack family is not installed yet.\n\n[Figure: Packs gallery with web pack family entries]\n\nThe Packs gallery is the recovery path for missing web surfaces. Look for Relay Web Assets, Relay Web Publisher, Relay Web Templates, and Relay Web Designer. Install only the parts needed for the job and confirm the resulting app surface.\n\nAfter the pack is installed, return to Apps instead of staying in Packs. Packs answer \"what can I add?\" Apps answer \"what can I operate now?\" That distinction keeps the operator focused on the site, not on the package list.",
+      "wordCount": 429
     },
     {
       "heading": "What To Do When The State Looks Wrong",
       "id": "what-to-do-when-the-state-looks-wrong",
       "level": 2,
-      "markdown": "If Web Designer is missing, open Packs and install the web pack family you need. Then return to Apps.\n\nIf preview and publish do not match, keep the preview path and publish path for review. The product should store and reuse preview artifacts so the published artifact matches the preview path.\n\nIf a link is rejected, fix the site content before you publish. Link safety exists to prevent unsafe generated-site links from shipping.\n\nIf a gallery thumbnail is empty, check whether the app has a safe thumbnail. Empty frames should be omitted or made useful.\n\nIf publish targets point to the wrong place, stop. A user-owned GitHub Pages target is still a real destination. Confirm ownership before publishing.\n\nIf the generated site looks correct but the data source looks wrong, fix the data source first. A site generated from stale rows will keep reproducing stale content. The strength of this path is repeatability, so the source rows need the same care as the visual controls.",
-      "wordCount": 165
+      "markdown": "If Web Designer is missing, open Packs and install the web pack family you need. Then return to Apps.\n\nIf preview and publish do not match, keep the preview path and publish path for review. The product should store and reuse preview artifacts so the published artifact matches the preview path.\n\nIf a link is rejected, fix the site content before you publish. Link safety exists to prevent unsafe generated-site links from shipping.\n\nIf a gallery thumbnail is empty, check whether the app has a safe thumbnail. Empty frames should be omitted or made useful.\n\nIf publish targets point to the wrong place, stop. A user-owned GitHub Pages target is still a real destination. Confirm ownership before publishing.\n\nIf the generated site looks correct but the data source looks wrong, fix the data source first. A site generated from stale rows will keep reproducing stale content. The strength of this path is repeatability, so the source rows need the same care as the visual controls.\n\nIf Render mode hides a field you need for editing, switch to Row. Render is an operator reading view, not a replacement for the full table grid.",
+      "wordCount": 192
     },
     {
       "heading": "What This Changes In Daily Work",
@@ -344,9 +344,9 @@
       "wordCount": 16
     }
   ],
-  "sourceHash": "c499414b4b53be8ad416d925cfbfa1594fdf5ae5cf7746cacac6dabcb4c2cce2",
+  "sourceHash": "171eeb6f4f77ab9fe6578730f21854fe2731d4885c4469aa76bd5ec28abb5f9b",
   "sourcePath": "docs/guides/08-build-and-publish-a-small-website.md",
-  "sourceStateHash": "be45f10dae998607594b3d56700a5094da69922035803c29b0c5e4a7f90ef932",
+  "sourceStateHash": "a55f25326b2d10916165443679b428202b4479af461f6228a26c67cca17a5cb6",
   "summary": "Walk through structured site content, design controls, preview, and publish behavior.",
   "title": "Build And Publish A Small Website"
 }

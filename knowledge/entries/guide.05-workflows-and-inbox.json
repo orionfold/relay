@@ -1,10 +1,11 @@
 {
   "apiPaths": [],
-  "contentHash": "d397b1a1e8dce972eeaeb10b93ce59ea0d543880c373e7e71bdf9362b8d0cef5",
+  "contentHash": "88a7d4f4f8f2694730d40ce4364c1803717bad540229b2c55e62a87b68122704",
   "features": [
     "Human-in-the-loop workflow questions",
     "Inbox",
     "Monitor",
+    "Relay Operator Workshop",
     "Tool permissions and approvals",
     "Workflow execution controls",
     "Workflow patterns"
@@ -352,15 +353,15 @@
       "heading": "Run The Work Carefully",
       "id": "run-the-work-carefully",
       "level": 2,
-      "markdown": "Start a workflow only after you know what state it is in and what it may touch. If it asks a question or needs approval, open **Inbox** and answer the visible item.\n\nWhat you should see:\n\n- A running workflow shows running state.\n- A workflow waiting on a person shows waiting state.\n- Inbox shows the question or approval that blocks the next step.\n- Tasks created by the workflow link back to workflow context.\n\n[Figure: Inbox with a waiting approval or question]\n\nInbox is where human control becomes concrete. The workflow is not stuck if it is waiting for an answer. It is doing what it was designed to do. Read the approval, decide, and answer from the visible item.\n\nAfter you answer, check Tasks. Workflow-created work should not become invisible.\n\n[Figure: Tasks board showing work created by runs]\n\nThe task board shows whether the workflow created follow-up work, moved work into a different state, or left something queued. This is where an operator can see the operational effect, not only the workflow definition.\n\nOpen **Monitor** when you need the run trail.\n\n[Figure: Monitor showing execution state and run context]\n\nMonitor is the audit screen. Use it when a workflow fails, stalls, or behaves in a way you do not understand. A good failure path should give you enough context to decide the next move.",
-      "wordCount": 223
+      "markdown": "Start a workflow only after you know what state it is in and what it may touch. If it asks a question or needs approval, open **Inbox** and answer the visible item.\n\nWhat you should see:\n\n- A running workflow shows running state.\n- A workflow waiting on a person shows waiting state.\n- Inbox shows the question or approval that blocks the next step.\n- Tasks created by the workflow link back to workflow context.\n\n[Figure: Inbox with a waiting approval or question]\n\nInbox is where human control becomes concrete. The workflow is not stuck if it is waiting for an answer. It is doing what it was designed to do. Read the approval, decide, and answer from the visible item.\n\nAfter you answer, check Tasks. Workflow-created work should not become invisible.\n\n[Figure: Tasks board showing work created by runs]\n\nThe task board shows whether the workflow created follow-up work, moved work into a different state, or left something queued. This is where an operator can see the operational effect, not only the workflow definition.\n\nOpen **Monitor** when you need the run trail.\n\n[Figure: Monitor showing execution state and run context]\n\nMonitor is the audit screen. Use it when a workflow fails, stalls, or behaves in a way you do not understand. A good failure path should give you enough context to decide the next move.\n\nWhen you want to practice this control loop before using customer work, open the **Relay Operator Workshop**. Its preflight is read-only. It checks the Relay version, data-directory access, built-in fixture integrity, and configured run options without installing the starter or calling a model provider.\n\nIf preflight is ready, choose **Install isolated starter**. Relay creates an idempotent local starter with a table, app, project, and governed workflow. The capstone tracks five checkpoints: inspect the starter, add a learner-owned process row, confirm the human and success boundary, produce a terminal Operations Receipt, and retain the result.\n\nThe workshop gives you two honest run paths. You can run the workflow through a configured runtime, or use **Run deterministic rehearsal** when a model provider is unavailable. The rehearsal is labeled in the interface and in exported evidence. It does not pretend that a model call occurred.\n\nAfter a terminal receipt exists, choose **Download completion bundle**. Relay builds a redacted archive containing the learner-owned app Pack, the Operations Receipt, selected outputs, hashes, and a limitations file. Credentials, absolute local paths, unrelated workspace data, and unselected transcripts are excluded. An active workshop also appears as a progress module on Home when that module is enabled.",
+      "wordCount": 422
     },
     {
       "heading": "What To Do When The State Looks Wrong",
       "id": "what-to-do-when-the-state-looks-wrong",
       "level": 2,
-      "markdown": "If a workflow says waiting, check Inbox before you click Run again. Starting another run may duplicate the process.\n\nIf a workflow says stalled, open Monitor and read the last visible run state. Stalled active rows can happen when persisted state no longer reflects live child tasks.\n\nIf a workflow failed, keep the error text. Relay should show the failure path so you can decide what to fix.\n\nIf a blueprint run creates a draft instead of running, open the draft. That may be the safer path when variables or configuration need review.\n\nIf a Stop action appears, use it only when you understand the effect. Stopping a workflow may leave child tasks or approvals that still need review.\n\nIf the same workflow keeps asking for the same approval, do not assume the approver made a mistake. Check the run state. A repeated prompt can mean the workflow retried, the browser refreshed during a stream, or the previous answer did not reach the waiting step. The safest next move is to inspect Inbox and Monitor together.",
-      "wordCount": 176
+      "markdown": "If a workflow says waiting, check Inbox before you click Run again. Starting another run may duplicate the process.\n\nIf a workflow says stalled, open Monitor and read the last visible run state. Stalled active rows can happen when persisted state no longer reflects live child tasks.\n\nIf a workflow failed, keep the error text. Relay should show the failure path so you can decide what to fix.\n\nIf a blueprint run creates a draft instead of running, open the draft. That may be the safer path when variables or configuration need review.\n\nIf a Stop action appears, use it only when you understand the effect. Stopping a workflow may leave child tasks or approvals that still need review.\n\nIf the same workflow keeps asking for the same approval, do not assume the approver made a mistake. Check the run state. A repeated prompt can mean the workflow retried, the browser refreshed during a stream, or the previous answer did not reach the waiting step. The safest next move is to inspect Inbox and Monitor together.\n\nIf Workshop preflight fails, use the named recovery beside the failed check. Do not force installation into an incompatible version or unwritable data directory. If the starter conflicts with an existing app or project, move to an isolated workspace or resolve the named conflict. Relay will not overwrite the existing item.",
+      "wordCount": 227
     },
     {
       "heading": "What This Changes In Daily Work",
@@ -377,9 +378,9 @@
       "wordCount": 16
     }
   ],
-  "sourceHash": "1fa2f7b25a953400bcd83846bb0afdf2e6db073f6014e239c900e92ff24d5b14",
+  "sourceHash": "4ae51f9f5a4eaa3f19e35bec002d9b7a419fa8e4623bc36d154807152219d4d9",
   "sourcePath": "docs/guides/05-run-workflows-with-human-checkpoints.md",
-  "sourceStateHash": "687e07f1808d7ab5941cff00d24e6f3200a1d30cdbff20d3eb93727635026e6a",
+  "sourceStateHash": "58193c11331de1df48c12bcb006de86a865a0fd4a6a3edb3c63ebcbfeb4e4dfd",
   "summary": "Explain how to start a workflow, read its state, answer a question, and recover from visible failures.",
   "title": "Run Workflows With Human Checkpoints"
 }
