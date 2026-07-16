@@ -8,6 +8,8 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.42.2] — 2026-07-15
+
 ### Fixed
 
 - **npm 12 first runs recover from blocked SQLite install scripts.** The packed
