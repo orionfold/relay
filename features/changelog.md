@@ -1,5 +1,44 @@
 # Feature Changelog
 
+## 2026-07-16 — Prioritize Relay Operator Workshop enablement
+
+### Groomed
+
+- Read the accepted Orionfold Trio monetization/Training MLP decision and
+  registered **Relay Operator Workshop enablement** as Relay's primary
+  workstream, with Customer-owned Relay Host parallel and Enterprise connectors
+  queued until an explicit WIP change.
+- Defined four independently valuable increments: contract and marketing-grade
+  product proof, free try-before-buy demand probe, autonomous local capstone
+  alpha, and evergreen founding-workshop conformance.
+- Groomed G-087–G-092 for the workshop boundary/source contract, static sample
+  lane, deterministic fresh-install preflight/starter, bounded
+  checkpoint/diagnosis/retry UX, portable completion bundle, and zero-founder
+  customer-identical proof.
+
+### Re-prioritized
+
+- Made G-062's configurable adaptive Home the first visible Workshop W0 goal,
+  followed by G-061 semantic Render/Row views; both improve Relay itself and
+  simultaneously strengthen workshop instruction, screenshots, trailers, and
+  the public static demo.
+- Aligned G-023 as the W1 demo-reset prerequisite, G-038 as W2 onboarding
+  coordination, G-025 as the founding-beta staging gate, and G-053 as optional
+  post-capstone publishing wayfinding rather than a workshop blocker.
+
+### Architecture
+
+- Audited Relay `_ASSETS`, Orionfold Motion, Website, Books, Proof, and the
+  Arena demo. Relay owns local execution/evidence; `_ASSETS` owns current
+  product truth; Motion owns audiovisual renditions/QC; Website owns
+  offer/checkout/access; Books own durable editions; Proof supplies receipt
+  precedent.
+- Reused the shipped Marketing Line pack, Chat app builder, workflow HITL,
+  operations receipts, output documents, app-to-pack exporter, version-aware
+  help, and static demo. Explicitly rejected a second LMS, content source, video
+  pipeline, demo, receipt evaluator, publisher, book renderer, CRM, or auth
+  system in Relay.
+
 ## 2026-07-16 — Restore one canonical live planning file
 
 ### Corrected
