@@ -1,5 +1,21 @@
 # Feature Changelog
 
+## 2026-07-16 — Restore one canonical live planning file
+
+### Corrected
+
+- Consolidated major workstreams, release trains, statuses, dependencies,
+  current goals, entry criteria, and exit gates into `_IDEAS/backlog.md`, the
+  same file that owns exact incomplete Goal Contracts.
+- Demoted `features/roadmap.md` to its historical feature/milestone/dependency
+  catalog role and removed live workstream/release state introduced by the
+  previous roadmap-model changes.
+- Updated Relay's product-manager and supervisor skills plus local agent/flow
+  rules so future grooming, prioritization, goal completion, and status checks
+  read and update only the canonical backlog.
+- Kept `features/supervisor-report.md` as a non-authoritative generated snapshot,
+  eliminating any requirement to synchronize it as live state.
+
 ## 2026-07-16 — Multi-workstream roadmap operating model
 
 ### Re-prioritized

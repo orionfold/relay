@@ -5,6 +5,10 @@ mode: sprint-planning
 
 # Supervisor Report
 
+> Non-authoritative snapshot generated from `_IDEAS/backlog.md`. Do not update
+> this report as a live planning surface; regenerate it from the canonical
+> backlog when a supervisor pass is requested.
+
 ## Portfolio Sprint Plan — Multi-workstream delivery — 2026-07-16
 
 ### Sprint goal
@@ -18,7 +22,7 @@ changes.
 ### Capacity and WIP
 
 Use one primary implementation workstream and one parallel discovery/specification
-workstream. This is a current WIP choice, not a roadmap limit. No concurrent
+workstream. This is a current WIP choice, not a workstream-registry limit. No concurrent
 mutation is implied; worktrees and explicit ownership remain required for
 independent writers.
 

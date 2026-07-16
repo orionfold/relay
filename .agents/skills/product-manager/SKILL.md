@@ -11,6 +11,22 @@ Transform raw ideas into discrete, implementable feature files that each fit wit
 
 Every feature file must be **self-contained** — a developer (or Codex) should be able to pick up one feature file and implement it in 1-3 sessions without needing to read other feature files. Target 80-400 lines per feature file (~2-10K tokens), leaving ample room in the context window for the actual codebase.
 
+## Relay planning authority
+
+Relay uses one canonical live planning file: `_IDEAS/backlog.md`.
+
+- Its header owns major workstreams, release trains, lane/status, current
+  increment/current goal(s), dependencies, and next gates.
+- Its body owns the exact full contracts for incomplete goals.
+- `features/*.md` owns durable specifications and implementation plans.
+- `features/changelog.md` and git own completed history.
+- `features/roadmap.md` is a legacy historical feature/dependency catalog only.
+  Never add live priority, workstream status, release trains, or incomplete goal
+  state there.
+
+In every workflow below, “roadmap” or “live plan” means the workstream/release
+header plus goal queue in `_IDEAS/backlog.md`.
+
 ## Workflow Detection
 
 Determine which mode to run based on the current state:
@@ -25,7 +41,7 @@ Add new features, update statuses, adjust priorities, and log changes to the cha
 
 ### 3. Status Check
 **Trigger:** The user asks what's done, what's next, or wants a progress report.
-Read the roadmap and feature files, then report current state and recommend what to build next based on dependencies and priorities.
+Read the canonical backlog and relevant feature files, then report current state and recommend what to build next based on workstream status, dependencies, and priorities.
 
 ### 4. Ship Verification
 **Trigger:** A feature is about to be marked `completed`, or the user asks to verify/audit completed features.
@@ -39,7 +55,7 @@ Steps:
 3. **Technical Approach Reconciliation** — Compare Technical Approach items against implementation:
    - Built — note as implemented
    - Not built — flag as either: needs implementation, OR should be marked "Deferred" in spec
-4. **Frontmatter Sync** — Update feature spec `status:` to match roadmap
+4. **Frontmatter Sync** — Update feature spec `status:` to match verified implementation and changelog; confirm a completed goal is removed from `_IDEAS/backlog.md`
 5. **Changelog Entry** — Create/verify changelog entry for the feature
 6. **Report** — Present verification results:
    - AC pass/fail table
@@ -78,9 +94,11 @@ Aim for the natural joints in the product — where would you draw the line betw
 
 Create `features/<feature-name>.md` for each feature using the template below.
 
-### Step 4: Create the Roadmap
+### Step 4: Create the Canonical Backlog
 
-Write `features/roadmap.md` using the roadmap structure below, ordering features by dependency and priority.
+Write or update `_IDEAS/backlog.md` using the canonical backlog structure below,
+ordering incomplete goals by workstream, release increment, dependency, and
+priority. Do not create a second live roadmap.
 
 ### Step 5: Initialize the Changelog
 
@@ -172,52 +190,47 @@ Outline the implementation strategy:
 
 ---
 
-## Roadmap Structure
+## Canonical Backlog Structure
 
-`features/roadmap.md` organizes all features by milestone and layer:
+`_IDEAS/backlog.md` is both the live portfolio and exact incomplete goal queue:
 
 ```markdown
-# Product Roadmap
+# Product Goal Backlog
 
-## MVP
+## Operating contract
 
-### Foundation Layer
-Features that everything else depends on — core infrastructure, data models, base setup.
+- Pick the highest ready goal whose dependencies and gates are satisfied.
+- Completed goals leave this file after their changelog receipt is written.
 
-| Feature | Priority | Status | Dependencies |
-|---------|----------|--------|--------------|
-| [feature-name](feature-name.md) | P0 | planned | — |
+## Major workstreams and release trains
 
-### Core Layer
-Primary user-facing features that deliver the product's main value.
+### Portfolio view
 
-| Feature | Priority | Status | Dependencies |
-|---------|----------|--------|--------------|
-| [feature-name](feature-name.md) | P1 | planned | foundation-feature |
+| Workstream | Lane | Status | Current increment | Current goal(s) | Next gate | Authority |
+|---|---|---|---|---|---|---|
+| Workstream A | primary | ready | R0 | G-001 | decision | `features/workstream-a.md` |
 
-### Polish Layer
-UX improvements, error handling, performance — things that make it production-ready.
+### Workstream A release train
 
-| Feature | Priority | Status | Dependencies |
-|---------|----------|--------|--------------|
-| [feature-name](feature-name.md) | P2 | planned | core-feature |
+| Increment | Status | Owned goals/dependencies | Customer value | Entry criteria | Exit/release gate |
+|---|---|---|---|---|---|
+| R0 | ready | G-001 → G-002 | bounded value | entry | executable exit |
 
-## Post-MVP
+## P1
 
-| Feature | Priority | Status | Dependencies |
-|---------|----------|--------|--------------|
-| [feature-name](feature-name.md) | P3 | planned | mvp-feature |
+### G-001 — Goal title
 
-## Dependency Graph
-
-Brief textual description of the critical path:
-- feature-a → feature-b → feature-c (critical path)
-- feature-d → feature-e (independent track)
-
-## Open Questions
-
-- Unresolved decisions that affect feature scoping or ordering
+- **State:** ready
+- **Outcome:** ...
+- **Constraints:** ...
+- **Verification:** ...
+- **Operator gate:** none before completion
 ```
+
+Every goal has one owning workstream or is standalone. Workstream/increment
+status is updated in the same change as a goal start, block, resume, completion,
+or closure. The header summarizes; the full goal block later in the same file is
+the executable contract.
 
 ---
 
@@ -232,7 +245,7 @@ Brief textual description of the critical path:
 
 ### Groomed
 - Extracted N features from ideas/ backlog
-- Created initial roadmap with N MVP and N post-MVP features
+- Created the initial canonical backlog with N workstreams/standalone goals
 
 ### Started
 - `feature-name` — moved to in-progress
@@ -255,15 +268,15 @@ Only include categories that have entries for a given date.
 
 When features already exist and the user requests changes:
 
-1. **Read current state** — scan all `features/*.md` frontmatter to understand current statuses and priorities
-2. **Apply the requested change** — update feature file(s), roadmap, and changelog
-3. **Check consistency** — ensure roadmap table matches feature file frontmatter
+1. **Read current state** — read `_IDEAS/backlog.md`, then scan relevant `features/*.md` frontmatter and changelog history
+2. **Apply the requested change** — update feature file(s), canonical backlog header/goal blocks, and changelog
+3. **Check consistency** — ensure workstream ownership, increment status, goal state, feature frontmatter, and changelog agree
 4. **Report what changed** — summarize the updates made
 
 Common operations:
-- **Status change**: Update the feature's `status` field, update roadmap table, add changelog entry
-- **New feature**: Create feature file from template, add to roadmap in correct position, log in changelog
-- **Re-prioritize**: Update `priority` field, reorder in roadmap if needed, log reason in changelog
+- **Status change**: Update the feature's `status` field, canonical backlog goal/workstream status, and changelog entry
+- **New feature**: Create feature file from template, add its Goal Contract to the correct backlog workstream/increment or mark it standalone, log the grooming decision
+- **Re-prioritize**: Update priority and workstream lane/order in the backlog, then log the reason
 - **Defer**: Set status to `deferred`, note reason in changelog
 
 ---
@@ -290,5 +303,5 @@ README.md is maintained by the `/doc-generator` skill as part of its documentati
 - **Sizing**: If a feature file exceeds 400 lines, it's probably two features — split it. If under 80 lines, it might be too granular — consider merging with a related feature.
 - **Source traceability**: Every feature must reference its source idea doc(s). This enables auditing what ideas have been covered.
 - **Incremental safety**: Never delete or overwrite existing feature files without confirmation. Append changelog entries, don't replace them.
-- **Frontmatter consistency**: The roadmap table must always match the frontmatter in individual feature files. When updating one, update both.
+- **Canonical consistency**: `_IDEAS/backlog.md` is the sole live queue. Feature frontmatter and changelog must agree with it; `features/roadmap.md` must not receive live status updates.
 - **Ship gate**: Never mark a feature `completed` without running Ship Verification mode first. This ensures AC traceability, frontmatter sync, and changelog entry.

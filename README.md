@@ -273,7 +273,8 @@ All 14 MVP features shipped (CLI bootstrap, database schema, app shell, project 
 | **Platform Hardening** (2) | Runtime validation hardening, upgrade detection (hourly upstream poll + guided merge sessions) |
 | **Environment** (11) | Scanner, cache, dashboard, git checkpoint manager, sync engine, project onboarding, templates, cross-project comparison, skill portfolio, health scoring, profile-from-environment |
 
-See `features/roadmap.md` for the full inventory and `features/stats/snapshot.json` for canonical counts.
+See `features/roadmap.md` for the historical feature inventory and
+`features/stats/snapshot.json` for canonical counts.
 
 </details>
 

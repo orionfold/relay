@@ -5,7 +5,7 @@ description: Meta-orchestrator that reads project state holistically to recommen
 
 # Supervisor
 
-Meta-orchestrator that reads project artifacts holistically to answer: **"What should I work on next?"** Each skill knows *how* to do its job — the supervisor decides *what* to do by scanning roadmap, changelog, ideas, design system, and git history, then recommending prioritized actions with specific skill delegations.
+Meta-orchestrator that reads project artifacts holistically to answer: **"What should I work on next?"** Each skill knows *how* to do its job — the supervisor decides *what* to do by scanning the canonical backlog, changelog, feature specs, ideas, design system, and git history, then recommending prioritized actions with specific skill delegations.
 
 ## Role Boundaries
 
@@ -25,6 +25,17 @@ Meta-orchestrator that reads project artifacts holistically to answer: **"What s
 ## Core Principle
 
 **Read-then-delegate.** The supervisor reads artifacts for signals and produces recommendations. It never writes feature specs, tests, components, or design docs — it tells you which skill to invoke and why. The only artifact it writes is `features/supervisor-report.md`.
+
+## Relay planning authority
+
+`_IDEAS/backlog.md` is Relay's sole live portfolio and goal queue. Its header
+owns workstreams, release trains, lane/status, current increment/current goal(s),
+dependencies, and next gates; its body owns exact incomplete Goal Contracts.
+
+`features/roadmap.md` is a historical feature/dependency catalog only. Never use
+it to choose current work, infer live status, or write workstream/release state.
+`features/supervisor-report.md` is a disposable generated snapshot derived from
+the canonical backlog, not an authority that goal completion must synchronize.
 
 ---
 
@@ -60,7 +71,8 @@ All modes read from the same artifact set. Read only what's needed for the activ
 
 | Source | What to Extract | Used By |
 |--------|----------------|---------|
-| `features/roadmap.md` | Feature statuses, milestones, dependency graph | All modes |
+| `_IDEAS/backlog.md` | Canonical workstreams, release trains, live goal status/order, dependencies and gates | All modes |
+| `features/roadmap.md` | Historical feature/milestone/dependency catalog only | Vision, Retro |
 | `features/changelog.md` | Completion dates, velocity signals, decision history | Health, Retro, Sprint |
 | `features/*.md` frontmatter | Status distribution, deferred items, unverified completions | Health, Next Steps, Sprint |
 | `ideas/*.md` | Pipeline depth — how many ungroomed ideas remain | Health, Sprint |
@@ -88,13 +100,13 @@ Produce a 7-dimension health dashboard with green/yellow/red signals.
 | **Ideas** | 3+ unprocessed ideas in `ideas/` | 1-2 ideas | 0 ideas (dry pipeline) |
 | **Quality Debt** | All completed features have passing tests | Some features lack test coverage | Multiple features shipped without tests |
 | **Design Consistency** | Design system tokens used consistently, no forbidden patterns | Minor inconsistencies | Hardcoded colors, missing tokens, forbidden patterns |
-| **Documentation** | README, changelog, roadmap current AND all features have journey coverage | 1 artifact stale OR <5 features missing journey coverage | Multiple artifacts stale OR >5 features missing journey coverage OR entire feature family missing from journeys |
+| **Documentation** | README, changelog, canonical backlog current AND all features have journey coverage | 1 artifact stale OR <5 features missing journey coverage | Multiple artifacts stale OR >5 features missing journey coverage OR entire feature family missing from journeys |
 | **Book Health** | All 12 chapters have ≥2 case study callouts AND "Building with ainative" examples AND none stale | Some chapters missing case studies or API examples OR 1-2 chapters stale | Multiple chapters stale OR missing case study integration OR no roadmap section |
 | **Asset Corpus Sync** | `_ASSETS/flow/asset-flow-report.json` says `fullyVerified: true` and the screenshot/docs stages pass | Validators pass but prerequisites are skipped, or one tracker is dirty | Any executed validator fails, provenance is ambiguous, or required outputs are missing |
 
 ### Process
 
-1. **Read artifacts** — roadmap, changelog, recent feature specs, git log
+1. **Read artifacts** — canonical backlog, changelog, recent feature specs, git log
 2. **Score each dimension** — classify as green/yellow/red based on criteria above
 3. **Identify top concern** — the dimension most urgently needing attention
 4. **Recommend action** — specific skill invocation to address the top concern
@@ -146,7 +158,7 @@ Evaluate in strict order. The first category with actionable items wins:
 
 ### Process
 
-1. **Read roadmap** — scan all feature statuses and dependencies
+1. **Read canonical backlog** — scan workstream status, current increments/goals, live goal states and dependencies
 2. **Walk the priority algorithm** — evaluate each category in order
 3. **Select the top recommendation** — the first actionable item found
 4. **Formulate delegation** — which skill to invoke, with what arguments
@@ -181,7 +193,7 @@ Group features into a coherent sprint with sequencing and skill assignments.
 
 ### Process
 
-1. **Read roadmap and changelog** — understand current state and recent velocity
+1. **Read canonical backlog and changelog** — understand current workstreams, live goals, release increments and recent velocity
 2. **Estimate sprint capacity** — based on recent velocity (features completed per sprint)
 3. **Select features** — pick features that:
    - Have all dependencies met
@@ -233,8 +245,8 @@ Compare current trajectory against original product vision.
 
 ### Process
 
-1. **Read vision sources** — `ideas/*.md` (original vision), `AGENTS.md` (architecture decisions), `MEMORY.md` (project state)
-2. **Read current state** — roadmap, changelog, completed features
+1. **Read vision sources** — `ideas/*.md` (original vision), `AGENTS.md` (architecture decisions), `MEMORY.md` (project state), and the historical feature catalog when useful
+2. **Read current state** — canonical backlog, changelog, completed feature specs
 3. **Compare trajectory** — are we building what was originally envisioned? Have we drifted?
 4. **Check tech stack** — use `/refer` if reference docs are captured to verify we're using libraries as intended
 5. **Identify drift** — features built that weren't in the original vision, vision items not yet addressed
@@ -497,12 +509,12 @@ mode: [health-check | next-steps | sprint-planning | vision-alignment | retrospe
 
 ## Guidelines
 
-- **Evidence over opinion** — every recommendation must cite a specific artifact (roadmap entry, changelog gap, idea file, git commit). Never recommend based on general best practices alone.
+- **Evidence over opinion** — every recommendation must cite a specific artifact (canonical backlog entry, changelog gap, feature spec, idea file, git commit). Never recommend based on general best practices alone.
 - **One clear recommendation** — in Next Steps mode, give exactly one top recommendation. Decision fatigue is the enemy of productivity. Secondary options go in the "If You Have More Time" section.
 - **Respect the lifecycle** — recommendations should follow the FLOW.md lifecycle phases. Don't suggest building before specifying, or shipping before verifying.
 - **Calibrate to velocity** — sprint plans should reflect actual recent velocity, not aspirational targets. If the team completes 2 features per sprint, plan for 2-3, not 5.
 - **Don't duplicate skill work** — the supervisor reads and recommends. When it detects a need, it names the skill to invoke — it doesn't try to do that skill's job inline.
-- **Overwrite, don't append** — `features/supervisor-report.md` is always fresh. Historical data lives in changelog and git history.
+- **Overwrite, don't append** — `features/supervisor-report.md` is always fresh and non-authoritative. Live state remains only in `_IDEAS/backlog.md`; historical data lives in changelog and git history.
 - **Be honest about gaps** — if a dimension is red, say so clearly. Sugarcoating project health defeats the purpose of the supervisor.
 
 ---
