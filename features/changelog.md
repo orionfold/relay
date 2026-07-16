@@ -1,5 +1,27 @@
 # Feature Changelog
 
+## 2026-07-16 — Multi-workstream roadmap operating model
+
+### Re-prioritized
+
+- Generalized the roadmap header from one delivery program into a portfolio of
+  major workstreams, each with its own lane, status, current increment, current
+  owned goal, next gate, dependency graph, and independently valuable release
+  train.
+- Registered Customer-owned Relay Host as the primary `ready` workstream and
+  Enterprise connectors as a parallel `discovery` workstream without implying
+  concurrent writes.
+- Assigned each goal one owning workstream or standalone status. Shared
+  prerequisites and coordination goals can advance several workstreams without
+  being double-counted as owned progress.
+- Added deterministic status advancement: goal lifecycle changes recompute the
+  owning increment and workstream, update shared dependents, and advance the
+  train only after the increment's exit/release gate passes.
+- Added the E0–E3 connector train for shared contract discovery, structured
+  local beta, document local beta, and managed Host conformance without making
+  DigitalOcean a connector prerequisite. E0 must groom bounded implementation
+  child goals so G-073/G-074 do not become multi-release umbrella executions.
+
 ## 2026-07-16 — Relay Host dependency and release-chain alignment
 
 ### Re-prioritized

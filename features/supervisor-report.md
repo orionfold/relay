@@ -5,66 +5,69 @@ mode: sprint-planning
 
 # Supervisor Report
 
-## Sprint Plan — Relay Host iterative delivery — 2026-07-16
+## Portfolio Sprint Plan — Multi-workstream delivery — 2026-07-16
 
 ### Sprint goal
 
-Deliver the customer-owned Relay Host as independently useful releases: first
-truthful isolation, then a reproducible local appliance, then secure recovery,
-then paid lifecycle UX, then one live cloud provider, and finally portability.
-Keep enterprise connectors and immediate reliability fixes moving without
-turning architectural alignment into false hard dependencies.
+Advance the primary Customer-owned Relay Host workstream through its R0
+isolation contract while allowing bounded Enterprise connector discovery to
+proceed as an independent parallel workstream. Keep exact implementation order
+in the backlog and recompute workstream status whenever an owned or shared goal
+changes.
 
-### Capacity
+### Capacity and WIP
 
-Recent Relay work supports one consequential cross-layer goal or two bounded
-reliability/documentation goals per release slice. G-081, G-082, G-083, G-084,
-and G-085 each carry security, data, runtime, or external-provider risk and
-should retain their own completion and release gates.
+Use one primary implementation workstream and one parallel discovery/specification
+workstream. This is a current WIP choice, not a roadmap limit. No concurrent
+mutation is implied; worktrees and explicit ownership remain required for
+independent writers.
 
-### Release train
+### Workstream portfolio
 
-| Order | Increment | Goals | Dependencies met when | Customer-visible result |
-|---|---|---|---|---|
-| 1 | R0 — Isolation contract | G-058 → G-060 → G-079 | G-058 accepted before G-060 final acceptance; both accepted before G-079 | truthful customer/cell boundaries and approved Host trust/topology |
-| 2 | R1 — Local Host alpha | G-034 conditional preflight; G-038 parallel quick win; G-080 → G-025 | G-079 accepted; artifact/native-package preflight resolved | signed reproducible local Host/cell artifact and reliable per-cell first run |
-| 3 | R2 — Secure/recoverable Host alpha | G-081 in parallel with G-082 → G-025 | G-081 needs G-079; G-082 needs G-079/G-080 | authenticated remote access, encrypted off-Host recovery and export |
-| 4 | R3 — Licensed local Host beta | G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 → G-025 | G-079/G-080/G-081/G-082 complete; pricing/retention contracts reused | paid local/fake-VM self-service lifecycle with rescue and receipts |
-| 5 | R4 — DigitalOcean beta | G-085 → G-025 | G-084 complete plus provider/security/spend gates | one customer-owned DigitalOcean deployment with actual bill and cleanup proof |
-| 6 | R5 — Portable Host GA | G-086 | G-085 accepted plus demand and second-target authorization | verified local/cloud portability claim |
+| Lane | Workstream | Status | Current increment | Current goal(s) | Next gate |
+|---|---|---|---|---|---|
+| primary | Customer-owned Relay Host | ready | R0 — Isolation contract | G-058 | approve public trust language, then G-060 topology/authority |
+| parallel | Enterprise connectors | discovery | E0 — Shared connector contract | G-073 research/spec; G-074 research may overlap | approve kernel/security posture and first adapter tranches |
 
-### Parallel streams
+### Primary workstream sequence
 
-1. G-073 research/spec can begin immediately; production implementation starts
-   after G-079. Its first local connector tranche need not wait for G-085.
-2. G-074 research may overlap G-073, but production implementation waits for the
-   shared connector kernel and G-079. Cloud-Host claims for both connector goals
-   wait for G-081/G-082 conformance.
-3. G-059 runs once G-080 supplies a disposable Host/cell fixture or equivalent
-   Linux multi-user evidence.
-4. G-062 may proceed for general dashboard value; only Host/cell modules wait
-   for G-083.
-5. G-036 stays outside the release train until G-080 package/install evidence
-   crosses its trigger.
+1. Complete G-058 and update R0 from `ready` to `active`, with G-060 as the next
+   owned goal.
+2. Complete/accept G-060, then make G-079 the current owned goal.
+3. Completing G-079 moves R0 to `verification`; only its operator/TDR exit gate
+   marks R0 `released` and advances the Host workstream to R1/G-080.
+4. Later increments retain the existing R1–R5 sequence and recurring G-025
+   release gates.
 
-### Pre-release checklist
+### Parallel workstream sequence
 
-- [ ] Every goal states hard, conformance, coordination, and trigger
-      relationships without using them interchangeably.
-- [ ] G-025 produces a customer-identical evidence bundle for every
-      implementation increment.
-- [ ] Each release keeps the last known-good npm/local path and has rollback or
-      export evidence.
-- [ ] Security, credentials, spend, publication, provider writes, and public
-      support claims stop at their named operator gates.
-- [ ] Connector state, credentials, content, and callbacks remain cell-scoped;
-      the Host registry stays content-free.
+1. Run G-073 research/spec and overlapping G-074 research without production
+   mutations.
+2. The workstream remains `discovery`; E0 moves `ready → in-progress` when
+   research starts and does not release until the shared connector kernel,
+   security posture, bounded implementation goals, plans, and adapter tranches
+   are accepted.
+3. G-079 completion may make E1/E2 implementation prerequisites true, but does
+   not automatically move the connector workstream into the primary lane or
+   authorize concurrent writes.
+4. Managed Host conformance waits for G-081/G-082 and coordinates with G-083;
+   it does not require G-085 DigitalOcean proof.
+
+### Status update invariant
+
+For every goal start, completion, block, resume, or closure:
+
+1. update backlog/changelog state;
+2. recompute the owning increment status/current goal;
+3. recompute the owning workstream and portfolio row;
+4. refresh all workstreams that reference the goal as a shared prerequisite;
+5. advance only after the increment exit gate passes.
 
 ### Top recommendation
 
-Begin with G-058. It is the first hard prerequisite and fixes a current customer
-truth problem before infrastructure work begins. Complete G-060 next, then use
-G-079 as the explicit operator acceptance checkpoint for the architecture.
+Begin G-058. It is the first hard prerequisite in the primary workstream and
+delivers immediate customer truth before infrastructure mutation. G-073 research
+is the approved parallel activity when independent capacity exists.
 
 ---
 

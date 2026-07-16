@@ -6,18 +6,58 @@
 > build next. Remove accepted goals from the backlog when their durable feature/changelog record is
 > updated.
 
-## Current delivery program — customer-owned Relay Host
+## Major workstreams and release trains
 
-The active architecture program is specified in
-[licensed-self-service-cloud-deploy](licensed-self-service-cloud-deploy.md) and
-sequenced in its
-[implementation program plan](licensed-self-service-cloud-deploy-plan.md).
-Dependency words have distinct meanings: hard prerequisites block work;
-conformance prerequisites block only a topology/support claim; coordination
-dependencies require contract reuse but may ship independently; trigger-gated
-goals remain outside the committed train until measured evidence activates them.
+> `_IDEAS/backlog.md` remains the exact live queue and owns full incomplete Goal
+> Contracts. This section owns portfolio focus, workstream status, release
+> increments, cross-goal sequencing, and next gates.
 
-### Hard dependency graph
+Dependency words are exact: hard prerequisites block implementation;
+conformance prerequisites block only the named topology/support claim;
+coordination dependencies require contract reuse but may ship independently;
+trigger-gated work remains outside committed delivery until its evidence exists.
+
+### Portfolio view
+
+| Workstream | Lane | Status | Current increment | Current owned goal(s) | Next gate | Authority |
+|---|---|---|---|---|---|---|
+| Customer-owned Relay Host | primary | ready | R0 — Isolation contract | G-058 | approve G-058 trust language, then G-060 topology/authority | [program plan](licensed-self-service-cloud-deploy-plan.md) |
+| Enterprise connectors | parallel | discovery | E0 — Shared connector contract | G-073 research/spec; G-074 research may overlap | approve shared kernel, security posture, and first adapter tranches | [structured](enterprise-structured-data-connectors.md) · [documents](enterprise-document-connectors.md) |
+
+Relay currently uses one primary and one parallel workstream. The mechanism can
+represent additional `parallel`, `queued`, `gated`, or `paused` workstreams
+without changing the backlog model or implying concurrent writes.
+
+Every goal has one owning workstream or is standalone. Shared goals such as
+G-020, G-025, G-030, G-034, G-036, G-038, G-059, and G-062 are referenced as
+coordination, conformance, or trigger dependencies; they are not double-counted
+as owned progress.
+
+When a goal starts, completes, blocks, resumes, or closes:
+
+1. update its backlog/changelog receipt;
+2. recompute the owning increment status and current owned goal(s);
+3. recompute the owning workstream status and portfolio row;
+4. update every other workstream that references it as a shared prerequisite;
+5. advance an increment only after its exit/release gate passes.
+
+### Workstream — Customer-owned Relay Host
+
+- **Outcome:** licensed customers can run the same signed Relay Host/cell
+  appliance on a local device or customer-owned VM with truthful isolation,
+  authenticated access, recovery, lifecycle automation, and portability.
+- **Lane:** primary
+- **Status:** ready
+- **Current increment:** R0 — Isolation contract (`ready`)
+- **Current owned goal(s):** G-058
+- **Next gate:** approve G-058 public trust language; then accept G-060 topology
+  and authority before G-079 freezes the contract.
+- **Owned goals:** G-058, G-060, G-079–G-086
+- **Authority:** [specification](licensed-self-service-cloud-deploy.md),
+  [program plan](licensed-self-service-cloud-deploy-plan.md), proposed TDR-044,
+  and `relay-threat-model.md`.
+
+#### Hard dependency graph
 
 ```text
 G-058 → G-060 → G-079
@@ -25,33 +65,98 @@ G-058 → G-060 → G-079
                     └─→ G-081 ──────────┼─→ G-083 → G-084 → G-085 → G-086
 ```
 
-G-080 and G-081 are parallel after G-079. G-086 is required before a broad
-portability/GA claim but does not block a demand-validated DigitalOcean beta.
+G-080 and G-081 can run in parallel after G-079. G-086 is required before a
+broad portability/GA claim but does not block a demand-validated G-085 beta.
 
-### Iterative release order
+#### Release train
 
-| Increment | Goals | Customer value | Gate |
-|---|---|---|---|
-| R0 — Isolation contract | G-058 → G-060 → G-079 | truthful customer/cell boundaries and approved same-Host versus separate-VM trust model | operator acceptance of vocabulary, topology, authority and TDR disposition |
-| R1 — Local Host alpha | G-034 conditional preflight; G-038 parallel quick win; G-080 | signed reproducible local Host/cell artifact and per-cell first-run reliability | local two-cell artifact smoke plus G-025 staging |
-| R2 — Secure/recoverable Host alpha | G-081 in parallel with G-082 | authenticated remote access, encrypted off-Host recovery and portable export | security review, destroyed-Host restore plus G-025 staging |
-| R3 — Licensed local Host beta | G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 | self-service paid Host/cell lifecycle with truthful estimates, retention, rescue and receipts | entitlement/lifecycle acceptance, browser evidence plus G-025 staging |
-| R4 — DigitalOcean beta | G-085 | first customer-owned cloud-server deployment with actual cost and cleanup evidence | provider credentials, spend and release approval |
-| R5 — Portable Host GA | G-086 | same appliance proven on a second provider or representative customer hardware | demand trigger, second target authorization and GA claim approval |
+| Increment | Status | Owned goal order and shared dependencies | Customer/operator value | Entry criteria | Exit/release gate |
+|---|---|---|---|---|---|
+| R0 — Isolation contract | ready | G-058 → G-060 → G-079 | truthful customer/cell boundaries and approved same-Host versus separate-VM trust model | G-058 ready for specification | trust language, topology, authority and TDR disposition accepted |
+| R1 — Local Host alpha | planned | G-080; G-034 conditional preflight; G-038 parallel quick win; G-025 release gate | signed reproducible local Host/cell artifact and per-cell first-run reliability | R0 released; native/package risk resolved | local two-cell artifact, rollback/export, package checks and customer-identical staging |
+| R2 — Secure/recoverable Host alpha | planned | G-081 in parallel with G-082; G-082 follows G-080; G-025 release gate | authenticated remote access, encrypted off-Host recovery and portable export | G-079 accepted; G-080 available for G-082 | security review, destroyed-Host restore and customer-identical staging |
+| R3 — Licensed local Host beta | planned | G-083 → G-084; G-030 before retention contract; G-020 before estimate semantics; G-025 release gate | paid local/fake-VM lifecycle with truthful estimates, retention, rescue and receipts | G-079/G-080/G-081/G-082 complete | entitlement/lifecycle acceptance, browser evidence and staging release candidate |
+| R4 — DigitalOcean beta | planned | G-085; G-025 release gate | first customer-owned cloud-server deployment with actual cost and cleanup evidence | R3 released; provider/security/spend gates authorized | real provider conformance, bill reconciliation, recovery, cleanup and beta approval |
+| R5 — Portable Host GA | planned | G-086 | same appliance proven on a second provider or representative customer hardware | G-085 accepted plus demand and second-target authorization | second-target conformance and approved portability/GA claim |
 
-### Parallel customer-value streams
+Status advancement example: completing G-058 keeps R0 active and moves the
+current owned goal to G-060. Completing G-079 moves R0 to `verification`; only
+the accepted R0 exit gate marks it `released`, advances the workstream to R1,
+and makes G-080 the current owned goal.
 
-- [Enterprise structured-data connectors](enterprise-structured-data-connectors.md)
-  (G-073) may research/spec immediately and implement locally after G-079.
-  [Enterprise document connectors](enterprise-document-connectors.md) (G-074)
-  follows the shared connector kernel. Cloud-Host support for both additionally
-  conforms to G-081 and G-082; neither waits for G-085.
+#### Parallel and non-blocking alignment
+
+- G-034 is a conditional artifact preflight, not an open-ended modernization
+  blocker. G-036 activates only if G-080 measurements cross its trigger.
+- G-038 is an independent R1 quick win aligned with per-cell `RELAY_DATA_DIR`.
+- G-020 supplies freshness semantics before G-084; G-030 supplies
+  retain-versus-purge language before G-083/G-084.
 - G-059 becomes executable when G-080 supplies a disposable Host/cell fixture or
-  when equivalent reporter evidence arrives.
-- G-062 can deliver general dashboard value independently, while Host/cell health
+  equivalent customer evidence.
+- G-062 may deliver general dashboard value independently; only Host/cell health
   modules wait for G-083's typed lifecycle API.
-- G-025 repeats after each release candidate. G-036 remains trigger-only and is
-  activated only by measured npm/OCI package or installation cost.
+- G-025 repeats after every implementation release candidate.
+
+### Workstream — Enterprise connectors
+
+- **Outcome:** customers can securely synchronize structured records and
+  documents between enterprise sources and Relay Tables/Documents through one
+  MCP-extensible, cell-scoped connector platform.
+- **Lane:** parallel
+- **Status:** discovery
+- **Current increment:** E0 — Shared connector contract (`ready`)
+- **Current owned goal(s):** G-073 research/spec; G-074 research may overlap.
+- **Next gate:** approve the shared kernel/security posture and representative
+  structured/document adapter tranches.
+- **Owned goals:** G-073 and G-074 during E0; E0 must groom bounded
+  implementation/conformance child goals before production mutation.
+- **Authority:** [structured connector specification](enterprise-structured-data-connectors.md)
+  and [document connector specification](enterprise-document-connectors.md).
+
+#### Dependency graph
+
+```text
+G-073 research/spec ─┬─→ shared kernel/TDR/security contract ─→ structured child goals
+G-074 research ──────┘                                     └─→ document child goals
+
+G-079 accepted ───────── hard prerequisite for production implementation
+G-081 + G-082 + G-083 ─ conformance/coordination for managed Host support
+```
+
+#### Release train
+
+| Increment | Status | Owned goal order and shared dependencies | Customer/operator value | Entry criteria | Exit/release gate |
+|---|---|---|---|---|---|
+| E0 — Shared connector contract | ready | G-073 research/spec with overlapping G-074 research | approved connector capabilities, security boundary, shared kernel and bounded first tranches | existing Tables/Documents/MCP foundations | refreshed research, joint TDR/threat model/plans, bounded implementation-goal grooming, and operator tranche approval |
+| E1 — Structured local connector beta | planned | bounded structured adapter goal(s) groomed from G-073; hard prerequisite G-079 | first supported structured sources synchronize with Relay Tables inside one cell | E0 accepted, implementation goals assigned, and G-079 complete | connector conformance, real sandbox evidence, regressions and G-025 staging |
+| E2 — Document local connector beta | planned | bounded document adapter goal(s) groomed from G-074 after the shared kernel; hard prerequisite G-079 | first supported enterprise document sources synchronize with Relay Documents inside one cell | E0 accepted, implementation goals assigned, shared kernel available, and G-079 complete | content-safety/fidelity conformance, real sandbox evidence, regressions and G-025 staging |
+| E3 — Managed Host conformance | planned | bounded Host-conformance goal(s) groomed when independent; conformance with G-081/G-082 and coordination with G-083; no G-085 dependency | the same connectors operate safely in managed local/cloud Host cells | E1/E2 capability shipped and Host identity/recovery/lifecycle contracts available | local/fake-Host connector journey, secret/content isolation and customer-identical staging |
+
+Status advancement example: finishing the G-073-side research evidence does not
+release E0 if the G-074/shared-kernel security contract or operator tranche gate
+remains. E0 release must also replace the current umbrella implementation scope
+with bounded owned child goals. The workstream then becomes `ready` on the first
+approved local implementation goal. A completed G-079 may make both E1 and E2
+technically ready, but the portfolio lane and write-ownership decision still
+control whether they execute concurrently.
+
+#### Parallel and non-blocking alignment
+
+- Research and specification do not wait for G-079; production mutations do.
+- Local connector betas do not wait for DigitalOcean.
+- Remote/cloud Host claims conform to G-081 identity/ingress and G-082
+  secrets/recovery; G-083 exposes lifecycle/resource control without inspecting
+  connector credentials or content.
+- Large SDK/parser dependencies activate G-036 only when measured package or
+  install evidence crosses its trigger.
+
+### Standalone goals
+
+Goals not listed as owned by a major workstream remain ordered in
+`_IDEAS/backlog.md` and cataloged below. Promote a standalone goal into a
+workstream only when it is decomposed into multiple dependent goals or
+independently valuable release increments; shared subject matter alone is not
+enough.
 
 ## MVP
 
@@ -897,7 +1002,7 @@ Phase 4 — Runtime Expansion
 ## Recommended Build Order
 
 > Historical build record below. For current work, follow the live backlog and
-> the **Current delivery program — customer-owned Relay Host** sequence above.
+> the **Major workstreams and release trains** portfolio above.
 
 1. **Sprint 1 — Foundation**: cli-bootstrap + database-schema + app-shell (parallel)
 2. **Sprint 2 — Core Data**: project-management + task-board
