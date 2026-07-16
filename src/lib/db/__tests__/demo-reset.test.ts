@@ -1,23 +1,36 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { clearAllData } from "@/lib/data/clear";
-import { db, sqlite } from "@/lib/db";
-import {
-  operationsReceipts,
-  projects,
-  tasks,
-  workshopRuns,
-  workflowReceiptRuns,
-  workflows,
-} from "@/lib/db/schema";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-function seedResetGraph(suffix: string) {
+type DatabaseModule = typeof import("@/lib/db");
+type SchemaModule = typeof import("@/lib/db/schema");
+
+let dataDir: string;
+
+beforeEach(() => {
+  dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "relay-demo-reset-"));
+  vi.resetModules();
+  vi.stubEnv("RELAY_DATA_DIR", dataDir);
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+  fs.rmSync(dataDir, { recursive: true, force: true });
+});
+
+function seedResetGraph(
+  db: DatabaseModule["db"],
+  schema: SchemaModule,
+  suffix: string
+) {
   const now = new Date();
   const projectId = `demo_project_${suffix}`;
   const workflowId = `demo_workflow_${suffix}`;
   const taskId = `demo_task_${suffix}`;
   const receiptId = `demo_receipt_${suffix}`;
 
-  db.insert(projects)
+  db.insert(schema.projects)
     .values({
       id: projectId,
       name: "Demo reset project",
@@ -25,7 +38,7 @@ function seedResetGraph(suffix: string) {
       updatedAt: now,
     })
     .run();
-  db.insert(workflows)
+  db.insert(schema.workflows)
     .values({
       id: workflowId,
       projectId,
@@ -36,7 +49,7 @@ function seedResetGraph(suffix: string) {
       updatedAt: now,
     })
     .run();
-  db.insert(tasks)
+  db.insert(schema.tasks)
     .values({
       id: taskId,
       projectId,
@@ -49,7 +62,7 @@ function seedResetGraph(suffix: string) {
       updatedAt: now,
     })
     .run();
-  db.insert(workflowReceiptRuns)
+  db.insert(schema.workflowReceiptRuns)
     .values({
       id: `demo_receipt_run_${suffix}`,
       workflowId,
@@ -60,7 +73,7 @@ function seedResetGraph(suffix: string) {
       finishedAt: now,
     })
     .run();
-  db.insert(operationsReceipts)
+  db.insert(schema.operationsReceipts)
     .values({
       id: receiptId,
       sourceKey: `workflow:${workflowId}:1`,
@@ -78,7 +91,7 @@ function seedResetGraph(suffix: string) {
       createdAt: now,
     })
     .run();
-  db.insert(workshopRuns)
+  db.insert(schema.workshopRuns)
     .values({
       id: `demo_workshop_${suffix}`,
       editionId: "relay-operator-workshop",
@@ -95,27 +108,35 @@ function seedResetGraph(suffix: string) {
     .run();
 }
 
-afterEach(() => {
-  clearAllData();
-});
-
 describe("demo reset", () => {
-  it("clears and reseeds the same used database twice with foreign keys enabled", () => {
-    seedResetGraph("first");
-    const firstReset = clearAllData();
-    expect(firstReset.workshopRuns).toBe(1);
-    expect(firstReset.operationsReceipts).toBe(1);
-    expect(firstReset.workflowReceiptRuns).toBe(1);
+  it("clears and reseeds the same used database twice with foreign keys enabled", async () => {
+    const database = await import("@/lib/db");
+    const schema = await import("@/lib/db/schema");
+    const { clearAllData } = await import("@/lib/data/clear");
 
-    seedResetGraph("second");
-    const secondReset = clearAllData();
-    expect(secondReset.workshopRuns).toBe(1);
-    expect(secondReset.operationsReceipts).toBe(1);
-    expect(secondReset.workflowReceiptRuns).toBe(1);
+    try {
+      seedResetGraph(database.db, schema, "first");
+      const firstReset = clearAllData();
+      expect(firstReset.workshopRuns).toBe(1);
+      expect(firstReset.operationsReceipts).toBe(1);
+      expect(firstReset.workflowReceiptRuns).toBe(1);
 
-    seedResetGraph("third");
-    expect(sqlite.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
-    expect(db.select().from(tasks).all()).toHaveLength(1);
-    expect(db.select().from(workshopRuns).all()).toHaveLength(1);
+      seedResetGraph(database.db, schema, "second");
+      const secondReset = clearAllData();
+      expect(secondReset.workshopRuns).toBe(1);
+      expect(secondReset.operationsReceipts).toBe(1);
+      expect(secondReset.workflowReceiptRuns).toBe(1);
+
+      seedResetGraph(database.db, schema, "third");
+      expect(
+        database.sqlite.prepare("PRAGMA foreign_key_check").all()
+      ).toEqual([]);
+      expect(database.db.select().from(schema.tasks).all()).toHaveLength(1);
+      expect(database.db.select().from(schema.workshopRuns).all()).toHaveLength(
+        1
+      );
+    } finally {
+      database.sqlite.close();
+    }
   });
 });
