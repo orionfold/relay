@@ -406,6 +406,49 @@ export const operationsReceipts = sqliteTable(
 
 export type OperationsReceiptRow = InferSelectModel<typeof operationsReceipts>;
 
+export const workshopRuns = sqliteTable(
+  "workshop_runs",
+  {
+    id: text("id").primaryKey(),
+    editionId: text("edition_id").notNull(),
+    editionVersion: text("edition_version").notNull(),
+    editionHash: text("edition_hash").notNull(),
+    status: text("status", {
+      enum: ["ready", "active", "completed", "at_risk", "failed"],
+    })
+      .default("ready")
+      .notNull(),
+    checkpointState: text("checkpoint_state").default("{}").notNull(),
+    projectId: text("project_id").references(() => projects.id, {
+      onDelete: "set null",
+    }),
+    appId: text("app_id"),
+    workflowId: text("workflow_id").references(() => workflows.id, {
+      onDelete: "set null",
+    }),
+    receiptId: text("receipt_id").references(() => operationsReceipts.id, {
+      onDelete: "set null",
+    }),
+    fallbackUsed: integer("fallback_used", { mode: "boolean" })
+      .default(false)
+      .notNull(),
+    lastErrorCode: text("last_error_code"),
+    lastErrorMessage: text("last_error_message"),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+    completedAt: integer("completed_at", { mode: "timestamp" }),
+  },
+  (table) => [
+    index("idx_workshop_runs_edition").on(
+      table.editionId,
+      table.editionVersion
+    ),
+    index("idx_workshop_runs_status").on(table.status),
+  ]
+);
+
+export type WorkshopRunRow = InferSelectModel<typeof workshopRuns>;
+
 export const workflowReceiptRuns = sqliteTable(
   "workflow_receipt_runs",
   {

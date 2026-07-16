@@ -29,6 +29,7 @@ describe("project DELETE cascade coverage", () => {
     "conversations",
     "projectDocumentDefaults",
     "userTables",
+    "workshopRuns",
   ];
 
   // Tables that are indirect children (FK to a table that has projectId)
@@ -109,6 +110,7 @@ describe("project DELETE cascade coverage", () => {
       { child: "tasks", parent: "projects" },
       { child: "workflows", parent: "projects" },
       { child: "schedules", parent: "projects" },
+      { child: "workshopRuns", parent: "projects" },
     ];
 
     const violations = orderPairs.filter(({ child, parent }) => {

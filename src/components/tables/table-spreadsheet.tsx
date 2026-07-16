@@ -22,6 +22,7 @@ import { TableImportWizard } from "./table-import-wizard";
 import { TableRowSheet } from "./table-row-sheet";
 import { TableEnrichmentSheet } from "./table-enrichment-sheet";
 import { TableEnrichmentRuns } from "./table-enrichment-runs";
+import { TableRenderView } from "./table-render-view";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Table2 } from "lucide-react";
 import { evaluateComputedColumns } from "@/lib/tables/computed";
@@ -33,6 +34,7 @@ interface TableSpreadsheetProps {
   columns: ColumnDef[];
   initialRows: UserTableRowRow[];
   initialSelectedRowId?: string | null;
+  defaultView?: "render" | "row";
 }
 
 interface ParsedRow {
@@ -56,6 +58,7 @@ export function TableSpreadsheet({
   columns: initialColumns,
   initialRows,
   initialSelectedRowId = null,
+  defaultView = "row",
 }: TableSpreadsheetProps) {
   const [columns, setColumns] = useState<ColumnDef[]>(initialColumns);
   const [rows, setRows] = useState<ParsedRow[]>(() => parseRows(initialRows));
@@ -67,6 +70,7 @@ export function TableSpreadsheet({
   const [rowSheetRow, setRowSheetRow] = useState<ParsedRow | null>(null);
   const [enrichmentOpen, setEnrichmentOpen] = useState(false);
   const [enrichmentRefreshKey, setEnrichmentRefreshKey] = useState(0);
+  const [viewMode, setViewMode] = useState<"render" | "row">(defaultView);
   const openedInitialRowRef = useRef<string | null>(null);
 
   // ── Refresh helpers ─────────────────────────────────────────────────
@@ -271,6 +275,8 @@ export function TableSpreadsheet({
         onAddColumn={() => setColumnSheetOpen(true)}
         onBulkDelete={handleBulkDelete}
         onImport={() => setImportOpen(true)}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
         onEnrich={() => setEnrichmentOpen(true)}
       />
 
@@ -279,6 +285,15 @@ export function TableSpreadsheet({
         refreshKey={enrichmentRefreshKey}
       />
 
+      {viewMode === "render" ? (
+        <TableRenderView
+          columns={columns}
+          rows={rows}
+          selectedRows={selectedRows}
+          onToggleSelect={toggleRowSelect}
+          onOpenRow={(row) => handleOpenRowSheet(row as ParsedRow)}
+        />
+      ) : (
       <div className="rounded-lg border overflow-auto">
         <Table>
           <TableHeader>
@@ -377,6 +392,7 @@ export function TableSpreadsheet({
           </TableBody>
         </Table>
       </div>
+      )}
 
       {rows.length > 0 && (
         <div className="flex justify-start">

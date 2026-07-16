@@ -72,7 +72,7 @@ describe("interaction affordance policy (highlight-carried, system cursors)", ()
   it("contains no hand-cursor switching code or guidance", () => {
     const handUtility = ["cursor", "pointer"].join("-");
     const handDeclaration = new RegExp(
-      `${["cursor"].join("")}\\s*:\\s*(?:${["pointer"].join("")}|url\\()`,
+      `${["cursor"].join("")}\\s*:\\s*(?:["'\`]\\s*)?(?:${["pointer"].join("")}|url\\()`,
     );
     const violations = POLICY_ROOTS.flatMap((root) =>
       collectPolicyFiles(join(ROOT, root)).flatMap((path) => {

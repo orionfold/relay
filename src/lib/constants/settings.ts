@@ -50,6 +50,7 @@ export const SETTINGS_KEYS = {
   AUTO_PROMOTE_SKILLS: "environment.autoPromoteSkills",
   // App authoring diagnostics
   APPS_SHOW_INFERENCE_DIAGNOSTICS: "apps.showInferenceDiagnostics",
+  DASHBOARD_PREFERENCES: "dashboard.preferences.v1",
 } as const;
 
 export type RoutingPreference = "cost" | "latency" | "quality" | "manual";

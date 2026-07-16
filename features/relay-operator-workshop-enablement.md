@@ -1,6 +1,6 @@
 ---
 title: Relay Operator Workshop Enablement
-status: planned
+status: completed
 priority: P1
 milestone: workshop-enablement
 source: private Orionfold Website Training MLP decision (2026-07-16)
@@ -186,6 +186,29 @@ fails visibly with a named error and a bounded rescue path. Relay must never
 silently substitute current product behavior for a workshop edition that was
 authored against another version.
 
+## Locked W0 decisions
+
+- **Delivery:** Website hosts the paid instruction and fulfills an account-free
+  downloadable edition manifest/starter reference. Paid prose does not ship in
+  Relay's public npm package.
+- **Integrity:** every edition is content-addressed. External purchased
+  editions may carry a detached Ed25519 signature verified against an explicit
+  trusted-key registry. Built-in official sample/starter content is pinned by
+  an embedded canonical hash.
+- **Local state:** Relay persists one minimal workshop-run anchor with edition,
+  checkpoint and evidence identities. It does not persist course catalogs,
+  lessons, enrollment, cohorts, certificates or instructor state.
+- **Completion language:** existing Operations Receipt verdicts remain
+  authoritative: `passed`, `at_risk`, and `failed`. The workshop UI presents
+  these as Completed, Completed at risk, and Needs work without changing their
+  machine values.
+- **Sharing:** local export is learner-owned and redacted. Any public receipt,
+  badge, social share or Website rendering is opt-in and separately owned.
+
+See TDR-045 for the architecture decision and
+`features/relay-operator-workshop-enablement-plan.md` for implementation order,
+regression budget and rescue/rollback.
+
 ## “WOW” and sharing policy
 
 The workstream earns attention through visible capability and checkable proof:
@@ -204,24 +227,50 @@ redacted/synthetic or explicitly approved evidence.
 
 ## Acceptance criteria
 
-- [ ] The canonical backlog registers this as Relay's primary workstream with
-      W0–W3 increments and one owning workstream per goal.
-- [ ] G-062 and G-061 are explicitly aligned as the first material UX tranche.
-- [ ] G-087–G-092 are bounded, independently verifiable Goal Contracts.
-- [ ] The architecture report maps every needed capability to an existing owner
+- [x] The canonical backlog registered W0–W3 with one owning workstream per
+      goal, then removed the accepted workstream and goals at completion.
+- [x] G-062 and G-061 are explicitly aligned as the first material UX tranche.
+- [x] G-087–G-092 are bounded, independently verifiable Goal Contracts.
+- [x] The architecture report maps every needed capability to an existing owner
       or names a justified new Relay seam.
-- [ ] No goal creates another content source, video pipeline, static demo,
+- [x] No goal creates another content source, video pipeline, static demo,
       receipt evaluator, app exporter, publisher, book renderer, CRM, auth
       system, or LMS.
-- [ ] The first workshop remains completable on the free core without a Relay
+- [x] The first workshop remains completable on the free core without a Relay
       premium license.
-- [ ] The free sample and paid capstone use the same source-hashed Marketing
+- [x] The free sample and paid capstone use the same source-hashed Marketing
       Line fixture family.
-- [ ] Completion evidence is composed from existing operations receipts,
+- [x] Completion evidence is composed from existing operations receipts,
       output documents, and user-created app export with secrets/customer data
       excluded.
-- [ ] Motion and Website dependencies are typed as coordination/conformance or
+- [x] Motion and Website dependencies are typed as coordination/conformance or
       external release gates rather than hidden Relay implementation work.
+
+## Completion receipt
+
+Completed locally on 2026-07-16:
+
+- W0 shipped the typed adaptive Home registry/settings and semantic table
+  Render/Row presentation.
+- W1 made reused-demo reset FK-safe and added one restartable, account-free
+  workshop sample to the existing static simulator.
+- W2 added strict content-addressed editions, deterministic preflight,
+  idempotent starter installation, observable checkpoints, named rescue,
+  explicit no-provider rehearsal, Operations Receipt validation and a
+  deterministic redacted capstone archive.
+- W3 added a validated Website/Motion production handoff, eight-step
+  no-founder-touch ledger and launch/revise/stop packet.
+
+An isolated `RELAY_DATA_DIR` run completed all five required checkpoints. Its
+receipt verdict was `passed`; its retained archive included the app Pack,
+selected output, hashes, limitations and no absolute user path or secret
+pattern. The real runtime-module graph, production build, targeted regressions
+and responsive browser evidence passed.
+
+The public-launch recommendation remains **revise** until Website proves guest
+checkout/account-free delivery and Motion produces operator-approved
+renditions. Those external gates do not reopen the completed Relay enablement
+workstream.
 
 ## Operator gates
 

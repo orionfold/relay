@@ -34,6 +34,21 @@ export interface ColumnConfig {
   targetTableId?: string;
   /** Relation column: display column name in target table */
   displayColumn?: string;
+  /** Optional semantic role used by the shared Render view. */
+  displayRole?:
+    | "title"
+    | "description"
+    | "image"
+    | "category"
+    | "metric"
+    | "date"
+    | "link"
+    | "boolean"
+    | "meta";
+  /** Number interpretation for labels only; color never implies good/bad. */
+  numberPolarity?: "higher" | "lower" | "neutral";
+  /** Optional stable number domain for cross-page intensity comparison. */
+  numberDomain?: { min: number; max: number };
 }
 
 // ── Filter & Sort Specs ──────────────────────────────────────────────

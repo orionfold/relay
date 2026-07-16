@@ -33,6 +33,7 @@ import {
   scheduleTableInputs,
   userTableTriggers,
   userTableRowHistory,
+  workshopRuns,
 } from "@/lib/db/schema";
 import { eq, inArray } from "drizzle-orm";
 
@@ -157,6 +158,7 @@ export function deleteProjectCascade(projectId: string): boolean {
   }
 
   // 7. Direct project children
+  db.delete(workshopRuns).where(eq(workshopRuns.projectId, projectId)).run();
   db.delete(documents).where(eq(documents.projectId, projectId)).run();
   db.delete(tasks).where(eq(tasks.projectId, projectId)).run();
   if (workflowIds.length > 0) {

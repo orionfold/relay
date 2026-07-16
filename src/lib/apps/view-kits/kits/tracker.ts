@@ -108,6 +108,7 @@ export const trackerKit: KitDefinition = {
             tableId: runtime.heroTable.tableId,
             columns: runtime.heroTable.columns,
             initialRows: runtime.heroTable.rows,
+            defaultView: "render",
           }),
         }
       : undefined;

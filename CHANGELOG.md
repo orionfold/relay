@@ -8,6 +8,37 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+### Added
+
+- **Relay can run the first autonomous Operator Workshop locally.** A
+  content-addressed, account-free edition now provides deterministic preflight,
+  an idempotent Marketing Line starter, five observable checkpoints, named
+  rescue, an explicit no-provider rehearsal, Operations Receipt validation,
+  and a redacted deterministic capstone archive with the learner-owned app
+  Pack and selected outputs.
+- **Home is now a configurable adaptive command center.** Typed local modules
+  cover operator attention, activity, installed Packs/apps, projects,
+  documents, cost, runtime health, quick actions, onboarding, and active
+  workshop progress; Dashboard Settings controls visibility, deterministic
+  smart ordering, and reset.
+- **Tables now offer semantic Render and dense Row modes.** Additive column
+  display roles produce titles, abstracts, safe thumbnails, category pills,
+  numeric intensity, links, dates, booleans, and metadata while preserving Row
+  as the table-detail editing default and using Render in generic app heroes.
+- **Workshop production has a versioned cross-project handoff.** The local JSON
+  contract carries Relay source identity, a Website offer/access fixture with
+  no unauthorized price or SKU, a Motion v1 draft-job seed, a no-founder-touch
+  ledger, and explicit launch/revise/stop criteria.
+
+### Fixed
+
+- **Reused demo reset is foreign-key safe.** The seed reset deletes dependent
+  workshop and receipt state in the correct order and is regression-tested
+  across two reset-and-reseed cycles on the same database.
+- **The global error fallback follows Relay's system-cursor policy.** The last
+  inline hand-cursor override was removed and the source guard now detects
+  quoted React style declarations.
+
 ## [0.42.2] — 2026-07-15
 
 ### Fixed

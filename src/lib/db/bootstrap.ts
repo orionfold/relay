@@ -49,6 +49,7 @@ const LEGACY_DATA_TABLES = [
   "schedule_firing_metrics",
   "operations_receipts",
   "workflow_receipt_runs",
+  "workshop_runs",
   "publish_targets",
   "deployments",
 ] as const;
@@ -301,6 +302,33 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
     CREATE UNIQUE INDEX IF NOT EXISTS idx_operations_receipts_source_key ON operations_receipts(source_key);
     CREATE INDEX IF NOT EXISTS idx_operations_receipts_schedule_finished ON operations_receipts(schedule_id, finished_at);
     CREATE INDEX IF NOT EXISTS idx_operations_receipts_workflow_finished ON operations_receipts(workflow_id, finished_at);
+
+    CREATE TABLE IF NOT EXISTS workshop_runs (
+      id TEXT PRIMARY KEY NOT NULL,
+      edition_id TEXT NOT NULL,
+      edition_version TEXT NOT NULL,
+      edition_hash TEXT NOT NULL,
+      status TEXT DEFAULT 'ready' NOT NULL,
+      checkpoint_state TEXT DEFAULT '{}' NOT NULL,
+      project_id TEXT,
+      app_id TEXT,
+      workflow_id TEXT,
+      receipt_id TEXT,
+      fallback_used INTEGER DEFAULT 0 NOT NULL,
+      last_error_code TEXT,
+      last_error_message TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      completed_at INTEGER,
+      FOREIGN KEY (project_id) REFERENCES projects(id) ON UPDATE NO ACTION ON DELETE SET NULL,
+      FOREIGN KEY (workflow_id) REFERENCES workflows(id) ON UPDATE NO ACTION ON DELETE SET NULL,
+      FOREIGN KEY (receipt_id) REFERENCES operations_receipts(id) ON UPDATE NO ACTION ON DELETE SET NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_workshop_runs_edition
+      ON workshop_runs(edition_id, edition_version);
+    CREATE INDEX IF NOT EXISTS idx_workshop_runs_status
+      ON workshop_runs(status);
 
     CREATE TABLE IF NOT EXISTS workflow_receipt_runs (
       id TEXT PRIMARY KEY NOT NULL,

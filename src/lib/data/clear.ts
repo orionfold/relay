@@ -45,6 +45,7 @@ import {
   scheduleFiringMetrics,
   operationsReceipts,
   workflowReceiptRuns,
+  workshopRuns,
   deployments,
   publishTargets,
 } from "@/lib/db/schema";
@@ -146,6 +147,7 @@ export function clearAllData() {
   // Receipt rows retain source references for diagnostics, so clear them before
   // the task/schedule/workflow rows they describe. Run markers belong to a
   // workflow and must likewise be removed before workflows.
+  const workshopRunsDeleted = step("workshopRuns", () => db.delete(workshopRuns).run().changes);
   const operationsReceiptsDeleted = step("operationsReceipts", () => db.delete(operationsReceipts).run().changes);
   const workflowReceiptRunsDeleted = step("workflowReceiptRuns", () => db.delete(workflowReceiptRuns).run().changes);
   const tasksDeleted = step("tasks", () => db.delete(tasks).run().changes);
@@ -229,6 +231,7 @@ export function clearAllData() {
     files: filesDeleted,
     screenshots: screenshotsDeleted,
     workflowExecutionStats: executionStatsDeleted,
+    workshopRuns: workshopRunsDeleted,
     operationsReceipts: operationsReceiptsDeleted,
     workflowReceiptRuns: workflowReceiptRunsDeleted,
   };

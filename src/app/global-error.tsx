@@ -12,8 +12,11 @@ export default function GlobalError({
       <body>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", gap: "1rem", fontFamily: "system-ui" }}>
           <h2>Something went wrong</h2>
-          <p style={{ color: "#666" }}>{error.message || "An unexpected error occurred."}</p>
-          <button onClick={reset} style={{ padding: "0.5rem 1rem", cursor: "pointer" }}>
+          <p style={{ color: "#666" }}>
+            An unexpected error occurred. Retry the operation or inspect Relay
+            logs if it repeats.
+          </p>
+          <button onClick={reset} style={{ padding: "0.5rem 1rem" }}>
             Try again
           </button>
         </div>
