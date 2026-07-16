@@ -24,8 +24,9 @@ Each module declares:
 
 - stable id and title;
 - default visibility and fixed-order index;
-- desktop span (`wide` or `narrow`);
 - source route;
+- source label for destination-specific card actions (`Open Monitor`, `Open
+  Documents`, and so on);
 - eligibility rule;
 - urgency, active and recency signals;
 - empty and error copy.
@@ -37,10 +38,13 @@ Initial modules are:
 3. installed Packs/apps;
 4. tasks, projects and workflows;
 5. recent documents/outputs;
-6. cost and budget;
-7. runtime/environment health;
-8. quick actions and onboarding;
-9. active workshop progress when a local run exists.
+6. recently launched capabilities with explicit in-product destinations;
+7. optional pricing coverage, without repeating spend already visible in the
+   telemetry rail;
+8. optional provider readiness, without repeating the selected runtime or
+   configured-provider count already visible in shell chrome;
+9. optional activation progress, without a second navigation menu;
+10. active workshop progress when a local run exists.
 
 Host/cell health remains excluded until G-083 exposes a typed content-free
 lifecycle API.
@@ -78,11 +82,24 @@ that hidden modules contain unresolved signals when applicable.
 
 ## Layout
 
-- desktop: five-column grid; wide modules span three, narrow span two;
-- tablet: two equal columns;
+- desktop: an equal-height three-card operational band followed by measured
+  CSS-grid masonry, including very wide canvases;
+- the top band is anchored as Needs attention, Autonomous activity and Recent
+  outputs; their content budgets are five, four-plus-chart and five rows so
+  equal-height cards stay visually balanced rather than padded excessively;
+- later cards fill the next available vertical space;
+- tablet: two measured natural-height columns;
 - mobile: one column in keyboard/DOM order;
+- a resize observer recalculates grid row spans from each module's natural
+  content height, removing equal-row whitespace without column-first ordering;
 - modules retain stable keys during reordering;
-- no masonry or Pack-authored component injection.
+- Pack-authored component injection remains prohibited.
+
+The shell already owns navigation, task/workflow/failure counts, runtime
+selection, configured-provider count and spend. Home does not repeat those
+summaries. Its first visible pixel is operational detail: affected work,
+activity shape, installed operating surfaces, project progress and retained
+outputs. Hidden urgent modules produce a compact exception notice only.
 
 ## Failure states
 
@@ -101,6 +118,11 @@ offer a deep link where useful.
 - [x] Hidden urgent sources are acknowledged without rendering their contents.
 - [x] Fresh-instance welcome remains available.
 - [x] Partial module failures do not fail the whole page.
+- [x] Above-fold modules pack to natural height without equal-row whitespace.
+- [x] Default Home content does not repeat menu navigation or telemetry-rail
+      summaries.
+- [x] Recent launches have curated summaries, dates and explicit internal
+      destination actions.
 - [x] Desktop/tablet/mobile layouts preserve keyboard order, system cursor,
       direct navigation and semantic-token styling.
 

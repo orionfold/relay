@@ -1,10 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { MiniBar } from "@/components/charts/mini-bar";
+import { Sparkline } from "@/components/charts/sparkline";
+import { presentActivity } from "@/lib/dashboard/activity";
 
 export interface ActivityEntry {
   id: string;
@@ -20,6 +17,9 @@ interface ActivityFeedProps {
 }
 
 const eventColors: Record<string, string> = {
+  message_start: "bg-status-running",
+  content_block_start: "bg-status-running",
+  content_block_delta: "bg-status-completed/70",
   tool_start: "bg-status-running",
   content_start: "bg-status-completed",
   content_delta: "bg-status-completed/70",
@@ -28,27 +28,33 @@ const eventColors: Record<string, string> = {
 };
 
 export function ActivityFeed({ entries, hourlyActivity }: ActivityFeedProps) {
+  const hourlyTotal = hourlyActivity?.reduce((total, value) => total + value, 0) ?? 0;
+  const peak = hourlyActivity?.length ? Math.max(...hourlyActivity) : 0;
+
   return (
-    <Card className="surface-card h-full flex flex-col">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Live Agent Activity
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
-        {hourlyActivity && hourlyActivity.some((v) => v > 0) && (
-          <div className="mb-3 pb-3 border-b border-border/50">
-            <p className="text-[10px] text-muted-foreground mb-1.5">24h activity</p>
-            <MiniBar
-              data={hourlyActivity.map((value) => ({ value }))}
-              width={200}
-              height={28}
-              defaultColor="var(--chart-1)"
+    <div>
+      {hourlyActivity && (
+        <div className="surface-card-muted mb-3 grid grid-cols-[auto_minmax(0,1fr)] items-end gap-3 rounded-md border p-3">
+          <div>
+            <p className="text-2xl font-bold tabular-nums">{hourlyTotal}</p>
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              Events · 24h
+            </p>
+          </div>
+          <div className="min-w-0">
+            <Sparkline
+              data={hourlyActivity}
+              width={240}
+              height={42}
               label="Agent activity over last 24 hours"
               className="w-full"
             />
+            <p className="mt-1 text-right text-[10px] text-muted-foreground">
+              Peak {peak}/hour
+            </p>
           </div>
-        )}
+        </div>
+      )}
         {entries.length === 0 ? (
           <p
             className="text-sm text-muted-foreground py-4 text-center"
@@ -57,43 +63,40 @@ export function ActivityFeed({ entries, hourlyActivity }: ActivityFeedProps) {
             No recent agent activity.
           </p>
         ) : (
-          <div className="space-y-1" aria-live="polite">
-            {entries.map((entry) => (
-              <div
-                key={entry.id}
-                className="flex items-start gap-3 py-2.5 border-b border-border/50 last:border-b-0"
-              >
+          <div className="space-y-0.5" aria-live="polite">
+            {entries.slice(0, 4).map((entry) => {
+              const presentation = presentActivity(entry.event, entry.payload);
+              return (
                 <div
-                  className={`h-2 w-2 rounded-full mt-1.5 flex-shrink-0 ${eventColors[entry.event] ?? "bg-muted-foreground"}`}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm truncate">
-                    <span className="font-medium">{entry.event}</span>
-                    {entry.taskTitle && (
-                      <span className="text-muted-foreground"> — {entry.taskTitle}</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground" suppressHydrationWarning>
-                    {new Date(entry.timestamp).toLocaleTimeString()}
-                    {entry.payload && (() => {
-                      const chars = Array.from(entry.payload);
-                      const truncated = chars.length > 60 ? chars.slice(0, 60).join("") + "..." : entry.payload;
-                      return ` · ${truncated}`;
-                    })()}
-                  </p>
+                  key={entry.id}
+                  className="flex items-start gap-2.5 border-b border-border/50 py-2 last:border-b-0"
+                >
+                  <div
+                    className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${eventColors[entry.event] ?? "bg-muted-foreground"}`}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm">
+                      <span className="font-medium">{presentation.label}</span>
+                      {entry.taskTitle && (
+                        <span className="text-muted-foreground">
+                          {" "}
+                          — {entry.taskTitle}
+                        </span>
+                      )}
+                    </p>
+                    <p
+                      className="truncate text-xs text-muted-foreground"
+                      suppressHydrationWarning
+                    >
+                      {new Date(entry.timestamp).toLocaleTimeString()}
+                      {presentation.detail ? ` · ${presentation.detail}` : ""}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
-        <div className="mt-auto pt-3">
-          <Link href="/monitor">
-            <Button variant="outline" size="sm" className="w-full">
-              Open monitor <ArrowRight className="h-3 w-3 ml-1" />
-            </Button>
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }

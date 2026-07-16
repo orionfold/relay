@@ -18,7 +18,7 @@ export function RecentOutputsModule({ outputs }: { outputs: RecentOutput[] }) {
   }
   return (
     <div className="space-y-1">
-      {outputs.map((output) => (
+      {outputs.slice(0, 5).map((output) => (
         <Link
           key={output.id}
           href={`/documents/${output.id}`}

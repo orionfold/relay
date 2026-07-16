@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Boxes } from "lucide-react";
+import { Boxes, PackageCheck } from "lucide-react";
 import type { AppSummary } from "@/lib/apps/registry";
 
 export function InstalledAppsModule({ apps }: { apps: AppSummary[] }) {
@@ -15,19 +15,24 @@ export function InstalledAppsModule({ apps }: { apps: AppSummary[] }) {
     );
   }
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
-      {apps.slice(0, 6).map((app) => (
+    <div className="space-y-1">
+      {apps.slice(0, 5).map((app) => (
         <Link
           key={app.id}
           href={`/apps/${app.id}`}
           data-interactive-surface=""
           data-interactive-outline="preserve"
-          className="interactive-list-item surface-card-muted rounded-md border p-3"
+          className="interactive-list-item -mx-1 flex min-w-0 items-center gap-3 rounded-md px-1 py-2"
         >
-          <p className="truncate text-sm font-medium">{app.name}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {app.primitivesSummary}
-          </p>
+          <span className="surface-card-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-md border">
+            <PackageCheck className="h-4 w-4 text-primary" aria-hidden="true" />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-medium">{app.name}</span>
+            <span className="block truncate text-xs text-muted-foreground">
+              {app.primitivesSummary}
+            </span>
+          </span>
         </Link>
       ))}
     </div>

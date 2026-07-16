@@ -4,6 +4,7 @@ export const DASHBOARD_MODULE_IDS = [
   "packs",
   "projects",
   "documents",
+  "features",
   "costs",
   "health",
   "quickActions",
@@ -18,8 +19,8 @@ export interface DashboardModuleDefinition {
   description: string;
   defaultVisible: boolean;
   defaultOrder: number;
-  span: "wide" | "narrow";
-  sourceRoute: string;
+  sourceRoute?: string;
+  sourceLabel?: string;
 }
 
 export const DASHBOARD_MODULES: readonly DashboardModuleDefinition[] = [
@@ -29,8 +30,8 @@ export const DASHBOARD_MODULES: readonly DashboardModuleDefinition[] = [
     description: "Failed, waiting, queued and active work requiring operator awareness.",
     defaultVisible: true,
     defaultOrder: 0,
-    span: "wide",
     sourceRoute: "/tasks",
+    sourceLabel: "Tasks",
   },
   {
     id: "activity",
@@ -38,8 +39,8 @@ export const DASHBOARD_MODULES: readonly DashboardModuleDefinition[] = [
     description: "Recent agent and workflow activity.",
     defaultVisible: true,
     defaultOrder: 1,
-    span: "narrow",
     sourceRoute: "/monitor",
+    sourceLabel: "Monitor",
   },
   {
     id: "packs",
@@ -47,8 +48,8 @@ export const DASHBOARD_MODULES: readonly DashboardModuleDefinition[] = [
     description: "Installed operating surfaces and their active primitives.",
     defaultVisible: true,
     defaultOrder: 2,
-    span: "wide",
     sourceRoute: "/apps",
+    sourceLabel: "Apps",
   },
   {
     id: "projects",
@@ -56,8 +57,8 @@ export const DASHBOARD_MODULES: readonly DashboardModuleDefinition[] = [
     description: "Recently active project scopes and task completion.",
     defaultVisible: true,
     defaultOrder: 3,
-    span: "wide",
     sourceRoute: "/projects",
+    sourceLabel: "Projects",
   },
   {
     id: "documents",
@@ -65,44 +66,51 @@ export const DASHBOARD_MODULES: readonly DashboardModuleDefinition[] = [
     description: "Recent retained documents and task outputs.",
     defaultVisible: true,
     defaultOrder: 4,
-    span: "narrow",
     sourceRoute: "/documents",
+    sourceLabel: "Documents",
+  },
+  {
+    id: "features",
+    title: "Recently launched",
+    description: "Recent Relay capabilities with direct product destinations.",
+    defaultVisible: true,
+    defaultOrder: 5,
   },
   {
     id: "costs",
-    title: "Cost and budget",
-    description: "Measured local usage and pricing completeness.",
-    defaultVisible: true,
-    defaultOrder: 5,
-    span: "narrow",
+    title: "Pricing coverage",
+    description: "Run receipts that still lack complete provider pricing.",
+    defaultVisible: false,
+    defaultOrder: 6,
     sourceRoute: "/costs",
+    sourceLabel: "Costs",
   },
   {
     id: "health",
-    title: "Runtime and environment health",
-    description: "Configured local and cloud runtimes plus environment setup.",
-    defaultVisible: true,
-    defaultOrder: 6,
-    span: "narrow",
+    title: "Provider readiness",
+    description: "Detected model providers that still need configuration.",
+    defaultVisible: false,
+    defaultOrder: 7,
     sourceRoute: "/settings#settings-providers",
+    sourceLabel: "Provider settings",
   },
   {
     id: "quickActions",
-    title: "Quick actions and onboarding",
-    description: "Common destinations and remaining activation steps.",
-    defaultVisible: true,
-    defaultOrder: 7,
-    span: "narrow",
+    title: "Activation progress",
+    description: "Remaining first-run milestones without repeating navigation.",
+    defaultVisible: false,
+    defaultOrder: 8,
     sourceRoute: "/settings",
+    sourceLabel: "Settings",
   },
   {
     id: "workshop",
     title: "Operator Workshop",
     description: "Current local workshop run and checkpoint progress.",
     defaultVisible: true,
-    defaultOrder: 8,
-    span: "wide",
+    defaultOrder: 9,
     sourceRoute: "/workshop",
+    sourceLabel: "Workshop",
   },
 ] as const;
 
@@ -130,6 +138,25 @@ export const DEFAULT_DASHBOARD_PREFERENCES: DashboardPreferences = {
   smartOrdering: true,
   visible: {},
 };
+
+export const DASHBOARD_TOP_ROW: readonly DashboardModuleId[] = [
+  "attention",
+  "activity",
+  "documents",
+] as const;
+
+export function arrangeDashboardModules(
+  modules: readonly DashboardModuleDefinition[]
+): DashboardModuleDefinition[] {
+  const byId = new Map(modules.map((module) => [module.id, module]));
+  return [
+    ...DASHBOARD_TOP_ROW.flatMap((id) => {
+      const module = byId.get(id);
+      return module ? [module] : [];
+    }),
+    ...modules.filter((module) => !DASHBOARD_TOP_ROW.includes(module.id)),
+  ];
+}
 
 export function isModuleVisible(
   definition: DashboardModuleDefinition,

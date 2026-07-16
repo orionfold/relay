@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DashboardModuleDefinition } from "@/lib/dashboard/modules";
-import { cn } from "@/lib/utils";
 
 export function DashboardModuleCard({
   definition,
@@ -17,24 +16,24 @@ export function DashboardModuleCard({
   return (
     <Card
       data-dashboard-module={definition.id}
-      className={cn(
-        "surface-card h-full min-w-0",
-        definition.span === "wide" ? "lg:col-span-3" : "lg:col-span-2"
-      )}
+      className="surface-card h-full min-w-0 gap-0 py-0"
     >
-      <CardHeader className="flex-row items-center justify-between gap-3 pb-3">
-        <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+      <CardHeader className="flex min-w-0 flex-row items-center justify-between gap-3 px-4 pb-2 pt-4">
+        <CardTitle className="min-w-0 truncate text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           {definition.title}
         </CardTitle>
-        <Link
-          href={definition.sourceRoute}
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-        >
-          Open
-          <ArrowRight className="h-3 w-3" />
-        </Link>
+        {definition.sourceRoute && definition.sourceLabel && (
+          <Link
+            href={definition.sourceRoute}
+            aria-label={`Open ${definition.sourceLabel}`}
+            className="inline-flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+          >
+            Open {definition.sourceLabel}
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4">
         {error ? (
           <div
             role="status"

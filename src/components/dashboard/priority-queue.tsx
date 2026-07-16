@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, Clock, Shield, ArrowRight, Workflow as WorkflowIcon, FilePen, Pause, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, Clock, Shield, Workflow as WorkflowIcon, FilePen, Pause, CheckCircle2 } from "lucide-react";
 import { taskStatusVariant, workflowStatusVariant } from "@/lib/constants/status-colors";
 
 export interface PriorityTask {
@@ -43,24 +41,20 @@ const workflowStatusIcon: Record<string, typeof AlertTriangle> = {
 const priorityColors = ["text-priority-critical", "text-priority-high", "text-status-warning", "text-muted-foreground"];
 
 export function PriorityQueue({ tasks }: PriorityQueueProps) {
+  if (tasks.length === 0) {
+    return (
+      <p
+        className="py-4 text-center text-sm text-muted-foreground"
+        aria-live="polite"
+      >
+        No tasks or workflows need attention right now.
+      </p>
+    );
+  }
+
   return (
-    <Card className="surface-card h-full flex flex-col">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Needs Attention
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
-        {tasks.length === 0 ? (
-          <p
-            className="text-sm text-muted-foreground py-4 text-center"
-            aria-live="polite"
-          >
-            No tasks or workflows need attention right now.
-          </p>
-        ) : (
-          <div className="space-y-1" aria-live="polite">
-            {tasks.map((task) => {
+    <div className="space-y-0.5" aria-live="polite">
+      {tasks.map((task) => {
               // Workflow items use workflow-specific status icons; tasks use task status icons
               const Icon = task.isWorkflow
                 ? workflowStatusIcon[task.status] ?? WorkflowIcon
@@ -75,13 +69,13 @@ export function PriorityQueue({ tasks }: PriorityQueueProps) {
                   href={linkHref}
                   data-interactive-surface=""
                   data-interactive-outline="preserve"
-                  className="interactive-list-item flex items-center gap-3 py-2.5 border-b border-border/50 last:border-b-0 rounded-md px-1 -mx-1"
+                  className="interactive-list-item -mx-1 flex items-center gap-2.5 rounded-md border-b border-border/50 px-1 py-2 last:border-b-0"
                 >
                   <Icon className={`h-4 w-4 flex-shrink-0 ${
                     task.isWorkflow ? "text-primary" : priorityColors[task.priority] ?? priorityColors[3]
                   }`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{task.title}</p>
+                    <p className="truncate text-sm font-medium">{task.title}</p>
                     {task.projectName && (
                       <p className="text-xs text-muted-foreground">{task.projectName}</p>
                     )}
@@ -109,22 +103,12 @@ export function PriorityQueue({ tasks }: PriorityQueueProps) {
                     task.isWorkflow
                       ? workflowStatusVariant[task.status] ?? "secondary"
                       : taskStatusVariant[task.status] ?? "secondary"
-                  } className="text-xs">
+                  } className="shrink-0 text-[10px]">
                     {task.status}
                   </Badge>
                 </Link>
               );
-            })}
-          </div>
-        )}
-        <div className="mt-auto pt-3">
-          <Link href="/tasks">
-            <Button variant="outline" size="sm" className="w-full">
-              View all tasks <ArrowRight className="h-3 w-3 ml-1" />
-            </Button>
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
+      })}
+    </div>
   );
 }

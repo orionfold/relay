@@ -10,6 +10,14 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Added
 
+- **Home uses a denser operational masonry.** Measured responsive grid packing,
+  compact activity and progress visualizations, and non-duplicative module
+  defaults put more actionable information above the fold without repeating
+  menu navigation or telemetry-rail summaries. Attention, activity and outputs
+  form a balanced equal-height top row, card actions name their destination,
+  and autonomous activity presents safe operator-readable event summaries
+  instead of raw provider JSON. A Recently launched card links directly to
+  newly shipped product capabilities.
 - **Relay can run the first autonomous Operator Workshop locally.** A
   content-addressed, account-free edition now provides deterministic preflight,
   an idempotent Marketing Line starter, five observable checkpoints, named

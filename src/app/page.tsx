@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import {
   tasks,
@@ -10,12 +11,10 @@ import {
 } from "@/lib/db/schema";
 import { eq, count, and, desc, inArray, sql } from "drizzle-orm";
 import { parseWorkflowState } from "@/lib/workflows/engine";
-import { Greeting } from "@/components/dashboard/greeting";
 import { PriorityQueue } from "@/components/dashboard/priority-queue";
 import type { PriorityTask } from "@/components/dashboard/priority-queue";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import type { ActivityEntry } from "@/components/dashboard/activity-feed";
-import { QuickActions } from "@/components/dashboard/quick-actions";
 import { RecentProjects } from "@/components/dashboard/recent-projects";
 import type { RecentProject } from "@/components/dashboard/recent-projects";
 import { WelcomeLanding } from "@/components/dashboard/welcome-landing";
@@ -27,6 +26,7 @@ import { getRuntimeSetupStates } from "@/lib/settings/runtime-setup";
 import { getDashboardPreferences } from "@/lib/settings/dashboard";
 import {
   DASHBOARD_MODULES,
+  arrangeDashboardModules,
   hiddenUrgentCount,
   rankDashboardModules,
   type DashboardModuleDefinition,
@@ -45,6 +45,10 @@ import {
 } from "@/components/dashboard/cost-health-module";
 import { WorkshopProgressModule } from "@/components/dashboard/workshop-progress-module";
 import { getCurrentWorkshopRun } from "@/lib/workshop/runs";
+import { DashboardMasonry } from "@/components/dashboard/dashboard-masonry";
+import { AlertTriangle } from "lucide-react";
+import { RecentFeaturesModule } from "@/components/dashboard/recent-features-module";
+import { RECENT_FEATURES } from "@/lib/dashboard/recent-features";
 
 export const dynamic = "force-dynamic";
 
@@ -358,10 +362,10 @@ export default async function HomePage() {
     failed: 0, running: 1, active: 1, queued: 2, paused: 3, draft: 4, completed: 5,
   };
 
-  // Merge, sort by urgency, and limit to 8 items
+  // Merge, sort by urgency, and keep the dashboard queue compact.
   const allPriorityItems = [...workflowPriorityItems, ...serializedPriorityTasks]
     .sort((a, b) => (urgencyRank[a.status] ?? 6) - (urgencyRank[b.status] ?? 6))
-    .slice(0, 8);
+    .slice(0, 5);
 
   // Get task titles for log entries
   const taskTitleMap = new Map(activity.data.logTasks.map((task) => [task.id, task.title]));
@@ -397,8 +401,12 @@ export default async function HomePage() {
         ? new Date(outputsResult.data[0].createdAt).getTime()
         : null,
     },
+    features: {
+      relevanceCount: RECENT_FEATURES.length,
+      recentAt: new Date(RECENT_FEATURES[0]?.launchedAt ?? 0).getTime(),
+    },
     costs: {
-      urgentCount: costResult.data.unknownPricingRuns,
+      failureCount: costResult.data.unknownPricingRuns > 0 ? 1 : 0,
       relevanceCount: costResult.data.runs,
     },
     health: {
@@ -422,7 +430,9 @@ export default async function HomePage() {
         : null,
     },
   };
-  const modules = rankDashboardModules(preferencesResult.data, signals);
+  const modules = arrangeDashboardModules(
+    rankDashboardModules(preferencesResult.data, signals)
+  );
   const hiddenUrgent = hiddenUrgentCount(preferencesResult.data, signals);
   const moduleById = new Map(
     DASHBOARD_MODULES.map((definition) => [definition.id, definition])
@@ -456,18 +466,18 @@ export default async function HomePage() {
     switch (definition.id) {
       case "attention":
         return (
-          <div key={definition.id} className="min-w-0 lg:col-span-3">
+          <DashboardModuleCard key={definition.id} definition={definition}>
             <PriorityQueue tasks={allPriorityItems} />
-          </div>
+          </DashboardModuleCard>
         );
       case "activity":
         return (
-          <div key={definition.id} className="min-w-0 lg:col-span-2">
+          <DashboardModuleCard key={definition.id} definition={definition}>
             <ActivityFeed
               entries={serializedLogs}
               hourlyActivity={activity.data.hourly}
             />
-          </div>
+          </DashboardModuleCard>
         );
       case "packs":
         return (
@@ -477,14 +487,20 @@ export default async function HomePage() {
         );
       case "projects":
         return (
-          <div key={definition.id} className="min-w-0 lg:col-span-3">
+          <DashboardModuleCard key={definition.id} definition={definition}>
             <RecentProjects projects={projectSummary.data} />
-          </div>
+          </DashboardModuleCard>
         );
       case "documents":
         return (
           <DashboardModuleCard key={definition.id} definition={definition}>
             <RecentOutputsModule outputs={outputsResult.data} />
+          </DashboardModuleCard>
+        );
+      case "features":
+        return (
+          <DashboardModuleCard key={definition.id} definition={definition}>
+            <RecentFeaturesModule features={RECENT_FEATURES} />
           </DashboardModuleCard>
         );
       case "costs":
@@ -502,7 +518,6 @@ export default async function HomePage() {
       case "quickActions":
         return (
           <DashboardModuleCard key={definition.id} definition={definition}>
-            <QuickActions />
             <ActivationChecklist />
           </DashboardModuleCard>
         );
@@ -517,19 +532,35 @@ export default async function HomePage() {
 
   return (
     <div className="bg-background min-h-screen">
-      <div className="surface-page-shell min-h-screen p-5 sm:p-6 lg:p-7">
-        <Greeting
-          runningCount={running.count}
-          awaitingCount={awaiting.count}
-          failedCount={failed.count}
-          activeWorkflows={activeWorkflowCount.count}
-          hiddenUrgentCount={hiddenUrgent}
-        />
-        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
+      <div className="surface-page-shell min-h-screen p-4 sm:p-5">
+        {hiddenUrgent > 0 && (
+          <div
+            role="status"
+            className="surface-card-muted mb-4 flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
+          >
+            <div className="flex min-w-0 items-center gap-2 text-sm">
+              <AlertTriangle
+                className="h-4 w-4 shrink-0 text-status-warning"
+                aria-hidden="true"
+              />
+              <span className="truncate">
+                {hiddenUrgent} unresolved item{hiddenUrgent === 1 ? "" : "s"} exist
+                in hidden dashboard modules.
+              </span>
+            </div>
+            <Link
+              href="/settings#settings-dashboard"
+              className="shrink-0 text-xs text-primary underline underline-offset-2"
+            >
+              Review modules
+            </Link>
+          </div>
+        )}
+        <DashboardMasonry>
           {modules.map((module) =>
             renderModule(moduleById.get(module.id) ?? module)
           )}
-        </div>
+        </DashboardMasonry>
       </div>
     </div>
   );

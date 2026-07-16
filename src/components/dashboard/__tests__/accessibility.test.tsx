@@ -19,7 +19,7 @@ describe("dashboard accessibility surfaces", () => {
       />
     );
 
-    expect(container.querySelector('.space-y-1[aria-live="polite"]')).not.toBeNull();
+    expect(container.querySelector('[aria-live="polite"]')).not.toBeNull();
     const taskLink = screen.getByRole("link", { name: /Fix runtime mismatch/ });
     expect(taskLink).toHaveClass("interactive-list-item");
     expect(taskLink).toHaveAttribute("data-interactive-outline", "preserve");
@@ -40,6 +40,6 @@ describe("dashboard accessibility surfaces", () => {
       />
     );
 
-    expect(container.querySelector('.space-y-1[aria-live="polite"]')).not.toBeNull();
+    expect(container.querySelector('[aria-live="polite"]')).not.toBeNull();
   });
 });

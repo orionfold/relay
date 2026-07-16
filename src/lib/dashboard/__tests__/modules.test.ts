@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  DASHBOARD_MODULES,
   DEFAULT_DASHBOARD_PREFERENCES,
+  arrangeDashboardModules,
   hiddenUrgentCount,
   rankDashboardModules,
 } from "@/lib/dashboard/modules";
@@ -55,5 +57,44 @@ describe("dashboard module registry", () => {
         }
       )
     ).toBe(3);
+  });
+
+  it("keeps menu and telemetry summaries out of the default dashboard", () => {
+    const defaults = DASHBOARD_MODULES.filter(
+      (module) => module.defaultVisible
+    ).map((module) => module.id);
+
+    expect(defaults).not.toContain("costs");
+    expect(defaults).not.toContain("health");
+    expect(defaults).not.toContain("quickActions");
+    expect(defaults).toEqual([
+      "attention",
+      "activity",
+      "packs",
+      "projects",
+      "documents",
+      "features",
+      "workshop",
+    ]);
+  });
+
+  it("anchors attention, activity and outputs across the desktop top row", () => {
+    const arranged = arrangeDashboardModules([
+      DASHBOARD_MODULES[2],
+      DASHBOARD_MODULES[4],
+      DASHBOARD_MODULES[1],
+      DASHBOARD_MODULES[0],
+      DASHBOARD_MODULES[3],
+      DASHBOARD_MODULES[5],
+    ]);
+
+    expect(arranged.map((module) => module.id)).toEqual([
+      "attention",
+      "activity",
+      "documents",
+      "packs",
+      "projects",
+      "features",
+    ]);
   });
 });

@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, Circle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DonutRing } from "./donut-ring";
+import { AlertTriangle, CheckCircle2, Circle } from "lucide-react";
+import { DonutRing } from "@/components/charts/donut-ring";
 
 interface Milestone {
   id: string;
@@ -23,42 +22,73 @@ interface ProgressData {
  */
 export function ActivationChecklist() {
   const [data, setData] = useState<ProgressData | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetch("/api/onboarding/progress")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => setData(d))
-      .catch(() => {});
+      .then((response) => {
+        if (!response.ok) throw new Error("Activation progress could not be loaded");
+        return response.json();
+      })
+      .then((progress) => setData(progress))
+      .catch((loadError) => {
+        console.error("[dashboard] activation progress loader failed:", loadError);
+        setError(true);
+      });
   }, []);
 
-  if (!data || data.completedCount >= data.totalCount) return null;
+  if (error) {
+    return (
+      <div className="surface-card-muted flex items-start gap-2 rounded-md border p-3 text-sm">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-status-warning" />
+        <p>Activation progress could not be loaded.</p>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return <div className="h-16 animate-pulse rounded-md bg-muted" aria-label="Loading activation progress" />;
+  }
+
+  if (data.completedCount >= data.totalCount) {
+    return (
+      <div className="surface-card-muted flex items-center gap-2 rounded-md border p-3 text-sm">
+        <CheckCircle2 className="h-4 w-4 text-status-completed" />
+        <span>Activation complete.</span>
+      </div>
+    );
+  }
+
+  const completion = data.totalCount > 0
+    ? Math.round((data.completedCount / data.totalCount) * 100)
+    : 0;
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm">Getting Started</CardTitle>
-          <DonutRing completed={data.completedCount} total={data.totalCount} size={40} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <ul className="space-y-2">
-          {data.milestones.map((m) => (
-            <li key={m.id} className="flex items-center gap-2">
-              {m.completed ? (
-                <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
-              ) : (
-                <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
-              )}
-              <span
-                className={`text-xs ${m.completed ? "text-muted-foreground line-through" : ""}`}
-              >
-                {m.label}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
+    <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-3">
+      <DonutRing
+        value={completion}
+        size={44}
+        strokeWidth={4}
+        label={`${data.completedCount} of ${data.totalCount} activation milestones complete`}
+      />
+      <ul className="space-y-1.5">
+        {data.milestones.map((milestone) => (
+          <li key={milestone.id} className="flex items-center gap-2">
+            {milestone.completed ? (
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-status-completed" />
+            ) : (
+              <Circle className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            )}
+            <span
+              className={`text-xs ${
+                milestone.completed ? "text-muted-foreground line-through" : ""
+              }`}
+            >
+              {milestone.label}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
