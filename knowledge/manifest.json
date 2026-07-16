@@ -1,8 +1,8 @@
 {
-  "bundleHash": "663a8b64739497bb529f91cf1432bf32f3b12fd0e78da9638420a6bfb95e60f0",
+  "bundleHash": "ac3ab543afb3812a4951a5815e81eb211b3396f3183bfcf07c6b8bb817a5ad06",
   "corpus": {
     "apiDocsVersion": "2026-07-08.initial-plan",
-    "apiTrackerHash": "ee8f0dff14661c1c37c17c2d5b8af14b581765686a0aa4234f7767cc4d0d0772",
+    "apiTrackerHash": "63b35e36c9660937bc9898e3830bac70583c23b5965d4ff3475f48e7a3f8e8f1",
     "guideTrackerHash": "e458b6cf4605c14a2ae360611c2c3161ff723c7b9e10b5a386bddaf2b6f74836",
     "guideVersion": "2026-07-09.narrative-book-guide",
     "screenshotManifestHash": "407f643e64fcd405366b709b047fdf69ebdef98aee8bfb5611f42c0d95c591b3"
@@ -39,13 +39,13 @@
       "title": "Agents, Chat, And Runtimes API"
     },
     {
-      "contentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
+      "contentHash": "06d507d5c44212b69acb121807a8837f6ee5b0d7b0fb995dfce884271e6dc395",
       "id": "api:04-workflows-automation",
       "kind": "api",
       "path": "entries/api.04-workflows-automation.json",
       "publicUrl": "https://orionfold.com/relay/api/04-workflows-automation/",
-      "sourceHash": "90974e98243783cde0597430d9e728655137bfff005e5321a59ca5f361826d5d",
-      "sourceStateHash": "52e9801fcb8fa38779a68051870c2b2b8c13e2568798b477108a616786709dfe",
+      "sourceHash": "ea85a4a5c2efc3f174905b4e9b119ffc20b3a61432d18292a4609351c61c9377",
+      "sourceStateHash": "6524ab0180f4d710cddaa1927cb7a3ea9f26aba921c69de7561761b5eb18238b",
       "title": "Workflows And Automation API"
     },
     {
@@ -59,13 +59,13 @@
       "title": "Packs, Apps, Tables, And Publishing API"
     },
     {
-      "contentHash": "4398613ff2a3e4e206bedda39ca53c80d985a7a5933ab7b09716eb5de1243012",
+      "contentHash": "db7b2473ec02cb1935ac56a4425efa3c4320de8c19d8a48a269ec5c660b14b8c",
       "id": "api:06-settings-license-instance",
       "kind": "api",
       "path": "entries/api.06-settings-license-instance.json",
       "publicUrl": "https://orionfold.com/relay/api/06-settings-license-instance/",
-      "sourceHash": "0382d55fce661196a89eeac5887665ad37a68c4db703944ce18832d6cc3387fa",
-      "sourceStateHash": "46498c371f7dc6485c5a95f05cf030ca9162a0336e8ccc2acb7cff29d57c857d",
+      "sourceHash": "acc66c51c34f16b77ad07fa271c61adac715fcc4ce554293fbb07345da2a4222",
+      "sourceStateHash": "d004bc0fb646a75891b5016b1f91ff9a58de936bb24606d03e786ed4e8679b02",
       "title": "Settings, License, And Instance API"
     },
     {
@@ -180,9 +180,9 @@
     }
   ],
   "entryCount": 17,
-  "indexHash": "44cd8dff3600d9e97739a24efb4ffcead28f7b06e89d44ef594332ecfffa1a2c",
-  "releaseVersion": "0.42.2",
+  "indexHash": "17c766f0b76602a040492daa744edc3e0750a4912a3584c49b59048b52935164",
+  "releaseVersion": "0.43.0",
   "schemaVersion": 2,
-  "sectionCount": 421,
-  "sourceBundleHash": "4594b60d28ed11b841ca7b639d56cdfd10542012064b173e411c165541884edb"
+  "sectionCount": 431,
+  "sourceBundleHash": "7921c2bd5511b252e1caa8be9b5b81e0b2815024c95af504bfdff06cccdbe133"
 }

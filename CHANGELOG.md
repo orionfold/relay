@@ -8,6 +8,8 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.43.0] — 2026-07-16
+
 ### Added
 
 - **Home uses a denser operational masonry.** Measured responsive grid packing,

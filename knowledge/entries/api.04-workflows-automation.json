@@ -28,9 +28,15 @@
     "/api/workflows/{id}/stop",
     "/api/workflows/{id}/target",
     "/api/workflows/from-assist",
-    "/api/workflows/optimize"
+    "/api/workflows/optimize",
+    "/api/workshop/{id}",
+    "/api/workshop/{id}/export",
+    "/api/workshop/{id}/fallback",
+    "/api/workshop/handoff",
+    "/api/workshop/preflight",
+    "/api/workshop/start"
   ],
-  "contentHash": "77325bc57ad7fb91b99fad19b0b56c21f4ed62c373dbf41554f6497c52197d9e",
+  "contentHash": "06d507d5c44212b69acb121807a8837f6ee5b0d7b0fb995dfce884271e6dc395",
   "features": [],
   "id": "api:04-workflows-automation",
   "journeys": [],
@@ -44,8 +50,8 @@
       "heading": "Who This Is For",
       "id": "who-this-is-for",
       "level": 2,
-      "markdown": "This group is for a developer automating multi-step work in a local Relay instance. It covers workflows and the way they run, resume, and stop; blueprints that turn a template into a workflow; schedules that fire tasks on a cron; the notifications that carry approvals and alerts; and the permission rules that govern what agents may do without asking. Read this if you are launching workflow runs, scripting scheduled tasks, polling for pending approvals, or managing an agent's permission allow-list.",
-      "wordCount": 80
+      "markdown": "This group is for a developer automating multi-step work in a local Relay instance. It covers workflows and the way they run, resume, and stop; blueprints that turn a template into a workflow; schedules that fire tasks on a cron; the notifications that carry approvals and alerts; the permission rules that govern what agents may do without asking; and the built-in Operator Workshop run lifecycle. Read this if you are launching workflow runs, scripting scheduled tasks, polling for pending approvals, managing an agent's permission allow-list, or integrating the local workshop experience.",
+      "wordCount": 91
     },
     {
       "heading": "Stability",
@@ -72,15 +78,15 @@
       "heading": "Endpoint Families",
       "id": "endpoint-families",
       "level": 2,
-      "markdown": "- `blueprints`\n- `workflows`\n- `schedules`\n- `notifications`\n- `permissions`",
-      "wordCount": 5
+      "markdown": "- `blueprints`\n- `workflows`\n- `schedules`\n- `notifications`\n- `permissions`\n- `workshop`",
+      "wordCount": 6
     },
     {
       "heading": "Endpoints",
       "id": "endpoints",
       "level": 2,
-      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `GET`, `POST` | `/api/blueprints` | `app-internal` | `src/app/api/blueprints/route.ts` |\n| `DELETE`, `GET` | `/api/blueprints/{id}` | `app-internal` | `src/app/api/blueprints/[id]/route.ts` |\n| `POST` | `/api/blueprints/{id}/instantiate` | `app-internal` | `src/app/api/blueprints/[id]/instantiate/route.ts` |\n| `POST` | `/api/blueprints/import` | `app-internal` | `src/app/api/blueprints/import/route.ts` |\n| `GET`, `POST` | `/api/workflows` | `app-internal` | `src/app/api/workflows/route.ts` |\n| `DELETE`, `PATCH` | `/api/workflows/{id}` | `app-internal` | `src/app/api/workflows/[id]/route.ts` |\n| `GET` | `/api/workflows/{id}/debug` | `app-internal` | `src/app/api/workflows/[id]/debug/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/workflows/{id}/documents` | `app-internal` | `src/app/api/workflows/[id]/documents/route.ts` |\n| `POST` | `/api/workflows/{id}/execute` | `app-internal` | `src/app/api/workflows/[id]/execute/route.ts` |\n| `POST` | `/api/workflows/{id}/resume` | `app-internal` | `src/app/api/workflows/[id]/resume/route.ts` |\n| `GET` | `/api/workflows/{id}/status` | `app-internal` | `src/app/api/workflows/[id]/status/route.ts` |\n| `GET` | `/api/workflows/{id}/target` | `app-internal` | `src/app/api/workflows/[id]/target/route.ts` |\n| `POST` | `/api/workflows/{id}/steps/{stepId}/retry` | `app-internal` | `src/app/api/workflows/[id]/steps/[stepId]/retry/route.ts` |\n| `POST` | `/api/workflows/{id}/stop` | `app-internal` | `src/app/api/workflows/[id]/stop/route.ts` |\n| `POST` | `/api/workflows/from-assist` | `app-internal` | `src/app/api/workflows/from-assist/route.ts` |\n| `POST` | `/api/workflows/optimize` | `app-internal` | `src/app/api/workflows/optimize/route.ts` |\n| `GET` | `/api/notifications` | `app-internal` | `src/app/api/notifications/route.ts` |\n| `DELETE`, `PATCH` | `/api/notifications/{id}` | `app-internal` | `src/app/api/notifications/[id]/route.ts` |\n| `PATCH` | `/api/notifications/mark-all-read` | `app-internal` | `src/app/api/notifications/mark-all-read/route.ts` |\n| `GET` | `/api/notifications/pending-approvals` | `app-internal` | `src/app/api/notifications/pending-approvals/route.ts` |\n| `GET` | `/api/notifications/pending-approvals/stream` | `app-internal` | `src/app/api/notifications/pending-approvals/stream/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/permissions` | `app-internal` | `src/app/api/permissions/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/permissions/presets` | `app-internal` | `src/app/api/permissions/presets/route.ts` |\n| `GET`, `POST` | `/api/schedules` | `app-internal` | `src/app/api/schedules/route.ts` |\n| `DELETE`, `GET`, `PATCH` | `/api/schedules/{id}` | `app-internal` | `src/app/api/schedules/[id]/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/schedules/{id}/budget` | `app-internal` | `src/app/api/schedules/[id]/budget/route.ts` |\n| `POST` | `/api/schedules/{id}/execute` | `app-internal` | `src/app/api/schedules/[id]/execute/route.ts` |\n| `GET` | `/api/schedules/{id}/heartbeat-history` | `app-internal` | `src/app/api/schedules/[id]/heartbeat-history/route.ts` |\n| `POST` | `/api/schedules/parse` | `app-internal` | `src/app/api/schedules/parse/route.ts` |",
-      "wordCount": 389
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `GET`, `POST` | `/api/blueprints` | `app-internal` | `src/app/api/blueprints/route.ts` |\n| `DELETE`, `GET` | `/api/blueprints/{id}` | `app-internal` | `src/app/api/blueprints/[id]/route.ts` |\n| `POST` | `/api/blueprints/{id}/instantiate` | `app-internal` | `src/app/api/blueprints/[id]/instantiate/route.ts` |\n| `POST` | `/api/blueprints/import` | `app-internal` | `src/app/api/blueprints/import/route.ts` |\n| `GET`, `POST` | `/api/workflows` | `app-internal` | `src/app/api/workflows/route.ts` |\n| `DELETE`, `PATCH` | `/api/workflows/{id}` | `app-internal` | `src/app/api/workflows/[id]/route.ts` |\n| `GET` | `/api/workflows/{id}/debug` | `app-internal` | `src/app/api/workflows/[id]/debug/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/workflows/{id}/documents` | `app-internal` | `src/app/api/workflows/[id]/documents/route.ts` |\n| `POST` | `/api/workflows/{id}/execute` | `app-internal` | `src/app/api/workflows/[id]/execute/route.ts` |\n| `POST` | `/api/workflows/{id}/resume` | `app-internal` | `src/app/api/workflows/[id]/resume/route.ts` |\n| `GET` | `/api/workflows/{id}/status` | `app-internal` | `src/app/api/workflows/[id]/status/route.ts` |\n| `GET` | `/api/workflows/{id}/target` | `app-internal` | `src/app/api/workflows/[id]/target/route.ts` |\n| `POST` | `/api/workflows/{id}/steps/{stepId}/retry` | `app-internal` | `src/app/api/workflows/[id]/steps/[stepId]/retry/route.ts` |\n| `POST` | `/api/workflows/{id}/stop` | `app-internal` | `src/app/api/workflows/[id]/stop/route.ts` |\n| `POST` | `/api/workflows/from-assist` | `app-internal` | `src/app/api/workflows/from-assist/route.ts` |\n| `POST` | `/api/workflows/optimize` | `app-internal` | `src/app/api/workflows/optimize/route.ts` |\n| `GET` | `/api/notifications` | `app-internal` | `src/app/api/notifications/route.ts` |\n| `DELETE`, `PATCH` | `/api/notifications/{id}` | `app-internal` | `src/app/api/notifications/[id]/route.ts` |\n| `PATCH` | `/api/notifications/mark-all-read` | `app-internal` | `src/app/api/notifications/mark-all-read/route.ts` |\n| `GET` | `/api/notifications/pending-approvals` | `app-internal` | `src/app/api/notifications/pending-approvals/route.ts` |\n| `GET` | `/api/notifications/pending-approvals/stream` | `app-internal` | `src/app/api/notifications/pending-approvals/stream/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/permissions` | `app-internal` | `src/app/api/permissions/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/permissions/presets` | `app-internal` | `src/app/api/permissions/presets/route.ts` |\n| `GET`, `POST` | `/api/schedules` | `app-internal` | `src/app/api/schedules/route.ts` |\n| `DELETE`, `GET`, `PATCH` | `/api/schedules/{id}` | `app-internal` | `src/app/api/schedules/[id]/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/schedules/{id}/budget` | `app-internal` | `src/app/api/schedules/[id]/budget/route.ts` |\n| `POST` | `/api/schedules/{id}/execute` | `app-internal` | `src/app/api/schedules/[id]/execute/route.ts` |\n| `GET` | `/api/schedules/{id}/heartbeat-history` | `app-internal` | `src/app/api/schedules/[id]/heartbeat-history/route.ts` |\n| `POST` | `/api/schedules/parse` | `app-internal` | `src/app/api/schedules/parse/route.ts` |\n| `GET`, `POST` | `/api/workshop/{id}` | `app-internal` | `src/app/api/workshop/[id]/route.ts` |\n| `GET` | `/api/workshop/{id}/export` | `app-internal` | `src/app/api/workshop/[id]/export/route.ts` |\n| `POST` | `/api/workshop/{id}/fallback` | `app-internal` | `src/app/api/workshop/[id]/fallback/route.ts` |\n| `GET` | `/api/workshop/handoff` | `app-internal` | `src/app/api/workshop/handoff/route.ts` |\n| `GET` | `/api/workshop/preflight` | `app-internal` | `src/app/api/workshop/preflight/route.ts` |\n| `POST` | `/api/workshop/start` | `app-internal` | `src/app/api/workshop/start/route.ts` |",
+      "wordCount": 466
     },
     {
       "heading": "Endpoint Reference",
@@ -405,6 +411,55 @@
       "wordCount": 92
     },
     {
+      "heading": "GET /api/workshop/preflight",
+      "id": "get-api-workshop-preflight",
+      "level": 3,
+      "markdown": "Checks whether the built-in Relay Operator Workshop can start in the current local instance.\n\n- **Request**: none.\n- **Response** `200`: a preflight object with `ready`, edition identity and hash, Relay version compatibility, data-directory writability, configured runtimes, deterministic-fallback availability, fixture integrity, and a `failures` array. Each failure includes `code`, `message`, and `recovery`.\n- **Errors**: `500` with the standard workshop error payload when preflight fails unexpectedly.\n- **Side effects**: reads local release, data-directory, runtime, and built-in fixture state.",
+      "wordCount": 72
+    },
+    {
+      "heading": "POST /api/workshop/start",
+      "id": "post-api-workshop-start",
+      "level": 3,
+      "markdown": "Installs or reuses the content-addressed built-in workshop starter.\n\n- **Request** body (JSON), strict: `{ \"editionId\": \"relay-operator-workshop\", \"confirmInstall\": true }`.\n- **Response** `201`: a workshop run view containing edition identity, run status, linked project, app, workflow, and receipt ids, fallback state, checkpoint results, completion counts, errors, and timestamps.\n- **Errors**:\n  - `400` when explicit installation confirmation is missing or invalid.\n  - `409` on an installation conflict.\n  - `412` when the workshop edition is incompatible with the Relay version.\n  - `422` for another named workshop failure.\n- **Side effects**: creates the local workshop app, table, project, governed workflow, and persisted workshop run. The operation is idempotent for the built-in edition and does not overwrite conflicting user work.",
+      "wordCount": 105
+    },
+    {
+      "heading": "GET /api/workshop/{id}",
+      "id": "get-api-workshop-id",
+      "level": 3,
+      "markdown": "Returns the current evaluated state for one workshop run.\n\n- **Request**: none.\n- **Response** `200`: the workshop run view, including five checkpoint results. Each checkpoint includes its source route, status, detail, and optional recovery.\n- **Errors**: `404` with `{ \"error\", \"code\", \"recovery\" }` when the run does not exist.\n- **Side effects**: reads the run and evaluates its linked app, table, workflow, and Operations Receipt.",
+      "wordCount": 59
+    },
+    {
+      "heading": "POST /api/workshop/{id}",
+      "id": "post-api-workshop-id",
+      "level": 3,
+      "markdown": "Re-evaluates checkpoint state and clears a recoverable stored workshop error.\n\n- **Request**: none.\n- **Response** `200`: the refreshed workshop run view.\n- **Errors**: `422` with the standard workshop error payload.\n- **Side effects**: updates the run status, error fields, and timestamp after evaluating current evidence.",
+      "wordCount": 41
+    },
+    {
+      "heading": "POST /api/workshop/{id}/fallback",
+      "id": "post-api-workshop-id-fallback",
+      "level": 3,
+      "markdown": "Runs the explicitly selected deterministic workshop rehearsal without a model or provider call.\n\n- **Request**: none.\n- **Response** `200`: the updated workshop run view. Repeated calls return the existing terminal evidence when a receipt is already present.\n- **Errors**: `422` with a named workshop error and recovery instruction.\n- **Side effects**: creates deterministic task and document evidence, completes the governed workflow, composes an Operations Receipt, and marks the run as having used fallback.",
+      "wordCount": 69
+    },
+    {
+      "heading": "GET /api/workshop/{id}/export",
+      "id": "get-api-workshop-id-export",
+      "level": 3,
+      "markdown": "Builds and downloads the redacted workshop completion bundle.\n\n- **Request**: none.\n- **Response** `200`: a ZIP attachment named `relay-workshop-completion-<id>.zip`, with `Cache-Control: no-store`.\n- **Errors**: `422` when terminal evidence is missing, redaction fails, or another named workshop export error occurs.\n- **Side effects**: builds the learner-owned app Pack and selected completion evidence, then marks the retain checkpoint passed after successful bundle construction.",
+      "wordCount": 59
+    },
+    {
+      "heading": "GET /api/workshop/handoff",
+      "id": "get-api-workshop-handoff",
+      "level": 3,
+      "markdown": "Downloads the versioned production handoff used by Relay, Website, and Motion workshop surfaces.\n\n- **Request**: none.\n- **Response** `200`: a JSON attachment named `relay-operator-workshop-production-handoff.json`, with `Cache-Control: no-store`.\n- **Errors**: none returned explicitly.\n- **Side effects**: reads only.",
+      "wordCount": 34
+    },
+    {
       "heading": "Examples",
       "id": "examples",
       "level": 2,
@@ -419,9 +474,9 @@
       "wordCount": 245
     }
   ],
-  "sourceHash": "90974e98243783cde0597430d9e728655137bfff005e5321a59ca5f361826d5d",
+  "sourceHash": "ea85a4a5c2efc3f174905b4e9b119ffc20b3a61432d18292a4609351c61c9377",
   "sourcePath": "api/reference/04-workflows-automation.md",
-  "sourceStateHash": "52e9801fcb8fa38779a68051870c2b2b8c13e2568798b477108a616786709dfe",
+  "sourceStateHash": "6524ab0180f4d710cddaa1927cb7a3ea9f26aba921c69de7561761b5eb18238b",
   "stability": "app-internal",
   "summary": "Document workflow execution, blueprints, schedules, human approvals, and permission controls.",
   "title": "Workflows And Automation API"
