@@ -54,6 +54,57 @@ Orionfold-hosted control plane or managed service is a separate product decision
   hostage when a license is missing; the exact renewal/upgrade policy is a product
   gate.
 
+## Cross-layer architecture posture
+
+G-078 must not assume one global answer to “local or cloud.” It should decide the
+posture independently for each load-bearing layer while keeping one product-level
+contract. For every layer, research and planning must compare:
+
+- **A — Preserve:** keep the current local implementation and make cloud
+  deployment an isolation/packaging/operations concern with no significant core
+  change.
+- **B — Dual substrate:** define one typed domain port and provide deliberate
+  local and cloud adapters with a shared conformance suite. The mode is selected
+  at an instance boundary, never through scattered `if (cloud)` branches.
+- **C — Unified re-architecture:** replace the current substrate with one design
+  that truthfully meets local and cloud requirements, including offline use,
+  install footprint, portability, operations, and failure recovery.
+
+This is a decision framework, not a requirement that all layers choose the same
+letter. A single unified product contract with selective substrate adapters is
+the likely shape; pervasive global “cloud mode” branching would multiply
+behavioral states and make failures difficult to reproduce.
+
+| Layer | Current posture | A: preserve | B: dual substrate | C: unified replacement |
+|---|---|---|---|---|
+| Operational data | synchronous Drizzle + local SQLite/WAL | isolated SQLite volume per Relay instance plus verified backup/restore | shared repository/domain contract with SQLite and remote-DB adapters | one database technology for local and cloud, only if it remains genuinely zero-config/offline locally |
+| Files/documents/model artifacts | instance-local filesystem | persistent per-instance volume | filesystem and object-storage adapters with content/atomicity parity | one content-addressed store available in both environments |
+| Secrets | server-local settings/files and provider-specific handling | customer-provisioned encrypted files/volume | local keychain/file and cloud secret-manager adapters behind references | one portable encrypted secret envelope with a separate root-of-trust provider |
+| Identity and public access | trusted local/loopback, auth-light LAN serving | cloud reverse proxy supplies a separately verified access boundary | explicit local-trusted and remote-authenticated exposure profiles behind one authorization contract | one identity/session system everywhere, including a safe offline-local bootstrap |
+| Scheduling/execution/leases | one long-lived Relay process and SQLite coordination | one scheduler/executor per isolated instance | local in-process and distributed queue/lease adapters | one durable execution substrate that does not add mandatory cloud infrastructure locally |
+| Live logs/events | process-local state, DB polling, SSE | sticky/single-instance routing | local event source and distributed pub/sub adapter | one durable event log usable offline and across replicas |
+| Model runtimes | capability-driven endpoint registry | retain endpoint contract and deploy runtime beside Relay when selected | local-process and remote/private-service lifecycle adapters | one remote-first gateway only if it does not erase direct local runtime value |
+| Backup/restore | SQLite/file snapshots | copy instance snapshots to customer-selected durable storage | local archive and object-storage adapters with the same manifest | one content-addressed snapshot format and pluggable storage transport |
+| Observability | local logs/Monitor/diagnostics | customer downloads support evidence | local and cloud telemetry sinks behind a redacted event contract | one local-first observability store with optional export |
+| Configuration/distribution | npm/npx, data directory, instance bootstrap | add a signed OCI wrapper and cloud manifest | npm/local and OCI/cloud launch adapters from one versioned config schema | one artifact format only if it preserves the current low-friction local install |
+
+Each row needs an evidence-backed decision record that scores implementation and
+migration effort, semantic mismatch, steady-state operating cost, local-first
+regression risk, cloud scalability benefit, portability/exit cost, security and
+privacy, failure/recovery behavior, performance/footprint, test-matrix growth,
+rollback, and the measurable trigger for revisiting the choice. “One abstraction”
+is not automatically a benefit: SQLite and Postgres, filesystem and object
+storage, or in-process and distributed queues have different concurrency and
+failure semantics. A shared interface is acceptable only when its contract does
+not pretend those differences are absent.
+
+For the first cloud slice, the current evidence favors preserving per-instance
+SQLite and the single-instance scheduler while introducing clean boundaries for
+future adapters; files/backups, secrets, identity, and distribution are stronger
+dual-substrate candidates because their local and cloud trust/operational roots
+are intrinsically different. This is a working hypothesis for G-078 to test, not
+an accepted database or platform decision.
+
 ## Provider capability comparison
 
 Research checked primary vendor documentation on 2026-07-15. Prices are inputs
@@ -161,26 +212,30 @@ G-078 should remain a research/specification/decision goal. It should not become
 one umbrella implementation project. Its approved output should groom bounded
 implementation goals in this order:
 
-1. **Isolation and fleet contract:** finish/amend G-058 and G-060 so customer-owned
+1. **Architecture posture ledger:** complete the A/B/C comparison for every
+   load-bearing layer, record the selected posture and revisit trigger, define
+   shared conformance boundaries, and reject any cross-layer combination whose
+   failure or migration semantics do not compose.
+2. **Isolation and fleet contract:** finish/amend G-058 and G-060 so customer-owned
    self-service authority, per-instance identity, ownership transfer, and no
    cross-customer data plane are explicit.
-2. **Cloud-safe Relay artifact:** reproducible signed OCI image; immutable release
+3. **Cloud-safe Relay artifact:** reproducible signed OCI image; immutable release
    input; data-dir/volume contract; health/readiness; graceful shutdown; install,
    upgrade, rollback, export, and restore; no dev bootstrap side effects.
-3. **Remote-access trust boundary:** first-user/admin bootstrap, TLS, sessions,
+4. **Remote-access trust boundary:** first-user/admin bootstrap, TLS, sessions,
    CSRF, rate limits, password/identity recovery, audit receipts, and safe public
    binding.
-4. **Persistence decision:** preserve isolated local SQLite plus verified
+5. **Persistence decision:** preserve isolated local SQLite plus verified
    backups/restore for the first slice, or approve a remote database adapter and
    migration. Do not block the first proof on Postgres unless its benefits are
    required by the selected topology.
-5. **Secrets and runtime networking:** customer-owned provider credentials,
+6. **Secrets and runtime networking:** customer-owned provider credentials,
    encryption/rotation/redaction, private service discovery, TLS/auth for model
    endpoints, outbound trust/SSRF policy, and hybrid tunnel design.
-6. **Provider adapter and deploy UX:** typed topology manifest, capability/cost
+7. **Provider adapter and deploy UX:** typed topology manifest, capability/cost
    schema, entitlement gate, preflight, provider authorization, plan preview,
    deploy progress/receipts, partial-failure rescue, and post-deploy handoff.
-7. **Operations:** backup/restore drills, upgrades, capacity/quotas, cost alerts,
+8. **Operations:** backup/restore drills, upgrades, capacity/quotas, cost alerts,
    observability without content telemetry, support bundle, deletion, and
    customer portability.
 
@@ -203,6 +258,11 @@ persistence direction, and any Orionfold-hosted control plane are operator gates
   first login, health check, backup/restore, upgrade/rollback, export, and delete.
 - Isolation tests use at least two customer instances and prove separate data,
   files, credentials, hostnames, logs, and runtime policy.
+- Architecture-posture tests prove each selected shared contract against every
+  supported adapter and exercise cross-mode export/import, migration, rollback,
+  mixed-version refusal, and failure-semantic differences. The plan must state
+  the exact multiplication in CI/runtime smoke cases before approving any dual
+  substrate.
 - Failure injection covers provider rejection, quota/capacity, partial resources,
   timeout, callback loss, secret write failure, unhealthy boot, migration,
   runtime outage, backup failure, upgrade failure, and stale price data.
