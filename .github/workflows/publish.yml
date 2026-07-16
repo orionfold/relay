@@ -24,8 +24,38 @@ jobs:
     permissions:
       contents: read
 
-  publish:
+  npm12-first-run:
+    name: npm 12 first-run native binding recovery
     needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v5
+        with:
+          # npm 12 requires ^22.22.2, ^24.15.0, or >=26. Use an exact current
+          # compatible line so this gate cannot drift with the runner image.
+          node-version: "24.15.0"
+          cache: npm
+
+      - name: Select the npm 12 compatibility target
+        run: |
+          npm install --global npm@12.0.1
+          npm --version
+
+      - name: Install Relay's development dependencies
+        run: npm ci
+
+      - name: Exercise blocked binding detection and scoped repair
+        run: npm run smoke:npm12
+
+  publish:
+    needs: [quality, npm12-first-run]
     runs-on: ubuntu-latest
     permissions:
       id-token: write # REQUIRED: lets the runner mint the OIDC token npm verifies

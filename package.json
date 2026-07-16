@@ -75,6 +75,7 @@
     "test:knowledge": "node --test scripts/knowledge-bundle.test.mjs scripts/knowledge-source-sync.test.mjs",
     "test:quality-gate": "node --test scripts/quality-gate.test.mjs",
     "smoke:fresh-clone-dev": "node scripts/fresh-clone-dev-smoke.mjs",
+    "smoke:npm12": "node scripts/npm12-first-run-smoke.mjs",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "vitest run --config vitest.config.e2e.ts",

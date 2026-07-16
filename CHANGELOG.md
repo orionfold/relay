@@ -8,6 +8,15 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+### Fixed
+
+- **npm 12 first runs recover from blocked SQLite install scripts.** The packed
+  CLI now probes its native binding before importing Relay's database graph,
+  visibly performs one package-scoped repair, verifies the result, and otherwise
+  stops with a named error plus one exact approved reinstall command. Releases
+  are gated by an isolated npm 12 blocked-binding fixture while retaining the
+  npm 11 customer production smoke.
+
 ## [0.42.1] — 2026-07-15
 
 ### Added

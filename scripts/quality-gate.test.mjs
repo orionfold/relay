@@ -343,7 +343,16 @@ test("workflow contract is always-on, reusable, read-only, and release-blocking"
     "./.github/workflows/quality-gate.yml"
   );
   assert.equal(publish.jobs.quality.with.profile, "release");
-  assert.equal(publish.jobs.publish.needs, "quality");
+  assert.deepEqual(publish.jobs.publish.needs, ["quality", "npm12-first-run"]);
+  assert.equal(publish.jobs["npm12-first-run"].needs, "quality");
+  assert.equal(publish.jobs["npm12-first-run"].permissions.contents, "read");
+  assert.equal(publish.jobs["npm12-first-run"]["timeout-minutes"], 15);
+  const npm12SetupNode = publish.jobs["npm12-first-run"].steps.find(
+    (step) => step.uses === "actions/setup-node@v5"
+  );
+  assert.equal(npm12SetupNode?.with?.["node-version"], "24.15.0");
+  assert.match(publishSource, /npm install --global npm@12\.0\.1/);
+  assert.match(publishSource, /npm run smoke:npm12/);
   assert.doesNotMatch(publishSource, /npx vitest run src\/lib\/licensing/);
   assert.match(publishSource, /node scripts\/npx-prod-smoke\.mjs/);
   assert.equal(Object.hasOwn(freshClone.on, "pull_request"), true);

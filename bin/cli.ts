@@ -12,9 +12,6 @@ import {
 } from "fs";
 import { spawn } from "child_process";
 import { createServer } from "net";
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import {
   buildNextLaunchArgs,
   buildSidecarUrl,
@@ -25,17 +22,28 @@ import {
 import { ensurePrebuilt } from "../src/lib/desktop/prebuilt-download";
 import { getAinativeDataDir, getAinativeDbPath } from "../src/lib/utils/ainative-paths";
 import {
-  bootstrapAinativeDatabase,
-  hasLegacyTables,
-  hasMigrationHistory,
-  markAllMigrationsApplied,
-} from "../src/lib/db/bootstrap";
-import { migrateLegacyData } from "../src/lib/utils/migrate-to-ainative";
+  BetterSqlite3NativeBindingUnavailableError,
+  ensureBetterSqlite3NativeBinding,
+} from "../src/lib/cli/native-binding-preflight";
 import { isDevMode } from "../src/lib/instance/detect";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const appDir = join(__dirname, "..");
 const launchCwd = process.cwd();
+
+async function ensureNativeSqliteOrExit(): Promise<void> {
+  try {
+    await ensureBetterSqlite3NativeBinding();
+  } catch (error) {
+    if (error instanceof BetterSqlite3NativeBindingUnavailableError) {
+      console.error(`${error.name}: ${error.message}`);
+    } else {
+      const reason = error instanceof Error ? error.message : String(error);
+      console.error(`BetterSqlite3NativeBindingPreflightError: ${reason}`);
+    }
+    process.exit(1);
+  }
+}
 
 // Auto-write .env.local on first run in a non-dev launch folder. This gives
 // new npx users a per-folder isolated DB by default — no red sidebar badge,
@@ -229,6 +237,7 @@ if (isPackSubcommand) {
   // default server-launch flow. The command logic is dynamically imported so
   // its DB/install dependency chain never enters the default startup graph
   // (TDR-032 — no static top-level import of runtime-registry-adjacent code).
+  await ensureNativeSqliteOrExit();
   const { runPackCommand } = await import("../src/lib/packs/cli");
   const code = await runPackCommand(process.argv.slice(3), {
     log: (m) => console.log(m),
@@ -267,6 +276,23 @@ if (opts.safeMode) {
   process.env.RELAY_SAFE_MODE = "true";
   console.log("Safe mode: Kind-1 plugin MCP servers disabled for this session.");
 }
+
+// This preflight must happen before the first dynamic import that can reach
+// Relay's database graph. Keeping every better-sqlite3/Drizzle import below it
+// lets npm-12 one-off installs report and repair a blocked native binding in
+// Relay's own words instead of crashing during ESM module evaluation.
+await ensureNativeSqliteOrExit();
+
+const { migrateLegacyData } = await import("../src/lib/utils/migrate-to-ainative");
+const { default: Database } = await import("better-sqlite3");
+const { drizzle } = await import("drizzle-orm/better-sqlite3");
+const { migrate } = await import("drizzle-orm/better-sqlite3/migrator");
+const {
+  bootstrapAinativeDatabase,
+  hasLegacyTables,
+  hasMigrationHistory,
+  markAllMigrationsApplied,
+} = await import("../src/lib/db/bootstrap");
 
 // Migrate any legacy ~/.stagent/ layout to ~/.ainative/ before resolving any
 // data-dir paths below. Must run here at module top-level (not inside main())
