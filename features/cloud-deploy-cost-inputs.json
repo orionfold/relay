@@ -1,34 +1,52 @@
 {
-  "asOf": "2026-07-15",
+  "asOf": "2026-07-16",
   "currency": "USD",
-  "disclaimer": "Architecture comparison only. Provider bill is authoritative.",
+  "disclaimer": "Architecture comparison only. Cell density is provisional until measured; provider bill is authoritative.",
   "scenarios": [1, 10, 100],
+  "cellAdmission": {
+    "cellMemoryGiB": 1,
+    "hostReserveMemoryGiB": 0.5,
+    "maxMemoryUtilization": 0.9,
+    "maxCellsPerVcpu": 3
+  },
   "providers": {
-    "railway": {
-      "source": "https://docs.railway.com/pricing",
-      "planFloorMonthly": 20,
-      "ramGbMonth": 10,
-      "vcpuMonth": 20,
-      "volumeGbMonth": 0.15,
-      "egressGb": 0.05,
-      "instance": {
-        "ramGb": 1,
-        "averageVcpu": 0.25,
-        "volumeGb": 10,
-        "egressGb": 10
-      },
-      "excluded": ["BYOK model/API", "backup object storage", "tax", "support", "labor"]
-    },
-    "fly_ord": {
-      "source": "https://fly.io/docs/about/pricing/",
-      "region": "ord",
-      "machineMonthly": 5.92,
-      "volumeGbMonth": 0.15,
-      "instance": {
-        "ramGb": 1,
-        "volumeGb": 10
-      },
-      "excluded": ["egress", "backup object storage", "BYOK model/API", "tax", "support", "labor"]
+    "digitaloceanBasic": {
+      "source": "https://www.digitalocean.com/pricing/droplets",
+      "backupRateOfVm": 0.2,
+      "plans": [
+        {
+          "id": "basic-2gib-1vcpu",
+          "memoryGiB": 2,
+          "vcpu": 1,
+          "monthly": 12
+        },
+        {
+          "id": "basic-4gib-2vcpu",
+          "memoryGiB": 4,
+          "vcpu": 2,
+          "monthly": 24
+        },
+        {
+          "id": "basic-8gib-4vcpu",
+          "memoryGiB": 8,
+          "vcpu": 4,
+          "monthly": 48
+        },
+        {
+          "id": "basic-16gib-8vcpu",
+          "memoryGiB": 16,
+          "vcpu": 8,
+          "monthly": 96
+        }
+      ],
+      "excluded": [
+        "BYOK model/API",
+        "local inference/GPU",
+        "object storage beyond provider backup",
+        "tax",
+        "support",
+        "labor"
+      ]
     }
   }
 }

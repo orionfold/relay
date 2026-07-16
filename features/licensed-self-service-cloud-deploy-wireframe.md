@@ -11,7 +11,7 @@ controls are gated.
 
 Journey steps:
 
-`Compare → Configure → Estimate → Authorize → Deploy → Verify → Handoff`
+`Placement → Configure Host → Estimate → Authorize → Install → Verify → Handoff`
 
 The step rail is descriptive, not permission to skip required states. Returning
 to an earlier step invalidates only dependent results and explains what must be
@@ -24,10 +24,10 @@ rerun.
 │ Run licensed Relay in infrastructure you own.             License: Active │
 │ Resources, data and provider billing remain in your account.              │
 ├ Recommended ─────────────────────────┬ Other deployment shapes ────────────┤
-│ Simple cloud Relay                   │ Relay + private model runtime        │
-│ 1 isolated instance                 │ Distributed services  Planned       │
-│ BYOK model APIs                      │ Hybrid LAN/VPC runtime  Planned      │
-│ Local volume + encrypted recovery    │ Kubernetes/operator     Enterprise   │
+│ Local device or cloud server        │ Relay + private model runtime        │
+│ 1 Relay Host · 1+ isolated cells    │ Sharded Relay Hosts                 │
+│ BYOK model APIs by default           │ PaaS single-cell         Later       │
+│ Host-local state + off-host recovery │ Distributed services     Enterprise  │
 │ Expected infra: $…–$… / month        │                                     │
 │ [Inspect assumptions] [Choose]       │ [Compare all tradeoffs]             │
 ├ Ownership and limits ───────────────────────────────────────────────────────┤
@@ -37,7 +37,8 @@ rerun.
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Every card lists availability, failure domain, recovery shape and scale limit.
+Every card lists availability, Host trust boundary, failure domain, recovery
+shape and scale limit.
 Planned profiles cannot be selected. Provider branding never obscures which
 party owns support and billing.
 
@@ -45,25 +46,27 @@ party owns support and billing.
 
 ```text
 ┌ 2 Configure ────────────────────────┬ Live estimate ────────────────────────┐
-│ Provider        Railway candidate  │ Expected monthly                    │
-│ Account/project [Choose…]          │ Provider plan floor       $…         │
-│ Region          [us-west …]        │ Relay compute × 1          $…         │
-│ Instances       [1]                │ Persistent volume          $…         │
-│ Exposure        Authenticated web  │ Backup/egress              $…         │
-│ Runtime         BYOK hosted API    │ Model API        paid separately      │
-│ Relay size      [1 GB / light]     │ Expected total              $…–$…     │
-│ Storage         [10 GB]            │ Updated 2026-07-15 · USD · pre-tax    │
-│ Backup          [daily / 14 days]  │ [Show formulas and source links]      │
-│ Concurrency     [light]            │ Provider bill is authoritative.      │
+│ Placement       Cloud server       │ Expected monthly                    │
+│ Provider        DigitalOcean       │ VM plan                    $…         │
+│ Account/project [Choose…]          │ Weekly provider backup     $…         │
+│ Region          [us-west …]        │ Host count                 1          │
+│ Cells           [1]                │ Admitted cells/Host        1*         │
+│ Exposure        Tailnet / Web      │ Model API        paid separately      │
+│ Runtime         BYOK hosted API    │ Expected total              $…–$…     │
+│ Host size       [2 GiB / 1 vCPU]   │ Updated 2026-07-16 · USD · pre-tax    │
+│ Backup          [weekly + export]  │ *Provisional until Relay is measured  │
+│ Concurrency     [light]            │ [Show formulas and source links]      │
 ├────────────────────────────────────┴────────────────────────────────────────┤
-│ Unsupported option: Private GPU runtime needs a supported GPU adapter.      │
+│ Host operator can access every cell. Use separate VMs for hostile tenants.  │
+│ Unsupported: local GPU runtime needs a supported GPU Host size.              │
 │ [Save draft]                                         [Run preflight →]      │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Changing provider, region, topology, size, runtime or retention marks the prior
-estimate/preflight stale. The cost panel keeps expected and upper-bound cases
-side by side at larger widths and stacked on mobile.
+Changing placement, provider, region, Host size, cell count, exposure, runtime
+or retention marks the prior estimate/preflight stale. The cost panel shows Host
+count, cell admission/safety reserve and expected/upper cases side by side at
+larger widths and stacked on mobile.
 
 ## Preflight and authorization
 
@@ -71,12 +74,14 @@ side by side at larger widths and stacked on mobile.
 ┌ Preflight ──────────────────────────────────────────────────────────────────┐
 │ ✓ Cloud-deploy entitlement valid through …                                 │
 │ ✓ Immutable Relay release digest and schema compatibility                  │
-│ ✓ Region and topology supported                                            │
+│ ✓ Host OS/runtime and region supported                                     │
+│ ✓ Cell ports, networks, mounts and ownership are collision-free            │
+│ ✓ Host capacity admits requested cells with safety reserve                  │
 │ ✓ Recovery destination configured                                          │
 │ ! Provider authorization required                                          │
 ├ Permission request ─────────────────────────────────────────────────────────┤
-│ Relay will request: create/read/delete this deployment's compute, volume,  │
-│ network, hostname and secret resources. It will not request billing-admin.  │
+│ Relay will request: create/read/delete one VM, firewall, hostname, backup   │
+│ and bootstrap secret. It will not request billing-admin.                    │
 │ Authorization is used locally for this deployment and then discarded.      │
 │ [View exact provider scopes] [Cancel] [Authorize with provider →]           │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -89,13 +94,13 @@ or denied authorization preserves the draft and gives a safe retry.
 ## Deploy progress and rescue
 
 ```text
-┌ Deploying plan 6f2… · estimated recurring cost $…–$… ─────────────────────┐
-│ ✓ Network and firewall                                                     │
-│ ✓ Persistent volume                                                        │
-│ ✓ Secret references                                                        │
-│ ● Relay service                                      verifying health      │
-│ ○ Authenticated hostname                                                  │
-│ ○ First recovery artifact                                                  │
+┌ Installing Host plan 6f2… · estimated recurring cost $…–$… ───────────────┐
+│ ✓ VM, firewall and backup                                                   │
+│ ✓ Signed Relay Host artifact                                                │
+│ ✓ Host supervisor and authenticated ingress                                │
+│ ● Cell acme                                           verifying isolation  │
+│ ○ Runtime route and resource limits                                         │
+│ ○ First recovery artifact                                                   │
 ├ Current state: provisioning ────────────────────────────────────────────────┤
 │ It is safe to close this page. Progress is stored in the deployment receipt.│
 │ [Open provider project ↗] [Cancel safely]                                  │
@@ -106,8 +111,8 @@ On partial failure, the success styling disappears and is replaced by:
 
 ```text
 Partially provisioned — two resources may still incur charges.
-Created: network, volume. Missing: Relay service, hostname.
-Cause: provider rejected image pull (PROVIDER_IMAGE_DENIED).
+Created: VM, firewall. Missing: Host supervisor, cell.
+Cause: Host rejected image digest (HOST_ARTIFACT_UNVERIFIED).
 [Resume from failed step] [Roll back created resources] [Open exact resources ↗]
 ```
 
@@ -124,8 +129,9 @@ lists every remaining resource and provider-console cleanup link.
 │ [Open Relay and create admin →]                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-┌ Ready — owned by Acme's Railway account ────────────────────────────────────┐
-│ Relay URL, region, version/digest, data volume, backup destination          │
+┌ Ready — Relay Host owned by Acme's DigitalOcean account ────────────────────┐
+│ Host URL/region/version, trust boundary and cell inventory                  │
+│ Cell acme: port/network/data root/resource budget/backup lineage            │
 │ Estimated monthly range and source date                                     │
 │ Authorization revoked/discarded: Yes                                        │
 │ [Open Relay] [Download redacted receipt] [Run restore drill]                │
@@ -152,16 +158,18 @@ It never threatens deletion, disables provider-console access, or hides export.
 
 ## Delete
 
-Delete confirmation shows the exact plan/resource inventory:
+Delete confirmation distinguishes cell deletion from Host deletion and shows:
 
-- resources to delete;
+- the selected cells and/or Host/provider resources to delete;
 - backups/volumes retained or deleted;
 - estimated continuing cost of retained resources;
 - last verified recovery point and export action;
 - typed deployment name confirmation and session reauthentication.
 
-Success requires a final provider inventory. Partial deletion lists ongoing
-billable resources and does not use a generic success toast.
+Removing a cell retains its data by default. Purge is a separate irreversible
+action with resolved-path containment. Host deletion requires a final provider
+inventory. Partial deletion lists ongoing billable resources and does not use a
+generic success toast.
 
 ## Responsive behavior
 

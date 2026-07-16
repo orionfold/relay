@@ -1,5 +1,32 @@
 # Feature Changelog
 
+## 2026-07-16 — G-078 appliance/cell architecture amendment
+
+### Amended
+
+- Compared Relay with current primary-source OpenClaw, Hermes Agent, and NVIDIA
+  NemoClaw deployment models. All three treat local hardware and a cloud VPS/
+  remote device as placements of a durable agent stack with local state,
+  host/sandbox lifecycle, authenticated remote access, and local or hosted
+  inference—not as a mandatory horizontally scaled PaaS application.
+- Shifted proposed TDR-044 and the cloud-deploy program to a customer-owned
+  `Relay Host` appliance. A Host runs one or more full isolated `Relay cells`
+  with separate processes/containers, SQLite/data roots, mounts, networks,
+  loopback ports, identities, secrets, licenses, logs, resource limits, runtime
+  policies, and backup lineages. The Host supervisor stores only content-free
+  lifecycle metadata and the Host administrator remains trusted.
+- Made local device and cloud VM use the same signed Host/cell manifest and
+  lifecycle contract. Capacity scales up within a Host and then out through
+  independent Host shards; it does not require shared Postgres, queues, pub/sub,
+  or app replicas merely because tenant count increases.
+- Moved DigitalOcean to the first live single-server proof, retained Hetzner or
+  representative local hardware as the pre-GA portability proof, and demoted
+  Railway/Render to optional later single-cell PaaS adapters.
+- Replaced the per-service cost examples with a dated VM Host-admission model:
+  provisional 1 GiB cells plus Host reserve yield planning examples for 1, 10,
+  and 100 cells, explicitly blocked from becoming capacity claims until Relay is
+  measured under idle and active workloads.
+
 ## 2026-07-15 — G-078 licensed self-service cloud deployment planning
 
 ### Completed

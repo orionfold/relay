@@ -3,6 +3,7 @@ title: Licensed self-service cloud deployment
 status: planned
 goal: G-078
 decision: PROCEED approved 2026-07-15
+amended: OpenClaw/Hermes/NemoClaw appliance perspective 2026-07-16
 tdr: TDR-044 proposed
 ---
 
@@ -10,12 +11,12 @@ tdr: TDR-044 proposed
 
 ## Product outcome
 
-A licensed Relay customer can start from Relay, compare truthful deployment
-shapes and dated cost ranges, authorize a supported cloud provider, and create a
-working Relay instance in the customer's account. The result is owned and billed
-by the customer, has authenticated access and verified recovery, and can be
-upgraded, exported, transferred, or deleted without surrendering customer data
-to Orionfold.
+A licensed Relay customer can choose a local device or customer-owned cloud
+server, size a Relay Host, authorize a supported provider when needed, and
+install the same signed appliance contract in either placement. The Host can run
+one or more isolated Relay cells, each representing one customer trust boundary.
+The result has authenticated access and verified recovery and can be upgraded,
+exported, transferred, or deleted without surrendering data to Orionfold.
 
 “Single click” means one guided journey after unavoidable choices and provider
 authorization. It does not hide region, billing, data residency, runtime cost,
@@ -26,7 +27,7 @@ credentials, destructive replacement, or recurring charges.
 - A licensed small-business operator wants Relay available beyond one laptop
   without becoming a cloud engineer.
 - An agency or team wants one isolated Relay instance per customer and a
-  predictable cost/operations model.
+  predictable single-server capacity and operations model.
 - A privacy-conscious customer wants Relay in its own account with BYOK model
   credentials or a private model runtime.
 - An enterprise evaluator wants to understand distributed, hybrid, database,
@@ -47,6 +48,11 @@ credentials, destructive replacement, or recurring charges.
 6. V1 keeps per-instance SQLite/WAL on local block storage with encrypted,
    customer-owned off-host recovery unless a measured requirement triggers a
    different database decision.
+7. Local device and cloud server are placements of the same Host/cell contract;
+   v1 is not a separate distributed cloud architecture.
+8. A Host administrator is trusted by every cell on that Host. Customers needing
+   protection from that administrator or from mutually hostile tenants receive a
+   separate VM/machine.
 
 ## Invariants
 
@@ -60,7 +66,7 @@ credentials, destructive replacement, or recurring charges.
 - Cloud credentials are never returned to the browser after submission and are
   never written to logs, URLs, topology receipts, or support bundles.
 - Every deployment is bound to a specific immutable Relay release digest and a
-  versioned topology manifest.
+  versioned Host/cell manifest.
 - Provider estimates are dated inputs, not promises; the provider bill is
   authoritative.
 - A partial deployment is a named, resumable or cleanly reversible state. It is
@@ -69,6 +75,12 @@ credentials, destructive replacement, or recurring charges.
   retained and destroyed resources plus a pre-delete export/recovery option.
 - Relay Core has no scattered `cloudMode` conditionals. Provider and substrate
   choices enter through typed instance-boundary contracts.
+- One customer ID, project ID, session ID, or database column never substitutes
+  for cell isolation.
+- Host-supervisor metadata contains no prompts, documents, table rows, provider
+  secrets, customer credentials, model responses, or raw cell logs.
+- Cell services and model runtimes bind to loopback/private networks by default;
+  remote access crosses one approved authenticated ingress/tailnet boundary.
 
 ## Entitlement and lifecycle policy
 
@@ -80,7 +92,7 @@ Entitlement is required for:
 - opening the deploy journey past a read-only comparison;
 - generating a provisionable manifest;
 - initiating provider authorization or provisioning;
-- adding an instance, changing topology, or starting an automated upgrade;
+- adding a Host or cell, changing placement/capacity, or starting an upgrade;
 - invoking paid cloud-specific lifecycle automation.
 
 Entitlement is not required for:
@@ -97,40 +109,65 @@ unconditionally prohibited.
 
 ## Reference topology
 
-The first implementation target is a sealed single-customer stack:
+The first implementation target is one Relay Host appliance on either a local
+device or a customer-owned cloud VM:
 
 ```text
 Customer browser
-  → provider TLS and authenticated Relay ingress
-    → one Relay container/process
-      → one local persistent data volume (SQLite WAL + files)
-      → customer secret manager or encrypted local secret root
-      → BYOK model API, private runtime service, or authenticated hybrid tunnel
-      → encrypted versioned recovery artifacts in customer object storage
+  → VPN/tailnet or TLS + authenticated Host ingress
+    → Relay Host supervisor (content-free lifecycle metadata)
+      → cell A: Relay + SQLite/files/secrets/license/logs/backup lineage
+      → cell B: Relay + SQLite/files/secrets/license/logs/backup lineage
+      → optional same-host private Ollama/LM Studio/LiteLLM
+      → encrypted versioned recovery artifacts off-host
 ```
 
-Railway is the first template-oriented conformance candidate. DigitalOcean is
-the first VM-oriented portability candidate. Either may fail conformance; no
-provider is selected for shipment until its child goal records the proof and the
-operator accepts the provider gate.
+Each cell has its own process/container, loopback port, network, data
+directory/volume, identity realm, resource budget, runtime policy and recovery
+manifest. The Host supervisor creates, inspects, starts, stops, replaces,
+upgrades, exports and removes local cells but never proxies their customer data.
+
+DigitalOcean is the first cloud-VM conformance candidate. The local-device Host
+fixture is the compatibility reference; a second clean VM provider or local
+hardware proves portability before GA claims. Railway/Render may later package a
+single cell but are not the reference architecture.
 
 ## Deployment profiles shown to customers
 
-### Simple cloud Relay
+### Local Relay Host
 
-- One always-on Relay instance, isolated volume, encrypted backups.
+- Existing laptop, desktop, Mini, workstation, home server or office server.
+- One or more isolated cells within the accepted host trust boundary.
+- BYOK hosted inference or same-device private runtime.
+- No provider bill; customer owns device availability, networking and backups.
+
+### Simple cloud-server Relay Host
+
+- One always-on customer VM with one Host and one or more cells.
 - BYOK hosted model APIs by default.
-- Lowest infrastructure complexity; one host/volume failure domain.
-- Recommended first profile for one customer organization.
+- Reverse proxy/tailnet, host firewall, encrypted off-host backups.
+- Lowest cloud infrastructure complexity; one Host failure domain.
+- Recommended first cloud profile.
 
 ### Relay plus private model runtime
 
-- Relay and Ollama, LM Studio headless, or LiteLLM run as separate services on a
-  provider-private network.
+- Relay cells and Ollama, LM Studio headless, or LiteLLM run on the same Host or
+  its private network.
 - CPU runtime is allowed only for explicitly compatible small models/workloads;
   GPU cost and model memory are shown separately.
 - Runtime API is authenticated when supported or protected by a private gateway;
   no public Ollama port.
+- A shared runtime across cells requires one customer trust boundary or per-cell
+  credentials, quotas, log separation and an explicit operator decision.
+
+### Sharded Relay Hosts
+
+- When a Host reaches measured admission limits, provision another independent
+  Host and place new cells there.
+- A minimal inventory can show Host/cell identity, version, health, capacity and
+  backup status but contains no customer content and is not required for a cell
+  to operate.
+- One tenant is not split across application replicas or a shared remote database.
 
 ### Distributed services
 
@@ -153,17 +190,19 @@ operator accepts the provider gate.
 
 ### 1. Discover
 
-The customer sees what the feature does, paid-license status, supported and
-planned providers, portability promise, and a dated cost-methodology link.
+The customer sees Local Device and Cloud Server as the primary choices, plus
+paid-license status, Host/cell trust boundary, supported providers, portability
+promise, and a dated capacity/cost-methodology link.
 Read-only comparison remains useful without an entitlement.
 
 ### 2. Configure
 
 The customer selects:
 
-- provider and account/workspace/project;
-- region and exposure profile;
-- instance count and size assumptions;
+- placement: this device, another device/server, or cloud VM;
+- provider/account and region when cloud is selected;
+- exposure profile: local, VPN/tailnet, or authenticated public ingress;
+- number of cells and Host size/safety reserve;
 - BYOK hosted model, private runtime, or hybrid runtime;
 - storage/backup retention and recovery destination;
 - expected concurrency, uptime, storage, and egress.
@@ -172,20 +211,23 @@ Unsupported combinations are disabled with a concrete reason and alternative.
 
 ### 3. Estimate
 
-Relay shows expected and upper-bound monthly ranges with provider source date,
-currency, region, taxes/exclusions, infrastructure line items, and separately
-owned model/API charges. The customer can inspect raw assumptions.
+Relay shows Host count/size, provisional cells-per-Host admission, safety reserve,
+expected/upper monthly ranges, source date, currency, region, exclusions and
+separate model/API charges. It labels density unmeasured until Relay capacity
+evidence exists and never promises that cell count alone determines capacity.
 
 ### 4. Preflight
 
-Before provider authorization, Relay verifies entitlement, release compatibility,
-required customer choices, provider capability, account permissions requested,
-name/region availability where possible, and a recovery destination. It produces
-a redacted plan digest that can be compared with the completion receipt.
+Before provider authorization or local installation, Relay verifies entitlement,
+release/host compatibility, Host capacity assumptions, cell ownership/isolation,
+required choices, provider capability/scopes when relevant, port/network/mount
+availability, and recovery destination. It produces a redacted plan digest.
 
 ### 5. Authorize
 
-Use provider OAuth/device authorization where available, otherwise a least-
+For a local/remote customer device, show the signed install/bootstrap command and
+its exact host changes. For cloud, use provider OAuth/device authorization where
+available, otherwise a least-
 privilege short-lived token supplied directly to a local deployment coordinator.
 The UI lists exact scopes and when the authorization is discarded. Long-lived
 provider credentials are not retained by Orionfold in v1.
@@ -194,16 +236,18 @@ provider credentials are not retained by Orionfold in v1.
 
 The state machine is:
 
-`draft → estimated → preflight-passed → authorized → provisioning →`
-`verifying → ready`
+`draft → estimated → preflight-passed → host-authorized → host-provisioning →`
+`host-ready → cell-provisioning → verifying → ready`
 
 Named non-success states are:
 
-`preflight-failed`, `authorization-expired`, `partially-provisioned`,
-`verification-failed`, `rollback-running`, `rollback-partial`, and `cancelled`.
+`preflight-failed`, `authorization-expired`, `host-partial`, `cell-partial`,
+`capacity-refused`, `verification-failed`, `rollback-running`,
+`rollback-partial`, and `cancelled`.
 
-Every state has a durable redacted receipt, next safe action, and provider
-resource identifiers. Retry is idempotent against the plan digest.
+Every state has a durable redacted receipt, next safe action, Host/cell identity,
+and provider resource identifiers when applicable. Retry is idempotent against
+the plan digest.
 
 ### 7. First login and handoff
 
@@ -213,12 +257,14 @@ The deployment is not ready until:
 - first-admin bootstrap is single-use, expires, and is not present in logs;
 - authentication/session/CSRF/rate-limit checks pass;
 - Relay reports the expected immutable version and instance identity;
+- Host reports expected cell isolation, port/network/mount/resource limits;
 - runtime reachability is tested without exposing secrets;
 - a recovery artifact is created and restore-validated or clearly pending.
 
-The customer receives an ownership receipt: provider resources, region,
-hostname, artifact digest, data/backup locations, estimated recurring cost,
-support boundary, recovery steps, and how to revoke deployment authorization.
+The customer receives an ownership receipt: Host/cell inventory, trust boundary,
+provider resources/region when relevant, hostname, artifact digest, cell data/
+backup locations, resource admission, estimated cost, recovery steps, and how
+to revoke deployment authorization.
 
 ### 8. Operate
 
@@ -231,15 +277,16 @@ always linked.
 
 | Layer | V1 decision | Compatibility and trigger |
 |---|---|---|
-| Operational data | Preserve `better-sqlite3` and WAL on one local block volume | Add remote DB only for horizontal replicas/active-active or unmet RPO/RTO; never network-mounted WAL |
+| Host/cell lifecycle | One local supervisor manages isolated processes/containers from a versioned manifest | Add multi-host control plane only for paid fleet demand; it remains content-free |
+| Operational data | Preserve `better-sqlite3` and WAL per cell on Host-local block storage | Add remote DB only for horizontal replicas/active-active inside one cell or unmet RPO/RTO; never network-mounted/shared WAL |
 | Files | Preserve live local data-directory paths | Add object storage as backup/export transport; direct object-backed live files need atomicity/consistency contract |
 | Backup | Versioned Relay snapshot manifest copied encrypted off-host | Recovery drill must prove DB + files + settings consistency and key availability |
 | Secrets | Cloud secret references/KMS root in cloud; current protected local root locally | Browser receives presence/source only; rotation and disaster recovery are required |
 | Identity | Trusted-local and remote-authenticated exposure profiles | Cloud profile is a prerequisite; public ingress without it is invalid |
-| Scheduling | One scheduler/executor owner per instance | Distributed leases/queue begin only when multiple writers/workers are required |
-| Live events | Single-instance SSE/DB polling | Pub/sub begins only with multiple Relay replicas |
-| Runtime | Reuse explicit endpoint/capability registry | Provisioning adds lifecycle adapter without merging provider identities |
-| Distribution | Common release manifest; npm local and signed OCI cloud | Both artifact paths must report the same Relay version/schema compatibility |
+| Scheduling | One scheduler/executor owner per cell | Distributed leases/queue begin only when one cell requires multiple writers/workers |
+| Live events | Per-cell SSE/DB polling | Pub/sub begins only with multiple Relay replicas for one cell |
+| Runtime | Reuse endpoint registry; add Host-local/private lifecycle | Independent runtime fleet begins only when same-host capacity fails |
+| Distribution | Common release manifest; npm local and signed OCI Host/cell artifact | Local device and cloud VM report identical Relay/schema compatibility |
 | Observability | Local diagnostics and optional redacted operational events | No content telemetry; exported sink requires an explicit schema/privacy review |
 
 ## Database decision rule
@@ -250,7 +297,7 @@ current scheduler/files/snapshots share that same boundary.
 
 A database architecture goal is triggered when any of these become required:
 
-- two or more concurrently writable Relay application replicas for one instance;
+- two or more concurrently writable Relay application replicas for one cell;
 - active-active regional writes;
 - independent horizontal workers that cannot coordinate through one owner;
 - measured SQLite write throughput or database size exceeds the supported SLO;
@@ -265,19 +312,21 @@ repository interface.
 
 ## Cost and capacity requirements
 
-The calculator accepts instance count, memory, CPU duty, persistent storage,
-backup size/retention, egress, runtime/GPU uptime, and provider plan. It shows:
+The calculator accepts cell count, measured/provisional per-cell memory/CPU,
+Host reserve and utilization, storage/backup, concurrency, runtime/GPU uptime,
+provider and Host plan. It shows:
 
-`monthly total = provider floor + Relay compute + instance storage + backups +`
-`database if selected + runtime/GPU + egress + optional support`
+`monthly total = Host count × (server + backup + storage) +`
+`runtime/GPU + egress + optional support`
 
 Required views:
 
-- 1, 10, and 100 isolated instances;
+- 1, 10, and 100 isolated cells;
+- Host size/count, admitted cells per Host and safety reserve;
 - expected versus upper-bound compute duty;
 - BYOK API, shared customer runtime, and dedicated runtime alternatives;
 - sleep-capable versus always-on where the state contract allows it;
-- linear cost drivers and scale-break triggers.
+- size-up and Host-shard break points without implying app-tier horizontal scale.
 
 Provider prices must have source URL, retrieval date, region, currency, and notes.
 Stale inputs block “current estimate” language but not viewing the last captured
@@ -295,6 +344,10 @@ estimate. Model API/token charges are never folded into infrastructure cost.
   placed in redirect query strings or support receipts.
 - Internal service endpoints use provider-private networking plus service auth
   where possible; private networking alone is not treated as identity.
+- Cells publish only to Host loopback/private networks; ingress routes to the
+  intended cell and cannot choose another cell through a caller-supplied ID.
+- Separate cell mounts, networks, ports, identities, secrets, logs and resource
+  limits are mandatory. Host administrators remain trusted and this is visible.
 - Outbound provider/runtime URLs retain scheme validation, redirect refusal,
   bounded timeouts, secret redaction, and a separately planned DNS/SSRF defense.
 - Backups are encrypted before or at the customer-owned destination, integrity
@@ -315,6 +368,8 @@ The detailed abuse paths and priorities live in `relay-threat-model.md`.
 | Cost input stale | Mark estimate stale and provider bill authoritative | Refresh signed pricing catalog before “current” claim |
 | Authorization denied/expires | No provisioning; list missing/expired scope | Reauthorize with same redacted plan digest |
 | Provisioning partially succeeds | Name each created/missing resource and accruing cost | Resume idempotently or run scoped rollback; link provider console |
+| Cell isolation collision | Refuse creation and name conflicting port/network/mount/owner | Repair manifest/allocation; never reuse another cell's resource |
+| Host capacity exhausted | Refuse admission with measured/provisional constraint | Resize Host or provision another independent Host shard |
 | Verification fails | Never report ready | Preserve evidence; repair ingress/runtime/recovery then rerun verification |
 | Backup upload fails | Instance may run but readiness/health names degraded recovery | Retry transport, rotate destination credentials, or export manually |
 | Upgrade migration fails | Keep prior artifact/data snapshot and named failure | Stop writes, restore compatible snapshot, restart prior digest |
@@ -337,6 +392,7 @@ The detailed abuse paths and priorities live in `relay-threat-model.md`.
 
 - Orionfold-hosted managed Relay or custody of customer cloud credentials.
 - Row-level multi-tenancy or a shared cross-customer data plane.
+- Protection from a malicious Host administrator; use a separate VM/machine.
 - Kubernetes as the first customer path.
 - Active-active Relay, distributed scheduling, or live multi-region writes.
 - A promise that every model can run affordably on CPU.
@@ -349,25 +405,29 @@ The detailed abuse paths and priorities live in `relay-threat-model.md`.
 1. A dated research matrix compares Vercel, Supabase, Cloudflare, Railway,
    Render, Fly.io, DigitalOcean, Hetzner, and runtime options using primary
    sources and separates full-host from component fit.
-2. Topology comparison covers consolidated, PaaS multi-service, distributed,
-   hybrid runtime, edge-control-plane, and Kubernetes paths with ownership,
-   security, recovery, cost, and scale tradeoffs.
-3. Every load-bearing layer has an A/B/C posture, selected v1 direction, and
+2. Primary-source comparison of OpenClaw, Hermes and NemoClaw documents the
+   device/VPS Host pattern, one-cell-per-tenant isolation, trusted Host operator,
+   local state, sandboxing, auth, and optional local/hosted inference.
+3. Topology comparison covers local Host, cloud VM Host, same-host cells, Host
+   sharding, PaaS single-cell, distributed, hybrid, edge and Kubernetes paths.
+4. Every load-bearing layer has an A/B/C posture, selected v1 direction, and
    measurable revisit trigger.
-4. The cost model can reproduce dated 1/10/100-instance examples and exposes all
-   assumptions and exclusions.
-5. TDR-044 records the sealed customer-owned reference architecture and remains
+5. The cost model reproduces dated 1/10/100-cell Host/shard examples and exposes
+   provisional density, reserve, backup and exclusions.
+6. TDR-044 records the customer-owned Relay Host/cell architecture and remains
    proposed until implementation approval.
-6. The threat model covers ingress, provider authorization, service network,
+7. The threat model covers Host privilege, cross-cell isolation, ingress,
+   provider authorization, service network,
    secrets, backups, artifacts, runtime endpoints, licensing, lifecycle, and
    support/telemetry boundaries with repo evidence.
-7. The wireframe describes comparison, configuration, authorization, progress,
+8. The wireframe describes device/cloud placement, Host sizing/cells,
+   authorization, progress,
    rescue, handoff, and mobile behavior without hiding required choices.
-8. The implementation plan maps each criterion to bounded vertical slices,
+9. The implementation plan maps each criterion to bounded vertical slices,
    regression tests, provider conformance, runtime/browser evidence, and rescue.
-9. G-058 and G-060 are amended as hard prerequisite contracts, and G-078 is
+10. G-058 and G-060 are amended as hard prerequisite contracts, and G-078 is
    decomposed into independently completable child goals.
-10. G-078 closes without provisioning cloud resources, spending money, pushing,
+11. G-078 closes without provisioning cloud resources, spending money, pushing,
     publishing, releasing, or accepting the proposed TDR/provider choice.
 
 ## Verification record
@@ -380,6 +440,10 @@ The detailed abuse paths and priorities live in `relay-threat-model.md`.
   sources listed in the research report.
 - 2026-07-15: operator approved PROCEED scope and the six product/security
   assumptions. No provider account, credential, deployment, or spend was used.
+- 2026-07-16: OpenClaw, Hermes Agent and NVIDIA NemoClaw primary-source review
+  shifted the reference to one local/cloud Relay Host with isolated tenant cells,
+  Host sharding, and a VM-first provider proof. The operator explicitly requested
+  this perspective; no provider account or resource was used.
 - Deterministic documentation/cost-model verification commands are recorded in
   `features/licensed-self-service-cloud-deploy-plan.md`.
 

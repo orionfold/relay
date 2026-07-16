@@ -10,20 +10,37 @@ assert.match(inputs.asOf, /^\d{4}-\d{2}-\d{2}$/);
 assert.equal(inputs.currency, "USD");
 assert.deepEqual(inputs.scenarios, [1, 10, 100]);
 
-function railwayMonthly(count) {
-  const p = inputs.providers.railway;
-  const perInstance =
-    p.instance.ramGb * p.ramGbMonth +
-    p.instance.averageVcpu * p.vcpuMonth +
-    p.instance.volumeGb * p.volumeGbMonth +
-    p.instance.egressGb * p.egressGb;
-  return Math.max(p.planFloorMonthly, count * perInstance);
+const admission = inputs.cellAdmission;
+const provider = inputs.providers.digitaloceanBasic;
+
+function cellCapacity(plan) {
+  const memoryCapacity = Math.floor(
+    (plan.memoryGiB * admission.maxMemoryUtilization -
+      admission.hostReserveMemoryGiB) /
+      admission.cellMemoryGiB,
+  );
+  const cpuCapacity = plan.vcpu * admission.maxCellsPerVcpu;
+  return Math.max(0, Math.min(memoryCapacity, cpuCapacity));
 }
 
-function flyMonthly(count) {
-  const p = inputs.providers.fly_ord;
-  const perInstance = p.machineMonthly + p.instance.volumeGb * p.volumeGbMonth;
-  return count * perInstance;
+const plans = provider.plans
+  .map((plan) => ({ ...plan, cellCapacity: cellCapacity(plan) }))
+  .filter((plan) => plan.cellCapacity > 0)
+  .sort((a, b) => a.monthly - b.monthly);
+
+assert.ok(plans.length > 0);
+
+function hostPlanFor(cellCount) {
+  const singleHost = plans.find((plan) => plan.cellCapacity >= cellCount);
+  if (singleHost) {
+    return { plan: singleHost, hosts: 1 };
+  }
+
+  const largest = plans.at(-1);
+  return {
+    plan: largest,
+    hosts: Math.ceil(cellCount / largest.cellCapacity),
+  };
 }
 
 function money(value) {
@@ -34,17 +51,64 @@ function money(value) {
   }).format(value);
 }
 
-const rows = inputs.scenarios.map((instances) => ({
-  instances,
-  railway: money(railwayMonthly(instances)),
-  flyOrd: money(flyMonthly(instances)),
-}));
+const rows = inputs.scenarios.map((cells) => {
+  const { plan, hosts } = hostPlanFor(cells);
+  const vmMonthly = hosts * plan.monthly;
+  const backupMonthly = vmMonthly * provider.backupRateOfVm;
 
-assert.equal(rows[0].railway, "$20.00");
-assert.equal(rows[1].railway, "$170.00");
-assert.equal(rows[2].railway, "$1,700.00");
-assert.equal(rows[0].flyOrd, "$7.42");
-assert.equal(rows[1].flyOrd, "$74.20");
-assert.equal(rows[2].flyOrd, "$742.00");
+  return {
+    cells,
+    hosts,
+    plan: plan.id,
+    admittedCellsPerHost: plan.cellCapacity,
+    vmMonthly: money(vmMonthly),
+    weeklyBackupMonthly: money(backupMonthly),
+    estimatedMonthly: money(vmMonthly + backupMonthly),
+  };
+});
 
-console.log(JSON.stringify({ asOf: inputs.asOf, currency: inputs.currency, rows }, null, 2));
+assert.deepEqual(
+  rows.map(({ cells, hosts, plan, admittedCellsPerHost, estimatedMonthly }) => ({
+    cells,
+    hosts,
+    plan,
+    admittedCellsPerHost,
+    estimatedMonthly,
+  })),
+  [
+    {
+      cells: 1,
+      hosts: 1,
+      plan: "basic-2gib-1vcpu",
+      admittedCellsPerHost: 1,
+      estimatedMonthly: "$14.40",
+    },
+    {
+      cells: 10,
+      hosts: 1,
+      plan: "basic-16gib-8vcpu",
+      admittedCellsPerHost: 13,
+      estimatedMonthly: "$115.20",
+    },
+    {
+      cells: 100,
+      hosts: 8,
+      plan: "basic-16gib-8vcpu",
+      admittedCellsPerHost: 13,
+      estimatedMonthly: "$921.60",
+    },
+  ],
+);
+
+console.log(
+  JSON.stringify(
+    {
+      asOf: inputs.asOf,
+      currency: inputs.currency,
+      admission,
+      rows,
+    },
+    null,
+    2,
+  ),
+);

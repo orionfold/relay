@@ -6,6 +6,8 @@ Architecture impact: `features/architect-report.md`
 Threat model: `relay-threat-model.md`
 Proposed decision: TDR-044
 Decision: PROCEED approved by the operator on 2026-07-15
+Architecture perspective amended from OpenClaw/Hermes/NemoClaw evidence on
+2026-07-16
 
 ## Scope challenge result
 
@@ -15,9 +17,9 @@ Decision: PROCEED approved by the operator on 2026-07-15
 - **PROCEED (approved):** complete the provider/topology/layer decision package,
   reproducible cost model, specification, proposed TDR, threat model, wireframe,
   regression strategy and groomed child goals without provisioning paid resources.
-- **EXPAND:** create live Railway/DigitalOcean deployments and reconcile actual
-  bills. Deferred because it requires customer/provider accounts, credentials,
-  external writes and spend; it belongs to separately authorized conformance goals.
+- **EXPAND:** create live local-device, DigitalOcean, and second-provider Relay
+  Hosts and reconcile actual capacity/bills. Deferred because it requires
+  machines/accounts, credentials, external writes and spend.
 
 The plan is intentionally a program of bounded goals, not one giant feature
 branch. G-078 ends after the durable decisions and decomposition are verified.
@@ -38,6 +40,9 @@ branch. G-078 ends after the durable decisions and decomposition are verified.
   signature → term → entitlement pattern required for cloud-deploy licensing.
 - `src/lib/instance/*` and TDR-029/TDR-030 provide instance bootstrap, update and
   hybrid-license patterns; G-060 must decide which contracts are reusable.
+- OpenClaw Fleet provides a directly relevant one-host/one-cell-per-tenant
+  precedent; Hermes and NemoClaw provide remote-backend and host/sandbox
+  precedents captured in the research report.
 - `src/lib/agents/runtime/provider-endpoint.ts` provides URL normalization,
   insecure-remote consent, redirect refusal, bounded timeouts/errors and secret
   redaction for model endpoints.
@@ -62,31 +67,33 @@ branch. G-078 ends after the durable decisions and decomposition are verified.
   trigger-gated enterprise work.
 - Compliance, residency, SSO or SLA claims: ordinary confidential business data
   is the approved baseline.
-- Every cloud provider: Railway and DigitalOcean prove two adapter families;
-  subsequent providers must pass the same contract.
+- Every cloud provider: the same Relay Host contract is proven locally and on
+  DigitalOcean first; a second VM provider is required only before a general
+  portability claim. PaaS is a later single-cell adapter.
 
 ## Specification and acceptance mapping
 
 | Spec acceptance criterion | Implementation program slice | Protecting evidence |
 |---|---|---|
-| AC1 authoritative provider matrix | G-078 research, dated source catalog | URL/source-date audit and provider-family coverage check |
-| AC2 topology comparison | G-078 research/spec/wireframe | topology ownership/failure/cost checklist |
-| AC3 A/B/C layer posture | G-078 spec + proposed TDR-044 | layer/revisit-trigger parity check |
-| AC4 reproducible cost model | G-078 JSON inputs + deterministic script | script assertions for 1/10/100 scenarios |
-| AC5 durable architecture decision | proposed TDR-044, accepted in first implementation gate | architect review plus operator acceptance |
-| AC6 threat coverage | G-078 threat model, then per-goal security review | focus-path and trust-boundary checklist |
-| AC7 complete customer journey | G-078 wireframe, G-084 deploy UX | state-machine/component/browser journey tests |
-| AC8 executable slices and regression budget | this plan + G-079–G-086 | per-goal ship verification and conformance matrix |
-| AC9 G-058/G-060 dependencies and child goals | strategy backlog amendments | goal-ledger audit |
-| AC10 no external writes/spend | G-078 closure | git/status and provider-credential absence check |
+| AC1 authoritative provider matrix | G-078 research, dated source catalog | provider-family coverage and source-date check |
+| AC2 reference-product evidence | G-078 OpenClaw/Hermes/NemoClaw research | official Host/cell/backend/sandbox claim audit |
+| AC3 Host/cell topology comparison | G-078 research/spec/wireframe | placement, Host trust, isolation, failure and cost checklist |
+| AC4 A/B/C layer posture | G-078 spec + proposed TDR-044 | layer/revisit-trigger parity check |
+| AC5 reproducible cost model | G-078 JSON inputs + deterministic script | exact 1/10/100-cell Host/shard assertions |
+| AC6 durable architecture decision | proposed TDR-044, accepted in first implementation gate | architect review plus operator acceptance |
+| AC7 threat coverage | G-078 threat model, then per-goal security review | Host privilege, cross-cell and trust-boundary checklist |
+| AC8 complete customer journey | G-078 wireframe, G-084 deploy UX | placement/Host/cell state-machine and browser tests |
+| AC9 executable slices and regression budget | this plan + G-079–G-086 | per-goal ship verification and conformance matrix |
+| AC10 G-058/G-060 dependencies and child goals | strategy backlog amendments | goal-ledger audit |
+| AC11 no external writes/spend | G-078 closure | git/status and provider-credential absence check |
 
 ## Program sequence
 
 ### G-079 — Lock truthful isolation and customer-owned fleet authority
 
-Goal: complete G-058 and amend/complete G-060's specification so one customer
-instance, fleet metadata, ownership transfer and customer-authorized lifecycle
-are unambiguous before provider code exists.
+Goal: complete G-058 and amend/complete G-060 so Relay Host, Relay cell, trusted
+Host administrator, same-host versus separate-VM isolation, content-free Host
+metadata, ownership transfer and customer-authorized lifecycle are unambiguous.
 
 Primary surfaces:
 
@@ -97,23 +104,25 @@ Primary surfaces:
 
 Tasks:
 
-1. Inventory instance identity, data root, hostname, cwd, credential, logs and
-   runtime-policy ownership.
-2. Define minimal fleet metadata that contains no customer content and distinguish
-   local process, OS user, container and remote-host isolation.
+1. Inventory Host and cell identity, data root, hostname/loopback port, network,
+   mount, OS/container identity, credentials, logs, license, resource budget,
+   backup and runtime-policy ownership.
+2. Define minimum Host registry metadata with no customer content and distinguish
+   process, OS user, container, stronger OCI runtime, VM and physical-host trust.
 3. Define customer ownership/authorization/transfer/revocation state machines.
-4. Add synthetic two-instance tests proving no cross-instance database, file,
-   secret, log or runtime-policy access.
+4. Add synthetic two-cell same-host tests proving distinct database/files,
+   mounts, networks, ports, secrets, identity, license, logs, limits, backups and
+   runtime policy; document that the Host administrator remains trusted.
 5. Obtain operator approval for public trust language, first fleet topology and
    minimum fleet metadata.
 
 Checkpoint: G-058/G-060 acceptance evidence exists and no later goal needs to
 invent customer/instance semantics.
 
-### G-080 — Produce a signed cloud-safe Relay artifact
+### G-080 — Produce a signed Relay Host/cell artifact
 
-Goal: create an immutable OCI artifact and launch/data contract from the same
-release manifest as npm Relay.
+Goal: create immutable Host/cell OCI artifacts and launch/data contracts from the
+same release manifest as npm Relay, usable on a local device or cloud VM.
 
 Expected new/changed surfaces:
 
@@ -122,7 +131,7 @@ Expected new/changed surfaces:
 - `bin/cli.ts` and health/readiness API;
 - `scripts/` release/provenance/SBOM tooling;
 - `.github/workflows/` OCI build/sign workflow;
-- versioned topology/artifact schema under `src/lib/cloud/`;
+- versioned Host/cell/artifact schema under a provider-neutral module;
 - tests for signals, health, data paths, schema compatibility and provenance.
 
 Tasks:
@@ -134,17 +143,19 @@ Tasks:
    tasks, SQLite checkpoint and backup boundaries.
 3. Generate a release manifest tying npm version, OCI digest, schema range,
    migrations, SBOM, signatures and rollback artifact.
-4. Add container fixture smoke using a temporary isolated data directory; prove
-   first-run, restart persistence, graceful stop and prior-version rollback.
+4. Add one-Host/two-cell fixture smoke using isolated data roots, networks and
+   loopback ports; prove first-run, restart persistence, graceful stop, no
+   cross-cell access and prior-version rollback.
 5. Add CI provenance/signature checks. Publication remains separately authorized.
 
 Checkpoint: a locally built image runs customer-identically and a mutable tag or
 digest mismatch cannot pass verification.
 
-### G-081 — Add internet-safe identity and administrative bootstrap
+### G-081 — Add internet-safe Host ingress and cell identity
 
-Goal: implement the remote-authenticated exposure profile required before public
-cloud smoke.
+Goal: implement trusted-local, tailnet/VPN and remote-authenticated Host exposure
+profiles, first-admin bootstrap, cell route binding and client/device identity
+before public cloud smoke.
 
 Expected surfaces:
 
@@ -165,9 +176,11 @@ Tasks:
    authorization at every mutation boundary.
 4. Add CSRF/origin enforcement, login/bootstrap/recovery rate limits, forwarded-
    header trust rules and visible named failures.
-5. Prove trusted-local behavior remains usable while public bind without the
+5. Make Host routing server-owned: hostname/path maps to one cell and a caller-
+   supplied customer/cell ID cannot select another cell.
+6. Prove trusted-local behavior remains usable while public bind without the
    authenticated profile fails closed.
-6. Run an independent security review before enabling any provider smoke.
+7. Run an independent security review before enabling any provider smoke.
 
 Checkpoint: unauthenticated critical-route inventory is empty except explicitly
 public health/bootstrap initiation endpoints, and browser tests cover first admin,
@@ -175,8 +188,8 @@ sessions, CSRF, recovery, expiry and takeover attempts.
 
 ### G-082 — Make recovery, secrets and data portability cloud-safe
 
-Goal: keep live per-instance SQLite/files while adding encrypted customer-owned
-off-host recovery, portable export and cloud/local roots of trust.
+Goal: keep live per-cell SQLite/files while adding encrypted customer-owned
+off-host recovery, portable export and local-device/cloud-Host roots of trust.
 
 Expected surfaces:
 
@@ -196,47 +209,56 @@ Tasks:
    exposes presence/source only and loss of the local volume is recoverable.
 4. Add backup scheduling with durable lock/receipt semantics and zero silent
    failures; reconcile incomplete uploads and retention.
-5. Add isolated restore drills, version compatibility, destructive-restore guard,
-   export-to-local and simulated host/volume loss.
+5. Add isolated per-cell restore drills, version compatibility, destructive-
+   restore guard, export-to-local, whole-Host inventory and simulated Host loss.
 6. Evaluate Litestream only as a bounded alternative spike; do not let it bypass
    the full files/settings/key recovery contract.
 
 Checkpoint: a destroyed disposable instance is recreated from customer-owned
 encrypted recovery without an Orionfold-held key.
 
-### G-083 — Define the entitlement-gated deploy domain and provider contract
+### G-083 — Build the entitlement-gated Relay Host supervisor and cell contract
 
-Goal: implement provider-neutral topology, price, authorization, capability,
-resource, receipt and lifecycle state contracts before a live adapter.
+Goal: implement the local Host registry/supervisor, cell manifest, resource
+admission and lifecycle state machine first; cloud providers only bootstrap a
+machine and apply the same Host contract.
 
 Expected surfaces:
 
-- new `src/lib/cloud/schema.ts`, `state-machine.ts`, `entitlement.ts`,
-  `pricing.ts`, `receipts.ts`, `provider.ts`, and error taxonomy;
+- new provider-neutral `src/lib/host/*` (or equivalent) for schema, registry,
+  allocator, lifecycle state machine, entitlement, pricing, receipts, container
+  runtime and error taxonomy;
 - settings/license-gate APIs and read-only cost comparison;
-- generated provider capability fixtures;
-- persistent deployment-draft/receipt schema and migrations.
+- deterministic local Host/container fixture and fake VM provider;
+- persistent Host/cell/deployment receipt schema and migrations.
 
 Tasks:
 
-1. Add versioned Zod schemas for topology inputs, capability declarations,
-   normalized prices, redacted plans, provider resources and receipts.
-2. Implement the spec state machine with legal-transition tests, plan digest,
-   per-step idempotency, cancellation, resume, rollback and partial rollback.
+1. Add versioned schemas for Host placement/size, cell ownership, artifact,
+   loopback port/network/mount allocation, resource limits, backup lineage,
+   provider bootstrap and redacted receipts.
+2. Implement Host and cell state machines with legal transitions, plan digest,
+   idempotency, cancellation, resume, replace, rollback, retained-data removal
+   and separately confirmed purge.
 3. Apply `product:relay-cloud-deploy` to every provisioning/lifecycle mutation;
    keep comparison/export/recovery paths usable after lapse.
-4. Define authorization acquisition/use/discard/revoke interfaces that cannot
-   serialize provider secrets into client payloads or receipts.
-5. Load a signed or release-bound dated pricing catalog and mark stale estimates;
-   enforce budgets/cost ceilings before mutation.
-6. Add provider conformance harness with a deterministic fake adapter covering
-   success, denial, timeout, malformed response, replay, partial state, rollback
-   failure, provider drift and cleanup inventory.
+4. Verify signed artifacts and create cells with distinct process/container
+   identity, data roots, networks, loopback ports, secrets, licenses, logs and
+   CPU/memory/disk limits. Reject every collision and path escape.
+5. Store only content-free Host registry data and prove no customer payload or
+   credential enters supervisor receipts/logs.
+6. Add capacity admission based on measured/provisional resource inputs and a
+   safety reserve; refuse instead of oversubscribing silently.
+7. Define provider authorization/use/discard/revoke and VM-bootstrap interfaces
+   that cannot serialize provider secrets into browser payloads or receipts.
+8. Add local Host plus fake-provider conformance for success, denial, timeout,
+   replay, Host partial, cell partial, rollback failure and cleanup inventory.
 
-Checkpoint: fake-adapter journeys prove the complete domain without network or
-credentials, and the critical entitlement route matrix passes.
+Checkpoint: a local one-Host/two-cell fixture proves isolation, lifecycle,
+capacity refusal, data retention/purge containment and entitlement behavior
+without provider credentials.
 
-### G-084 — Implement customer cloud-deploy UX and lifecycle receipts
+### G-084 — Implement local-device/cloud-Host deployment UX and receipts
 
 Goal: turn the approved wireframe into an accessible, persistent journey backed
 by the G-083 domain, without provider-specific branching in components.
@@ -251,74 +273,75 @@ Expected surfaces:
 
 Tasks:
 
-1. Build the provider/topology comparison with availability, ownership, failure,
-   scale and dated cost evidence.
-2. Build configuration and live expected/upper estimate with raw assumptions and
-   stale-source behavior.
+1. Present Local Device and Cloud Server first, with Host administrator trust,
+   cell isolation, separate-VM option and later PaaS/distributed profiles.
+2. Configure Host size/count, cells, exposure, runtime and recovery; show
+   provisional admission/safety reserve and stale-source behavior.
 3. Build scope/authorization explanation and callback/error states without
    provider tokens in browser storage or URLs.
-4. Render durable progress from receipts, exact partial-resource/billing warnings,
-   resume/rollback and provider-console external links.
+4. Render Host then cell progress, exact capacity/isolation/partial-resource
+   warnings, resume/rollback and provider-console external links.
 5. Build first-login/handoff, license-lapse, upgrade, export, transfer and delete
    surfaces with step-up/destructive confirmations.
 6. Verify at 1440/944/390 px, light/dark, keyboard/screen reader semantics,
    reload/navigation resilience, no overflow and system cursor only.
 
-Checkpoint: deterministic fake provider completes every journey state in a real
-browser before any live adapter is connected.
+Checkpoint: local Host and fake VM provider complete every journey state in a
+real browser before any live provider is connected.
 
-### G-085 — Prove Railway template/PaaS conformance
+### G-085 — Prove the DigitalOcean single-server Relay Host
 
-Goal: implement Railway behind the G-083 contract and prove the sealed reference
-topology in a disposable customer-owned account.
+Goal: provision one clean DigitalOcean VM, install the signed Relay Host, and
+prove local/cloud appliance parity plus one-cell and same-host multi-cell use.
 
-Operator gates before live work: accept TDR-044, approve Railway OAuth/token
+Operator gates before live work: accept TDR-044, approve DigitalOcean OAuth/token
 scopes, provide/authorize account and spending cap, approve target region and
 temporary public hostname.
 
 Tasks:
 
-1. Map topology manifest to Railway project/services/volume/private networking,
-   secrets, hostname and backup resources; keep mapping isolated in adapter.
+1. Map Host manifest to Droplet, firewall/VPC, DNS, provider backup, bootstrap
+   secret and non-root Docker/Podman/system service.
 2. Prove OAuth/API scope minimization, token discard/revoke and redacted receipts.
-3. Run full create, reload/resume, induced partial failure, idempotent retry,
-   rollback, delete and provider-inventory reconciliation.
-4. Run first-admin/auth/TLS, two-instance isolation, private runtime probe, backup,
-   host-loss restore, upgrade/rollback, export-to-local and actual bill checks.
-5. Record deviations, line-item cost and adapter semantic differences; recommend
-   ship, revise or reject. Do not ship by default.
+3. Run Host create/reload/resume/partial failure/idempotent retry/rollback/delete.
+4. Run first-admin/auth/TLS; one-cell then two-cell isolation; port/network/mount
+   collision; capacity refusal/noisy-neighbor; same-host private runtime; backup,
+   Host-loss restore, upgrade/rollback and export-to-local.
+5. Reconcile actual VM/backup bill and zero orphan resources; recommend beta,
+   revise or reject. Do not ship by default.
 
-Checkpoint: operator accepts or rejects Railway based on recorded conformance and
-actual spend, not research ranking.
+Checkpoint: operator accepts or rejects the DigitalOcean Host beta based on
+recorded isolation, recovery, operations and actual spend.
 
-### G-086 — Prove DigitalOcean VM portability conformance
+### G-086 — Prove Relay Host portability before GA
 
-Goal: implement the same topology through Droplet/cloud-init/container primitives
-and prove the provider contract does not depend on Railway semantics.
+Goal: after DigitalOcean/customer demand, install the identical Host/cell
+manifest on a second VM provider or representative local server and prove the
+appliance is portable. PaaS single-cell proof is separate and trigger-gated.
 
-Operator gates before live work: approve DigitalOcean scopes/account/spending,
-region/size, image distribution and temporary hostname.
+Operator gates before live work: choose the second Host target (recommended
+Hetzner or customer hardware), authorize machine/account/spending and approve
+the portability claim.
 
 Tasks:
 
-1. Map the same manifest to VPC/firewall, Droplet, volume, DNS, secret/bootstrap
-   and backup resources using an immutable signed Relay image.
-2. Harden non-root container/host, automatic security maintenance, SSH/recovery
-   boundaries and provider-console escape hatch.
-3. Run the same state/isolation/recovery/upgrade/delete conformance as G-085.
-4. Compare adapter-specific semantics, customer effort, cost, recovery and support
-   burden using one normalized scorecard.
-5. Choose the first shippable provider or reject both; update TDR-044 to accepted,
-   superseded or rejected only with operator approval.
+1. Apply the same Host/cell manifest, signed artifacts, isolation profile,
+   lifecycle and recovery format without provider-specific Core changes.
+2. Run the same one/two-cell, capacity, ingress, runtime, backup, Host-loss,
+   upgrade/export/delete conformance as G-085.
+3. Compare bootstrap, firewall, storage, backup, recovery, cost and support
+   semantics; document differences at the adapter/Host boundary.
+4. Update TDR-044 to accepted, superseded or rejected only with operator approval.
 
-Checkpoint: one provider may be selected for a release goal; the other remains a
-portability proof or is explicitly rejected.
+Checkpoint: Relay may claim portable local/cloud Host deployment; a PaaS adapter
+remains optional rather than a condition of GA.
 
 ## Regression test budget
 
 ### G-078 planning artifacts
 
-- Cost model: six exact 1/10/100 assertions plus schema/date/currency guards.
+- Cost model: exact 1/10/100-cell Host count/plan/capacity/backup assertions plus
+  schema/date/currency guards.
 - Source parity: all required providers, topology families, load-bearing layers,
   acceptance criteria and child goals appear in their authoritative artifacts.
 - Link/path validation: local references and source URLs are syntactically valid;
@@ -326,8 +349,9 @@ portability proof or is explicitly rejected.
 
 ### Future feature tests
 
-- Isolation/fleet: at least two instances; DB, files, secrets, logs, hostnames,
-  runtime policies, backups and receipts; nil/missing/misbound ownership cases.
+- Host/cell isolation: at least two same-host cells; processes, DB/files, mounts,
+  networks, loopback ports, secrets, identities, licenses, logs, resource limits,
+  runtime policies, backups and receipts; collision/path escape/misbound ownership.
 - Artifact: fresh install, restart, read-only root, missing/wrong volume, SIGTERM
   under idle/task/backup/migration, digest/signature mismatch and rollback.
 - Identity: route inventory plus unauthenticated/authenticated/expired/revoked,
@@ -336,18 +360,18 @@ portability proof or is explicitly rejected.
 - Recovery/secrets: empty/large/changed DB and files, concurrent backup, upload
   interruption, corrupt/truncated/wrong-key/wrong-version manifest, lost volume,
   retention and browser/API redaction.
-- Deploy domain: every legal/illegal transition, entitlement valid/missing/expired/
-  wrong-product, stale price, authorization deny/expire, duplicate activation,
-  provider timeout/malformed/partial, rollback failure and remaining-cost receipt.
+- Host/deploy domain: every legal/illegal Host/cell transition, entitlement
+  states, stale price/density, capacity refusal, duplicate activation, provider
+  timeout/partial, Host/cell rollback failure and remaining-resource receipt.
 - UI: every journey/state/error, reload and back navigation, duplicate clicks,
   stale edits, external links, keyboard/focus/live regions, destructive confirmation,
   mobile/desktop/light/dark/system cursor.
-- Provider conformance: same suite for fake, Railway and DigitalOcean plus explicit
-  provider-semantic differences; actual bill/resource inventory where authorized.
+- Conformance: same Host/cell suite locally, on fake VM provider, DigitalOcean,
+  and later the approved second Host; actual bill/resource inventory when authorized.
 
 ### Runtime-registry smoke budget
 
-G-078 itself does not modify runtime code. G-085/G-086 or hybrid/runtime goals may
+G-078 itself does not modify runtime code. G-083/G-085/G-086 or hybrid/runtime goals may
 touch `src/lib/agents/runtime/*` or `src/lib/workflows/engine.ts`; if so they must:
 
 1. start `PORT=3010 npm run dev` using a fresh isolated `RELAY_DATA_DIR`;
@@ -383,11 +407,14 @@ security/architecture review in that order.
 | Failure | Visible outcome | Rescue |
 |---|---|---|
 | Provider pricing source becomes stale/unavailable | Estimate marked stale; no “current” claim | Retain last dated input, refresh manually and review diff |
-| TDR/provider not approved | Implementation/provider goal remains operator-gated | Continue deterministic contract work only; do not provision |
+| TDR/Host trust model not approved | Implementation/provider goal remains operator-gated | Continue deterministic contract work only; do not provision |
 | Public identity goal incomplete | Provider public smoke blocked | Use local/private fixture; finish G-081 and security review |
 | OCI/native binding fails in target image | Artifact verification fails before provider work | Repair build target or choose supported base; rerun fresh image smoke |
 | Cloud authorization denied/expires | No resource mutation; named scope failure | Reauthorize same plan digest with minimum scopes |
 | Provider creates partial resources | `partially-provisioned` plus exact bill risk | Resume idempotently or scoped rollback, then inventory provider |
+| Cell port/network/mount/owner collision | Cell creation refused with exact resource | Repair allocation/manifest; never reuse another cell's resource |
+| Host capacity exhausted | Admission refusal with limiting resource | Resize Host or add an independent Host shard |
+| Host administrator is not trusted by tenant | Same-host isolation claim invalid | Place tenant on a separate VM/machine |
 | Backup succeeds but restore fails | Deployment cannot be called recovery-ready | Preserve source, repair manifest/key/version, rerun isolated drill |
 | SQLite triggers fail under measured SLO/RPO | Scale trigger recorded with evidence | Open bounded database architecture goal; compare A/B/C honestly |
 | Provider adapter leaks into Core/UI | Conformance becomes provider-specific | Move mapping to typed adapter/capability schema before second proof |
@@ -415,14 +442,16 @@ security/architecture review in that order.
 ## Operator gates
 
 - Accept, revise or reject proposed TDR-044.
-- Approve the first live provider, provider scopes, account, region and spending
-  cap for G-085/G-086.
+- Approve DigitalOcean scopes/account/region/spending for G-085 and choose the
+  second Host target/portability claim for G-086.
 - Approve remote identity model/public trust copy and any compliance claims.
 - Approve cloud-deploy entitlement issuance, renewal/grace and security-update
   behavior during lapse.
 - Approve backup retention/key recovery and RPO/RTO targets.
-- Approve any managed Orionfold control plane, provider credential custody,
-  shared multi-customer host, remote database, or distributed scheduler.
+- Approve Host administrator trust language, allowed same-host customer classes,
+  cell resource defaults and stronger isolation runtime; separately approve any
+  managed Orionfold control plane, credential custody, remote database or
+  distributed scheduler.
 - Separately authorize push, publish, release, public template/marketplace entry,
   DNS changes or paid resources.
 

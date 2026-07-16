@@ -1,5 +1,5 @@
 ---
-generated: 2026-07-15
+generated: 2026-07-16
 mode: integration-design
 goal: G-078
 ---
@@ -20,6 +20,13 @@ choices and provider authorization. It must not conceal cloud billing, region,
 data residency, capacity, credentials, destructive replacement, or recurring
 cost. The customer owns the target cloud account and bill by default; any future
 Orionfold-hosted control plane or managed service is a separate product decision.
+
+The relevant product-category precedents change what “cloud” should mean here.
+OpenClaw, Hermes Agent, and NemoClaw do not begin by separating application,
+database, queue, event, and model-runtime layers into a horizontally scalable
+PaaS system. They run a durable agent stack on one local device, home/office
+server, or cloud VM and add isolation, remote access, backup, and lifecycle
+around that machine. Relay should follow that center of gravity.
 
 ## Current architectural constraints
 
@@ -98,28 +105,54 @@ storage, or in-process and distributed queues have different concurrency and
 failure semantics. A shared interface is acceptable only when its contract does
 not pretend those differences are absent.
 
-G-078's completed research recommends a sealed customer-owned instance for the
-first cloud slice: preserve per-instance SQLite and the single-instance scheduler;
-keep live files on the instance volume; and introduce deliberate dual substrates
-for backup transport, secrets root of trust, identity exposure profile,
-distribution, and optional redacted observability. This is recorded as proposed
-TDR-044 rather than silently accepted architecture. The measurable database
-revisit triggers are active-active/horizontal writers, a distributed worker
-requirement, measured SQLite capacity failure, or an accepted RPO/RTO that local
-volume plus off-host recovery cannot meet.
+G-078's amended recommendation is a **Relay Host appliance with isolated cells**:
+the same signed host/cell stack runs on a local device or customer-owned cloud
+VM. One host supervisor manages local containers/processes; each cell has its own
+Relay process, loopback port/network, data directory, SQLite database, files,
+identity, secrets, license, logs, resource budget, backup lineage, and runtime
+policy. The supervisor stores only content-free lifecycle metadata. A shared
+host is acceptable only when every tenant trusts the host operator; hostile
+tenants receive separate hosts/VMs.
+
+This preserves SQLite, live files, and one scheduler per cell while introducing
+deliberate boundaries for host lifecycle, backup transport, secrets root of
+trust, authenticated ingress, distribution, and optional redacted observability.
+It is recorded in proposed TDR-044. The database/distributed-system revisit
+triggers remain active-active writers inside one cell, a distributed worker
+requirement, measured single-cell capacity failure, accepted RPO/RTO failure, or
+paying demand for a multi-host shared control plane.
+
+## Reference-system deployment evidence
+
+Primary documentation checked on 2026-07-16 shows a convergent appliance model:
+
+| System | Local/cloud placement | Isolation and lifecycle | Architectural implication for Relay |
+|---|---|---|---|
+| OpenClaw | one Gateway owns state/workspace on a device or VPS | experimental Fleet is a local Docker/Podman supervisor; one complete cell per tenant with separate state, credentials, network, token and loopback port; no shared tenant data plane or remote cell hosts | strongest direct precedent for one Relay Host with one cell per tenant |
+| Hermes Agent | one backend lives on laptop, home server, Mini or VPS; execution can use local, Docker, SSH, Daytona or Modal | one durable data directory; non-loopback dashboard engages auth; production guidance favors container/remote execution and explicit user allowlists | device choice changes placement and execution isolation, not the core database/application architecture |
+| NVIDIA NemoClaw | same agent stack can run locally, on-prem or on a remote GPU VM | host CLI + host OpenShell gateway + Docker sandbox; gateway holds credentials and enforces egress; default Docker driver is not Kubernetes | supports host control plus isolated sandbox, versioned blueprint, digest and policy as the cloud/local parity layer |
+
+Common pattern:
+
+`device or VM → host lifecycle/security boundary → isolated agent cell/sandbox →`
+`local state and workspace → hosted or host-local inference → portable backup`
+
+None of these precedents proves Relay can safely co-host hostile customers. They
+all keep the host/operator privileged and strengthen isolation by moving a trust
+boundary to a separate container, OS user, VM, or machine.
 
 ## Provider capability comparison
 
-Research checked primary vendor documentation on 2026-07-15. Prices are inputs
+Research checked primary vendor documentation on 2026-07-16. Prices are inputs
 to a dated estimator, not durable product constants.
 
 | Provider family | Complete Relay fit | Best role | Important constraint |
 |---|---:|---|---|
-| Railway | strong first proof | containerized Relay, private runtime/database services, volumes, templates | usage-based RAM/CPU can make many always-on instances linear in cost; GPU/runtime support needs a separate proof |
-| Render | strong first proof | Docker web/private services, persistent disks, managed Postgres, Blueprint IaC | one disk attaches to one service; horizontal stateful scaling needs a different persistence contract |
-| Fly.io | strong, more infrastructure work | per-customer Machines, private networking, local volumes, suspend/start economics | volumes are single-host, one-Machine attachments and are not automatically replicated |
-| DigitalOcean | strong VM and marketplace candidate | Droplet/App Platform, VPC, managed database, GPU runtime, 1-Click Marketplace | App Platform deploy buttons accept public repositories and Dev Databases only; deeper topologies likely need API/Terraform/Marketplace integration |
-| Hetzner plus a deploy layer such as Coolify | strong low-cost VM candidate | consolidated host or sharded hosts with cloud-init/containers/private networks | more Relay-owned hardening, upgrades, backups, support, and one-click orchestration |
+| DigitalOcean | strongest first appliance proof | one clean Droplet runs the Relay Host, cells, reverse proxy/tailnet, local volume, optional runtime and backup agent | Relay owns host hardening/upgrades; local LLMs require a larger or GPU host |
+| Hetzner | strong low-cost appliance/second-provider candidate | one VM or dedicated host with Docker, firewalls, volumes and backups | more regional/plan variation and the same Relay-owned host operations |
+| Railway | valid later single-cell adapter | one Relay cell with volume/TLS/template | cannot express Relay's local multi-cell host supervisor without changing the product boundary; per-service cost scales linearly |
+| Render | valid later single-cell adapter | Docker service, TLS and disk | one disk per service; host-level cell packing/runtime composition is not exposed |
+| Fly.io | VM-like later adapter | Machines, private networking and local volumes | local volumes remain single-host; Fleet-style local supervisor needs explicit Machine/runtime design |
 | Cloudflare | component fit; Containers candidate | front door, DNS/TLS, tunnel, R2 artifacts/backups, control plane | Workers are not a native fit for Relay's long-lived Node/SQLite process; Containers maturity, persistence, regions, and GPU fit need proof |
 | Vercel | component fit | polished web/control-plane surface and provider handoff | Functions have ephemeral/read-only storage outside `/tmp`, duration limits, and no WebSocket server; unchanged Relay and local model runtimes do not fit |
 | Supabase | component fit | managed Postgres/Auth/Storage if Relay adopts that contract | Edge Functions are bounded and do not host the current Relay process; current Relay has no Postgres adapter |
@@ -149,9 +182,21 @@ Useful primary sources:
 - DigitalOcean App Platform, Marketplace, and Droplet/GPU pricing:
   https://docs.digitalocean.com/products/app-platform/details/features/,
   https://docs.digitalocean.com/products/marketplace/, and
-  https://docs.digitalocean.com/products/droplets/details/pricing/
+  https://www.digitalocean.com/pricing/droplets
 - Hetzner server topology primitives:
   https://docs.hetzner.com/cloud/servers/getting-started/creating-a-server/
+- OpenClaw multi-tenant cells, VPS placement, and security:
+  https://docs.openclaw.ai/gateway/multi-tenant-hosting,
+  https://docs.openclaw.ai/vps, and
+  https://docs.openclaw.ai/security
+- Hermes Docker, remote backend, and production security:
+  https://hermes-agent.nousresearch.com/docs/user-guide/docker/,
+  https://hermes-agent.nousresearch.com/docs/user-guide/desktop, and
+  https://hermes-agent.nousresearch.com/docs/user-guide/security/
+- NemoClaw architecture, overview, and platform support:
+  https://docs.nvidia.com/nemoclaw/latest/user-guide/openclaw/reference/architecture,
+  https://docs.nvidia.com/nemoclaw/latest/about/overview.html, and
+  https://docs.nvidia.com/nemoclaw/user-guide/hermes/reference/platform-support
 - SQLite WAL, Litestream directory replication, LiteFS, and Turso Sync:
   https://sqlite.org/wal.html,
   https://litestream.io/guides/directory/,
@@ -164,29 +209,32 @@ Useful primary sources:
 
 ## Topologies the goal must compare
 
-1. **Consolidated customer host.** One VM or container host runs the public
-   gateway, N isolated Relay containers/processes, local per-instance SQLite
-   volumes, and an optional shared or dedicated Ollama/LiteLLM/LM Studio runtime.
-   Object storage holds encrypted backups. This is the lowest-complexity first
-   product candidate, but it has one failure domain and noisy-neighbor risk.
-2. **PaaS multi-service.** Public Relay service plus private runtime service and
-   one persistent volume per isolated Relay instance. A managed database is
-   offered only after the persistence contract supports it. This improves guided
-   deployment and operations but exposes provider service/volume limits and a
-   roughly linear per-instance floor.
-3. **Distributed dedicated.** Relay application hosts, model-runtime CPU/GPU
+1. **Single-device appliance.** One laptop, desktop, Mini, home/office server,
+   or workstation runs one Relay Host and one or more isolated cells. This is the
+   local product and the compatibility reference for every cloud feature.
+2. **Single cloud-server appliance.** One customer-owned VM runs the same Host,
+   cells, local SQLite/files, reverse proxy/tailnet, backup agent, and optional
+   same-host runtime. This is the first paid deployment path.
+3. **Sharded host fleet.** When one host reaches measured resource capacity,
+   create another independent Relay Host and place new cells there. Each host
+   remains a standalone failure/data boundary; a minimal inventory may span
+   hosts, but it does not proxy customer data or become required for cell use.
+4. **PaaS single-cell adapter.** A provider service runs one cell with one
+   persistent volume. It can be convenient for an individual customer but is not
+   the reference multi-tenant architecture and does not require remote Postgres.
+5. **Distributed dedicated.** Relay application hosts, model-runtime CPU/GPU
    hosts, database/storage, and control-plane services live separately on a
-   private network. This is the scale/enterprise path, with higher latency,
+   private network. This is a trigger-gated enterprise path, with higher latency,
    authentication, service-discovery, egress, and failure-recovery complexity.
-4. **Hybrid customer runtime.** Cloud Relay reaches a customer's LAN/VPC Ollama,
+6. **Hybrid customer runtime.** Cloud Relay reaches a customer's LAN/VPC Ollama,
    LiteLLM, or LM Studio through an outbound-established, authenticated tunnel or
    agent. This can avoid cloud GPU cost and keep models private, but requires a
    zero-trust connectivity and availability contract.
-5. **Edge control plane plus stateful instance hosts.** Vercel or Cloudflare can
+7. **Edge control plane plus stateful instance hosts.** Vercel or Cloudflare can
    own the deploy/licensing UX and front door while Railway, Render, Fly,
    DigitalOcean, or customer VMs run stateful Relay instances. Supabase may own
    selected auth/data services only if an approved data contract justifies it.
-6. **Kubernetes/operator topology.** Container orchestration can support large
+8. **Kubernetes/operator topology.** Container orchestration can support large
    fleets, dedicated namespaces/nodes, GPUs, and policy controls, but should be a
    later enterprise adapter rather than the startup-friendly first proof.
 
@@ -197,22 +245,24 @@ upgraded, exported, transferred, and deleted.
 
 ## Cost and scalability contract
 
-The customer chooser should present dated ranges for at least personal/single
-instance, small fleet (10), and growing fleet (100), plus concurrent task and
-storage assumptions. The calculator must expose:
+The customer chooser should present dated device/server capacity bands for one
+cell, a small single-host fleet, and a sharded 100-cell fleet. It must show cell
+packing as an assumption constrained by measured memory, CPU, storage, task
+concurrency, local-runtime capacity, and a safety reserve—not as guaranteed tenant
+density. The calculator must expose:
 
-`monthly total = control plane + Relay compute floor + per-instance RAM/CPU +`
-`persistent storage + backups + database + runtime/GPU + egress + support`
+`monthly total = host count × (VM/server + host backup + storage) +`
+`optional runtime/GPU + egress + support`
 
 BYOK model/API charges remain separate because the customer pays the model
-provider. Example current anchors demonstrate why the model must be formula
-based: Railway lists $10/GB-month RAM, $20/vCPU-month, and $0.15/GB-month volume;
-Fly lists a 1 GB shared Machine around $5.92/month plus $0.15/GB-month volume;
-DigitalOcean GPU rates range from $0.76/hour for an RTX 4000 to $3.39/hour for
-an H100. These are not comparable without workload, uptime, and model-memory
-assumptions. Estimates need source links, capture date, region/currency/tax
-notes, expected/upper-bound cases, and a visible “provider bill is authoritative”
-disclaimer.
+provider. DigitalOcean currently lists Basic VM bands from $6/month for 1 GiB,
+$12 for 2 GiB, $48 for 8 GiB, and $96 for 16 GiB, with weekly backups at 20% of
+Droplet cost. The official OpenClaw guide uses the $6/1 GiB host for one
+API-model Gateway and recommends upgrading for memory pressure; Relay must
+measure its own safe cell density. Local inference is a separate capacity class
+and may require a larger/GPU server. Estimates need sources, capture date,
+region/currency/tax notes, safety reserve, expected/upper-bound cases, and a
+visible “provider bill is authoritative” disclaimer.
 
 ## Recommended sequencing
 
@@ -240,19 +290,24 @@ implementation goals in this order:
 6. **Secrets and runtime networking:** customer-owned provider credentials,
    encryption/rotation/redaction, private service discovery, TLS/auth for model
    endpoints, outbound trust/SSRF policy, and hybrid tunnel design.
-7. **Provider adapter and deploy UX:** typed topology manifest, capability/cost
-   schema, entitlement gate, preflight, provider authorization, plan preview,
-   deploy progress/receipts, partial-failure rescue, and post-deploy handoff.
-8. **Operations:** backup/restore drills, upgrades, capacity/quotas, cost alerts,
+7. **Relay Host supervisor:** local-only cell create/inspect/start/stop/replace/
+   upgrade/export/delete, isolated mounts/networks/ports/resources, minimal
+   metadata, and host capacity/admission control. No shared content plane.
+8. **Device/cloud deploy UX:** choose local device or cloud server, size the
+   host, preview cells/runtime/cost, authorize one VM provider, install the same
+   host manifest, and hand off with partial-failure rescue.
+9. **Operations:** backup/restore drills, upgrades, capacity/quotas, cost alerts,
    observability without content telemetry, support bundle, deletion, and
    customer portability.
 
-The first conformance proof should use Railway as the template-oriented PaaS
-candidate and DigitalOcean as the VM-oriented candidate so the provider contract
-proves both managed and portable paths. This is proof order, not shipment
-selection. Either candidate can fail and only one may ship initially. Provider
-shipment, exact paid entitlement/renewal semantics, remote identity model,
-persistence changes, and any Orionfold-hosted control plane remain operator gates.
+The first conformance proof should install the Relay Host on a clean DigitalOcean
+VM and prove one cell, multiple same-host cells, host capacity refusal, backup/
+restore, upgrade, export, and full host deletion. A second clean VM provider or
+local hardware proves appliance portability before GA claims. Railway becomes a
+later single-cell convenience adapter rather than a prerequisite. Provider
+shipment, exact entitlement/renewal semantics, remote identity, host trust
+language, cell-packing limits, persistence changes, and any Orionfold-hosted
+control plane remain operator gates.
 
 G-078 decomposes the sequence into G-079 through G-086. The durable specification,
 research report, cost model, threat model, wireframe and executable program plan
@@ -263,7 +318,8 @@ own the detailed acceptance and rescue contracts.
 - Synthetic licensed/unlicensed/expired/wrong-entitlement tests prove every
   deploy/lifecycle mutation is gated while existing customer data remains
   exportable and recoverable.
-- Provider-contract tests validate generated manifests without credentials;
+- Host/cell contract tests validate local manifests without credentials;
+  provider bootstrap tests validate generated infrastructure plans;
   disposable paid-account smoke is separately authorized and records actual
   line-item cost.
 - A fresh customer journey must cover entitlement discovery, topology/cost
@@ -276,9 +332,10 @@ own the detailed acceptance and rescue contracts.
   mixed-version refusal, and failure-semantic differences. The plan must state
   the exact multiplication in CI/runtime smoke cases before approving any dual
   substrate.
-- Failure injection covers provider rejection, quota/capacity, partial resources,
-  timeout, callback loss, secret write failure, unhealthy boot, migration,
-  runtime outage, backup failure, upgrade failure, and stale price data.
+- Failure injection covers host capacity refusal, cell port/network/mount
+  collision, wrong ownership, provider rejection, partial host provisioning,
+  timeout, callback loss, secret write failure, unhealthy cell, runtime outage,
+  backup failure, upgrade failure, and stale price data.
 - Stop after two materially different provider/API approaches fail on the same
   blocker; preserve the generated plan and resources, report exact cleanup state,
   and require an operator decision before changing topology.
