@@ -98,12 +98,15 @@ storage, or in-process and distributed queues have different concurrency and
 failure semantics. A shared interface is acceptable only when its contract does
 not pretend those differences are absent.
 
-For the first cloud slice, the current evidence favors preserving per-instance
-SQLite and the single-instance scheduler while introducing clean boundaries for
-future adapters; files/backups, secrets, identity, and distribution are stronger
-dual-substrate candidates because their local and cloud trust/operational roots
-are intrinsically different. This is a working hypothesis for G-078 to test, not
-an accepted database or platform decision.
+G-078's completed research recommends a sealed customer-owned instance for the
+first cloud slice: preserve per-instance SQLite and the single-instance scheduler;
+keep live files on the instance volume; and introduce deliberate dual substrates
+for backup transport, secrets root of trust, identity exposure profile,
+distribution, and optional redacted observability. This is recorded as proposed
+TDR-044 rather than silently accepted architecture. The measurable database
+revisit triggers are active-active/horizontal writers, a distributed worker
+requirement, measured SQLite capacity failure, or an accepted RPO/RTO that local
+volume plus off-host recovery cannot meet.
 
 ## Provider capability comparison
 
@@ -149,6 +152,11 @@ Useful primary sources:
   https://docs.digitalocean.com/products/droplets/details/pricing/
 - Hetzner server topology primitives:
   https://docs.hetzner.com/cloud/servers/getting-started/creating-a-server/
+- SQLite WAL, Litestream directory replication, LiteFS, and Turso Sync:
+  https://sqlite.org/wal.html,
+  https://litestream.io/guides/directory/,
+  https://fly.io/docs/litefs/, and
+  https://docs.turso.tech/sdk/ts/reference
 - Ollama network/Docker behavior, LiteLLM Proxy, and LM Studio headless server:
   https://docs.ollama.com/faq,
   https://docs.litellm.ai/, and
@@ -239,11 +247,16 @@ implementation goals in this order:
    observability without content telemetry, support bundle, deletion, and
    customer portability.
 
-The first conformance proof should use one template-oriented PaaS (Railway or
-Render) and one VM-oriented provider (DigitalOcean or Hetzner) so the provider
-contract proves both managed and portable paths. Only one may ship initially.
-Provider choice, exact paid entitlement/renewal semantics, remote identity model,
-persistence direction, and any Orionfold-hosted control plane are operator gates.
+The first conformance proof should use Railway as the template-oriented PaaS
+candidate and DigitalOcean as the VM-oriented candidate so the provider contract
+proves both managed and portable paths. This is proof order, not shipment
+selection. Either candidate can fail and only one may ship initially. Provider
+shipment, exact paid entitlement/renewal semantics, remote identity model,
+persistence changes, and any Orionfold-hosted control plane remain operator gates.
+
+G-078 decomposes the sequence into G-079 through G-086. The durable specification,
+research report, cost model, threat model, wireframe and executable program plan
+own the detailed acceptance and rescue contracts.
 
 ## Verification and rescue
 

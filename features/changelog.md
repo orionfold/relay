@@ -1,5 +1,29 @@
 # Feature Changelog
 
+## 2026-07-15 — G-078 licensed self-service cloud deployment planning
+
+### Completed
+
+- Researched authoritative current platform, pricing, persistence, networking,
+  model-runtime, backup and deployment evidence across Vercel, Supabase,
+  Cloudflare, Railway, Render, Fly.io, DigitalOcean, Hetzner and relevant data
+  alternatives without creating provider resources or spending money.
+- Selected a proposed sealed customer-owned reference architecture: one isolated
+  Relay instance with local SQLite/WAL and live files, authenticated ingress,
+  customer-owned secret root and encrypted off-host recovery, BYOK APIs by
+  default, and no Orionfold custody of long-lived cloud credentials or content.
+- Produced the durable specification, research/cost model, threat model,
+  customer-journey wireframe, proposed TDR-044 and codebase-grounded program plan.
+  Railway is the first PaaS conformance candidate and DigitalOcean the first VM
+  portability candidate; neither is selected for shipment before live proof.
+- Groomed G-079 through G-086 for isolation/fleet authority, signed OCI artifact,
+  internet-safe identity, recovery/secrets, deploy domain, UX, and separately
+  authorized Railway/DigitalOcean conformance. G-058 and G-060 now explicitly
+  include customer-owned cloud authority and instance boundaries.
+- Kept remote databases trigger-gated: Postgres, Turso or LiteFS must earn their
+  migration and failure-semantic cost through an active-active, horizontal-write,
+  capacity or accepted recovery-objective requirement.
+
 ## 2026-07-15 — G-075 truthful grounded-help links
 
 ### Completed

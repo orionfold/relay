@@ -1,0 +1,34 @@
+{
+  "asOf": "2026-07-15",
+  "currency": "USD",
+  "disclaimer": "Architecture comparison only. Provider bill is authoritative.",
+  "scenarios": [1, 10, 100],
+  "providers": {
+    "railway": {
+      "source": "https://docs.railway.com/pricing",
+      "planFloorMonthly": 20,
+      "ramGbMonth": 10,
+      "vcpuMonth": 20,
+      "volumeGbMonth": 0.15,
+      "egressGb": 0.05,
+      "instance": {
+        "ramGb": 1,
+        "averageVcpu": 0.25,
+        "volumeGb": 10,
+        "egressGb": 10
+      },
+      "excluded": ["BYOK model/API", "backup object storage", "tax", "support", "labor"]
+    },
+    "fly_ord": {
+      "source": "https://fly.io/docs/about/pricing/",
+      "region": "ord",
+      "machineMonthly": 5.92,
+      "volumeGbMonth": 0.15,
+      "instance": {
+        "ramGb": 1,
+        "volumeGb": 10
+      },
+      "excluded": ["egress", "backup object storage", "BYOK model/API", "tax", "support", "labor"]
+    }
+  }
+}
