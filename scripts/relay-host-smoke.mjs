@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { sha256File } from "./lib/relay-host-manifest.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const outputDir = resolve(process.argv[2] ?? "output/relay-host");
-const runId = `g080-${process.pid}`;
+const runId = `g093-${process.pid}`;
 const currentTag = `relay-host:${runId}`;
 const priorTag = `relay-host:${runId}-prior`;
 const priorRef = "v0.42.2";
+const profile = process.argv[3] ?? "local";
 const owned = { containers: [], networks: [], volumes: [], paths: [] };
 
 function command(command, args, options = {}) {
@@ -102,7 +104,7 @@ function exportVolume(volume, archivePath) {
     `source=${volume},target=/source,readonly`,
     "--mount",
     `type=bind,source=${exportDir},target=/out`,
-    "node:22.18.0-bookworm-slim@sha256:752ea8a2f758c34002a0461bd9f1cee4f9a3c36d48494586f60ffce1fc708e0e",
+    "node:22.23.1-bookworm-slim@sha256:6c74791e557ce11fc957704f6d4fe134a7bc8d6f5ca4403205b2966bd488f6b3",
     "tar",
     "-cf",
     `/out/${archivePath.split("/").at(-1)}`,
@@ -121,7 +123,7 @@ function restoreVolume(volume, archivePath, uid, gid) {
     `source=${volume},target=/target`,
     "--mount",
     `type=bind,source=${exportDir},target=/out,readonly`,
-    "node:22.18.0-bookworm-slim@sha256:752ea8a2f758c34002a0461bd9f1cee4f9a3c36d48494586f60ffce1fc708e0e",
+    "node:22.23.1-bookworm-slim@sha256:6c74791e557ce11fc957704f6d4fe134a7bc8d6f5ca4403205b2966bd488f6b3",
     "tar",
     "-xf",
     `/out/${archivePath.split("/").at(-1)}`,
@@ -133,7 +135,7 @@ function restoreVolume(volume, archivePath, uid, gid) {
     "--rm",
     "--mount",
     `source=${volume},target=/target`,
-    "node:22.18.0-bookworm-slim@sha256:752ea8a2f758c34002a0461bd9f1cee4f9a3c36d48494586f60ffce1fc708e0e",
+    "node:22.23.1-bookworm-slim@sha256:6c74791e557ce11fc957704f6d4fe134a7bc8d6f5ca4403205b2966bd488f6b3",
     "chown",
     "-R",
     `${uid}:${gid}`,
@@ -158,14 +160,46 @@ function cleanup() {
 
 async function main() {
   mkdirSync(outputDir, { recursive: true });
+  const keyDir = mkdtempSync(join(tmpdir(), `relay-host-key-${runId}-`));
   const priorContext = resolve(outputDir, `prior-${runId}`);
   const priorArchive = resolve(outputDir, `prior-${runId}.tar`);
   const priorMetadataPath = resolve(outputDir, `prior-${runId}-metadata.json`);
-  owned.paths.push(priorContext, priorArchive, priorMetadataPath);
+  owned.paths.push(priorContext, priorArchive, priorMetadataPath, keyDir);
   rmSync(priorContext, { recursive: true, force: true });
   mkdirSync(priorContext, { recursive: true });
   command("git", ["archive", "--format=tar", `--output=${priorArchive}`, priorRef]);
   command("tar", ["-xf", priorArchive, "-C", priorContext]);
+  const priorNextConfigPath = resolve(priorContext, "next.config.mjs");
+  const priorNextConfig = readFileSync(priorNextConfigPath, "utf8");
+  const priorWorkerAnchor = "const nextConfig = {";
+  assert.ok(
+    priorNextConfig.includes(priorWorkerAnchor),
+    `${priorRef} next.config.mjs no longer exposes the expected worker anchor`,
+  );
+  writeFileSync(
+    priorNextConfigPath,
+    priorNextConfig.replace(
+      priorWorkerAnchor,
+      `${priorWorkerAnchor}\n  // Conformance fixture: prevent build-time SQLite bootstrap races.\n  experimental: { cpus: 1 },`,
+    ),
+  );
+  const priorProvidersRoutePath = resolve(
+    priorContext,
+    "src/app/api/settings/providers/route.ts",
+  );
+  const priorProvidersRoute = readFileSync(priorProvidersRoutePath, "utf8");
+  const priorRouteAnchor = "export async function GET(request?: Request)";
+  assert.ok(
+    priorProvidersRoute.includes(priorRouteAnchor),
+    `${priorRef} providers route no longer exposes the expected compatibility anchor`,
+  );
+  writeFileSync(
+    priorProvidersRoutePath,
+    priorProvidersRoute.replace(
+      priorRouteAnchor,
+      "export async function GET(request: Request)",
+    ),
+  );
   writeFileSync(
     resolve(priorContext, "Dockerfile.relay-host-prior-fixture"),
     readFileSync(resolve(root, "Dockerfile.relay-host-prior-fixture")),
@@ -191,9 +225,13 @@ async function main() {
   ];
   assert.match(priorDigest, /^sha256:[a-f0-9]{64}$/);
 
-  command("node", ["scripts/generate-relay-host-test-key.mjs", outputDir], {
+  command("node", ["scripts/generate-relay-host-test-key.mjs", keyDir], {
     capture: false,
   });
+  copyFileSync(
+    resolve(keyDir, "local-test-public.pem"),
+    resolve(outputDir, "relay-host-signing-public.pem"),
+  );
   command(
     "node",
     [
@@ -201,13 +239,15 @@ async function main() {
       "--rollback-digest",
       priorDigest,
       "--private-key",
-      resolve(outputDir, "local-test-private.pem"),
+      resolve(keyDir, "local-test-private.pem"),
       "--public-key",
-      resolve(outputDir, "local-test-public.pem"),
+      resolve(keyDir, "local-test-public.pem"),
       "--out",
       outputDir,
       "--tag",
       currentTag,
+      "--profile",
+      profile,
     ],
     { capture: false },
   );
@@ -261,7 +301,7 @@ async function main() {
   const isolation = docker([
     "exec",
     cells[0].container,
-    "node",
+    "/nodejs/bin/node",
     "-e",
     `fetch('http://${cells[1].container}:3000/api/health/live',{signal:AbortSignal.timeout(1500)}).then(()=>process.exit(9)).catch(()=>process.exit(0))`,
   ], { allowFailure: true });
@@ -277,7 +317,7 @@ async function main() {
   docker([
     "exec",
     cells[0].container,
-    "node",
+    "/nodejs/bin/node",
     "-e",
     "require('node:fs').writeFileSync('/var/lib/relay/persistence-marker','cell-a')",
   ]);
@@ -288,7 +328,7 @@ async function main() {
     docker([
       "exec",
       cells[0].container,
-      "node",
+      "/nodejs/bin/node",
       "-e",
       "process.stdout.write(require('node:fs').readFileSync('/var/lib/relay/persistence-marker','utf8'))",
     ]).stdout,
@@ -298,7 +338,7 @@ async function main() {
   docker([
     "exec",
     cells[0].container,
-    "node",
+    "/nodejs/bin/node",
     "-e",
     "const D=require('better-sqlite3');const d=new D('/var/lib/relay/relay.db');const n=Date.now();d.prepare(\"INSERT INTO tasks (id,title,status,priority,resume_count,created_at,updated_at) VALUES ('g080-running','signal fixture','running',2,0,?,?)\").run(n,n);d.close()",
   ]);
@@ -313,7 +353,7 @@ async function main() {
   docker([
     "exec",
     cells[0].container,
-    "node",
+    "/nodejs/bin/node",
     "-e",
     "const f=require('node:fs');const c=require('node:crypto');f.mkdirSync('/var/lib/relay/uploads',{recursive:true});const h=f.openSync('/var/lib/relay/uploads/g080-backup.bin','w');for(let i=0;i<96;i++)f.writeSync(h,c.randomBytes(1024*1024));f.closeSync(h)",
   ]);
@@ -408,7 +448,7 @@ async function main() {
   await waitFor(`http://127.0.0.1:${restoredPort}/`);
 
   const evidence = {
-    contractVersion: 1,
+    contractVersion: 2,
     currentTag,
     priorRef,
     priorDigest,
@@ -419,6 +459,9 @@ async function main() {
     exportDigest,
     restoreOwnership: { upgrade: "10001:10001", rollback: "1000:1000" },
     rollbackRestored: true,
+    optimizedArtifact: JSON.parse(
+      readFileSync(resolve(outputDir, "measurements.json"), "utf8"),
+    ),
     publication: "none",
   };
   writeFileSync(

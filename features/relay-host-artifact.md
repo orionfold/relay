@@ -35,8 +35,9 @@ support/capacity claims remain separate operator gates.
 
 ## Contracts
 
-- Build uses Node 22.18.0 Bookworm slim by immutable manifest digest and a clean
-  `npm ci` from `package-lock.json`.
+- Build uses Node 22.23.1 Bookworm slim and the final runtime uses distroless
+  Node 22 Debian 13 non-root; both are pinned by immutable manifest digest and
+  dependencies come from a clean `npm ci` over `package-lock.json`.
 - OCI output uses Next standalone only when `RELAY_OCI_BUILD=true`; npm and local
   development keep their existing output shape.
 - Runtime UID/GID is 10001, `/var/lib/relay` is the only durable write root,
@@ -99,9 +100,6 @@ Accepted locally with no publication:
 - `npm pack --dry-run` measured 2,767,765 compressed bytes / 9,902,571 unpacked
   bytes across 1,315 entries; this records the G-036 baseline without changing
   the trigger-gated bundled-pack scope;
-- `npm pack --dry-run` measured 2,767,765 compressed bytes / 9,902,571 unpacked
-  bytes across 1,315 entries; this records the G-036 baseline without changing
-  the trigger-gated bundled-pack scope;
 - the final arm64 image is about 890 MB with 407 indexed packages and a 2.9 MB
   CycloneDX SBOM; density remains provisional and the broad
   Next output trace is recorded for later optimization;
@@ -119,3 +117,20 @@ Accepted locally with no publication:
 
 The final local manifest intentionally says `dirty-local`. Publication requires
 a separately authorized clean committed build and production signing authority.
+
+## G-093 optimization receipt — 2026-07-17
+
+G-093 supersedes only the G-080 size/component baseline, not its runtime
+contract. The optimized arm64 image is 129,913,772 bytes (85.40% smaller) with
+5,196 files, 25 layers and 60 attributed CycloneDX components. The distroless
+final image contains no build shell/npm, operator/repository surfaces, tests,
+session state or nested release archives and has zero unapproved high/critical
+findings.
+
+The same `npm run host:artifact:build` command now drives local and CI builds,
+real-archive content policy, checksum-pinned Trivy, cached/no-cache semantic
+comparison, npm separation, signed manifest, bundle checksums and the complete
+two-cell lifecycle smoke. Exact platform/path/mode/link inventory is the
+operator-approved reproducibility gate; compiled-content digests remain
+diagnostic. The bundle verifier validates all 18 evidence files and pass
+receipts. G-025 is the next customer-identical release gate.

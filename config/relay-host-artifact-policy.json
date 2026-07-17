@@ -1,0 +1,79 @@
+{
+  "contractVersion": 1,
+  "baselineImageBytes": 889827989,
+  "budgets": {
+    "maxImageBytes": 300000000,
+    "minimumReductionFraction": 0.6,
+    "maxOciArchiveBytes": 320000000,
+    "maxLargestCompressedLayerBytes": 220000000,
+    "maxUnpackedFileBytes": 650000000,
+    "maxLargestFileBytes": 140000000,
+    "maxSbomComponents": 350,
+    "maxNpmTarballBytes": 10485760
+  },
+  "allowedRootSurfaces": {
+    "app": "Relay standalone server and explicitly copied runtime assets",
+    "bin": "distroless compatibility symlink",
+    "etc": "distroless runtime identity, TLS and configuration",
+    "lib": "distroless compatibility symlink",
+    "nodejs": "digest-pinned distroless Node.js runtime",
+    "sbin": "distroless compatibility symlink",
+    "usr": "minimal distroless Debian runtime libraries and metadata",
+    "var": "Relay data mount parent and distroless package metadata"
+  },
+  "allowedAppSurfaces": {
+    ".next": "compiled Next standalone server and static assets",
+    "knowledge": "version-aware Relay guide and API chat corpus",
+    "node_modules": "production dependencies traced or explicitly copied from the lockfile",
+    "package.json": "runtime package identity",
+    "public": "Relay web assets",
+    "scripts": "validated Host entrypoint",
+    "server.js": "Next standalone launcher",
+    "src": "runtime-readable migrations, profiles, blueprints and Pack templates"
+  },
+  "requiredPaths": [
+    "app/server.js",
+    "app/scripts/relay-host-entry.mjs",
+    "app/node_modules/next/dist/build/output/log.js",
+    "nodejs/bin/node"
+  ],
+  "forbiddenPathPatterns": [
+    "^app/(?:dist-artifacts|output|coverage|screengrabs)(?:/|$)",
+    "^app/(?:\\.git|\\.claude|\\.agents|\\.codex|\\.playwright-mcp)(?:/|$)",
+    "^app/(?:features|docs|wireframes|_ASSETS|_IDEAS|_SPECS)(?:/|$)",
+    "^app/(?:src/)?(?:test|tests|__tests__)(?:/|$)",
+    "^app/src/.*/__tests__(?:/|$)",
+    "^app/src/.*\\.(?:test|spec)\\.[cm]?[jt]sx?$",
+    "^app/(?:\\.env|.*\\.env(?:\\..*)?)(?:/|$)",
+    "^app/.*(?:browser|playwright).*(?:session|profile|state)",
+    "^app/.*(?:orionfold-relay|relay-host).*(?:\\.tgz|\\.tar(?:\\.(?:gz|xz|zst))?|\\.zip)$"
+  ],
+  "nativePlatformTokens": {
+    "linux/arm64": ["darwin", "win32", "linux-x64", "linux-arm-gnueabihf", "musl", "android"],
+    "linux/amd64": ["darwin", "win32", "linux-arm64", "linux-arm-gnueabihf", "musl", "android"]
+  },
+  "vulnerabilityExceptions": [],
+  "scanner": {
+    "name": "trivy",
+    "version": "0.70.0",
+    "releaseBaseUrl": "https://github.com/aquasecurity/trivy/releases/download/v0.70.0",
+    "artifacts": {
+      "darwin-arm64": {
+        "file": "trivy_0.70.0_macOS-ARM64.tar.gz",
+        "sha256": "68e543c51dcc96e1c344053a4fde9660cf602c25565d9f09dc17dd41e13b838a"
+      },
+      "darwin-x64": {
+        "file": "trivy_0.70.0_macOS-64bit.tar.gz",
+        "sha256": "52d531452b19e7593da29366007d02a810e1e0080d02f9cf6a1afb46c35aaa93"
+      },
+      "linux-x64": {
+        "file": "trivy_0.70.0_Linux-64bit.tar.gz",
+        "sha256": "8b4376d5d6befe5c24d503f10ff136d9e0c49f9127a4279fd110b727929a5aa9"
+      },
+      "linux-arm64": {
+        "file": "trivy_0.70.0_Linux-ARM64.tar.gz",
+        "sha256": "2f6bb988b553a1bbac6bdd1ce890f5e412439564e17522b88a4541b4f364fc8d"
+      }
+    }
+  }
+}

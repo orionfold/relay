@@ -1,13 +1,14 @@
 # Relay Host cell artifact
 
-This is the engineering contract for the G-080 Relay Host/cell OCI artifact.
+This is the engineering contract for the G-080/G-093 Relay Host/cell OCI artifact.
 It is a local alpha input to the customer-owned Relay Host release train, not a
 published image, paid-edition entitlement, or public capacity/support claim.
 
 ## What the artifact guarantees
 
-- The Linux image is built from `package-lock.json` with Node 22.18.0
-  Bookworm slim pinned by digest.
+- The Linux application is built from `package-lock.json` with Node 22.23.1
+  Bookworm slim and runs on the distroless Node 22 Debian 13 non-root image;
+  both bases are pinned by digest.
 - The Relay version in the image must equal the npm package version.
 - The runtime is UID/GID `10001:10001`, uses a read-only root, and requires a
   dedicated writable mount at `/var/lib/relay`.
@@ -19,20 +20,24 @@ published image, paid-edition entitlement, or public capacity/support claim.
 - The Ed25519-signed canonical manifest binds the immutable OCI digest, OCI
   archive, npm version, schema range, runtime contract, SBOM, rollback digest,
   source revision, exact worktree digest, and whether the source was clean.
+- The real OCI archive must satisfy the checked-in path, size, layer, native
+  platform and component budgets. Checksum-pinned Trivy generates the
+  CycloneDX SBOM and rejects any unapproved high/critical final-image finding.
 
 Mutable image tags and the locally generated test key are never launch or
 publication authority.
 
 ## Local verification
 
-Prerequisites are Docker Desktop with Buildx and Docker Scout, Node 22.18 or
-newer, and npm.
+Prerequisites are Docker Desktop with Buildx, Node 22.18 or newer, npm, and
+network access when the pinned Trivy archive or vulnerability database is not
+already cached.
 
 ```sh
 npm ci
 npm run check:install-debt
 npm run test:relay-host
-npm run host:smoke
+npm run host:artifact:build
 ```
 
 The smoke builds the current image and a real `v0.42.2` prior-version fixture,
@@ -55,8 +60,9 @@ block. It performs no push, registry publication, release, or cloud write.
 
 ## Build and verification commands
 
-`npm run host:smoke` is the preferred conformance path. To inspect an artifact
-already produced by it:
+`npm run host:artifact:build` is the canonical local/CI path. It emits a flat
+`output/relay-host/<version>/<platform>/` evidence bundle and performs no push,
+publish or release. To inspect a bundle already produced by it:
 
 ```sh
 npm run host:artifact:verify
@@ -80,10 +86,24 @@ Rollback always names a prior immutable digest. The tested fixture uses tag
 `v0.42.2` only to build the prior image; its resulting digest is recorded in the
 current signed manifest and smoke receipt.
 
-## Current measurement and deferred density work
+## Accepted optimization measurement — 2026-07-17
 
-The first arm64 local artifact measured about 890 MB and contained 407 indexed
-packages. That is a baseline, not a density or support promise. Next standalone
-reported broad output-file tracing caused by dynamic workspace path handling;
-image-size and trace reduction should be addressed before capacity claims or a
-public Host release.
+The Linux/arm64 image is `129,913,772` bytes and its OCI archive is
+`129,938,944` bytes: an 85.40% reduction from the `889,827,989`-byte G-080
+baseline. The final filesystem contains 5,196 files across 25 layers. Its
+CycloneDX SBOM contains 60 components, all attributed to Relay, the pinned
+runtime base, `package-lock.json`, or Next's bundled runtime; the final-image
+scan has zero unapproved high/critical findings.
+
+Cached and no-cache builds must match platform, file count and the exact
+path/mode/link inventory. Next/Webpack compiled-content and OCI metadata digests
+are retained as observations rather than equality gates because the operator
+accepted semantic/path-inventory reproducibility. The signed immutable digest
+still identifies the exact artifact consumed by a later promotion.
+
+`npm run host:artifact:verify` checks every flat bundle file against
+`SHA256SUMS`, verifies the manifest signature and measured OCI/SBOM identities,
+and requires all content, component, vulnerability, reproducibility, npm,
+manifest and conformance receipts to pass. Local bundles use an explicitly
+ephemeral test key; any non-local signing authority requires an external trusted
+public key. G-025 remains the customer-identical Host R1 release gate.

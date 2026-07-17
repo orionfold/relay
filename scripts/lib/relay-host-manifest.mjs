@@ -73,6 +73,17 @@ export function validateManifest(manifest) {
   assert(REVISION_PATTERN.test(manifest?.build?.sourceRevision ?? ""), "SOURCE_REVISION_INVALID", "build.sourceRevision must be a git object ID");
   assert(DIGEST_PATTERN.test(manifest?.build?.sourceTreeDigest ?? ""), "SOURCE_TREE_DIGEST_INVALID", "build.sourceTreeDigest must be sha256");
   assert(["clean", "dirty-local"].includes(manifest?.build?.sourceState), "SOURCE_STATE_INVALID", "build.sourceState must name clean or dirty-local inputs");
+  assert(/^node:[^@]+@sha256:[a-f0-9]{64}$/u.test(manifest?.build?.nodeImage ?? ""), "BASE_IMAGE_DIGEST_INVALID", "build.nodeImage must be digest pinned");
+  if (manifest?.build?.runtimeImage !== undefined) {
+    assert(
+      /^gcr\.io\/distroless\/nodejs22-debian13:[^@]+@sha256:[a-f0-9]{64}$/u.test(manifest.build.runtimeImage),
+      "RUNTIME_IMAGE_DIGEST_INVALID",
+      "build.runtimeImage must be a digest-pinned supported distroless Node runtime",
+    );
+  }
+  assert(DIGEST_PATTERN.test(manifest?.build?.lockfileDigest ?? ""), "LOCKFILE_DIGEST_INVALID", "build.lockfileDigest must be sha256");
+  assert(DIGEST_PATTERN.test(manifest?.build?.policyDigest ?? ""), "POLICY_DIGEST_INVALID", "build.policyDigest must be sha256");
+  assert(DIGEST_PATTERN.test(manifest?.build?.buildInputsDigest ?? ""), "BUILD_INPUTS_DIGEST_INVALID", "build.buildInputsDigest must be sha256");
   assert(DIGEST_PATTERN.test(manifest?.build?.releaseInputDigest ?? ""), "RELEASE_INPUT_INVALID", "build.releaseInputDigest must be sha256");
   assert(DIGEST_PATTERN.test(manifest?.sbom?.digest ?? ""), "SBOM_DIGEST_INVALID", "sbom.digest must be sha256");
   assert(manifest?.schema?.min === 1 && manifest?.schema?.max === 1, "SCHEMA_RANGE_INVALID", "schema range must match cell contract v1");

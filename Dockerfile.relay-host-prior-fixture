@@ -15,7 +15,7 @@ ENV NODE_ENV=production \
     RELAY_DEV_MODE=true
 COPY . .
 RUN --mount=type=cache,target=/root/.npm npm ci --include=dev \
-    && npm run build \
+    && npm run build -- --webpack \
     && mkdir -p /var/lib/relay/home /var/lib/relay/workspace \
     && chown -R node:node /app /var/lib/relay
 USER node

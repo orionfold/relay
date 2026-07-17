@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
-ARG NODE_IMAGE=node:22.18.0-bookworm-slim@sha256:752ea8a2f758c34002a0461bd9f1cee4f9a3c36d48494586f60ffce1fc708e0e
+ARG NODE_IMAGE=node:22.23.1-bookworm-slim@sha256:6c74791e557ce11fc957704f6d4fe134a7bc8d6f5ca4403205b2966bd488f6b3
+ARG RUNTIME_IMAGE=gcr.io/distroless/nodejs22-debian13:nonroot@sha256:a2723a2817c5b01b8e7b98d567bc8b5a6b0e713e25bfb0a82b6ade4b9db06f50
 ARG SOURCE_DATE_EPOCH=0
 
 FROM ${NODE_IMAGE} AS dependencies
@@ -10,17 +11,60 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 
 FROM ${NODE_IMAGE} AS build
 ARG SOURCE_DATE_EPOCH
+ARG RELAY_SOURCE_REVISION=unknown
+ARG RELAY_SOURCE_TREE_DIGEST=unknown
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1 \
     RELAY_OCI_BUILD=true \
     RELAY_DATA_DIR=/tmp/relay-build-data \
     RELAY_DEV_MODE=true \
+    RELAY_SOURCE_REVISION=${RELAY_SOURCE_REVISION} \
+    RELAY_SOURCE_TREE_DIGEST=${RELAY_SOURCE_TREE_DIGEST} \
     SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
+# Keep the build stage as narrow as the application build contract. A broad
+# checkout copy lets dynamic Next.js file tracing pull operator-only repository
+# material into standalone output even when the runtime stage looks selective.
+COPY package.json package-lock.json next.config.mjs tsconfig.json next-env.d.ts postcss.config.mjs components.json ./
+COPY src ./src
+COPY public ./public
+COPY knowledge ./knowledge
+COPY scripts/relay-host-entry.mjs ./scripts/relay-host-entry.mjs
+RUN npm run build -- --webpack \
+    && find .next -exec touch -h -d "@${SOURCE_DATE_EPOCH}" {} +
 
-FROM ${NODE_IMAGE} AS runtime
+# Assemble and prune the application filesystem while a shell is available.
+# The final distroless stage receives only this tree, never the build toolchain.
+FROM ${NODE_IMAGE} AS runtime-assets
+WORKDIR /runtime
+COPY --from=build /app/.next/standalone ./
+# Next's standalone tracer records external package roots but can omit files
+# reached through pdf-parse's runtime export map. Copy the complete locked
+# external packages from the Linux dependency stage.
+COPY --from=dependencies /app/node_modules/pdf-parse ./node_modules/pdf-parse
+COPY --from=dependencies /app/node_modules/pdfjs-dist ./node_modules/pdfjs-dist
+COPY --from=dependencies /app/node_modules/@napi-rs ./node_modules/@napi-rs
+# Next 16's standalone tracer omits this small CommonJS subtree even though
+# `next/dist/server/next.js` requires it during server construction.
+COPY --from=dependencies /app/node_modules/next/dist/build/output ./node_modules/next/dist/build/output
+# The target is Debian glibc on every supported architecture. npm and
+# standalone tracing can retain same-architecture musl optional packages even
+# though they cannot load here.
+RUN rm -rf \
+    /runtime/node_modules/@img/*musl* \
+    /runtime/node_modules/@napi-rs/*musl* \
+    && mkdir -p /runtime-data/home /runtime-data/workspace
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
+COPY --from=build /app/knowledge ./knowledge
+COPY --from=build /app/src/lib/db/migrations ./src/lib/db/migrations
+COPY --from=build /app/src/lib/agents/profiles/builtins ./src/lib/agents/profiles/builtins
+COPY --from=build /app/src/lib/workflows/blueprints/builtins ./src/lib/workflows/blueprints/builtins
+COPY --from=build /app/src/lib/packs/templates ./src/lib/packs/templates
+COPY --from=build /app/scripts/relay-host-entry.mjs ./scripts/relay-host-entry.mjs
+COPY --from=build /app/package.json ./package.json
+
+FROM ${RUNTIME_IMAGE} AS runtime
 ARG SOURCE_DATE_EPOCH
 ARG RELAY_VERSION=0.0.0-unset
 ARG RELAY_SOURCE_REVISION=unknown
@@ -42,22 +86,13 @@ ENV NODE_ENV=production \
     RELAY_SOURCE_REVISION=${RELAY_SOURCE_REVISION} \
     SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
 
-RUN groupadd --gid 10001 relay \
-    && useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin relay \
-    && mkdir -p /app /var/lib/relay \
-    && chown -R 10001:10001 /app /var/lib/relay
-
 WORKDIR /app
-COPY --from=build --chown=10001:10001 /app/.next/standalone ./
-COPY --from=build --chown=10001:10001 /app/.next/static ./.next/static
-COPY --from=build --chown=10001:10001 /app/public ./public
-COPY --from=build --chown=10001:10001 /app/src/lib/db/migrations ./src/lib/db/migrations
-COPY --from=build --chown=10001:10001 /app/scripts/relay-host-entry.mjs ./scripts/relay-host-entry.mjs
-COPY --from=build --chown=10001:10001 /app/package.json ./package.json
+COPY --from=runtime-assets --chown=10001:10001 /runtime/ /app/
+COPY --from=runtime-assets --chown=10001:10001 /runtime-data/ /var/lib/relay/
 
 USER 10001:10001
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=45s --retries=4 \
-  CMD ["node", "-e", "fetch('http://127.0.0.1:3000/api/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
-ENTRYPOINT ["node", "scripts/relay-host-entry.mjs"]
-CMD ["node", "server.js"]
+  CMD ["/nodejs/bin/node", "-e", "fetch('http://127.0.0.1:3000/api/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+ENTRYPOINT ["/nodejs/bin/node", "scripts/relay-host-entry.mjs"]
+CMD ["/nodejs/bin/node", "server.js"]

@@ -47,7 +47,41 @@ const CORE_VERSION_DEFINE = JSON.parse(
 const nextConfig = {
   ...(isRelayOciBuild
     ? {
+        // Next's default build ID is generated per build. Bind the OCI build
+        // instead to the exact source-tree digest so clean/no-cache rebuilds
+        // have the same application identity without affecting npm/dev.
+        generateBuildId: async () =>
+          (process.env.RELAY_SOURCE_TREE_DIGEST || CORE_VERSION_DEFINE).replace(
+            /^sha256:/,
+            "",
+          ),
+      }
+    : {}),
+  ...(isRelayOciBuild
+    ? {
         output: "standalone",
+        // Dynamic app-root discovery is required by npx/local installs, but
+        // output-file tracing must never interpret that as permission to ship
+        // operator tooling or historical repository artifacts in the OCI
+        // appliance. Runtime-readable assets are copied explicitly by the
+        // Host Dockerfile and validated against the real OCI archive.
+        outputFileTracingExcludes: {
+          "*": [
+            ".git/**/*",
+            ".claude/**/*",
+            ".agents/**/*",
+            ".codex/**/*",
+            ".playwright-mcp/**/*",
+            "dist-artifacts/**/*",
+            "output/**/*",
+            "coverage/**/*",
+            "features/**/*",
+            "docs/**/*",
+            "screengrabs/**/*",
+            "src/**/__tests__/**/*",
+            "src/**/*.test.*",
+          ],
+        },
         // Page-data workers import server modules that bootstrap SQLite. One
         // build-only worker prevents independent processes from racing the
         // same temporary database; runtime concurrency is unaffected.

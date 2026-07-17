@@ -1,5 +1,32 @@
 # Feature Changelog
 
+## 2026-07-17 — Complete G-093 optimized Relay Host OCI production
+
+### Completed
+
+- Replaced broad checkout tracing with explicit build/runtime surfaces and a
+  digest-pinned distroless Node 22 final image. The accepted arm64 image is
+  129,913,772 bytes—85.40% below G-080's 889,827,989-byte baseline—with 5,196
+  files across 25 layers.
+- Added one local/CI artifact command that inventories the real OCI archive,
+  enforces size/content/native/component budgets, acquires Trivy through a
+  pinned archive checksum, generates the CycloneDX SBOM and vulnerability
+  receipt, checks npm separation, signs the manifest, runs cached/no-cache
+  comparison and executes complete Host lifecycle conformance.
+- Attributed all 60 final-image components and accepted zero unapproved
+  high/critical findings. The operator approved exact platform/path/mode/link
+  inventory as the reproducibility gate; compiled Webpack content hashes remain
+  diagnostic.
+- Hardened the evidence path against tampered cached scanners, empty scanner
+  output, incomplete bundle checksums, foreign-musl native packages and
+  nondeterministic historical rollback builds. The verifier checks all 18
+  bundle files plus signed/measured identities and every required pass receipt.
+- Verification passed 17 artifact/manifest unit cases, targeted Host tests,
+  full two-cell isolation/persistence/interruption/export/upgrade/rollback,
+  TypeScript, production build, public-boundary and 532-file doc-link checks,
+  and the full 483-file suite (3,603 passed, one skipped). No publish, push,
+  release, version or npm change occurred; G-025 is next in Host R1.
+
 ## 2026-07-16 — Complete G-038 one-time default-model prompt
 
 ### Completed

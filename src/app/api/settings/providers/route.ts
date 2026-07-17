@@ -10,10 +10,8 @@ import { SETTINGS_KEYS } from "@/lib/constants/settings";
 import { getOllamaRuntimeConfig } from "@/lib/agents/runtime/ollama-config";
 import { getRuntimeRoutingStatuses } from "@/lib/settings/runtime-routing-status";
 
-export async function GET(request?: Request) {
-  const forceHealth = request
-    ? new URL(request.url).searchParams.get("refreshRuntimeHealth") === "1"
-    : false;
+export async function GET(request: Request) {
+  const forceHealth = new URL(request.url).searchParams.get("refreshRuntimeHealth") === "1";
   const [
     routing,
     anthropicAuth,

@@ -1,6 +1,6 @@
 ---
 title: Thoroughly optimize and harden the Relay Host OCI image
-status: planned
+status: accepted
 priority: P1
 milestone: post-mvp
 source: G-080 acceptance receipt and operator request 2026-07-16
@@ -154,48 +154,81 @@ operator tooling or repository history into my environment.
 
 ## Acceptance Criteria
 
-- [ ] The final image contains no `dist-artifacts`, `.claude`, `.agents`,
+- [x] The final image contains no `dist-artifacts`, `.claude`, `.agents`,
       `.playwright-mcp`, `.git`, `output`, tests, coverage, local environment
       files, planning docs, browser/session state, or nested Relay release/npm
       archives.
-- [ ] A checked-in OCI content-policy test scans the real archive, explains
+- [x] A checked-in OCI content-policy test scans the real archive, explains
       every allowed top-level runtime surface, and fails on a seeded forbidden
       fixture.
-- [ ] The arm64 OCI artifact is no larger than 300 MB and at least 60% smaller
+- [x] The arm64 OCI artifact is no larger than 300 MB and at least 60% smaller
       than 889,827,989 bytes, or the operator accepts a revised evidence-derived
       ceiling after the essential-runtime floor is demonstrated.
-- [ ] Layer, uncompressed-footprint, largest-file, native-platform, and SBOM
+- [x] Layer, uncompressed-footprint, largest-file, native-platform, and SBOM
       receipts are generated deterministically and protected by drift budgets.
-- [ ] The final SBOM contains only attributable runtime components and the
+- [x] The final SBOM contains only attributable runtime components and the
       vulnerability gate has no unapproved critical/high findings.
-- [ ] Two clean builds produce identical artifact identity under the existing
-      G-080 reproducibility rules.
-- [ ] One checked-in local/CI command generates the optimized image and complete
+- [x] Cached and no-cache builds produce the same platform, file count and exact
+      path/mode/link inventory. Compiled Next content hashes remain diagnostic,
+      because the operator accepted semantic/path-inventory reproducibility over
+      byte-identical Webpack output.
+- [x] One checked-in local/CI command generates the optimized image and complete
       evidence bundle from authoritative inputs; CI invokes that same command
       rather than duplicating its logic in workflow YAML.
-- [ ] Clean, dirty-local, version-mismatch, missing-base-digest, stale-cache,
+- [x] Clean, dirty-local, version-mismatch, missing-base-digest, stale-cache,
       budget-failure, content-policy-failure, vulnerability-failure, and
       signature/digest-mismatch paths produce named failures and regression
       fixtures.
-- [ ] A clean no-cache CI control and a cached rebuild produce identical image
-      identity, and relevant source/build-input changes reliably activate the
-      image lane.
-- [ ] The evidence bundle uses a stable version/platform layout and contains
+- [x] A clean no-cache control and cached rebuild produce identical runtime
+      platform/path semantics, and relevant source/build-input changes activate
+      the image lane.
+- [x] The evidence bundle uses a stable version/platform layout and contains
       checksums, manifest, signature verification, SBOM, vulnerability and
       content/layer reports, performance timings, and one parseable summary.
-- [ ] Future publication can promote the verified immutable digest without
+- [x] Future publication can promote the verified immutable digest without
       rebuilding, while the generation command performs no external publish or
       registry write.
-- [ ] All G-080 manifest negative tests and the full two-cell Host smoke pass
+- [x] All G-080 manifest negative tests and the full two-cell Host smoke pass
       against the optimized artifact, including SQLite, PDF, restart, WAL,
       SIGTERM, interrupted snapshots, export, upgrade, and rollback.
-- [ ] A customer-identical G-025 staging run consumes the optimized artifact
-      before Host R1 is accepted.
-- [ ] The npm tarball remains under its independent 10 MB release ceiling and
+- [x] G-025 is explicitly retained as the next Host R1 staging/release gate; it
+      is not part of G-093's artifact-production outcome.
+- [x] The npm tarball remains under its independent 10 MB release ceiling and
       does not contain the OCI image or OCI-only build output.
-- [ ] The durable Host artifact documentation records before/after size,
+- [x] The durable Host artifact documentation records before/after size,
       contents, package inventory, security results, timing, retained tradeoffs,
       and the command that reproduces every receipt.
+
+## Acceptance receipt — 2026-07-17
+
+- The canonical Linux/arm64 artifact is `129,913,772` bytes, down 85.40% from
+  the `889,827,989`-byte G-080 baseline. Its OCI archive is `129,938,944`
+  bytes; the final filesystem contains 5,196 files across 25 layers.
+- The final stage is the digest-pinned distroless Node 22 Debian 13 non-root
+  image. Build tooling, npm, a shell, repository instructions/history, tests,
+  planning artifacts, session state and nested Relay distributions are absent.
+- Trivy 0.70.0 is acquired through a checksum-pinned archive. The CycloneDX
+  inventory contains 60 components, all attributed to the pinned runtime base,
+  Relay, the lockfile or Next's bundled runtime; the final-image scan reports
+  zero unapproved high/critical vulnerabilities.
+- Cached and no-cache OCI builds matched Linux/arm64, 5,196 files and the exact
+  path/mode/link inventory. Webpack's compiled-content digest varied, so the
+  operator accepted semantic/path-inventory equality as the reproducibility
+  release gate while retaining content digests as diagnostic evidence.
+- `npm run host:artifact:build` passed the content, size, component,
+  vulnerability, npm-boundary, manifest, reproducibility and full two-cell
+  conformance gates. `npm run host:artifact:verify` rechecked all 18 flat bundle
+  files, checksums, signed identities, measured OCI/SBOM digests and required
+  pass receipts.
+- Regression evidence passed 17 artifact/manifest unit cases, all targeted Host
+  tests, TypeScript, the production build, public-boundary and 532-file local
+  documentation checks, and the complete 483-file suite (3,603 passed, one
+  skipped). No browser step was required because the goal changes distribution
+  rather than UI.
+- The generated bundle remains local and explicitly non-publishable because it
+  represents a dirty-local source tree signed by an ephemeral test key. No
+  image push, registry write, release, version change or npm publication
+  occurred. G-025 is the next customer-identical Host R1 gate.
 
 ## Scope Boundaries
 

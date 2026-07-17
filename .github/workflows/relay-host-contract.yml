@@ -7,15 +7,15 @@ on:
       - ".dockerignore"
       - "Dockerfile.relay-host"
       - "config/install-dependency-debt.json"
+      - "config/relay-host-artifact-policy.json"
       - "next.config.mjs"
       - "package.json"
       - "package-lock.json"
       - "scripts/**relay-host*"
       - "scripts/check-install-dependency-debt.mjs"
-      - "src/app/api/health/**"
-      - "src/instrumentation-node.ts"
-      - "src/lib/host/**"
-      - "src/lib/snapshots/**"
+      - "src/**"
+      - "public/**"
+      - "knowledge/**"
   workflow_dispatch:
 
 permissions:
@@ -24,17 +24,15 @@ permissions:
 jobs:
   contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.18.0
+          node-version: 22.23.1
           cache: npm
       - run: npm ci
       - run: npm run check:install-debt
       - run: npm run test:relay-host
-      - name: Verify standalone Linux build and native modules
-        run: |
-          docker buildx build --provenance=false --load --tag relay-host:contract --file Dockerfile.relay-host .
-          docker run --rm --entrypoint node relay-host:contract -e "require('better-sqlite3'); require('pdf-parse'); process.stdout.write('native-artifact-ok')"
+      - name: Build, audit, reproduce and conformance-test the Host artifact
+        run: npm run host:artifact:build

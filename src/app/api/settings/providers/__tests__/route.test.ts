@@ -94,7 +94,7 @@ import { GET } from "../route";
 
 describe("GET /api/settings/providers", () => {
   it("reports an empty Ollama default instead of a phantom model", async () => {
-    const response = await GET();
+    const response = await GET(new Request("http://relay.test/api/settings/providers"));
     const body = await response.json();
 
     expect(body.ollama.connected).toBe(true);

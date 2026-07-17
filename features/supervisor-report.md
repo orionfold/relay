@@ -1,5 +1,5 @@
 ---
-generated: 2026-07-16
+generated: 2026-07-17
 mode: next-steps
 ---
 
@@ -8,22 +8,21 @@ mode: next-steps
 > Non-authoritative snapshot generated from `_IDEAS/backlog.md`. Relay's live
 > portfolio and goal state remain canonical only in that backlog.
 
-## Next Steps — 2026-07-16
+## Next Steps — 2026-07-17
 
 ### Recommendation
 
-**Do this:** Complete **G-093 — Thoroughly optimize and productize repeatable
-Relay Host OCI image generation**.
+**Do this:** Complete **G-025 — Run the next evidence-producing staging
+regression slice** against the optimized Relay Host artifact.
 
-**Why:** G-038 is accepted, so G-093 is now the only implementation goal before
-the Host R1 customer-identical staging gate. It converts G-080's signed but
-889,827,989-byte alpha artifact into a minimal, auditable image produced by one
-repeatable local/CI mechanism.
+**Why:** G-093 is accepted with a 129,913,772-byte distroless arm64 image, full
+artifact evidence and Host lifecycle conformance. Customer-identical staging is
+the remaining Host R1 exit gate before the train can advance to secure ingress
+and recovery.
 
-**Invoke:** architecture impact review followed by the existing durable G-093
-specification and a codebase-grounded implementation plan; then implement in
-measured vertical slices with real OCI content, reproducibility and Host
-conformance receipts.
+**Invoke:** the Relay staging workflow and consume the verified optimized
+artifact/evidence bundle without rebuilding different bytes. Record fresh
+install, primary journey, runtime and release-candidate evidence.
 
 **Priority category:** Phase advancement — current ready goal in the active
 release increment with its dependencies met.
@@ -31,15 +30,15 @@ release increment with its dependencies met.
 ### Context
 
 - Active workstream: **Customer-owned Relay Host** — R1 in progress.
-- Accepted in R1: **G-080/G-034/G-038**.
-- Current sequence: **G-093 → G-025 staging gate**.
+- Accepted in R1: **G-080/G-034/G-038/G-093**.
+- Current sequence: **G-025 staging gate**.
 - After R1: **R2 — Secure/recoverable Host alpha**, with G-081 and G-082 ready.
 - Enterprise connectors remains queued until an intentional WIP decision.
 
 ### If You Have More Time
 
-1. Prepare **G-025** to consume the verified optimized artifact after G-093.
-2. Sequence **G-081/G-082** only after the R1 exit gate is recorded.
+1. Prepare **G-081/G-082** sequencing while G-025 captures R1 evidence.
+2. Advance R1 only after the staging exit gate is explicitly accepted.
 
 ---
 
