@@ -1,5 +1,32 @@
 # Feature Changelog
 
+## 2026-07-17 — Complete G-081 Host ingress and first-admin identity
+
+### Completed
+
+- Added explicit trusted-local, private-authenticated, and
+  remote-authenticated exposure profiles with fail-closed bind/origin checks,
+  trusted-ingress credentials, exact Host/path assertions, and server-owned
+  Cell/session routing metadata.
+- Added protected-by-default Next.js Proxy enforcement across 203 API routes,
+  exact-origin mutation checks, forwarding/header-spoof refusal, hardened
+  cookies and response headers, plus authenticated loopback server self-calls.
+- Added the separate hardened auth store, one-use first-admin bootstrap,
+  password sessions, recovery rotation, rate limits, named receipts, CLI auth
+  commands, login/recovery/setup journeys, and Settings session controls.
+- Passed 29 focused tests, the 3,714-test broader suite, route/token/doc guards,
+  private and remote real-runtime smokes, production build, responsive browser
+  verification, and a fresh security review. The review closed a file-extension
+  matcher gap that could otherwise have exempted protected uploads.
+- Advanced Host R2 to G-082; G-081 is now an accepted prerequisite for G-083
+  and managed-Host connector conformance.
+
+### Not performed
+
+- No TLS termination, multi-Cell Host router, SSO, external identity provider,
+  push, publish, release, tag, version bump, registry write, or public trust
+  claim was added or authorized.
+
 ## 2026-07-17 — Complete G-095 Relay Host fulfillment contract
 
 ### Completed

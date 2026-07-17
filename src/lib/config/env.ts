@@ -26,6 +26,46 @@ const DB_FILENAME = "relay.db";
 
 export const RELAY_CELL_ID_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62})$/;
 
+export const RELAY_EXPOSURE_PROFILES = [
+  "trusted-local",
+  "private-authenticated",
+  "remote-authenticated",
+] as const;
+
+export type RelayExposureProfile = (typeof RELAY_EXPOSURE_PROFILES)[number];
+
+export class InvalidRelayExposureProfileError extends Error {
+  readonly code = "EXPOSURE_PROFILE_INVALID" as const;
+
+  constructor(value: string) {
+    super(`Unsupported Relay exposure profile: ${value}`);
+    this.name = "InvalidRelayExposureProfileError";
+  }
+}
+
+/** Network trust profile selected by the server operator. */
+export function relayExposureProfile(): RelayExposureProfile {
+  const value = process.env.RELAY_EXPOSURE_PROFILE || "trusted-local";
+  if (!RELAY_EXPOSURE_PROFILES.includes(value as RelayExposureProfile)) {
+    throw new InvalidRelayExposureProfileError(value);
+  }
+  return value as RelayExposureProfile;
+}
+
+/** Canonical browser-visible origin for authenticated profiles. */
+export function relayPublicOrigin(): string | undefined {
+  return process.env.RELAY_PUBLIC_ORIGIN;
+}
+
+/** Optional server-owned URL prefix that an ingress maps to this Cell. */
+export function relayRoutePrefix(): string {
+  const value = process.env.RELAY_ROUTE_PREFIX || "/";
+  if (!value.startsWith("/") || value.includes("..") || value.includes("?")) {
+    throw new Error("RELAY_ROUTE_PREFIX must be an absolute URL path without '..' or a query.");
+  }
+  return value === "/" ? value : value.replace(/\/+$/, "");
+}
+
 export class InvalidRelayCellIdError extends Error {
   readonly code = "CELL_ID_INVALID" as const;
 

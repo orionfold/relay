@@ -83,10 +83,12 @@ control or your contract:
 
 ## 4. Application security posture
 
-- **Deployment surface:** binds to `127.0.0.1` by default; exposing on a
-  LAN requires the explicit `--hostname 0.0.0.0` flag, which prints a
-  warning. Relay is designed as a single-operator cockpit; treat network
-  exposure as you would any internal tool.
+- **Deployment surface:** binds to `127.0.0.1` in `trusted-local` mode by
+  default. Relay now refuses a non-loopback bind in that mode. LAN, tailnet,
+  VPN, or remote access requires an explicit authenticated exposure profile,
+  canonical public origin, and the built-in administrator session boundary;
+  internet exposure additionally requires HTTPS at a configured ingress.
+  See [Host ingress and access](../relay-host-access.md).
 - **Agent governance is built-in, not bolted on:** per-profile tool
   permissions (an agent without web tools cannot reach arbitrary URLs),
   human-approval checkpoints for client-facing output, and a full audit

@@ -114,11 +114,11 @@ mere architectural alignment:
 | G-038 | — | instance-local marker must be scoped by the same per-cell `RELAY_DATA_DIR` contract | immediate first-run reliability and a clean cell-isolation invariant |
 | G-080 | G-079 | G-034 conditional preflight; G-036 remains trigger-only based on measured tarball/install cost | signed Relay Cell image and local two-cell Host alpha |
 | G-094 | G-025 acceptance after G-093 | reuses G-080/G-093 image policy; registry, signing identity and every external write remain operator-gated | published signed multi-architecture Cell image for managed Hosts |
-| G-081 | G-079 | may run in parallel with G-080; any container/Host ingress claim must be rerun against the G-080 artifact | authenticated remote Host access and server-owned cell routing |
+| G-081 | accepted 2026-07-17 after G-079 | accepted against the G-080 artifact; G-083 must consume its ingress/path/session contract | authenticated remote Host access and server-owned Cell-side routing contract |
 | G-082 | G-079, G-080 | reuse existing snapshot contracts; connector secrets/backups consume this contract | recoverable, portable cells and per-cell secret roots |
 | G-020 | — | G-084 must reuse its dated freshness/staleness semantics or explicitly own a separate cloud-price catalog contract | prevents duplicated or falsely-current estimate behavior |
 | G-030 | — | G-083/G-084 reuse retain-by-default versus separately confirmed purge semantics | immediate removal clarity and consistent destructive-language policy |
-| G-083 | G-079, G-080, G-081, G-082, G-094 | G-030 retention semantics; entitlement policy remains operator-gated | npm-delivered paid local Host supervisor beta and stable Host/Cell lifecycle API |
+| G-083 | G-079, G-080 and G-081 accepted; G-082 and G-094 remain | G-030 retention semantics; entitlement policy remains operator-gated | npm-delivered paid local Host supervisor beta and stable Host/Cell lifecycle API |
 | G-084 | G-083 | G-020 freshness semantics; G-030 retention language | customer-visible local-device/cloud-Host lifecycle journey |
 | G-085 | G-084 | provider account, credentials, spend, hostname, security review and release approval | first DigitalOcean customer beta |
 | G-086 | G-085 plus demand trigger | second provider/hardware authorization; does not block a demand-validated G-085 beta | portability evidence required before GA portability claims |
@@ -158,7 +158,7 @@ improvements.
 |---|---|---|---|
 | **R0 — Isolation contract** | G-058 → G-060 → G-079 | customers and operators can tell attribution from a real security boundary and choose same-Host versus separate-VM placement truthfully | approved Host/cell contract, trust copy and TDR disposition; no provisioning claim |
 | **R1 — Local Host alpha** | G-034 conditional preflight; G-038 parallel quick win; G-080 → G-025 | reproducible local-device installation, isolated Cell data roots and a signed Cell image; first-run prompts no longer recur per Cell | local one-Host/two-cell smoke, package/native checks, rollback/export and customer-identical staging |
-| **R2 — Secure and recoverable Host alpha** | G-081 in parallel with G-082 → G-025 | authenticated remote use plus encrypted off-Host recovery and portable export, useful even before automated cloud provisioning | independent security review, destroyed-Host restore drill and staging journey |
+| **R2 — Secure and recoverable Host alpha** | G-081 accepted 2026-07-17 → G-082 → fresh G-025 | authenticated remote use plus encrypted off-Host recovery and portable export, useful even before automated cloud provisioning | G-081 security review accepted; destroyed-Host restore drill and staging journey remain |
 | **R3 — Licensed local Host beta** | G-094; G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 → G-025 | npm-delivered Host supervisor, registry-delivered Cell image and paid self-service Host/Cell lifecycle on a local device and fake VM | signed registry Cell image, entitlement/lifecycle acceptance, real-browser journey and staging release candidate |
 | **R4 — DigitalOcean beta** | G-085 → G-025 | an end customer can provision and operate one customer-owned DigitalOcean Relay Host with verified bill, cleanup and recovery | operator-approved external conformance, spend reconciliation and beta release |
 | **R5 — Portable Host GA** | G-086 | the same npm Host control surface, Host/Cell manifest and signed Cell-image digest work on a second VM provider or representative customer hardware | second-target conformance and approved portability/GA claim |
@@ -269,7 +269,7 @@ Tasks:
 Checkpoint: a locally built image runs customer-identically and a mutable tag or
 digest mismatch cannot pass verification.
 
-### G-081 — Add internet-safe Host ingress and cell identity
+### G-081 — Add internet-safe Host ingress and Cell identity — accepted 2026-07-17
 
 Goal: implement trusted-local, tailnet/VPN and remote-authenticated Host exposure
 profiles, first-admin bootstrap, cell route binding and client/device identity
@@ -300,9 +300,12 @@ Tasks:
    authenticated profile fails closed.
 7. Run an independent security review before enabling any provider smoke.
 
-Checkpoint: unauthenticated critical-route inventory is empty except explicitly
-public health/bootstrap initiation endpoints, and browser tests cover first admin,
-sessions, CSRF, recovery, expiry and takeover attempts.
+Accepted checkpoint: the 203-route inventory is deny-by-default except explicit
+health, signed webhook and authentication exchanges; focused and full-suite
+tests, both authenticated runtime profiles, production build, responsive browser
+journeys and fresh security review passed. `features/host-ingress-identity.md`
+owns the detailed receipt. TLS termination and the multi-Cell Host router remain
+outside this goal; G-083 consumes the accepted Cell-side origin/path contract.
 
 ### G-082 — Make recovery, secrets and data portability cloud-safe
 

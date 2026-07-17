@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppShell } from "@/components/shell/app-shell";
@@ -18,6 +18,7 @@ import {
   type ResolvedTheme,
 } from "@/lib/theme";
 import "./globals.css";
+import { AUTH_PAGE_HEADER } from "@/lib/host-ingress/policy";
 
 // Orionfold superfamily: Geist (display + body) + Geist Mono (data / eyebrows /
 // receipts). Loaded via next/font/google — self-hosted at build, no CDN.
@@ -94,6 +95,8 @@ export default async function RootLayout({
   // ainative-theme cookie so a returning pre-rebrand user does not flash the
   // default theme before the client re-writes the new cookie.
   const cookieStore = await cookies();
+  const headerStore = await headers();
+  const isAuthPage = headerStore.get(AUTH_PAGE_HEADER) === "true";
   const cookieValue =
     cookieStore.get(THEME_COOKIE)?.value ??
     cookieStore.get(LEGACY_THEME_COOKIE)?.value;
@@ -132,19 +135,21 @@ export default async function RootLayout({
             <span className="text-foreground"> Relay</span>
           </span>
         </div>
-        <a href="#main-content" className="skip-nav">
-          Skip to main content
-        </a>
-        <TooltipProvider>
-          <ChatSessionProvider>
-            <AppShell>{children}</AppShell>
-            <PendingApprovalHost />
-            <CommandPalette />
-            <GlobalShortcuts />
-            <RuntimePreferenceBootstrapper />
-            <Toaster />
-          </ChatSessionProvider>
-        </TooltipProvider>
+        {isAuthPage ? children : (
+          <>
+            <a href="#main-content" className="skip-nav">Skip to main content</a>
+            <TooltipProvider>
+              <ChatSessionProvider>
+                <AppShell>{children}</AppShell>
+                <PendingApprovalHost />
+                <CommandPalette />
+                <GlobalShortcuts />
+                <RuntimePreferenceBootstrapper />
+                <Toaster />
+              </ChatSessionProvider>
+            </TooltipProvider>
+          </>
+        )}
       </body>
     </html>
   );

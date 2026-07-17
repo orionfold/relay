@@ -167,7 +167,7 @@ Environment variables:
 
 Examples:
   node dist/cli.js --port 3210 --no-open
-  node dist/cli.js --hostname 0.0.0.0 --port 3000    # expose on the LAN (see warning)
+  node dist/cli.js --hostname 0.0.0.0 --exposure-profile private-authenticated --public-origin http://192.168.1.20:3000
   node dist/cli.js --data-dir ~/.relay-dogfood --port 3100
   node dist/cli.js plugin dry-run my-plugin    # print confinement policy
   node dist/cli.js pack add ./my-pack          # install a Relay pack (folder or git url)
@@ -176,6 +176,8 @@ Examples:
   node dist/cli.js license add <path-or-url>   # redeem a license (from your fulfilment email)
   node dist/cli.js license status              # show saved licenses + entitlements
   node dist/cli.js license remove <id>         # remove a saved license (packs stay installed)
+  node dist/cli.js auth bootstrap              # issue a 15-minute first-admin credential
+  node dist/cli.js auth status                 # inspect local access state
 `;
 }
 
@@ -191,6 +193,17 @@ program
     "127.0.0.1",
   )
   .option("--data-dir <path>", "custom data directory (overrides RELAY_DATA_DIR)")
+  .option(
+    "--exposure-profile <profile>",
+    "trusted-local, private-authenticated, or remote-authenticated",
+    process.env.RELAY_EXPOSURE_PROFILE || "trusted-local",
+  )
+  .option("--public-origin <url>", "browser-visible origin for authenticated access")
+  .option(
+    "--route-prefix <path>",
+    "server-owned URL prefix for this Cell",
+    process.env.RELAY_ROUTE_PREFIX || "/",
+  )
   .option("--reset", "delete the local database before starting")
   .option("--no-open", "don't auto-open browser")
   .option("--safe-mode", "disable Kind-1 plugin MCP servers; Kind-5 primitives bundles still load");
@@ -208,6 +221,7 @@ const firstArg = process.argv[2];
 const isPluginSubcommand = firstArg === "plugin";
 const isPackSubcommand = firstArg === "pack";
 const isLicenseSubcommand = firstArg === "license";
+const isAuthSubcommand = firstArg === "auth";
 
 if (isPluginSubcommand) {
   const action = process.argv[3];
@@ -258,6 +272,16 @@ if (isLicenseSubcommand) {
   process.exit(code);
 }
 
+if (isAuthSubcommand) {
+  await ensureNativeSqliteOrExit();
+  const { runAuthCommand } = await import("../src/lib/host-ingress/cli");
+  const code = await runAuthCommand(process.argv.slice(3), {
+    log: (m) => console.log(m),
+    error: (m) => console.error(m),
+  });
+  process.exit(code);
+}
+
 program.parse();
 
 const opts = program.opts();
@@ -268,6 +292,9 @@ const opts = program.opts();
 if (opts.dataDir) {
   process.env.RELAY_DATA_DIR = opts.dataDir;
 }
+process.env.RELAY_EXPOSURE_PROFILE = opts.exposureProfile;
+if (opts.publicOrigin) process.env.RELAY_PUBLIC_ORIGIN = opts.publicOrigin;
+process.env.RELAY_ROUTE_PREFIX = opts.routePrefix;
 
 // Apply --safe-mode: export RELAY_SAFE_MODE=true so mcp-loader short-circuits
 // Kind-1 plugin MCP servers. Kind-5 primitives bundles are managed separately
@@ -439,15 +466,22 @@ async function main() {
   const nextEntrypoint = resolveNextEntrypoint(effectiveCwd);
   const isPrebuilt = existsSync(join(effectiveCwd, ".next", "BUILD_ID"));
   const bindHost = (opts.hostname as string) || "127.0.0.1";
-  // Warn before exposing a local-first, auth-light app beyond this machine.
-  if (isNonLoopbackHost(bindHost)) {
-    console.warn(
-      `⚠ Binding to ${bindHost} — Relay will be reachable from other machines ` +
-        `on the network. It is designed for local-first, single-user use and has ` +
-        `no network authentication. Only do this on a trusted network, and put a ` +
-        `reverse proxy with auth in front if exposing it more broadly.`,
+  const exposureProfile = process.env.RELAY_EXPOSURE_PROFILE || "trusted-local";
+  if (isNonLoopbackHost(bindHost) && exposureProfile === "trusted-local") {
+    program.error(
+      "Non-loopback binding is refused in trusted-local mode. Select private-authenticated or remote-authenticated and provide --public-origin.",
     );
   }
+  const { getIngressConfig } = await import("../src/lib/host-ingress/config");
+  getIngressConfig();
+  if (exposureProfile === "remote-authenticated" && !process.env.RELAY_INGRESS_TOKEN) {
+    program.error("Remote-authenticated exposure requires RELAY_INGRESS_TOKEN for the configured TLS ingress.");
+  }
+  if (exposureProfile === "remote-authenticated" && isNonLoopbackHost(bindHost)) {
+    program.error("Remote-authenticated v1 must bind loopback so the configured TLS ingress is the only external path.");
+  }
+  const { randomSecret } = await import("../src/lib/host-ingress/credentials");
+  const internalAuthToken = randomSecret();
   const nextArgs = buildNextLaunchArgs({
     isPrebuilt,
     port: actualPort,
@@ -471,6 +505,7 @@ async function main() {
   );
   console.log(`Data dir: ${DATA_DIR}`);
   console.log(`Mode: ${isPrebuilt ? "production" : "development"}`);
+  console.log(`Exposure: ${exposureProfile}`);
   console.log(`Next entry: ${nextEntrypoint}`);
   console.log(`Starting Relay on ${sidecarUrl}`);
   console.log(`Learn more → https://orionfold.com`);
@@ -488,6 +523,12 @@ async function main() {
       // bound to a non-loopback host, so self-calls target 127.0.0.1 + the real
       // port — never :3000, never the LAN IP. Fixes issue #29.
       RELAY_SELF_BASE_URL: buildSidecarUrl(actualPort, "127.0.0.1"),
+      RELAY_INTERNAL_AUTH_TOKEN: internalAuthToken,
+      RELAY_EXPOSURE_PROFILE: exposureProfile,
+      RELAY_ROUTE_PREFIX: process.env.RELAY_ROUTE_PREFIX || "/",
+      ...(process.env.RELAY_PUBLIC_ORIGIN
+        ? { RELAY_PUBLIC_ORIGIN: process.env.RELAY_PUBLIC_ORIGIN }
+        : {}),
       ...(opts.safeMode ? { RELAY_SAFE_MODE: "true" } : {}),
       // In dev mode, Next blocks cross-origin /_next/* dev-asset requests from
       // the LAN client's IP, breaking the app over the network (issue #13).

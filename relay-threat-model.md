@@ -2,8 +2,8 @@
 
 ## Executive summary
 
-Relay's highest cloud-deployment risks are exposing its currently auth-light
-administrative API to the internet, mishandling customer cloud/model credentials,
+Relay's highest cloud-deployment risks are misconfiguring authenticated ingress,
+mishandling customer cloud/model credentials,
 and reporting partially provisioned or unrecoverable infrastructure as ready.
 The proposed customer-owned Relay Host limits architectural complexity, but a
 multi-cell Host makes its supervisor, reverse proxy, resource allocator and
@@ -77,6 +77,21 @@ G-079 decisions validated by the operator on 2026-07-16:
 - admission begins provisionally at 1 GiB memory per cell, 0.5 GiB Host reserve,
   90% maximum memory utilization, three cells per vCPU and explicit storage
   ceilings, all measurement-gated by G-080 before support claims.
+
+G-081 identity context reused from those accepted decisions on 2026-07-17
+(rather than reopening already answered scope questions):
+
+- direct loopback Relay stays account-free; tailnet/VPN and remote exposure use
+  one built-in administrator per Cell;
+- first-admin uses an explicit 15-minute, single-use command exchange; recovery
+  codes are one-use and rotate the credential while revoking all old sessions;
+- password sign-in approves one named, independently revocable browser session;
+- external SSO/IdP, WebAuthn/device attestation, TLS termination and Fleet
+  identity remain out of scope and require their own operator gate;
+- remote-authenticated v1 binds loopback and rejects every request that lacks
+  the configured ingress credential; and
+- G-081 implements the Cell-side host/path assertion while G-083 owns the
+  actual multi-Cell Host router.
 
 Open questions that would change ranking:
 
@@ -250,12 +265,12 @@ flowchart TD
 
 | Surface | How reached | Trust boundary | Notes | Evidence (repo path / symbol) |
 |---|---|---|---|---|
-| Relay listener/UI | Public hostname through future ingress | Internet → identity → Relay | Default loopback is safe; public bind is currently auth-light | `bin/cli.ts` host parsing and network-auth warning |
-| API routes | Browser/direct HTTP | Identity → Next.js route | Many read/mutation routes need generated authorization classification | `src/app/api/` |
-| First-admin flow | Deployment handoff link/exchange | Provider/bootstrap → Relay identity | Future single-use privileged path | No current implementation; planned G-081 |
+| Relay listener/UI | Public hostname through configured ingress | Internet → identity → Relay | Default loopback stays account-free; non-loopback trusted-local fails closed | `bin/cli.ts`; `src/proxy.ts` |
+| API routes | Browser/direct HTTP | Identity → Next.js route | Protected by default; generated classification covers 203 route files | `src/proxy.ts`; `scripts/check-host-ingress-routes.mjs` |
+| First-admin flow | Explicit local CLI exchange | Local Host admin → Relay identity | 15-minute, single-use, atomically consumed; clear value is command output only | `src/lib/host-ingress/cli.ts`; `store.ts`; `/auth/setup` |
 | Deploy/lifecycle API | Licensed UI or direct request | Browser → deploy coordinator | Future paid, billable, destructive mutations | No current implementation; planned G-083 |
 | Host supervisor | Direct admin CLI or protected Unix socket | Local OS admin → privileged lifecycle | Separate executable/Host DB; socket, registry and OCI authority never enter cells | No current implementation; G-060 contract and planned G-083 |
-| Host ingress routing | Hostname/path/VPN/tailnet | Internet/tailnet → one cell | Wrong route or trusted-header handling can cross cells | No current implementation; planned G-081/G-083 |
+| Host ingress routing | Hostname/path/VPN/tailnet | Internet/tailnet → one cell | Cell-side origin/prefix/header assertion implemented; G-083 still owns multi-Cell router | `src/lib/host-ingress/policy.ts`; `src/proxy.ts` |
 | Provider callback/API | OAuth/device/token and HTTPS API | Coordinator → provider | Future scopes, state/nonce, idempotency and token custody | No current implementation; planned G-083/G-085/G-086 |
 | Local database/files | Relay process local I/O | Process → data volume | Single-host WAL and broad instance content | `src/lib/db/index.ts`; `src/lib/config/env.ts`; `src/lib/utils/ainative-paths.ts` |
 | Snapshot/restore | Scheduler/UI/API | Relay → local/off-host recovery | Current restore is destructive and restart-bound | `src/lib/snapshots/snapshot-manager.ts`; `auto-backup.ts` |
@@ -299,8 +314,8 @@ flowchart TD
 
 | Threat ID | Threat source | Prerequisites | Threat action | Impact | Impacted assets | Existing controls (evidence) | Gaps | Recommended mitigations | Detection ideas | Likelihood | Impact severity | Priority |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| TM-001 | Remote unauthenticated attacker | Current Relay is internet exposed | Call UI/API routes without application identity and gain administrative capability | Full instance takeover and data/tool abuse | Customer data, admin state, credentials, availability | Loopback default and warning (`bin/cli.ts`) | No app auth/session/authorization/CSRF/rate limit | Block cloud/public readiness until G-081; authenticate and authorize every critical route; fail closed | Rejected-request reason codes, bootstrap/login alerts, CI route inventory | High | High | critical |
-| TM-002 | Remote attacker or provider-log reader | Bootstrap secret is reusable, long-lived or logged | Race/replay first-admin creation | Persistent admin takeover | Admin identity/session, customer data | None; feature does not exist | No bootstrap contract | Single-use high-entropy short expiry, atomic consumption, no URL/log/storage token, explicit recovery | Bootstrap attempt/race/expiry receipts and customer-visible first-admin event | Medium | High | high |
+| TM-001 | Remote unauthenticated attacker | Operator selects an authenticated profile or misconfigures ingress | Call UI/API routes without application identity and gain administrative capability | Full instance takeover and data/tool abuse | Customer data, admin state, credentials, availability | Non-loopback local mode fails closed; deny-by-default Proxy; DB-validated sessions; exact-origin mutations; rate limit; security headers (`bin/cli.ts`, `src/proxy.ts`, `host-ingress/*`) | External TLS/Host router conformance remains G-083/G-085 | Keep generated route inventory, production build/runtime smoke, wrong-origin/Host/session matrices, and independent review as release gates | Stable reject reason codes, content-free auth events, generated route inventory | Low-Medium | High | high |
+| TM-002 | Remote attacker or terminal/output reader | Attacker obtains a live bootstrap or recovery value | Race/replay first-admin creation | Persistent admin takeover | Admin identity/session, customer data | 32-byte random bootstrap; digest-only storage; 15-minute expiry; `BEGIN IMMEDIATE` atomic consume; hashed one-use recovery; credential-version revocation; no URL/browser storage/routine logs | Explicit command output must still be handled as a secret by Host operator | Preserve short exchange, rate limit, one-time recovery display, file-mode checks and no-secret scanning | Bootstrap rejection/completion, recovery, login and revoke reason receipts | Low-Medium | High | high |
 | TM-003 | Token thief or malicious dependency | Customer grants broad or retained cloud token | Read token then mutate resources outside Relay deployment | Account compromise, data loss and charges | Provider authority, bill, infrastructure | Runtime settings redact some secrets | No cloud scope/custody implementation | OAuth/device flow, minimum scopes, short local custody, reference-only storage, discard/revoke and adapter scope tests | Authorization/revoke receipts, scope-drift alerts, secret-pattern scans | Medium | High | high |
 | TM-004 | Remote attacker, flaky client or provider error | Host/cell deploy calls are replayable or non-atomic | Create duplicate/partial Hosts/cells and conceal ongoing resources/charges | Denial of wallet, orphan exposure, wrong cell state | Bill, capacity, receipts, cell isolation | No cloud/Host implementation | No plan digest, idempotency or reconciliation | Hashed manifest, step idempotency, durable receipts, exact partial states, cost/admission cap, resume/rollback and final Host/provider inventory | Duplicate digest, aged partial state, resource/capacity delta and post-delete scans | Medium | High | high |
 | TM-005 | Malicious admin or controlled endpoint | Attacker can influence configured provider/runtime URL or DNS | Capture credentials/prompts or reach metadata/internal services | Secret/data theft and infrastructure pivot | Model keys, prompts, provider metadata | URL/scheme/credential checks, consent, redirect refusal, timeout/redaction (`provider-endpoint.ts`) | DNS rebinding, metadata/link-local and general egress policy | Resolve-and-connect address policy, revalidation, metadata deny, egress proxy/allow profile, service auth | Destination class/resolution changes, blocked-address reason codes, content-free egress alerts | Medium | High | high |

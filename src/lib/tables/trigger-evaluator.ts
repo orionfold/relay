@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { userTableTriggers } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getSelfBaseUrl } from "@/lib/http/self-base-url";
+import { getInternalAuthHeaders } from "@/lib/http/internal-auth";
 import type { FilterSpec } from "./types";
 
 type TriggerEvent = "row_added" | "row_updated" | "row_deleted";
@@ -150,7 +151,7 @@ async function fireAction(
 
     await fetch(`${getSelfBaseUrl()}/api/tasks`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...getInternalAuthHeaders() },
       body: JSON.stringify({
         title: config.title ?? "Triggered Task",
         description,
@@ -192,7 +193,7 @@ async function fireAction(
   if (actionType === "run_workflow" && config.workflowId) {
     await fetch(`${getSelfBaseUrl()}/api/workflows/${config.workflowId}/execute`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...getInternalAuthHeaders() },
       body: JSON.stringify({
         context: `Table row data: ${JSON.stringify(rowData, null, 2)}`,
       }),
@@ -214,4 +215,3 @@ function deriveAppIdFromBlueprintId(blueprintId: string): string | null {
   if (idx <= 0) return null;
   return blueprintId.slice(0, idx);
 }
-

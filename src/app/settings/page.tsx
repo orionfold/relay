@@ -21,6 +21,7 @@ import { AppViewDiagnosticsSection } from "@/components/settings/app-view-diagno
 import { DashboardSection } from "@/components/settings/dashboard-section";
 import { PageShell } from "@/components/shared/page-shell";
 import { isDataOpsAllowed } from "@/lib/data/staging-gate";
+import { AccessSection } from "@/components/settings/access-section";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,9 @@ export default function SettingsPage() {
     >
       <SettingsHashFocus />
       <div className="space-y-6">
+        <SettingsAnchor id="settings-access">
+          <AccessSection />
+        </SettingsAnchor>
         <SettingsAnchor id="settings-instance">
           <InstanceSection />
         </SettingsAnchor>

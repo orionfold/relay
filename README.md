@@ -110,6 +110,13 @@ The governance is *in* the workflow, not bolted on. A blueprint is a fixed step 
 - **Know what you spend** — usage metering, budgets, and per-provider/per-model spend visibility on governed runs
 - **Open source & verifiable** — Apache-2.0, read the engine and run it yourself; every npm release ships with a provenance attestation and a CycloneDX SBOM ([docs/trust/supply-chain.md](docs/trust/supply-chain.md))
 
+Remote access is explicit and fail-closed. The default `trusted-local` profile
+stays on loopback with no login; Relay refuses to expose it on a network
+hostname. Tailnet/VPN/LAN and HTTPS-ingress profiles use a built-in first-admin
+exchange, revocable browser sessions, recovery codes, exact-origin mutation
+checks, rate limits, and content-free access receipts. See
+[Relay Host ingress and administrator access](docs/relay-host-access.md).
+
 Evaluating Relay for an enterprise? The full trust pack — [security packet](docs/trust/security-packet.md), [data-flow disclosure](docs/trust/data-flow.md), [supply-chain verification](docs/trust/supply-chain.md), [plain-language license terms](docs/trust/license-terms.md), and [continuity statement](docs/trust/continuity.md) — lives in [`docs/trust/`](docs/trust/). Vulnerability reports: [SECURITY.md](SECURITY.md).
 
 <img src="https://raw.githubusercontent.com/orionfold/relay/main/public/readme/inbox-list.png" alt="The governance command center: tool-permission approvals, agent questions, and a permission queue — nothing reaches a client without sign-off" width="1200" />
