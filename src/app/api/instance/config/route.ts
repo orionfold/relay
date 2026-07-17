@@ -5,6 +5,7 @@ import {
   getUpgradeState,
 } from "@/lib/instance/settings";
 import { hasGitDir, isDevMode } from "@/lib/instance/detect";
+import { getRelayCellBoundary } from "@/lib/instance/cell-boundary";
 
 /**
  * GET /api/instance/config
@@ -30,9 +31,11 @@ import { hasGitDir, isDevMode } from "@/lib/instance/detect";
  */
 export async function GET() {
   try {
+    const boundary = getRelayCellBoundary();
     if (isDevMode()) {
       return NextResponse.json({
         devMode: true,
+        boundary,
         config: null,
         guardrails: null,
         upgrade: null,
@@ -42,6 +45,7 @@ export async function GET() {
       return NextResponse.json({
         devMode: false,
         skippedReason: "no_git",
+        boundary,
         config: null,
         guardrails: null,
         upgrade: null,
@@ -49,6 +53,7 @@ export async function GET() {
     }
     return NextResponse.json({
       devMode: false,
+      boundary,
       config: getInstanceConfig(),
       guardrails: getGuardrails(),
       upgrade: getUpgradeState(),

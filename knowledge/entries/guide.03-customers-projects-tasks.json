@@ -1,11 +1,12 @@
 {
   "apiPaths": [],
-  "contentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
+  "contentHash": "d779f10738bf610697dd50153d99381fbd17a5aaaf72375b49d0c03f50258c8d",
   "features": [
     "Card system",
     "Customer book",
     "Customers and spend attribution",
     "Projects",
+    "Relay Host and cell boundary",
     "Responsive detail and action rows",
     "Tasks"
   ],
@@ -338,29 +339,29 @@
       "heading": "What This Part Of Relay Is For",
       "id": "what-this-part-of-relay-is-for",
       "level": 2,
-      "markdown": "Relay works best when business work has a place to land.\n\n- Customers tell you who the work is for.\n- Projects group related tasks, documents, workflows, and working folders.\n- Tasks show the work state and the agent or runtime activity behind it.\n\nCustomers are first-class records. A customer can be an outside client, an internal department, or another account-like owner. Projects are narrower. A project is where a set of tasks, workflows, documents, and working context come together. Tasks are the visible work items. They can be created by a person, by a workflow, or by a pack-backed app.\n\nThe point is not paperwork. The point is traceability. If an agent run fails, a workflow waits, or a cost spike appears, you need to know which customer and project it belongs to.",
-      "wordCount": 131
+      "markdown": "Relay works best when business work has a place to land.\n\n- Customers tell you who the work is for.\n- Projects group related tasks, documents, workflows, and working folders.\n- Tasks show the work state and the agent or runtime activity behind it.\n\nCustomers are first-class records. A customer can be an outside client, an internal department, or another account-like owner. Projects are narrower. A project is where a set of tasks, workflows, documents, and working context come together. Tasks are the visible work items. They can be created by a person, by a workflow, or by a pack-backed app.\n\nThese records organize work inside the active **Relay cell**. They are not\ntenant isolation. A customer record does not create a new database, file store,\ncredential store, agent boundary, or runtime policy. A project working directory\nchooses where supported task runtimes work; it is not a sandbox. This distinction\nmatters when one operator serves several clients.\n\nThe point is not paperwork. The point is traceability. If an agent run fails, a workflow waits, or a cost spike appears, you need to know which customer and project it belongs to.",
+      "wordCount": 187
     },
     {
       "heading": "Walk The Screen Like An Operator",
       "id": "walk-the-screen-like-an-operator",
       "level": 2,
-      "markdown": "Start with **Customers**. Use it when your work is tied to a client, account, department, or business unit.\n\nWhat you should notice:\n\n- Customer rows or cards.\n- Linked project and spend context.\n- Enough detail to decide which customer needs attention.\n\n[Figure: Customer list with local business records]\n\nThe customer list is where you keep business ownership visible. In a client-service setting, this prevents a common problem: useful work exists, but no one can tie it back to the account, retainer, or review. Look for the customer name, linked work, and any spend or activity signals Relay can show.\n\nAfter you know the customer, open **Projects**. A project is the container for a block of work. It can hold tasks, documents, workflow context, and working-directory context.\n\nWhat you should notice:\n\n- Project cards or rows.\n- Status and priority signals.\n- Links into the work that belongs to the project.\n\n[Figure: Projects list for grouped customer or internal work]\n\nProjects should feel like work folders with state. A project can be active without every task running. It can also carry context that chat and workflow paths should reuse. That matters because duplicate projects create confusion. Before you create a new project, check whether an existing one already owns the work.",
-      "wordCount": 205
+      "markdown": "Start with **Customers**. Use it when your work is tied to a client, account, department, or business unit.\n\nWhat you should notice:\n\n- Customer rows or cards.\n- Linked project and spend context.\n- Enough detail to decide which customer needs attention.\n\n[Figure: Customer list with local business records]\n\nThe customer list is where you keep business ownership visible. In a client-service setting, this prevents a common problem: useful work exists, but no one can tie it back to the account, retainer, or review. Look for the customer name, linked work, and any spend or activity signals Relay can show.\n\nOn customer detail, Relay labels this relationship **Attribution, not\nisolation** and links to the canonical cell explanation in Settings. If a client\nneeds its own security boundary, run that work in a separate Relay cell rather\nthan relying on the customer row.\n\nAfter you know the customer, open **Projects**. A project is the container for a block of work. It can hold tasks, documents, workflow context, and working-directory context.\n\nWhat you should notice:\n\n- Project cards or rows.\n- Status and priority signals.\n- Links into the work that belongs to the project.\n\n[Figure: Projects list for grouped customer or internal work]\n\nProjects should feel like work folders with state. A project can be active without every task running. It can also carry context that chat and workflow paths should reuse. That matters because duplicate projects create confusion. Before you create a new project, check whether an existing one already owns the work.\n\nProject detail shows the effective working directory and whether it came from\nthe project or the Relay launch workspace. Read the **Execution context, not\nisolation** note before treating a folder choice as a security control.",
+      "wordCount": 282
     },
     {
       "heading": "Run The Work Carefully",
       "id": "run-the-work-carefully",
       "level": 2,
-      "markdown": "Open **Tasks**. Use the board or table view to decide what should run, what is waiting, and what needs review.\n\nWhat you should see:\n\n- Tasks show status, priority, and project linkage.\n- Workflow-created tasks link back to workflow context.\n- Run, Re-run, or Stop actions appear only where they make sense.\n- Failed work should show visible failure state.\n\n[Figure: Tasks board with status lanes and action rows]\n\nThe task board is where state becomes action. A running task should not look completed. A failed task should not disappear. A queued approval should not be treated like an error. Relay uses these states so an operator can decide what to do next.\n\nIn the seeded board, you can see work at different points in the lifecycle. That mix is useful. Real operations rarely contain only clean success states. A good workspace shows the active, the waiting, the failed, and the done.\n\nUse **Cost & Usage**, under the Observe section, when you need the spend view for customer or project work. It does not replace customer and project structure. It depends on it.\n\n[Figure: Costs screen showing usage and spend signals]\n\nThe Cost & Usage screen helps you check whether usage connects back to the work map. A cost row without customer or project context is harder to explain later. If you sell client services, this is where margin review starts. If you run internal work, this is where budget review starts.",
-      "wordCount": 236
+      "markdown": "Open **Tasks**. Use the board or table view to decide what should run, what is waiting, and what needs review.\n\nWhat you should see:\n\n- Tasks show status, priority, and project linkage.\n- Workflow-created tasks link back to workflow context.\n- Run, Re-run, or Stop actions appear only where they make sense.\n- Failed work should show visible failure state.\n\n[Figure: Tasks board with status lanes and action rows]\n\nThe task board is where state becomes action. A running task should not look completed. A failed task should not disappear. A queued approval should not be treated like an error. Relay uses these states so an operator can decide what to do next.\n\nBefore a queued task runs, its execution-target panel shows the effective\nruntime, model, Relay cell, and working directory together. Those fields explain\nwhere work will execute. They do not create another customer data or credential\nboundary.\n\nIn the seeded board, you can see work at different points in the lifecycle. That mix is useful. Real operations rarely contain only clean success states. A good workspace shows the active, the waiting, the failed, and the done.\n\nUse **Cost & Usage**, under the Observe section, when you need the spend view for customer or project work. It does not replace customer and project structure. It depends on it.\n\n[Figure: Costs screen showing usage and spend signals]\n\nThe Cost & Usage screen helps you check whether usage connects back to the work map. A cost row without customer or project context is harder to explain later. If you sell client services, this is where margin review starts. If you run internal work, this is where budget review starts.",
+      "wordCount": 272
     },
     {
       "heading": "What To Do When The State Looks Wrong",
       "id": "what-to-do-when-the-state-looks-wrong",
       "level": 2,
-      "markdown": "If a project is missing, search from the current list before creating another one. Duplicate projects make later audits harder.\n\nIf a task looks stuck, open Monitor or the task detail before running it again. A stalled workflow, a waiting approval, and a failed provider call need different fixes.\n\nIf spend attribution looks empty, check whether the task or run is linked to the right customer or project. Empty attribution may be honest if the work had no owner. It is still a signal to improve how future work starts.\n\nIf a card action is unclear, use the detail view rather than guessing. Detail screens exist so important work does not depend on tiny card text.\n\nIf a customer record has no projects, decide if that is a real empty state or a setup gap. Relay should make both cases visible.",
-      "wordCount": 141
+      "markdown": "If a project is missing, search from the current list before creating another one. Duplicate projects make later audits harder.\n\nIf a task looks stuck, open Monitor or the task detail before running it again. A stalled workflow, a waiting approval, and a failed provider call need different fixes.\n\nIf spend attribution looks empty, check whether the task or run is linked to the right customer or project. Empty attribution may be honest if the work had no owner. It is still a signal to improve how future work starts.\n\nIf a card action is unclear, use the detail view rather than guessing. Detail screens exist so important work does not depend on tiny card text.\n\nIf a customer record has no projects, decide if that is a real empty state or a setup gap. Relay should make both cases visible.\n\nIf two client records must not share data, files, credentials, agents, or\nruntimes, do not try to solve that with customer links or working directories.\nUse separate Relay cells with distinct processes/containers and data roots. If\nthe clients must not trust the same Relay Host administrator, use separate VMs\nor machines.",
+      "wordCount": 193
     },
     {
       "heading": "What This Changes In Daily Work",
@@ -377,9 +378,9 @@
       "wordCount": 18
     }
   ],
-  "sourceHash": "c87b7b14da9b5caf31880825698283f929356e1dd5678a7ab11a003d4258e0d0",
+  "sourceHash": "8f3a7bfd3fd7178c12714af64cdeea5cfec1c8856846ead488ec05066eacf41c",
   "sourcePath": "docs/guides/03-organize-customers-projects-and-tasks.md",
-  "sourceStateHash": "a2e04a6f6a2c6fc5bd3e76de8d41f3020fd87d267558ca752e915fbbf8be223f",
+  "sourceStateHash": "651c6b7f08480511b7deec4b601fb1a289eb35eac97186c044bd38471b86d4ba",
   "summary": "Show how Relay groups work by customer, project, and task so a small business can see what is happening.",
   "title": "Organize Customers, Projects, And Tasks"
 }

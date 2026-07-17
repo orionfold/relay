@@ -27,7 +27,7 @@
     "/api/tasks/{id}/target",
     "/api/tasks/assist"
   ],
-  "contentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
+  "contentHash": "31bf1bb299790f5fee31f9266b549c0e9255b6b4256c25d9ad0a6db2d0a87622",
   "features": [],
   "id": "api:02-core-records",
   "journeys": [],
@@ -384,8 +384,8 @@
       "heading": "GET /api/tasks/{id}/target",
       "id": "get-api-tasks-id-target",
       "level": 3,
-      "markdown": "Previews the effective execution target Relay would use for a task without starting it.\n\n- **Request**: none.\n- **Response** `200`: `{ \"kind\": \"task\", \"ready\": true, \"targets\": [ ], \"error\": null }`. The single target includes the resolved runtime, model, profile, and readiness details.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Task not found\" }`.\n  - `409` when the requested target cannot be resolved: `{ \"kind\": \"task\", \"ready\": false, \"targets\": [], \"error\": { } }`.\n- **Side effects**: reads task, profile, routing, and runtime configuration only.",
-      "wordCount": 70
+      "markdown": "Previews the effective execution target Relay would use for a task without starting it.\n\n- **Request**: none.\n- **Response** `200`: `{ \"kind\": \"task\", \"ready\": true, \"targets\": [ ], \"context\": { ... }, \"error\": null }`. The single target includes the resolved runtime, model, profile, and readiness details. `context.cell` contains only `vocabularyVersion` and `instanceId`; the context also carries `projectId`, `projectName`, the effective `workingDirectory`, and `workingDirectorySource` (`project` or `launch`). Data-directory and database paths remain restricted to the Settings instance response. Runtime and working directory describe where the task executes; they are not a separate customer data or credential boundary.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Task not found\" }`.\n  - `409` when the requested target cannot be resolved: `{ \"kind\": \"task\", \"ready\": false, \"targets\": [], \"context\": { ... } | null, \"error\": { } }`. Context remains available when it resolved before the runtime failure.\n- **Side effects**: reads task, profile, routing, and runtime configuration only.",
+      "wordCount": 134
     },
     {
       "heading": "Examples",
@@ -402,9 +402,9 @@
       "wordCount": 232
     }
   ],
-  "sourceHash": "05027255f1351d129a5c664cfa05dfad43c681014a4784ddcd779497d94cce09",
+  "sourceHash": "1a9ffd2fed9b6013281b6fa7b37eedac39306844463d4b58c384fd6a6b163196",
   "sourcePath": "api/reference/02-core-records.md",
-  "sourceStateHash": "7048728fbb0d675c43dcc8d43fca69ec9c4822c1e39d75843c78e8ded2f00f40",
+  "sourceStateHash": "6a35c152823d81186c88638ddb4e2efa41deda31b298322ee9f842ac7cbfd0f0",
   "stability": "app-internal",
   "summary": "Document records that organize work: customers, projects, tasks, documents, handoffs, and memory.",
   "title": "Core Records API"

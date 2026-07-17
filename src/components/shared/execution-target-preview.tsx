@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle2, Cpu } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Cpu, FolderLock, ShieldCheck } from "lucide-react";
 import type { ExecutionTargetPreviewResponse } from "@/lib/agents/runtime/execution-target-contract";
 
 export function ExecutionTargetPreview({
@@ -45,6 +45,7 @@ export function ExecutionTargetPreview({
           kind,
           ready: false,
           targets: [],
+          context: null,
           error: {
             code: "target_resolution_failed",
             message: "Relay could not preview the execution target. Try again before running.",
@@ -86,6 +87,9 @@ export function ExecutionTargetPreview({
               {data?.error?.message ?? "Relay could not resolve an execution target."}
             </p>
             <p className="mt-1 text-xs font-medium">Edit the target before running.</p>
+            {data?.context && (
+              <ExecutionBoundaryContext context={data.context} kind={data.kind} />
+            )}
           </div>
         </div>
       </section>
@@ -142,6 +146,49 @@ export function ExecutionTargetPreview({
           </div>
         ))}
       </div>
+      {data.context && (
+        <ExecutionBoundaryContext context={data.context} kind={data.kind} />
+      )}
     </section>
+  );
+}
+
+function ExecutionBoundaryContext({
+  context,
+  kind,
+}: {
+  context: NonNullable<ExecutionTargetPreviewResponse["context"]>;
+  kind: ExecutionTargetPreviewResponse["kind"];
+}) {
+  const cellLabel = context.cell.instanceId
+    ? `${context.cell.instanceId.slice(0, 8)}…`
+    : "Current data-root cell";
+
+  return (
+    <div className="mt-3 border-t border-border pt-3 text-xs">
+      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:gap-x-4">
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+          Relay cell
+        </span>
+        <span className="font-mono" title={context.cell.instanceId ?? undefined}>
+          {cellLabel}
+        </span>
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <FolderLock className="h-3.5 w-3.5 shrink-0" />
+          Working directory
+        </span>
+        <span className="break-all font-mono" title={context.workingDirectory}>
+          {context.workingDirectory}
+          <span className="ml-1 font-sans text-muted-foreground">
+            ({context.workingDirectorySource === "project" ? "project" : "Relay launch workspace"})
+          </span>
+        </span>
+      </div>
+      <p className="mt-2 leading-relaxed text-muted-foreground">
+        Runtime and working directory choose where this {kind === "workflow" ? "workflow" : "task"} executes;
+        they do not create a separate customer data or credential boundary.
+      </p>
+    </div>
   );
 }

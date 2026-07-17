@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { tasks } from "@/lib/db/schema";
+import { projects, tasks } from "@/lib/db/schema";
 
 const { mockResolveTarget, mockToPreview, mockClassifyTargetError } = vi.hoisted(
   () => ({
@@ -24,10 +24,12 @@ import { GET } from "../route";
 
 describe("GET /api/tasks/[id]/target", () => {
   let taskId: string;
+  let projectId: string | null;
 
   beforeEach(() => {
     vi.clearAllMocks();
     taskId = randomUUID();
+    projectId = null;
     const now = new Date();
     db.insert(tasks)
       .values({
@@ -47,6 +49,7 @@ describe("GET /api/tasks/[id]/target", () => {
 
   afterEach(() => {
     db.delete(tasks).where(eq(tasks.id, taskId)).run();
+    if (projectId) db.delete(projects).where(eq(projects.id, projectId)).run();
   });
 
   it("returns the exact ready target", async () => {
@@ -69,12 +72,21 @@ describe("GET /api/tasks/[id]/target", () => {
     });
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({
+    const body = await response.json();
+    expect(body).toMatchObject({
       kind: "task",
       ready: true,
       targets: [preview],
+      context: {
+        workingDirectorySource: "launch",
+        cell: { vocabularyVersion: "relay-host-cell-v1" },
+      },
       error: null,
     });
+    expect(Object.keys(body.context.cell).sort()).toEqual([
+      "instanceId",
+      "vocabularyVersion",
+    ]);
     expect(mockResolveTarget).toHaveBeenCalledWith({
       title: "Draft report",
       description: "Use local evidence",
@@ -95,14 +107,56 @@ describe("GET /api/tasks/[id]/target", () => {
     });
 
     expect(response.status).toBe(409);
-    expect(await response.json()).toEqual({
+    expect(await response.json()).toMatchObject({
       kind: "task",
       ready: false,
       targets: [],
+      context: {
+        workingDirectorySource: "launch",
+        cell: { vocabularyVersion: "relay-host-cell-v1" },
+      },
       error: {
         code: "runtime_unavailable",
         message: "Ollama is unavailable",
       },
+    });
+  });
+
+  it("returns the project working directory beside the runtime target", async () => {
+    projectId = randomUUID();
+    const now = new Date();
+    db.insert(projects)
+      .values({
+        id: projectId,
+        name: "Acme report",
+        workingDirectory: "/srv/acme-report",
+        status: "active",
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    db.update(tasks)
+      .set({ projectId })
+      .where(eq(tasks.id, taskId))
+      .run();
+    mockResolveTarget.mockResolvedValue({
+      requestedRuntimeId: "ollama",
+      effectiveRuntimeId: "ollama",
+      effectiveModelId: "qwen3:8b",
+    });
+    mockToPreview.mockReturnValue({ key: taskId });
+
+    const body = await (
+      await GET(new Request("http://relay.test"), {
+        params: Promise.resolve({ id: taskId }),
+      })
+    ).json();
+
+    expect(body.context).toMatchObject({
+      projectId,
+      projectName: "Acme report",
+      workingDirectory: "/srv/acme-report",
+      workingDirectorySource: "project",
     });
   });
 });

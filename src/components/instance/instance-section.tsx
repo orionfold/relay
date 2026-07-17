@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import type { RelayCellBoundary } from "@/lib/instance/cell-boundary";
 
 interface InstanceConfig {
   instanceId: string;
@@ -32,16 +33,16 @@ interface UpgradeState {
 interface ConfigResponse {
   devMode: boolean;
   skippedReason?: "no_git" | string;
+  boundary: RelayCellBoundary;
   config: InstanceConfig | null;
   guardrails: Guardrails | null;
   upgrade: UpgradeState | null;
 }
 
 /**
- * Settings → Instance section. Compact horizontal strip with title + actions
- * in a top bar and metadata in a 4-column grid below. On the canonical dev
- * repo (devMode=true) collapses to a single-row notice to avoid pretending
- * the main branch is an instance.
+ * Settings → Instance section. The active Relay cell facts remain visible in
+ * every mode; git-backed bootstrap and upgrade maintenance follows as a
+ * separate card when applicable.
  */
 const STALE_THRESHOLD_MS = 5 * 60 * 1000;
 
@@ -49,11 +50,13 @@ export function InstanceSection() {
   const router = useRouter();
   const [state, setState] = useState<ConfigResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"check" | "init" | "upgrade" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   async function loadConfig() {
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await fetch("/api/instance/config", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -61,7 +64,7 @@ export function InstanceSection() {
       setState(data);
       return data;
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : String(err));
+      setLoadError(err instanceof Error ? err.message : String(err));
       return null;
     } finally {
       setLoading(false);
@@ -165,33 +168,52 @@ export function InstanceSection() {
   if (loading) {
     return (
       <section className="rounded-xl border bg-card px-5 py-4">
-        <h2 className="text-base font-semibold">Instance</h2>
+        <h2 className="text-base font-semibold">Relay cell boundary</h2>
         <p className="mt-1 text-sm text-muted-foreground">Loading…</p>
       </section>
     );
   }
 
-  // Dev mode: main dev repo. Instance bootstrap is gated off. Show a slim
-  // single-row notice so the Settings page layout stays stable without
-  // misrepresenting the dev repo as an instance.
+  if (loadError || !state) {
+    return (
+      <section className="rounded-xl border border-status-warning/40 bg-status-warning/10 px-5 py-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold">Relay cell boundary</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Relay could not load the active cell facts: {loadError ?? "unknown error"}
+            </p>
+          </div>
+          <Button variant="outline" size="sm" onClick={loadConfig}>
+            Retry
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  // Dev mode: main dev repo. Instance bootstrap is gated off without hiding
+  // the real process/data-root boundary.
   if (state?.devMode) {
     return (
-      <section className="rounded-xl border bg-card px-5 py-3 flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <h2 className="text-base font-semibold">Instance</h2>
-          <Badge variant="outline" className="text-xs font-normal">
-            Dev mode
-          </Badge>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Running on the main dev repo. Instance upgrade features are disabled.
-          Set{" "}
-          <code className="font-mono text-[11px] px-1 py-0.5 rounded bg-muted">
-            RELAY_INSTANCE_MODE=true
-          </code>{" "}
-          to test.
-        </p>
-      </section>
+      <InstanceLayout boundary={state.boundary}>
+        <section className="rounded-xl border bg-card px-5 py-3 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <h2 className="text-base font-semibold">Instance maintenance</h2>
+            <Badge variant="outline" className="text-xs font-normal">
+              Dev mode
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Running on the main dev repo. Instance upgrade features are disabled.
+            Set{" "}
+            <code className="font-mono text-[11px] px-1 py-0.5 rounded bg-muted">
+              RELAY_INSTANCE_MODE=true
+            </code>{" "}
+            to test.
+          </p>
+        </section>
+      </InstanceLayout>
     );
   }
 
@@ -199,22 +221,24 @@ export function InstanceSection() {
   // Users upgrade via `npx orionfold-relay@latest`, not via git merge.
   if (state?.skippedReason === "no_git") {
     return (
-      <section className="rounded-xl border bg-card px-5 py-3 flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3 flex-wrap">
-          <h2 className="text-base font-semibold">Instance</h2>
-          <Badge variant="outline" className="text-xs font-normal">
-            npx install
-          </Badge>
-        </div>
-        <p className="text-xs text-muted-foreground leading-relaxed max-w-prose">
-          This folder has no <code className="font-mono text-[11px] px-1 py-0.5 rounded bg-muted">.git</code> directory.
-          To upgrade, run{" "}
-          <code className="font-mono text-[11px] px-1 py-0.5 rounded bg-muted">
-            npx orionfold-relay@latest
-          </code>
-          . Git-based upgrades (upstream merges, pre-push hooks) only apply to cloned repos.
-        </p>
-      </section>
+      <InstanceLayout boundary={state.boundary}>
+        <section className="rounded-xl border bg-card px-5 py-3 flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="text-base font-semibold">Instance maintenance</h2>
+            <Badge variant="outline" className="text-xs font-normal">
+              npx install
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed max-w-prose">
+            This folder has no <code className="font-mono text-[11px] px-1 py-0.5 rounded bg-muted">.git</code> directory.
+            To upgrade, run{" "}
+            <code className="font-mono text-[11px] px-1 py-0.5 rounded bg-muted">
+              npx orionfold-relay@latest
+            </code>
+            . Git-based upgrades (upstream merges, pre-push hooks) only apply to cloned repos.
+          </p>
+        </section>
+      </InstanceLayout>
     );
   }
 
@@ -226,25 +250,27 @@ export function InstanceSection() {
   // Not-initialized state
   if (!hasConfig) {
     return (
-      <section className="rounded-xl border bg-card px-5 py-4 space-y-3">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <h2 className="text-base font-semibold">Instance</h2>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={reinit}
-            disabled={busy !== null}
-          >
-            {busy === "init" ? "Running…" : "Run setup"}
-          </Button>
-        </div>
-        <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs">
-          Instance setup incomplete. Run setup to initialize this workspace.
-        </div>
-        {message && (
-          <div className="text-xs text-muted-foreground">{message}</div>
-        )}
-      </section>
+      <InstanceLayout boundary={state.boundary}>
+        <section className="rounded-xl border bg-card px-5 py-4 space-y-3">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <h2 className="text-base font-semibold">Instance maintenance</h2>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={reinit}
+              disabled={busy !== null}
+            >
+              {busy === "init" ? "Running…" : "Run setup"}
+            </Button>
+          </div>
+          <div className="rounded-md border border-status-warning/40 bg-status-warning/10 px-3 py-2 text-xs">
+            Instance setup incomplete. Run setup to initialize this workspace.
+          </div>
+          {message && (
+            <div className="text-xs text-muted-foreground">{message}</div>
+          )}
+        </section>
+      </InstanceLayout>
     );
   }
 
@@ -278,11 +304,12 @@ export function InstanceSection() {
     : "text-muted-foreground";
 
   return (
-    <section className="rounded-xl border bg-card">
+    <InstanceLayout boundary={state.boundary}>
+      <section className="rounded-xl border bg-card">
       <header className="flex items-start justify-between gap-4 px-5 py-3 border-b flex-wrap">
         <div className="min-w-0 space-y-2">
           <div className="flex items-center gap-3 min-w-0 flex-wrap">
-            <h2 className="text-base font-semibold">Instance</h2>
+            <h2 className="text-base font-semibold">Instance maintenance</h2>
             {upgradeAvailable && (
               <Badge
                 variant="outline"
@@ -369,7 +396,71 @@ export function InstanceSection() {
           Repairs local setup without changing data or commits.
         </p>
       </div>
-    </section>
+      </section>
+    </InstanceLayout>
+  );
+}
+
+function InstanceLayout({
+  boundary,
+  children,
+}: {
+  boundary: RelayCellBoundary;
+  children: ReactNode;
+}) {
+  const cellId = boundary.instanceId
+    ? `${boundary.instanceId.slice(0, 8)}…`
+    : "Not initialized";
+
+  return (
+    <div className="space-y-3">
+      <section
+        className="rounded-xl border bg-card"
+        aria-labelledby="relay-cell-boundary-heading"
+      >
+        <header className="border-b px-5 py-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 id="relay-cell-boundary-heading" className="text-base font-semibold">
+              Relay cell boundary
+            </h2>
+            <Badge variant="outline" className="text-xs font-normal">
+              Host administrator trusted
+            </Badge>
+          </div>
+          <p className="mt-1 max-w-4xl text-xs leading-relaxed text-muted-foreground">
+            This Relay process and data directory form one Relay cell. Customer
+            and project records organize work inside this cell; they do not
+            isolate data, files, credentials, agents, or runtimes. The Relay Host
+            administrator can access every cell on this Host. Use a separate cell
+            for client isolation, or a separate VM or machine when the Host
+            administrator must not have access.
+          </p>
+        </header>
+        <dl className="grid gap-x-6 gap-y-3 px-5 py-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
+          <Field label="Cell ID" mono title={boundary.instanceId ?? undefined}>
+            {cellId}
+          </Field>
+          <Field label="Data directory" mono truncate title={boundary.dataDirectory}>
+            {boundary.dataDirectory}
+          </Field>
+          <Field label="Database" mono truncate title={boundary.databasePath}>
+            {boundary.databasePath}
+          </Field>
+          <Field
+            label="Launch workspace"
+            mono
+            truncate
+            title={boundary.launchWorkingDirectory}
+          >
+            {boundary.launchWorkingDirectory}
+          </Field>
+        </dl>
+        <p className="border-t px-5 py-2 text-[11px] text-muted-foreground">
+          Data directory source: {boundary.dataDirectorySource === "override" ? "explicit RELAY_DATA_DIR" : "default local Relay data"}.
+        </p>
+      </section>
+      {children}
+    </div>
   );
 }
 

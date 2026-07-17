@@ -1,3 +1,5 @@
+import type { RelayExecutionContext } from "@/lib/instance/cell-boundary";
+
 export type ExecutionTargetPreviewKind = "task" | "workflow";
 
 export type ExecutionTargetSelectionMode =
@@ -38,6 +40,7 @@ export interface ExecutionTargetPreviewResponse {
   kind: ExecutionTargetPreviewKind;
   ready: boolean;
   targets: ExecutionTargetPreviewItem[];
+  context: RelayExecutionContext | null;
   error: {
     code: ExecutionTargetErrorCode;
     message: string;

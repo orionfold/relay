@@ -1,7 +1,7 @@
 ---
 title: "Security packet"
 category: "trust"
-lastUpdated: "2026-07-01"
+lastUpdated: "2026-07-16"
 ---
 
 # Orionfold Relay — security packet
@@ -24,6 +24,22 @@ file verified offline.
 
 There is no Orionfold cloud, no Orionfold account, and no server-side
 component operated by us in the product's runtime path.
+
+### Relay cell boundary
+
+One running Relay process and its `RELAY_DATA_DIR` form one **Relay cell**.
+Customer rows provide attribution and project working directories select
+execution context inside that cell; neither is a security boundary. A complete
+cell includes its process/container, private port/network and route, data root,
+SQLite database, files, identity, secret root, license, logs, resource budget,
+backup lineage, and runtime policy.
+
+A device or VM running one or more cells is a **Relay Host**. Every resident
+cell trusts the Host administrator, who can inspect or replace it. Use distinct
+cells for client isolation. Use separate VMs or machines when clients are
+mutually hostile or the Host administrator must not have access. Current Relay
+surfaces report the active cell facts; customer-owned Host provisioning and
+remote lifecycle management remain planned work, not a shipped security claim.
 
 ## 2. We host no customer data
 

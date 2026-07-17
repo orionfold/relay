@@ -15,6 +15,20 @@ describe("ExecutionTargetPreview", () => {
           kind: "task",
           ready: true,
           error: null,
+          context: {
+            cell: {
+              vocabularyVersion: "relay-host-cell-v1",
+              instanceId: "cell-123456789",
+              dataDirectory: "/tmp/cell-a",
+              databasePath: "/tmp/cell-a/relay.db",
+              launchWorkingDirectory: "/tmp/relay",
+              dataDirectorySource: "override",
+            },
+            projectId: "project-1",
+            projectName: "Acme report",
+            workingDirectory: "/tmp/acme-report",
+            workingDirectorySource: "project",
+          },
           targets: [
             {
               key: "task-1",
@@ -45,6 +59,9 @@ describe("ExecutionTargetPreview", () => {
     expect(screen.getByText("Claude Code")).toBeInTheDocument();
     expect(screen.getByText("sonnet")).toBeInTheDocument();
     expect(screen.getByText(/Manual routing — auto-routing is off/)).toBeInTheDocument();
+    expect(screen.getByText("cell-123…")).toBeInTheDocument();
+    expect(screen.getByText(/\/tmp\/acme-report/)).toBeInTheDocument();
+    expect(screen.getByText(/do not create a separate customer data/)).toBeInTheDocument();
   });
 
   it("shows why automatic candidates were skipped", async () => {
@@ -55,6 +72,7 @@ describe("ExecutionTargetPreview", () => {
           kind: "task",
           ready: true,
           error: null,
+          context: null,
           targets: [
             {
               key: "task-2",
@@ -92,6 +110,7 @@ describe("ExecutionTargetPreview", () => {
           kind: "workflow",
           ready: false,
           targets: [],
+          context: null,
           error: {
             code: "runtime_capability_mismatch",
             message: "Ollama lacks filesystem tools required by document-writer.",

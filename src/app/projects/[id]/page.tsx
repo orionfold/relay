@@ -11,6 +11,11 @@ import Link from "next/link";
 import { FileText } from "lucide-react";
 import { Sparkline } from "@/components/charts/sparkline";
 import { getProjectCompletionTrend } from "@/lib/queries/chart-data";
+import { ProjectBoundaryNotice } from "@/components/shared/relay-boundary-notice";
+import {
+  buildRelayExecutionContext,
+  getRelayCellBoundary,
+} from "@/lib/instance/cell-boundary";
 
 export const dynamic = "force-dynamic";
 
@@ -90,6 +95,14 @@ export default async function ProjectDetailPage({
     paused: "secondary",
     completed: "outline",
   };
+  const executionContext = buildRelayExecutionContext({
+    cell: getRelayCellBoundary(),
+    project: {
+      id: project.id,
+      name: project.name,
+      workingDirectory: project.workingDirectory,
+    },
+  });
 
   return (
     <PageShell
@@ -103,6 +116,13 @@ export default async function ProjectDetailPage({
         </Badge>
       }
     >
+      <div className="mb-6">
+        <ProjectBoundaryNotice
+          workingDirectory={executionContext.workingDirectory}
+          source={executionContext.workingDirectorySource}
+        />
+      </div>
+
       {/* Status breakdown */}
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
         {COLUMN_ORDER.map((status) => (

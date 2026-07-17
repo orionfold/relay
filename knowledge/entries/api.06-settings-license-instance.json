@@ -37,7 +37,7 @@
     "/api/settings/test",
     "/api/settings/web-search"
   ],
-  "contentHash": "db7b2473ec02cb1935ac56a4425efa3c4320de8c19d8a48a269ec5c660b14b8c",
+  "contentHash": "b55f4908f49d83291479c8a96d5e9222a2356bbc141d416e37f6adba21118656",
   "features": [],
   "id": "api:06-settings-license-instance",
   "journeys": [],
@@ -478,8 +478,8 @@
       "heading": "GET /api/instance/config",
       "id": "get-api-instance-config",
       "level": 3,
-      "markdown": "Returns the full instance state: config, guardrails, and upgrade state in one payload. Timestamps here are numeric epoch values.\n\n- **Request**: none.\n- **Response** `200`: one of three shapes. In dev mode, `{ \"devMode\": true, \"config\": null, \"guardrails\": null, \"upgrade\": null }`. With no git directory, `{ \"devMode\": false, \"skippedReason\": \"no_git\", \"config\": null, \"guardrails\": null, \"upgrade\": null }`. Otherwise `{ \"devMode\": false, \"config\": { ... }, \"guardrails\": { ... }, \"upgrade\": { ... } }`, where `config` carries `instanceId`, `branchName`, `isPrivateInstance`, and a numeric `createdAt`; `guardrails` carries the pre-push hook state and `consentStatus`; and `upgrade` carries the poll and upgrade-availability state.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only.",
-      "wordCount": 93
+      "markdown": "Returns the active Relay cell boundary plus the instance bootstrap, guardrail,\nand upgrade state in one payload. Timestamps here are numeric epoch values.\n\n- **Request**: none.\n- **Response** `200`: every successful shape includes `boundary`: `{ \"vocabularyVersion\": \"relay-host-cell-v1\", \"instanceId\": \"string | null\", \"dataDirectory\": \"string\", \"databasePath\": \"string\", \"launchWorkingDirectory\": \"string\", \"dataDirectorySource\": \"default | override\" }`. Dev mode returns `{ \"devMode\": true, \"boundary\": { ... }, \"config\": null, \"guardrails\": null, \"upgrade\": null }`. With no git directory, the same boundary facts accompany `skippedReason: \"no_git\"`. Otherwise `config` carries `instanceId`, `branchName`, `isPrivateInstance`, and a numeric `createdAt`; `guardrails` carries the pre-push hook state and `consentStatus`; and `upgrade` carries the poll and upgrade-availability state. Dev and no-git modes report `boundary.instanceId: null` rather than surfacing stale or invented bootstrap identity.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only. The boundary object contains local administrative paths but no credentials, customer content, raw logs, Host name, port, network, container id, or inferred isolation-strength claim.",
+      "wordCount": 144
     },
     {
       "heading": "GET /api/instance/identity",
@@ -538,9 +538,9 @@
       "wordCount": 129
     }
   ],
-  "sourceHash": "acc66c51c34f16b77ad07fa271c61adac715fcc4ce554293fbb07345da2a4222",
+  "sourceHash": "111b5b33a0a27507d48188070027e01de345be3f48f6a82f570697cdbb301d01",
   "sourcePath": "api/reference/06-settings-license-instance.md",
-  "sourceStateHash": "d004bc0fb646a75891b5016b1f91ff9a58de936bb24606d03e786ed4e8679b02",
+  "sourceStateHash": "5e03702c682144e1194c14156ed0666914c96ee9cbc400f9430e4983e199be36",
   "stability": "admin-local",
   "summary": "Document local settings, license lifecycle, instance identity, upgrade, environment, and onboarding routes.",
   "title": "Settings, License, And Instance API"

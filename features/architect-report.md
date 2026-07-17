@@ -1,195 +1,138 @@
 ---
 generated: 2026-07-16
-mode: integration-design
-goal: relay-operator-workshop-enablement
+mode: impact-analysis
+goal: G-058
+status: operator-gated
 ---
 
-# Architect Report — Relay Operator Workshop enablement
+# Architect Report — truthful Relay Host/cell isolation
 
 ## Decision frame
 
-The first Training product is a zero-founder-runtime applied workshop, not an
-LMS or a content subscription. Relay's architectural responsibility is narrow:
-provide a truthful local lab bench, deterministic preflight, governed capstone,
-automated evidence and a retained artifact. Website owns commerce/access;
-Motion owns audiovisual production; the Training owner owns curriculum and the
-learning-unit envelope.
+G-058 should make Relay's existing process and data-root boundary visible; it
+must not manufacture a tenant boundary inside the current application. Relay
+already has the correct foundation for a cell: one Next.js process, one
+`RELAY_DATA_DIR`, one SQLite/WAL database, local files and secret root, one
+scheduler, one license context, and runtime configuration. Customer and project
+rows are attribution and execution conveniences inside that boundary.
 
-The first workshop should reuse the Marketing Line pack, current product docs,
-Chat app composition, workflow HITL, cost/trust surfaces, operations receipts,
-output documents, app-to-pack export and the static demo. Creating parallel
-workshop implementations of those systems would increase drift and make the
-zero-founder promise less credible.
+The smallest truthful change is a read-only boundary description shared by
+customer, project, instance, and execution surfaces. It reports facts the
+server already owns and explains when another process/container or VM is
+required. It adds no `tenantId`, migration, Host supervisor, network allocator,
+or cloud lifecycle behavior.
 
-## Content-engine audit
+## Current boundary inventory
 
-| Engine | Canonical strength | Reuse decision | Duplication forbidden |
+| Concern | Current authority | Current product surface | Architectural finding |
 |---|---|---|---|
-| Relay `_ASSETS` | source-derived product catalog, journeys, synthetic seed, screenshots, docs/API, memos and static demo | source and verify the Relay workshop fragment and sample lane here | no new workshop docs/demo tree outside `_ASSETS` |
-| Orionfold Motion | content-hashed source snapshots, claims/rights gates, provider plans, masters/renditions, QC and delivery receipts | submit one approved source-rich job; consume verified local rendition bundles | no video/render pipeline in Relay or Website |
-| Orionfold Website | Astro content types, product pages, stories/memos/receipts, Stripe catalog/webhooks and public publishing | own offer, public sample, guest checkout, access delivery and later optional identity | no product-runtime truth or audiovisual generation |
-| Orionfold Books | committed-source ingest and deterministic EPUB/PDF/HTML rendering | use chapters as doctrine/deeper reading and paid durable companions | no workshop runtime or copied Relay instructions |
-| Orionfold Proof | config-hashed evidence, verdict, failure/repro narrative and export precedent | reuse semantics and presentation precedent; Relay composes its own existing operations evidence | no required Proof service and no second evaluation engine |
-| Arena static demo | fixture shim, mutable static simulation, deploy rewrite and link verification | keep as quality bar; Relay's existing `_ASSETS/demo` already adopts the architecture | no copied Arena content or second Relay simulator |
+| Cell data root | `src/lib/config/env.ts#dataDir` | not shown consistently | strongest existing cell locator; resolves DB, files, keys, logs, uploads, outputs, backups and local settings |
+| Database | `src/lib/config/env.ts#dbPath`; `src/lib/db/index.ts` | implicit | one SQLite/WAL database per data root, not per customer/project |
+| Instance identity | `src/lib/instance/settings.ts#getInstanceConfig` | Settings → Instance for initialized git instances | stable when bootstrap applies; must allow an honest “not initialized” value for dev/npx instead of inventing identity |
+| Launch workspace | `src/lib/config/env.ts#launchCwd` | workspace diagnostics only | process-level fallback execution context, not isolation |
+| Project working directory | `projects.workingDirectory` | project cards/forms | changes task cwd; does not partition DB, files, secrets, tools, or runtime configuration |
+| Customer | `customers` plus project foreign key | Customers and cost rollups | attribution/organization only; no separate process, DB, files, keys, identity, or runtime |
+| Runtime target | execution-target resolver and preview API | queued task/workflow preview | runtime/model are shown, but cell and cwd context are absent |
+| Secret root | `src/lib/utils/crypto.ts`; provider/license stores below the data root | redacted settings | shared by records in one cell; not customer/project scoped |
+| Host placement | process environment/OS | not represented as a domain object | v1 can say “this Relay Host” without claiming a supervisor or verified container/VM identity |
+| Strong isolation | separate process plus distinct `RELAY_DATA_DIR`; future container/Host contract | private-instance docs only | same-Host cells trust the Host administrator; separate VM/machine is required when that trust is unacceptable |
 
-## Existing Relay seams
+## Blast radius
 
-| Workshop need | Existing Relay seam | Architectural action |
-|---|---|---|
-| Canonical example | `src/lib/packs/templates/relay-marketing/` and `_ASSETS/memos/marketing-line/` | use one versioned fixture family |
-| Guided construction | Chat app builder, app registry, pack install, workflows | orchestrate existing actions; do not create a workshop runtime engine |
-| Human checkpoint | workflow HITL and Inbox notification flow | assert/configure one checkpoint |
-| Cost and trust | runtime routing, Settings, Monitor, cost/budget views | cite/deep-link existing surfaces |
-| Completion evaluation | `src/lib/operations/criteria.ts`, `evaluate.ts`, `receipts.ts` | add workshop criteria composition/export, not a new evaluator |
-| Retained outputs | `src/lib/documents/output-scanner.ts` | include captured versioned outputs |
-| Portable capstone | `src/lib/packs/app-exporter.ts` and pack export route | export only the learner's user-created app; preserve installed-pack protections |
-| Current help | packaged knowledge bundle and version-aware Chat help | provide edition-matched rescue links |
-| Public sample | `_ASSETS/demo` static simulator | add one workshop lane and preflight state |
-| Home proof | G-062 module registry and G-061 Render view | prioritize before workshop beta |
+### Directly affected
 
-## Integration boundary
+- `src/lib/instance/*` and `/api/instance/config`: add a content-safe read-only
+  boundary summary that is returned in dev, npx, and initialized-instance modes.
+- Settings → Instance: lead with the active Relay cell facts and Host trust
+  statement, while retaining existing upgrade/bootstrap behavior.
+- customer detail: state that the customer record controls attribution and cost
+  rollup, not isolation.
+- project detail: show the effective working directory and say that it is an
+  execution context, not a data/credential boundary.
+- task/workflow execution-target preview: show the effective cell/data-root and
+  working-directory context beside runtime/model selection.
+- product docs and private-instance guidance: use the same Host/cell vocabulary
+  after the public-language gate is accepted.
 
-```text
-Training-owned learning unit
-  ├─ Website offer/access adapter
-  ├─ Motion source-snapshotted rendition job
-  └─ Relay source fragment
-       ├─ product version + source hashes
-       ├─ Marketing Line starter identity
-       ├─ required capabilities + preflight
-       ├─ capstone criteria + rescue catalog
-       ├─ demo lane references
-       └─ completion-bundle contract
+### Transitively affected
 
-Relay local execution
-  → user-created app/workflow
-  → human checkpoint + cost/trust evidence
-  → operations receipt + output documents
-  → app-to-pack export
-  → redacted completion bundle
-```
+- Runtime target response types and tests, because execution context becomes
+  part of the preview contract.
+- Mobile layout and accessible naming on the four surfaces.
+- Support/comprehension guidance: customer → project → cell → Host must form a
+  truthful ladder.
 
-The learning-unit envelope is not a Relay database entity in W0/W1. Relay
-consumes a content-hashed edition manifest delivered after purchase and emits a
-source/evidence fragment from `_ASSETS`. This keeps the first workshop
-account-free and prevents Relay from becoming the portfolio LMS.
+### Explicitly unaffected
 
-G-087 must decide whether W2 needs a minimal local `workshop_run` record or can
-derive restart-safe progress from the edition manifest, project/app identity,
-workflow run markers and operations receipts. If a generic persisted workshop
-domain is accepted, create a TDR before schema implementation; do not hide it in
-an app component or arbitrary settings JSON.
+- database schema and queries;
+- runtime selection, task launch semantics, or scheduler ownership;
+- authentication, network ingress, container allocation, backup transport,
+  entitlements, cloud providers, or Host lifecycle;
+- TDR-044 acceptance, which remains a later G-079 gate.
 
-## Layer design
+## Contract recommendation
 
-### Source and edition
+Create one server-only `RelayCellBoundary` fact builder. It should return only:
 
-- Training owns stable unit/edition ids, learner promise, syllabus, paid/free
-  boundary, rubric language and access policy.
-- Relay owns exact product version, source hashes, required capabilities,
-  starter pack/app identity, preflight checks and capstone evidence mapping.
-- Motion snapshots approved sources into `job.json`; Website renders public
-  metadata and access but never becomes the canonical curriculum source.
-- Unknown schema, stale product version, missing hash or tampered starter fails
-  closed with a named edition error.
+- stable instance id when one already exists, otherwise `null`;
+- resolved cell data directory and database path;
+- launch working directory;
+- whether the data root is the default or an explicit override;
+- a versioned vocabulary identifier so later Host APIs can evolve without
+  silently changing this response.
 
-### Preflight and starter
+Do not infer a hostname, container id, OS user, network, port, customer owner,
+backup status, or security strength until a Host supervisor can prove it. Do not
+persist duplicate boundary data. Customer/project/task views consume the same
+facts so copy and values cannot drift.
 
-- Reuse environment/runtime discovery and the current package/data-dir/version
-  surfaces.
-- Seed into an isolated project/app with synthetic Marketing Line data. Never
-  inspect or copy a learner's existing workspace without an explicit import
-  step.
-- Preflight is read-only until the learner confirms starter installation.
-- A no-runtime or incompatible-runtime state supplies a known-good local/mock
-  path where truthful; it never claims a provider call occurred.
+## Failure and shadow paths
 
-### Checkpoints and rescue
+- Missing instance config: show “not initialized” while still showing the real
+  data root; never hide the cell boundary because git bootstrap is disabled.
+- Missing project cwd: show the process launch directory as the explicit
+  fallback and label it as such.
+- Missing/failed runtime target: keep the existing named failure and still avoid
+  implying isolation; the context response must fail visibly if it cannot be
+  resolved.
+- Long paths and ids: retain full values in accessible text/title, truncate only
+  visually, and verify 390 px containment.
+- Two processes pointed at one data root: do not call them separate cells. A
+  future Host preflight must reject that collision; G-058 documentation should
+  state the invariant without claiming current enforcement.
+- Host administrator distrust: instruct the operator to use a separate VM or
+  machine. Container/process isolation does not protect against the Host admin.
 
-- A workshop checkpoint references observable Relay state or an operations
-  success criterion. It is not arbitrary course completion metadata.
-- Deterministic checks run first. Rubric-backed judgment must declare the model,
-  prompt/version, limitations and retry behavior.
-- Failures name the failed criterion, actual evidence, next action and known-good
-  fallback. No silent auto-repair.
-- The existing workflow retry, output, receipt and notification paths remain
-  authoritative.
+## Verification budget
 
-### Completion bundle
+1. Pure unit tests for default/overridden data roots, optional instance id, and
+   launch-cwd fallback.
+2. API tests proving dev, npx, and initialized-instance responses all include
+   the same safe boundary facts and never expose credentials.
+3. Component tests for customer, project, instance, and execution copy plus
+   missing/long-value states.
+4. A two-process fixture using distinct temporary `RELAY_DATA_DIR` values,
+   projects, files, credentials, and task contexts; a negative fixture records
+   that two customer rows inside one data root share the same cell.
+5. Browser checks at desktop and 390 px in light/dark; comprehension review
+   asks the reviewer to identify what a customer row, project cwd, cell, same
+   Host, and separate VM do and do not isolate.
+6. Targeted tests, typecheck, token validation, critical API inventory, and a
+   real development-server smoke for the execution preview path.
 
-The local bundle should compose:
+## Risks and mitigations
 
-- workshop edition id and hashes;
-- Relay version and non-secret environment summary;
-- capstone project/app/workflow ids;
-- operations receipt verdict and criterion evidence;
-- selected output documents;
-- the user-created app pack artifact/hash;
-- an explicit limitation/redaction record.
+| Risk | Mitigation |
+|---|---|
+| copy sounds like current customer data is unsafe | say records share one trusted cell, then offer the stronger cell/VM choices; do not use alarmist breach language |
+| full local paths disclose host details to remote users | this is an administrative surface; keep it out of logs/support exports and revisit authorization with G-081 before public ingress |
+| “instance” and “cell” become competing nouns | label the security unit “Relay cell”; reserve “instance” for legacy bootstrap/upgrade implementation until G-079 accepts migration wording |
+| later supervisor duplicates facts | make this a read-only adapter over current sources; G-060/G-079 own the future Host registry contract |
+| UI implies same-Host containers resist administrators | repeat that the Host administrator is trusted and name separate VM/machine as the stronger rung |
 
-Do not include provider keys, raw settings secrets, unrelated workspace data,
-paid pack source, absolute user paths, customer content not selected by the
-learner, or model prompt transcripts unless explicitly required and redacted.
-Website may render a completion page from this bundle, but the local evidence
-remains usable without Website availability.
+## Acceptance
 
-## UX integration
-
-- G-062 supplies a typed dashboard module registry. Workshop progress may later
-  consume that registry as an optional local module; it must not hard-code a
-  promotional card or outrank unresolved operator action.
-- G-061 supplies the shared semantic renderer for capstone records. Workshop
-  screens must not create their own card renderer.
-- A bounded workshop/checkpoint panel may exist for the active edition. It must
-  preserve the ordinary Relay navigation and expose source routes rather than
-  clone Tables, Workflows, Inbox, Monitor or Costs.
-- All interactive surfaces retain keyboard semantics, visible focus and system
-  cursor behavior.
-
-## Release and dependency posture
-
-| Dependency | Type | Consequence |
-|---|---|---|
-| G-062 and G-061 | owned hard sequence within W0 | marketing-grade product proof precedes the public demand probe |
-| G-023 | shared hard prerequisite for W1 | reused demo reset must be reliable before a restartable sample lane |
-| G-038 | coordination dependency | fresh-install prompt behavior should not disrupt workshop onboarding |
-| G-025 | recurring release gate | customer-identical validation before founding beta |
-| G-053 | non-blocking coordination | repository publishing is optional after local capstone export; GitHub is not required |
-| Motion MOTION-G-012 | coordination/conformance | automation of rendition/export improves repeatability; a validated manual bundle may launch first |
-| Website workshop commerce/access goals | external release gate | no Relay implementation should absorb checkout, fulfillment or auth |
-
-Customer-owned Relay Host and enterprise connectors remain independent
-workstreams. Workshop local alpha does not wait for Host, cloud, connectors,
-Supabase Auth or Training Pass architecture.
-
-## TDR disposition
-
-No TDR is created during grooming because the persisted workshop-domain and
-paid-edition delivery choices remain operator gates. G-087 must create a TDR if
-either choice introduces a public manifest/schema, new local persistence model,
-or signature/entitlement boundary. Reusing existing operations receipts,
-pack export and `_ASSETS` derivation does not itself require a new TDR.
-
-## Verification and rescue
-
-- Contract tests: schema/version/hash, paid/free boundaries, unsafe paths and
-  redaction.
-- Preflight matrices: fresh/used data dirs, supported/unsupported runtime,
-  offline state, missing starter, stale edition and double start.
-- Capstone matrices: pass, partial, failed checkpoint, retry, rubric
-  unavailable, restart and known-good fallback.
-- Export matrices: user-created app, installed licensed pack refusal, missing
-  artifact, output versions, secrets/path leak scan and deterministic hashes.
-- Browser proof: dashboard, Render view, sample lane and local workshop path at
-  desktop/tablet/mobile in light/dark themes.
-- Customer-identical smoke: purchase/access is simulated locally until Website
-  owns it; Relay start-to-bundle completes with zero founder action.
-
-If the generic workshop UI or persistence begins duplicating an LMS, stop and
-return to the edition-manifest plus existing Relay primitives. If Motion or
-Website contracts are unavailable, produce the versioned local handoff bundle
-and stop before external publication.
-
----
-
-*Generated by `/architect` — integration design mode*
+The operator approved the exact public language and placements in
+`features/relay-host-cell-isolation-boundary.md` on 2026-07-16. The read-only,
+migration-free slice was implemented and verified. G-060/G-079 remain the
+authority for Host topology, lifecycle metadata, authorization, and TDR-044.

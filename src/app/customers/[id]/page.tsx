@@ -9,6 +9,7 @@ import { StatusChip } from "@/components/shared/status-chip";
 import { getCostByCustomer } from "@/lib/usage/ledger";
 import { CustomerDetailActions } from "@/components/customers/customer-detail-actions";
 import { FolderKanban } from "lucide-react";
+import { CustomerBoundaryNotice } from "@/components/shared/relay-boundary-notice";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +95,10 @@ export default async function CustomerDetailPage({
             </span>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="mt-4">
+        <CustomerBoundaryNotice />
       </div>
 
       {customer.notes && (

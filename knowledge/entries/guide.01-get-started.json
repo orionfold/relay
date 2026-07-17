@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "54353b0bd8fcecf803912bf90ed4665f1f8aa23fded4f483bba5821d3b0aef2d",
+  "contentHash": "06eb57c6001a22d7ec4a8bcb0f36ab771e12f2477202c9e330570607ef592726",
   "features": [
     "Command palette and navigation",
     "Dashboard and settings drill-downs",
@@ -213,7 +213,7 @@
   ],
   "sourceHash": "3bbd9362d6a2b486d9c5ac5a7e31a9796a46fe65bf2f3df97dc170137ca3bafb",
   "sourcePath": "docs/guides/01-get-started-with-relay.md",
-  "sourceStateHash": "322bfada080e24b7d8974060b7104c55343cbd1c0c1bb7910dfa016e2c53caf5",
+  "sourceStateHash": "9025b55020f85988f056d89f1789b3a89d3803406863e3a6f61cf159c473989a",
   "summary": "Help a new reader start Relay, understand the local app, and know where to look first.",
   "title": "Get Started With Relay"
 }

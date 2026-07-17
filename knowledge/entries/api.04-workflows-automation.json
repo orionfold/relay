@@ -36,7 +36,7 @@
     "/api/workshop/preflight",
     "/api/workshop/start"
   ],
-  "contentHash": "06d507d5c44212b69acb121807a8837f6ee5b0d7b0fb995dfce884271e6dc395",
+  "contentHash": "cb9e932bf1e70e4d3da83766e626532faf8c5e8ef641e0f0cfcfedb4304ecc2f",
   "features": [],
   "id": "api:04-workflows-automation",
   "journeys": [],
@@ -232,8 +232,8 @@
       "heading": "GET /api/workflows/{id}/target",
       "id": "get-api-workflows-id-target",
       "level": 3,
-      "markdown": "Previews every effective execution target Relay would use for the workflow without starting it.\n\n- **Request**: none.\n- **Response** `200`: `{ \"kind\": \"workflow\", \"ready\": true, \"targets\": [ ], \"error\": null }`, with one target per executable step.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Workflow not found\" }`.\n  - `409` when any target cannot be resolved: `{ \"kind\": \"workflow\", \"ready\": false, \"targets\": [], \"error\": { } }`.\n- **Side effects**: reads workflow, profile, routing, and runtime configuration only.",
-      "wordCount": 63
+      "markdown": "Previews every effective execution target Relay would use for the workflow without starting it.\n\n- **Request**: none.\n- **Response** `200`: `{ \"kind\": \"workflow\", \"ready\": true, \"targets\": [ ], \"context\": { ... }, \"error\": null }`, with one target per executable step. `context.cell` contains only `vocabularyVersion` and `instanceId`; the context also identifies the workflow project's effective working directory (or launch-workspace fallback). Data-directory and database paths remain restricted to the Settings instance response. Neither field creates another customer data or credential boundary.\n- **Errors**:\n  - `404` when not found: `{ \"error\": \"Workflow not found\" }`.\n  - `409` when any target cannot be resolved: `{ \"kind\": \"workflow\", \"ready\": false, \"targets\": [], \"context\": { ... } | null, \"error\": { } }`.\n- **Side effects**: reads workflow, profile, routing, and runtime configuration only.",
+      "wordCount": 106
     },
     {
       "heading": "POST /api/workflows/from-assist",
@@ -474,9 +474,9 @@
       "wordCount": 245
     }
   ],
-  "sourceHash": "ea85a4a5c2efc3f174905b4e9b119ffc20b3a61432d18292a4609351c61c9377",
+  "sourceHash": "00eda4432e385f38fdd5a7e49d78d79a5f745070050bcabd3737bacddadbdabc",
   "sourcePath": "api/reference/04-workflows-automation.md",
-  "sourceStateHash": "6524ab0180f4d710cddaa1927cb7a3ea9f26aba921c69de7561761b5eb18238b",
+  "sourceStateHash": "439440b4c85d28fe7f540cd0201d2baddcdc82f54f3a15f78ef42c03c0fc6399",
   "stability": "app-internal",
   "summary": "Document workflow execution, blueprints, schedules, human approvals, and permission controls.",
   "title": "Workflows And Automation API"

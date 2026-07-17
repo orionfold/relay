@@ -1,9 +1,9 @@
 {
-  "bundleHash": "46d23110960f4027eced5513b38fe9d9af8ef1fe68f64ed55ad9137917b0e9c2",
+  "bundleHash": "05be632d46c053836a9931e8754c79d5a0bc97d0eb53b5eeb4d8efaaac7d5c59",
   "corpus": {
     "apiDocsVersion": "2026-07-08.initial-plan",
-    "apiTrackerHash": "63b35e36c9660937bc9898e3830bac70583c23b5965d4ff3475f48e7a3f8e8f1",
-    "guideTrackerHash": "de256dad71ea01cdb923736ed729f2a793ef3b2f865a65d5a77125508bf417a9",
+    "apiTrackerHash": "75511662010351899407510e7475bfee1eddace1004354f183cdf09a06a38bcd",
+    "guideTrackerHash": "d2f64ec0e81c0d45a9faca6ac19d4480fbd0984c42043d9b8acfb754062b56f6",
     "guideVersion": "2026-07-09.narrative-book-guide",
     "screenshotManifestHash": "407f643e64fcd405366b709b047fdf69ebdef98aee8bfb5611f42c0d95c591b3"
   },
@@ -19,13 +19,13 @@
       "title": "Relay Local API Overview"
     },
     {
-      "contentHash": "14d46a2d0f4be0cb83b07d4a673a0a54ae46d30c9fb4172fcbb9f5e0bb786226",
+      "contentHash": "31bf1bb299790f5fee31f9266b549c0e9255b6b4256c25d9ad0a6db2d0a87622",
       "id": "api:02-core-records",
       "kind": "api",
       "path": "entries/api.02-core-records.json",
       "publicUrl": "https://orionfold.com/relay/api/02-core-records/",
-      "sourceHash": "05027255f1351d129a5c664cfa05dfad43c681014a4784ddcd779497d94cce09",
-      "sourceStateHash": "7048728fbb0d675c43dcc8d43fca69ec9c4822c1e39d75843c78e8ded2f00f40",
+      "sourceHash": "1a9ffd2fed9b6013281b6fa7b37eedac39306844463d4b58c384fd6a6b163196",
+      "sourceStateHash": "6a35c152823d81186c88638ddb4e2efa41deda31b298322ee9f842ac7cbfd0f0",
       "title": "Core Records API"
     },
     {
@@ -39,13 +39,13 @@
       "title": "Agents, Chat, And Runtimes API"
     },
     {
-      "contentHash": "06d507d5c44212b69acb121807a8837f6ee5b0d7b0fb995dfce884271e6dc395",
+      "contentHash": "cb9e932bf1e70e4d3da83766e626532faf8c5e8ef641e0f0cfcfedb4304ecc2f",
       "id": "api:04-workflows-automation",
       "kind": "api",
       "path": "entries/api.04-workflows-automation.json",
       "publicUrl": "https://orionfold.com/relay/api/04-workflows-automation/",
-      "sourceHash": "ea85a4a5c2efc3f174905b4e9b119ffc20b3a61432d18292a4609351c61c9377",
-      "sourceStateHash": "6524ab0180f4d710cddaa1927cb7a3ea9f26aba921c69de7561761b5eb18238b",
+      "sourceHash": "00eda4432e385f38fdd5a7e49d78d79a5f745070050bcabd3737bacddadbdabc",
+      "sourceStateHash": "439440b4c85d28fe7f540cd0201d2baddcdc82f54f3a15f78ef42c03c0fc6399",
       "title": "Workflows And Automation API"
     },
     {
@@ -59,13 +59,13 @@
       "title": "Packs, Apps, Tables, And Publishing API"
     },
     {
-      "contentHash": "db7b2473ec02cb1935ac56a4425efa3c4320de8c19d8a48a269ec5c660b14b8c",
+      "contentHash": "b55f4908f49d83291479c8a96d5e9222a2356bbc141d416e37f6adba21118656",
       "id": "api:06-settings-license-instance",
       "kind": "api",
       "path": "entries/api.06-settings-license-instance.json",
       "publicUrl": "https://orionfold.com/relay/api/06-settings-license-instance/",
-      "sourceHash": "acc66c51c34f16b77ad07fa271c61adac715fcc4ce554293fbb07345da2a4222",
-      "sourceStateHash": "d004bc0fb646a75891b5016b1f91ff9a58de936bb24606d03e786ed4e8679b02",
+      "sourceHash": "111b5b33a0a27507d48188070027e01de345be3f48f6a82f570697cdbb301d01",
+      "sourceStateHash": "5e03702c682144e1194c14156ed0666914c96ee9cbc400f9430e4983e199be36",
       "title": "Settings, License, And Instance API"
     },
     {
@@ -89,13 +89,13 @@
       "title": "Channels And Webhooks API"
     },
     {
-      "contentHash": "54353b0bd8fcecf803912bf90ed4665f1f8aa23fded4f483bba5821d3b0aef2d",
+      "contentHash": "06eb57c6001a22d7ec4a8bcb0f36ab771e12f2477202c9e330570607ef592726",
       "id": "guide:01-get-started",
       "kind": "guide",
       "path": "entries/guide.01-get-started.json",
       "publicUrl": "https://orionfold.com/relay/docs/get-started-with-relay/",
       "sourceHash": "3bbd9362d6a2b486d9c5ac5a7e31a9796a46fe65bf2f3df97dc170137ca3bafb",
-      "sourceStateHash": "322bfada080e24b7d8974060b7104c55343cbd1c0c1bb7910dfa016e2c53caf5",
+      "sourceStateHash": "9025b55020f85988f056d89f1789b3a89d3803406863e3a6f61cf159c473989a",
       "title": "Get Started With Relay"
     },
     {
@@ -109,13 +109,13 @@
       "title": "Use Packs And Licenses"
     },
     {
-      "contentHash": "251f826672bf5d4ae9e40921a309bf0cb14ce09a383de5eb199b5239a0e3062a",
+      "contentHash": "d779f10738bf610697dd50153d99381fbd17a5aaaf72375b49d0c03f50258c8d",
       "id": "guide:03-customers-projects-tasks",
       "kind": "guide",
       "path": "entries/guide.03-customers-projects-tasks.json",
       "publicUrl": "https://orionfold.com/relay/docs/organize-customers-projects-and-tasks/",
-      "sourceHash": "c87b7b14da9b5caf31880825698283f929356e1dd5678a7ab11a003d4258e0d0",
-      "sourceStateHash": "a2e04a6f6a2c6fc5bd3e76de8d41f3020fd87d267558ca752e915fbbf8be223f",
+      "sourceHash": "8f3a7bfd3fd7178c12714af64cdeea5cfec1c8856846ead488ec05066eacf41c",
+      "sourceStateHash": "651c6b7f08480511b7deec4b601fb1a289eb35eac97186c044bd38471b86d4ba",
       "title": "Organize Customers, Projects, And Tasks"
     },
     {
@@ -169,20 +169,20 @@
       "title": "Build And Publish A Small Website"
     },
     {
-      "contentHash": "e0a8630bc8192ed08a11c59a8e8a98a72cd147aaf4fde7cf91ac5d81b70bee22",
+      "contentHash": "4063cf29634556c2dcebfdb302e05748b1d753c7b3358888cc188dda47c340ac",
       "id": "guide:09-settings-trust",
       "kind": "guide",
       "path": "entries/guide.09-settings-trust.json",
       "publicUrl": "https://orionfold.com/relay/docs/set-trust-runtime-and-local-controls/",
-      "sourceHash": "7e6a5a875ff404f5bf10b2fd067102fc448460d6fe04d43a05e5471a5237db7e",
-      "sourceStateHash": "bd527db244aa701495b4f48aed0e57b8257037acac98fdd6cd1a3659fdb14b16",
+      "sourceHash": "cb225c3b756d021d8b3a064b73052a0cd35e8f43f3f0c236f0842ea24168919b",
+      "sourceStateHash": "bdcfa5cceb7a10b0cb56352dbc50c0758fd0e88e9091f75a5a8e99da69938fde",
       "title": "Set Trust, Runtime, And Local Controls"
     }
   ],
   "entryCount": 17,
-  "indexHash": "f27835cf1f3bc04a7b962ad499ebc0d70325576d1aa9f61ca50264f0d2b06aa6",
+  "indexHash": "1e3110e7b394fdd42fb5838b35ecb6e3ee49ab86551846220f61726d29319910",
   "releaseVersion": "0.43.0",
   "schemaVersion": 2,
   "sectionCount": 431,
-  "sourceBundleHash": "dd5a88de76d1def27c5ea14d89c3e97e0fc2010acf3cdc9db87c4115e5bf84c0"
+  "sourceBundleHash": "925c59384bf27805a91f035363398af09d02da8f8aa4c9360133b203b21868b3"
 }

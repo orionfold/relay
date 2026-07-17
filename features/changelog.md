@@ -1,5 +1,27 @@
 # Feature Changelog
 
+## 2026-07-16 — Complete G-058 truthful Relay Host/cell isolation
+
+### Completed
+
+- Activated the Customer-owned Relay Host release train at R0 and drafted the
+  durable G-058 boundary specification plus a repository-grounded architecture
+  impact report.
+- Defined customer records as attribution, project working directories as
+  execution context, a Relay cell as the complete process/data/secret/runtime
+  boundary, and the Relay Host administrator as trusted by every resident cell.
+- Added the approved public language and placements to customer, project,
+  Settings → Instance, and task/workflow execution-target surfaces. Settings
+  now shows the current cell id state, data root, database, and launch workspace;
+  execution responses keep only a narrow server-resolved cell reference.
+- Kept the shipped slice read-only and migration-free: one derived boundary fact
+  contract over existing data-root, instance-id, launch-cwd, project, and
+  runtime seams; no `tenantId`, Host supervisor, public ingress, or cloud
+  lifecycle behavior.
+- Added two-cell isolation fixtures and targeted UI/API regressions, passed the
+  full suite, production build, runtime smoke, desktop/390px browser checks, and
+  synchronized the bundled knowledge, `_ASSETS` guides, and API references.
+
 ## 2026-07-16 — Prioritize Relay Operator Workshop enablement
 
 ### Groomed

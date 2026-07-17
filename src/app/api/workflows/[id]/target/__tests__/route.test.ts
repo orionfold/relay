@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { workflows } from "@/lib/db/schema";
+import { projects, workflows } from "@/lib/db/schema";
 
 const { mockResolveTargets, mockClassifyTargetError } = vi.hoisted(() => ({
   mockResolveTargets: vi.fn(),
@@ -20,6 +20,7 @@ import { GET } from "../route";
 
 describe("GET /api/workflows/[id]/target", () => {
   let workflowId: string;
+  let projectId: string | null;
   const definition = {
     pattern: "sequence",
     steps: [{ id: "draft", name: "Draft", prompt: "Write it" }],
@@ -28,6 +29,7 @@ describe("GET /api/workflows/[id]/target", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     workflowId = randomUUID();
+    projectId = null;
     const now = new Date();
     db.insert(workflows)
       .values({
@@ -45,6 +47,7 @@ describe("GET /api/workflows/[id]/target", () => {
 
   afterEach(() => {
     db.delete(workflows).where(eq(workflows.id, workflowId)).run();
+    if (projectId) db.delete(projects).where(eq(projects.id, projectId)).run();
   });
 
   it("returns every resolved workflow step target", async () => {
@@ -63,10 +66,14 @@ describe("GET /api/workflows/[id]/target", () => {
     });
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({
+    expect(await response.json()).toMatchObject({
       kind: "workflow",
       ready: true,
       targets,
+      context: {
+        workingDirectorySource: "launch",
+        cell: { vocabularyVersion: "relay-host-cell-v1" },
+      },
       error: null,
     });
     expect(mockResolveTargets).toHaveBeenCalledWith({
@@ -95,5 +102,45 @@ describe("GET /api/workflows/[id]/target", () => {
       targets: [],
       error: { code: "runtime_capability_mismatch" },
     });
+  });
+
+  it("returns the workflow project working directory beside every step target", async () => {
+    projectId = randomUUID();
+    const now = new Date();
+    db.insert(projects)
+      .values({
+        id: projectId,
+        name: "Release operations",
+        workingDirectory: "/srv/release-ops",
+        status: "active",
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    db.update(workflows)
+      .set({ projectId })
+      .where(eq(workflows.id, workflowId))
+      .run();
+    mockResolveTargets.mockResolvedValue([
+      { key: "draft", label: "Draft", effectiveRuntimeId: "ollama" },
+    ]);
+
+    const body = await (
+      await GET(new Request("http://relay.test"), {
+        params: Promise.resolve({ id: workflowId }),
+      })
+    ).json();
+
+    expect(body.context).toMatchObject({
+      projectId,
+      projectName: "Release operations",
+      workingDirectory: "/srv/release-ops",
+      workingDirectorySource: "project",
+      cell: { vocabularyVersion: "relay-host-cell-v1" },
+    });
+    expect(Object.keys(body.context.cell).sort()).toEqual([
+      "instanceId",
+      "vocabularyVersion",
+    ]);
   });
 });
