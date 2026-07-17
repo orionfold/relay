@@ -8,6 +8,16 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+### Added
+
+- **Relay Host fulfillment now has one executable offline contract.** The
+  accepted `product:relay-host` grant signs Host and managed-Cell limits,
+  licensee, update eligibility, and customer-protective lifecycle rights inside
+  the existing Ed25519 envelope. A strict parser, capacity/lapse policy,
+  machine-readable schema, exact issuer fixtures, and parity guard keep future
+  Website issuance and Host-supervisor enforcement aligned while Relay Core,
+  direct single-Cell use, public OCI bytes, and Pack rights remain separate.
+
 ### Validated
 
 - **The Local Host alpha passed its rebuilt-artifact release gate.** A clean,

@@ -118,11 +118,24 @@ Evaluating Relay for an enterprise? The full trust pack — [security packet](do
 
 ## Free vs paid
 
-**The engine is free.** Everything above — orchestration, governance, runtimes, profiles,
-tables, workflows, the full app — is Apache-2.0 open source with no tiers, no seat gates,
-and no feature locks. What's paid is **premium packs**: ready-to-run vertical bundles
-(profiles + workflows + tables + seed data) that materialize a specific business on top of
-the free engine.
+**The engine is free.** Everything above — orchestration, governance, runtimes,
+profiles, tables, workflows, the full app, and direct single-Cell operation —
+is Apache-2.0 open source with no tiers or feature locks. The public Relay Cell
+OCI image is another distribution form of that free runtime. Paid products add
+maintained content or managed lifecycle authority; they do not repossess Core.
+
+| Product | What is free | What a license adds |
+|---|---|---|
+| Relay Core | npm CLI/app and direct unmanaged single Cell | Nothing; Core remains free |
+| Relay Cell OCI image | Public, signed Cell-runtime bytes when G-094 publishes them | Nothing; image possession is not an entitlement |
+| Relay Packs | Free Packs and every installed Pack keep working | `product:orionfold-relay` permits premium Pack installation and forward updates |
+| Relay Host | Host/Cell contract and free direct Cell remain available | `product:relay-host` permits the npm-delivered supervisor to manage one Host and up to ten managed Cells under the launch contract |
+| Operator bundle | Same free Core and image | Both independent entitlements in one signed envelope; Pack seats never become Host/Cell capacity |
+
+The managed Host supervisor and public Cell registry are release-train work, not
+features in the current npm release. Their accepted fulfillment contract is
+documented now so the Website issuer, future supervisor, and customer promise
+cannot drift.
 
 Buying one takes a license file, redeemed once:
 
@@ -136,14 +149,23 @@ relay license remove <license-id>                            # forget a license 
   this repo ([`src/lib/licensing/verify.ts`](src/lib/licensing/verify.ts)). Relay never
   sends your data to Orionfold: no activation server, no telemetry, no network call of
   any kind. Works air-gapped.
-- **Your packs are yours forever. Renewal gets you the year's new and updated packs +
-  priority support.** An expired or removed license never re-locks content you already
-  installed — it only gates new premium installs and updates.
+- **Your packs are yours forever.** An expired or removed Pack license never
+  re-locks installed content; it only gates new premium installs and updates.
+- **A Host lapse never strands a Cell.** Under the accepted Host contract,
+  existing Cells keep running and remain startable, exportable, recoverable,
+  rollback-capable, and eligible for compatible critical security updates.
+  Lapse blocks new managed Cells and routine forward feature upgrades.
 - **What's free stays free.** Capabilities never move from the free engine into a paid
   pack. Paid packs are new content, not repossessed features.
 
 The full terms in plain language — seats, transfer, what expiry does and doesn't do —
-are in [docs/trust/license-terms.md](docs/trust/license-terms.md). The gating
+are in [docs/trust/license-terms.md](docs/trust/license-terms.md), with the
+three-authority Host/OCI boundary in
+[docs/relay-host-fulfillment.md](docs/relay-host-fulfillment.md). Canonical
+Relay prices and terms come from
+[orionfold.com/relay/pricing.json](https://orionfold.com/relay/pricing.json);
+Relay does not hardcode a Host amount before the Website publishes the offer.
+The gating
 philosophy behind the boundary — and the never-regress promise that binds us to it —
 is published at [orionfold.com/promise](https://orionfold.com/promise/). Browse and
 buy premium packs at [orionfold.com/relay](https://orionfold.com/relay/).

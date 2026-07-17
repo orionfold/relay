@@ -3,6 +3,8 @@
 This is the engineering contract for the G-080/G-093 Relay Cell OCI artifact.
 It is a local alpha input to the customer-owned Relay Host release train, not a
 published image, paid-edition entitlement, or public capacity/support claim.
+The separate commercial and fulfillment boundary is documented in
+[Relay Host fulfillment](./relay-host-fulfillment.md).
 
 ## Distribution boundary
 
@@ -30,11 +32,11 @@ have similar download sizes.
 | npm tarball | Relay CLI/application files, package metadata, and the direct local single-Cell path; later, the Host bootstrap/supervisor | Node.js, npm dependency installation, the operating system, native system libraries, and process administration |
 | Relay Cell OCI image | A sealed Linux Cell runtime: Relay application, pinned Node runtime, required production/native runtime files, Linux base, filesystem ownership, and container metadata | An OCI-compatible container engine plus the Cell's mounted data and configuration |
 
-The accepted npm measurement is `2,767,765` compressed bytes and `9,902,571`
+The current npm dry-run measurement is `2,782,070` compressed bytes and `9,970,829`
 unpacked bytes. That is the package payload before the destination supplies
 Node.js, installs the dependency closure, and provides its OS/native libraries.
-The optimized Linux/arm64 Cell image is `129,935,364` bytes and its OCI archive
-is `129,960,448` bytes because it carries the complete pinned Linux runtime
+The optimized Linux/arm64 Cell image is `129,934,743` bytes and its OCI archive
+is `129,959,936` bytes because it carries the complete pinned Linux runtime
 closure required to start a Cell. The useful comparison is therefore an
 installed npm deployment plus Node and its host runtime prerequisites versus a
 complete OCI image—not the npm tarball alone versus the image. OCI layers can
@@ -232,4 +234,4 @@ references, and the API snapshot agreed with the visible UI. Teardown removed
 only the isolated browser/container/network/volume resources and left the
 default Relay database hash unchanged. With zero surviving release blockers,
 Host R1 — Local Host alpha is accepted. G-094 still owns any signed registry
-publication, while G-095 owns the paid Host fulfillment contract.
+publication, while the accepted G-095 contract owns paid Host fulfillment.

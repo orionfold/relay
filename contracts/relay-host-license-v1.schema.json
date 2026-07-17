@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orionfold.com/contracts/relay-host-license-v1.schema.json",
+  "title": "Orionfold Relay Host signed license envelope",
+  "type": "object",
+  "required": ["payload", "signature"],
+  "properties": {
+    "payload": {
+      "type": "object",
+      "required": [
+        "schema",
+        "license_id",
+        "product",
+        "tier",
+        "issued_to",
+        "issued_at",
+        "not_before",
+        "expires_at",
+        "entitlements",
+        "grants"
+      ],
+      "properties": {
+        "schema": { "const": "orionfold.license/v1" },
+        "license_id": { "type": "string", "minLength": 1 },
+        "product": {
+          "enum": ["orionfold-relay-host", "orionfold-relay-operator"]
+        },
+        "tier": { "enum": ["host", "operator-bundle"] },
+        "issued_to": {
+          "type": "object",
+          "required": ["email"],
+          "properties": {
+            "email": { "type": "string", "minLength": 1 },
+            "name": { "type": "string" },
+            "org": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "issued_at": { "type": "string", "format": "date-time" },
+        "not_before": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "entitlements": {
+          "type": "array",
+          "uniqueItems": true,
+          "contains": { "const": "product:relay-host" },
+          "items": { "type": "string" }
+        },
+        "grants": {
+          "type": "object",
+          "required": ["product:relay-host"],
+          "properties": {
+            "product:relay-host": { "$ref": "#/$defs/hostGrant" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "not": {
+        "anyOf": [
+          { "required": ["registry"] },
+          { "required": ["pull_token"] },
+          { "required": ["registry_token"] },
+          { "required": ["registry_credentials"] }
+        ]
+      },
+      "additionalProperties": true
+    },
+    "signature": {
+      "type": "object",
+      "required": ["alg", "key_id", "value"],
+      "properties": {
+        "alg": { "const": "ed25519" },
+        "key_id": { "type": "string", "minLength": 1 },
+        "value": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "hostGrant": {
+      "type": "object",
+      "required": [
+        "schema",
+        "sku",
+        "licensee",
+        "limits",
+        "updates_until",
+        "rights"
+      ],
+      "properties": {
+        "schema": { "const": "orionfold.relay-host/v1" },
+        "sku": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "licensee": {
+          "type": "object",
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": { "enum": ["organization", "individual"] },
+            "ref": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "limits": {
+          "type": "object",
+          "required": ["hosts", "managed_cells"],
+          "properties": {
+            "hosts": { "type": "integer", "minimum": 1 },
+            "managed_cells": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "updates_until": { "type": "string", "format": "date-time" },
+        "rights": {
+          "type": "object",
+          "required": [
+            "managed_customer_cells",
+            "packs",
+            "reseller",
+            "transfer",
+            "critical_security_updates"
+          ],
+          "properties": {
+            "managed_customer_cells": { "const": true },
+            "packs": { "const": "separate" },
+            "reseller": { "const": false },
+            "transfer": { "const": "same-licensee-replacement" },
+            "critical_security_updates": { "const": "included" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

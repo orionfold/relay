@@ -29,6 +29,7 @@
   },
   "files": [
     "dist/",
+    "contracts/",
     "knowledge/",
     "src/",
     "!src/**/__tests__/**",
@@ -93,6 +94,7 @@
     "test:ui": "vitest --ui",
     "validate:tokens": "node design-system/validate-tokens.mjs",
     "check:price-drift": "node scripts/check-price-drift.mjs",
+    "check:host-fulfillment": "node scripts/check-host-fulfillment-contract.mjs",
     "check:pack-taxonomy": "node scripts/check-pack-taxonomy.mjs",
     "check:pack-compat": "node scripts/check-pack-compat.mjs",
     "check:pack-tarball": "node scripts/check-pack-tarball.mjs",
@@ -105,7 +107,7 @@
     "demo:refresh": "node scripts/refresh-relay-demo.mjs",
     "sync-worktree": "bash bin/sync-worktree.sh",
     "prepack": "npm run knowledge:verify",
-    "prepublishOnly": "npm run test:public-boundary && npm run check:public-boundary && npm run knowledge:verify && npm run build:cli"
+    "prepublishOnly": "npm run test:public-boundary && npm run check:public-boundary && npm run check:host-fulfillment && npm run knowledge:verify && npm run build:cli"
   },
   "engines": {
     "node": ">=20.0.0"

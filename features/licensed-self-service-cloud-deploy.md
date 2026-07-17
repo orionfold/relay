@@ -108,9 +108,9 @@ same package. The npm tarball is a compact installer/application payload that
 uses Node, dependency installation, the OS, and native libraries supplied by
 the destination. The Cell image is a sealed Linux runtime with those
 prerequisites pinned inside it. The accepted measurements make the difference
-concrete: npm is 2,767,765 bytes compressed / 9,902,571 bytes unpacked, while
-the optimized Linux/arm64 Cell image is 129,913,772 bytes and its OCI archive
-is 129,938,944 bytes. Comparing only those downloads is not apples-to-apples;
+concrete: npm is 2,782,070 bytes compressed / 9,970,829 bytes unpacked, while
+the optimized Linux/arm64 Cell image is 129,934,743 bytes and its OCI archive
+is 129,959,936 bytes. Comparing only those downloads is not apples-to-apples;
 the npm side's complete installed runtime also includes Node, installed
 dependencies, and host OS/native prerequisites.
 
@@ -153,8 +153,9 @@ OCI distribution channel.
 
 ## Invariants
 
-- No cloud lifecycle mutation starts without the dedicated paid cloud-deploy
-  entitlement and an explicit customer confirmation of the provider plan.
+- No managed Host lifecycle mutation starts without the placement-neutral paid
+  `product:relay-host` entitlement and an explicit customer confirmation of the
+  provider plan.
 - Missing, expired, invalid, or wrong-product licenses do not delete, encrypt,
   corrupt, or make existing customer data unrecoverable.
 - Export and recovery instructions remain available after entitlement loss.
@@ -184,7 +185,7 @@ OCI distribution channel.
 
 ## Entitlement and lifecycle policy
 
-The working entitlement is `product:relay-cloud-deploy`, verified by the shipped
+The accepted entitlement is `product:relay-host`, verified by the shipped
 offline Ed25519 signature → term → entitlement pipeline.
 
 Entitlement is required for:
@@ -203,9 +204,10 @@ Entitlement is not required for:
 - recovering data into a licensed or local Relay installation;
 - deleting customer-owned provider resources directly in the provider console.
 
-Renewal/grace behavior and whether automated security-only upgrades continue
-during a lapse remain a product/operator gate. Data hostage behavior is
-unconditionally prohibited.
+The accepted G-095 contract makes lapse behavior explicit: expansion and
+routine feature upgrades stop, while receipt-bound continuity and compatible
+critical security updates continue. Data-hostage behavior is unconditionally
+prohibited.
 
 ## Reference topology
 

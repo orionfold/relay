@@ -1,0 +1,200 @@
+{
+  "schema": "orionfold.relay-host-conformance/v1",
+  "license_schema": "orionfold.license/v1",
+  "grant_schema": "orionfold.relay-host/v1",
+  "dev_key": {
+    "key_id": "of-license-dev-2026-06",
+    "public_key_b64": "A6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg="
+  },
+  "cases": [
+    {
+      "name": "pack-only",
+      "payload": {
+        "schema": "orionfold.license/v1",
+        "license_id": "OF-RELAY-PACK-TEST-0001",
+        "product": "orionfold-relay",
+        "tier": "relay",
+        "issued_to": { "email": "operator@example.com", "org": "Northstar Automation" },
+        "issued_at": "2026-07-17T00:00:00Z",
+        "not_before": "2026-07-17T00:00:00Z",
+        "expires_at": "2027-07-17T00:00:00Z",
+        "entitlements": ["product:orionfold-relay"],
+        "provenance": {
+          "stripe_purchase_id": "pi_TEST_OF-RELAY-PACK-TEST-0001",
+          "stripe_price_id": "price_TEST_OF-RELAY-PACK-TEST-0001"
+        }
+      },
+      "canonical_utf8": "{\"entitlements\":[\"product:orionfold-relay\"],\"expires_at\":\"2027-07-17T00:00:00Z\",\"issued_at\":\"2026-07-17T00:00:00Z\",\"issued_to\":{\"email\":\"operator@example.com\",\"org\":\"Northstar Automation\"},\"license_id\":\"OF-RELAY-PACK-TEST-0001\",\"not_before\":\"2026-07-17T00:00:00Z\",\"product\":\"orionfold-relay\",\"provenance\":{\"stripe_price_id\":\"price_TEST_OF-RELAY-PACK-TEST-0001\",\"stripe_purchase_id\":\"pi_TEST_OF-RELAY-PACK-TEST-0001\"},\"schema\":\"orionfold.license/v1\",\"tier\":\"relay\"}",
+      "canonical_sha256_12": "686db52cc3ae",
+      "signature": {
+        "alg": "ed25519",
+        "key_id": "of-license-dev-2026-06",
+        "value": "E+AnTIO7FGI2y0alg5RhSXa/LrRpFTryrSHOsHs5Eg5FlGm2u3Q83SrltWU6XUuD48PC49zXinSaXd+VKjgnCg=="
+      }
+    },
+    {
+      "name": "host-only",
+      "payload": {
+        "schema": "orionfold.license/v1",
+        "license_id": "OF-RELAY-HOST-TEST-0001",
+        "product": "orionfold-relay-host",
+        "tier": "host",
+        "issued_to": { "email": "operator@example.com", "org": "Northstar Automation" },
+        "issued_at": "2026-07-17T00:00:00Z",
+        "not_before": "2026-07-17T00:00:00Z",
+        "expires_at": "2027-07-17T00:00:00Z",
+        "entitlements": ["product:relay-host"],
+        "grants": {
+          "product:relay-host": {
+            "schema": "orionfold.relay-host/v1",
+            "sku": "relay-host-10-annual",
+            "licensee": { "kind": "organization", "ref": "org_northstar" },
+            "limits": { "hosts": 1, "managed_cells": 10 },
+            "updates_until": "2027-07-17T00:00:00Z",
+            "rights": {
+              "managed_customer_cells": true,
+              "packs": "separate",
+              "reseller": false,
+              "transfer": "same-licensee-replacement",
+              "critical_security_updates": "included"
+            }
+          }
+        },
+        "provenance": {
+          "stripe_purchase_id": "pi_TEST_OF-RELAY-HOST-TEST-0001",
+          "stripe_price_id": "price_TEST_OF-RELAY-HOST-TEST-0001"
+        }
+      },
+      "canonical_utf8": "{\"entitlements\":[\"product:relay-host\"],\"expires_at\":\"2027-07-17T00:00:00Z\",\"grants\":{\"product:relay-host\":{\"licensee\":{\"kind\":\"organization\",\"ref\":\"org_northstar\"},\"limits\":{\"hosts\":1,\"managed_cells\":10},\"rights\":{\"critical_security_updates\":\"included\",\"managed_customer_cells\":true,\"packs\":\"separate\",\"reseller\":false,\"transfer\":\"same-licensee-replacement\"},\"schema\":\"orionfold.relay-host/v1\",\"sku\":\"relay-host-10-annual\",\"updates_until\":\"2027-07-17T00:00:00Z\"}},\"issued_at\":\"2026-07-17T00:00:00Z\",\"issued_to\":{\"email\":\"operator@example.com\",\"org\":\"Northstar Automation\"},\"license_id\":\"OF-RELAY-HOST-TEST-0001\",\"not_before\":\"2026-07-17T00:00:00Z\",\"product\":\"orionfold-relay-host\",\"provenance\":{\"stripe_price_id\":\"price_TEST_OF-RELAY-HOST-TEST-0001\",\"stripe_purchase_id\":\"pi_TEST_OF-RELAY-HOST-TEST-0001\"},\"schema\":\"orionfold.license/v1\",\"tier\":\"host\"}",
+      "canonical_sha256_12": "c4d07a57544a",
+      "signature": {
+        "alg": "ed25519",
+        "key_id": "of-license-dev-2026-06",
+        "value": "WvWw9QTquO3W4zOq+XnqkmRIw8BxqSgUcObPd44CT0NIKkXjm3mC6X0xYMkLAuxl8rFLGkJxTFlyBH3/X7LmCg=="
+      }
+    },
+    {
+      "name": "operator-bundle",
+      "payload": {
+        "schema": "orionfold.license/v1",
+        "license_id": "OF-RELAY-BUNDLE-TEST-0001",
+        "product": "orionfold-relay-operator",
+        "tier": "operator-bundle",
+        "issued_to": { "email": "operator@example.com", "org": "Northstar Automation" },
+        "issued_at": "2026-07-17T00:00:00Z",
+        "not_before": "2026-07-17T00:00:00Z",
+        "expires_at": "2027-07-17T00:00:00Z",
+        "entitlements": ["product:orionfold-relay", "product:relay-host"],
+        "grants": {
+          "product:relay-host": {
+            "schema": "orionfold.relay-host/v1",
+            "sku": "relay-host-10-annual",
+            "licensee": { "kind": "organization", "ref": "org_northstar" },
+            "limits": { "hosts": 1, "managed_cells": 10 },
+            "updates_until": "2027-07-17T00:00:00Z",
+            "rights": {
+              "managed_customer_cells": true,
+              "packs": "separate",
+              "reseller": false,
+              "transfer": "same-licensee-replacement",
+              "critical_security_updates": "included"
+            }
+          }
+        },
+        "provenance": {
+          "stripe_purchase_id": "pi_TEST_OF-RELAY-BUNDLE-TEST-0001",
+          "stripe_price_id": "price_TEST_OF-RELAY-BUNDLE-TEST-0001"
+        }
+      },
+      "canonical_utf8": "{\"entitlements\":[\"product:orionfold-relay\",\"product:relay-host\"],\"expires_at\":\"2027-07-17T00:00:00Z\",\"grants\":{\"product:relay-host\":{\"licensee\":{\"kind\":\"organization\",\"ref\":\"org_northstar\"},\"limits\":{\"hosts\":1,\"managed_cells\":10},\"rights\":{\"critical_security_updates\":\"included\",\"managed_customer_cells\":true,\"packs\":\"separate\",\"reseller\":false,\"transfer\":\"same-licensee-replacement\"},\"schema\":\"orionfold.relay-host/v1\",\"sku\":\"relay-host-10-annual\",\"updates_until\":\"2027-07-17T00:00:00Z\"}},\"issued_at\":\"2026-07-17T00:00:00Z\",\"issued_to\":{\"email\":\"operator@example.com\",\"org\":\"Northstar Automation\"},\"license_id\":\"OF-RELAY-BUNDLE-TEST-0001\",\"not_before\":\"2026-07-17T00:00:00Z\",\"product\":\"orionfold-relay-operator\",\"provenance\":{\"stripe_price_id\":\"price_TEST_OF-RELAY-BUNDLE-TEST-0001\",\"stripe_purchase_id\":\"pi_TEST_OF-RELAY-BUNDLE-TEST-0001\"},\"schema\":\"orionfold.license/v1\",\"tier\":\"operator-bundle\"}",
+      "canonical_sha256_12": "0d16dc162e7c",
+      "signature": {
+        "alg": "ed25519",
+        "key_id": "of-license-dev-2026-06",
+        "value": "ld3/M2cHLoZP/2UqMGasQ9/FksL95esrRqqDRrALn2TAksynSfacaoP5Yp4VOAIFTvp7/47LFmPICaW+a6LjDw=="
+      }
+    },
+    {
+      "name": "capacity-upgrade",
+      "payload": {
+        "schema": "orionfold.license/v1",
+        "license_id": "OF-RELAY-HOST-TEST-0002",
+        "product": "orionfold-relay-host",
+        "tier": "host",
+        "issued_to": { "email": "operator@example.com", "org": "Northstar Automation" },
+        "issued_at": "2026-07-17T00:00:00Z",
+        "not_before": "2026-07-17T00:00:00Z",
+        "expires_at": "2027-07-17T00:00:00Z",
+        "entitlements": ["product:relay-host"],
+        "grants": {
+          "product:relay-host": {
+            "schema": "orionfold.relay-host/v1",
+            "sku": "relay-host-25-annual",
+            "licensee": { "kind": "organization", "ref": "org_northstar" },
+            "limits": { "hosts": 1, "managed_cells": 25 },
+            "updates_until": "2027-07-17T00:00:00Z",
+            "rights": {
+              "managed_customer_cells": true,
+              "packs": "separate",
+              "reseller": false,
+              "transfer": "same-licensee-replacement",
+              "critical_security_updates": "included"
+            }
+          }
+        },
+        "provenance": {
+          "stripe_purchase_id": "pi_TEST_OF-RELAY-HOST-TEST-0002",
+          "stripe_price_id": "price_TEST_OF-RELAY-HOST-TEST-0002"
+        }
+      },
+      "canonical_utf8": "{\"entitlements\":[\"product:relay-host\"],\"expires_at\":\"2027-07-17T00:00:00Z\",\"grants\":{\"product:relay-host\":{\"licensee\":{\"kind\":\"organization\",\"ref\":\"org_northstar\"},\"limits\":{\"hosts\":1,\"managed_cells\":25},\"rights\":{\"critical_security_updates\":\"included\",\"managed_customer_cells\":true,\"packs\":\"separate\",\"reseller\":false,\"transfer\":\"same-licensee-replacement\"},\"schema\":\"orionfold.relay-host/v1\",\"sku\":\"relay-host-25-annual\",\"updates_until\":\"2027-07-17T00:00:00Z\"}},\"issued_at\":\"2026-07-17T00:00:00Z\",\"issued_to\":{\"email\":\"operator@example.com\",\"org\":\"Northstar Automation\"},\"license_id\":\"OF-RELAY-HOST-TEST-0002\",\"not_before\":\"2026-07-17T00:00:00Z\",\"product\":\"orionfold-relay-host\",\"provenance\":{\"stripe_price_id\":\"price_TEST_OF-RELAY-HOST-TEST-0002\",\"stripe_purchase_id\":\"pi_TEST_OF-RELAY-HOST-TEST-0002\"},\"schema\":\"orionfold.license/v1\",\"tier\":\"host\"}",
+      "canonical_sha256_12": "b4cebb8a27d4",
+      "signature": {
+        "alg": "ed25519",
+        "key_id": "of-license-dev-2026-06",
+        "value": "22Q40oElj1sptVhb/QmV3P0a8uBD1i5ZjqEsFhvD+iw4EdtfCIzZSxhKauT4wsR0niZ458FALdGQYHKD5u7UAA=="
+      }
+    },
+    {
+      "name": "distinct-owner",
+      "payload": {
+        "schema": "orionfold.license/v1",
+        "license_id": "OF-RELAY-HOST-TEST-0003",
+        "product": "orionfold-relay-host",
+        "tier": "host",
+        "issued_to": { "email": "operator@example.com", "org": "Southstar Services" },
+        "issued_at": "2026-07-17T00:00:00Z",
+        "not_before": "2026-07-17T00:00:00Z",
+        "expires_at": "2027-07-17T00:00:00Z",
+        "entitlements": ["product:relay-host"],
+        "grants": {
+          "product:relay-host": {
+            "schema": "orionfold.relay-host/v1",
+            "sku": "relay-host-10-annual",
+            "licensee": { "kind": "organization", "ref": "org_southstar" },
+            "limits": { "hosts": 1, "managed_cells": 10 },
+            "updates_until": "2027-07-17T00:00:00Z",
+            "rights": {
+              "managed_customer_cells": true,
+              "packs": "separate",
+              "reseller": false,
+              "transfer": "same-licensee-replacement",
+              "critical_security_updates": "included"
+            }
+          }
+        },
+        "provenance": {
+          "stripe_purchase_id": "pi_TEST_OF-RELAY-HOST-TEST-0003",
+          "stripe_price_id": "price_TEST_OF-RELAY-HOST-TEST-0003"
+        }
+      },
+      "canonical_utf8": "{\"entitlements\":[\"product:relay-host\"],\"expires_at\":\"2027-07-17T00:00:00Z\",\"grants\":{\"product:relay-host\":{\"licensee\":{\"kind\":\"organization\",\"ref\":\"org_southstar\"},\"limits\":{\"hosts\":1,\"managed_cells\":10},\"rights\":{\"critical_security_updates\":\"included\",\"managed_customer_cells\":true,\"packs\":\"separate\",\"reseller\":false,\"transfer\":\"same-licensee-replacement\"},\"schema\":\"orionfold.relay-host/v1\",\"sku\":\"relay-host-10-annual\",\"updates_until\":\"2027-07-17T00:00:00Z\"}},\"issued_at\":\"2026-07-17T00:00:00Z\",\"issued_to\":{\"email\":\"operator@example.com\",\"org\":\"Southstar Services\"},\"license_id\":\"OF-RELAY-HOST-TEST-0003\",\"not_before\":\"2026-07-17T00:00:00Z\",\"product\":\"orionfold-relay-host\",\"provenance\":{\"stripe_price_id\":\"price_TEST_OF-RELAY-HOST-TEST-0003\",\"stripe_purchase_id\":\"pi_TEST_OF-RELAY-HOST-TEST-0003\"},\"schema\":\"orionfold.license/v1\",\"tier\":\"host\"}",
+      "canonical_sha256_12": "d809443fad94",
+      "signature": {
+        "alg": "ed25519",
+        "key_id": "of-license-dev-2026-06",
+        "value": "NvnllO/fNZ4eQFSVPS38zSbhBBwN9/yjiNcmEuOuLpdjOiwquXpCwWcJ39+wECnLhbnahTVLp1dOlc+UB9bCAQ=="
+      }
+    }
+  ]
+}

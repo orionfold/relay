@@ -1,7 +1,7 @@
 ---
 title: "Security packet"
 category: "trust"
-lastUpdated: "2026-07-16"
+lastUpdated: "2026-07-17"
 ---
 
 # Orionfold Relay — security packet
@@ -19,8 +19,9 @@ installs from npm (`npx orionfold-relay`), runs a Next.js server bound to
 `127.0.0.1` on the operator's machine, and stores all state in a local
 SQLite database. The engine is open source (Apache-2.0) in
 [github.com/orionfold/relay](https://github.com/orionfold/relay). The
-commercial product is premium content packs, unlocked by a signed license
-file verified offline.
+commercial products are premium content Packs and the planned managed Relay
+Host authority. Both use separately named rights in a signed license file
+verified offline; Relay Core and the public Cell image remain free.
 
 There is no Orionfold cloud, no Orionfold account, and no server-side
 component operated by us in the product's runtime path.
@@ -118,8 +119,9 @@ Full detail: [supply-chain.md](./supply-chain.md).
 License verification is an offline Ed25519 signature check against public
 keys embedded in the open-source verifier
 ([`src/lib/licensing/verify.ts`](../../src/lib/licensing/verify.ts)). No
-activation, no re-validation, no data ever sent to Orionfold; works air-gapped. Expiry never
-disables installed content ([license terms](./license-terms.md)).
+activation, no re-validation, no data ever sent to Orionfold; works air-gapped.
+Pack expiry never disables installed content, and the accepted Host contract
+never stops or strands existing Cells ([license terms](./license-terms.md)).
 
 ## 7. Vulnerability disclosure
 

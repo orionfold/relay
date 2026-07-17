@@ -3,7 +3,7 @@ id: TDR-044
 title: Customer-owned Relay Host with isolated cells
 status: accepted
 date: 2026-07-15
-amended: 2026-07-16 (G-060 local Host supervisor contract); 2026-07-17 (Host/Cell distribution and Supervisor/Fleet boundaries)
+amended: 2026-07-16 (G-060 local Host supervisor contract); 2026-07-17 (Host/Cell distribution, Supervisor/Fleet boundaries, and G-095 fulfillment contract)
 accepted: 2026-07-16 (G-079 authority and isolation contract)
 goal: G-078, G-060, G-079
 ---
@@ -152,10 +152,15 @@ or cloud VM.
     libraries. OCI is the closed, pinned Linux Cell runtime. Artifact-size
     reporting must compare complete installed runtime closures rather than the
     npm tarball alone with the OCI image.
-12. Gate host provisioning, cell creation, upgrade, transfer, and destructive
-    lifecycle automation with `product:relay-cloud-deploy`. License loss never
-    deletes/encrypts data or blocks verified export, recovery, or direct host/
-    provider ownership.
+12. Gate paid Host expansion and routine forward upgrades with the accepted
+    placement-neutral `product:relay-host` grant. The launch contract signs one
+    Host, ten managed Cells, a 12-month term, a distinct update boundary, and
+    same-licensee replacement. Running, stopped, and retained managed Cells
+    count; direct unmanaged, exported-and-released, and purged Cells do not.
+    Lapse never stops or strands existing Cells and never blocks start/stop,
+    verified export, recovery, rollback, purge, or compatible critical security
+    updates. Pack rights remain a separate entitlement. Commercial license,
+    OCI signature, and registry access are independent authorities.
 13. Prove the first appliance on a clean DigitalOcean VM because the official
     OpenClaw precedent and DigitalOcean's simple VM primitives make the single-
     server contract directly observable. Prove a second VM provider or local
@@ -330,8 +335,17 @@ Controller. It changes no accepted isolation or authority decision and grants
 no remote multi-Host authority. The artifact-closure amendment records that
 these channels carry the same release contract, not identical bytes: npm relies
 on destination runtime prerequisites, while OCI closes over a pinned Linux Cell
-runtime. The accepted 2,767,765-byte npm tarball and 129,913,772-byte arm64 image
+runtime. The current 2,782,070-byte npm tarball and 129,934,743-byte arm64 image
 therefore are not an apples-to-apples installed-footprint comparison.
+
+The G-095 fulfillment amendment replaces the provisional cloud-specific
+entitlement with `product:relay-host` and accepts an additive signed
+`orionfold.relay-host/v1` grant inside the existing offline
+`orionfold.license/v1` envelope. The executable parser/admission matrix lives in
+`src/lib/licensing/host-entitlement.ts`; the issuer contract and vectors live in
+`contracts/relay-host-license-v1.schema.json` and the licensing fixtures. No
+online activation, registry token broker, live Website commerce change, or Host
+supervisor effect is introduced by this architecture amendment.
 
 ## References
 

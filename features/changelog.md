@@ -1,5 +1,27 @@
 # Feature Changelog
 
+## 2026-07-17 — Complete G-095 Relay Host fulfillment contract
+
+### Completed
+
+- Accepted `product:relay-host` with an annual one-Host/ten-managed-Cell launch
+  grant, separate Pack rights, managed-customer use without sublicense,
+  same-licensee replacement, and customer-protective lapse/security continuity.
+- Added the strict signed Host-grant schema, exact canonical issuer/verifier
+  vectors, offline parser, named refusal contract, capacity/lifecycle admission
+  oracle, and deterministic documentation/conformance guard.
+- Updated README, trust, artifact, deployment, and TDR surfaces so commercial
+  license, public OCI acquisition, and image authenticity stay independent.
+- Marked Website G-030 contract-ready while leaving its amount, checkout,
+  issuance, email, page, and live-deploy work in the Website repository.
+- Advanced the Host workstream to G-081 next with G-082 ready; G-094/G-083/G-084
+  remain the publication, supervisor, and customer-UX owners.
+
+### Not performed
+
+- No Host supervisor effects, live Website/Stripe/Supabase/email/catalog change,
+  registry publication, npm publish, version/tag change, push, or release.
+
 ## 2026-07-17 — Accept G-099 and Host R1 Local Host alpha
 
 ### Completed

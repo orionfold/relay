@@ -1,79 +1,113 @@
 ---
 title: "License terms, in plain language"
 category: "trust"
-lastUpdated: "2026-07-01"
+lastUpdated: "2026-07-17"
 ---
 
 # License terms, in plain language
 
-This page explains what buying a premium pack license actually gets you, in
+This page explains what buying a Relay Pack or Relay Host license gets you, in
 the words we intend them. It is the canonical copy of the promises the
-storefront makes; the code that enforces (and deliberately declines to
-enforce) these terms is linked inline so you can check every claim.
+storefront makes; the code that enforces (and deliberately declines to enforce)
+these terms is linked inline so you can check every claim.
 
-**The engine is not licensed — it's free.** Everything that makes Relay run
-(orchestration, governance, schedulers, runtimes, the license machinery
-itself) is Apache-2.0 open source. A license only unlocks **premium packs**:
-maintained vertical content bundles installed on top of the free engine.
+**The engine is not licensed — it is free.** Everything that makes Relay run
+(orchestration, governance, schedulers, runtimes, the license machinery itself)
+is Apache-2.0 open source. The direct unmanaged single-Cell path and public
+Relay Cell image are free too. Paid rights are separate:
+
+- `product:orionfold-relay` unlocks premium Pack installation and updates.
+- `product:relay-host` authorizes the managed Host supervisor and signed
+  Host/Cell capacity. The launch contract is one Host and ten managed Cells.
+
+A bundle may carry both entitlements in one signed envelope. Neither right
+implies the other, and possessing public OCI image bytes grants neither.
 
 ## What a license is
 
 A license is a small signed file — a `{ payload, signature }` JSON envelope —
-issued to you at purchase and attached to your fulfilment email. Relay
-verifies it **entirely offline** with an Ed25519 signature check against
-public keys embedded in the open-source verifier
-([`src/lib/licensing/verify.ts`](../../src/lib/licensing/verify.ts)). There
-is no activation server, no periodic re-validation — Relay never sends your
-data to Orionfold. Keep the
-file; it is the durable proof of purchase — the download link in the email
-expires, the file never does.
+issued to you at purchase and attached to your fulfilment email. Relay verifies
+it entirely offline with an Ed25519 signature check against public keys embedded
+in the open-source verifier
+([`src/lib/licensing/verify.ts`](../../src/lib/licensing/verify.ts)). There is
+no activation server and no periodic re-validation. Keep the file: it is the
+durable proof of purchase even after an email download link expires.
 
-## The term: what expiry does — and does not — do
+## The term: what expiry does and does not do
 
-Your license names an expiry date (`relay license status` shows it). Expiry
-gates **new premium installs and pack updates only**:
+Your license names an expiry date (`relay license status` shows it). The effect
+depends on the paid right.
 
-- **Installed packs never re-lock.** Not at expiry, not if you remove the
-  license, not ever. Your packs are yours forever.
-- **Renewal buys forward motion**: the year's new and updated packs +
-  priority support.
+For Packs, expiry gates **new premium installs and Pack updates only**:
+
+- Installed Packs never re-lock. Not at expiry, not if you remove the license,
+  not ever. Your Packs are yours forever.
+- Renewal buys forward motion: the year's new and updated Packs plus priority
+  support.
 - Removing a license (`relay license remove`) forgets the file; everything
   already installed keeps working.
 
-There is no mechanism in the codebase that can disable installed content —
-the license check happens at [pack install time](../../src/lib/licensing/gate.ts),
+There is no mechanism in the codebase that can disable installed Pack content.
+The check happens at [Pack install/update time](../../src/lib/licensing/gate.ts)
 and nowhere else. This is shipped behavior, not just policy.
 
-## Seats: defined by trust, audited by you
+For managed Hosts, the accepted contract is similarly customer-protective:
 
-A **seat** is one person in your organization who uses premium packs. Your
+- Running and stopped Cells keep working and continue to count toward capacity.
+- Existing Cells remain startable, stoppable, exportable, recoverable,
+  rollback-capable, and purgeable after lapse.
+- Compatible critical security updates remain available.
+- New/imported/adopted/cloned Cells, restore-to-new, and routine feature
+  upgrades require an active eligible Host grant.
+- An over-limit request refuses before allocating a path, port, volume,
+  network, Host record, or customer state.
+
+The future Host supervisor must consume the executable policy in
+[`host-entitlement.ts`](../../src/lib/licensing/host-entitlement.ts). Until
+G-083 ships that supervisor, these are the accepted fulfillment/runtime terms,
+not a claim that managed Host lifecycle is already present in npm.
+
+## Seats, Hosts, and managed Cells
+
+A **seat** is one person in your organization who uses premium Packs. Your Pack
 license records how many seats you bought (`relay license status` shows it).
+We deliberately do not enforce Pack seats technically: there is no device
+counting, user registry, or lockout. It is a locally auditable commercial term.
 
-We deliberately do **not** enforce seats technically — no device counting,
-no user registry, no lockouts. The verifier checks the signature, the term,
-and the product entitlement; the seat count is your side of the deal.
-`relay license status` is the self-audit surface: it shows what you're
-licensed for so your admin can check compliance locally, without asking us
-and without Relay telling us.
+Host and Cell limits are different. They are signed as positive integers under
+the Host grant and never overload `seats`. Running, stopped, and retained
+managed Cells count. A direct unmanaged Cell, a standalone exported archive,
+and a permanently purged Cell do not. V1 has no ambiguous “unlimited” sentinel;
+a capacity upgrade is simply a newly signed higher integer limit.
 
-## Transfer and machines
+## Transfer, replacement, and customer operation
 
-The license file is portable. Redeem it on a new machine any time
-(`relay license add <file>`); moving between machines, reinstalling, or
-running air-gapped are all fine within your seat count. Transferring a
-license to a different organization requires reissue — use the private support
-channel listed on the [Relay website](https://orionfold.com/relay/).
+The license file is portable. Redeem it on a new machine with
+`relay license add <file>`; verification remains offline and works air-gapped.
 
-## The boundary won't move under you
+- Pack use remains subject to its seat count.
+- A one-Host entitlement can move to a replacement machine owned by the same
+  licensee after the prior Host is retired. Offline v1 makes this an auditable
+  commercial/local claim rather than an Orionfold activation check.
+- Transferring either license to another organization requires reissue through
+  the private support channel on the [Relay website](https://orionfold.com/relay/).
+- A Host operator may manage Cells for its customers. That does not grant the
+  right to resell the license or copy the operator's Pack entitlement into an
+  unrelated customer's Cell.
 
-**What's free stays free.** Capabilities never migrate from the free engine
-into paid packs; paid packs are new content, not repossessed features. The
-things we've ruled out permanently: license state in the database, upsell
-banners in the CLI, online re-validation, and expiry that disables installed
-packs.
+## The boundary will not move under you
+
+**What is free stays free.** Capabilities never migrate from free Core into paid
+Packs or Host rights. Paid Packs are new maintained content; Host is managed
+lifecycle authority, not repossessed Core.
+
+Things we have ruled out: license state in the database, online re-validation,
+a license file acting as a registry password, expiry that disables installed
+Packs, and lapse that stops or strands existing Cells. Commercial license, OCI
+release signature, and registry access remain separate authorities; see
+[Relay Host fulfillment](../relay-host-fulfillment.md).
 
 ---
 
-*This page states intent in plain language and links the enforcing code. If
-a storefront page and this page ever disagree, tell us — the stricter
-reading in your favor applies while we fix it.*
+*If a storefront page and this page ever disagree, the stricter reading in your
+favor applies while we fix it.*

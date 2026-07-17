@@ -358,7 +358,9 @@ Tasks:
 2. Implement Host and cell state machines with legal transitions, plan digest,
    idempotency, cancellation, resume, replace, rollback, retained-data removal
    and separately confirmed purge.
-3. Apply `product:relay-cloud-deploy` to every provisioning/lifecycle mutation;
+3. Apply the accepted `product:relay-host` grant to every paid expansion and
+   routine forward-upgrade mutation; preserve receipt-bound continuity actions
+   after lapse per `features/oci-fulfillment.md`;
    keep comparison/export/recovery paths usable after lapse.
 4. Verify signed artifacts and create cells with distinct process/container
    identity, data roots, networks, loopback ports, secrets, licenses, logs and
@@ -567,8 +569,9 @@ security/architecture review in that order.
 - Approve DigitalOcean scopes/account/region/spending for G-085 and choose the
   second Host target/portability claim for G-086.
 - Approve remote identity model/public trust copy and any compliance claims.
-- Approve cloud-deploy entitlement issuance, renewal/grace and security-update
-  behavior during lapse.
+- G-095 accepted `product:relay-host`, the annual launch grant, and
+  customer-protective lapse/security-update behavior. Website G-030 still owns
+  public amount, checkout, and issuance implementation.
 - Approve backup retention/key recovery and RPO/RTO targets.
 - G-060's first topology, content-free metadata, per-cell secret ownership and
   synthetic first slice were approved 2026-07-16. Separately approve any

@@ -12,35 +12,36 @@ mode: next-steps
 
 ### Recommendation
 
-**Do this:** Complete **G-095 — Define and prove Relay Host fulfillment across
-npm and OCI**. Host R1 is accepted, and the fulfillment contract is now the
-highest-leverage decision package before licensed Host implementation.
+**Do this:** Complete **G-081 — Add internet-safe Host ingress, cell routing,
+and first-admin identity**. Host R1 and the G-095 fulfillment contract are
+accepted; secure remote access is now the first ready R2 implementation slice.
 
-**Why:** G-099 proved the clean optimized Cell artifact and the full Foundation
-journey, so the uncertainty has moved from packaging to product authority:
-which Host entitlement exists, what managed-Cell capacity means, how lapse and
-recovery behave, and how Relay and Website share fulfillment responsibility.
+**Why:** G-095 settled product authority (`product:relay-host`, one Host/ten
+managed Cells, offline verification, separate Pack rights, and protective lapse
+semantics). The next load-bearing uncertainty is whether a remotely reachable
+Host can bootstrap and route authenticated users without crossing Cell
+boundaries or weakening trusted-local use.
 
-**Invoke:** settle the durable G-095 specification, conformance fixtures and
-operator decision packet without publishing or changing live commerce. Keep
-G-081/G-082 ready as the R2 security and recovery implementation slice.
+**Invoke:** implement G-081's trusted-local, tailnet/VPN, and
+remote-authenticated profiles with first-admin, session, route, CSRF/origin,
+rate-limit, recovery, and wrong-Cell negative evidence. Keep G-082 ready next.
 
-**Priority category:** Cross-train contract — unlocks the licensed Host beta
-while R2 technical foundations remain independently ready.
+**Priority category:** R2 security foundation — required before any public Host
+or cloud-server customer journey.
 
 ### Context
 
 - Active workstream: **Customer-owned Relay Host** — R2 current.
 - Accepted in R1: **G-080/G-034/G-038/G-093/G-025/G-096/G-097/G-099**.
-- Next prioritized goal: **G-095**.
-- Ready R2 goals: **G-081** internet-safe ingress and **G-082** encrypted recovery.
+- Accepted cross-train contract: **G-095** Host fulfillment.
+- Next prioritized goal: **G-081** internet-safe ingress.
+- Next ready R2 goal: **G-082** encrypted recovery.
 - Enterprise connectors remains queued until an intentional WIP decision.
 
 ### If You Have More Time
 
-1. Complete **G-095** through its pre-decision evidence and present the SKU,
-   pricing, limits, reseller and lapse choices at the explicit operator gate.
-2. Complete **G-081**, then **G-082**, before G-083 begins; G-094 publication
+1. Complete **G-081**, then **G-082**, before G-083 begins.
+2. Website G-030 may now consume G-095's schema/vectors; G-094 publication
    remains separately gated and is not implied by local R1 acceptance.
 
 ---
