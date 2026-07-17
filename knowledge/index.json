@@ -33691,7 +33691,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "01b011947af4d560571c57611dba4e99f55c060fcedefd87f39613d7bc7ea0c3",
+      "entryContentHash": "5f65064d7fbb4e2e9c9b7381acf413f4a72e1d86795d547944900fa070559780",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
@@ -33749,7 +33749,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "01b011947af4d560571c57611dba4e99f55c060fcedefd87f39613d7bc7ea0c3",
+      "entryContentHash": "5f65064d7fbb4e2e9c9b7381acf413f4a72e1d86795d547944900fa070559780",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
@@ -33807,7 +33807,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "01b011947af4d560571c57611dba4e99f55c060fcedefd87f39613d7bc7ea0c3",
+      "entryContentHash": "5f65064d7fbb4e2e9c9b7381acf413f4a72e1d86795d547944900fa070559780",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
@@ -33864,7 +33864,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "01b011947af4d560571c57611dba4e99f55c060fcedefd87f39613d7bc7ea0c3",
+      "entryContentHash": "5f65064d7fbb4e2e9c9b7381acf413f4a72e1d86795d547944900fa070559780",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
@@ -33920,11 +33920,11 @@
       "sourceId": "guide:09-settings-trust",
       "sourceStateHash": "bdcfa5cceb7a10b0cb56352dbc50c0758fd0e88e9091f75a5a8e99da69938fde",
       "title": "Set Trust, Runtime, And Local Controls",
-      "wordCount": 826
+      "wordCount": 934
     },
     {
       "apiPaths": [],
-      "entryContentHash": "01b011947af4d560571c57611dba4e99f55c060fcedefd87f39613d7bc7ea0c3",
+      "entryContentHash": "5f65064d7fbb4e2e9c9b7381acf413f4a72e1d86795d547944900fa070559780",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
@@ -33982,7 +33982,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "01b011947af4d560571c57611dba4e99f55c060fcedefd87f39613d7bc7ea0c3",
+      "entryContentHash": "5f65064d7fbb4e2e9c9b7381acf413f4a72e1d86795d547944900fa070559780",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
@@ -34041,7 +34041,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "01b011947af4d560571c57611dba4e99f55c060fcedefd87f39613d7bc7ea0c3",
+      "entryContentHash": "5f65064d7fbb4e2e9c9b7381acf413f4a72e1d86795d547944900fa070559780",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
@@ -34099,7 +34099,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "01b011947af4d560571c57611dba4e99f55c060fcedefd87f39613d7bc7ea0c3",
+      "entryContentHash": "5f65064d7fbb4e2e9c9b7381acf413f4a72e1d86795d547944900fa070559780",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,

@@ -177,12 +177,16 @@ Parallel value stream after R0:
 
 ## Program sequence
 
-### G-060 — Define the isolated-instance fleet manager contract
+### G-060 — Define the local Relay Host supervisor contract
 
 Goal: define the separate local Relay Host supervisor, dedicated content-free
 registry, local OS authority, customer-owned per-cell secret references,
 desired/actual/operation state machines, collision preflight, partial-operation
 rescue and first synthetic lifecycle slice.
+
+The Host supervisor controls only Cells on its own Host. It is not a Fleet
+Controller. Remote coordination of several Hosts is separate future scope and
+must delegate through each authenticated Host supervisor.
 
 Authoritative artifacts:
 

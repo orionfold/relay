@@ -32,6 +32,9 @@ Out of scope:
 - formal compliance certification or regulated-data claims;
 - provider-internal vulnerabilities outside documented customer controls;
 - CI/developer threats except where they affect published artifacts.
+- a remote multi-Host Fleet Controller; if activated later, it requires a
+  separate threat-model amendment for Host enrollment, mutual authentication,
+  revocation, replay, offline reconciliation and cross-Host blast radius.
 
 Validated assumptions from the operator on 2026-07-15:
 
@@ -105,6 +108,10 @@ Open questions that would change ranking:
   Its accepted baseline requires non-root cells, dropped capabilities, private
   per-cell networks, contained mounts/secrets, enforced limits and no Host/OCI
   authority socket inside cells; none of those controls is implemented yet.
+- **Fleet Controller:** not part of v1. A future content-free coordinator could
+  request operations from several authenticated Host supervisors, but it would
+  never be a Host, receive Cell data, mount Cell storage, or operate a Cell
+  directly. Each Host supervisor remains the local enforcement point.
 - **Cloud provider API:** creates networking, compute, volume, secrets, hostname,
   backup and optional runtime resources in the customer account.
 - **Ingress/identity boundary:** future TLS, first-admin, session, authorization,

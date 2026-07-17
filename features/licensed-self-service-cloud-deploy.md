@@ -47,6 +47,12 @@ customers on the same Host only when both accept that administrator. Use a
 different VM or machine when they need protection from one another or from the
 Host administrator.
 
+A **Host Supervisor** is the local control software on one Host. It controls
+only Cells physically located on that machine. A **Fleet Controller** is a
+different, future component that could coordinate several Hosts through their
+supervisors. It would not be a Host and would never operate a remote Cell
+directly.
+
 ### 1. I only want Relay on my laptop for myself
 
 Run `npx orionfold-relay`. The npm package starts one local Relay process, which
@@ -77,6 +83,11 @@ supervisor or container-runtime access.
 You remain the trusted Host administrator and can manage every resident Cell.
 This is suitable for customers who accept your administration. Use a separate
 server or VM for a customer that requires a different administrative boundary.
+
+This setup means the Cells run on your server. If Server A instead coordinates
+customer Cells running on Servers B, C, and D, then B, C, and D are separate
+Relay Hosts and Server A is a future Fleet Controller. That multi-Host control
+plane is not part of the first Host release train.
 
 ### 4. My provider gave me Relay, but I run it on my own server
 
@@ -238,6 +249,9 @@ single cell but are not the reference architecture.
 - A minimal inventory can show Host/cell identity, version, health, capacity and
   backup status but contains no customer content and is not required for a cell
   to operate.
+- Inventory is not control. No current release lets one Host act as a Fleet
+  Controller over other Hosts. A later controller must delegate every operation
+  to the target Host supervisor, which revalidates it locally.
 - One tenant is not split across application replicas or a shared remote database.
 
 ### Distributed services
@@ -348,7 +362,7 @@ always linked.
 
 | Layer | V1 decision | Compatibility and trigger |
 |---|---|---|
-| Host/cell lifecycle | One local supervisor manages isolated processes/containers from a versioned manifest | Add multi-host control plane only for paid fleet demand; it remains content-free |
+| Host/cell lifecycle | One local supervisor controls only the Cells resident on its Host | Add a content-free Fleet Controller only for paid multi-Host demand; it delegates to authenticated Host supervisors and never controls Cells directly |
 | Operational data | Preserve `better-sqlite3` and WAL per cell on Host-local block storage | Add remote DB only for horizontal replicas/active-active inside one cell or unmet RPO/RTO; never network-mounted/shared WAL |
 | Files | Preserve live local data-directory paths | Add object storage as backup/export transport; direct object-backed live files need atomicity/consistency contract |
 | Backup | Versioned Relay snapshot manifest copied encrypted off-host | Recovery drill must prove DB + files + settings consistency and key availability |

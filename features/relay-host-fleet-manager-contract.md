@@ -1,5 +1,5 @@
 ---
-title: Isolated Relay Host fleet manager contract
+title: Local Relay Host supervisor contract
 status: accepted
 goal: G-060
 workstream: Customer-owned Relay Host
@@ -9,7 +9,7 @@ tdr: TDR-044 accepted by G-079 on 2026-07-16
 dependencies: [relay-host-cell-isolation-boundary]
 ---
 
-# Isolated Relay Host fleet manager contract
+# Local Relay Host supervisor contract
 
 ## Outcome
 
@@ -18,6 +18,12 @@ supervisor** that can inventory and eventually create, start, stop, upgrade,
 export, transfer, revoke, and remove isolated **Relay cells**. The supervisor is
 not a customer data plane, does not create row-level multi-tenancy, and is not a
 service inside any cell.
+
+Despite this file's historical `fleet-manager` filename, the accepted component
+is a **Host supervisor**, not a Fleet Controller. A Host is one machine or VM;
+its supervisor controls only Cells located on that Host. A future Fleet
+Controller would coordinate several Hosts through their supervisors and is not
+part of G-060 or G-083.
 
 The approved first topology is one customer-owned local device or VM running one
 supervisor and one or more OCI-container cells. Cells may share the Host only
@@ -32,7 +38,8 @@ container runtime, launch a container, expose a remote API, or publish an image.
 The operator approved these decisions on 2026-07-16:
 
 1. Start with a **single local Relay Host supervisor** managing OCI-container
-   cells. Remote multi-Host authority is a later decision.
+   Cells on the same Host. Remote multi-Host/Fleet Controller authority is a
+   later decision.
 2. Keep a **content-free Host registry** containing lifecycle and resource facts
    only.
 3. Use **customer-owned per-cell secret roots**. The registry stores only an
@@ -57,7 +64,7 @@ makes G-080 through G-083 independently executable.
 
 ### EXPAND
 
-Add remote fleet control, browser lifecycle APIs, public ingress, provider
+Add a remote Fleet Controller, browser lifecycle APIs, public ingress, provider
 authorization, real backup transport, entitlements, or cloud provisioning.
 Those remain owned by G-081 through G-085.
 
@@ -72,6 +79,20 @@ Host administrator
         → Relay cell A (own data/secrets/license/logs/network)
         → Relay cell B (own data/secrets/license/logs/network)
 ```
+
+If a later goal introduces multi-Host coordination, it must preserve this
+delegation boundary:
+
+```text
+Fleet Controller (future, content-free)
+  → authenticated Host A supervisor → Host A Cells
+  → authenticated Host B supervisor → Host B Cells
+```
+
+The Fleet Controller never calls a Cell lifecycle endpoint directly. Each Host
+supervisor rechecks authority, plan digest, ownership, capacity, image digest,
+paths, ports, networks, and current operation state before changing a local
+Cell. A Host and Fleet Controller are never interchangeable terms.
 
 - The supervisor is a separate executable and process. It MUST NOT be started
   from `src/instrumentation-node.ts` or imported into a cell's Next.js graph.
@@ -89,6 +110,14 @@ Host administrator
   license store, snapshot directory, or logs.
 
 ## Vocabulary
+
+- **Relay Host:** one physical machine or VM and its local administrative and
+  failure boundary.
+- **Host supervisor:** the privileged, content-free process that controls only
+  Cells resident on its Relay Host.
+- **Fleet Controller:** a future remote coordinator for multiple Hosts. It owns
+  no Cell data and delegates requests to Host supervisors; it is excluded from
+  this contract.
 
 - **Host root:** supervisor-owned filesystem root containing the dedicated
   registry, redacted receipts, locks, and non-secret manifest cache.
@@ -378,7 +407,8 @@ credential, push, publish, version, or release changed in this goal.
 - off-Host backup transport, KMS implementation, or accepted RPO/RTO;
 - signed OCI publication or registry writes;
 - entitlement enforcement, UI, or lifecycle lapse behavior;
-- multi-Host command authority or an Orionfold-hosted control plane; and
+- multi-Host/Fleet Controller command authority or an Orionfold-hosted control
+  plane; and
 - protection from the trusted Host administrator.
 
 ## References

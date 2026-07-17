@@ -3,7 +3,7 @@ id: TDR-044
 title: Customer-owned Relay Host with isolated cells
 status: accepted
 date: 2026-07-15
-amended: 2026-07-16 (G-060 local Host supervisor contract); 2026-07-17 (Host/Cell distribution boundary)
+amended: 2026-07-16 (G-060 local Host supervisor contract); 2026-07-17 (Host/Cell distribution and Supervisor/Fleet boundaries)
 accepted: 2026-07-16 (G-079 authority and isolation contract)
 goal: G-078, G-060, G-079
 ---
@@ -57,6 +57,7 @@ to a device-or-server appliance that can host one or more isolated Relay cells.
 - A **Host** is the laptop, workstation, home server, or cloud VM that owns the
   operating-system boundary and runs Relay. In managed mode it also runs the
   Host supervisor, ingress, backup transport, and optional local model runtime.
+  A Host is a machine boundary, not a Fleet Controller.
 - A **Cell** is one complete Relay instance for one customer trust boundary. It
   has its own process/container, data directory, SQLite database, files,
   identity, secrets, license, logs, network route, resource limits, and backup
@@ -64,11 +65,28 @@ to a device-or-server appliance that can host one or more isolated Relay cells.
 - A **customer, project, or folder** is an organizing record inside a Cell. It
   is useful for attribution and workflow, but it is not a security boundary.
 - The **Host supervisor** is the local control program that creates, verifies,
-  starts, stops, upgrades, backs up, and removes Cells on that Host. It does not
-  process customer work and it is not inside the Cell image.
+  starts, stops, upgrades, backs up, and removes Cells physically located on
+  that Host. It does not manage Cells on another Host, process customer work,
+  or live inside the Cell image.
+- A **Fleet Controller** would be an optional future, content-free coordinator
+  for several independent Hosts. It may request desired lifecycle operations
+  from each authenticated Host supervisor, but it never becomes a Host, mounts
+  Cell data, talks to a Cell database, or controls a remote Cell directly.
 - The **Relay Cell image** is the packaged Relay application pulled from an OCI
   registry. Starting the same image more than once with separate resources
   creates separate Cells; it never turns into the Host supervisor.
+
+The authority chain is deliberately layered:
+
+```text
+optional future Fleet Controller
+  → authenticated Relay Host supervisor A → Cells physically on Host A
+  → authenticated Relay Host supervisor B → Cells physically on Host B
+  → authenticated Relay Host supervisor C → Cells physically on Host C
+```
+
+Server A controlling Cells on servers B, C, and D is therefore not one Host
+with remote Cells. It is a future Fleet Controller coordinating three Hosts.
 
 Adopt a **customer-owned Relay Host with isolated cells** as the first reference
 architecture. The same host contract runs on a local device, home/office server,
@@ -152,8 +170,11 @@ or cloud VM.
     credentials, secret values, raw logs or backup contents.
 17. Begin with local Host-administrator authority through a direct CLI or an
     administrator-owned Unix socket with peer credential checks. No TCP,
-    browser, remote multi-Host or Orionfold control-plane lifecycle authority is
-    created by the first supervisor slice.
+    browser, remote multi-Host, Fleet Controller, or Orionfold control-plane
+    lifecycle authority is created by the first supervisor slice. If a Fleet
+    Controller is later approved, each Host supervisor independently
+    authenticates it, revalidates ownership/capacity/artifact/operation state,
+    and remains the only component allowed to mutate its local Cells.
 18. Keep secret ownership per cell and customer. The supervisor records only an
     opaque `secretRootRef` plus presence/health. Host-admin trust remains
     explicit; stronger administrative separation means another VM/machine.
@@ -193,7 +214,7 @@ or cloud VM.
 | Files/documents | A for live files; B for backup/export transport | multi-host direct access or volume portability becomes a product requirement |
 | Secrets | B: per-cell local envelope with host/device keychain or cloud secret manager/KMS root | one portable envelope can preserve distinct roots of trust without weakening either mode |
 | Identity/public access | B: trusted-local and remote-authenticated exposure profiles under one authorization contract | local mode can adopt the same identity without breaking offline first-run |
-| Host/cell lifecycle | B: local device and cloud VM use one host-supervisor/cell contract | multi-host fleet authority becomes a paid requirement |
+| Host/cell lifecycle | B: each local device or cloud VM is one Host whose local supervisor alone controls its resident Cells | add a content-free Fleet Controller only when paid multi-Host demand justifies the new remote authority boundary |
 | Scheduler/execution | A: one owner per cell | horizontal workers or failover inside one cell require leases/queue semantics |
 | Live events | A: process-local/SSE per cell | multiple Relay replicas must serve one cell |
 | Model runtimes | A endpoint protocol; B host-local/private lifecycle adapter | runtime capacity must scale independently of a host or span trust boundaries |
@@ -298,7 +319,9 @@ deployment, remote control plane, compliance claim or external write.
 The 2026-07-17 terminology amendment makes the distribution boundary explicit:
 npm is the Host bootstrap/control channel and remains the direct local
 single-Cell channel; an OCI registry is the managed-Host Cell-runtime channel.
-It changes no accepted isolation or authority decision.
+It also distinguishes the local Host supervisor from a possible future Fleet
+Controller. It changes no accepted isolation or authority decision and grants
+no remote multi-Host authority.
 
 ## References
 

@@ -27,6 +27,21 @@ with its own database, files, identity, secrets, license, logs, limits, and
 backup history. A customer row, project, or folder inside Relay organizes work;
 it does not create a separate Cell or security boundary.
 
+A **Host Supervisor** controls only Cells running on its own Host. It is not a
+**Fleet Controller**. A future Fleet Controller could coordinate several Hosts,
+but it would send requests to each Host supervisor rather than operating remote
+Cells directly:
+
+```text
+Fleet Controller (future)
+  → Host B supervisor → Cells on Host B
+  → Host C supervisor → Cells on Host C
+  → Host D supervisor → Cells on Host D
+```
+
+Calling Server A the “Host” when the Cells actually run on Servers B, C, and D
+would be incorrect. Server A is the controller; B, C, and D are the Hosts.
+
 Common deployments are:
 
 1. **One person on one laptop:** `npx orionfold-relay` runs one direct local

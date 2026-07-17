@@ -18,6 +18,11 @@
 - Added four plain-language deployment stories—personal laptop, multi-customer
   laptop, operator-owned server and customer-owned server—to the architecture,
   engineering and customer guides, then regenerated the bundled Chat knowledge.
+- Clarified that a Relay Host is one machine, its Host Supervisor controls only
+  local Cells, and an optional future Fleet Controller coordinates multiple
+  Hosts through their supervisors. Renamed the G-060 document titles to remove
+  the misleading implication that the local supervisor is already a fleet
+  controller.
 
 ## 2026-07-17 — Complete G-093 optimized Relay Cell OCI production
 

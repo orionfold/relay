@@ -58,7 +58,13 @@ the G-080–G-084 implementation increments.
   runtime policy. Two processes sharing any authoritative data root are not two
   isolated cells.
 - **Relay Host:** the trusted device or VM that runs one or more cells. Its
-  administrator can inspect or replace resident cells.
+  administrator can inspect or replace resident cells. A Host is one machine,
+  not a Fleet Controller.
+- **Host supervisor:** the local control process that manages only cells
+  resident on its Host.
+- **Fleet Controller:** a separate future coordinator for multiple Hosts. It is
+  not a Host and must delegate through each Host supervisor rather than control
+  a remote cell directly.
 - **Separate VM/machine:** the required placement when customers are mutually
   hostile or must be protected from the current Host administrator.
 
@@ -222,7 +228,7 @@ select a different data boundary.
 ## NOT in scope
 
 - row-level multi-tenancy or customer-scoped query rewriting;
-- a Host registry/supervisor or remote multi-Host inventory;
+- a Host registry/supervisor, Fleet Controller, or remote multi-Host inventory;
 - container, OS-user, network, port, mount, hostname, or resource allocation;
 - authentication, sessions, SSO, public ingress, or cloud authorization;
 - backup transport, KMS, provider adapters, signed OCI artifacts, or paid

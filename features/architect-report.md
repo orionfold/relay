@@ -5,20 +5,29 @@ mode: tdr
 
 # Architect Report
 
-## TDR-044 amendment — Host/Cell distribution boundary
+## TDR-044 amendment — Host Supervisor versus Fleet Controller
 
-TDR-044 remains accepted. Its distribution decision is now explicit:
+TDR-044 remains accepted with a clarified authority hierarchy:
 
-- npm supplies the Relay CLI, current direct local single-Cell path and future
-  managed-Host bootstrap/supervisor;
-- the OCI registry supplies the immutable Relay Cell runtime image;
-- one release manifest binds npm/supervisor compatibility to the exact Cell
-  image digest; and
-- the Cell image contains no supervisor and has no Host/Cell mode switch.
+```text
+optional future Fleet Controller
+  → authenticated Host Supervisor
+    → Cells physically resident on that Host
+```
 
-This is a terminology and channel-boundary clarification, not a change to the
-accepted Host/Cell isolation architecture. Internal build-command names remain
-stable to avoid needless compatibility churn.
+- A Relay Host is one machine or VM, not a controller role.
+- A Host Supervisor is local to one Host and is the only component allowed to
+  mutate that Host's Cells.
+- A future Fleet Controller coordinates several Hosts through authenticated
+  Host supervisors. It never directly controls Cells or receives Cell data.
+- Server A coordinating Cells on Servers B, C and D means A is a Fleet
+  Controller and B, C and D are Relay Hosts.
+- G-083 implements only the local Host Supervisor. G-086 proves a second
+  independent Host target; neither goal creates Fleet Controller authority.
+
+No new application code or current release claim follows from this amendment.
+A future Fleet Controller requires its own Goal Contract, TDR/threat-model
+amendment and explicit activation trigger.
 
 ---
 

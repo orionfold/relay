@@ -1,5 +1,5 @@
 ---
-title: Relay Host fleet manager implementation plan
+title: Local Relay Host supervisor implementation plan
 status: accepted
 goal: G-060 planning deliverable; implementation target G-083 after prerequisites
 date: 2026-07-16
@@ -7,7 +7,12 @@ specification: features/relay-host-fleet-manager-contract.md
 tdr: TDR-044 accepted by G-079 on 2026-07-16
 ---
 
-# Relay Host fleet manager implementation plan
+# Local Relay Host supervisor implementation plan
+
+The historical `fleet-manager` filename does not name the implemented
+authority. This plan builds one Host-local supervisor controlling only Cells on
+that Host. A Fleet Controller coordinating several remote Hosts is separate,
+future, content-free scope and would delegate through each Host supervisor.
 
 ## Scope challenge result
 
@@ -244,7 +249,7 @@ G-084.
 
 - implementing G-060 itself beyond documents;
 - starting the supervisor from Relay instrumentation;
-- remote HTTP/browser control or multi-Host authority;
+- remote HTTP/browser control, Fleet Controller, or multi-Host authority;
 - ingress, identity, CSRF, sessions, SSO, or public routing;
 - cloud provider adapters, OAuth, DNS, billing, or VM resources;
 - OCI publication before G-080 approval;

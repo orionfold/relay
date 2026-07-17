@@ -29,6 +29,12 @@ This contract accepts TDR-044 and supplies the authority, transfer, revocation,
 hardening and provisional admission decisions consumed by G-080 through G-084.
 It creates no runtime, container, public endpoint, provider resource or release.
 
+A Relay Host is the machine boundary; it is not a Fleet Controller. The local
+Host supervisor controls only Cells resident on that Host. A future Fleet
+Controller coordinating multiple Hosts must delegate through authenticated
+Host supervisors, which remain the local policy and mutation authority. No
+remote controller-to-Cell path is accepted by this contract.
+
 ## Accepted decisions
 
 The operator accepted these decisions on 2026-07-16:
