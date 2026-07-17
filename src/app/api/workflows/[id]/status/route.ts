@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { workflows, tasks, documents, workflowReceiptRuns } from "@/lib/db/schema";
-import { eq, and, inArray, count, desc, sql as drizzleSql } from "drizzle-orm";
+import { workflows, tasks, documents, workflowReceiptRuns, projects } from "@/lib/db/schema";
+import { eq, and, inArray, count, desc, getTableColumns, sql as drizzleSql } from "drizzle-orm";
 import { parseWorkflowState } from "@/lib/workflows/engine";
 import type {
   WorkflowStatusResponse,
@@ -82,8 +82,12 @@ export async function GET(
   const { id } = await params;
 
   const [workflow] = await db
-    .select()
+    .select({
+      ...getTableColumns(workflows),
+      projectName: projects.name,
+    })
     .from(workflows)
+    .leftJoin(projects, eq(workflows.projectId, projects.id))
     .where(eq(workflows.id, id));
 
   if (!workflow) {
@@ -153,6 +157,7 @@ export async function GET(
       name: workflow.name,
       status: workflow.status,
       projectId: workflow.projectId,
+      projectName: workflow.projectName,
       definition: workflow.definition,
       pattern: "loop" as const,
       loopConfig: definition.loopConfig,
@@ -179,6 +184,7 @@ export async function GET(
     status: workflow.status,
     resumeAt: workflow.resumeAt ?? null,
     projectId: workflow.projectId,
+    projectName: workflow.projectName,
     definition: workflow.definition,
     pattern: definition.pattern as NonLoopPattern,
     swarmConfig: definition.swarmConfig,

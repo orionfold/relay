@@ -11,7 +11,6 @@ import {
   Copy,
   RotateCcw,
   Trash2,
-  FolderKanban,
   ArrowRight,
   Inbox as InboxIcon,
   Clock3,
@@ -24,6 +23,7 @@ import { StatusChip } from "@/components/shared/status-chip";
 import { ExecutionTargetPreview } from "@/components/shared/execution-target-preview";
 import type { WorkflowStatusResponse } from "@/lib/workflows/types";
 import { getWorkflowExecutionInfoFromStatusResponse } from "@/lib/workflows/execution-status";
+import { WorkflowProjectBadge } from "./workflow-project-badge";
 
 /**
  * FEAT-7/8: a status-aware signpost telling the user what to do next. After a
@@ -153,16 +153,10 @@ export function WorkflowHeader({
               {patternLabels[data.pattern] ?? data.pattern}
             </p>
             <div className="flex items-center gap-2 mt-1">
-              {data.projectId && (
-                <Badge
-                  variant="outline"
-                  className="text-xs hover:bg-accent gap-1"
-                  onClick={() => router.push(`/projects/${data.projectId}`)}
-                >
-                  <FolderKanban className="h-3 w-3" />
-                  Project
-                </Badge>
-              )}
+              <WorkflowProjectBadge
+                projectId={data.projectId}
+                projectName={data.projectName}
+              />
               {data.runNumber != null && data.runNumber > 0 && (
                 <Badge variant="outline" className="text-xs font-normal">
                   Run #{data.runNumber}

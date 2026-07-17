@@ -199,5 +199,21 @@ workflow execution-target preview all reported that same identity. The Cell ran
 non-root with a read-only root, no capabilities, `no-new-privileges`, bounded
 CPU/memory/PIDs, and its own network and volume. Evidence is retained under
 `output/staging/2026-07-17-g096-cell-identity/`; teardown removed only those
-disposable resources. G-097 remains the next Host R1 release blocker, followed
+disposable resources. G-097 remained the next Host R1 release blocker, followed
 by the G-099 customer-identical rerun.
+
+## G-097 Foundation context-integrity receipt — 2026-07-17
+
+Workflow, project, customer, and document references now share explicit
+fail-before-write validation while preserving omitted-versus-null semantics.
+Workflow status/detail/edit carry the real linked project, project detail links
+the customer, and project-aware uploads enter a readiness-aware workflow pool
+whose replacement mutation is atomic and error-visible.
+
+Focused regressions, the 3,632-test full suite, production build, documentation
+gates, and an isolated real HTTP/document-processing journey passed. In-app
+Browser acceptance also caught and closed a project-selector hydration defect
+before acceptance. G-097 changes the runtime source consumed by the Cell image,
+so the previously accepted G-096 digest remains historical evidence rather
+than the R1 candidate; G-099 is now current and must rebuild/reverify the
+optimized artifact before repeating customer-identical J0–J3.

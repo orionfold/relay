@@ -6,10 +6,14 @@ import { unlink } from "fs/promises";
 import { z } from "zod/v4";
 
 import { processDocument } from "@/lib/documents/processor";
+import {
+  projectReferenceExists,
+  taskReferenceExists,
+} from "@/lib/data/reference-validation";
 
 const documentPatchSchema = z.object({
-  taskId: z.string().uuid().nullable().optional(),
-  projectId: z.string().uuid().nullable().optional(),
+  taskId: z.string().trim().min(1).nullable().optional(),
+  projectId: z.string().trim().min(1).nullable().optional(),
   category: z.string().max(100).optional(),
   metadata: z.record(z.string(), z.string()).optional(),
   reprocess: z.boolean().optional(),
@@ -64,7 +68,12 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const raw = await req.json();
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
   const parsed = documentPatchSchema.safeParse(raw);
 
   if (!parsed.success) {
@@ -83,6 +92,28 @@ export async function PATCH(
 
   if (!doc) {
     return NextResponse.json({ error: "Document not found" }, { status: 404 });
+  }
+
+  if (
+    body.taskId !== undefined &&
+    body.taskId !== null &&
+    !(await taskReferenceExists(body.taskId))
+  ) {
+    return NextResponse.json(
+      { error: `Task not found: ${body.taskId}` },
+      { status: 404 }
+    );
+  }
+
+  if (
+    body.projectId !== undefined &&
+    body.projectId !== null &&
+    !(await projectReferenceExists(body.projectId))
+  ) {
+    return NextResponse.json(
+      { error: `Project not found: ${body.projectId}` },
+      { status: 404 }
+    );
   }
 
   const updates: Record<string, unknown> = { updatedAt: new Date() };
@@ -111,7 +142,9 @@ export async function PATCH(
     .where(eq(documents.id, id));
 
   if (body.reprocess) {
-    processDocument(id).catch(() => {});
+    processDocument(id).catch((error) => {
+      console.error(`[documents] Reprocessing dispatch failed for ${id}:`, error);
+    });
   }
 
   const [updated] = await db

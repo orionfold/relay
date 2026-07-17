@@ -1,20 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { basename, extname, join } from "path";
 import { db } from "@/lib/db";
 import { documents } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { processDocument } from "@/lib/documents/processor";
 import { getAinativeUploadsDir } from "@/lib/utils/ainative-paths";
+import {
+  projectReferenceExists,
+  taskReferenceExists,
+} from "@/lib/data/reference-validation";
 
 const UPLOAD_DIR = getAinativeUploadsDir();
 
 export async function POST(req: NextRequest) {
-  const formData = await req.formData();
-  const file = formData.get("file") as File | null;
-  const taskId = formData.get("taskId") as string | null;
+  let formData: FormData;
+  try {
+    formData = await req.formData();
+  } catch {
+    return NextResponse.json({ error: "Invalid multipart form data" }, { status: 400 });
+  }
+  const file = formData.get("file");
+  const rawTaskId = formData.get("taskId");
+  const rawProjectId = formData.get("projectId");
+  const taskId = typeof rawTaskId === "string" && rawTaskId.trim() ? rawTaskId.trim() : null;
+  const projectId =
+    typeof rawProjectId === "string" && rawProjectId.trim()
+      ? rawProjectId.trim()
+      : null;
 
-  if (!file) {
+  if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
@@ -22,11 +37,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "File too large (max 50MB)" }, { status: 400 });
   }
 
+  if (taskId && !(await taskReferenceExists(taskId))) {
+    return NextResponse.json(
+      { error: `Task not found: ${taskId}` },
+      { status: 404 }
+    );
+  }
+
+  if (projectId && !(await projectReferenceExists(projectId))) {
+    return NextResponse.json(
+      { error: `Project not found: ${projectId}` },
+      { status: 404 }
+    );
+  }
+
   await mkdir(UPLOAD_DIR, { recursive: true });
 
   const id = crypto.randomUUID();
-  const ext = file.name.split(".").pop() ?? "";
-  const filename = ext ? `${id}.${ext}` : id;
+  const originalName = basename(file.name) || "upload";
+  const ext = extname(originalName).toLowerCase();
+  const safeExt = /^\.[a-z0-9]{1,16}$/.test(ext) ? ext : "";
+  const filename = `${id}${safeExt}`;
   const filepath = join(UPLOAD_DIR, filename);
 
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -36,9 +67,9 @@ export async function POST(req: NextRequest) {
   await db.insert(documents).values({
     id,
     taskId: taskId ?? null,
-    projectId: null,
+    projectId,
     filename,
-    originalName: file.name,
+    originalName,
     mimeType: file.type || "application/octet-stream",
     size: file.size,
     storagePath: filepath,
@@ -70,10 +101,11 @@ export async function POST(req: NextRequest) {
     {
       id,
       filename,
-      originalName: file.name,
+      originalName,
       size: file.size,
       type: file.type,
       taskId,
+      projectId,
     },
     { status: 201 }
   );

@@ -7,6 +7,13 @@ import {
 import { eq } from "drizzle-orm";
 import { updateProjectSchema } from "@/lib/validators/project";
 import { deleteProjectCascade } from "@/lib/data/delete-project";
+import {
+  customerReferenceExists,
+  findMissingDocumentReferences,
+} from "@/lib/data/reference-validation";
+import { z } from "zod/v4";
+
+const projectDocumentIdsSchema = z.array(z.string().trim().min(1));
 
 export async function GET(
   _req: NextRequest,
@@ -29,44 +36,86 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const body = await req.json();
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
   // Extract documentIds before validation (not a project column)
-  const { documentIds, ...projectBody } = body as Record<string, unknown> & { documentIds?: string[] };
+  const { documentIds: rawDocumentIds, ...projectBody } = body as Record<string, unknown>;
   const parsed = updateProjectSchema.safeParse(projectBody);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const now = new Date();
-  await db
-    .update(projects)
-    .set({ ...parsed.data, updatedAt: now })
-    .where(eq(projects.id, id));
+  const parsedDocumentIds =
+    rawDocumentIds === undefined
+      ? null
+      : projectDocumentIdsSchema.safeParse(rawDocumentIds);
+  if (parsedDocumentIds && !parsedDocumentIds.success) {
+    return NextResponse.json(
+      { error: "documentIds must be an array of non-empty IDs" },
+      { status: 400 }
+    );
+  }
+  const documentIds = parsedDocumentIds?.data;
 
-  // Handle default document bindings
-  if (documentIds !== undefined) {
-    try {
-      // Replace all bindings
-      await db
+  const [existingProject] = await db
+    .select({ id: projects.id })
+    .from(projects)
+    .where(eq(projects.id, id));
+  if (!existingProject) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  if (
+    parsed.data.customerId &&
+    !(await customerReferenceExists(parsed.data.customerId))
+  ) {
+    return NextResponse.json(
+      { error: `Customer not found: ${parsed.data.customerId}` },
+      { status: 404 }
+    );
+  }
+
+  if (documentIds) {
+    const missing = await findMissingDocumentReferences(documentIds);
+    if (missing.length > 0) {
+      return NextResponse.json(
+        { error: `Documents not found: ${missing.join(", ")}` },
+        { status: 404 }
+      );
+    }
+  }
+
+  const now = new Date();
+  db.transaction((tx) => {
+    tx.update(projects)
+      .set({ ...parsed.data, updatedAt: now })
+      .where(eq(projects.id, id))
+      .run();
+
+    if (documentIds !== undefined) {
+      tx
         .delete(projectDocumentDefaults)
-        .where(eq(projectDocumentDefaults.projectId, id));
-      for (const docId of documentIds) {
-        try {
-          await db.insert(projectDocumentDefaults).values({
+        .where(eq(projectDocumentDefaults.projectId, id))
+        .run();
+      for (const docId of new Set(documentIds)) {
+        tx.insert(projectDocumentDefaults)
+          .values({
             id: crypto.randomUUID(),
             projectId: id,
             documentId: docId,
             createdAt: now,
-          });
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : "";
-          if (!msg.includes("UNIQUE constraint")) throw err;
-        }
+          })
+          .run();
       }
-    } catch (err) {
-      console.error("[projects] Document defaults update failed:", err);
     }
-  }
+  });
 
   const [updated] = await db
     .select()

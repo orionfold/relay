@@ -12,20 +12,19 @@ mode: next-steps
 
 ### Recommendation
 
-**Do this:** Complete **G-097 — Preserve customer, project, and document context
-through Foundation workflows**. G-096 is accepted, so this is now the remaining
-code-fix release blocker before the G-099 customer-identical rerun.
+**Do this:** Complete **G-099 — Revalidate Host R1 Foundation on the rebuilt
+optimized artifact**. G-097 is accepted, so the remaining R1 gate is a fresh
+artifact build and customer-identical J0–J3 acceptance run.
 
-**Why:** the G-025 staging journey proved that workflow project edits can report
-success while dropping `projectId`, project detail omits customer attribution,
-and an unlinked document disappears from the selected project's workflow pool.
-Those breaks prevent Foundation from carrying the operator's chosen context end
-to end even though the canonical Cell identity is now truthful.
+**Why:** G-096 made managed Cell identity canonical and G-097 now preserves
+customer, project, and document context end to end. Because G-097 changed the
+runtime source after the accepted G-096 image digest was produced, R1 still
+needs the same Foundation journey against a freshly rebuilt optimized image.
 
-**Invoke:** repair the workflow project mutation and visible labels, preserve
-customer attribution and explicit document-project semantics, add cross-layer
-regressions, rebuild the artifact if runtime inputs change, and verify the
-Foundation context journey before handing the clean candidate to G-099.
+**Invoke:** rebuild the optimized arm64 Cell artifact through the accepted
+G-093 mechanism, verify its signed evidence bundle and isolation contract, then
+run the unchanged J0–J3 Foundation staging journey from a fresh volume and
+dispose every finding before advancing R1.
 
 **Priority category:** Phase advancement — current ready goal in the active
 release increment with its dependencies met.
@@ -33,15 +32,15 @@ release increment with its dependencies met.
 ### Context
 
 - Active workstream: **Customer-owned Relay Host** — R1 findings open.
-- Accepted in R1: **G-080/G-034/G-038/G-093/G-025/G-096**.
-- Current sequence: **G-097 → G-099**.
+- Accepted in R1: **G-080/G-034/G-038/G-093/G-025/G-096/G-097**.
+- Current goal: **G-099**.
 - After R1: **R2 — Secure/recoverable Host alpha**, with G-081 and G-082 ready.
 - Enterprise connectors remains queued until an intentional WIP decision.
 
 ### If You Have More Time
 
-1. Complete **G-097** context integrity and **G-099** Foundation revalidation;
-   only then advance R1 and execute G-094 publication preparation.
+1. Complete **G-099** Foundation revalidation; only then advance R1 and
+   execute G-094 publication preparation.
 2. Accept the **G-095** entitlement/capacity contract before G-083 begins; its
    SKU, pricing, limits, reseller and lapse decisions remain operator-gated.
 

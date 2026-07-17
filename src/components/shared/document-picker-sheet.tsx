@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Sheet,
   SheetContent,
@@ -85,6 +85,7 @@ export function DocumentPickerSheet({
 }: DocumentPickerSheetProps) {
   const [documents, setDocuments] = useState<PickerDocument[]>([]);
   const [loading, setLoading] = useState(false);
+  const [documentError, setDocumentError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [localSelected, setLocalSelected] = useState<Set<string>>(new Set());
 
@@ -92,9 +93,9 @@ export function DocumentPickerSheet({
   const [activeProjectId, setActiveProjectId] = useState<string | null>(projectId);
   const [projects, setProjects] = useState<Array<{ id: string; name: string }>>([]);
   const [projectsLoading, setProjectsLoading] = useState(false);
+  const [projectsError, setProjectsError] = useState<string | null>(null);
   const [selectedDocMeta, setSelectedDocMeta] = useState<Map<string, PickerSelectedDoc>>(new Map());
   const [trayExpanded, setTrayExpanded] = useState(true);
-  const initializedRef = useRef(false);
 
   // Initialize state when sheet opens
   useEffect(() => {
@@ -127,38 +128,36 @@ export function DocumentPickerSheet({
       if (allowCrossProject) {
         fetchProjects();
       }
-      initializedRef.current = true;
-    } else {
-      initializedRef.current = false;
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch documents when activeProjectId changes (and sheet is open)
-  useEffect(() => {
-    if (open && initializedRef.current) {
-      fetchDocuments(activeProjectId);
-    }
-  }, [activeProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Initial document fetch when sheet opens
+  // Fetch once on open and whenever the active project changes.
   useEffect(() => {
     if (open) {
-      fetchDocuments(projectId);
+      fetchDocuments(activeProjectId);
     }
-  }, [open, projectId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, activeProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function fetchDocuments(forProjectId: string | null) {
     setLoading(true);
+    setDocumentError(null);
     try {
-      const params = new URLSearchParams({ status: "ready" });
+      const params = new URLSearchParams();
       if (forProjectId) params.set("projectId", forProjectId);
       const res = await fetch(`/api/documents?${params}`);
       if (res.ok) {
         const data = await res.json();
         setDocuments(data);
+      } else {
+        const body = await res.json().catch(() => null);
+        setDocuments([]);
+        setDocumentError(
+          body?.error ?? `Could not load documents (${res.status})`
+        );
       }
     } catch {
-      // Silently fail — empty list shown
+      setDocuments([]);
+      setDocumentError("Could not load documents. Check the Relay connection.");
     } finally {
       setLoading(false);
     }
@@ -166,14 +165,18 @@ export function DocumentPickerSheet({
 
   async function fetchProjects() {
     setProjectsLoading(true);
+    setProjectsError(null);
     try {
       const res = await fetch("/api/projects");
       if (res.ok) {
         const data = await res.json();
         setProjects(data.map((p: { id: string; name: string }) => ({ id: p.id, name: p.name })));
+      } else {
+        const body = await res.json().catch(() => null);
+        setProjectsError(body?.error ?? `Could not load projects (${res.status})`);
       }
     } catch {
-      // Silently fail — no project dropdown options
+      setProjectsError("Could not load projects. Project switching is unavailable.");
     } finally {
       setProjectsLoading(false);
     }
@@ -290,7 +293,7 @@ export function DocumentPickerSheet({
   const emptyMessage = search
     ? "No documents match your search."
     : effectiveProjectId
-      ? "No documents available in this project."
+      ? "No documents have been uploaded to this project."
       : "No documents available. Upload files in the Documents view.";
 
   return (
@@ -309,24 +312,31 @@ export function DocumentPickerSheet({
         <div className="px-6 pb-6 flex flex-col gap-4 flex-1 min-h-0">
           {/* Project selector (cross-project mode only) */}
           {allowCrossProject && (
-            <Select
-              value={activeProjectId ?? "__all__"}
-              onValueChange={handleProjectChange}
-              disabled={projectsLoading}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue placeholder="All Projects" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__all__">All Projects</SelectItem>
-                {projects.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name}
-                    {p.id === projectId ? " (current)" : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-1.5">
+              <Select
+                value={activeProjectId ?? "__all__"}
+                onValueChange={handleProjectChange}
+                disabled={projectsLoading || Boolean(projectsError)}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All Projects" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">All Projects</SelectItem>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                      {p.id === projectId ? " (current)" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {projectsError && (
+                <p role="alert" className="text-xs text-destructive">
+                  {projectsError}
+                </p>
+              )}
+            </div>
           )}
 
           {/* Search */}
@@ -399,6 +409,10 @@ export function DocumentPickerSheet({
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
+            ) : documentError ? (
+              <div role="alert" className="px-4 py-12 text-center text-sm text-destructive">
+                {documentError}
+              </div>
             ) : Object.keys(grouped).length === 0 ? (
               <div className="text-center text-sm text-muted-foreground py-12">
                 {emptyMessage}
@@ -414,23 +428,28 @@ export function DocumentPickerSheet({
                       {docs.map((doc) => {
                         const Icon = getFileIcon(doc.mimeType);
                         const isChecked = localSelected.has(doc.id);
+                        const canToggle = doc.status === "ready" || isChecked;
                         return (
                           <div
                             key={doc.id}
                             role="button"
-                            tabIndex={0}
+                            tabIndex={canToggle ? 0 : -1}
+                            aria-disabled={!canToggle}
                             data-interactive-surface=""
                             data-interactive-outline="preserve"
-                            onClick={() => toggleDocument(doc.id)}
-                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleDocument(doc.id); } }}
+                            onClick={() => canToggle && toggleDocument(doc.id)}
+                            onKeyDown={(e) => { if (canToggle && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggleDocument(doc.id); } }}
                             className={`interactive-list-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left ${
                               isChecked
                                 ? "bg-accent/50 border border-accent"
-                                : "border border-transparent"
+                                : canToggle
+                                  ? "border border-transparent"
+                                  : "border border-transparent opacity-70"
                             }`}
                           >
                             <Checkbox
                               checked={isChecked}
+                              disabled={!canToggle}
                               aria-label={`Select ${doc.originalName}`}
                             />
                             <Icon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
@@ -447,6 +466,9 @@ export function DocumentPickerSheet({
                               <div
                                 className={`h-2 w-2 rounded-full ${getStatusDotColor(doc.status)}`}
                               />
+                              <Badge variant="outline" className="text-[10px] px-1.5 capitalize">
+                                {doc.status}
+                              </Badge>
                               {doc.direction === "output" && (
                                 <Badge variant="outline" className="text-[10px] px-1.5">
                                   output

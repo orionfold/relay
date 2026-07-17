@@ -108,6 +108,9 @@ export function DocumentDetailView({ documentId, initialDocument }: DocumentDeta
       if (res.ok) {
         toast.success(value ? "Linked to project" : "Unlinked from project");
         refresh();
+      } else {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error ?? `Failed to update project link (${res.status})`);
       }
     } catch {
       toast.error("Failed to update link");
@@ -127,6 +130,9 @@ export function DocumentDetailView({ documentId, initialDocument }: DocumentDeta
       if (res.ok) {
         toast.success("Unlinked from task");
         refresh();
+      } else {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error ?? `Failed to unlink task (${res.status})`);
       }
     } catch {
       toast.error("Failed to unlink");

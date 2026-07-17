@@ -313,6 +313,7 @@ export type WorkflowStatusResponse =
       name: string;
       status: string;
       projectId?: string | null;
+      projectName: string | null;
       definition?: string;
       loopConfig?: LoopConfig;
       loopState: LoopState | null;
@@ -336,6 +337,7 @@ export type WorkflowStatusResponse =
       /** Epoch ms for a paused (delay-step) workflow's scheduled resume. */
       resumeAt: number | null;
       projectId?: string | null;
+      projectName: string | null;
       definition?: string;
       swarmConfig?: SwarmConfig;
       /** Each step wrapped with `.state` — always present on this arm. */

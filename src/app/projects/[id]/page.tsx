@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { projects, tasks, workflows, documents } from "@/lib/db/schema";
+import { customers, projects, tasks, workflows, documents } from "@/lib/db/schema";
 import { eq, count, desc, getTableColumns } from "drizzle-orm";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,7 @@ import {
   buildRelayExecutionContext,
   getRelayCellBoundary,
 } from "@/lib/instance/cell-boundary";
+import { ProjectContextBadges } from "@/components/projects/project-context-badges";
 
 export const dynamic = "force-dynamic";
 
@@ -27,8 +28,12 @@ export default async function ProjectDetailPage({
   const { id } = await params;
 
   const [project] = await db
-    .select()
+    .select({
+      ...getTableColumns(projects),
+      customerName: customers.name,
+    })
     .from(projects)
+    .leftJoin(customers, eq(projects.customerId, customers.id))
     .where(eq(projects.id, id));
 
   if (!project) notFound();
@@ -90,11 +95,6 @@ export default async function ProjectDetailPage({
   const workflowCount = workflowTasks.length;
   const workflowGroupCount = new Set(workflowTasks.map((t) => t.workflowId)).size;
 
-  const statusVariant: Record<string, "default" | "secondary" | "outline"> = {
-    active: "default",
-    paused: "secondary",
-    completed: "outline",
-  };
   const executionContext = buildRelayExecutionContext({
     cell: getRelayCellBoundary(),
     project: {
@@ -111,9 +111,11 @@ export default async function ProjectDetailPage({
       title={project.name}
       description={project.description ?? undefined}
       actions={
-        <Badge variant={statusVariant[project.status] ?? "secondary"}>
-          {project.status}
-        </Badge>
+        <ProjectContextBadges
+          customerId={project.customerId}
+          customerName={project.customerName}
+          status={project.status}
+        />
       }
     >
       <div className="mb-6">

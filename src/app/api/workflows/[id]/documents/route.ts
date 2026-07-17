@@ -5,9 +5,16 @@ import {
   documents,
   workflows,
 } from "@/lib/db/schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq, and, inArray, isNull } from "drizzle-orm";
+import { z } from "zod/v4";
+import { findMissingDocumentReferences } from "@/lib/data/reference-validation";
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+const documentBindingSchema = z.object({
+  documentIds: z.array(z.string().trim().min(1)),
+  stepId: z.string().trim().min(1).optional(),
+});
 
 /**
  * GET /api/workflows/[id]/documents
@@ -79,20 +86,23 @@ export async function POST(
   context: RouteContext
 ) {
   const { id: workflowId } = await context.params;
+  let rawBody: unknown;
+  try {
+    rawBody = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
   try {
-    const body = await request.json();
-    const { documentIds, stepId } = body as {
-      documentIds: string[];
-      stepId?: string;
-    };
-
-    if (!Array.isArray(documentIds) || documentIds.length === 0) {
+    const parsed = documentBindingSchema.safeParse(rawBody);
+    if (!parsed.success || parsed.data.documentIds.length === 0) {
       return NextResponse.json(
         { error: "documentIds must be a non-empty array" },
         { status: 400 }
       );
     }
+    const { stepId } = parsed.data;
+    const documentIds = [...new Set(parsed.data.documentIds)];
 
     // Verify workflow exists
     const [workflow] = await db
@@ -108,13 +118,7 @@ export async function POST(
     }
 
     // Verify all documents exist
-    const existingDocs = await db
-      .select({ id: documents.id })
-      .from(documents)
-      .where(inArray(documents.id, documentIds));
-
-    const existingIds = new Set(existingDocs.map((d) => d.id));
-    const missing = documentIds.filter((id) => !existingIds.has(id));
+    const missing = await findMissingDocumentReferences(documentIds);
     if (missing.length > 0) {
       return NextResponse.json(
         { error: `Documents not found: ${missing.join(", ")}` },
@@ -150,6 +154,83 @@ export async function POST(
     console.error("[workflow-documents] POST failed:", error);
     return NextResponse.json(
       { error: "Failed to attach documents" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PUT /api/workflows/[id]/documents
+ * Replace workflow-level document bindings. Step-scoped bindings are retained.
+ * Body: { documentIds: string[] }
+ */
+export async function PUT(
+  request: NextRequest,
+  context: RouteContext
+) {
+  const { id: workflowId } = await context.params;
+  let rawBody: unknown;
+  try {
+    rawBody = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  try {
+    const parsed = documentBindingSchema.safeParse(rawBody);
+    if (!parsed.success || parsed.data.stepId !== undefined) {
+      return NextResponse.json(
+        { error: "documentIds must be an array; stepId is not accepted for replacement" },
+        { status: 400 }
+      );
+    }
+    const documentIds = [...new Set(parsed.data.documentIds)];
+
+    const [workflow] = await db
+      .select({ id: workflows.id })
+      .from(workflows)
+      .where(eq(workflows.id, workflowId));
+    if (!workflow) {
+      return NextResponse.json({ error: "Workflow not found" }, { status: 404 });
+    }
+
+    const missing = await findMissingDocumentReferences(documentIds);
+    if (missing.length > 0) {
+      return NextResponse.json(
+        { error: `Documents not found: ${missing.join(", ")}` },
+        { status: 404 }
+      );
+    }
+
+    const now = new Date();
+    db.transaction((tx) => {
+      tx.delete(workflowDocumentInputs)
+        .where(
+          and(
+            eq(workflowDocumentInputs.workflowId, workflowId),
+            isNull(workflowDocumentInputs.stepId)
+          )
+        )
+        .run();
+
+      for (const documentId of documentIds) {
+        tx.insert(workflowDocumentInputs)
+          .values({
+            id: crypto.randomUUID(),
+            workflowId,
+            documentId,
+            stepId: null,
+            createdAt: now,
+          })
+          .run();
+      }
+    });
+
+    return NextResponse.json({ updated: documentIds.length, workflowId });
+  } catch (error) {
+    console.error("[workflow-documents] PUT failed:", error);
+    return NextResponse.json(
+      { error: "Failed to replace workflow documents" },
       { status: 500 }
     );
   }

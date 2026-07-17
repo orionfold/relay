@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +12,22 @@ import { Button } from "@/components/ui/button";
 import { Upload, CheckCircle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DocumentUploadDialogProps {
   open: boolean;
   onClose: () => void;
   onUploaded: () => void;
   restoreFocusElement?: HTMLElement | null;
+  projects?: { id: string; name: string }[];
+  defaultProjectId?: string | null;
 }
 
 export function DocumentUploadDialog({
@@ -25,10 +35,17 @@ export function DocumentUploadDialog({
   onClose,
   onUploaded,
   restoreFocusElement,
+  projects = [],
+  defaultProjectId = null,
 }: DocumentUploadDialogProps) {
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState<string[]>([]);
+  const [projectId, setProjectId] = useState(defaultProjectId ?? "none");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) setProjectId(defaultProjectId ?? "none");
+  }, [defaultProjectId, open]);
 
   async function handleFiles(files: FileList) {
     setUploading(true);
@@ -38,6 +55,7 @@ export function DocumentUploadDialog({
       try {
         const formData = new FormData();
         formData.append("file", file);
+        if (projectId !== "none") formData.append("projectId", projectId);
 
         const res = await fetch("/api/uploads", {
           method: "POST",
@@ -46,6 +64,9 @@ export function DocumentUploadDialog({
 
         if (res.ok) {
           names.push(file.name);
+        } else {
+          const body = await res.json().catch(() => null);
+          toast.error(body?.error ?? `Failed to upload ${file.name} (${res.status})`);
         }
       } catch {
         toast.error(`Failed to upload ${file.name}`);
@@ -82,6 +103,28 @@ export function DocumentUploadDialog({
             Add one or more files to the document library for processing and task attachment.
           </DialogDescription>
         </DialogHeader>
+
+        {projects.length > 0 && (
+          <div className="space-y-1.5">
+            <Label htmlFor="document-upload-project">Project</Label>
+            <Select value={projectId} onValueChange={setProjectId}>
+              <SelectTrigger id="document-upload-project">
+                <SelectValue placeholder="No project" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No project</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Project documents appear in that project&apos;s workflow picker.
+            </p>
+          </div>
+        )}
 
         <div
           role="button"

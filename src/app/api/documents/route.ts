@@ -9,6 +9,10 @@ import crypto from "crypto";
 import { getAinativeUploadsDir } from "@/lib/utils/ainative-paths";
 import { processDocument } from "@/lib/documents/processor";
 import { z } from "zod/v4";
+import {
+  projectReferenceExists,
+  taskReferenceExists,
+} from "@/lib/data/reference-validation";
 
 const VALID_DOC_STATUSES = ["uploaded", "processing", "ready", "error"] as const;
 const VALID_DOC_DIRECTIONS = ["input", "output"] as const;
@@ -17,6 +21,7 @@ type DocDirection = typeof VALID_DOC_DIRECTIONS[number];
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
+  const id = url.searchParams.get("id");
   const taskId = url.searchParams.get("taskId");
   const projectId = url.searchParams.get("projectId");
   const status = url.searchParams.get("status");
@@ -39,6 +44,7 @@ export async function GET(req: NextRequest) {
 
   const conditions = [];
 
+  if (id) conditions.push(eq(documents.id, id));
   if (taskId) conditions.push(eq(documents.taskId, taskId));
   if (projectId) conditions.push(eq(documents.projectId, projectId));
   if (status) conditions.push(eq(documents.status, status as DocStatus));
@@ -106,14 +112,19 @@ const MIME_TYPES: Record<string, string> = {
 
 const uploadSchema = z.object({
   file_path: z.string().min(1),
-  taskId: z.string().optional(),
-  projectId: z.string().optional(),
+  taskId: z.string().trim().min(1).optional(),
+  projectId: z.string().trim().min(1).optional(),
   direction: z.enum(["input", "output"]).optional().default("output"),
   metadata: z.record(z.string(), z.string()).optional(),
 });
 
 export async function POST(req: NextRequest) {
-  const raw = await req.json();
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
   const parsed = uploadSchema.safeParse(raw);
 
   if (!parsed.success) {
@@ -165,6 +176,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Not a file: ${body.file_path}` }, { status: 400 });
   }
 
+  if (body.taskId && !(await taskReferenceExists(body.taskId))) {
+    return NextResponse.json(
+      { error: `Task not found: ${body.taskId}` },
+      { status: 404 }
+    );
+  }
+
+  if (body.projectId && !(await projectReferenceExists(body.projectId))) {
+    return NextResponse.json(
+      { error: `Project not found: ${body.projectId}` },
+      { status: 404 }
+    );
+  }
+
   const originalName = basename(resolvedPath);
   const ext = extname(originalName).toLowerCase();
   const mimeType = MIME_TYPES[ext] ?? "application/octet-stream";
@@ -194,7 +219,9 @@ export async function POST(req: NextRequest) {
   });
 
   // Fire-and-forget preprocessing
-  processDocument(id).catch(() => {});
+  processDocument(id).catch((error) => {
+    console.error(`[documents] Processing dispatch failed for ${id}:`, error);
+  });
 
   return NextResponse.json(
     { documentId: id, status: "uploaded", processingStatus: "queued", originalName, mimeType, size: stats.size },

@@ -10,6 +10,11 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Fixed
 
+- **Foundation workflows preserve customer, project, and document context.**
+  Workflow project edits now set, change, or explicitly clear validated links;
+  project details identify their customer; project-aware uploads enter the
+  expected document pool; and workflow document replacement, readiness, and
+  failures remain visible without reporting partial saves as success.
 - **Managed OCI Cells now expose one canonical identity.** A validated
   `RELAY_CELL_ID` consistently powers readiness, Instance Settings, and
   task/workflow execution-target context in no-git Cells. Invalid identities

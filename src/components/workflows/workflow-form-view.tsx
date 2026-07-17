@@ -338,7 +338,10 @@ export function WorkflowFormView({
 
   const [name, setName] = useState("");
   const [pattern, setPattern] = useState<WorkflowPattern>("sequence");
-  const [projectId, setProjectId] = useState("");
+  // Radix Select reads the controlled value during its initial mount. Seed it
+  // from the server-provided workflow so edit/clone forms never flash or retain
+  // the synthetic "none" option while the rest of the form hydrates.
+  const [projectId, setProjectId] = useState(() => workflow?.projectId ?? "");
   const [steps, setSteps] = useState<WorkflowStep[]>([createEmptyStep()]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -416,7 +419,10 @@ export function WorkflowFormView({
   useEffect(() => {
     if (!workflow || clone) return;
     fetch(`/api/workflows/${workflow.id}/documents`)
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`Could not load workflow documents (${r.status})`);
+        return r.json();
+      })
       .then((bindings: Array<{ documentId: string; document: { id: string; originalName: string; mimeType: string; size: number } | null }>) => {
         const docs = bindings
           .filter((b) => b.document)
@@ -426,14 +432,23 @@ export function WorkflowFormView({
           setSelectedDocs(docs);
         }
       })
-      .catch(() => {});
+      .catch((loadError) => {
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "Could not load workflow documents"
+        );
+      });
   }, [workflow, clone]);
 
   // Auto-populate project default documents for new workflows
   useEffect(() => {
     if (workflow || !projectId) return; // Only for create mode with a project selected
     fetch(`/api/projects/${projectId}/documents`)
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`Could not load project documents (${r.status})`);
+        return r.json();
+      })
       .then((docs: Array<Record<string, unknown>>) => {
         if (Array.isArray(docs) && docs.length > 0) {
           setSelectedDocIds(new Set(docs.map((d) => d.id as string)));
@@ -447,7 +462,13 @@ export function WorkflowFormView({
           );
         }
       })
-      .catch(() => {});
+      .catch((loadError) => {
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "Could not load project documents"
+        );
+      });
   }, [projectId, workflow]);
 
   // Pre-populate form for edit/clone
@@ -868,7 +889,7 @@ export function WorkflowFormView({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
-          projectId: projectId || undefined,
+          projectId: projectId || null,
           definition,
           successCriteria,
         }),
@@ -878,18 +899,40 @@ export function WorkflowFormView({
         const data = await res.json().catch(() => null);
         const workflowId = isEdit ? workflow.id : data?.id;
 
-        // Attach pool documents to the workflow via junction table
-        if (workflowId && selectedDocIds.size > 0) {
-          await fetch(`/api/workflows/${workflowId}/documents`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              documentIds: [...selectedDocIds],
-            }),
-          }).catch(() => {
-            // Non-blocking — workflow was created, docs attachment is best-effort
-            console.warn("[workflow-form] Failed to attach pool documents");
-          });
+        // Replace workflow-level pool bindings, including an explicit empty
+        // selection. A failed association must not be reported as a saved form.
+        if (workflowId) {
+          let bindingResponse: Response;
+          try {
+            bindingResponse = await fetch(`/api/workflows/${workflowId}/documents`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                documentIds: [...selectedDocIds],
+              }),
+            });
+          } catch {
+            if (!isEdit) {
+              await fetch(`/api/workflows/${workflowId}`, { method: "DELETE" }).catch(
+                () => undefined
+              );
+            }
+            setError("Workflow context could not be saved. Check the Relay connection.");
+            return;
+          }
+          if (!bindingResponse.ok) {
+            const bindingError = await bindingResponse.json().catch(() => null);
+            if (!isEdit) {
+              await fetch(`/api/workflows/${workflowId}`, { method: "DELETE" }).catch(
+                () => undefined
+              );
+            }
+            setError(
+              bindingError?.error ??
+                `Workflow context could not be saved (${bindingResponse.status})`
+            );
+            return;
+          }
         }
 
         toast.success(

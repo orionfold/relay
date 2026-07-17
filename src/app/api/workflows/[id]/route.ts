@@ -17,19 +17,29 @@ import {
   OperationsCriteriaValidationError,
   serializeSuccessCriteria,
 } from "@/lib/operations/criteria";
+import { projectReferenceExists } from "@/lib/data/reference-validation";
+import { updateWorkflowRequestSchema } from "@/lib/validators/workflow";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const body = await req.json();
-  const { status, name, definition, successCriteria } = body as {
-    status?: string;
-    name?: string;
-    definition?: WorkflowDefinition;
-    successCriteria?: unknown;
-  };
+  let rawBody: unknown;
+  try {
+    rawBody = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  const parsed = updateWorkflowRequestSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: parsed.error.issues },
+      { status: 400 }
+    );
+  }
+  const { status, name, projectId, successCriteria } = parsed.data;
+  const definition = parsed.data.definition as WorkflowDefinition | undefined;
 
   const [workflow] = await db
     .select()
@@ -44,6 +54,7 @@ export async function PATCH(
   if (
     name !== undefined ||
     definition !== undefined ||
+    projectId !== undefined ||
     successCriteria !== undefined
   ) {
     if (!["draft", "completed", "failed"].includes(workflow.status)) {
@@ -95,6 +106,16 @@ export async function PATCH(
       updates.definition = JSON.stringify(definition);
     }
 
+    if (projectId !== undefined) {
+      if (projectId !== null && !(await projectReferenceExists(projectId))) {
+        return NextResponse.json(
+          { error: `Project not found: ${projectId}` },
+          { status: 404 }
+        );
+      }
+      updates.projectId = projectId;
+    }
+
     if (successCriteria !== undefined) {
       try {
         updates.successCriteria = serializeSuccessCriteria(successCriteria);
@@ -118,7 +139,7 @@ export async function PATCH(
   // Status transitions
   if (!status) {
     return NextResponse.json(
-      { error: "status, name, definition, or successCriteria is required" },
+      { error: "status, name, projectId, definition, or successCriteria is required" },
       { status: 400 }
     );
   }

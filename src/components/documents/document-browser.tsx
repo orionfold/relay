@@ -39,7 +39,12 @@ export function DocumentBrowser({
   const [clauses, setClauses] = useState<FilterClause[]>(initialParsed.clauses);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [directionFilter, setDirectionFilter] = useState<string>("all");
-  const [projectFilter, setProjectFilter] = useState<string>("all");
+  const requestedProjectId = searchParams.get("projectId");
+  const [projectFilter, setProjectFilter] = useState<string>(() =>
+    requestedProjectId && projects.some((project) => project.id === requestedProjectId)
+      ? requestedProjectId
+      : "all"
+  );
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -52,9 +57,12 @@ export function DocumentBrowser({
       if (res.ok) {
         const data = await res.json();
         setDocs(data);
+      } else {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error ?? `Could not refresh documents (${res.status})`);
       }
     } catch {
-      // Silent refresh failure
+      toast.error("Could not refresh documents. Check the Relay connection.");
     }
   }, []);
 
@@ -260,6 +268,8 @@ export function DocumentBrowser({
         onClose={() => setUploadOpen(false)}
         onUploaded={refresh}
         restoreFocusElement={uploadButtonRef.current}
+        projects={projects}
+        defaultProjectId={projectFilter === "all" ? null : projectFilter}
       />
     </>
   );
