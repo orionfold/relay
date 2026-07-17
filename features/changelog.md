@@ -1,5 +1,22 @@
 # Feature Changelog
 
+## 2026-07-17 — Groom Relay Host fulfillment across npm and OCI
+
+### Groomed
+
+- Added G-095 to the Customer-owned Relay Host R3 train as Relay's owner for
+  the paid-capability, signed-license, conformance and documentation contract;
+  public Cell-image publication remains G-094 and runtime enforcement remains
+  G-083/G-084.
+- Split cross-repository responsibilities explicitly: Relay owns entitlement
+  semantics, runtime gates, public-image verification and its README/trust/docs;
+  Website G-030 owns SKU/pricing, checkout, issuance, fulfillment communication
+  and relevant public Website pages.
+- Kept the recommended boundary operator-gated: Relay Core and public Cell-image
+  bytes remain free; managed Host/Cell lifecycle is the proposed separately
+  licensed capability. No code, price, license, registry, public page, publish or
+  release changed during grooming.
+
 ## 2026-07-17 — Clarify Relay Host and Cell distribution channels
 
 ### Amended
