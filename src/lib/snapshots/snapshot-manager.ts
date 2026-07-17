@@ -24,9 +24,17 @@ import {
   readdirSync,
   writeFileSync,
   readFileSync,
+  openSync,
+  readSync,
+  closeSync,
 } from "fs";
+import { createHash } from "node:crypto";
 import { isAbsolute, join, relative, resolve } from "path";
 import * as tar from "tar";
+import { z } from "zod";
+import { relayCellIdOverride } from "@/lib/config/env";
+import { relayProductVersion } from "@/lib/config/version";
+import { backupAuthStore } from "@/lib/host-ingress/store";
 
 // Directories included in snapshot (relative to ainative data dir)
 const SNAPSHOT_DIRS = [
@@ -121,7 +129,7 @@ export class SnapshotBusyError extends Error {
   }
 }
 
-interface SnapshotManifest {
+export interface SnapshotManifestV1 {
   version: 1;
   timestamp: string;
   label: string;
@@ -134,12 +142,96 @@ interface SnapshotManifest {
   totalSizeBytes: number;
 }
 
+export interface SnapshotArtifact {
+  file: string;
+  sizeBytes: number;
+  sha256: string;
+  required: boolean;
+}
+
+export interface SnapshotManifestV2 {
+  version: 2;
+  timestamp: string;
+  label: string;
+  type: "manual" | "auto";
+  cellId: string;
+  relayVersion: string;
+  schemaContractVersion: 1;
+  includedDirs: string[];
+  excludedDirs: string[];
+  dirStats: Record<string, { fileCount: number; sizeBytes: number }>;
+  artifacts: Record<"database" | "files" | "auth", SnapshotArtifact | null>;
+  dbSizeBytes: number;
+  filesSizeBytes: number;
+  totalSizeBytes: number;
+}
+
+export type SnapshotManifest = SnapshotManifestV1 | SnapshotManifestV2;
+
+const snapshotArtifactSchema: z.ZodType<SnapshotArtifact> = z.object({
+  file: z.string().min(1),
+  sizeBytes: z.number().int().nonnegative(),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/),
+  required: z.boolean(),
+}).strict();
+
+const snapshotManifestV2Schema: z.ZodType<SnapshotManifestV2> = z.object({
+  version: z.literal(2),
+  timestamp: z.string().datetime(),
+  label: z.string(),
+  type: z.enum(["manual", "auto"]),
+  cellId: z.string().min(1),
+  relayVersion: z.string().min(1),
+  schemaContractVersion: z.literal(1),
+  includedDirs: z.array(z.string()),
+  excludedDirs: z.array(z.string()),
+  dirStats: z.record(z.string(), z.object({ fileCount: z.number().int().nonnegative(), sizeBytes: z.number().int().nonnegative() })),
+  artifacts: z.object({
+    database: snapshotArtifactSchema,
+    files: snapshotArtifactSchema,
+    auth: snapshotArtifactSchema.nullable(),
+  }).strict(),
+  dbSizeBytes: z.number().int().nonnegative(),
+  filesSizeBytes: z.number().int().nonnegative(),
+  totalSizeBytes: z.number().int().nonnegative(),
+}).strict();
+
+export class SnapshotIntegrityError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "SnapshotIntegrityError";
+    this.code = code;
+  }
+}
+
 function generateId(): string {
   return crypto.randomUUID();
 }
 
 function formatTimestamp(date: Date): string {
   return date.toISOString().replace(/[:.]/g, "-");
+}
+
+function sha256File(path: string): string {
+  const hash = createHash("sha256");
+  const fd = openSync(path, "r");
+  const buffer = Buffer.allocUnsafe(1024 * 1024);
+  try {
+    let bytes = 0;
+    while ((bytes = readSync(fd, buffer, 0, buffer.length, null)) > 0) hash.update(buffer.subarray(0, bytes));
+  } finally {
+    closeSync(fd);
+  }
+  return hash.digest("hex");
+}
+
+function artifact(path: string, file: string, required: boolean): SnapshotArtifact {
+  return { file, sizeBytes: statSync(path).size, sha256: sha256File(path), required };
+}
+
+export function currentSnapshotCellId(): string {
+  return relayCellIdOverride() ?? "direct-cell";
 }
 
 /** Calculate total size of files in a directory (recursive). */
@@ -153,20 +245,16 @@ function dirSize(dirPath: string): { fileCount: number; sizeBytes: number } {
     try {
       for (const entry of readdirSync(dir)) {
         const fullPath = join(dir, entry);
-        try {
-          const stat = statSync(fullPath);
-          if (stat.isDirectory()) {
-            walk(fullPath);
-          } else if (stat.isFile()) {
-            fileCount++;
-            sizeBytes += stat.size;
-          }
-        } catch {
-          // Skip unreadable entries
+        const stat = statSync(fullPath);
+        if (stat.isDirectory()) {
+          walk(fullPath);
+        } else if (stat.isFile()) {
+          fileCount++;
+          sizeBytes += stat.size;
         }
       }
     } catch {
-      // Skip unreadable directories
+      throw new SnapshotIntegrityError("SNAPSHOT_FILE_READ_FAILED", `Snapshot source could not be read: ${dir}`);
     }
   }
 
@@ -238,7 +326,11 @@ async function createSnapshotUnlocked(
     await sqlite.backup(dbDestPath);
     const dbSize = statSync(dbDestPath).size;
 
-    // 2. Tarball of file directories
+    // 2. WAL-safe copy of the separate G-081 auth store when configured.
+    const authDestPath = join(snapshotPath, "auth.db");
+    const hasAuth = await backupAuthStore(authDestPath);
+
+    // 3. Tarball of file directories
     const tarballPath = join(snapshotPath, "files.tar.gz");
     const existingDirs = SNAPSHOT_DIRS.filter((d) =>
       existsSync(join(dataDir, d))
@@ -282,18 +374,25 @@ async function createSnapshotUnlocked(
       : 0;
     const totalSize = dbSize + tarballSize;
 
-    // 3. Write manifest
-    const manifest: SnapshotManifest = {
-      version: 1,
+    // 4. Write a content-free, checksummed v2 manifest.
+    const dbArtifact = artifact(dbDestPath, "snapshot.db", true);
+    const filesArtifact = artifact(tarballPath, "files.tar.gz", true);
+    const authArtifact = hasAuth ? artifact(authDestPath, "auth.db", true) : null;
+    const manifest: SnapshotManifestV2 = {
+      version: 2,
       timestamp: now.toISOString(),
       label: sanitizedLabel,
       type,
+      cellId: currentSnapshotCellId(),
+      relayVersion: relayProductVersion(),
+      schemaContractVersion: 1,
       includedDirs: existingDirs,
       excludedDirs: EXCLUDED_DIRS,
       dirStats,
+      artifacts: { database: dbArtifact, files: filesArtifact, auth: authArtifact },
       dbSizeBytes: dbSize,
       filesSizeBytes,
-      totalSizeBytes: totalSize,
+      totalSizeBytes: totalSize + (authArtifact?.sizeBytes ?? 0),
     };
     writeFileSync(
       join(snapshotPath, "manifest.json"),
@@ -305,7 +404,7 @@ async function createSnapshotUnlocked(
       .update(snapshots)
       .set({
         status: "completed",
-        sizeBytes: totalSize,
+        sizeBytes: totalSize + (authArtifact?.sizeBytes ?? 0),
         dbSizeBytes: dbSize,
         filesSizeBytes: tarballSize,
         fileCount: totalFileCount,
@@ -392,6 +491,55 @@ export async function getSnapshot(
   };
 }
 
+export function readAndVerifySnapshotManifest(
+  snapshotPath: string,
+  expectedCellId = currentSnapshotCellId(),
+): SnapshotManifestV2 {
+  const manifestPath = join(snapshotPath, "manifest.json");
+  let raw: unknown;
+  try {
+    raw = JSON.parse(readFileSync(manifestPath, "utf8"));
+  } catch {
+    throw new SnapshotIntegrityError("SNAPSHOT_MANIFEST_INVALID", "Snapshot manifest is missing or invalid.");
+  }
+  if (!raw || typeof raw !== "object" || (raw as { version?: unknown }).version !== 2) {
+    throw new SnapshotIntegrityError("SNAPSHOT_VERSION_UNSUPPORTED", "A verified recovery bundle requires snapshot manifest v2.");
+  }
+  const parsed = snapshotManifestV2Schema.safeParse(raw);
+  if (!parsed.success) throw new SnapshotIntegrityError("SNAPSHOT_MANIFEST_INVALID", "Snapshot manifest does not match the supported v2 schema.");
+  const manifest = parsed.data;
+  if (manifest.cellId !== expectedCellId) {
+    throw new SnapshotIntegrityError("SNAPSHOT_CELL_MISMATCH", "Snapshot belongs to a different Relay Cell.");
+  }
+  for (const item of Object.values(manifest.artifacts)) {
+    if (!item) continue;
+    const candidate = resolve(snapshotPath, item.file);
+    const rel = relative(resolve(snapshotPath), candidate);
+    if (!rel || isAbsolute(rel) || rel === ".." || rel.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`)) {
+      throw new SnapshotIntegrityError("SNAPSHOT_ARTIFACT_PATH_INVALID", "Snapshot artifact path escapes its root.");
+    }
+    if (!existsSync(candidate)) {
+      throw new SnapshotIntegrityError("SNAPSHOT_ARTIFACT_MISSING", `Required snapshot artifact is missing: ${item.file}`);
+    }
+    if (statSync(candidate).size !== item.sizeBytes || sha256File(candidate) !== item.sha256) {
+      throw new SnapshotIntegrityError("SNAPSHOT_ARTIFACT_CHECKSUM_MISMATCH", `Snapshot artifact failed verification: ${item.file}`);
+    }
+  }
+  return manifest;
+}
+
+function safeSnapshotArchiveEntry(path: string, entryType?: string): boolean {
+  const normalized = path.replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/$/, "");
+  const parts = normalized.split("/").filter(Boolean);
+  if (parts.length === 0 || !SNAPSHOT_DIRS.includes(parts[0]) || parts.some((part) => part === "..")) {
+    throw new SnapshotIntegrityError("SNAPSHOT_ARCHIVE_ENTRY_REFUSED", `Snapshot archive contains an unsafe entry: ${normalized}`);
+  }
+  if (entryType && !["File", "OldFile", "ContiguousFile", "Directory"].includes(entryType)) {
+    throw new SnapshotIntegrityError("SNAPSHOT_ARCHIVE_ENTRY_REFUSED", `Snapshot archive contains an unsafe ${entryType} entry: ${normalized}`);
+  }
+  return true;
+}
+
 /**
  * Delete a snapshot (metadata + files on disk).
  */
@@ -456,6 +604,10 @@ export async function restoreFromSnapshot(id: string): Promise<{
   if (snapshot.filesMissing)
     throw new Error("Snapshot files are missing from disk");
 
+  if (snapshot.manifest?.version === 2) {
+    readAndVerifySnapshotManifest(snapshot.filePath);
+  }
+
   const snapshotDbPath = join(snapshot.filePath, "snapshot.db");
   const snapshotTarPath = join(snapshot.filePath, "files.tar.gz");
 
@@ -487,10 +639,20 @@ export async function restoreFromSnapshot(id: string): Promise<{
 
     // Extract tarball
     if (existsSync(snapshotTarPath)) {
+      let unsafeEntry: SnapshotIntegrityError | undefined;
       await tar.extract({
         file: snapshotTarPath,
         cwd: dataDir,
+        strict: true,
+        filter: (path, entry) => {
+          try { return safeSnapshotArchiveEntry(path, "type" in entry ? entry.type : undefined); }
+          catch (error) {
+            unsafeEntry = error instanceof SnapshotIntegrityError ? error : new SnapshotIntegrityError("SNAPSHOT_ARCHIVE_ENTRY_REFUSED", "Snapshot archive contains an unsafe entry.");
+            return false;
+          }
+        },
       });
+      if (unsafeEntry) throw unsafeEntry;
     }
 
     // 3. Replace database file
@@ -509,6 +671,11 @@ export async function restoreFromSnapshot(id: string): Promise<{
     // Copy snapshot DB over current DB
     const { copyFileSync } = await import("fs");
     copyFileSync(snapshotDbPath, currentDbPath);
+
+    const snapshotAuthPath = join(snapshot.filePath, "auth.db");
+    if (existsSync(snapshotAuthPath)) {
+      copyFileSync(snapshotAuthPath, join(dataDir, "relay-auth.db"));
+    }
 
     // Remove WAL/SHM files (snapshot DB is self-contained)
     if (existsSync(walPath)) rmSync(walPath);

@@ -10,6 +10,14 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Added
 
+- **Relay Cells now have customer-owned encrypted disaster recovery.** A
+  versioned AES-256-GCM bundle carries live-safe SQLite and access backups,
+  files, settings/license state, and the Cell secret root under a separate
+  customer-held key. Settings and authenticated maintenance APIs create,
+  verify, and drill content-free receipts; the CLI adds key creation, explicit
+  retention, and guarded offline empty-root restore. A repeatable smoke destroys
+  an isolated source Cell and proves database, file, access, and secret recovery.
+
 - **Relay Host fulfillment now has one executable offline contract.** The
   accepted `product:relay-host` grant signs Host and managed-Cell limits,
   licensee, update eligibility, and customer-protective lifecycle rights inside

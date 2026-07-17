@@ -12,19 +12,18 @@ mode: next-steps
 
 ### Recommendation
 
-**Do this:** Complete **G-082 — Make per-Cell recovery, secrets, and Host
-portability safe**. G-081's ingress and first-admin identity boundary is now
-accepted; encrypted off-Host recovery is the remaining R2 implementation slice.
+**Do this:** Complete **G-100 — Stage the secure and recoverable Relay Host
+alpha**. G-081 ingress/identity and G-082 encrypted recovery are accepted; the
+remaining R2 gate is a combined fresh packaged customer journey.
 
-**Why:** A remotely reachable Cell now bootstraps and authenticates without
-weakening trusted-local use, and its origin/path/session boundary passed fresh
-security review. The next load-bearing uncertainty is whether a lost Host can
-be restored without Orionfold-held keys, cross-Cell data, or unrecoverable
-secrets.
+**Why:** The individual security slices and isolated destroyed-Host runtime
+smoke pass. The next load-bearing uncertainty is packaging and integration:
+whether a customer-identical first run can authenticate, recover, restart and
+resume representative work without source-checkout shortcuts.
 
-**Invoke:** implement G-082's encrypted customer-owned off-Host recovery,
-portable export, per-Cell secret roots, retention, and destroyed-Host restore
-drill. Preserve the accepted G-081 ingress/session contract.
+**Invoke:** run G-100 under the reusable G-025 staging contract against a clean
+packed artifact, including authenticated ingress, Settings recovery UX,
+destroyed-source restore, post-restart sign-in/work, and cleanup evidence.
 
 **Priority category:** R2 security foundation — required before any public Host
 or cloud-server customer journey.
@@ -34,13 +33,14 @@ or cloud-server customer journey.
 - Active workstream: **Customer-owned Relay Host** — R2 current.
 - Accepted in R1: **G-080/G-034/G-038/G-093/G-025/G-096/G-097/G-099**.
 - Accepted cross-train contract: **G-095** Host fulfillment.
-- Accepted in R2: **G-081** internet-safe ingress and first-admin identity.
-- Next prioritized goal: **G-082** encrypted recovery and portability.
+- Accepted in R2: **G-081** internet-safe ingress/identity and **G-082**
+  customer-owned encrypted recovery/portability.
+- Next prioritized goal: **G-100** combined customer-identical R2 staging.
 - Enterprise connectors remains queued until an intentional WIP decision.
 
 ### If You Have More Time
 
-1. Complete **G-082** before G-083 begins.
+1. Complete **G-100** to accept R2 before beginning the R3 implementation chain.
 2. Website G-030 may now consume G-095's schema/vectors; G-094 publication
    remains separately gated and is not implied by local R1 acceptance.
 

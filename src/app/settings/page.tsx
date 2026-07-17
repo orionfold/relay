@@ -3,6 +3,7 @@ import { ProvidersAndRuntimesSection } from "@/components/settings/providers-run
 import { PermissionsSections } from "@/components/settings/permissions-sections";
 import { DataManagementSection } from "@/components/settings/data-management-section";
 import { DatabaseSnapshotsSection } from "@/components/settings/database-snapshots-section";
+import { RecoverySection } from "@/components/settings/recovery-section";
 import { BudgetGuardrailsSection } from "@/components/settings/budget-guardrails-section";
 import { ChatSettingsSection } from "@/components/settings/chat-settings-section";
 import { RuntimeTimeoutSection } from "@/components/settings/runtime-timeout-section";
@@ -102,6 +103,7 @@ export default function SettingsPage() {
         </SettingsAnchor>
         <SettingsAnchor id="settings-snapshots">
           <DatabaseSnapshotsSection />
+          <RecoverySection />
         </SettingsAnchor>
         <SettingsAnchor id="settings-data">
           <DataManagementSection allowed={dataOpsAllowed} />

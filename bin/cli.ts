@@ -178,6 +178,10 @@ Examples:
   node dist/cli.js license remove <id>         # remove a saved license (packs stay installed)
   node dist/cli.js auth bootstrap              # issue a 15-minute first-admin credential
   node dist/cli.js auth status                 # inspect local access state
+  node dist/cli.js recovery key create --out /secure/relay-cell.key
+  node dist/cli.js recovery create --destination /mnt/relay-backups --key-file /secure/relay-cell.key
+  node dist/cli.js recovery verify --bundle <path> --key-file /secure/relay-cell.key
+  node dist/cli.js recovery restore --bundle <path> --key-file <path> --target-data-dir ~/.relay-restored
 `;
 }
 
@@ -222,6 +226,7 @@ const isPluginSubcommand = firstArg === "plugin";
 const isPackSubcommand = firstArg === "pack";
 const isLicenseSubcommand = firstArg === "license";
 const isAuthSubcommand = firstArg === "auth";
+const isRecoverySubcommand = firstArg === "recovery";
 
 if (isPluginSubcommand) {
   const action = process.argv[3];
@@ -276,6 +281,16 @@ if (isAuthSubcommand) {
   await ensureNativeSqliteOrExit();
   const { runAuthCommand } = await import("../src/lib/host-ingress/cli");
   const code = await runAuthCommand(process.argv.slice(3), {
+    log: (m) => console.log(m),
+    error: (m) => console.error(m),
+  });
+  process.exit(code);
+}
+
+if (isRecoverySubcommand) {
+  await ensureNativeSqliteOrExit();
+  const { runRecoveryCommand } = await import("../src/lib/recovery/cli");
+  const code = await runRecoveryCommand(process.argv.slice(3), {
     log: (m) => console.log(m),
     error: (m) => console.error(m),
   });

@@ -117,6 +117,12 @@ exchange, revocable browser sessions, recovery codes, exact-origin mutation
 checks, rate limits, and content-free access receipts. See
 [Relay Host ingress and administrator access](docs/relay-host-access.md).
 
+Customer-owned encrypted recovery is separate from login recovery codes. Relay
+can create and verify an off-Host Cell bundle containing the database, access
+state, files, settings, license data, and local secret root without giving
+Orionfold the recovery key. Restore is an offline, empty-root CLI operation.
+See [Relay Cell encrypted recovery](docs/relay-cell-recovery.md).
+
 Evaluating Relay for an enterprise? The full trust pack — [security packet](docs/trust/security-packet.md), [data-flow disclosure](docs/trust/data-flow.md), [supply-chain verification](docs/trust/supply-chain.md), [plain-language license terms](docs/trust/license-terms.md), and [continuity statement](docs/trust/continuity.md) — lives in [`docs/trust/`](docs/trust/). Vulnerability reports: [SECURITY.md](SECURITY.md).
 
 <img src="https://raw.githubusercontent.com/orionfold/relay/main/public/readme/inbox-list.png" alt="The governance command center: tool-permission approvals, agent questions, and a permission queue — nothing reaches a client without sign-off" width="1200" />

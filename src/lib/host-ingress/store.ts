@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
 import { randomUUID } from "node:crypto";
-import { chmodSync, mkdirSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { dataDir } from "@/lib/config/env";
 import {
@@ -16,6 +16,10 @@ const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 const BOOTSTRAP_TTL_MS = 15 * 60 * 1000;
 const LOGIN_WINDOW_MS = 10 * 60 * 1000;
 const LOGIN_ATTEMPT_LIMIT = 8;
+
+export function authStorePath(): string {
+  return join(dataDir(), AUTH_DB_NAME);
+}
 
 export type AuthSession = {
   id: string;
@@ -57,7 +61,7 @@ export class AuthCredentialError extends Error {
 function openAuthDb(): Database.Database {
   const root = dataDir();
   mkdirSync(root, { recursive: true, mode: 0o700 });
-  const path = join(root, AUTH_DB_NAME);
+  const path = authStorePath();
   const db = new Database(path);
   try {
     chmodSync(path, 0o600);
@@ -126,6 +130,18 @@ function openAuthDb(): Database.Database {
     }
   }
   return db;
+}
+
+/** Create a WAL-safe copy of the optional G-081 auth store. */
+export async function backupAuthStore(destination: string): Promise<boolean> {
+  if (!existsSync(authStorePath())) return false;
+  const db = openAuthDb();
+  try {
+    await db.backup(destination);
+    return true;
+  } finally {
+    db.close();
+  }
 }
 
 function withDb<T>(fn: (db: Database.Database) => T): T {

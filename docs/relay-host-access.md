@@ -70,3 +70,9 @@ Fleet Controller or completed managed-Host product.
 To return to laptop-only operation, restart on loopback with
 `--exposure-profile trusted-local`. Existing access data remains intact but is
 not consulted in local mode.
+
+Administrator recovery codes reset browser access. They are not disaster-
+recovery keys and cannot rebuild a lost Cell. Configure the separate customer-
+owned encrypted recovery flow in [Relay Cell encrypted recovery](./relay-cell-recovery.md)
+to protect the Cell database, access state, files, settings, license data, and
+local secret root from Host loss.

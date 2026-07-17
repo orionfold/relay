@@ -101,6 +101,12 @@ control or your contract:
   principles are zero silent failures and named error types (see
   `CLAUDE.md` in-repo); the license verifier, artifact downloads, and
   install paths all fail loudly with typed errors.
+- **Customer-owned recovery:** Relay can create a versioned AES-256-GCM Cell
+  bundle using SQLite's online backup API, per-artifact checksums, authenticated
+  Cell/version metadata, isolated verification, and an offline empty-root
+  restore. The customer key must remain outside both the Cell and bundle
+  destination; Orionfold never receives it and cannot recover a lost key. See
+  [Cell encrypted recovery](../relay-cell-recovery.md).
 
 ## 5. Supply-chain integrity (summary)
 
