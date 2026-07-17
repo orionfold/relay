@@ -56,17 +56,38 @@ G-060 decisions validated by the operator on 2026-07-16:
   with collision, partial-operation, rollback and two-cell evidence. It creates
   no public ingress, remote fleet API or cloud-provider authority.
 
+G-079 decisions validated by the operator on 2026-07-16:
+
+- TDR-044 is accepted; same-Host placement is allowed only when every resident
+  customer explicitly trusts the Host administrator and the documented OCI/OS
+  boundary;
+- the minimum cell rung is non-root and non-privileged execution, dropped
+  capabilities, default sandbox controls, private per-cell networking, distinct
+  contained mounts/secrets, resource limits, and read-only root where the signed
+  artifact proves compatibility; cells never receive Host/OCI authority sockets;
+- customers who distrust the Host administrator use a separate VM/machine;
+  optional gVisor/Kata/microVM hardening is not an administrative-isolation claim
+  without separate conformance and acceptance;
+- ownership transfer requires current-owner authorization, target-owner acceptance and
+  a verified export/recovery checkpoint; revocation disables new automation but
+  does not stop, delete, encrypt or strand a cell; and
+- admission begins provisionally at 1 GiB memory per cell, 0.5 GiB Host reserve,
+  90% maximum memory utilization, three cells per vCPU and explicit storage
+  ceilings, all measurement-gated by G-080 before support claims.
+
 Open questions that would change ranking:
 
 - A future managed control plane retaining provider credentials creates a
   critical cross-customer credential and availability boundary.
 - SSO, multiple roles, regulated data, residency or compliance commitments raise
   identity, audit, key-management and data-processing requirements.
-- Same-Host eligibility is trust-based rather than a customer-market label: all
-  resident customers must accept the Host administrator and chosen OCI
-  boundary. The stronger runtime choice (rootless container, gVisor/Kata,
-  microVM, or separate VM) still changes cross-cell likelihood and remains a
-  G-079/G-083 conformance decision.
+- Docker versus Podman, rootless-host feasibility, optional gVisor/Kata/microVM
+  defense in depth and the exact supported LSM profile remain G-080/G-083
+  implementation/conformance choices. They cannot weaken the accepted baseline
+  or substitute for a separate VM when Host-admin trust is unacceptable.
+- Accepted resource inputs remain provisional. G-080 measurements may change
+  likelihood for noisy-neighbor and availability threats and must update public
+  capacity language before any claim.
 
 ## System model
 
@@ -81,6 +102,9 @@ Open questions that would change ranking:
   networks, mounts, resources, versions, backup status and lifecycle receipts.
   It uses a dedicated content-free Host registry, is not started from cell
   instrumentation, and does not proxy cell customer data.
+  Its accepted baseline requires non-root cells, dropped capabilities, private
+  per-cell networks, contained mounts/secrets, enforced limits and no Host/OCI
+  authority socket inside cells; none of those controls is implemented yet.
 - **Cloud provider API:** creates networking, compute, volume, secrets, hostname,
   backup and optional runtime resources in the customer account.
 - **Ingress/identity boundary:** future TLS, first-admin, session, authorization,
@@ -274,10 +298,10 @@ flowchart TD
 | TM-007 | Storage attacker or operational failure | Backup is public/plaintext/tampered or key is lost with volume | Read all data or prevent recovery | Confidentiality breach or total data loss | Customer data, backup keys, availability | SQLite backup/manifest and local AES-GCM keyfile (`snapshot-manager.ts`, `crypto.ts`) | No off-host transport, recoverable key or restore drill | Customer-owned encrypted versioned store, integrity signing, recoverable envelope/KMS, least privilege, retention and isolated restore | Backup age/integrity/key/public-policy checks and restore receipts | Medium | High | high |
 | TM-008 | Supply-chain attacker | Mutable tag/publish account/dependency is compromised | Substitute deployment artifact | Code execution in all deployed instances | All data, secrets, integrity | Existing npm/release process | No OCI digest/signature/SBOM contract | Digest pinning, signature/provenance/SBOM, protected build identity, staged rollout and known-good rollback | Digest hard failure, signature audit and deployed-version inventory | Low-Medium | High | high |
 | TM-009 | License bypasser or faulty enforcement | Lifecycle route omits server gate or lapse policy conflates automation/data | Provision without entitlement or block/delete export/recovery | Revenue loss or customer data hostage | Entitlement, customer data, trust | Ed25519 verification and named gate (`verify.ts`, `gate.ts`) | No cloud entitlement/lapse route matrix | Dedicated gate on every mutation; synthetic term states; always allow export/recovery/manual ownership | Entitlement reason metrics and generated route parity | Medium | High | high |
-| TM-010 | Misconfiguration, container escape or trusted Host administrator | Multiple cells share one Host | Attach/widen another cell's mount, secret, network, route, log or runtime key; or bypass resource boundaries | Cross-customer breach or sibling denial of service | Customer data, secrets, logs, availability, Host registry | Distinct `RELAY_DATA_DIR`; G-058/G-060 process isolation intent | No Host supervisor, ingress router, container profile or same-host conformance | Separate container/process identity, mounts, networks, loopback ports, secrets, logs, licenses and limits; server-owned routing; path containment; two-cell negative suite; separate VM for hostile tenants | Ownership labels, route/mount/network canaries, capacity pressure tests, attachment-policy and support-bundle scans | Medium once multi-cell | High | high |
+| TM-010 | Misconfiguration, container escape or trusted Host administrator | Multiple cells share one Host | Attach/widen another cell's mount, secret, network, route, log or runtime key; or bypass resource boundaries | Cross-customer breach or sibling denial of service | Customer data, secrets, logs, availability, Host registry | Distinct `RELAY_DATA_DIR`; G-079 accepts explicit trust, minimum hardening and separate-VM rescue as design controls | No Host supervisor, ingress router, enforced container profile or same-host conformance | Enforce accepted non-root/capability/network/mount/secret/read-only-root/limit baseline; server-owned routing; path containment; two-cell negative suite; separate VM for Host-admin distrust | Ownership labels, route/mount/network canaries, capacity pressure tests, attachment-policy and support-bundle scans | Medium once multi-cell | High | high |
 | TM-011 | Stolen admin session or faulty upgrade/delete | Destructive action lacks step-up, snapshot or compatibility check | Delete/replace/migrate data without safe rollback | Data corruption/loss and outage | Database/files, backups, availability | Local snapshot exists; restore is explicit (`snapshot-manager.ts`) | No cloud lifecycle diff/reauth/rollback contract | Reauthentication, exact resource diff, pre-action verified recovery, schema compatibility, quiescence and remaining-resource receipt | Lifecycle audit, snapshot validation, migration reason codes and final inventory | Medium | High | high |
 | TM-012 | Authenticated attacker or retry loop | Access to tasks/runtime/lifecycle with weak quotas | Trigger costly tasks/GPU/autoscale/retries | Denial of wallet and availability | Bill, runtime capacity, task service | Existing product budget/approval concepts | No cloud resource budget/reconciliation | Provider spending cap, per-instance/task/runtime quotas, bounded retries, GPU off/delete policy, emergency stop preserving data | Spend/concurrency/retry-rate alerts without content | Medium | Medium-High | high |
-| TM-013 | Compromised cell or unprivileged local Host user | Supervisor socket/path/runtime authority is reachable or peer identity is not enforced | Invoke lifecycle, replace a plan between preflight/effect, or point a mount/secret reference at a sibling | Cross-cell takeover, deletion or secret/data exposure | Cell data, secrets, Host registry, lifecycle authority | Current cells use distinct `RELAY_DATA_DIR`; no supervisor exists | No local authority, path containment or TOCTOU implementation | Separate process; admin-owned Unix socket with peer credentials; never mount socket into cells; canonical roots/no-follow checks; atomic reservations; effect-time revalidation; labeled OCI ownership | Denied-peer receipts, socket/permission conformance, path/collision canaries and OCI-label drift alerts | Medium once supervisor exists | High | high |
+| TM-013 | Compromised cell or unprivileged local Host user | Supervisor socket/path/runtime authority is reachable or peer identity is not enforced | Invoke lifecycle, replace a plan between preflight/effect, or point a mount/secret reference at a sibling | Cross-cell takeover, deletion or secret/data exposure | Cell data, secrets, Host registry, lifecycle authority | Current cells use distinct `RELAY_DATA_DIR`; G-079 prohibits Host/OCI sockets in cells and accepts peer/transfer authority semantics | No local authority, path containment or TOCTOU implementation | Separate process; admin-owned Unix socket with peer credentials; never mount authority sockets into cells; canonical roots/no-follow checks; atomic reservations; effect-time revalidation; labeled OCI ownership | Denied-peer receipts, socket/permission conformance, path/collision canaries and OCI-label drift alerts | Medium once supervisor exists | High | high |
 | TM-014 | Faulty lifecycle code or support exporter | Registry/receipt accepts arbitrary text or raw adapter errors | Persist customer content, credentials, secret values or raw logs in content-free Host metadata | Cross-cell/support disclosure and loss of trust boundary | Customer content, credentials, receipts | G-058 UI keeps cell facts narrow; current license/runtime code redacts selected secrets | No Host schema/content scanner exists | Strict versioned allowlist schemas; opaque owner/secret refs; bounded reason codes; adapter error normalization; seeded secret/content scans in CI and before support export | Registry scan failures, rejected-field metrics and redacted export conformance | Medium | Medium-High | high |
 
 ## Criticality calibration

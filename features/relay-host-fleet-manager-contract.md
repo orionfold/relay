@@ -5,7 +5,7 @@ goal: G-060
 workstream: Customer-owned Relay Host
 increment: R0 — Isolation contract
 date: 2026-07-16
-tdr: TDR-044 proposed; final disposition remains G-079
+tdr: TDR-044 accepted by G-079 on 2026-07-16
 dependencies: [relay-host-cell-isolation-boundary]
 ---
 
@@ -244,16 +244,18 @@ It never reports success from intent alone.
 
 ```text
 unassigned → owned
-owned → transfer-pending → owned (new ownerRef)
+owned → transfer-pending → transfer-ready → owned (new ownerRef)
 owned → automation-revoked
-transfer-pending → owned | automation-revoked
+transfer-pending | transfer-ready → owned | automation-revoked
 automation-revoked → owned (fresh authorization)
 ```
 
 Revocation stops new lifecycle automation; it does not delete, encrypt, stop, or
 strand the cell. Export/recovery and direct Host ownership remain available.
-G-079 accepts the final owner/authorization vocabulary; G-081/G-083 implement
-remote/session and entitlement enforcement.
+G-079 accepted the final owner/authorization vocabulary and additionally
+requires current-owner authorization, target-owner acceptance and a verified export/
+recovery checkpoint before transfer. G-081/G-083 implement remote/session and
+entitlement enforcement.
 
 ## Preflight and collision refusal
 
@@ -355,7 +357,8 @@ metadata, secret ownership, and first vertical slice. Verification established:
   coupling;
 - versioned minimum registry/receipt schemas, Host/cell/operation/ownership state
   machines, exact partial/rollback rescue, and a bounded future test matrix;
-- amended proposed TDR-044 plus updated repo threat model with local authority,
+- amended TDR-044 (then proposed and later accepted by G-079) plus the updated
+  repo threat model with local authority,
   TOCTOU, cross-cell, supply-chain, lifecycle, and content-leakage abuse paths;
 - local-reference, separate-process, vocabulary, acceptance-to-plan, and
   `git diff --check` parity gates; and
@@ -381,6 +384,7 @@ credential, push, publish, version, or release changed in this goal.
 ## References
 
 - `features/relay-host-cell-isolation-boundary.md`
+- `features/relay-host-authority-isolation-contract.md`
 - `features/licensed-self-service-cloud-deploy.md`
 - `features/licensed-self-service-cloud-deploy-research.md`
 - `features/licensed-self-service-cloud-deploy-plan.md`

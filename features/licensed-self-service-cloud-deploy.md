@@ -4,7 +4,7 @@ status: planned
 goal: G-078
 decision: PROCEED approved 2026-07-15
 amended: OpenClaw/Hermes/NemoClaw appliance perspective 2026-07-16
-tdr: TDR-044 proposed
+tdr: TDR-044 accepted 2026-07-16 by G-079
 ---
 
 # Licensed self-service cloud deployment
@@ -53,6 +53,15 @@ credentials, destructive replacement, or recurring charges.
 8. A Host administrator is trusted by every cell on that Host. Customers needing
    protection from that administrator or from mutually hostile tenants receive a
    separate VM/machine.
+9. Same-Host eligibility requires explicit trust acceptance from every resident
+   customer; customer type, owner reference and billing relationship do not
+   imply consent.
+10. Ownership transfer requires current-owner authorization, target-owner acceptance
+    and a verified export/recovery checkpoint. Revocation disables automation
+    without stopping, deleting, encrypting or stranding the cell.
+11. Initial resource admission is provisional: 1 GiB memory per cell, 0.5 GiB
+    Host reserve, 90% maximum memory utilization, three cells per vCPU and an
+    explicit storage ceiling. G-080 measurements precede support claims.
 
 ## Invariants
 
@@ -81,6 +90,9 @@ credentials, destructive replacement, or recurring charges.
   secrets, customer credentials, model responses, or raw cell logs.
 - Cell services and model runtimes bind to loopback/private networks by default;
   remote access crosses one approved authenticated ingress/tailnet boundary.
+- A same-Host isolation claim requires the accepted non-root, capability,
+  network, mount/secret, read-only-root-where-compatible and resource-limit
+  baseline; unsupported controls fail closed or use a separate VM/machine.
 
 ## Entitlement and lifecycle policy
 
@@ -348,6 +360,10 @@ estimate. Model API/token charges are never folded into infrastructure cost.
   intended cell and cannot choose another cell through a caller-supplied ID.
 - Separate cell mounts, networks, ports, identities, secrets, logs and resource
   limits are mandatory. Host administrators remain trusted and this is visible.
+- Cells run non-root and non-privileged with dropped capabilities, private
+  networking, default sandbox controls and a read-only root filesystem wherever
+  the signed artifact proves compatibility. Supervisor/runtime sockets are
+  never mounted into cells.
 - Outbound provider/runtime URLs retain scheme validation, redirect refusal,
   bounded timeouts, secret redaction, and a separately planned DNS/SSRF defense.
 - Backups are encrypted before or at the customer-owned destination, integrity
@@ -435,8 +451,9 @@ and recurring staging gates live in
    measurable revisit trigger.
 5. The cost model reproduces dated 1/10/100-cell Host/shard examples and exposes
    provisional density, reserve, backup and exclusions.
-6. TDR-044 records the customer-owned Relay Host/cell architecture and remains
-   proposed until implementation approval.
+6. TDR-044 records the customer-owned Relay Host/cell architecture and is
+   accepted by G-079 with explicit same-Host trust, authority, hardening,
+   transfer/revocation and provisional admission decisions.
 7. The threat model covers Host privilege, cross-cell isolation, ingress,
    provider authorization, service network,
    secrets, backups, artifacts, runtime endpoints, licensing, lifecycle, and
@@ -468,6 +485,10 @@ and recurring staging gates live in
   shifted the reference to one local/cloud Relay Host with isolated tenant cells,
   Host sharding, and a VM-first provider proof. The operator explicitly requested
   this perspective; no provider account or resource was used.
+- 2026-07-16: G-079 accepted TDR-044 and froze same-Host eligibility, the minimum
+  hardening rung, separate-VM rescue, customer-authorized transfer/revocation,
+  content-free authority metadata and provisional admission inputs. R0 closed
+  without application/runtime/provider or release changes.
 - Deterministic documentation/cost-model verification commands are recorded in
   `features/licensed-self-service-cloud-deploy-plan.md`.
 
@@ -476,6 +497,7 @@ and recurring staging gates live in
 - `features/licensed-self-service-cloud-deploy-research.md`
 - `features/licensed-self-service-cloud-deploy-plan.md`
 - `features/licensed-self-service-cloud-deploy-wireframe.md`
+- `features/relay-host-authority-isolation-contract.md`
 - `features/architect-report.md`
 - `relay-threat-model.md`
 - `.agents/skills/architect/references/tdr-044-customer-owned-cloud-deployment.md`

@@ -5,7 +5,7 @@ goal: G-058
 workstream: Customer-owned Relay Host
 increment: R0 — Isolation contract
 date: 2026-07-16
-tdr: TDR-044 proposed; acceptance remains G-079
+tdr: TDR-044 accepted by G-079 on 2026-07-16
 ---
 
 # Truthful Relay Host and cell isolation boundary
@@ -247,6 +247,6 @@ The operator approved the four public-language blocks and placements on
 - synchronized `_ASSETS` user/API guidance using the approved Host/cell
   vocabulary.
 
-G-060 and G-079 retain topology, authority, Host metadata, and TDR acceptance
-decisions. G-058 does not claim Host provisioning, public ingress, or enforced
-multi-cell isolation.
+G-060 and the accepted G-079 authority contract retain topology, authority,
+Host metadata, and TDR decisions. G-058 does not claim Host provisioning,
+public ingress, or enforced multi-cell isolation.

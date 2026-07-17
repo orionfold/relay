@@ -1,219 +1,143 @@
 ---
 generated: 2026-07-16
-mode: integration-and-impact
-goal: G-060
+mode: tdr-and-contract-acceptance
+goal: G-079
 ---
 
-# Architect Report — isolated Relay Host fleet manager
+# Architect Report — Relay Host authority and isolation acceptance
 
-## Proposed capability
+## Decision
 
-Define a local, privileged Relay Host supervisor that manages OCI-container
-Relay cells while keeping Relay Core single-customer, SQLite/WAL, and local-
-first. G-060 is a contract goal: it specifies the integration boundary,
-authority, state, registry, failure, and verification model without adding the
-supervisor runtime.
+Accept TDR-044 and close the R0 isolation-contract increment. Relay's first
+customer-owned deployment architecture is one local or cloud **Relay Host** with
+a separate local supervisor and one or more complete **Relay cells**. This is an
+appliance and Host-sharding architecture, not a shared row-level multi-tenant
+Relay process or a distributed PaaS control/data plane.
 
-The operator approved one local Host supervisor, content-free lifecycle
-metadata, customer-owned per-cell secret roots, and an inventory plus synthetic
-create/start/stop first slice.
+Same-Host cells are valid only when every resident customer explicitly trusts
+the Host administrator and accepts the container/OS boundary. The Host
+administrator remains technically capable of inspecting or replacing cells.
+Customers requiring protection from that administrator or mutually hostile
+tenants use separate VMs/machines.
 
-## Repository-grounded findings
+## Evidence reviewed
 
-| Existing surface | Current ownership | Architectural consequence |
+| Evidence | Architectural fact consumed |
+|---|---|
+| `features/relay-host-cell-isolation-boundary.md` | G-058 separates attribution/project context from the process/data/secret cell boundary and exposes truthful public language |
+| `features/relay-host-fleet-manager-contract.md` | G-060 defines a separate supervisor, dedicated content-free registry, OCI adapter boundary, state machines and rescue grammar |
+| `features/relay-host-fleet-manager-plan.md` | first implementation is fake-adapter inventory/create/start/stop; real OCI waits for G-080 |
+| `features/licensed-self-service-cloud-deploy-research.md` | OpenClaw, Hermes and NemoClaw support the device/VPS durable-agent-appliance posture |
+| `features/cloud-deploy-cost-inputs.json` and `scripts/cloud-deploy-cost-model.mjs` | provisional admission inputs and deterministic 1/10/100-cell sharding examples |
+| `relay-threat-model.md` | current auth-light ingress, Host privilege, local authority, cross-cell, registry-content and lifecycle threats remain explicit |
+| `src/lib/config/env.ts` and `src/lib/utils/ainative-paths.ts` | one process resolves one data/DB/file root; each cell therefore needs a distinct process environment |
+| `src/lib/db/index.ts` | one module-global SQLite/WAL connection cannot be the Host registry or serve several cell boundaries |
+| `src/instrumentation-node.ts` | cell startup owns migrations/services/scheduler/backup; Host authority must never start or import here |
+| `src/lib/utils/crypto.ts`, `src/lib/licensing/`, `src/lib/snapshots/` | secrets, license and recovery are cell-owned state and cannot enter the Host registry |
+
+## R0 acceptance matrix
+
+| G-079 decision | Accepted contract | Evidence/consumer |
 |---|---|---|
-| `src/lib/config/env.ts` | resolves one process-wide `RELAY_DATA_DIR`, DB path and launch cwd | one process cannot represent several cells; each cell needs its own environment/process |
-| `src/lib/db/index.ts` | opens one module-global better-sqlite3 database and bootstraps it | Host registry cannot import or reuse this singleton |
-| `src/instrumentation-node.ts` | runs migrations, bootstrap, plugins, pollers, scheduler and backup inside every cell | starting a Host supervisor here would grant every cell Host-wide authority |
-| `src/lib/instance/*` | git-backed clone identity, guardrails and upgrade polling | instance ID is useful cell evidence, but is not Host lifecycle state |
-| `src/lib/instance/cell-boundary.ts` | read-only active-cell facts | keep as cell-side truth; later expose a narrow Host-assigned cell ID through a versioned seam |
-| `src/lib/utils/crypto.ts` | one keyfile below the active cell data root | correct per-cell precedent; never share the keyfile across cells |
-| `src/lib/licensing/*` | signed offline file credentials and named entitlement failures | reuse verification primitives later; keep lifecycle lapse separate from data/export ownership |
-| `src/lib/snapshots/*` | local cell snapshot/restore and manifest | reuse manifest/receipt concepts; G-082 owns off-Host transport and key recovery |
-| `bin/cli.ts` | launches one Next process with host/port/data-root environment | Host supervisor needs a separate CLI/executable and no normal Relay startup side effect |
-| `scripts/lib/harness.mjs` | isolated temp roots/process cleanup | suitable base for synthetic two-cell conformance |
+| vocabulary | one Host; one complete Relay instance per cell; one customer organization per cell | G-058 boundary spec; TDR-044 decisions 1–2 |
+| Host trust | all resident customers explicitly trust the Host administrator; segment/owner/billing does not imply consent | G-079 contract same-Host matrix; TDR-044 decision 3 |
+| stronger boundary | separate VM/machine for Host-admin distrust or hostile tenants | G-079 contract; threat model TM-010 |
+| minimum hardening | non-root/non-privileged cell, dropped capabilities, default sandbox controls, private network, distinct contained mounts/secrets, resource limits, read-only root where compatible, no authority sockets | G-079 contract; TDR-044 decision 21; measured by G-080/G-083 |
+| registry | dedicated Host DB with opaque lifecycle/resource/authority references only | G-060 registry schemas; TDR-044 decisions 9/16 |
+| local authority | direct Host-admin CLI or protected Unix socket with verified peer; no first-slice TCP/browser control | G-060 system boundary; TDR-044 decision 17 |
+| transfer | current-owner authorization plus target-owner acceptance plus verified export/recovery checkpoint | G-079 authority state; TDR-044 decision 22; implemented across G-081/G-082/G-083 |
+| revocation/lapse | disable new automation; never stop/delete/encrypt/strand or block export/recovery | G-079 authority state; entitlement no-hostage invariant |
+| resource admission | provisional 1 GiB/cell, 0.5 GiB Host reserve, 90% memory, 3 cells/vCPU, explicit storage ceiling | cost inputs; G-079 contract; TDR-044 decision 23 |
+| first topology | one local supervisor plus synthetic fake-OCI two-cell lifecycle before a real adapter | G-060 plan; TDR-044 decision 20 |
 
-No `src/lib/host`/`src/host` supervisor, Host registry, container allocator,
-authenticated lifecycle socket, signed OCI artifact, or provider adapter exists.
-The design must not describe planned controls as shipped.
+All decisions are explicit enough for later executable conformance. None is
+represented as an implemented control.
 
-## Critical architecture decision
+## Architecture posture
 
-The Host supervisor MUST be a separate executable/process with a dedicated Host
-root and registry. It MUST NOT run inside a Relay cell or import the cell DB,
-routes, runtime registry, workflows, chat tools, settings, crypto keyfile, or
-snapshots.
+### Process and data boundary
 
-This separation is load-bearing:
+The supervisor remains a separate executable/process with its own Host root and
+registry. It does not import cell DB/settings/routes/runtime/workflow/chat/key/
+snapshot modules. Each cell keeps its own Next.js process, SQLite/WAL, files,
+secrets, license, logs and scheduler. This preserves existing single-process
+semantics and prevents a nominal `customerId` or row filter from becoming the
+security boundary.
 
-```text
-bin/relay-host.ts
-  → src/host contracts/registry/preflight/adapters
-  → OCI runtime
-      → cell process A → cell A RELAY_DATA_DIR → cell A SQLite/files/secrets
-      → cell process B → cell B RELAY_DATA_DIR → cell B SQLite/files/secrets
-```
+### Host and cell authority
 
-If `src/instrumentation-node.ts` starts the supervisor, every cell becomes a
-privileged lifecycle controller and can reach sibling resources. If the Host
-registry uses `@/lib/db`, it silently writes lifecycle authority into one cell's
-customer database. Both patterns are prohibited by contract and test.
+The first authority is local OS authority, not a remote fleet service. Actor and
+owner references are opaque identifiers; presenting an owner reference never
+authorizes an action. Transfer is a multi-party, checkpoint-gated state machine.
+A Host-admin override, if ever productized, must be a separately approved and
+audited break-glass action rather than being mislabeled customer consent.
 
-## Pattern alignment
+### Isolation posture
 
-| Relay pattern | Applies | Use |
-|---|---|---|
-| TDR-009 idempotent bootstrap | yes | registry bootstrap and reconcile are repeatable and visible |
-| TDR-010 SQLite/WAL | yes, separate DB | atomic local Host states without a service dependency |
-| TDR-011/012/013 data conventions | yes | JSON-in-TEXT only where flexible; epoch timestamps; text IDs |
-| TDR-029 layered dev gates | principle only | normal `npm run dev` must never install/start a privileged supervisor |
-| named errors / zero silent failure | yes | exact validation, authority, collision, partial and rollback errors |
-| Zod at boundaries | yes | validate versioned manifests before canonical digest/effects |
-| argv-array process invocation | yes | Docker/Podman adapter uses `execFile`/spawn args, never shell strings |
-| snapshot manifest | yes, concept | receipts and resource inventories; no snapshot implementation reuse across boundary |
-| runtime adapter registry | no | Host OCI adapters are infrastructure adapters, not AI runtimes |
-| Server Components/API mutations | not in first slice | browser lifecycle waits for G-084 and authenticated G-081 boundary |
+The accepted OCI baseline reduces accidental and compromised-cell cross-talk,
+but it cannot defend against a malicious or compromised Host administrator.
+Optional rootless containers, gVisor, Kata or microVMs may reduce likelihood
+after conformance; they do not replace the separate-VM rule without a new
+accepted claim. This keeps public language aligned with the actual boundary.
+
+### Capacity posture
+
+Admission is fail-closed and resource values are provisional inputs, not density
+or performance claims. G-080 must measure clean install, idle, task, document/
+PDF, backup, upgrade and shutdown behavior for one and two cells. A public
+support claim requires the measured workload class, safety margin and noisy-
+neighbor evidence to replace or confirm the provisional values.
 
 ## Blast radius
 
-| Layer | Future affected surfaces | Impact |
+| Layer | Impact | Constraint frozen by G-079 |
 |---|---|---|
-| Infrastructure | new `src/host/*`, `bin/relay-host.ts`, OCI adapter, Host root/socket/service | high: privileged lifecycle authority |
-| Data | dedicated Host registry schema/migrations, no Relay schema change | high integrity; intentionally separate |
-| Distribution | G-080 image/digest/provenance contract | hard prerequisite for real adapter |
-| Security | local OS peer authority, path/mount/network/port containment, content-free receipts | high cross-cell blast radius |
-| Recovery | G-082 cell export/backup references and rescue | coordination dependency |
-| Licensing | G-083 dedicated lifecycle entitlement gate | coordination dependency |
-| API/frontend | G-084 lifecycle APIs/journey after G-081 auth | deferred |
-| Runtime/workflow | unchanged unless later Host runtime management is added | no current import or smoke trigger |
+| distribution | high | one signed npm-derived OCI artifact; implementation remains G-080 |
+| runtime/Host | high | separate supervisor, fake adapter first, no cell/Host module graph coupling |
+| data | medium | keep SQLite/WAL per cell and a separate content-free Host DB |
+| identity/authorization | high | owner/actor semantics and non-destructive revocation; implementation remains G-081/G-083 |
+| recovery/secrets | high | customer-owned per-cell roots and verified checkpoint prerequisite; implementation remains G-082 |
+| frontend/product language | medium | disclose Host-admin trust and separate-VM rescue; lifecycle UX remains G-084 |
+| connectors | medium | all connector content/secrets/state remain inside one cell, never Host registry |
 
-**Classification: High.** The implementation ultimately spans infrastructure,
-data, distribution, security, recovery, licensing, and UI, but G-060 contains
-that blast radius behind durable contracts and dependent release increments.
+**Classification: high.** The decision affects distribution, process, data,
+identity, recovery, product language and connector conformance. The staged goals
+keep that blast radius from becoming one implementation change.
 
-## Data and registry design
+## Security review
 
-Use a dedicated `host.db` under a supervisor-controlled Host root. Do not add
-Host tables to `src/lib/db/schema.ts` or migrations. Logical records:
+- Same-Host consent fails closed when missing or ambiguous.
+- The accepted baseline covers mount/path, network/port, resource, runtime-
+  authority and registry-content boundaries, while the threat model retains the
+  absence of implementation as a gap.
+- Transfer replay, stale target-owner acceptance, checkpoint mismatch, revoked
+  automation, plan-digest reuse and Host-admin break-glass ambiguity have named
+  refusal paths.
+- Separate VM/machine is the rescue when the Host trust premise fails.
+- No external credentials, customer content, provider authority or public
+  endpoint was introduced by this acceptance.
 
-- Host identity/version/runtime/capacity/desired-actual state;
-- cell opaque owner reference, immutable artifact, desired-actual state and
-  resource allocation;
-- operation/plan digest, durable effect checkpoints and locks;
-- content-free lifecycle receipts and exact remaining-resource references.
+No unresolved architecture/security acceptance issue remains in R0. G-080 and
+later goals still require fresh implementation review before making isolation,
+capacity, recovery, remote-access or paid-deployment claims.
 
-The registry contains no customer names/emails, prompts, documents, messages,
-tables, model responses, credentials, secret values, raw logs, or backup data.
-`secretRootRef` is opaque; Host admin trust is explicit even though application
-code never reads the secret.
+## Downstream gates preserved
 
-SQLite is appropriate here because one local supervisor owns writes. A remote
-multi-Host control plane would require a separate authority/consensus decision;
-it must not stretch this registry over network storage.
+- G-080: select/prove Docker or Podman details, artifact compatibility,
+  measurements, signatures and two-cell conformance; publication remains gated.
+- G-081: approve and implement remote identity, recovery and public trust copy.
+- G-082: approve retention, key recovery, RPO/RTO and prove checkpoint/export.
+- G-083: approve entitlement renewal/lapse and implement supervisor authority.
+- G-085: separately approve DigitalOcean account, scopes, spend, region,
+  hostname, security review and beta/release claims.
+- G-086: separately approve the second target and portability/GA claim.
 
-## Control and authorization design
+## Verdict
 
-V1 control is local only:
-
-- direct administrator CLI or an administrator-owned Unix socket;
-- socket mode/ownership plus peer credentials, not caller-supplied actor IDs;
-- no TCP lifecycle listener, browser credential, forwarded identity, or public
-  ingress;
-- no supervisor socket/runtime socket mounted into cells;
-- actor reference and owner reference are recorded without personal content.
-
-Future browser/cloud orchestration sends signed/versioned plans through the
-G-081/G-083 authorization boundary. It does not weaken local peer verification.
-Revoking automation never deletes or encrypts data and never blocks direct Host
-ownership, export, or recovery.
-
-## State and effect design
-
-Keep desired state, observed actual state, and operation state separate. A
-mutation is:
-
-1. validate version/schema and reject content/secrets;
-2. canonicalize a redacted plan and bind a digest;
-3. authorize the local peer/owner operation;
-4. reserve resources atomically and run collision/capacity/path preflight;
-5. persist the applying checkpoint;
-6. execute exactly one adapter effect;
-7. inspect observed OCI state;
-8. persist verification/success or exact partial state;
-9. resume or roll back from durable receipts after failure.
-
-Preflight is rechecked at effect time to close TOCTOU. An identical retry
-returns/reconciles the original operation; a different request reusing an
-operation/cell identity is a named conflict.
-
-## Migration and compatibility
-
-- Relay application schema migration: **none** for G-060 and the future Host
-  domain.
-- Host registry migration: new independent version line with backup/export and
-  last-known-good reader before upgrades.
-- API versioning: Host manifest/registry/receipt schemas start at v1; no public
-  API in the first slice.
-- Runtime graph: no imports into `src/lib/agents/runtime/*` or workflows.
-- Cell compatibility: G-080 manifest supplies Relay version, schema range,
-  artifact digest, health contract and data-root mount contract.
-- Existing npm/local launch remains the last-known-good path throughout the
-  release train.
-
-## Threat and failure implications
-
-Highest risks are Host socket/OS authority bypass, path/symlink escape,
-cross-cell volume/network/port/secret collision, replay/non-atomic lifecycle,
-partial rollback, registry content leakage, OCI supply-chain substitution, and
-container escape/noisy-neighbor effects. These map to TM-004, TM-008, TM-010,
-TM-011, TM-012, TM-013, and TM-014 in `relay-threat-model.md`.
-
-The Host administrator remains trusted. Container hardening reduces accidental
-or cell-level crossover but does not protect customers from Host root. Separate
-VMs/machines are required for that threat model.
-
-## Recommended sequence
-
-1. G-060: accept this contract, TDR amendment, threat model, and plan.
-2. G-079: final TDR-044/authority vocabulary disposition.
-3. G-080: signed digest-pinned Relay cell artifact and real health/data contract.
-4. G-081/G-082: remote identity and recoverable per-cell secrets/data.
-5. G-083: implement the pure Host domain, dedicated registry, fake adapter, then
-   real local OCI adapter under its dependency gates.
-6. G-084: expose the paid customer journey after server authorization exists.
-
-## Verification budget
-
-- document parity across G-060 spec, plan, TDR-044, threat model and backlog;
-- future import-boundary test preventing Host → cell DB/runtime graph coupling;
-- full legal/illegal state matrix, canonical plan and replay tests;
-- registry crash/reopen/concurrency/content scans;
-- two-cell path/mount/network/port/secret/license/log/resource negative matrix;
-- fake effect failure after every durable boundary;
-- real OCI conformance after G-080;
-- real `npm run dev` in both cells and customer-identical G-025 staging;
-- runtime-registry smoke only if later work actually touches the named modules.
-
-## TDR implications
-
-TDR-044 is the correct decision record and should be amended, not duplicated.
-G-060 records the separate-supervisor process boundary, dedicated content-free
-registry, local OS authority, opaque owner/secret references, idempotent state
-machines, and bounded first slice. Status remains `proposed`; G-079 owns final
-accept/revise/reject disposition.
-
-## NOT in scope
-
-- supervisor application code or Host DB migrations;
-- Docker/Podman installation or container mutation;
-- remote/browser lifecycle API;
-- ingress/auth/session/CSRF/SSO;
-- cloud-provider resources or credentials;
-- OCI publication;
-- backup/KMS implementation;
-- entitlement/UI implementation; and
-- row-level multi-tenancy or Host-admin-resistant same-Host claims.
+**Accept TDR-044 and release R0.** Advance the Customer-owned Relay Host train to
+R1 Local Host alpha, with G-080 ready after its explicit G-034 native/package
+preflight decision and G-038 available as the independent first-run quick win.
 
 ---
 
-*Generated by `/architect` — G-060 integration and impact mode*
+*Generated by `/architect` — TDR management and contract-acceptance mode*

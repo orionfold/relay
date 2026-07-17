@@ -4,7 +4,7 @@ Authoritative specification: `features/licensed-self-service-cloud-deploy.md`
 Research: `features/licensed-self-service-cloud-deploy-research.md`
 Architecture impact: `features/architect-report.md`
 Threat model: `relay-threat-model.md`
-Proposed decision: TDR-044
+Architecture decision: TDR-044 accepted by G-079 on 2026-07-16
 Decision: PROCEED approved by the operator on 2026-07-15
 Architecture perspective amended from OpenClaw/Hermes/NemoClaw evidence on
 2026-07-16
@@ -78,9 +78,9 @@ branch. G-078 ends after the durable decisions and decomposition are verified.
 | AC1 authoritative provider matrix | G-078 research, dated source catalog | provider-family coverage and source-date check |
 | AC2 reference-product evidence | G-078 OpenClaw/Hermes/NemoClaw research | official Host/cell/backend/sandbox claim audit |
 | AC3 Host/cell topology comparison | G-078 research/spec/wireframe | placement, Host trust, isolation, failure and cost checklist |
-| AC4 A/B/C layer posture | G-078 spec + proposed TDR-044 | layer/revisit-trigger parity check |
+| AC4 A/B/C layer posture | G-078 spec + accepted TDR-044 | layer/revisit-trigger parity check |
 | AC5 reproducible cost model | G-078 JSON inputs + deterministic script | exact 1/10/100-cell Host/shard assertions |
-| AC6 durable architecture decision | proposed TDR-044, accepted in first implementation gate | architect review plus operator acceptance |
+| AC6 durable architecture decision | TDR-044 accepted by G-079 | architect review plus operator acceptance receipt |
 | AC7 threat coverage | G-078 threat model, then per-goal security review | Host privilege, cross-cell and trust-boundary checklist |
 | AC8 complete customer journey | G-078 wireframe, G-084 deploy UX | placement/Host/cell state-machine and browser tests |
 | AC9 executable slices and regression budget | this plan + G-079–G-086 | per-goal ship verification and conformance matrix |
@@ -109,7 +109,7 @@ mere architectural alignment:
 |---|---|---|---|
 | G-058 | — | public trust copy must remain consistent with `_ASSETS/` | truthful customer/cell isolation language |
 | G-060 | G-058 accepted | TDR-044, `features/relay-host-fleet-manager-contract.md`, and existing `src/lib/instance/*` seams | approved separate local Host supervisor, dedicated content-free registry and bounded lifecycle slice |
-| G-079 | G-058, G-060 | operator accepts Host/cell vocabulary, trust, authority and first topology | freezes the architecture contract for every implementation stream |
+| G-079 (accepted) | G-058, G-060 | accepted Host/cell vocabulary, trust, authority, hardening and first topology | freezes the architecture contract for every implementation stream |
 | G-034 | — | complete before G-080 unless G-080 independently proves the native binding, PDF pipeline and externalization debt clean in its target artifact | lowers OCI/native-package risk without becoming an unrelated modernization umbrella |
 | G-038 | — | instance-local marker must be scoped by the same per-cell `RELAY_DATA_DIR` contract | immediate first-run reliability and a clean cell-isolation invariant |
 | G-080 | G-079 | G-034 conditional preflight; G-036 remains trigger-only based on measured tarball/install cost | signed local/cloud Host artifact and local two-cell alpha |
@@ -117,12 +117,12 @@ mere architectural alignment:
 | G-082 | G-079, G-080 | reuse existing snapshot contracts; connector secrets/backups consume this contract | recoverable, portable cells and per-cell secret roots |
 | G-020 | — | G-084 must reuse its dated freshness/staleness semantics or explicitly own a separate cloud-price catalog contract | prevents duplicated or falsely-current estimate behavior |
 | G-030 | — | G-083/G-084 reuse retain-by-default versus separately confirmed purge semantics | immediate removal clarity and consistent destructive-language policy |
-| G-083 | G-079, G-080, G-081, G-082 | G-030 retention semantics; entitlement and TDR-044 operator gates | paid local Host supervisor beta and stable Host/cell lifecycle API |
+| G-083 | G-079, G-080, G-081, G-082 | G-030 retention semantics; entitlement policy remains operator-gated | paid local Host supervisor beta and stable Host/cell lifecycle API |
 | G-084 | G-083 | G-020 freshness semantics; G-030 retention language | customer-visible local-device/cloud-Host lifecycle journey |
 | G-085 | G-084 | provider account, credentials, spend, hostname, security review and release approval | first DigitalOcean customer beta |
 | G-086 | G-085 plus demand trigger | second provider/hardware authorization; does not block a demand-validated G-085 beta | portability evidence required before GA portability claims |
-| G-073 | G-079 before production implementation; research/spec may start earlier | cloud-Host support conforms to G-081/G-082; connector workers, secrets and state remain inside one cell under G-083 | structured connector kernel and local-first connector value |
-| G-074 | G-073 shared kernel and G-079 before production implementation; research may overlap | cloud-Host support conforms to G-081/G-082; document content never enters Host registry | document connector value without a second connector platform |
+| G-073 | G-079 accepted; E0 research/spec and tranche approval remain | cloud-Host support conforms to G-081/G-082; connector workers, secrets and state remain inside one cell under G-083 | structured connector kernel and local-first connector value |
+| G-074 | G-073 shared kernel; G-079 accepted; research may overlap | cloud-Host support conforms to G-081/G-082; document content never enters Host registry | document connector value without a second connector platform |
 | G-059 | G-080 local Host fixture or an equivalent disposable Linux multi-user environment | use the Host/cell process boundary to distinguish task cwd from executable/PATH/credential scope | closes the customer runtime report without inventing per-customer config inside one process |
 | G-062 | — for specification; G-083 before implementing Host/cell health modules | Host modules are optional typed dashboard consumers, not a blocker for core dashboard improvements | exposes deployment health later without coupling Home to the supervisor |
 | G-025 | each implementation release candidate | customer-identical isolated staging evidence; repeat after G-080, G-081/G-082, G-084 and G-085 | recurring release gate rather than a one-time prerequisite |
@@ -164,9 +164,9 @@ improvements.
 
 Parallel value stream after R0:
 
-1. G-073 may research/spec before R0, but production code starts only after
-   G-079. Its first local connector tranche can ship without waiting for
-   DigitalOcean.
+1. G-073's G-079 prerequisite is satisfied. Production code still waits for the
+   E0 connector contract and operator-approved first tranche; its first local
+   connector tranche can ship without waiting for DigitalOcean.
 2. G-074 research can overlap G-073, while implementation waits for the accepted
    shared connector kernel. Cloud-Host connector support additionally conforms
    to G-081 identity/ingress and G-082 secret/recovery contracts.
@@ -224,7 +224,10 @@ Tasks:
 4. Freeze the R0 contract consumed by G-080 through G-084 and the connector
    conformance streams.
 
-Checkpoint: G-058/G-060 acceptance evidence exists and no later goal needs to
+Accepted 2026-07-16. `features/relay-host-authority-isolation-contract.md`
+freezes explicit same-Host trust, the baseline hardening rung, separate-VM
+rescue, customer-authorized transfer/revocation, content-free authority metadata
+and provisional admission values. TDR-044 is accepted and no later goal needs to
 invent customer/instance semantics.
 
 ### G-080 — Produce a signed Relay Host/cell artifact
@@ -402,9 +405,9 @@ real browser before any live provider is connected.
 Goal: provision one clean DigitalOcean VM, install the signed Relay Host, and
 prove local/cloud appliance parity plus one-cell and same-host multi-cell use.
 
-Operator gates before live work: accept TDR-044, approve DigitalOcean OAuth/token
-scopes, provide/authorize account and spending cap, approve target region and
-temporary public hostname.
+Operator gates before live work: approve DigitalOcean OAuth/token scopes,
+provide/authorize account and spending cap, approve target region and temporary
+public hostname. TDR-044 was accepted by G-079.
 
 Tasks:
 
@@ -439,7 +442,8 @@ Tasks:
    upgrade/export/delete conformance as G-085.
 3. Compare bootstrap, firewall, storage, backup, recovery, cost and support
    semantics; document differences at the adapter/Host boundary.
-4. Update TDR-044 to accepted, superseded or rejected only with operator approval.
+4. Retain TDR-044 unless portability evidence requires an operator-approved
+   amendment or superseding decision.
 
 Checkpoint: Relay may claim portable local/cloud Host deployment; a PaaS adapter
 remains optional rather than a condition of GA.
@@ -549,7 +553,8 @@ security/architecture review in that order.
 
 ## Operator gates
 
-- Accept, revise or reject proposed TDR-044.
+- TDR-044, same-Host trust, minimum hardening, transfer/revocation and
+  provisional admission were accepted by G-079 on 2026-07-16.
 - Approve DigitalOcean scopes/account/region/spending for G-085 and choose the
   second Host target/portability claim for G-086.
 - Approve remote identity model/public trust copy and any compliance claims.
@@ -557,9 +562,7 @@ security/architecture review in that order.
   behavior during lapse.
 - Approve backup retention/key recovery and RPO/RTO targets.
 - G-060's first topology, content-free metadata, per-cell secret ownership and
-  synthetic first slice were approved 2026-07-16. G-079 still accepts/revises
-  TDR-044, allowed same-host trust classes, cell resource defaults and stronger
-  isolation runtime; separately approve any
+  synthetic first slice were approved 2026-07-16. Separately approve any
   managed Orionfold control plane, credential custody, remote database or
   distributed scheduler.
 - Separately authorize push, publish, release, public template/marketplace entry,

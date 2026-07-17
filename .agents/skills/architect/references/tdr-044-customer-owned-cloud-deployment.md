@@ -1,10 +1,11 @@
 ---
 id: TDR-044
 title: Customer-owned Relay Host with isolated cells
-status: proposed
+status: accepted
 date: 2026-07-15
 amended: 2026-07-16 (G-060 local Host supervisor contract)
-goal: G-078, G-060; final disposition G-079
+accepted: 2026-07-16 (G-079 authority and isolation contract)
+goal: G-078, G-060, G-079
 ---
 
 # TDR-044: Customer-owned Relay Host with isolated cells
@@ -65,10 +66,11 @@ or cloud VM.
    realm, secrets, license, logs, resource budget, backup lineage, and runtime
    policy. Session or customer IDs do not substitute for this boundary.
 3. Multiple cells may share one host only when their tenants trust the host
-   operator and the agreed container/OS boundary. Mutually hostile tenants or
-   customers requiring an administrative boundary receive separate VMs/hosts.
-   A compromised host can read or replace its cells; host resistance is not a
-   v1 security claim.
+   operator and explicitly accept the agreed container/OS boundary. Eligibility
+   is decided per Host and is never inferred from customer segment, owner ID or
+   billing relationship. Mutually hostile tenants or customers requiring an
+   administrative boundary receive a separate VM/machine. A compromised host
+   can read or replace its cells; host resistance is not a v1 security claim.
 4. Cell endpoints publish only to host loopback or a private network. An
    approved reverse proxy, VPN/tailnet, or authenticated Relay ingress exposes
    them remotely. No cell or model-runtime port is wildcard-public by default.
@@ -138,6 +140,23 @@ or cloud VM.
     collision, path escape, capacity, crash and rollback evidence. A real OCI
     adapter and any isolation claim wait for G-080's digest-pinned artifact and
     the later release gates.
+21. The minimum same-Host hardening rung is non-root, non-privileged cell
+    execution; dropped Linux capabilities; default seccomp/LSM protection;
+    private per-cell networking and loopback-published ports; distinct contained
+    mounts, secret roots, logs and backup lineage; enforced CPU/memory/storage
+    limits; and a read-only root filesystem wherever G-080 proves compatibility.
+    A cell never receives the supervisor or OCI-runtime socket. Failure to prove
+    a required control refuses the same-Host isolation claim.
+22. Ownership transfer requires current-owner authorization and target-owner acceptance.
+    A verified export/recovery checkpoint must exist before the owner reference
+    changes. Revocation stops new lifecycle automation but never stops, deletes,
+    encrypts or strands a cell and never blocks export/recovery. Fresh
+    authorization is required to resume automation. Host-admin emergency access
+    is not represented as a customer-authorized transfer.
+23. Initial admission uses provisional inputs of 1 GiB memory per cell, 0.5 GiB
+    Host reserve, 90% maximum memory utilization, three cells per vCPU, and an
+    explicit per-cell storage ceiling. G-080 must measure and confirm or revise
+    these inputs before any capacity or support claim.
 
 ### Architecture posture by layer
 
@@ -240,13 +259,14 @@ paying demand.
 
 ## Status and approval
 
-This record is **proposed**. G-078 recommended the appliance direction. On
-2026-07-16 G-060 received operator approval for the local OCI-cell topology,
-content-free registry, customer-owned per-cell secret roots and bounded first
-slice, and amended the implementation boundary accordingly. G-079 still owns
-the final accept/revise/reject disposition for Host/cell authority, ownership
-transfer and the complete R0 contract. No provider, publication or paid
-deployment is approved by this record.
+This record is **accepted**. G-078 recommended the appliance direction; G-060
+received operator approval for the local OCI-cell topology, content-free
+registry, customer-owned per-cell secret roots and bounded first slice; and on
+2026-07-16 G-079 accepted the complete Host/cell authority, same-Host trust,
+hardening, transfer/revocation and provisional admission contract. Acceptance
+closes the R0 architecture gate and authorizes dependent implementation goals to
+use this contract. It does not approve a provider, publication, release, paid
+deployment, remote control plane, compliance claim or external write.
 
 ## References
 
@@ -256,6 +276,7 @@ deployment is approved by this record.
 - `features/relay-host-cell-isolation-boundary.md`
 - `features/relay-host-fleet-manager-contract.md`
 - `features/relay-host-fleet-manager-plan.md`
+- `features/relay-host-authority-isolation-contract.md`
 - `relay-threat-model.md`
 - `features/architect-report.md`
 - TDR-010, TDR-029, TDR-030, TDR-041, TDR-042, and TDR-043

@@ -1,5 +1,28 @@
 # Feature Changelog
 
+## 2026-07-16 — Complete G-079 Relay Host authority and isolation contract
+
+### Completed
+
+- Accepted TDR-044 and closed the R0 isolation-contract increment after the
+  operator approved same-Host trust, the minimum hardening rung, separate-VM
+  rescue, customer-owned authority and provisional resource admission.
+- Made same-Host placement conditional on explicit Host-administrator trust from
+  every resident customer. Customers requiring protection from that
+  administrator or mutually hostile tenants use separate VMs/machines.
+- Froze current-owner authorization, target acceptance and verified export/
+  recovery checkpoint as transfer prerequisites. Revocation and entitlement
+  lapse remain non-destructive and cannot block export/recovery.
+- Recorded the non-root/dropped-capability/private-network/distinct-mount-and-
+  secret/resource-limit/read-only-root-where-compatible cell baseline, plus the
+  prohibition on exposing Host or OCI authority sockets to cells.
+- Accepted provisional admission inputs of 1 GiB memory per cell, 0.5 GiB Host
+  reserve, 90% memory utilization, three cells per vCPU and explicit storage
+  ceilings. G-080 must confirm or revise them with measurements before claims.
+- Reconciled the deployment spec/plan, G-060 contract, threat model and
+  architecture report. No application code, runtime/container, provider,
+  credential, push, publish, version or release change occurred.
+
 ## 2026-07-16 — Complete G-060 isolated-instance fleet manager contract
 
 ### Completed

@@ -4,7 +4,7 @@ status: accepted
 goal: G-060 planning deliverable; implementation target G-083 after prerequisites
 date: 2026-07-16
 specification: features/relay-host-fleet-manager-contract.md
-tdr: TDR-044 proposed
+tdr: TDR-044 accepted by G-079 on 2026-07-16
 ---
 
 # Relay Host fleet manager implementation plan
@@ -30,7 +30,7 @@ adapter only after the signed G-080 artifact exists.
 | `src/lib/utils/crypto.ts` | current per-cell key root evidence | do not reuse one keyfile across cells or copy key material into registry |
 | `scripts/lib/harness.mjs` | isolated temp roots/process cleanup | extend for synthetic two-cell Host fixtures |
 | `src/lib/agents/runtime/provider-endpoint.ts` | named network failures and safe endpoint policy | Host supervisor does not manage model requests |
-| TDR-044 and G-078 artifacts | Host/cell appliance, customer ownership and release train | G-079 performs final architecture disposition |
+| TDR-044 and G-078 artifacts | accepted Host/cell appliance, customer ownership and release train | G-079 final architecture disposition is complete |
 
 ## Specification and acceptance mapping
 
@@ -232,7 +232,7 @@ G-084.
 
 - Contract/fake-adapter work is additive and disabled by absence of a Host CLI
   entry point in normal Relay startup.
-- The real adapter remains opt-in and local-only until G-079/G-080 acceptance.
+- The real adapter remains opt-in and local-only until G-080 acceptance.
 - Registry migrations require a pre-migration registry copy and supported
   downgrade/export reader.
 - Cell stop/remove never purges data by default. Purge follows G-030's separate
