@@ -28,6 +28,7 @@ describe("GET /api/workflows/[id]/target", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("RELAY_CELL_ID", "g096-cell");
     workflowId = randomUUID();
     projectId = null;
     const now = new Date();
@@ -48,6 +49,7 @@ describe("GET /api/workflows/[id]/target", () => {
   afterEach(() => {
     db.delete(workflows).where(eq(workflows.id, workflowId)).run();
     if (projectId) db.delete(projects).where(eq(projects.id, projectId)).run();
+    vi.unstubAllEnvs();
   });
 
   it("returns every resolved workflow step target", async () => {
@@ -72,7 +74,10 @@ describe("GET /api/workflows/[id]/target", () => {
       targets,
       context: {
         workingDirectorySource: "launch",
-        cell: { vocabularyVersion: "relay-host-cell-v1" },
+        cell: {
+          vocabularyVersion: "relay-host-cell-v1",
+          instanceId: "g096-cell",
+        },
       },
       error: null,
     });

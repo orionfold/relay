@@ -33,8 +33,8 @@ have similar download sizes.
 The accepted npm measurement is `2,767,765` compressed bytes and `9,902,571`
 unpacked bytes. That is the package payload before the destination supplies
 Node.js, installs the dependency closure, and provides its OS/native libraries.
-The optimized Linux/arm64 Cell image is `129,913,772` bytes and its OCI archive
-is `129,938,944` bytes because it carries the complete pinned Linux runtime
+The optimized Linux/arm64 Cell image is `129,935,364` bytes and its OCI archive
+is `129,960,448` bytes because it carries the complete pinned Linux runtime
 closure required to start a Cell. The useful comparison is therefore an
 installed npm deployment plus Node and its host runtime prerequisites versus a
 complete OCI image—not the npm tarball alone versus the image. OCI layers can
@@ -173,9 +173,9 @@ current signed manifest and smoke receipt.
 
 ## Accepted optimization measurement — 2026-07-17
 
-The Linux/arm64 image is `129,913,772` bytes and its OCI archive is
-`129,938,944` bytes: an 85.40% reduction from the `889,827,989`-byte G-080
-baseline. The final filesystem contains 5,196 files across 25 layers. Its
+The latest Linux/arm64 image is `129,935,364` bytes and its OCI archive is
+`129,960,448` bytes: an 85.40% reduction from the `889,827,989`-byte G-080
+baseline. The final filesystem contains 5,197 files across 25 layers. Its
 CycloneDX SBOM contains 60 components, all attributed to Relay, the pinned
 runtime base, `package-lock.json`, or Next's bundled runtime; the final-image
 scan has zero unapproved high/critical findings.
@@ -200,3 +200,15 @@ creation, blueprint authoring and deterministic teardown. The run also did what
 a release gate should do: it exposed inconsistent managed-Cell identity and a
 silently dropped workflow project edit. Host R1 therefore remains open until
 those defects are fixed and the rebuilt optimized image passes the same journey.
+
+The first defect is now closed by G-096. In a managed OCI Cell,
+`RELAY_CELL_ID` is the validated identity authority and the same value appears
+in readiness, Settings, instance configuration, and task/workflow execution
+context. Invalid values fail visibly as `CELL_ID_INVALID`; they never fall back
+to a git-bootstrap identity. Direct no-git npx, development, and initialized
+git-backed installs retain their existing behavior when `RELAY_CELL_ID` is
+absent. The rebuilt local arm64 artifact at digest
+`sha256:f9e08451c1d7c39e9092e6bf84b61df47eedc2f70ac71c3ab4e02f98cf5de783`
+passed the artifact pipeline and a hardened browser-visible Cell smoke. It is a
+dirty-local, ephemeral-test-signed verification artifact—not a published
+release. Host R1 still requires G-097 and the G-099 Foundation rerun.

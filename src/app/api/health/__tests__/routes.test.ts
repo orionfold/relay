@@ -40,6 +40,15 @@ describe("Relay cell health routes", () => {
     });
   });
 
+  it("retains the local readiness identity for an unmanaged process", async () => {
+    delete process.env.RELAY_CELL_ID;
+
+    expect(await ready().json()).toMatchObject({
+      status: "ready",
+      cellId: "local",
+    });
+  });
+
   it("fails closed with stable reasons for invalid identity or SQLite", async () => {
     process.env.RELAY_CELL_ID = "Customer / A";
     expect(await ready().json()).toMatchObject({ reason: "CELL_ID_INVALID" });

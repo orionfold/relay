@@ -24,6 +24,32 @@ import { join, resolve } from "path";
 const DEFAULT_DATA_DIR_NAME = ".relay";
 const DB_FILENAME = "relay.db";
 
+export const RELAY_CELL_ID_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62})$/;
+
+export class InvalidRelayCellIdError extends Error {
+  readonly code = "CELL_ID_INVALID" as const;
+
+  constructor() {
+    super("RELAY_CELL_ID must be a lowercase DNS label of at most 63 characters.");
+    this.name = "InvalidRelayCellIdError";
+  }
+}
+
+/**
+ * Returns the Host-supplied managed Cell identity when configured.
+ *
+ * The environment/Host manifest is authoritative for a managed Cell. Invalid
+ * values fail closed instead of falling through to a git-bootstrap identity.
+ */
+export function relayCellIdOverride(): string | undefined {
+  const cellId = process.env.RELAY_CELL_ID;
+  if (cellId === undefined) return undefined;
+  if (!RELAY_CELL_ID_PATTERN.test(cellId)) {
+    throw new InvalidRelayCellIdError();
+  }
+  return cellId;
+}
+
 /**
  * Canonical data directory. `RELAY_DATA_DIR` override (used by isolated
  * private instances + tests) wins; otherwise `~/.relay`.

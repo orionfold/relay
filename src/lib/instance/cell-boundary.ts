@@ -4,6 +4,7 @@ import {
   dataDirOverride,
   dbPath,
   launchCwd,
+  relayCellIdOverride,
 } from "@/lib/config/env";
 import { hasGitDir, isDevMode } from "./detect";
 import { getInstanceConfig } from "./settings";
@@ -49,15 +50,19 @@ export function buildRelayCellBoundary(input: {
  * from existing process configuration and are never persisted as a second
  * source of truth.
  *
- * Dev and npx installs intentionally report no instance id. Dev mode may have
- * stale bootstrap settings from explicit instance testing, while npx installs
- * do not participate in git-backed instance bootstrap at all.
+ * A Host-supplied RELAY_CELL_ID is authoritative for managed Cells, including
+ * no-git OCI runtimes. Without that value, dev and ordinary npx installs
+ * intentionally report no instance id. Dev mode may have stale bootstrap
+ * settings from explicit instance testing, while npx installs do not
+ * participate in git-backed instance bootstrap at all.
  */
 export function getRelayCellBoundary(): RelayCellBoundary {
+  const managedCellId = relayCellIdOverride();
   const instanceId =
-    !isDevMode() && hasGitDir()
+    managedCellId ??
+    (!isDevMode() && hasGitDir()
       ? getInstanceConfig()?.instanceId ?? null
-      : null;
+      : null);
 
   return buildRelayCellBoundary({
     instanceId,

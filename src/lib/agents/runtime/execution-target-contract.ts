@@ -16,6 +16,7 @@ export type ExecutionTargetErrorCode =
   | "no_compatible_runtime"
   | "empty_eligible_runtime_pool"
   | "no_eligible_runtime"
+  | "cell_identity_invalid"
   | "target_resolution_failed";
 
 export interface ExecutionTargetPreviewItem {

@@ -28,6 +28,7 @@ describe("GET /api/tasks/[id]/target", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("RELAY_CELL_ID", "g096-cell");
     taskId = randomUUID();
     projectId = null;
     const now = new Date();
@@ -50,6 +51,7 @@ describe("GET /api/tasks/[id]/target", () => {
   afterEach(() => {
     db.delete(tasks).where(eq(tasks.id, taskId)).run();
     if (projectId) db.delete(projects).where(eq(projects.id, projectId)).run();
+    vi.unstubAllEnvs();
   });
 
   it("returns the exact ready target", async () => {
@@ -79,7 +81,10 @@ describe("GET /api/tasks/[id]/target", () => {
       targets: [preview],
       context: {
         workingDirectorySource: "launch",
-        cell: { vocabularyVersion: "relay-host-cell-v1" },
+        cell: {
+          vocabularyVersion: "relay-host-cell-v1",
+          instanceId: "g096-cell",
+        },
       },
       error: null,
     });
@@ -113,7 +118,10 @@ describe("GET /api/tasks/[id]/target", () => {
       targets: [],
       context: {
         workingDirectorySource: "launch",
-        cell: { vocabularyVersion: "relay-host-cell-v1" },
+        cell: {
+          vocabularyVersion: "relay-host-cell-v1",
+          instanceId: "g096-cell",
+        },
       },
       error: {
         code: "runtime_unavailable",

@@ -38,7 +38,7 @@
     "/api/settings/test",
     "/api/settings/web-search"
   ],
-  "contentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+  "contentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
   "features": [],
   "id": "api:06-settings-license-instance",
   "journeys": [],
@@ -486,8 +486,8 @@
       "heading": "GET /api/instance/config",
       "id": "get-api-instance-config",
       "level": 3,
-      "markdown": "Returns the active Relay cell boundary plus the instance bootstrap, guardrail,\nand upgrade state in one payload. Timestamps here are numeric epoch values.\n\n- **Request**: none.\n- **Response** `200`: every successful shape includes `boundary`: `{ \"vocabularyVersion\": \"relay-host-cell-v1\", \"instanceId\": \"string | null\", \"dataDirectory\": \"string\", \"databasePath\": \"string\", \"launchWorkingDirectory\": \"string\", \"dataDirectorySource\": \"default | override\" }`. Dev mode returns `{ \"devMode\": true, \"boundary\": { ... }, \"config\": null, \"guardrails\": null, \"upgrade\": null }`. With no git directory, the same boundary facts accompany `skippedReason: \"no_git\"`. Otherwise `config` carries `instanceId`, `branchName`, `isPrivateInstance`, and a numeric `createdAt`; `guardrails` carries the pre-push hook state and `consentStatus`; and `upgrade` carries the poll and upgrade-availability state. Dev and no-git modes report `boundary.instanceId: null` rather than surfacing stale or invented bootstrap identity.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only. The boundary object contains local administrative paths but no credentials, customer content, raw logs, Host name, port, network, container id, or inferred isolation-strength claim.",
-      "wordCount": 144
+      "markdown": "Returns the active Relay cell boundary plus the instance bootstrap, guardrail,\nand upgrade state in one payload. Timestamps here are numeric epoch values.\n\n- **Request**: none.\n- **Response** `200`: every successful shape includes `boundary`: `{ \"vocabularyVersion\": \"relay-host-cell-v1\", \"instanceId\": \"string | null\", \"dataDirectory\": \"string\", \"databasePath\": \"string\", \"launchWorkingDirectory\": \"string\", \"dataDirectorySource\": \"default | override\" }`. Dev mode returns `{ \"devMode\": true, \"boundary\": { ... }, \"config\": null, \"guardrails\": null, \"upgrade\": null }`. With no git directory, the same boundary facts accompany `skippedReason: \"no_git\"`. A validated managed `RELAY_CELL_ID` is authoritative and appears in the compatible `boundary.instanceId` field even in a no-git OCI Cell. Otherwise `config` carries `instanceId`, `branchName`, `isPrivateInstance`, and a numeric `createdAt`; `guardrails` carries the pre-push hook state and `consentStatus`; and `upgrade` carries the poll and upgrade-availability state. Direct dev and no-git npx modes without a managed identity report `boundary.instanceId: null` rather than surfacing stale or invented bootstrap identity.\n- **Errors**: `503` with `{ \"error\": \"<message>\", \"code\": \"CELL_ID_INVALID\" }` when a configured managed Cell id is invalid. Other failures return `500` with `{ \"error\": \"<message>\", \"code\": \"INSTANCE_CONFIG_FAILED\" }`.\n- **Side effects**: reads only. The boundary object contains local administrative paths but no credentials, customer content, raw logs, Host name, port, network, container id, or inferred isolation-strength claim.",
+      "wordCount": 185
     },
     {
       "heading": "GET /api/instance/identity",
@@ -546,9 +546,9 @@
       "wordCount": 129
     }
   ],
-  "sourceHash": "5e1fd3f9ebeb668a8f3051184ba4c38f509c87c6c5a5be9ae237c71a4fe36292",
+  "sourceHash": "cab62b123eaa13385eea380b58bd7da390686480a67eed9e32258bf376145d2e",
   "sourcePath": "api/reference/06-settings-license-instance.md",
-  "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+  "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
   "stability": "admin-local",
   "summary": "Document local settings, license lifecycle, instance identity, upgrade, environment, and onboarding routes.",
   "title": "Settings, License, And Instance API"

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { InvalidRelayCellIdError } from "@/lib/config/env";
 import {
   getInstanceConfig,
   getGuardrails,
@@ -60,6 +61,15 @@ export async function GET() {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: message }, { status: 500 });
+    if (err instanceof InvalidRelayCellIdError) {
+      return NextResponse.json(
+        { error: message, code: err.code },
+        { status: 503 },
+      );
+    }
+    return NextResponse.json(
+      { error: message, code: "INSTANCE_CONFIG_FAILED" },
+      { status: 500 },
+    );
   }
 }

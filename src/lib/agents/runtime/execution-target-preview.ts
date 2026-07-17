@@ -1,4 +1,5 @@
 import { getRuntimeCatalogEntry } from "./catalog";
+import { InvalidRelayCellIdError } from "@/lib/config/env";
 import {
   NoCompatibleRuntimeError,
   EmptyEligibleRuntimePoolError,
@@ -72,6 +73,9 @@ export function classifyExecutionTargetError(error: unknown): {
     cause.name === "OllamaModelNotConfiguredError"
   ) {
     return { code: "model_unavailable", message };
+  }
+  if (cause instanceof InvalidRelayCellIdError) {
+    return { code: "cell_identity_invalid", message };
   }
   return { code: "target_resolution_failed", message };
 }

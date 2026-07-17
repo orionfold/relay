@@ -1,10 +1,10 @@
 ---
 title: Truthful Relay Host and cell isolation boundary
 status: accepted
-goal: G-058
+goal: G-058, G-096
 workstream: Customer-owned Relay Host
 increment: R0 — Isolation contract
-date: 2026-07-16
+date: 2026-07-16; amended 2026-07-17
 tdr: TDR-044 accepted by G-079 on 2026-07-16
 ---
 
@@ -24,6 +24,24 @@ task's execution target. A reviewer can correctly distinguish:
 
 This is a truth-and-wayfinding slice. It does not add row-level multi-tenancy or
 claim that current Relay can provision, enforce, or remotely manage Host cells.
+
+## G-096 managed-Cell identity amendment
+
+The accepted OCI runtime supplies its Cell identity through `RELAY_CELL_ID`.
+That validated environment value is authoritative for the active managed Cell
+and must appear consistently in readiness, the read-only boundary contract,
+Settings, and task/workflow execution-target context. A no-git OCI runtime must
+not be described as `Not initialized` merely because it does not participate in
+git-backed instance bootstrap.
+
+Compatibility is deliberate: the existing read-only `instanceId` response
+field carries the resolved Cell identity for now. Renaming that public field is
+not required to make the value truthful and would create needless API churn.
+When `RELAY_CELL_ID` is absent, dev mode and ordinary no-git npx installs retain
+their unavailable boundary identity, readiness retains its bounded `local`
+fallback, and an initialized git-backed instance retains its persisted UUID.
+An invalid configured `RELAY_CELL_ID` is a named `CELL_ID_INVALID` failure; it
+must never fall back to git state or a generated value.
 
 ## Scope challenge
 
@@ -147,9 +165,11 @@ interface RelayCellBoundary {
 ```
 
 The server computes this contract from `dataDir()`, `dbPath()`, `launchCwd()`,
-`dataDirOverride()`, and an existing instance config. It is not stored. It must
-not infer or return Host names, container ids, ports, networks, credentials,
-customer content, raw logs, backup contents, or security-strength claims.
+`dataDirOverride()`, an authoritative validated `RELAY_CELL_ID` when present,
+and otherwise the existing git-backed instance config when eligible. It is not
+stored. It must not infer or return Host names, container ids, ports, networks,
+credentials, customer content, raw logs, backup contents, or security-strength
+claims.
 
 Execution preview may add a derived context with a narrow cell reference
 (`vocabularyVersion` and `instanceId` only), `projectId`, `projectName`,
@@ -164,8 +184,11 @@ select a different data boundary.
   retry; it does not silently collapse to the old ambiguous instance panel.
 - Customer/project server-rendered facts fail with the existing page error
   boundary rather than guessed values.
-- An unavailable instance id is shown as “not initialized,” not a generated UI
-  id.
+- An unavailable unmanaged instance id is shown as “not initialized,” not a
+  generated UI id. A managed no-git Cell shows its validated `RELAY_CELL_ID`.
+- An invalid `RELAY_CELL_ID` fails readiness with `CELL_ID_INVALID`; Settings
+  and execution-target APIs surface a named identity-resolution failure rather
+  than falling back to another identity source.
 - Long absolute paths wrap or truncate visually with the full value available
   to assistive technology/title text.
 - The execution-target API keeps its existing target-resolution failure codes;
@@ -178,8 +201,8 @@ select a different data boundary.
 1. Customer, project, Settings, and task/workflow execution surfaces use the
    approved copy and one Host/cell vocabulary.
 2. Settings shows the real resolved data directory, database path, launch cwd,
-   and existing instance id or an honest unavailable state in dev, npx, and
-   initialized-instance modes.
+   and active managed Cell ID, existing git-backed instance id, or an honest
+   unavailable state in dev and ordinary npx modes.
 3. Customer UI says attribution is not isolation and links to the canonical
    boundary explanation.
 4. Project UI shows its explicit cwd or launch fallback and says that cwd is not
@@ -197,6 +220,11 @@ select a different data boundary.
    readable paths, no overflow, semantic tokens, and system cursor only.
 10. `_ASSETS` user/API docs and private-instance guidance use identical approved
     language before the increment is accepted.
+11. A no-git process with `RELAY_CELL_ID=g025-r1` returns `g025-r1` from
+    readiness, instance config, Settings, and task/workflow execution context.
+12. Invalid managed Cell IDs fail closed and never expose a different fallback
+    identity; absent environment state preserves current dev, npx, and
+    git-backed compatibility behavior.
 
 ## Regression disposition
 
@@ -256,3 +284,28 @@ The operator approved the four public-language blocks and placements on
 G-060 and the accepted G-079 authority contract retain topology, authority,
 Host metadata, and TDR decisions. G-058 does not claim Host provisioning,
 public ingress, or enforced multi-cell isolation.
+
+### G-096 managed-Cell identity acceptance — 2026-07-17
+
+The compatible resolver path was accepted without a public schema rename:
+
+- one application resolver validates `RELAY_CELL_ID` and gives it precedence
+  for managed no-git Cells; invalid values fail closed as `CELL_ID_INVALID` and
+  never fall through to git-bootstrap or generated identity;
+- dev, direct no-git npx, and initialized git-backed identity behavior remains
+  unchanged when the managed-Cell environment value is absent;
+- 23 focused regressions and 104 affected tests cover readiness, instance
+  config, Settings, task/workflow execution context, precedence, invalid input,
+  and compatibility fallbacks;
+- the full suite passed 3,613 tests with one intentional skip, and the
+  runtime-graph smoke completed real task, workflow, schedule, and Chat paths;
+- the rebuilt `0.43.0` linux/arm64 artifact passed its complete content,
+  vulnerability, reproducibility, manifest, rollback/export, and two-Cell
+  lifecycle gates at immutable digest
+  `sha256:f9e08451c1d7c39e9092e6bf84b61df47eedc2f70ac71c3ab4e02f98cf5de783`;
+- a hardened disposable Cell with `RELAY_CELL_ID=g096-cell` returned the same
+  identity from readiness and `/api/instance/config`, then rendered it in
+  Settings and a real workflow execution-target preview; and
+- the local evidence bundle is
+  `output/staging/2026-07-17-g096-cell-identity/`. No registry publication,
+  release, push, tag, or public schema change occurred.

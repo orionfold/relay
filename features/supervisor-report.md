@@ -12,20 +12,20 @@ mode: next-steps
 
 ### Recommendation
 
-**Do this:** Complete **G-096 — Make Relay Cell identity canonical across the
-OCI runtime**. It is the first code-verified release blocker from the accepted
-G-025 Foundation staging receipt and has no operator gate for the compatible
-resolver path.
+**Do this:** Complete **G-097 — Preserve customer, project, and document context
+through Foundation workflows**. G-096 is accepted, so this is now the remaining
+code-fix release blocker before the G-099 customer-identical rerun.
 
-**Why:** the accepted OCI artifact reports `g025-r1` at readiness, but Settings
-and workflow/task execution previews ignore `RELAY_CELL_ID` in a no-git Cell and
-show an uninitialized or generic identity. That contradicts the Host trust
-boundary at the exact surface customers use to verify where work runs.
+**Why:** the G-025 staging journey proved that workflow project edits can report
+success while dropping `projectId`, project detail omits customer attribution,
+and an unlinked document disappears from the selected project's workflow pool.
+Those breaks prevent Foundation from carrying the operator's chosen context end
+to end even though the canonical Cell identity is now truthful.
 
-**Invoke:** implement one validated managed-Cell identity resolver, preserve
-git-backed and ordinary npx semantics, add no-git+environment regressions across
-readiness/config/Settings/execution targets, rebuild the arm64 artifact, and
-browser-smoke the visible trust surfaces.
+**Invoke:** repair the workflow project mutation and visible labels, preserve
+customer attribution and explicit document-project semantics, add cross-layer
+regressions, rebuild the artifact if runtime inputs change, and verify the
+Foundation context journey before handing the clean candidate to G-099.
 
 **Priority category:** Phase advancement — current ready goal in the active
 release increment with its dependencies met.
@@ -33,15 +33,15 @@ release increment with its dependencies met.
 ### Context
 
 - Active workstream: **Customer-owned Relay Host** — R1 findings open.
-- Accepted in R1: **G-080/G-034/G-038/G-093/G-025**.
-- Current sequence: **G-096 → G-097 → G-099**.
+- Accepted in R1: **G-080/G-034/G-038/G-093/G-025/G-096**.
+- Current sequence: **G-097 → G-099**.
 - After R1: **R2 — Secure/recoverable Host alpha**, with G-081 and G-082 ready.
 - Enterprise connectors remains queued until an intentional WIP decision.
 
 ### If You Have More Time
 
-1. After G-096, complete **G-097** context integrity and **G-099** Foundation
-   revalidation; only then advance R1 and execute G-094 publication preparation.
+1. Complete **G-097** context integrity and **G-099** Foundation revalidation;
+   only then advance R1 and execute G-094 publication preparation.
 2. Accept the **G-095** entitlement/capacity contract before G-083 begins; its
    SKU, pricing, limits, reseller and lapse decisions remain operator-gated.
 

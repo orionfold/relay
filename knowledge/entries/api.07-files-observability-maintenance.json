@@ -18,7 +18,7 @@
     "/api/uploads/{id}",
     "/api/uploads/cleanup"
   ],
-  "contentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+  "contentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
   "features": [],
   "id": "api:07-files-observability-maintenance",
   "journeys": [],
@@ -234,7 +234,7 @@
   ],
   "sourceHash": "af96cf95cb72a19a941f86c4c5b905558de59fd6579ff768f06051ea8753ddc6",
   "sourcePath": "api/reference/07-files-observability-maintenance.md",
-  "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+  "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
   "stability": "admin-local",
   "summary": "Document upload, snapshot, logs, telemetry, diagnostics, seed/clear, and plugin routes.",
   "title": "Files, Observability, And Maintenance API"

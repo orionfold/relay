@@ -59,7 +59,12 @@ export function InstanceSection() {
     setLoadError(null);
     try {
       const res = await fetch("/api/instance/config", { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(body?.error ?? `HTTP ${res.status}`);
+      }
       const data = (await res.json()) as ConfigResponse;
       setState(data);
       return data;

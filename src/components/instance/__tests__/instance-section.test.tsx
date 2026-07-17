@@ -134,6 +134,38 @@ describe("instance section", () => {
     expect(screen.getByText("Not initialized")).toBeInTheDocument();
   });
 
+  it("shows the managed Cell ID in a no-git OCI install", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (url === "/api/instance/config" && method === "GET") {
+          return {
+            ok: true,
+            json: async () => ({
+              devMode: false,
+              boundary: { ...boundary, instanceId: "g096-cell" },
+              skippedReason: "no_git",
+              config: null,
+              guardrails: null,
+              upgrade: null,
+            }),
+          };
+        }
+
+        throw new Error(`Unexpected fetch: ${method} ${url}`);
+      }),
+    );
+
+    render(<InstanceSection />);
+
+    expect(await screen.findByText("npx install")).toBeInTheDocument();
+    expect(screen.getByText("g096-cel…")).toBeInTheDocument();
+    expect(screen.queryByText("Not initialized")).not.toBeInTheDocument();
+  });
+
   it("uses the shorter setup CTA when the instance is not initialized", async () => {
     vi.stubGlobal(
       "fetch",
@@ -182,13 +214,20 @@ describe("instance section", () => {
   it("names a boundary-loading failure and offers retry", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({ ok: false, status: 503 })
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 503,
+        json: async () => ({
+          code: "CELL_ID_INVALID",
+          error: "RELAY_CELL_ID must be a lowercase DNS label of at most 63 characters.",
+        }),
+      })
     );
 
     render(<InstanceSection />);
 
     expect(
-      await screen.findByText(/Relay could not load the active cell facts: HTTP 503/)
+      await screen.findByText(/RELAY_CELL_ID must be a lowercase DNS label/)
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     expect(screen.queryByText(/Instance setup incomplete/)).not.toBeInTheDocument();

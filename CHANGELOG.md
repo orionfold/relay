@@ -8,6 +8,14 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Managed OCI Cells now expose one canonical identity.** A validated
+  `RELAY_CELL_ID` consistently powers readiness, Instance Settings, and
+  task/workflow execution-target context in no-git Cells. Invalid identities
+  fail closed with a named error, while direct npx, development, and git-backed
+  instance behavior remains compatible when the managed identity is absent.
+
 ## [0.43.0] — 2026-07-16
 
 ### Added

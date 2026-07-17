@@ -21224,7 +21224,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "Who This Is For",
       "kind": "api",
       "ordinal": 0,
@@ -21277,7 +21277,7 @@
       ],
       "sectionId": "who-this-is-for",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 65
     },
@@ -21321,7 +21321,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "Stability",
       "kind": "api",
       "ordinal": 1,
@@ -21374,7 +21374,7 @@
       ],
       "sectionId": "stability",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 50
     },
@@ -21418,7 +21418,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "Local Access Model",
       "kind": "api",
       "ordinal": 2,
@@ -21472,7 +21472,7 @@
       ],
       "sectionId": "local-access-model",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 73
     },
@@ -21516,7 +21516,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "Conventions For This Group",
       "kind": "api",
       "ordinal": 3,
@@ -21570,7 +21570,7 @@
       ],
       "sectionId": "conventions-for-this-group",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 262
     },
@@ -21614,7 +21614,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "Endpoint Families",
       "kind": "api",
       "ordinal": 4,
@@ -21668,7 +21668,7 @@
       ],
       "sectionId": "endpoint-families",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 5
     },
@@ -21712,7 +21712,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "Endpoints",
       "kind": "api",
       "ordinal": 5,
@@ -21765,7 +21765,7 @@
       ],
       "sectionId": "endpoints",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 489
     },
@@ -21809,7 +21809,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "Endpoint Reference",
       "kind": "api",
       "ordinal": 6,
@@ -21863,7 +21863,7 @@
       ],
       "sectionId": "endpoint-reference",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 0
     },
@@ -21907,7 +21907,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/chat/model-prompt-impression",
       "kind": "api",
       "ordinal": 7,
@@ -21960,7 +21960,7 @@
       ],
       "sectionId": "post-api-settings-chat-model-prompt-impression",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 86
     },
@@ -22004,7 +22004,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings",
       "kind": "api",
       "ordinal": 8,
@@ -22057,7 +22057,7 @@
       ],
       "sectionId": "get-api-settings",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 74
     },
@@ -22101,7 +22101,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings",
       "kind": "api",
       "ordinal": 9,
@@ -22154,7 +22154,7 @@
       ],
       "sectionId": "post-api-settings-2",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 84
     },
@@ -22198,7 +22198,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/apps",
       "kind": "api",
       "ordinal": 10,
@@ -22251,7 +22251,7 @@
       ],
       "sectionId": "get-api-settings-apps",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 7
     },
@@ -22295,7 +22295,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/apps",
       "kind": "api",
       "ordinal": 11,
@@ -22348,7 +22348,7 @@
       ],
       "sectionId": "post-api-settings-apps",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 19
     },
@@ -22392,7 +22392,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/author-default",
       "kind": "api",
       "ordinal": 12,
@@ -22445,7 +22445,7 @@
       ],
       "sectionId": "get-api-settings-author-default",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 24
     },
@@ -22489,7 +22489,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/browser-tools",
       "kind": "api",
       "ordinal": 13,
@@ -22542,7 +22542,7 @@
       ],
       "sectionId": "get-api-settings-browser-tools",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 31
     },
@@ -22586,7 +22586,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/browser-tools",
       "kind": "api",
       "ordinal": 14,
@@ -22639,7 +22639,7 @@
       ],
       "sectionId": "post-api-settings-browser-tools",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 37
     },
@@ -22683,7 +22683,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/budgets",
       "kind": "api",
       "ordinal": 15,
@@ -22736,7 +22736,7 @@
       ],
       "sectionId": "get-api-settings-budgets",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 51
     },
@@ -22780,7 +22780,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/budgets",
       "kind": "api",
       "ordinal": 16,
@@ -22833,7 +22833,7 @@
       ],
       "sectionId": "post-api-settings-budgets",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 55
     },
@@ -22877,7 +22877,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/chat",
       "kind": "api",
       "ordinal": 17,
@@ -22930,7 +22930,7 @@
       ],
       "sectionId": "get-api-settings-chat",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 31
     },
@@ -22974,7 +22974,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "PUT /api/settings/chat",
       "kind": "api",
       "ordinal": 18,
@@ -23027,7 +23027,7 @@
       ],
       "sectionId": "put-api-settings-chat",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 94
     },
@@ -23071,7 +23071,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/chat/pins",
       "kind": "api",
       "ordinal": 19,
@@ -23124,7 +23124,7 @@
       ],
       "sectionId": "get-api-settings-chat-pins",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 42
     },
@@ -23168,7 +23168,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "PUT /api/settings/chat/pins",
       "kind": "api",
       "ordinal": 20,
@@ -23221,7 +23221,7 @@
       ],
       "sectionId": "put-api-settings-chat-pins",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 42
     },
@@ -23265,7 +23265,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/chat/saved-searches",
       "kind": "api",
       "ordinal": 21,
@@ -23318,7 +23318,7 @@
       ],
       "sectionId": "get-api-settings-chat-saved-searches",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 41
     },
@@ -23362,7 +23362,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "PUT /api/settings/chat/saved-searches",
       "kind": "api",
       "ordinal": 22,
@@ -23415,7 +23415,7 @@
       ],
       "sectionId": "put-api-settings-chat-saved-searches",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 42
     },
@@ -23459,7 +23459,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/dashboard",
       "kind": "api",
       "ordinal": 23,
@@ -23512,7 +23512,7 @@
       ],
       "sectionId": "get-api-settings-dashboard",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 58
     },
@@ -23556,7 +23556,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/dashboard",
       "kind": "api",
       "ordinal": 24,
@@ -23609,7 +23609,7 @@
       ],
       "sectionId": "post-api-settings-dashboard",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 51
     },
@@ -23653,7 +23653,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "DELETE /api/settings/dashboard",
       "kind": "api",
       "ordinal": 25,
@@ -23706,7 +23706,7 @@
       ],
       "sectionId": "delete-api-settings-dashboard",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 34
     },
@@ -23750,7 +23750,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/environment",
       "kind": "api",
       "ordinal": 26,
@@ -23803,7 +23803,7 @@
       ],
       "sectionId": "get-api-settings-environment",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 18
     },
@@ -23847,7 +23847,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/environment",
       "kind": "api",
       "ordinal": 27,
@@ -23900,7 +23900,7 @@
       ],
       "sectionId": "post-api-settings-environment",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 22
     },
@@ -23944,7 +23944,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/glance",
       "kind": "api",
       "ordinal": 28,
@@ -23997,7 +23997,7 @@
       ],
       "sectionId": "get-api-settings-glance",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 74
     },
@@ -24041,7 +24041,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/github",
       "kind": "api",
       "ordinal": 29,
@@ -24094,7 +24094,7 @@
       ],
       "sectionId": "get-api-settings-github",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 13
     },
@@ -24138,7 +24138,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/github",
       "kind": "api",
       "ordinal": 30,
@@ -24191,7 +24191,7 @@
       ],
       "sectionId": "post-api-settings-github",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 26
     },
@@ -24235,7 +24235,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "DELETE /api/settings/github",
       "kind": "api",
       "ordinal": 31,
@@ -24288,7 +24288,7 @@
       ],
       "sectionId": "delete-api-settings-github",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 16
     },
@@ -24332,7 +24332,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/github/repositories",
       "kind": "api",
       "ordinal": 32,
@@ -24385,7 +24385,7 @@
       ],
       "sectionId": "get-api-settings-github-repositories",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 19
     },
@@ -24429,7 +24429,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/learning",
       "kind": "api",
       "ordinal": 33,
@@ -24482,7 +24482,7 @@
       ],
       "sectionId": "get-api-settings-learning",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 24
     },
@@ -24526,7 +24526,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/learning",
       "kind": "api",
       "ordinal": 34,
@@ -24579,7 +24579,7 @@
       ],
       "sectionId": "post-api-settings-learning",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 41
     },
@@ -24623,7 +24623,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/ollama",
       "kind": "api",
       "ordinal": 35,
@@ -24676,7 +24676,7 @@
       ],
       "sectionId": "get-api-settings-ollama",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 49
     },
@@ -24720,7 +24720,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/ollama",
       "kind": "api",
       "ordinal": 36,
@@ -24773,7 +24773,7 @@
       ],
       "sectionId": "post-api-settings-ollama",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 14
     },
@@ -24817,7 +24817,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "PUT /api/settings/ollama",
       "kind": "api",
       "ordinal": 37,
@@ -24870,7 +24870,7 @@
       ],
       "sectionId": "put-api-settings-ollama",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 100
     },
@@ -24914,7 +24914,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/openai",
       "kind": "api",
       "ordinal": 38,
@@ -24967,7 +24967,7 @@
       ],
       "sectionId": "get-api-settings-openai",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 86
     },
@@ -25011,7 +25011,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/openai",
       "kind": "api",
       "ordinal": 39,
@@ -25064,7 +25064,7 @@
       ],
       "sectionId": "post-api-settings-openai",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 76
     },
@@ -25108,7 +25108,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/openai/login",
       "kind": "api",
       "ordinal": 40,
@@ -25161,7 +25161,7 @@
       ],
       "sectionId": "get-api-settings-openai-login",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 46
     },
@@ -25205,7 +25205,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/openai/login",
       "kind": "api",
       "ordinal": 41,
@@ -25258,7 +25258,7 @@
       ],
       "sectionId": "post-api-settings-openai-login",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 66
     },
@@ -25302,7 +25302,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "DELETE /api/settings/openai/login",
       "kind": "api",
       "ordinal": 42,
@@ -25355,7 +25355,7 @@
       ],
       "sectionId": "delete-api-settings-openai-login",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 36
     },
@@ -25399,7 +25399,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/openai/logout",
       "kind": "api",
       "ordinal": 43,
@@ -25452,7 +25452,7 @@
       ],
       "sectionId": "post-api-settings-openai-logout",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 31
     },
@@ -25496,7 +25496,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/openai-compatible/{runtimeId}",
       "kind": "api",
       "ordinal": 44,
@@ -25549,7 +25549,7 @@
       ],
       "sectionId": "get-api-settings-openai-compatible-runtimeid",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 34
     },
@@ -25593,7 +25593,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "PUT /api/settings/openai-compatible/{runtimeId}",
       "kind": "api",
       "ordinal": 45,
@@ -25646,7 +25646,7 @@
       ],
       "sectionId": "put-api-settings-openai-compatible-runtimeid",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 46
     },
@@ -25690,7 +25690,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "DELETE /api/settings/openai-compatible/{runtimeId}",
       "kind": "api",
       "ordinal": 46,
@@ -25743,7 +25743,7 @@
       ],
       "sectionId": "delete-api-settings-openai-compatible-runtimeid",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 25
     },
@@ -25787,7 +25787,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/pricing",
       "kind": "api",
       "ordinal": 47,
@@ -25840,7 +25840,7 @@
       ],
       "sectionId": "get-api-settings-pricing",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 46
     },
@@ -25884,7 +25884,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/pricing",
       "kind": "api",
       "ordinal": 48,
@@ -25937,7 +25937,7 @@
       ],
       "sectionId": "post-api-settings-pricing",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 50
     },
@@ -25981,7 +25981,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/providers",
       "kind": "api",
       "ordinal": 49,
@@ -26034,7 +26034,7 @@
       ],
       "sectionId": "get-api-settings-providers",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 125
     },
@@ -26078,7 +26078,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/routing",
       "kind": "api",
       "ordinal": 50,
@@ -26131,7 +26131,7 @@
       ],
       "sectionId": "get-api-settings-routing",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 60
     },
@@ -26175,7 +26175,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/routing",
       "kind": "api",
       "ordinal": 51,
@@ -26228,7 +26228,7 @@
       ],
       "sectionId": "post-api-settings-routing",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 17
     },
@@ -26272,7 +26272,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "PUT /api/settings/routing",
       "kind": "api",
       "ordinal": 52,
@@ -26325,7 +26325,7 @@
       ],
       "sectionId": "put-api-settings-routing",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 90
     },
@@ -26369,7 +26369,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/runtime",
       "kind": "api",
       "ordinal": 53,
@@ -26422,7 +26422,7 @@
       ],
       "sectionId": "get-api-settings-runtime",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 27
     },
@@ -26466,7 +26466,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/runtime",
       "kind": "api",
       "ordinal": 54,
@@ -26519,7 +26519,7 @@
       ],
       "sectionId": "post-api-settings-runtime",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 59
     },
@@ -26563,7 +26563,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/test",
       "kind": "api",
       "ordinal": 55,
@@ -26616,7 +26616,7 @@
       ],
       "sectionId": "post-api-settings-test",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 59
     },
@@ -26660,7 +26660,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/settings/web-search",
       "kind": "api",
       "ordinal": 56,
@@ -26713,7 +26713,7 @@
       ],
       "sectionId": "get-api-settings-web-search",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 19
     },
@@ -26757,7 +26757,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/settings/web-search",
       "kind": "api",
       "ordinal": 57,
@@ -26810,7 +26810,7 @@
       ],
       "sectionId": "post-api-settings-web-search",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 21
     },
@@ -26854,7 +26854,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/license",
       "kind": "api",
       "ordinal": 58,
@@ -26907,7 +26907,7 @@
       ],
       "sectionId": "get-api-license",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 62
     },
@@ -26951,7 +26951,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/license",
       "kind": "api",
       "ordinal": 59,
@@ -27004,7 +27004,7 @@
       ],
       "sectionId": "post-api-license",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 115
     },
@@ -27048,7 +27048,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "DELETE /api/license/{id}",
       "kind": "api",
       "ordinal": 60,
@@ -27101,7 +27101,7 @@
       ],
       "sectionId": "delete-api-license-id",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 42
     },
@@ -27145,7 +27145,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/onboarding/progress",
       "kind": "api",
       "ordinal": 61,
@@ -27198,7 +27198,7 @@
       ],
       "sectionId": "get-api-onboarding-progress",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 32
     },
@@ -27242,7 +27242,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/instance/config",
       "kind": "api",
       "ordinal": 62,
@@ -27295,9 +27295,9 @@
       ],
       "sectionId": "get-api-instance-config",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
-      "wordCount": 144
+      "wordCount": 185
     },
     {
       "apiPaths": [
@@ -27339,7 +27339,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/instance/identity",
       "kind": "api",
       "ordinal": 63,
@@ -27392,7 +27392,7 @@
       ],
       "sectionId": "get-api-instance-identity",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 66
     },
@@ -27436,7 +27436,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/instance/init",
       "kind": "api",
       "ordinal": 64,
@@ -27489,7 +27489,7 @@
       ],
       "sectionId": "post-api-instance-init",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 59
     },
@@ -27533,7 +27533,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/instance/upgrade",
       "kind": "api",
       "ordinal": 65,
@@ -27586,7 +27586,7 @@
       ],
       "sectionId": "post-api-instance-upgrade",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 76
     },
@@ -27630,7 +27630,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/instance/upgrade/check",
       "kind": "api",
       "ordinal": 66,
@@ -27683,7 +27683,7 @@
       ],
       "sectionId": "post-api-instance-upgrade-check",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 68
     },
@@ -27727,7 +27727,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/instance/upgrade/status",
       "kind": "api",
       "ordinal": 67,
@@ -27780,7 +27780,7 @@
       ],
       "sectionId": "get-api-instance-upgrade-status",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 39
     },
@@ -27824,7 +27824,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "POST /api/environment/rescan-if-stale",
       "kind": "api",
       "ordinal": 68,
@@ -27877,7 +27877,7 @@
       ],
       "sectionId": "post-api-environment-rescan-if-stale",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 82
     },
@@ -27921,7 +27921,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "GET /api/environment/skills",
       "kind": "api",
       "ordinal": 69,
@@ -27974,7 +27974,7 @@
       ],
       "sectionId": "get-api-environment-skills",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 80
     },
@@ -28018,7 +28018,7 @@
         "/api/settings/test",
         "/api/settings/web-search"
       ],
-      "entryContentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
+      "entryContentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
       "heading": "Do Not Depend On",
       "kind": "api",
       "ordinal": 70,
@@ -28072,7 +28072,7 @@
       ],
       "sectionId": "do-not-depend-on",
       "sourceId": "api:06-settings-license-instance",
-      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
+      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
       "title": "Settings, License, And Instance API",
       "wordCount": 129
     },
@@ -28096,7 +28096,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "Who This Is For",
       "kind": "api",
       "ordinal": 0,
@@ -28133,7 +28133,7 @@
       ],
       "sectionId": "who-this-is-for",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 112
     },
@@ -28157,7 +28157,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "Stability",
       "kind": "api",
       "ordinal": 1,
@@ -28194,7 +28194,7 @@
       ],
       "sectionId": "stability",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 52
     },
@@ -28218,7 +28218,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "Local Access Model",
       "kind": "api",
       "ordinal": 2,
@@ -28257,7 +28257,7 @@
       ],
       "sectionId": "local-access-model",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 74
     },
@@ -28281,7 +28281,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "Conventions For This Group",
       "kind": "api",
       "ordinal": 3,
@@ -28319,7 +28319,7 @@
       ],
       "sectionId": "conventions-for-this-group",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 207
     },
@@ -28343,7 +28343,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "Endpoint Families",
       "kind": "api",
       "ordinal": 4,
@@ -28381,7 +28381,7 @@
       ],
       "sectionId": "endpoint-families",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 7
     },
@@ -28405,7 +28405,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "Endpoints",
       "kind": "api",
       "ordinal": 5,
@@ -28442,7 +28442,7 @@
       ],
       "sectionId": "endpoints",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 207
     },
@@ -28466,7 +28466,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "Endpoint Reference",
       "kind": "api",
       "ordinal": 6,
@@ -28504,7 +28504,7 @@
       ],
       "sectionId": "endpoint-reference",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 0
     },
@@ -28528,7 +28528,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "GET /api/health/live",
       "kind": "api",
       "ordinal": 7,
@@ -28565,7 +28565,7 @@
       ],
       "sectionId": "get-api-health-live",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 48
     },
@@ -28589,7 +28589,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "GET /api/health/ready",
       "kind": "api",
       "ordinal": 8,
@@ -28626,7 +28626,7 @@
       ],
       "sectionId": "get-api-health-ready",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 83
     },
@@ -28650,7 +28650,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "POST /api/uploads",
       "kind": "api",
       "ordinal": 9,
@@ -28687,7 +28687,7 @@
       ],
       "sectionId": "post-api-uploads",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 122
     },
@@ -28711,7 +28711,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "GET /api/uploads/{id}",
       "kind": "api",
       "ordinal": 10,
@@ -28748,7 +28748,7 @@
       ],
       "sectionId": "get-api-uploads-id",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 58
     },
@@ -28772,7 +28772,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "DELETE /api/uploads/{id}",
       "kind": "api",
       "ordinal": 11,
@@ -28809,7 +28809,7 @@
       ],
       "sectionId": "delete-api-uploads-id",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 47
     },
@@ -28833,7 +28833,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "POST /api/uploads/cleanup",
       "kind": "api",
       "ordinal": 12,
@@ -28870,7 +28870,7 @@
       ],
       "sectionId": "post-api-uploads-cleanup",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 67
     },
@@ -28894,7 +28894,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "GET /api/snapshots",
       "kind": "api",
       "ordinal": 13,
@@ -28931,7 +28931,7 @@
       ],
       "sectionId": "get-api-snapshots",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 82
     },
@@ -28955,7 +28955,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "POST /api/snapshots",
       "kind": "api",
       "ordinal": 14,
@@ -28992,7 +28992,7 @@
       ],
       "sectionId": "post-api-snapshots",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 117
     },
@@ -29016,7 +29016,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "GET /api/snapshots/{id}",
       "kind": "api",
       "ordinal": 15,
@@ -29053,7 +29053,7 @@
       ],
       "sectionId": "get-api-snapshots-id",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 71
     },
@@ -29077,7 +29077,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "DELETE /api/snapshots/{id}",
       "kind": "api",
       "ordinal": 16,
@@ -29114,7 +29114,7 @@
       ],
       "sectionId": "delete-api-snapshots-id",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 41
     },
@@ -29138,7 +29138,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "POST /api/snapshots/{id}/restore",
       "kind": "api",
       "ordinal": 17,
@@ -29175,7 +29175,7 @@
       ],
       "sectionId": "post-api-snapshots-id-restore",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 149
     },
@@ -29199,7 +29199,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "GET /api/snapshots/settings",
       "kind": "api",
       "ordinal": 18,
@@ -29236,7 +29236,7 @@
       ],
       "sectionId": "get-api-snapshots-settings",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 46
     },
@@ -29260,7 +29260,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "PUT /api/snapshots/settings",
       "kind": "api",
       "ordinal": 19,
@@ -29297,7 +29297,7 @@
       ],
       "sectionId": "put-api-snapshots-settings",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 75
     },
@@ -29321,7 +29321,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "GET /api/plugins",
       "kind": "api",
       "ordinal": 20,
@@ -29358,7 +29358,7 @@
       ],
       "sectionId": "get-api-plugins",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 105
     },
@@ -29382,7 +29382,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "POST /api/plugins/reload",
       "kind": "api",
       "ordinal": 21,
@@ -29419,7 +29419,7 @@
       ],
       "sectionId": "post-api-plugins-reload",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 41
     },
@@ -29443,7 +29443,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "POST /api/plugins/scaffold",
       "kind": "api",
       "ordinal": 22,
@@ -29480,7 +29480,7 @@
       ],
       "sectionId": "post-api-plugins-scaffold",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 199
     },
@@ -29504,7 +29504,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "GET /api/telemetry",
       "kind": "api",
       "ordinal": 23,
@@ -29541,7 +29541,7 @@
       ],
       "sectionId": "get-api-telemetry",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 114
     },
@@ -29565,7 +29565,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "GET /api/diagnostics/chat-streams",
       "kind": "api",
       "ordinal": 24,
@@ -29602,7 +29602,7 @@
       ],
       "sectionId": "get-api-diagnostics-chat-streams",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 109
     },
@@ -29626,7 +29626,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "GET /api/logs/stream",
       "kind": "api",
       "ordinal": 25,
@@ -29663,7 +29663,7 @@
       ],
       "sectionId": "get-api-logs-stream",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 136
     },
@@ -29687,7 +29687,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "POST /api/data/seed",
       "kind": "api",
       "ordinal": 26,
@@ -29724,7 +29724,7 @@
       ],
       "sectionId": "post-api-data-seed",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 100
     },
@@ -29748,7 +29748,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "POST /api/data/clear",
       "kind": "api",
       "ordinal": 27,
@@ -29785,7 +29785,7 @@
       ],
       "sectionId": "post-api-data-clear",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 89
     },
@@ -29809,7 +29809,7 @@
         "/api/uploads/{id}",
         "/api/uploads/cleanup"
       ],
-      "entryContentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
+      "entryContentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
       "heading": "Do Not Depend On",
       "kind": "api",
       "ordinal": 28,
@@ -29847,7 +29847,7 @@
       ],
       "sectionId": "do-not-depend-on",
       "sourceId": "api:07-files-observability-maintenance",
-      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
+      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
       "title": "Files, Observability, And Maintenance API",
       "wordCount": 105
     },
@@ -33691,7 +33691,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "2e54acce47980de727dda3d5d88a05514bb47e8787d294872a7543ab3f042e31",
+      "entryContentHash": "c4d602bfdc9d84cbfba302cc103ccd86ffcb6105be842a0ce7f0b8fa22bf5d97",
       "heading": "What This Chapter Helps You Do",
       "kind": "guide",
       "ordinal": 0,
@@ -33749,7 +33749,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "2e54acce47980de727dda3d5d88a05514bb47e8787d294872a7543ab3f042e31",
+      "entryContentHash": "c4d602bfdc9d84cbfba302cc103ccd86ffcb6105be842a0ce7f0b8fa22bf5d97",
       "heading": "The Operator Story",
       "kind": "guide",
       "ordinal": 1,
@@ -33807,7 +33807,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "2e54acce47980de727dda3d5d88a05514bb47e8787d294872a7543ab3f042e31",
+      "entryContentHash": "c4d602bfdc9d84cbfba302cc103ccd86ffcb6105be842a0ce7f0b8fa22bf5d97",
       "heading": "What This Part Of Relay Is For",
       "kind": "guide",
       "ordinal": 2,
@@ -33864,7 +33864,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "2e54acce47980de727dda3d5d88a05514bb47e8787d294872a7543ab3f042e31",
+      "entryContentHash": "c4d602bfdc9d84cbfba302cc103ccd86ffcb6105be842a0ce7f0b8fa22bf5d97",
       "heading": "Walk The Screen Like An Operator",
       "kind": "guide",
       "ordinal": 3,
@@ -33920,11 +33920,11 @@
       "sourceId": "guide:09-settings-trust",
       "sourceStateHash": "bdcfa5cceb7a10b0cb56352dbc50c0758fd0e88e9091f75a5a8e99da69938fde",
       "title": "Set Trust, Runtime, And Local Controls",
-      "wordCount": 1132
+      "wordCount": 1139
     },
     {
       "apiPaths": [],
-      "entryContentHash": "2e54acce47980de727dda3d5d88a05514bb47e8787d294872a7543ab3f042e31",
+      "entryContentHash": "c4d602bfdc9d84cbfba302cc103ccd86ffcb6105be842a0ce7f0b8fa22bf5d97",
       "heading": "Run The Work Carefully",
       "kind": "guide",
       "ordinal": 4,
@@ -33982,7 +33982,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "2e54acce47980de727dda3d5d88a05514bb47e8787d294872a7543ab3f042e31",
+      "entryContentHash": "c4d602bfdc9d84cbfba302cc103ccd86ffcb6105be842a0ce7f0b8fa22bf5d97",
       "heading": "What To Do When The State Looks Wrong",
       "kind": "guide",
       "ordinal": 5,
@@ -34041,7 +34041,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "2e54acce47980de727dda3d5d88a05514bb47e8787d294872a7543ab3f042e31",
+      "entryContentHash": "c4d602bfdc9d84cbfba302cc103ccd86ffcb6105be842a0ce7f0b8fa22bf5d97",
       "heading": "What This Changes In Daily Work",
       "kind": "guide",
       "ordinal": 6,
@@ -34099,7 +34099,7 @@
     },
     {
       "apiPaths": [],
-      "entryContentHash": "2e54acce47980de727dda3d5d88a05514bb47e8787d294872a7543ab3f042e31",
+      "entryContentHash": "c4d602bfdc9d84cbfba302cc103ccd86ffcb6105be842a0ce7f0b8fa22bf5d97",
       "heading": "Where To Go Next",
       "kind": "guide",
       "ordinal": 7,

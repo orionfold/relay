@@ -43,7 +43,7 @@ version, schema/runtime compatibility, and one release manifest. It does not
 mean the artifacts contain the same bytes. The accepted npm tarball is
 2,767,765 compressed bytes / 9,902,571 unpacked bytes and relies on the target's
 Node, dependency installation, OS and native libraries. The optimized arm64
-Cell image is 129,913,772 bytes (129,938,944-byte OCI archive) because it closes
+Cell image is 129,935,364 bytes (129,960,448-byte OCI archive) because it closes
 over the pinned Linux application runtime. Size comparisons must therefore use
 the complete installed runtime closure, not compare the sparse npm tarball with
 the sealed image in isolation.
@@ -152,11 +152,11 @@ a separately authorized clean committed build and production signing authority.
 ## G-093 optimization receipt — 2026-07-17
 
 G-093 supersedes only the G-080 size/component baseline, not its runtime
-contract. The optimized arm64 image is 129,913,772 bytes (85.40% smaller) with
-5,196 files, 25 layers and 60 attributed CycloneDX components. The distroless
-final image contains no build shell/npm, operator/repository surfaces, tests,
-session state or nested release archives and has zero unapproved high/critical
-findings.
+contract. The latest G-096 rebuild measures 129,935,364 bytes (85.40% smaller)
+with 5,197 files, 25 layers and 60 attributed CycloneDX components. The
+distroless final image contains no build shell/npm, operator/repository
+surfaces, tests, session state or nested release archives and has zero
+unapproved high/critical findings.
 
 The same `npm run host:artifact:build` command now drives local and CI builds,
 real-archive content policy, checksum-pinned Trivy, cached/no-cache semantic
@@ -179,6 +179,25 @@ unchanged. The complete local receipt is
 G-025 is accepted as validation evidence, not as a clean R1 release. Code review
 confirmed that no-git OCI Settings/target previews ignore `RELAY_CELL_ID`, and
 workflow project edits can report success without persisting `projectId`.
-G-096 and G-097 own those release blockers; G-099 reruns Foundation against the
-rebuilt artifact before R1 advances. G-098 owns a non-blocking Agent test-result
-empty-state defect. No public publication or release was authorized.
+G-096 has closed the identity blocker; G-097 owns the remaining context blocker,
+and G-099 reruns Foundation against the rebuilt artifact before R1 advances.
+G-098 owns a non-blocking Agent test-result empty-state defect. No public
+publication or release was authorized.
+
+## G-096 canonical Cell identity receipt — 2026-07-17
+
+The optimized arm64 artifact was rebuilt after the managed-Cell resolver change
+and passed the complete G-093 artifact pipeline. Its immutable OCI manifest
+digest is
+`sha256:f9e08451c1d7c39e9092e6bf84b61df47eedc2f70ac71c3ab4e02f98cf5de783`;
+the local manifest remains explicitly `dirty-local`, signed with an ephemeral
+test key, and ineligible for promotion.
+
+A separate hardened, loopback-only smoke Cell supplied
+`RELAY_CELL_ID=g096-cell`. Readiness, instance config, Settings, and a real
+workflow execution-target preview all reported that same identity. The Cell ran
+non-root with a read-only root, no capabilities, `no-new-privileges`, bounded
+CPU/memory/PIDs, and its own network and volume. Evidence is retained under
+`output/staging/2026-07-17-g096-cell-identity/`; teardown removed only those
+disposable resources. G-097 remains the next Host R1 release blocker, followed
+by the G-099 customer-identical rerun.

@@ -1,16 +1,21 @@
 import { NextResponse } from "next/server";
+import {
+  InvalidRelayCellIdError,
+  relayCellIdOverride,
+} from "@/lib/config/env";
 import { sqlite } from "@/lib/db";
 import { relayCoreVersion } from "@/lib/packs/install";
 
 export const dynamic = "force-dynamic";
 
-const CELL_ID_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62})$/;
-
 export function GET() {
-  const cellId = process.env.RELAY_CELL_ID ?? "local";
-  if (!CELL_ID_PATTERN.test(cellId)) {
+  let cellId: string;
+  try {
+    cellId = relayCellIdOverride() ?? "local";
+  } catch (error) {
+    if (!(error instanceof InvalidRelayCellIdError)) throw error;
     return NextResponse.json(
-      { status: "not_ready", reason: "CELL_ID_INVALID", contractVersion: 1 },
+      { status: "not_ready", reason: error.code, contractVersion: 1 },
       { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
