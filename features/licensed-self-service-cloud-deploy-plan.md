@@ -108,7 +108,7 @@ mere architectural alignment:
 | Goal | Hard prerequisites | Conformance or coordination dependencies | Enables / release role |
 |---|---|---|---|
 | G-058 | — | public trust copy must remain consistent with `_ASSETS/` | truthful customer/cell isolation language |
-| G-060 | G-058 for final acceptance; discovery may overlap | TDR-044 and existing `src/lib/instance/*` contracts | local Host supervisor and later content-free fleet boundary |
+| G-060 | G-058 accepted | TDR-044, `features/relay-host-fleet-manager-contract.md`, and existing `src/lib/instance/*` seams | approved separate local Host supervisor, dedicated content-free registry and bounded lifecycle slice |
 | G-079 | G-058, G-060 | operator accepts Host/cell vocabulary, trust, authority and first topology | freezes the architecture contract for every implementation stream |
 | G-034 | — | complete before G-080 unless G-080 independently proves the native binding, PDF pipeline and externalization debt clean in its target artifact | lowers OCI/native-package risk without becoming an unrelated modernization umbrella |
 | G-038 | — | instance-local marker must be scoped by the same per-cell `RELAY_DATA_DIR` contract | immediate first-run reliability and a clean cell-isolation invariant |
@@ -176,32 +176,53 @@ Parallel value stream after R0:
 
 ## Program sequence
 
+### G-060 — Define the isolated-instance fleet manager contract
+
+Goal: define the separate local Relay Host supervisor, dedicated content-free
+registry, local OS authority, customer-owned per-cell secret references,
+desired/actual/operation state machines, collision preflight, partial-operation
+rescue and first synthetic lifecycle slice.
+
+Authoritative artifacts:
+
+- `features/relay-host-fleet-manager-contract.md`;
+- `features/relay-host-fleet-manager-plan.md`;
+- `features/architect-report.md`;
+- amended TDR-044 and `relay-threat-model.md`.
+
+The supervisor never runs from cell instrumentation or shares a cell database.
+The first later implementation slice is local inventory plus fake/synthetic
+create/start/stop; a real OCI adapter waits for G-080. G-060 creates no runtime,
+container, public endpoint, provider resource or release.
+
+Checkpoint: the operator-approved topology, minimum metadata, secret ownership
+and first slice are durable and G-079 can make the final TDR/authority decision
+without inventing lifecycle semantics.
+
 ### G-079 — Lock truthful isolation and customer-owned fleet authority
 
-Goal: complete G-058 and amend/complete G-060 so Relay Host, Relay cell, trusted
+Goal: consume completed G-058/G-060 contracts so Relay Host, Relay cell, trusted
 Host administrator, same-host versus separate-VM isolation, content-free Host
 metadata, ownership transfer and customer-authorized lifecycle are unambiguous.
 
 Primary surfaces:
 
-- `_IDEAS/backlog.md` G-058/G-060 contracts;
-- `features/` isolation/fleet specification and wireframes;
+- `_IDEAS/backlog.md` G-079 contract;
+- `features/relay-host-cell-isolation-boundary.md` and
+  `features/relay-host-fleet-manager-contract.md`;
 - `src/lib/config/env.ts`, `src/lib/utils/ainative-paths.ts`, `src/lib/instance/*`;
 - `PRIVATE-INSTANCES.md` and customer docs after public language approval.
 
 Tasks:
 
-1. Inventory Host and cell identity, data root, hostname/loopback port, network,
-   mount, OS/container identity, credentials, logs, license, resource budget,
-   backup and runtime-policy ownership.
-2. Define minimum Host registry metadata with no customer content and distinguish
-   process, OS user, container, stronger OCI runtime, VM and physical-host trust.
-3. Define customer ownership/authorization/transfer/revocation state machines.
-4. Add synthetic two-cell same-host tests proving distinct database/files,
-   mounts, networks, ports, secrets, identity, license, logs, limits, backups and
-   runtime policy; document that the Host administrator remains trusted.
-5. Obtain operator approval for public trust language, first fleet topology and
-   minimum fleet metadata.
+1. Review the completed G-058/G-060 vocabulary, Host/cell inventory, registry,
+   state machines, threat priorities and first-slice boundary as one contract.
+2. Select the allowed same-Host trust classes and minimum hardening/conformance
+   rung while preserving separate VM/machine guidance for Host-admin distrust.
+3. Accept, revise or reject TDR-044's authority, ownership transfer/revocation,
+   manifest and registry decisions.
+4. Freeze the R0 contract consumed by G-080 through G-084 and the connector
+   conformance streams.
 
 Checkpoint: G-058/G-060 acceptance evidence exists and no later goal needs to
 invent customer/instance semantics.
@@ -535,8 +556,10 @@ security/architecture review in that order.
 - Approve cloud-deploy entitlement issuance, renewal/grace and security-update
   behavior during lapse.
 - Approve backup retention/key recovery and RPO/RTO targets.
-- Approve Host administrator trust language, allowed same-host customer classes,
-  cell resource defaults and stronger isolation runtime; separately approve any
+- G-060's first topology, content-free metadata, per-cell secret ownership and
+  synthetic first slice were approved 2026-07-16. G-079 still accepts/revises
+  TDR-044, allowed same-host trust classes, cell resource defaults and stronger
+  isolation runtime; separately approve any
   managed Orionfold control plane, credential custody, remote database or
   distributed scheduler.
 - Separately authorize push, publish, release, public template/marketplace entry,

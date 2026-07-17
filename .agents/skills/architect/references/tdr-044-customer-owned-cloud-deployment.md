@@ -3,8 +3,8 @@ id: TDR-044
 title: Customer-owned Relay Host with isolated cells
 status: proposed
 date: 2026-07-15
-amended: 2026-07-16
-goal: G-078
+amended: 2026-07-16 (G-060 local Host supervisor contract)
+goal: G-078, G-060; final disposition G-079
 ---
 
 # TDR-044: Customer-owned Relay Host with isolated cells
@@ -87,7 +87,7 @@ or cloud VM.
    customer-owned off-host storage. Never place SQLite WAL on shared network
    storage and never share one SQLite database between cells.
 9. The host supervisor is not a customer data plane. Its minimum registry is
-   cell identity, owning customer reference, artifact/version, desired/actual
+   cell identity, opaque owning-customer reference, artifact/version, desired/actual
    state, local port/network, resource limits, health, backup status, and
    lifecycle receipt pointers. It does not proxy tenant messages, prompts,
    documents, table rows, credentials, or raw logs.
@@ -112,6 +112,32 @@ or cloud VM.
    preserve operational SQLite and scheduler initially; introduce typed local
    and cloud adapters for backup transport, secrets root of trust, identity
    exposure profile, distribution, and redacted observability when implemented.
+15. Run the Host supervisor as a separate executable and process. It never runs
+    from a cell's `src/instrumentation-node.ts` and never imports the cell DB,
+    settings, routes, runtime registry, workflows, chat tools, keyfile or
+    snapshots. A cell never receives the supervisor or container-runtime socket.
+16. Give the supervisor a dedicated Host root and atomic `host.db` registry,
+    separate from every cell data root. The registry uses opaque owner
+    references and content-free lifecycle/resource records only. It never stores
+    customer names/emails, prompts, documents, table rows, model responses,
+    credentials, secret values, raw logs or backup contents.
+17. Begin with local Host-administrator authority through a direct CLI or an
+    administrator-owned Unix socket with peer credential checks. No TCP,
+    browser, remote multi-Host or Orionfold control-plane lifecycle authority is
+    created by the first supervisor slice.
+18. Keep secret ownership per cell and customer. The supervisor records only an
+    opaque `secretRootRef` plus presence/health. Host-admin trust remains
+    explicit; stronger administrative separation means another VM/machine.
+19. Separate desired state, observed actual state and durable operation state.
+    Every effect is bound to a canonical redacted plan digest, collision and
+    capacity preflight, an applying checkpoint, observed verification and an
+    exact success/partial/rollback receipt. Identical retries reconcile;
+    incompatible identity/digest reuse is refused.
+20. The first implementation slice is read-only inventory plus create/start/stop
+    for two synthetic cells through an injected fake OCI adapter, including
+    collision, path escape, capacity, crash and rollback evidence. A real OCI
+    adapter and any isolation claim wait for G-080's digest-pinned artifact and
+    the later release gates.
 
 ### Architecture posture by layer
 
@@ -214,15 +240,22 @@ paying demand.
 
 ## Status and approval
 
-This record is **proposed**. G-078 recommends it; acceptance belongs to the first
-implementation goal's operator architecture gate. No provider is approved for
-publication or paid deployment by this record.
+This record is **proposed**. G-078 recommended the appliance direction. On
+2026-07-16 G-060 received operator approval for the local OCI-cell topology,
+content-free registry, customer-owned per-cell secret roots and bounded first
+slice, and amended the implementation boundary accordingly. G-079 still owns
+the final accept/revise/reject disposition for Host/cell authority, ownership
+transfer and the complete R0 contract. No provider, publication or paid
+deployment is approved by this record.
 
 ## References
 
 - `features/licensed-self-service-cloud-deploy.md`
 - `features/licensed-self-service-cloud-deploy-research.md`
 - `features/licensed-self-service-cloud-deploy-plan.md`
+- `features/relay-host-cell-isolation-boundary.md`
+- `features/relay-host-fleet-manager-contract.md`
+- `features/relay-host-fleet-manager-plan.md`
 - `relay-threat-model.md`
 - `features/architect-report.md`
 - TDR-010, TDR-029, TDR-030, TDR-041, TDR-042, and TDR-043

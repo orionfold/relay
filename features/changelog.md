@@ -1,5 +1,26 @@
 # Feature Changelog
 
+## 2026-07-16 — Complete G-060 isolated-instance fleet manager contract
+
+### Completed
+
+- Activated G-060 after G-058 acceptance and operator approval of a local-only
+  Relay Host supervisor managing OCI-container cells, a content-free lifecycle
+  registry, customer-owned per-cell secret roots, and a bounded first slice.
+- Kept this goal at the specification/TDR/threat-model/implementation-plan
+  boundary. Runtime provisioning, container mutation, public ingress, remote
+  fleet authority, entitlements, provider credentials, and release changes
+  remain in later gated goals.
+- Defined a separate supervisor executable and Host database, opaque owner and
+  secret references, versioned content-free registry/receipts, local OS
+  authority, desired/actual/operation state machines, collision/TOCTOU refusal,
+  and exact partial/rollback rescue.
+- Amended proposed TDR-044, expanded the repo threat model with local authority
+  and registry-content abuse paths, mapped nine acceptance criteria to six
+  future implementation slices, and passed document/parity plus fresh two-pass
+  architecture/security review. R0 advances to G-079 for final TDR and fleet-
+  authority acceptance.
+
 ## 2026-07-16 — Complete G-058 truthful Relay Host/cell isolation
 
 ### Completed

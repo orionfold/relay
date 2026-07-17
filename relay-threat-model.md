@@ -1,4 +1,4 @@
-# G-078 licensed cloud deployment threat model
+# Relay Host and customer-owned deployment threat model
 
 ## Executive summary
 
@@ -44,15 +44,29 @@ Validated assumptions from the operator on 2026-07-15:
 - Orionfold receives no customer content telemetry;
 - v1 uses local SQLite/WAL plus customer-owned encrypted off-host recovery.
 
+G-060 decisions validated by the operator on 2026-07-16:
+
+- the first supervisor is a separate local-only process managing OCI-container
+  cells; it is never started by or mounted into a Relay cell;
+- the Host registry is a dedicated content-free lifecycle/resource database;
+- secret roots are customer-owned and distinct per cell; the registry keeps
+  only an opaque `secretRootRef`, while the Host
+  administrator remains explicitly trusted; and
+- the first implementation slice is inventory plus synthetic create/start/stop
+  with collision, partial-operation, rollback and two-cell evidence. It creates
+  no public ingress, remote fleet API or cloud-provider authority.
+
 Open questions that would change ranking:
 
 - A future managed control plane retaining provider credentials creates a
   critical cross-customer credential and availability boundary.
 - SSO, multiple roles, regulated data, residency or compliance commitments raise
   identity, audit, key-management and data-processing requirements.
-- The exact customer classes allowed to share one Host and the stronger runtime
-  (rootless container, gVisor/Kata/microVM, separate VM) for higher-risk tenants
-  materially change cross-cell likelihood.
+- Same-Host eligibility is trust-based rather than a customer-market label: all
+  resident customers must accept the Host administrator and chosen OCI
+  boundary. The stronger runtime choice (rootless container, gVisor/Kata,
+  microVM, or separate VM) still changes cross-cell likelihood and remains a
+  G-079/G-083 conformance decision.
 
 ## System model
 
@@ -62,10 +76,11 @@ Open questions that would change ranking:
 - **Deploy coordinator:** future local/product component that validates
   entitlement, creates topology plans, uses short-lived provider authority,
   reconciles lifecycle states and stores redacted receipts. It does not exist.
-- **Relay Host supervisor:** future local-only privileged process that verifies
-  manifests and manages cell containers/processes, ports, networks, mounts,
-  resources, versions, backup status and lifecycle receipts. Its registry is
-  content-free and it does not proxy cell customer data.
+- **Relay Host supervisor:** future separate local-only privileged executable
+  that verifies manifests and manages cell containers/processes, ports,
+  networks, mounts, resources, versions, backup status and lifecycle receipts.
+  It uses a dedicated content-free Host registry, is not started from cell
+  instrumentation, and does not proxy cell customer data.
 - **Cloud provider API:** creates networking, compute, volume, secrets, hostname,
   backup and optional runtime resources in the customer account.
 - **Ingress/identity boundary:** future TLS, first-admin, session, authorization,
@@ -99,11 +114,11 @@ Open questions that would change ranking:
 - Deploy coordinator → Cloud provider API: a short-lived least-privilege token and
   manifests cross HTTPS. Redirect, scope, response schema, timeout, idempotency
   and receipt controls are required; no provider adapter exists yet.
-- Deploy coordinator/Host CLI → Host supervisor: signed Host/cell manifests and
-  lifecycle requests cross a local privileged socket/CLI boundary. The
-  supervisor must validate ownership, paths, ports, networks, resource limits,
-  artifact digests and legal state transitions before touching the container
-  runtime.
+- Host administrator CLI → Host supervisor: signed/versioned Host/cell manifests
+  and lifecycle requests cross a direct process or administrator-owned Unix
+  socket boundary. OS peer identity, ownership, paths, ports, networks,
+  resources, artifact digests and legal transitions are validated before the
+  container runtime. No TCP lifecycle listener exists in the first slice.
 - Host supervisor → Container runtime/OS: cell image, mounts, environment,
   loopback port, private network and CPU/memory/disk limits cross a privileged
   host boundary. Separate cells must never reuse another cell's state, secrets,
@@ -182,6 +197,8 @@ flowchart TD
 - Tamper with a mutable image tag or compromise an upstream publish dependency.
 - Amplify cost through repeated deploy, task, runtime or GPU actions.
 - Read a mistakenly public backup, log, receipt or runtime endpoint.
+- Run as an unprivileged local Host user or compromise a cell process and probe
+  supervisor sockets, Host paths, OCI metadata and sibling resource names.
 
 ### Non-capabilities
 
@@ -192,6 +209,8 @@ flowchart TD
   that assumption is false, separate VMs/machines are required.
 - No legitimate access to private endpoints unless an admin configures one.
 - No regulated-data scope beyond ordinary confidential business data.
+- No assumed Host-administrator compromise for same-Host cells; that actor is a
+  declared trust root, not an attacker the OCI boundary claims to resist.
 
 ## Entry points and attack surfaces
 
@@ -201,7 +220,7 @@ flowchart TD
 | API routes | Browser/direct HTTP | Identity → Next.js route | Many read/mutation routes need generated authorization classification | `src/app/api/` |
 | First-admin flow | Deployment handoff link/exchange | Provider/bootstrap → Relay identity | Future single-use privileged path | No current implementation; planned G-081 |
 | Deploy/lifecycle API | Licensed UI or direct request | Browser → deploy coordinator | Future paid, billable, destructive mutations | No current implementation; planned G-083 |
-| Host supervisor | Local CLI/socket and boot service | Coordinator/Host admin → privileged lifecycle | Future cell allocator and lifecycle authority; must stay content-free | No current implementation; planned G-083 |
+| Host supervisor | Direct admin CLI or protected Unix socket | Local OS admin → privileged lifecycle | Separate executable/Host DB; socket, registry and OCI authority never enter cells | No current implementation; G-060 contract and planned G-083 |
 | Host ingress routing | Hostname/path/VPN/tailnet | Internet/tailnet → one cell | Wrong route or trusted-header handling can cross cells | No current implementation; planned G-081/G-083 |
 | Provider callback/API | OAuth/device/token and HTTPS API | Coordinator → provider | Future scopes, state/nonce, idempotency and token custody | No current implementation; planned G-083/G-085/G-086 |
 | Local database/files | Relay process local I/O | Process → data volume | Single-host WAL and broad instance content | `src/lib/db/index.ts`; `src/lib/config/env.ts`; `src/lib/utils/ainative-paths.ts` |
@@ -235,6 +254,12 @@ flowchart TD
    recovery point → corrupt volume or prevent rollback.
 10. **Exhaust or compromise a Host:** create too many cells/tasks or escape a
     weak container → starve sibling cells or gain the trusted Host boundary.
+11. **Seize local supervisor authority:** compromised cell or local user reaches
+    a permissive socket/path → replays or substitutes a manifest → mounts a
+    sibling root or controls its lifecycle.
+12. **Poison the content-free registry:** lifecycle code serializes a secret,
+    prompt or raw log into a receipt → support/inventory export crosses the
+    intended no-content boundary.
 
 ## Threat model table
 
@@ -252,6 +277,8 @@ flowchart TD
 | TM-010 | Misconfiguration, container escape or trusted Host administrator | Multiple cells share one Host | Attach/widen another cell's mount, secret, network, route, log or runtime key; or bypass resource boundaries | Cross-customer breach or sibling denial of service | Customer data, secrets, logs, availability, Host registry | Distinct `RELAY_DATA_DIR`; G-058/G-060 process isolation intent | No Host supervisor, ingress router, container profile or same-host conformance | Separate container/process identity, mounts, networks, loopback ports, secrets, logs, licenses and limits; server-owned routing; path containment; two-cell negative suite; separate VM for hostile tenants | Ownership labels, route/mount/network canaries, capacity pressure tests, attachment-policy and support-bundle scans | Medium once multi-cell | High | high |
 | TM-011 | Stolen admin session or faulty upgrade/delete | Destructive action lacks step-up, snapshot or compatibility check | Delete/replace/migrate data without safe rollback | Data corruption/loss and outage | Database/files, backups, availability | Local snapshot exists; restore is explicit (`snapshot-manager.ts`) | No cloud lifecycle diff/reauth/rollback contract | Reauthentication, exact resource diff, pre-action verified recovery, schema compatibility, quiescence and remaining-resource receipt | Lifecycle audit, snapshot validation, migration reason codes and final inventory | Medium | High | high |
 | TM-012 | Authenticated attacker or retry loop | Access to tasks/runtime/lifecycle with weak quotas | Trigger costly tasks/GPU/autoscale/retries | Denial of wallet and availability | Bill, runtime capacity, task service | Existing product budget/approval concepts | No cloud resource budget/reconciliation | Provider spending cap, per-instance/task/runtime quotas, bounded retries, GPU off/delete policy, emergency stop preserving data | Spend/concurrency/retry-rate alerts without content | Medium | Medium-High | high |
+| TM-013 | Compromised cell or unprivileged local Host user | Supervisor socket/path/runtime authority is reachable or peer identity is not enforced | Invoke lifecycle, replace a plan between preflight/effect, or point a mount/secret reference at a sibling | Cross-cell takeover, deletion or secret/data exposure | Cell data, secrets, Host registry, lifecycle authority | Current cells use distinct `RELAY_DATA_DIR`; no supervisor exists | No local authority, path containment or TOCTOU implementation | Separate process; admin-owned Unix socket with peer credentials; never mount socket into cells; canonical roots/no-follow checks; atomic reservations; effect-time revalidation; labeled OCI ownership | Denied-peer receipts, socket/permission conformance, path/collision canaries and OCI-label drift alerts | Medium once supervisor exists | High | high |
+| TM-014 | Faulty lifecycle code or support exporter | Registry/receipt accepts arbitrary text or raw adapter errors | Persist customer content, credentials, secret values or raw logs in content-free Host metadata | Cross-cell/support disclosure and loss of trust boundary | Customer content, credentials, receipts | G-058 UI keeps cell facts narrow; current license/runtime code redacts selected secrets | No Host schema/content scanner exists | Strict versioned allowlist schemas; opaque owner/secret refs; bounded reason codes; adapter error normalization; seeded secret/content scans in CI and before support export | Registry scan failures, rejected-field metrics and redacted export conformance | Medium | Medium-High | high |
 
 ## Criticality calibration
 
@@ -292,6 +319,8 @@ flowchart TD
 | `src/lib/workflows/engine.ts` | Autonomous execution and runtime/module-load boundary | TM-005, TM-012 |
 | `src/lib/instance/` | Existing bootstrap/upgrade/handoff authority to reuse carefully | TM-002, TM-004, TM-011 |
 | future `src/lib/host/` or equivalent | Privileged Host registry, cell allocator, path/port/network isolation and lifecycle | TM-004, TM-010, TM-011, TM-012 |
+| future `src/host/local-authority.ts` | Local socket/peer identity and prohibition on cell access to Host authority | TM-013 |
+| future `src/host/registry.ts` and `receipts.ts` | Dedicated atomic lifecycle state and content-free export boundary | TM-004, TM-010, TM-014 |
 | `.github/workflows/` | Future OCI build identity and provenance boundary | TM-008 |
 | `package.json` | Build/release commands and native runtime dependencies | TM-008 |
 
@@ -301,4 +330,6 @@ Quality check:
   points; represented every trust boundary in flows and threats; separated runtime,
   future coordinator and release/CI; incorporated all operator clarifications;
   marked context changes that would alter risk; used repository evidence anchors;
-  and excluded secrets and customer-content telemetry.
+  and excluded secrets and customer-content telemetry. G-060's local-only first
+  slice and operator-approved Host/registry/secret assumptions are reflected;
+  future public/provider boundaries remain explicitly unimplemented.
