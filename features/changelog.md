@@ -16,6 +16,12 @@
   bytes remain free; managed Host/Cell lifecycle is the proposed separately
   licensed capability. No code, price, license, registry, public page, publish or
   release changed during grooming.
+- Amended G-095 with explicit managed-Cell capacity semantics: running and
+  stopped managed Cells count; direct unmanaged Cells, exports and permanently
+  purged Cells do not; over-limit operations fail without disturbing existing
+  Cells; lapse preserves running Cells and recovery; and a newly signed license
+  is the only requirement for a capacity upgrade. Website G-030 carries the
+  matching issuer and customer-copy acceptance criteria.
 
 ## 2026-07-17 — Clarify Relay Host and Cell distribution channels
 
