@@ -8,6 +8,15 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+### Validated
+
+- **The Local Host alpha passed its rebuilt-artifact release gate.** A clean,
+  optimized linux/arm64 Relay Cell image passed the signed artifact policy and
+  complete lifecycle suite, then a fresh-volume customer-identical J0–J3 run
+  proved canonical Cell identity and preserved customer, project, document,
+  and workflow context through reload. This local acceptance did not publish a
+  registry image or cut a public release.
+
 ### Fixed
 
 - **Foundation workflows preserve customer, project, and document context.**

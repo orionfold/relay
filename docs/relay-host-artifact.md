@@ -173,8 +173,8 @@ current signed manifest and smoke receipt.
 
 ## Accepted optimization measurement — 2026-07-17
 
-The latest Linux/arm64 image is `129,935,364` bytes and its OCI archive is
-`129,960,448` bytes: an 85.40% reduction from the `889,827,989`-byte G-080
+The latest Linux/arm64 image is `129,934,743` bytes and its OCI archive is
+`129,959,936` bytes: an 85.40% reduction from the `889,827,989`-byte G-080
 baseline. The final filesystem contains 5,197 files across 25 layers. Its
 CycloneDX SBOM contains 60 components, all attributed to Relay, the pinned
 runtime base, `package-lock.json`, or Next's bundled runtime; the final-image
@@ -211,4 +211,25 @@ absent. The rebuilt local arm64 artifact at digest
 `sha256:f9e08451c1d7c39e9092e6bf84b61df47eedc2f70ac71c3ab4e02f98cf5de783`
 passed the artifact pipeline and a hardened browser-visible Cell smoke. It is a
 dirty-local, ephemeral-test-signed verification artifact—not a published
-release. Host R1 still requires G-097 and the G-099 Foundation rerun.
+release.
+
+G-097 subsequently closed the remaining context-integrity blocker. G-099 then
+rebuilt the complete optimized artifact from clean commit
+`60f096917fd877f407307739fbc14bf882cb4fcd` and accepted Host R1 against the
+immutable linux/arm64 image digest
+`sha256:b181931cb66f3014db82377186742b431cfd42db5deb973a6816059bf735723a`.
+The artifact passed content, component, vulnerability, reproducibility, npm
+boundary, manifest, conformance, two-Cell lifecycle, persistence, backup,
+export, upgrade, restore and rollback gates. It remains a local artifact signed
+with an ephemeral test key; no registry publication or public release occurred.
+
+The fresh-volume customer-identical run used canonical Cell identity
+`g099-r1` and proved J0–J3 across Settings, customer/project creation, a
+project-linked document upload, Agent duplication, a project- and
+document-linked workflow, the built-in blueprint path and custom blueprint
+authoring. A reload preserved the customer → project → document → workflow
+references, and the API snapshot agreed with the visible UI. Teardown removed
+only the isolated browser/container/network/volume resources and left the
+default Relay database hash unchanged. With zero surviving release blockers,
+Host R1 — Local Host alpha is accepted. G-094 still owns any signed registry
+publication, while G-095 owns the paid Host fulfillment contract.

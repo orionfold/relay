@@ -12,37 +12,36 @@ mode: next-steps
 
 ### Recommendation
 
-**Do this:** Complete **G-099 — Revalidate Host R1 Foundation on the rebuilt
-optimized artifact**. G-097 is accepted, so the remaining R1 gate is a fresh
-artifact build and customer-identical J0–J3 acceptance run.
+**Do this:** Complete **G-095 — Define and prove Relay Host fulfillment across
+npm and OCI**. Host R1 is accepted, and the fulfillment contract is now the
+highest-leverage decision package before licensed Host implementation.
 
-**Why:** G-096 made managed Cell identity canonical and G-097 now preserves
-customer, project, and document context end to end. Because G-097 changed the
-runtime source after the accepted G-096 image digest was produced, R1 still
-needs the same Foundation journey against a freshly rebuilt optimized image.
+**Why:** G-099 proved the clean optimized Cell artifact and the full Foundation
+journey, so the uncertainty has moved from packaging to product authority:
+which Host entitlement exists, what managed-Cell capacity means, how lapse and
+recovery behave, and how Relay and Website share fulfillment responsibility.
 
-**Invoke:** rebuild the optimized arm64 Cell artifact through the accepted
-G-093 mechanism, verify its signed evidence bundle and isolation contract, then
-run the unchanged J0–J3 Foundation staging journey from a fresh volume and
-dispose every finding before advancing R1.
+**Invoke:** settle the durable G-095 specification, conformance fixtures and
+operator decision packet without publishing or changing live commerce. Keep
+G-081/G-082 ready as the R2 security and recovery implementation slice.
 
-**Priority category:** Phase advancement — current ready goal in the active
-release increment with its dependencies met.
+**Priority category:** Cross-train contract — unlocks the licensed Host beta
+while R2 technical foundations remain independently ready.
 
 ### Context
 
-- Active workstream: **Customer-owned Relay Host** — R1 findings open.
-- Accepted in R1: **G-080/G-034/G-038/G-093/G-025/G-096/G-097**.
-- Current goal: **G-099**.
-- After R1: **R2 — Secure/recoverable Host alpha**, with G-081 and G-082 ready.
+- Active workstream: **Customer-owned Relay Host** — R2 current.
+- Accepted in R1: **G-080/G-034/G-038/G-093/G-025/G-096/G-097/G-099**.
+- Next prioritized goal: **G-095**.
+- Ready R2 goals: **G-081** internet-safe ingress and **G-082** encrypted recovery.
 - Enterprise connectors remains queued until an intentional WIP decision.
 
 ### If You Have More Time
 
-1. Complete **G-099** Foundation revalidation; only then advance R1 and
-   execute G-094 publication preparation.
-2. Accept the **G-095** entitlement/capacity contract before G-083 begins; its
-   SKU, pricing, limits, reseller and lapse decisions remain operator-gated.
+1. Complete **G-095** through its pre-decision evidence and present the SKU,
+   pricing, limits, reseller and lapse choices at the explicit operator gate.
+2. Complete **G-081**, then **G-082**, before G-083 begins; G-094 publication
+   remains separately gated and is not implied by local R1 acceptance.
 
 ---
 

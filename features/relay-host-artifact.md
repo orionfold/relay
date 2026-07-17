@@ -179,8 +179,8 @@ unchanged. The complete local receipt is
 G-025 is accepted as validation evidence, not as a clean R1 release. Code review
 confirmed that no-git OCI Settings/target previews ignore `RELAY_CELL_ID`, and
 workflow project edits can report success without persisting `projectId`.
-G-096 has closed the identity blocker; G-097 owns the remaining context blocker,
-and G-099 reruns Foundation against the rebuilt artifact before R1 advances.
+G-096 closed the identity blocker, G-097 closed the remaining context blocker,
+and G-099 reran Foundation against the rebuilt artifact before R1 advanced.
 G-098 owns a non-blocking Agent test-result empty-state defect. No public
 publication or release was authorized.
 
@@ -199,8 +199,8 @@ workflow execution-target preview all reported that same identity. The Cell ran
 non-root with a read-only root, no capabilities, `no-new-privileges`, bounded
 CPU/memory/PIDs, and its own network and volume. Evidence is retained under
 `output/staging/2026-07-17-g096-cell-identity/`; teardown removed only those
-disposable resources. G-097 remained the next Host R1 release blocker, followed
-by the G-099 customer-identical rerun.
+disposable resources. G-097 and the G-099 customer-identical rerun subsequently
+closed the remaining Host R1 release gates.
 
 ## G-097 Foundation context-integrity receipt — 2026-07-17
 
@@ -215,5 +215,23 @@ gates, and an isolated real HTTP/document-processing journey passed. In-app
 Browser acceptance also caught and closed a project-selector hydration defect
 before acceptance. G-097 changes the runtime source consumed by the Cell image,
 so the previously accepted G-096 digest remains historical evidence rather
-than the R1 candidate; G-099 is now current and must rebuild/reverify the
-optimized artifact before repeating customer-identical J0–J3.
+than the R1 candidate. At that point, G-099 became the final gate to
+rebuild/reverify the optimized artifact and repeat customer-identical J0–J3.
+
+## G-099 rebuilt-artifact Foundation receipt — 2026-07-17
+
+The complete G-093 artifact mechanism rebuilt `0.43.0` linux/arm64 from clean
+commit `60f096917fd877f407307739fbc14bf882cb4fcd`. The immutable image digest is
+`sha256:b181931cb66f3014db82377186742b431cfd42db5deb973a6816059bf735723a`;
+all content, component, vulnerability, reproducibility, npm-boundary, manifest,
+conformance and two-Cell lifecycle receipts passed. The local bundle uses an
+ephemeral test key and was not published.
+
+A separate hardened `g099-r1` Cell then completed J0–J3 from a fresh volume.
+Browser and API evidence agree on the full customer → project → document →
+workflow relationship, including persistence after reload, while Agent
+duplication and both built-in and custom blueprint paths remained functional.
+Teardown was deterministic and the default Relay database hash was unchanged.
+The evidence bundle is retained at
+`output/staging/2026-07-17-g099-r1/`. With zero surviving release blockers,
+G-099 and Host R1 are accepted; R2 is now current.

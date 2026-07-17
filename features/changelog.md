@@ -1,5 +1,28 @@
 # Feature Changelog
 
+## 2026-07-17 — Accept G-099 and Host R1 Local Host alpha
+
+### Completed
+
+- Rebuilt the optimized `0.43.0` linux/arm64 Cell artifact from clean commit
+  `60f096917fd877f407307739fbc14bf882cb4fcd`; all signed-bundle policy,
+  reproducibility, npm-boundary, conformance and two-Cell lifecycle gates
+  passed at immutable image digest
+  `sha256:b181931cb66f3014db82377186742b431cfd42db5deb973a6816059bf735723a`.
+- Ran J0–J3 in a fresh hardened `g099-r1` Cell and captured browser/API evidence
+  proving customer → project → document → workflow context through reload,
+  alongside Agent duplication and built-in/custom blueprint paths.
+- Removed the isolated container, network and data volume after clean SIGTERM
+  shutdown. The default Relay database SHA-256 remained
+  `5ebccece6512512b09d46692e3dd2c8f1dc680e1aebe07115b6feba0550f329d`.
+- Accepted Host R1 and advanced the live train to R2. G-095 is the prioritized
+  fulfillment contract; G-081/G-082 remain ready R2 implementation goals.
+
+### Not performed
+
+- No registry publication, public release, tag, version change, push, paid
+  provider action, production credential use or default-data mutation.
+
 ## 2026-07-17 — Complete G-025 Host R1 Foundation staging
 
 ### Completed
