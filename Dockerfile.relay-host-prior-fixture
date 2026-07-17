@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1.7
+# Conformance-only builder for a tagged prior Relay source tree. This image is
+# never a release artifact; it exists solely to prove stopped-cell export and
+# rollback against an actual prior version.
+ARG NODE_IMAGE=node:22.18.0-bookworm-slim@sha256:752ea8a2f758c34002a0461bd9f1cee4f9a3c36d48494586f60ffce1fc708e0e
+FROM ${NODE_IMAGE}
+WORKDIR /app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    HOSTNAME=0.0.0.0 \
+    PORT=3000 \
+    HOME=/var/lib/relay/home \
+    RELAY_DATA_DIR=/var/lib/relay \
+    RELAY_LAUNCH_CWD=/var/lib/relay/workspace \
+    RELAY_DEV_MODE=true
+COPY . .
+RUN --mount=type=cache,target=/root/.npm npm ci --include=dev \
+    && npm run build \
+    && mkdir -p /var/lib/relay/home /var/lib/relay/workspace \
+    && chown -R node:node /app /var/lib/relay
+USER node
+EXPOSE 3000
+CMD ["node_modules/.bin/next", "start"]

@@ -40,6 +40,16 @@ export async function registerNodeInstrumentation() {
     // Runs here (not in db/index.ts) to avoid SQLITE_BUSY during next build.
     await runPendingMigrations();
 
+    const { reconcileInterruptedSnapshots } = await import(
+      "@/lib/snapshots/snapshot-manager"
+    );
+    const interruptedSnapshots = await reconcileInterruptedSnapshots();
+    if (interruptedSnapshots > 0) {
+      console.warn(
+        `[snapshots] reconciled ${interruptedSnapshots} interrupted snapshot(s)`,
+      );
+    }
+
     // Plugin loader (Kind 5 only). Seeds dogfood examples on first boot,
     // scans ~/.relay/plugins/, registers profiles + blueprints + tables + schedules.
     // Failures are isolated per-plugin; boot continues regardless.
@@ -89,10 +99,18 @@ export async function registerNodeInstrumentation() {
     // History retention cleanup — prunes old agent_logs and usage_ledger
     startHistoryCleanup();
 
+    // OCI cells need a synchronous drain before Next's own signal listener can
+    // exit the process. The ordinary npm/dev path keeps its existing lifecycle.
+    if (process.env.RELAY_CELL_MODE === "true") {
+      await installCellShutdown();
+    }
+
   } catch (err) {
     console.error("Instrumentation startup failed:", err);
   }
 }
+
+let historyCleanupInterval: ReturnType<typeof setInterval> | null = null;
 
 async function startHistoryCleanup() {
   const CLEANUP_INTERVAL = 24 * 60 * 60 * 1000;
@@ -108,8 +126,56 @@ async function startHistoryCleanup() {
     db.delete(usageLedger).where(lt(usageLedger.startedAt, cutoff)).run();
   }
 
-  cleanup().catch(() => {});
-  setInterval(() => cleanup().catch(() => {}), CLEANUP_INTERVAL);
+  cleanup().catch((err) => {
+    console.error("[history-cleanup] initial cleanup failed:", err);
+  });
+  historyCleanupInterval = setInterval(() => {
+    cleanup().catch((err) => {
+      console.error("[history-cleanup] cleanup failed:", err);
+    });
+  }, CLEANUP_INTERVAL);
+}
+
+export function stopHistoryCleanup(): void {
+  if (historyCleanupInterval !== null) {
+    clearInterval(historyCleanupInterval);
+    historyCleanupInterval = null;
+    console.log("[history-cleanup] stopped");
+  }
+}
+
+async function installCellShutdown(): Promise<void> {
+  const [shutdown, scheduler, channels, upgrades, backups, snapshots, database] =
+    await Promise.all([
+      import("@/lib/host/cell-shutdown"),
+      import("@/lib/schedules/scheduler"),
+      import("@/lib/channels/poller"),
+      import("@/lib/instance/upgrade-poller"),
+      import("@/lib/snapshots/auto-backup"),
+      import("@/lib/snapshots/snapshot-manager"),
+      import("@/lib/db"),
+    ]);
+
+  shutdown.installCellShutdownHandlers({
+    stopSteps: [
+      { name: "upgrade-poller", stop: upgrades.stopUpgradePoller },
+      { name: "scheduler", stop: scheduler.stopScheduler },
+      { name: "channel-poller", stop: channels.stopChannelPoller },
+      { name: "auto-backup", stop: backups.stopAutoBackup },
+      { name: "history-cleanup", stop: stopHistoryCleanup },
+    ],
+    isSnapshotLocked: snapshots.isSnapshotInProgress,
+    activeTaskCount: () => {
+      const row = database.sqlite
+        .prepare("SELECT COUNT(*) AS count FROM tasks WHERE status = 'running'")
+        .get() as { count?: number } | undefined;
+      return row?.count ?? 0;
+    },
+    checkpointWal: () => {
+      database.sqlite.pragma("wal_checkpoint(TRUNCATE)");
+    },
+  });
+  console.log("[cell-shutdown] handlers installed");
 }
 
 async function runPendingMigrations() {

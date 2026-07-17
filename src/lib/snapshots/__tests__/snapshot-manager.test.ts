@@ -7,8 +7,9 @@
  * which threw "Another snapshot operation is already in progress" every time.
  */
 import { describe, it, expect, beforeEach } from "vitest";
-import { mkdirSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { snapshots } from "@/lib/db/schema";
 import { getAinativeDataDir } from "@/lib/utils/ainative-paths";
@@ -17,6 +18,8 @@ import {
   restoreFromSnapshot,
   listSnapshots,
   SnapshotBusyError,
+  isSnapshotInProgress,
+  reconcileInterruptedSnapshots,
 } from "../snapshot-manager";
 
 describe("snapshot manager", () => {
@@ -60,5 +63,55 @@ describe("snapshot manager", () => {
       SnapshotBusyError
     );
     await first; // let the first finish and release the lock
+  });
+
+  it("reconciles durable snapshot work interrupted by an earlier process", async () => {
+    const partialPath = join(getAinativeDataDir(), "snapshots", "interrupted-fixture");
+    mkdirSync(partialPath, { recursive: true });
+    writeFileSync(join(partialPath, "partial.db"), "incomplete");
+    await db.insert(snapshots).values({
+      id: "interrupted-fixture",
+      label: "interrupted",
+      type: "manual",
+      status: "in_progress",
+      filePath: partialPath,
+      createdAt: new Date(),
+    });
+
+    expect(isSnapshotInProgress()).toBe(true);
+    await expect(reconcileInterruptedSnapshots()).resolves.toBe(1);
+    expect(isSnapshotInProgress()).toBe(false);
+    expect(existsSync(partialPath)).toBe(false);
+
+    const [row] = await db
+      .select()
+      .from(snapshots)
+      .where(eq(snapshots.id, "interrupted-fixture"));
+    expect(row.status).toBe("failed");
+    expect(row.error).toContain("SNAPSHOT_INTERRUPTED");
+  });
+
+  it("refuses to delete an interrupted snapshot path outside the snapshots root", async () => {
+    const outsidePath = join(getAinativeDataDir(), "outside-snapshot-fixture");
+    mkdirSync(outsidePath, { recursive: true });
+    writeFileSync(join(outsidePath, "preserve.txt"), "preserve");
+    await db.insert(snapshots).values({
+      id: "outside-snapshot-fixture",
+      label: "outside",
+      type: "manual",
+      status: "in_progress",
+      filePath: outsidePath,
+      createdAt: new Date(),
+    });
+
+    await expect(reconcileInterruptedSnapshots()).resolves.toBe(1);
+    expect(existsSync(join(outsidePath, "preserve.txt"))).toBe(true);
+    const [row] = await db
+      .select()
+      .from(snapshots)
+      .where(eq(snapshots.id, "outside-snapshot-fixture"));
+    expect(row.status).toBe("failed");
+    expect(row.error).toContain("SNAPSHOT_INTERRUPTED_PATH_REFUSED");
+    rmSync(outsidePath, { recursive: true, force: true });
   });
 });

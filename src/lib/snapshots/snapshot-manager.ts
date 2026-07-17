@@ -25,7 +25,7 @@ import {
   writeFileSync,
   readFileSync,
 } from "fs";
-import { join } from "path";
+import { isAbsolute, join, relative, resolve } from "path";
 import * as tar from "tar";
 
 // Directories included in snapshot (relative to ainative data dir)
@@ -46,6 +46,67 @@ let snapshotLock = false;
 
 export function isSnapshotLocked(): boolean {
   return snapshotLock;
+}
+
+/**
+ * Shutdown must consider both the process mutex and its durable shadow state.
+ * A snapshot can finish its asynchronous file work between an API observation
+ * and SIGTERM while the database row is still transitioning.
+ */
+export function isSnapshotInProgress(): boolean {
+  if (snapshotLock) return true;
+  return Boolean(
+    sqlite
+      .prepare("SELECT 1 FROM snapshots WHERE status = 'in_progress' LIMIT 1")
+      .get(),
+  );
+}
+
+/**
+ * A fresh process cannot own an earlier process's snapshot mutex. Convert any
+ * durable in-progress rows left by a crash/SIGTERM into visible failures and
+ * remove their incomplete artifacts before accepting new snapshot work.
+ */
+export async function reconcileInterruptedSnapshots(): Promise<number> {
+  const interrupted = await db
+    .select()
+    .from(snapshots)
+    .where(eq(snapshots.status, "in_progress"));
+
+  for (const snapshot of interrupted) {
+    const snapshotsRoot = resolve(getAinativeSnapshotsDir());
+    const partialPath = resolve(snapshot.filePath);
+    const relativePath = relative(snapshotsRoot, partialPath);
+    const contained =
+      relativePath.length > 0 &&
+      !isAbsolute(relativePath) &&
+      relativePath !== ".." &&
+      !relativePath.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`);
+    let error = "SNAPSHOT_INTERRUPTED: Relay stopped before the snapshot completed";
+
+    if (!contained) {
+      error = "SNAPSHOT_INTERRUPTED_PATH_REFUSED: partial path is outside the snapshots root";
+    } else if (existsSync(partialPath)) {
+      try {
+        rmSync(partialPath, { recursive: true, force: true });
+      } catch (cause) {
+        const detail = cause instanceof Error ? cause.message : String(cause);
+        console.error(
+          `[snapshots] SNAPSHOT_INTERRUPTED_CLEANUP_FAILED id=${snapshot.id} detail=${detail}`,
+        );
+        error = "SNAPSHOT_INTERRUPTED_CLEANUP_FAILED: partial files could not be removed";
+      }
+    }
+    await db
+      .update(snapshots)
+      .set({
+        status: "failed",
+        error,
+      })
+      .where(eq(snapshots.id, snapshot.id));
+  }
+
+  return interrupted.length;
 }
 
 /**

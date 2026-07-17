@@ -1,0 +1,63 @@
+# syntax=docker/dockerfile:1.7
+
+ARG NODE_IMAGE=node:22.18.0-bookworm-slim@sha256:752ea8a2f758c34002a0461bd9f1cee4f9a3c36d48494586f60ffce1fc708e0e
+ARG SOURCE_DATE_EPOCH=0
+
+FROM ${NODE_IMAGE} AS dependencies
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci
+
+FROM ${NODE_IMAGE} AS build
+ARG SOURCE_DATE_EPOCH
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1 \
+    RELAY_OCI_BUILD=true \
+    RELAY_DATA_DIR=/tmp/relay-build-data \
+    RELAY_DEV_MODE=true \
+    SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+FROM ${NODE_IMAGE} AS runtime
+ARG SOURCE_DATE_EPOCH
+ARG RELAY_VERSION=0.0.0-unset
+ARG RELAY_SOURCE_REVISION=unknown
+LABEL org.opencontainers.image.title="Orionfold Relay Host cell" \
+      org.opencontainers.image.version="${RELAY_VERSION}" \
+      org.opencontainers.image.revision="${RELAY_SOURCE_REVISION}" \
+      org.opencontainers.image.source="https://github.com/orionfold/relay"
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    HOSTNAME=0.0.0.0 \
+    PORT=3000 \
+    HOME=/var/lib/relay/home \
+    RELAY_DATA_DIR=/var/lib/relay \
+    RELAY_LAUNCH_CWD=/var/lib/relay/workspace \
+    RELAY_CELL_MODE=true \
+    RELAY_REQUIRE_DATA_MOUNT=true \
+    RELAY_ARTIFACT_VERSION=${RELAY_VERSION} \
+    RELAY_SOURCE_REVISION=${RELAY_SOURCE_REVISION} \
+    SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+
+RUN groupadd --gid 10001 relay \
+    && useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin relay \
+    && mkdir -p /app /var/lib/relay \
+    && chown -R 10001:10001 /app /var/lib/relay
+
+WORKDIR /app
+COPY --from=build --chown=10001:10001 /app/.next/standalone ./
+COPY --from=build --chown=10001:10001 /app/.next/static ./.next/static
+COPY --from=build --chown=10001:10001 /app/public ./public
+COPY --from=build --chown=10001:10001 /app/src/lib/db/migrations ./src/lib/db/migrations
+COPY --from=build --chown=10001:10001 /app/scripts/relay-host-entry.mjs ./scripts/relay-host-entry.mjs
+COPY --from=build --chown=10001:10001 /app/package.json ./package.json
+
+USER 10001:10001
+EXPOSE 3000
+HEALTHCHECK --interval=15s --timeout=5s --start-period=45s --retries=4 \
+  CMD ["node", "-e", "fetch('http://127.0.0.1:3000/api/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+ENTRYPOINT ["node", "scripts/relay-host-entry.mjs"]
+CMD ["node", "server.js"]

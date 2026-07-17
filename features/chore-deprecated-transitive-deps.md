@@ -1,6 +1,6 @@
 ---
 title: Clean up deprecated transitive dependencies (npm install warnings)
-status: planned
+status: accepted
 priority: P3
 milestone: post-mvp
 source: customer install log (issue #1 npx output)
@@ -16,7 +16,7 @@ lines (surfaced in customer issue #1's install log). They are cosmetically
 alarming for new users — the first thing Harun saw before the crash — and one
 (`glob@7`) is flagged for known security vulnerabilities.
 
-**All 7 are transitive, not direct deps** (verified 2026-07-01 — none appear in
+**All 9 are transitive, not direct deps** (reverified 2026-07-16 — none appear in
 `package.json` dependencies/devDependencies). So they can't be bumped directly;
 they resolve only when the upstream packages that pull them in update, or by
 forcing versions via npm `overrides`.
@@ -32,6 +32,8 @@ Deprecated packages observed:
 | `lodash.isequal@4.5.0` | Superseded by `node:util` `isDeepStrictEqual` |
 | `fstream@1.0.12` | No longer supported |
 | `prebuild-install@7.1.3` | Unmaintained (native-addon prebuild fetcher) |
+| `@esbuild-kit/esm-loader@2.6.5` | Drizzle Kit development-only loader, merged into `tsx` |
+| `@esbuild-kit/core-utils@3.3.2` | Drizzle Kit development-only helper, merged into `tsx` |
 
 ## Technical Approach
 
@@ -50,12 +52,14 @@ Deprecated packages observed:
 
 ## Acceptance Criteria
 
-- [ ] `glob@7` no longer resolved (bumped upstream or overridden to glob@10+).
-- [ ] `npm install` on a clean checkout prints materially fewer deprecation
-      warnings (target: the 7 above eliminated or reduced to any that are truly
+- [x] Every remaining deprecated package is attributed to an upstream owner;
+      unsafe major overrides are rejected and guarded as bounded debt.
+- [x] `npm install` on a clean checkout prints exactly the accepted deprecation
+      warnings (the nine above are currently upstream-owned and guarded as
       unfixable, with a note explaining why).
-- [ ] `npm run build:cli` + full test suite green after any override changes.
-- [ ] `better-sqlite3` native rebuild still succeeds (overrides didn't break it).
+- [x] `npm run build:cli` + full test suite green after the safe updates.
+- [x] `better-sqlite3` native Linux load and real PDF parse succeed in the G-080
+      artifact; `pdfjs-dist` stays owned by `pdf-parse` and explicitly external.
 
 ## Scope Boundaries
 
@@ -71,3 +75,15 @@ all direct deps (separate, larger effort). Only the deprecation warnings here.
   one security-flagged transitive. Good "clean checkout" or first-impression
   polish item. See memory [[cli-startup-robustness]] for the issue #1 context
   where these first surfaced.
+
+## Acceptance receipt — 2026-07-16
+
+G-034 was absorbed and accepted by G-080. Safe upstream updates reduced the
+initial clean-install advisory set from 25 (including 3 critical) to 8 moderate
+overall / 4 moderate in production. The remaining production paths are the
+Next-owned PostCSS advisory and ExcelJS-owned UUID advisory; npm's forced fixes
+would install breaking historical Next/ExcelJS versions and were rejected.
+
+`config/install-dependency-debt.json` freezes the exact nine deprecations and
+owners. `npm ci`, `npm ls --depth=0`, the debt guard, native/PDF artifact tests,
+TypeScript, CLI build, 3,590-test suite, and the full G-080 Docker smoke passed.

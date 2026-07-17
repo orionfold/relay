@@ -21,6 +21,7 @@ const RFC1918_DEV_ORIGINS = [
   ...Array.from({ length: 16 }, (_, i) => `172.${16 + i}.*.*`),
 ];
 const allowLanDevOrigins = process.env.RELAY_ALLOW_LAN_ORIGINS === "true";
+const isRelayOciBuild = process.env.RELAY_OCI_BUILD === "true";
 
 // Build-time core version, mirroring tsup's `define` (tsup.config.ts). tsup
 // only builds the CLI bundle (dist/cli.js), so WITHOUT this the Next.js server
@@ -44,6 +45,15 @@ const CORE_VERSION_DEFINE = JSON.parse(
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  ...(isRelayOciBuild
+    ? {
+        output: "standalone",
+        // Page-data workers import server modules that bootstrap SQLite. One
+        // build-only worker prevents independent processes from racing the
+        // same temporary database; runtime concurrency is unaffected.
+        experimental: { cpus: 1 },
+      }
+    : {}),
   serverExternalPackages: ["better-sqlite3", "pdf-parse", "pdfjs-dist"],
   devIndicators: false,
   allowedDevOrigins: allowLanDevOrigins
