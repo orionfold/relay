@@ -19,6 +19,35 @@ The checked-in `Dockerfile.relay-host`, `host:artifact:*` scripts and output
 directory retain historical internal names for compatibility. Their OCI output
 is a Relay Cell image.
 
+## Same release, different artifact closures
+
+The npm package and the OCI image deliver the same Relay release and
+compatibility contract, but they are not byte-identical packages and should not
+have similar download sizes.
+
+| Artifact | What it delivers | What the destination supplies |
+|---|---|---|
+| npm tarball | Relay CLI/application files, package metadata, and the direct local single-Cell path; later, the Host bootstrap/supervisor | Node.js, npm dependency installation, the operating system, native system libraries, and process administration |
+| Relay Cell OCI image | A sealed Linux Cell runtime: Relay application, pinned Node runtime, required production/native runtime files, Linux base, filesystem ownership, and container metadata | An OCI-compatible container engine plus the Cell's mounted data and configuration |
+
+The accepted npm measurement is `2,767,765` compressed bytes and `9,902,571`
+unpacked bytes. That is the package payload before the destination supplies
+Node.js, installs the dependency closure, and provides its OS/native libraries.
+The optimized Linux/arm64 Cell image is `129,913,772` bytes and its OCI archive
+is `129,938,944` bytes because it carries the complete pinned Linux runtime
+closure required to start a Cell. The useful comparison is therefore an
+installed npm deployment plus Node and its host runtime prerequisites versus a
+complete OCI image—not the npm tarball alone versus the image. OCI layers can
+also be cached and reused between Cell releases.
+
+This is a **direct-versus-managed** distinction, not a laptop-versus-cloud
+distinction. A person can run one Relay Cell through npm on a laptop or a cloud
+VM. A managed Host uses OCI Cells on a laptop or a server to gain repeatable
+isolation, pinned native dependencies, signed digests, explicit mounts,
+networks, ports, users and limits, plus atomic upgrade and rollback. If Relay
+only supported one personal Cell, the OCI channel would not be necessary; it
+earns its distribution cost in the paid managed multi-Cell Host product.
+
 ## Host and Cell in plain terms
 
 A **Host** is a laptop or server that owns the machine, storage, networking, and

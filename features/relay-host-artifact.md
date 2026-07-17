@@ -38,6 +38,22 @@ Internal filenames and commands retain the historical `relay-host-artifact`
 name for compatibility; in product and architecture language the emitted OCI
 payload is a **Relay Cell image**.
 
+“Same release” means the npm and OCI artifacts share locked source, Relay
+version, schema/runtime compatibility, and one release manifest. It does not
+mean the artifacts contain the same bytes. The accepted npm tarball is
+2,767,765 compressed bytes / 9,902,571 unpacked bytes and relies on the target's
+Node, dependency installation, OS and native libraries. The optimized arm64
+Cell image is 129,913,772 bytes (129,938,944-byte OCI archive) because it closes
+over the pinned Linux application runtime. Size comparisons must therefore use
+the complete installed runtime closure, not compare the sparse npm tarball with
+the sealed image in isolation.
+
+OCI is selected for the managed path regardless of whether the Host is a
+laptop or cloud VM. It provides repeatable Cell isolation, signed immutable
+identity, pinned native dependencies, container-level mounts/networks/users/
+limits, and atomic upgrade/rollback. A direct personal single-Cell deployment
+does not need OCI.
+
 ## Scope challenge
 
 - **REDUCE:** manifest only. Rejected because it cannot prove the native module,

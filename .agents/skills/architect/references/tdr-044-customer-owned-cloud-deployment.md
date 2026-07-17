@@ -145,7 +145,13 @@ or cloud VM.
     verification contract, not the image bytes. A versioned Host/Cell manifest
     supplies local lifecycle and provider-bootstrap inputs without leaking
     provider branches into Relay Core. The Cell image never contains or starts
-    the Host supervisor and has no Host/Cell mode switch.
+    the Host supervisor and has no Host/Cell mode switch. “Same release” binds
+    source, version, schema/runtime compatibility and manifest authority; it
+    does not mean byte-identical artifacts. npm is a host-resolved package that
+    relies on destination Node, dependency installation, OS and native
+    libraries. OCI is the closed, pinned Linux Cell runtime. Artifact-size
+    reporting must compare complete installed runtime closures rather than the
+    npm tarball alone with the OCI image.
 12. Gate host provisioning, cell creation, upgrade, transfer, and destructive
     lifecycle automation with `product:relay-cloud-deploy`. License loss never
     deletes/encrypts data or blocks verified export, recovery, or direct host/
@@ -220,7 +226,7 @@ or cloud VM.
 | Model runtimes | A endpoint protocol; B host-local/private lifecycle adapter | runtime capacity must scale independently of a host or span trust boundaries |
 | Backup/restore | B: local archive plus object-storage transport using one manifest | recovery testing demonstrates a need for continuous database replication |
 | Observability | B: local evidence plus optional redacted sink | a managed service is separately approved with telemetry policy |
-| Distribution | B: npm provides the CLI, direct local single-Cell path and managed-Host bootstrap/supervisor; the OCI registry provides the signed immutable Cell image; one release manifest binds both | revisit only if npm cannot safely deliver the Host control surface or a non-container Cell target becomes required |
+| Distribution | B: npm provides the host-resolved CLI, direct local single-Cell path and managed-Host bootstrap/supervisor; the OCI registry provides the closed signed immutable Linux Cell runtime; one release manifest binds compatible but byte-distinct artifacts | revisit only if npm cannot safely deliver the Host control surface, managed multi-Cell isolation no longer needs OCI, or a non-container Cell target becomes required |
 
 ## Consequences
 
@@ -321,7 +327,11 @@ npm is the Host bootstrap/control channel and remains the direct local
 single-Cell channel; an OCI registry is the managed-Host Cell-runtime channel.
 It also distinguishes the local Host supervisor from a possible future Fleet
 Controller. It changes no accepted isolation or authority decision and grants
-no remote multi-Host authority.
+no remote multi-Host authority. The artifact-closure amendment records that
+these channels carry the same release contract, not identical bytes: npm relies
+on destination runtime prerequisites, while OCI closes over a pinned Linux Cell
+runtime. The accepted 2,767,765-byte npm tarball and 129,913,772-byte arm64 image
+therefore are not an apples-to-apples installed-footprint comparison.
 
 ## References
 

@@ -23,6 +23,13 @@
   Hosts through their supervisors. Renamed the G-060 document titles to remove
   the misleading implication that the local supervisor is already a fleet
   controller.
+- Documented why npm and OCI sizes differ: they bind the same Relay release but
+  carry different runtime closures. npm relies on destination Node, installed
+  dependencies and OS/native prerequisites; the OCI Cell image seals those
+  Linux runtime requirements for managed isolation and atomic lifecycle. The
+  guides now state that OCI is a direct-versus-managed choice, not a laptop-
+  versus-cloud choice, and compare the 2.77 MB npm package with the 130 MB image
+  without presenting the downloads as equivalent installed footprints.
 
 ## 2026-07-17 — Complete G-093 optimized Relay Cell OCI production
 

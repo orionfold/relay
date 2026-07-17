@@ -49,6 +49,14 @@ operator tooling or repository history into my environment.
 - npm remains a separate channel: its accepted package baseline is 2,767,765
   compressed bytes and must not absorb the OCI runtime.
 
+The npm baseline and OCI baseline measure different closures. npm ships a
+host-resolved application package and relies on destination Node, installed
+dependencies, OS and native libraries. OCI ships the closed, pinned Linux Cell
+runtime. They bind the same Relay version and compatibility contract without
+being byte-identical artifacts. Optimization must remove accidental OCI
+content, not chase the npm tarball size by externalizing runtime prerequisites
+that managed Hosts need for isolation and deterministic lifecycle.
+
 ## Technical Approach
 
 ### 1. Explain the trace closure
@@ -204,6 +212,10 @@ operator tooling or repository history into my environment.
 - The canonical Linux/arm64 artifact is `129,913,772` bytes, down 85.40% from
   the `889,827,989`-byte G-080 baseline. Its OCI archive is `129,938,944`
   bytes; the final filesystem contains 5,196 files across 25 layers.
+- This remains intentionally larger than the 2,767,765-byte compressed npm
+  tarball because the image contains the complete pinned Linux Cell runtime.
+  The decision boundary is managed versus direct deployment, not cloud versus
+  laptop, and footprint claims must compare complete installed closures.
 - The final stage is the digest-pinned distroless Node 22 Debian 13 non-root
   image. Build tooling, npm, a shell, repository instructions/history, tests,
   planning artifacts, session state and nested Relay distributions are absent.

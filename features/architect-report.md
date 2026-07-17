@@ -5,29 +5,31 @@ mode: tdr
 
 # Architect Report
 
-## TDR-044 amendment — Host Supervisor versus Fleet Controller
+## TDR-044 amendment — npm and OCI artifact closure
 
-TDR-044 remains accepted with a clarified authority hierarchy:
+TDR-044 remains accepted with a clarified distribution invariant:
 
-```text
-optional future Fleet Controller
-  → authenticated Host Supervisor
-    → Cells physically resident on that Host
-```
+- “Same Relay release” means common locked source, version, schema/runtime
+  compatibility and release-manifest authority. It does not mean npm and OCI
+  contain identical bytes.
+- npm is a host-resolved artifact: the destination supplies Node.js, installed
+  dependencies, the OS, native libraries and process administration.
+- OCI is a closed Cell-runtime artifact: it pins the Linux runtime, native
+  requirements, filesystem identity and container metadata needed by a managed
+  Host.
+- The accepted 2,767,765-byte compressed npm tarball and 129,913,772-byte arm64
+  image are different measurement boundaries. A valid footprint comparison
+  includes the npm deployment's installed dependency tree, Node and host
+  runtime prerequisites.
+- The decision boundary is direct versus managed, not local versus cloud. A
+  direct single Cell can use npm in either placement; a managed Host uses OCI
+  Cells for isolation, signed identity and atomic lifecycle in either placement.
+- If Relay supported only a personal single Cell, OCI would add little value.
+  The channel is justified by the paid managed multi-Cell Host contract.
 
-- A Relay Host is one machine or VM, not a controller role.
-- A Host Supervisor is local to one Host and is the only component allowed to
-  mutate that Host's Cells.
-- A future Fleet Controller coordinates several Hosts through authenticated
-  Host supervisors. It never directly controls Cells or receives Cell data.
-- Server A coordinating Cells on Servers B, C and D means A is a Fleet
-  Controller and B, C and D are Relay Hosts.
-- G-083 implements only the local Host Supervisor. G-086 proves a second
-  independent Host target; neither goal creates Fleet Controller authority.
-
-No new application code or current release claim follows from this amendment.
-A future Fleet Controller requires its own Goal Contract, TDR/threat-model
-amendment and explicit activation trigger.
+No application behavior, publication, release or compatibility promise changes
+through this documentation amendment. G-094 must preserve the distinction in
+its release evidence and customer instructions.
 
 ---
 

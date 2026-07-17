@@ -1,9 +1,9 @@
 {
-  "bundleHash": "792c35454c8625ee790b2687eff54dc3929ccc52bd8681af500a88852e367e20",
+  "bundleHash": "fc2c8bcca329ab6c35c20154ffb5bd06c2164d0e5cf0fe23faef7618368a1b4a",
   "corpus": {
     "apiDocsVersion": "2026-07-08.initial-plan",
     "apiTrackerHash": "67b038ce2ec45d1b309d060ca0e6526ab8b97f57d542eec443b27da845c4f111",
-    "guideTrackerHash": "06dd1db82ab7dd37fc01acd1699accbd806b2c4d70ce1009fd20557e2f5fd3bf",
+    "guideTrackerHash": "1e51332e26bcd33fc369a5a25ba572d7d2d9ca5f8c24ee04afc3145ec83f1737",
     "guideVersion": "2026-07-09.narrative-book-guide",
     "screenshotManifestHash": "407f643e64fcd405366b709b047fdf69ebdef98aee8bfb5611f42c0d95c591b3"
   },
@@ -169,20 +169,20 @@
       "title": "Build And Publish A Small Website"
     },
     {
-      "contentHash": "5f65064d7fbb4e2e9c9b7381acf413f4a72e1d86795d547944900fa070559780",
+      "contentHash": "2e54acce47980de727dda3d5d88a05514bb47e8787d294872a7543ab3f042e31",
       "id": "guide:09-settings-trust",
       "kind": "guide",
       "path": "entries/guide.09-settings-trust.json",
       "publicUrl": "https://orionfold.com/relay/docs/set-trust-runtime-and-local-controls/",
-      "sourceHash": "40d3402a77cfa60989672f56cabea4709159ad723749c90922e0b384cb0cd615",
+      "sourceHash": "f1d51c9eaa8edfa28ffaf4b7a241b38e50d848d46e9ac7adf292a3658fcc0953",
       "sourceStateHash": "bdcfa5cceb7a10b0cb56352dbc50c0758fd0e88e9091f75a5a8e99da69938fde",
       "title": "Set Trust, Runtime, And Local Controls"
     }
   ],
   "entryCount": 17,
-  "indexHash": "4737789e481f88129dca43f7ab77e55ff76680733540cd8609654bf53b3d23b2",
+  "indexHash": "b866ef57369e23b16088367c750a7f0425dae678a6fc9007316c3cf8953bd90d",
   "releaseVersion": "0.43.0",
   "schemaVersion": 2,
   "sectionCount": 434,
-  "sourceBundleHash": "6d7b80436e55016a24a3140563c173c79f1960decf60e0c779d39d7ee53a70cb"
+  "sourceBundleHash": "be902eeb6e5f736fe746decb2e61e318e4aa2bd8eca5eac128fb8842d5cda64d"
 }

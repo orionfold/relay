@@ -103,6 +103,24 @@ and the managed-Host control software; the OCI registry supplies the managed
 Cell runtime image.** One release manifest binds the compatible versions and
 exact image digest.
 
+These are two artifacts from the same Relay release, not two copies of the
+same package. The npm tarball is a compact installer/application payload that
+uses Node, dependency installation, the OS, and native libraries supplied by
+the destination. The Cell image is a sealed Linux runtime with those
+prerequisites pinned inside it. The accepted measurements make the difference
+concrete: npm is 2,767,765 bytes compressed / 9,902,571 bytes unpacked, while
+the optimized Linux/arm64 Cell image is 129,913,772 bytes and its OCI archive
+is 129,938,944 bytes. Comparing only those downloads is not apples-to-apples;
+the npm side's complete installed runtime also includes Node, installed
+dependencies, and host OS/native prerequisites.
+
+The choice is direct versus managed, not laptop versus cloud. One personal Cell
+can use npm on either a laptop or cloud VM. A managed Host uses OCI Cells on
+either placement so every Cell gets a repeatable Linux runtime, signed digest,
+explicit storage/network/user/resource boundaries, and atomic upgrade or
+rollback. Without the paid managed multi-Cell product, Relay would not need the
+OCI distribution channel.
+
 ## Approved product assumptions
 
 1. The cloud account, resources, bill, data, and long-lived provider credentials
