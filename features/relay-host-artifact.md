@@ -164,4 +164,21 @@ comparison, npm separation, signed manifest, bundle checksums and the complete
 two-cell lifecycle smoke. Exact platform/path/mode/link inventory is the
 operator-approved reproducibility gate; compiled-content digests remain
 diagnostic. The bundle verifier validates all 18 evidence files and pass
-receipts. G-025 is the next customer-identical release gate.
+receipts.
+
+## G-025 customer-identical staging receipt — 2026-07-17
+
+J0–J3 ran against the accepted `0.43.0` linux/arm64 bundle from a fresh,
+loopback-only Docker Cell and synthetic data volume. The Cell stayed healthy;
+customer, project, document, Agent, built-in blueprint, from-scratch workflow,
+and custom blueprint paths all produced browser evidence. Teardown removed only
+the isolated container/network/volume and left the default Relay database hash
+unchanged. The complete local receipt is
+`output/staging/2026-07-17-g025-r1/`.
+
+G-025 is accepted as validation evidence, not as a clean R1 release. Code review
+confirmed that no-git OCI Settings/target previews ignore `RELAY_CELL_ID`, and
+workflow project edits can report success without persisting `projectId`.
+G-096 and G-097 own those release blockers; G-099 reruns Foundation against the
+rebuilt artifact before R1 advances. G-098 owns a non-blocking Agent test-result
+empty-state defect. No public publication or release was authorized.

@@ -1,5 +1,33 @@
 # Feature Changelog
 
+## 2026-07-17 — Complete G-025 Host R1 Foundation staging
+
+### Completed
+
+- Ran J0–J3 from a fresh isolated Docker volume against the accepted Relay
+  `0.43.0` linux/arm64 OCI artifact and captured customer-visible checkpoints,
+  accessibility snapshots, console/network diagnostics, a compact GIF, raw
+  findings, and a code-verified evaluation under
+  `output/staging/2026-07-17-g025-r1/`.
+- Verified the signed 18-file G-093 bundle, loopback-only hardened container,
+  readiness identity, clean runtime logs and deterministic teardown. The normal
+  Relay database SHA-256 remained
+  `5ebccece6512512b09d46692e3dd2c8f1dc680e1aebe07115b6feba0550f329d`
+  before and after the run.
+- Accepted G-025 as an evidence-producing validation goal while keeping Host R1
+  open: G-096 owns canonical OCI Cell identity, G-097 owns the silently dropped
+  workflow project edit plus customer/document context, G-098 owns the stale
+  Agent-test empty state, and G-099 owns the rebuilt-artifact Foundation rerun.
+- Corrected the live staging journey and both `ainative-app` skill mirrors from
+  removed `/profiles*` and `/workflows/blueprints*` URLs to `/agents*` and
+  `/blueprints*`. Expected workflow-target 409 and disconnected Ollama 502
+  responses were code-verified and not misclassified as artifact failures.
+
+### Not performed
+
+- No product bug fix, GitHub issue write, push, publish, registry write,
+  release, tag, version change, paid-provider action, or default-data mutation.
+
 ## 2026-07-17 — Groom Relay Host fulfillment across npm and OCI
 
 ### Groomed

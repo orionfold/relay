@@ -173,7 +173,7 @@ composition manifests. The `/apps` registry scan only reads from `apps/`.
 5. For each table in the manifest, call `create_table` with the columns + optional CSV import via `import_table_data`.
 6. For each schedule, call `create_schedule` (see Gap Awareness — this primitive is DB-only today).
 7. Produce a **verification checklist** for the user:
-   - How to instantiate the blueprint (chat tool `instantiate_blueprint` or the `/workflows/blueprints` UI)
+   - How to instantiate the blueprint (chat tool `instantiate_blueprint` or the `/blueprints` UI)
    - How to assign the profile to an ad-hoc task or a workflow step
    - Where to view the schedule (`/schedules`) and the seeded table (`/tables`)
    - Expected first-run outcomes
@@ -391,7 +391,7 @@ Personal portfolio check-ins for a self-directed investor.
 5. Create the Monday schedule: call `create_schedule` with the cron + blueprint from manifest.
 
 ## Use
-- Manual: instantiate `wealth-tracker--weekly-review` from `/workflows/blueprints`.
+- Manual: instantiate `wealth-tracker--weekly-review` from `/blueprints`.
 - Automatic: Monday 8am via the scheduled trigger.
 
 ## Artifacts
@@ -411,7 +411,7 @@ Personal portfolio check-ins for a self-directed investor.
 [ ] create_schedule executed for wealth-tracker--monday-8am
 [ ] /tables UI shows the seeded positions
 [ ] /schedules UI shows the new cron entry
-[ ] /workflows/blueprints UI lists the new blueprint
+[ ] /blueprints UI lists the new blueprint
 ```
 
 ## Gap Awareness (v0 limitations)

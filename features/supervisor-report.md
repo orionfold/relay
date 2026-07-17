@@ -12,33 +12,38 @@ mode: next-steps
 
 ### Recommendation
 
-**Do this:** Complete **G-025 — Run the next evidence-producing staging
-regression slice** against the optimized Relay Cell image on a Relay Host.
+**Do this:** Complete **G-096 — Make Relay Cell identity canonical across the
+OCI runtime**. It is the first code-verified release blocker from the accepted
+G-025 Foundation staging receipt and has no operator gate for the compatible
+resolver path.
 
-**Why:** G-093 is accepted with a 129,913,772-byte distroless arm64 image, full
-artifact evidence and Host lifecycle conformance. Customer-identical staging is
-the remaining Host R1 exit gate before the train can advance to secure ingress
-and recovery.
+**Why:** the accepted OCI artifact reports `g025-r1` at readiness, but Settings
+and workflow/task execution previews ignore `RELAY_CELL_ID` in a no-git Cell and
+show an uninitialized or generic identity. That contradicts the Host trust
+boundary at the exact surface customers use to verify where work runs.
 
-**Invoke:** the Relay staging workflow and consume the verified optimized
-artifact/evidence bundle without rebuilding different bytes. Record fresh
-install, primary journey, runtime and release-candidate evidence.
+**Invoke:** implement one validated managed-Cell identity resolver, preserve
+git-backed and ordinary npx semantics, add no-git+environment regressions across
+readiness/config/Settings/execution targets, rebuild the arm64 artifact, and
+browser-smoke the visible trust surfaces.
 
 **Priority category:** Phase advancement — current ready goal in the active
 release increment with its dependencies met.
 
 ### Context
 
-- Active workstream: **Customer-owned Relay Host** — R1 in progress.
-- Accepted in R1: **G-080/G-034/G-038/G-093**.
-- Current sequence: **G-025 staging gate**.
+- Active workstream: **Customer-owned Relay Host** — R1 findings open.
+- Accepted in R1: **G-080/G-034/G-038/G-093/G-025**.
+- Current sequence: **G-096 → G-097 → G-099**.
 - After R1: **R2 — Secure/recoverable Host alpha**, with G-081 and G-082 ready.
 - Enterprise connectors remains queued until an intentional WIP decision.
 
 ### If You Have More Time
 
-1. Prepare **G-081/G-082** sequencing while G-025 captures R1 evidence.
-2. Advance R1 only after the staging exit gate is explicitly accepted.
+1. After G-096, complete **G-097** context integrity and **G-099** Foundation
+   revalidation; only then advance R1 and execute G-094 publication preparation.
+2. Accept the **G-095** entitlement/capacity contract before G-083 begins; its
+   SKU, pricing, limits, reseller and lapse decisions remain operator-gated.
 
 ---
 

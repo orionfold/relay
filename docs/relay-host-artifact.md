@@ -191,4 +191,12 @@ still identifies the exact artifact consumed by a later promotion.
 and requires all content, component, vulnerability, reproducibility, npm,
 manifest and conformance receipts to pass. Local bundles use an explicitly
 ephemeral test key; any non-local signing authority requires an external trusted
-public key. G-025 remains the customer-identical Host R1 release gate.
+public key.
+
+The first customer-identical R1 Foundation run completed on 2026-07-17 against
+the accepted `0.43.0` linux/arm64 local-alpha bundle. It proved isolated startup,
+readiness, customer/project setup, document upload, Agent duplication, workflow
+creation, blueprint authoring and deterministic teardown. The run also did what
+a release gate should do: it exposed inconsistent managed-Cell identity and a
+silently dropped workflow project edit. Host R1 therefore remains open until
+those defects are fixed and the rebuilt optimized image passes the same journey.
