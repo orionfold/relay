@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { settings } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 /** Read a single setting from DB */
 export async function getSetting(key: string): Promise<string | null> {
@@ -130,6 +130,9 @@ export async function setPluginTrustModel(
 export type ModelPreference = "quality" | "cost" | "privacy" | "balanced";
 
 const MODEL_PREFERENCE_KEY = "chat.modelPreference";
+const DEFAULT_MODEL_KEY = "chat.defaultModel";
+const MODEL_PREFERENCE_PROMPT_IMPRESSION_KEY =
+  "onboarding.modelPreferencePromptImpression";
 const MODEL_PREFERENCE_VALUES: readonly ModelPreference[] = [
   "quality",
   "cost",
@@ -169,4 +172,64 @@ export async function setModelPreference(
  */
 export async function hasSeenModelPreferencePrompt(): Promise<boolean> {
   return (await getSetting(MODEL_PREFERENCE_KEY)) !== null;
+}
+
+export const MODEL_PREFERENCE_PROMPT_IMPRESSION_WRITE_FAILED =
+  "MODEL_PREFERENCE_PROMPT_IMPRESSION_WRITE_FAILED";
+
+/** The instance-local onboarding prompt impression could not be claimed. */
+export class ModelPreferencePromptImpressionWriteError extends Error {
+  readonly code = MODEL_PREFERENCE_PROMPT_IMPRESSION_WRITE_FAILED;
+
+  constructor(cause: unknown) {
+    super("Relay could not record the default-model prompt impression.", {
+      cause,
+    });
+    this.name = "ModelPreferencePromptImpressionWriteError";
+  }
+}
+
+/**
+ * Atomically claim the one automatic model-preference prompt for this Relay
+ * instance. The settings database lives below RELAY_DATA_DIR, so the marker is
+ * naturally cell/instance-local and survives browser sessions and restarts.
+ *
+ * Existing installs are grandfathered: either a saved default model or the
+ * legacy preference/Skip row means the operator has already configured or
+ * answered this prompt. The read and insert share one SQLite transaction so
+ * concurrent browser sessions cannot both win the claim.
+ */
+export async function claimModelPreferencePromptImpression(): Promise<boolean> {
+  try {
+    return db.transaction((tx) => {
+      const existing = tx
+        .select({ key: settings.key })
+        .from(settings)
+        .where(
+          inArray(settings.key, [
+            MODEL_PREFERENCE_PROMPT_IMPRESSION_KEY,
+            DEFAULT_MODEL_KEY,
+            MODEL_PREFERENCE_KEY,
+          ])
+        )
+        .all();
+
+      if (existing.length > 0) return false;
+
+      const now = new Date();
+      const result = tx
+        .insert(settings)
+        .values({
+          key: MODEL_PREFERENCE_PROMPT_IMPRESSION_KEY,
+          value: now.toISOString(),
+          updatedAt: now,
+        })
+        .onConflictDoNothing()
+        .run();
+
+      return result.changes === 1;
+    });
+  } catch (cause) {
+    throw new ModelPreferencePromptImpressionWriteError(cause);
+  }
 }

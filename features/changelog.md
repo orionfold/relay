@@ -1,5 +1,59 @@
 # Feature Changelog
 
+## 2026-07-16 — Complete G-038 one-time default-model prompt
+
+### Completed
+
+- Replaced choice-dependent first-launch inference with an atomic, per-instance
+  prompt-impression claim stored in the settings database under the active
+  `RELAY_DATA_DIR`. The winning browser records the timestamp before display;
+  concurrent or later sessions receive `claimed: false`.
+- Preserved upgraded/configured instances by treating existing default-model,
+  Confirm and legacy Skip rows as prior completion. Confirm/Skip persistence
+  and Settings model selection are unchanged.
+- Added the named
+  `MODEL_PREFERENCE_PROMPT_IMPRESSION_WRITE_FAILED` server/client contract. A
+  failed claim keeps the unrecorded prompt closed, logs the named failure, and
+  shows a Settings-directed error toast rather than failing silently.
+- Real fresh-data browser evidence showed the modal once, then zero dialogs
+  after reload without a choice, in a second tab, and after restarting Relay
+  against the same data directory. The DB contained only the impression marker;
+  browser warning/error logs were empty.
+- Verification passed: 33 focused tests, 207 settings/onboarding neighbors,
+  TypeScript, 483-file full suite (3,603 passed, one skipped), production build,
+  531-file documentation-link check and diff checks. Existing broad Next trace
+  warnings remain owned by G-093; no publish, release or version change occurred.
+
+## 2026-07-16 — Start G-038 one-time default-model prompt
+
+### Started
+
+- Activated G-038 inside Host R1. The implementation will atomically claim and
+  persist a per-`RELAY_DATA_DIR` prompt-impression marker before opening the
+  modal, preserve legacy configured-instance suppression and existing Confirm/
+  Skip behavior, and expose a named visible failure when the marker cannot be
+  written.
+
+## 2026-07-16 — Groom G-093 optimized repeatable Relay Host OCI generation
+
+### Groomed
+
+- Added G-093 to Host R1 after the accepted G-080 alpha measurement exposed an
+  889,827,989-byte image whose largest layer includes 624 MB of historical
+  release artifacts plus repository tooling and browser/build state.
+- Scoped the outcome beyond one-time trimming: one versioned command shared by
+  local development and CI must build the optimized image, audit path/layer/
+  package contents, enforce size and security budgets, generate the SBOM and
+  signed manifest, run conformance, and emit a stable version/platform evidence
+  bundle that a later authorized release can promote without rebuilding.
+- Set a default arm64 acceptance ceiling of 300 MB and at least 60% reduction,
+  with an operator gate for revision only after the essential-runtime floor is
+  demonstrated. Preserved every G-080 runtime, isolation, durability,
+  rollback, native-module and reproducibility guarantee.
+- Made G-093 a Host R1 release requirement before the G-025 customer-identical
+  staging gate. No image push, registry write, publish, release, version bump or
+  other external action was authorized.
+
 ## 2026-07-16 — Complete G-079 Relay Host authority and isolation contract
 
 ### Completed

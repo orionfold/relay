@@ -1,50 +1,94 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { RuntimePreferenceModal } from "./runtime-preference-modal";
+
+const PROMPT_IMPRESSION_WRITE_FAILED =
+  "MODEL_PREFERENCE_PROMPT_IMPRESSION_WRITE_FAILED";
+
+interface PromptClaimResponse {
+  claimed?: boolean;
+  error?: string;
+  message?: string;
+}
+
+/** The server could not durably claim this instance's one prompt impression. */
+export class PromptImpressionClaimError extends Error {
+  readonly code: string;
+
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "PromptImpressionClaimError";
+    this.code = code;
+  }
+}
+
+async function defaultClaimPromptImpression(): Promise<boolean> {
+  const response = await fetch(
+    "/api/settings/chat/model-prompt-impression",
+    { method: "POST" }
+  );
+  const data = (await response.json().catch(() => null)) as PromptClaimResponse | null;
+  if (!response.ok) {
+    throw new PromptImpressionClaimError(
+      data?.error ?? PROMPT_IMPRESSION_WRITE_FAILED,
+      data?.message ??
+        "Relay could not record the default-model prompt. Choose a model in Settings after storage is available."
+    );
+  }
+  return data?.claimed === true;
+}
 
 /**
  * First-launch trigger for the runtime preference modal.
  *
- * Mounted in the root layout so it runs on every page load. After a single
- * GET to /api/settings/chat, decides whether to show the onboarding modal:
- *
- *   - `defaultModelRecorded === false` AND `modelPreference === null`
- *       → show the modal
- *   - any other state → no-op (the user has already been asked or the
- *     setting was hand-edited)
- *
- * Both Confirm and Skip persist a record, so subsequent loads will see
- * `defaultModelRecorded === true` and skip the modal.
+ * Mounted in the root layout so it runs on every page load. The server
+ * atomically claims the single automatic prompt impression before this client
+ * opens the modal. Because that marker lives in the settings DB under
+ * RELAY_DATA_DIR, closing the browser mid-prompt, reloading, starting another
+ * browser, or restarting Relay cannot make the prompt recur.
  */
-export function RuntimePreferenceBootstrapper() {
+export function RuntimePreferenceBootstrapper({
+  claimPromptImpression = defaultClaimPromptImpression,
+}: {
+  claimPromptImpression?: () => Promise<boolean>;
+} = {}) {
   const [open, setOpen] = useState(false);
+  const claimPromise = useRef<Promise<boolean> | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    fetch("/api/settings/chat")
-      .then((r) => (r.ok ? r.json() : null))
-      .then(
-        (data: {
-          defaultModelRecorded?: boolean;
-          modelPreference?: string | null;
-        } | null) => {
-          if (cancelled || !data) return;
-          // First launch = no defaultModel record yet, no preference logged.
-          // The two flags are independent because /api/settings/chat
-          // surfaces the raw existence separately from the coerced default.
-          if (!data.defaultModelRecorded && data.modelPreference == null) {
-            setOpen(true);
-          }
-        }
-      )
-      .catch(() => {
-        // Silent — fetch failure should never break the app shell.
+    // React Strict Mode replays effect setup/cleanup in development. Keep the
+    // single in-flight promise attached to this component instance. Each setup
+    // observes that same result, while its cleanup still prevents state/toast
+    // updates after a real unmount.
+    let active = true;
+    claimPromise.current ??= claimPromptImpression();
+
+    claimPromise.current
+      .then((claimed) => {
+        if (active && claimed) setOpen(true);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        const code =
+          error instanceof PromptImpressionClaimError
+            ? error.code
+            : PROMPT_IMPRESSION_WRITE_FAILED;
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Relay could not record the default-model prompt. Choose a model in Settings after storage is available.";
+        toast.error("Default-model setup could not start", {
+          id: "default-model-prompt-impression-failed",
+          description: `${code}: ${message}`,
+          duration: 15_000,
+        });
       });
     return () => {
-      cancelled = true;
+      active = false;
     };
-  }, []);
+  }, [claimPromptImpression]);
 
   if (!open) return null;
   return <RuntimePreferenceModal open={open} onClose={() => setOpen(false)} />;
