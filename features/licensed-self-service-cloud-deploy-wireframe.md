@@ -96,7 +96,7 @@ or denied authorization preserves the draft and gives a safe retry.
 ```text
 ┌ Installing Host plan 6f2… · estimated recurring cost $…–$… ───────────────┐
 │ ✓ VM, firewall and backup                                                   │
-│ ✓ Signed Relay Host artifact                                                │
+│ ✓ npm Host supervisor + signed Relay Cell image                             │
 │ ✓ Host supervisor and authenticated ingress                                │
 │ ● Cell acme                                           verifying isolation  │
 │ ○ Runtime route and resource limits                                         │
@@ -112,7 +112,7 @@ On partial failure, the success styling disappears and is replaced by:
 ```text
 Partially provisioned — two resources may still incur charges.
 Created: VM, firewall. Missing: Host supervisor, cell.
-Cause: Host rejected image digest (HOST_ARTIFACT_UNVERIFIED).
+Cause: Host rejected Cell-image digest (HOST_ARTIFACT_UNVERIFIED).
 [Resume from failed step] [Roll back created resources] [Open exact resources ↗]
 ```
 

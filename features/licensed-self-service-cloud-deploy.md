@@ -33,6 +33,65 @@ credentials, destructive replacement, or recurring charges.
 - An enterprise evaluator wants to understand distributed, hybrid, database,
   recovery, and portability tradeoffs before committing.
 
+## Plain-language model and four common setups
+
+Think of the **Host** as the machine and the **Cell** as one complete Relay
+workspace running on that machine. A Cell owns its own application process,
+data directory, database, files, credentials, identity, license, logs, network
+route, resource limits, and backups. Customer records, projects, and folders
+inside a Cell organize work; they do not isolate one customer's data or secrets
+from another customer.
+
+The Host administrator can control and inspect every Cell on that Host. Put two
+customers on the same Host only when both accept that administrator. Use a
+different VM or machine when they need protection from one another or from the
+Host administrator.
+
+### 1. I only want Relay on my laptop for myself
+
+Run `npx orionfold-relay`. The npm package starts one local Relay process, which
+is your one Cell. Your laptop is the machine hosting it, but you do not need the
+managed-Host supervisor or an OCI registry for this simple path. Your Relay data
+stays in that Cell's local data directory.
+
+### 2. I use my laptop to manage several customers
+
+Your laptop becomes a managed Host. Today you can isolate customers manually by
+running a separate Relay process and `RELAY_DATA_DIR` for each one. The planned
+G-083 path installs the Host supervisor through npm and lets it run one
+digest-pinned OCI Cell container per customer, each with separate storage,
+networking, identity, secrets, license, logs, and backups. A customer row,
+project, or folder inside one Cell is not a substitute for this separation.
+
+Because you administer the laptop, every customer on it must trust you. A
+customer that does not accept that trust needs a separate VM or machine.
+
+### 3. I run Relay for customers from my own server
+
+Your server is the Relay Host. npm installs the CLI and, under G-083, the Host
+supervisor. The supervisor pulls the signed Relay Cell image from the approved
+OCI registry and starts a separate Cell for each customer. Customers reach only
+their Cell through authenticated Host ingress; they do not receive the Host
+supervisor or container-runtime access.
+
+You remain the trusted Host administrator and can manage every resident Cell.
+This is suitable for customers who accept your administration. Use a separate
+server or VM for a customer that requires a different administrative boundary.
+
+### 4. My provider gave me Relay, but I run it on my own server
+
+Your server is your Relay Host even if it runs only one Cell. The npm-installed
+Host supervisor pulls and verifies the same Relay Cell image, then stores that
+Cell's data and backups under your ownership. You are the Host administrator.
+Your provider may guide or automate lifecycle work only through authority you
+grant; v1 does not depend on an Orionfold-hosted control plane holding permanent
+provider credentials or customer content.
+
+The short distribution rule is therefore: **npm supplies the direct local path
+and the managed-Host control software; the OCI registry supplies the managed
+Cell runtime image.** One release manifest binds the compatible versions and
+exact image digest.
+
 ## Approved product assumptions
 
 1. The cloud account, resources, bill, data, and long-lived provider credentials
@@ -298,7 +357,7 @@ always linked.
 | Scheduling | One scheduler/executor owner per cell | Distributed leases/queue begin only when one cell requires multiple writers/workers |
 | Live events | Per-cell SSE/DB polling | Pub/sub begins only with multiple Relay replicas for one cell |
 | Runtime | Reuse endpoint registry; add Host-local/private lifecycle | Independent runtime fleet begins only when same-host capacity fails |
-| Distribution | Common release manifest; npm local and signed OCI Host/cell artifact | Local device and cloud VM report identical Relay/schema compatibility |
+| Distribution | Common release manifest; npm supplies direct local Relay plus managed-Host bootstrap/supervisor, while the OCI registry supplies the immutable Cell image | Local device and cloud VM report identical Relay/Cell schema compatibility; npm never embeds OCI bytes |
 | Observability | Local diagnostics and optional redacted operational events | No content telemetry; exported sink requires an explicit schema/privacy review |
 
 ## Database decision rule
@@ -362,7 +421,7 @@ estimate. Model API/token charges are never folded into infrastructure cost.
   limits are mandatory. Host administrators remain trusted and this is visible.
 - Cells run non-root and non-privileged with dropped capabilities, private
   networking, default sandbox controls and a read-only root filesystem wherever
-  the signed artifact proves compatibility. Supervisor/runtime sockets are
+  the signed Cell image proves compatibility. Supervisor/runtime sockets are
   never mounted into cells.
 - Outbound provider/runtime URLs retain scheme validation, redirect refusal,
   bounded timeouts, secret redaction, and a separately planned DNS/SSRF defense.
@@ -422,8 +481,9 @@ The implementation program must remain a sequence of independently valuable
 releases rather than one cloud-deploy launch:
 
 1. G-058 → G-060 → G-079 freezes truthful Host/cell trust and authority.
-2. G-080 and G-081 may proceed in parallel; G-082 follows the signed artifact;
-   G-083 waits for all three implementation foundations.
+2. G-080 and G-081 may proceed in parallel; G-082 follows the signed Cell
+   image; accepted G-093 and G-025 prepare G-094 to publish it; G-083 waits for
+   G-081/G-082 plus the G-094 registry release.
 3. G-084 ships the licensed local/fake-VM lifecycle before G-085 adds a live
    DigitalOcean beta. G-086 proves portability before broad GA claims but does
    not block a demand-validated G-085 beta.

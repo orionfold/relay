@@ -189,7 +189,7 @@ the minimum registry contract. G-079 freezes these additional invariants:
 
 ## Downstream contract
 
-- **G-080** supplies the signed artifact and measured resource/isolation evidence.
+- **G-080** supplies the signed Relay Cell image and measured resource/isolation evidence.
 - **G-081** supplies authenticated remote identity and server-owned cell routing;
   it must preserve the accepted owner/actor semantics.
 - **G-082** supplies checkpoint, export, secret rotation and recovery evidence

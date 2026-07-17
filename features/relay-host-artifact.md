@@ -1,18 +1,18 @@
 ---
-title: Relay Host/cell OCI artifact
+title: Relay Cell OCI artifact for managed Relay Hosts
 status: accepted
 goal: G-080
 date: 2026-07-16
 authority: features/relay-host-authority-isolation-contract.md
 ---
 
-# Relay Host/cell OCI artifact
+# Relay Cell OCI artifact for managed Relay Hosts
 
 ## Outcome
 
-Relay can be built as an immutable Linux OCI image from the same locked source
-and package version as the npm distribution. A customer-owned Relay Host can
-start multiple cells from that image with distinct mounts, private networks and
+Relay can be built as an immutable Linux **Cell** image from the same locked
+source and package version as the npm distribution. A customer-owned Relay Host
+can start multiple Cells from that image with distinct mounts, private networks and
 loopback-published ports. Each cell runs non-root with a read-only root, exposes
 private liveness/readiness endpoints, drains background claimers on signals and
 checkpoints SQLite before exit.
@@ -23,13 +23,28 @@ digest, source revision and an explicit rollback digest. Mutable tags never
 authorize launch. Registry publication, release/version changes and public
 support/capacity claims remain separate operator gates.
 
+## Distribution boundary
+
+- **npm:** ships the Relay CLI and current direct local single-Cell runtime.
+  G-083 extends that same package with the managed-Host bootstrap/supervisor.
+- **OCI registry:** ships the immutable Relay Cell runtime image used by a
+  managed Host. The image contains no Host supervisor and has no Host/Cell mode
+  switch.
+- **Common release manifest:** binds the npm version, Host supervisor
+  compatibility and exact Cell-image digest. The npm tarball carries the
+  reference and verifier, never the OCI image bytes.
+
+Internal filenames and commands retain the historical `relay-host-artifact`
+name for compatibility; in product and architecture language the emitted OCI
+payload is a **Relay Cell image**.
+
 ## Scope challenge
 
 - **REDUCE:** manifest only. Rejected because it cannot prove the native module,
   data durability or isolation contracts.
 - **PROCEED:** one digest-pinned, signed local OCI artifact plus executable
   one-Host/two-cell conformance. Selected.
-- **EXPAND:** registry publication, cosign/OIDC, multi-architecture release,
+- **EXPAND:** registry publication, cosign/OIDC, multi-architecture Cell release,
   supervisor and cloud-provider adapters. Deferred to authorized release and
   G-083/G-085.
 

@@ -1,5 +1,5 @@
 ---
-title: G-093 Relay Host OCI optimization implementation plan
+title: G-093 Relay Cell OCI optimization implementation plan
 status: completed
 goal: G-093
 specification: features/relay-host-oci-image-optimization.md
@@ -18,7 +18,7 @@ date: 2026-07-16
   explicit instruction to complete the approved goal.
 - **EXPAND:** publish multi-architecture images or add registry signing.
   Deferred because each changes external authority and is not required to
-  prove the R1 local Host artifact. The measured implementation did select a
+  prove the R1 local Cell image on a Relay Host. The measured implementation did select a
   digest-pinned distroless Node runtime after it passed native, health,
   non-root/read-only, TLS, SBOM and full lifecycle conformance.
 

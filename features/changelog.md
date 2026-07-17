@@ -1,6 +1,25 @@
 # Feature Changelog
 
-## 2026-07-17 — Complete G-093 optimized Relay Host OCI production
+## 2026-07-17 — Clarify Relay Host and Cell distribution channels
+
+### Amended
+
+- Corrected the durable Host deployment documents and TDR-044: npm remains the
+  direct local single-Cell channel and will deliver the managed-Host
+  bootstrap/supervisor under G-083; the OCI registry distributes only the
+  immutable Relay Cell runtime image.
+- Renamed product-facing OCI terminology from “Relay Host image” or ambiguous
+  “Host/cell artifact” to “Relay Cell image.” The Cell image contains no Host
+  supervisor and exposes no Host/Cell mode switch; historical internal
+  `relay-host-artifact` filenames and commands remain stable.
+- Amended G-094 to publish signed multi-architecture Cell images and bind their
+  immutable digest to the npm-delivered Host control channel through one release
+  manifest.
+- Added four plain-language deployment stories—personal laptop, multi-customer
+  laptop, operator-owned server and customer-owned server—to the architecture,
+  engineering and customer guides, then regenerated the bundled Chat knowledge.
+
+## 2026-07-17 — Complete G-093 optimized Relay Cell OCI production
 
 ### Completed
 
@@ -61,7 +80,7 @@
   Skip behavior, and expose a named visible failure when the marker cannot be
   written.
 
-## 2026-07-16 — Groom G-093 optimized repeatable Relay Host OCI generation
+## 2026-07-16 — Groom G-093 optimized repeatable Relay Cell OCI generation
 
 ### Groomed
 

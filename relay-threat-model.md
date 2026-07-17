@@ -119,8 +119,10 @@ Open questions that would change ranking:
 - **Model endpoint:** BYOK external API, private provider runtime or later hybrid
   tunnel.
 - **Backup store:** customer-owned storage for encrypted versioned recovery.
-- **Release supply chain:** current npm inputs plus future signed OCI artifact,
-  manifest, digest, SBOM and schema metadata.
+- **Release supply chain:** the npm package supplies the CLI, direct local
+  single-Cell path and future Host bootstrap/supervisor; the OCI registry
+  supplies the signed immutable Cell image. One release manifest binds their
+  versions, digest, SBOM and schema metadata; npm never embeds the image bytes.
 
 ### Data flows and trust boundaries
 
@@ -164,9 +166,10 @@ Open questions that would change ranking:
 - Relay cell → Backup store: DB/files/settings, manifests, hashes and encryption
   metadata cross provider SDK/HTTPS. `src/lib/snapshots/*` only creates local
   artifacts today; off-host key and restore semantics are future work.
-- Release pipeline → Customer provider: OCI layers, digest, manifest and SBOM
-  cross a registry. Current npm distribution has no OCI provenance contract;
-  mutable tags cannot be authoritative.
+- Release pipeline → Customer Host: Cell-image layers, digest, manifest and SBOM
+  cross an OCI registry. The npm-installed Host supervisor pulls and verifies
+  the digest-pinned image; mutable tags cannot be authoritative and a Cell image
+  never contains the supervisor or Host runtime socket.
 - Relay process → Orionfold/support: current license verification is offline using
   embedded public keys. Support evidence is customer-exported and redacted; no
   prompts, documents, model responses or other customer content may flow here.
@@ -204,7 +207,7 @@ flowchart TD
 | Topology manifest and lifecycle receipts | Tampering can redirect resources, hide cost or break rescue | I, A |
 | Host supervisor registry and routing map | Wrong ownership, port, mount or route can cross tenant boundaries | C, I, A |
 | Cell isolation resources | Networks, mounts, identities and limits are the tenant boundary on a shared Host | C, I, A |
-| OCI artifact and release metadata | Compromise gives code execution in every deployed instance | I, A |
+| Relay Cell OCI image and release metadata | Compromise gives code execution in every managed Cell | I, A |
 | Backup ciphertext, keys and manifest | Exposure leaks all data; loss/tampering makes recovery impossible | C, I, A |
 | Runtime endpoint policy | Misrouting can send prompts/keys to attacker infrastructure | C, I |
 | Provider budget and capacity | Retry or compute abuse can cause denial of wallet/service | I, A |

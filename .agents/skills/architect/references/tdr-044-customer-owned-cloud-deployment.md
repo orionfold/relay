@@ -3,7 +3,7 @@ id: TDR-044
 title: Customer-owned Relay Host with isolated cells
 status: accepted
 date: 2026-07-15
-amended: 2026-07-16 (G-060 local Host supervisor contract)
+amended: 2026-07-16 (G-060 local Host supervisor contract); 2026-07-17 (Host/Cell distribution boundary)
 accepted: 2026-07-16 (G-079 authority and isolation contract)
 goal: G-078, G-060, G-079
 ---
@@ -52,6 +52,24 @@ to a device-or-server appliance that can host one or more isolated Relay cells.
 
 ## Decision
 
+### Plain-language vocabulary
+
+- A **Host** is the laptop, workstation, home server, or cloud VM that owns the
+  operating-system boundary and runs Relay. In managed mode it also runs the
+  Host supervisor, ingress, backup transport, and optional local model runtime.
+- A **Cell** is one complete Relay instance for one customer trust boundary. It
+  has its own process/container, data directory, SQLite database, files,
+  identity, secrets, license, logs, network route, resource limits, and backup
+  history.
+- A **customer, project, or folder** is an organizing record inside a Cell. It
+  is useful for attribution and workflow, but it is not a security boundary.
+- The **Host supervisor** is the local control program that creates, verifies,
+  starts, stops, upgrades, backs up, and removes Cells on that Host. It does not
+  process customer work and it is not inside the Cell image.
+- The **Relay Cell image** is the packaged Relay application pulled from an OCI
+  registry. Starting the same image more than once with separate resources
+  creates separate Cells; it never turns into the Host supervisor.
+
 Adopt a **customer-owned Relay Host with isolated cells** as the first reference
 architecture. The same host contract runs on a local device, home/office server,
 or cloud VM.
@@ -74,10 +92,14 @@ or cloud VM.
 4. Cell endpoints publish only to host loopback or a private network. An
    approved reverse proxy, VPN/tailnet, or authenticated Relay ingress exposes
    them remotely. No cell or model-runtime port is wildcard-public by default.
-5. The local-device and cloud-server products use the same signed artifact,
-   cell manifest, lifecycle operations, backup/export format, and verification.
-   Cloud deployment provisions a host and installs this appliance; it does not
-   require Relay to become a distributed PaaS application.
+5. The local-device and cloud-server products use the same release manifest,
+   Cell image, lifecycle operations, backup/export format, and verification.
+   The direct local npm path may run one Relay process as one Cell without the
+   Host supervisor. The managed Host path installs the Host bootstrap and
+   supervisor through the Relay npm package, then pulls the digest-pinned Cell
+   image from the approved OCI registry. Cloud deployment provisions a Host and
+   applies this same contract; it does not require Relay to become a distributed
+   PaaS application.
 6. The customer owns the host/provider account, bill, resources, data, and
    long-lived provider credentials. A deployment authorization is short-lived
    and scoped; v1 has no Orionfold-hosted control plane retaining credentials.
@@ -98,9 +120,14 @@ or cloud VM.
     runtime across cells is allowed only inside one customer trust boundary or
     behind per-cell credentials, quotas, log isolation, and an explicit operator
     decision; public unauthenticated runtime ports are prohibited.
-11. Publish one signed immutable OCI artifact derived from the npm release. A
-    versioned host/cell manifest supplies local lifecycle and provider bootstrap
-    inputs without leaking provider branches into Relay Core.
+11. Publish one signed immutable **Relay Cell OCI image** derived from the same
+    locked source and version as the npm release. Continue to deliver the Relay
+    CLI, direct local single-Cell runtime, and future Host bootstrap/supervisor
+    through npm; the npm package contains an immutable Cell-image reference and
+    verification contract, not the image bytes. A versioned Host/Cell manifest
+    supplies local lifecycle and provider-bootstrap inputs without leaking
+    provider branches into Relay Core. The Cell image never contains or starts
+    the Host supervisor and has no Host/Cell mode switch.
 12. Gate host provisioning, cell creation, upgrade, transfer, and destructive
     lifecycle automation with `product:relay-cloud-deploy`. License loss never
     deletes/encrypts data or blocks verified export, recovery, or direct host/
@@ -172,7 +199,7 @@ or cloud VM.
 | Model runtimes | A endpoint protocol; B host-local/private lifecycle adapter | runtime capacity must scale independently of a host or span trust boundaries |
 | Backup/restore | B: local archive plus object-storage transport using one manifest | recovery testing demonstrates a need for continuous database replication |
 | Observability | B: local evidence plus optional redacted sink | a managed service is separately approved with telemetry policy |
-| Distribution | B: npm/local plus signed OCI appliance from one release manifest | one artifact can preserve both zero-friction local install and host operations |
+| Distribution | B: npm provides the CLI, direct local single-Cell path and managed-Host bootstrap/supervisor; the OCI registry provides the signed immutable Cell image; one release manifest binds both | revisit only if npm cannot safely deliver the Host control surface or a non-container Cell target becomes required |
 
 ## Consequences
 
@@ -267,6 +294,11 @@ hardening, transfer/revocation and provisional admission contract. Acceptance
 closes the R0 architecture gate and authorizes dependent implementation goals to
 use this contract. It does not approve a provider, publication, release, paid
 deployment, remote control plane, compliance claim or external write.
+
+The 2026-07-17 terminology amendment makes the distribution boundary explicit:
+npm is the Host bootstrap/control channel and remains the direct local
+single-Cell channel; an OCI registry is the managed-Host Cell-runtime channel.
+It changes no accepted isolation or authority decision.
 
 ## References
 

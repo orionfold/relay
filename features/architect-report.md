@@ -1,94 +1,25 @@
 ---
 generated: 2026-07-17
-mode: impact
+mode: tdr
 ---
 
 # Architect Report
 
-## Change Impact Analysis — G-093 Relay Host OCI optimization
+## TDR-044 amendment — Host/Cell distribution boundary
 
-### Accepted change
+TDR-044 remains accepted. Its distribution decision is now explicit:
 
-Replace G-080's broad checkout-to-build-stage boundary with an explicit Relay
-build surface, then make the resulting OCI artifact measurable and enforceable
-through one local/CI production command. The command retains the accepted Host
-cell runtime, signed manifest and conformance contracts while adding real-archive
-content inspection, deterministic inventories, size/security budgets,
-reproducibility evidence and a stable evidence bundle.
+- npm supplies the Relay CLI, current direct local single-Cell path and future
+  managed-Host bootstrap/supervisor;
+- the OCI registry supplies the immutable Relay Cell runtime image;
+- one release manifest binds npm/supervisor compatibility to the exact Cell
+  image digest; and
+- the Cell image contains no supervisor and has no Host/Cell mode switch.
 
-### Blast radius
-
-| Layer | Primary surfaces | Impact |
-|---|---|---|
-| Build/distribution | `Dockerfile.relay-host`, `.dockerignore`, `next.config.mjs` | constrain build inputs and standalone tracing without changing the npm path |
-| Artifact policy | `config/relay-host-artifact-policy.json`, `scripts/lib/relay-host-artifact-policy.mjs`, artifact build scripts | inventory real OCI layers and enforce named content, size, component and vulnerability failures |
-| Supply-chain evidence | manifest creation/verification, stable output bundle, checksum/summary receipts | bind optimized artifact evidence to authoritative source, lockfile, base and policy inputs |
-| CI/conformance | `package.json`, `.github/workflows/relay-host-contract.yml`, G-080 smoke | invoke the same production command locally and in CI, then re-prove the complete Host contract |
-
-**Classification:** High — four infrastructure/supply-chain surfaces and a
-customer-installable runtime artifact. Relay application data/API behavior is
-unchanged, but a packaging mistake could remove a runtime asset or leak private
-operator material.
-
-### Dependency trace
-
-```text
-tracked Relay source + lockfile + pinned base + OCI policy
-  -> explicit Docker build surface
-  -> Next standalone trace + explicit runtime assets
-  -> loaded image and OCI archive
-  -> real-layer inventory/content policy + SBOM/vulnerability policy
-  -> reproducibility comparison
-  -> signed manifest + checksums + parseable summary
-  -> G-080 two-cell/native/persistence/export/rollback conformance
-  -> G-025 customer-identical staging gate
-```
-
-### Migration requirements
-
-- Database/schema/bootstrap migration: no.
-- Public API or runtime-registry change: no.
-- Artifact contract evolution: yes; add a versioned policy/evidence contract
-  while retaining G-080 manifest compatibility.
-- Feature flag: no; OCI output remains gated by `RELAY_OCI_BUILD=true` and does
-  not affect npm/local development builds.
-
-### TDR implications
-
-- **TDR-044 aligned:** the same signed OCI appliance remains the local/cloud
-  cell artifact, with SQLite/WAL, non-root identity and immutable-digest launch.
-- **No new TDR required:** G-093 strengthens the already accepted distribution
-  posture. It selects a digest-pinned distroless Node runtime without changing
-  the Host trust, authority, data, registry, signer or publication contracts.
-- TDR-044 would need amendment only if a future base change weakened the
-  accepted isolation/support posture or introduced a different runtime model.
-
-### Risk assessment
-
-| Risk | Guard |
-|---|---|
-| Required dynamic asset disappears from standalone output | explicit runtime copies plus native/PDF/knowledge/pack and full G-080 smoke |
-| Policy scans source instead of shipped bytes | parse the actual OCI index, manifest and compressed layer blobs |
-| Cache changes the shipped runtime surface | compare cached and clean no-cache platform, file count and exact path/mode/link inventory; retain compiled-content digests as diagnostics |
-| Vulnerability or component output is ambiguous | retain machine-readable SBOM/SARIF and fail closed on unattributed or unapproved critical/high results |
-| Local dirty build is mistaken for publishable | preserve `dirty-local` identity and make the summary explicitly non-publishable |
-| Optimization expands into release/publication | generation has no push, registry, release or provider action; promotion remains separately gated |
-
-### Accepted implementation and review
-
-The implementation constrains build inputs, explicitly assembles traced runtime
-assets, and uses a digest-pinned distroless Node 22 Debian 13 final stage. A
-reusable OCI reader enforces exact allowed surfaces, required files, size/layer/
-native budgets and forbidden content against the real archive. Checksum-pinned
-Trivy produces an attributed CycloneDX inventory and zero-high/critical gate.
-
-Fresh review additionally hardened cached scanner extraction, empty scanner
-reports, amd64-compatible musl pruning, bundle-wide checksum verification and
-the deterministic v0.42.2 rollback fixture. The final 129,913,772-byte arm64
-image is 85.40% below baseline and passed the complete G-080 lifecycle contract.
-No architecture, security or release-blocking findings remain. G-025 is the
-next customer-identical staging gate.
+This is a terminology and channel-boundary clarification, not a change to the
+accepted Host/Cell isolation architecture. Internal build-command names remain
+stable to avoid needless compatibility churn.
 
 ---
 
-*Generated by `/architect` — change impact mode*
+*Generated by `/architect` — TDR management mode*

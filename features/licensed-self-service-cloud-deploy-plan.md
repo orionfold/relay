@@ -112,12 +112,13 @@ mere architectural alignment:
 | G-079 (accepted) | G-058, G-060 | accepted Host/cell vocabulary, trust, authority, hardening and first topology | freezes the architecture contract for every implementation stream |
 | G-034 | — | complete before G-080 unless G-080 independently proves the native binding, PDF pipeline and externalization debt clean in its target artifact | lowers OCI/native-package risk without becoming an unrelated modernization umbrella |
 | G-038 | — | instance-local marker must be scoped by the same per-cell `RELAY_DATA_DIR` contract | immediate first-run reliability and a clean cell-isolation invariant |
-| G-080 | G-079 | G-034 conditional preflight; G-036 remains trigger-only based on measured tarball/install cost | signed local/cloud Host artifact and local two-cell alpha |
+| G-080 | G-079 | G-034 conditional preflight; G-036 remains trigger-only based on measured tarball/install cost | signed Relay Cell image and local two-cell Host alpha |
+| G-094 | G-025 acceptance after G-093 | reuses G-080/G-093 image policy; registry, signing identity and every external write remain operator-gated | published signed multi-architecture Cell image for managed Hosts |
 | G-081 | G-079 | may run in parallel with G-080; any container/Host ingress claim must be rerun against the G-080 artifact | authenticated remote Host access and server-owned cell routing |
 | G-082 | G-079, G-080 | reuse existing snapshot contracts; connector secrets/backups consume this contract | recoverable, portable cells and per-cell secret roots |
 | G-020 | — | G-084 must reuse its dated freshness/staleness semantics or explicitly own a separate cloud-price catalog contract | prevents duplicated or falsely-current estimate behavior |
 | G-030 | — | G-083/G-084 reuse retain-by-default versus separately confirmed purge semantics | immediate removal clarity and consistent destructive-language policy |
-| G-083 | G-079, G-080, G-081, G-082 | G-030 retention semantics; entitlement policy remains operator-gated | paid local Host supervisor beta and stable Host/cell lifecycle API |
+| G-083 | G-079, G-080, G-081, G-082, G-094 | G-030 retention semantics; entitlement policy remains operator-gated | npm-delivered paid local Host supervisor beta and stable Host/Cell lifecycle API |
 | G-084 | G-083 | G-020 freshness semantics; G-030 retention language | customer-visible local-device/cloud-Host lifecycle journey |
 | G-085 | G-084 | provider account, credentials, spend, hostname, security review and release approval | first DigitalOcean customer beta |
 | G-086 | G-085 plus demand trigger | second provider/hardware authorization; does not block a demand-validated G-085 beta | portability evidence required before GA portability claims |
@@ -156,11 +157,11 @@ improvements.
 | Increment | Ordered goals | Customer value | Release boundary |
 |---|---|---|---|
 | **R0 — Isolation contract** | G-058 → G-060 → G-079 | customers and operators can tell attribution from a real security boundary and choose same-Host versus separate-VM placement truthfully | approved Host/cell contract, trust copy and TDR disposition; no provisioning claim |
-| **R1 — Local Host alpha** | G-034 conditional preflight; G-038 parallel quick win; G-080 → G-025 | reproducible local-device installation, isolated cell data roots and a signed artifact; first-run prompts no longer recur per cell | local one-Host/two-cell smoke, package/native checks, rollback/export and customer-identical staging |
+| **R1 — Local Host alpha** | G-034 conditional preflight; G-038 parallel quick win; G-080 → G-025 | reproducible local-device installation, isolated Cell data roots and a signed Cell image; first-run prompts no longer recur per Cell | local one-Host/two-cell smoke, package/native checks, rollback/export and customer-identical staging |
 | **R2 — Secure and recoverable Host alpha** | G-081 in parallel with G-082 → G-025 | authenticated remote use plus encrypted off-Host recovery and portable export, useful even before automated cloud provisioning | independent security review, destroyed-Host restore drill and staging journey |
-| **R3 — Licensed local Host beta** | G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 → G-025 | paid self-service Host/cell lifecycle on a local device and fake VM, with truthful estimates, retention, rescue and receipts | entitlement/lifecycle acceptance, real-browser journey and staging release candidate |
+| **R3 — Licensed local Host beta** | G-094; G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 → G-025 | npm-delivered Host supervisor, registry-delivered Cell image and paid self-service Host/Cell lifecycle on a local device and fake VM | signed registry Cell image, entitlement/lifecycle acceptance, real-browser journey and staging release candidate |
 | **R4 — DigitalOcean beta** | G-085 → G-025 | an end customer can provision and operate one customer-owned DigitalOcean Relay Host with verified bill, cleanup and recovery | operator-approved external conformance, spend reconciliation and beta release |
-| **R5 — Portable Host GA** | G-086 | the same signed appliance works on a second VM provider or representative customer hardware | second-target conformance and approved portability/GA claim |
+| **R5 — Portable Host GA** | G-086 | the same npm Host control surface, Host/Cell manifest and signed Cell-image digest work on a second VM provider or representative customer hardware | second-target conformance and approved portability/GA claim |
 
 Parallel value stream after R0:
 
@@ -230,10 +231,12 @@ rescue, customer-authorized transfer/revocation, content-free authority metadata
 and provisional admission values. TDR-044 is accepted and no later goal needs to
 invent customer/instance semantics.
 
-### G-080 — Produce a signed Relay Host/cell artifact
+### G-080 — Produce a signed Relay Cell OCI artifact
 
-Goal: create immutable Host/cell OCI artifacts and launch/data contracts from the
-same release manifest as npm Relay, usable on a local device or cloud VM.
+Goal: create an immutable Relay Cell OCI image and launch/data contracts from
+the same release manifest as npm Relay, usable by a managed Host on a local
+device or cloud VM. npm remains the direct local single-Cell path and later
+delivers the Host bootstrap/supervisor; it never embeds the image bytes.
 
 Expected new/changed surfaces:
 
@@ -402,8 +405,9 @@ real browser before any live provider is connected.
 
 ### G-085 — Prove the DigitalOcean single-server Relay Host
 
-Goal: provision one clean DigitalOcean VM, install the signed Relay Host, and
-prove local/cloud appliance parity plus one-cell and same-host multi-cell use.
+Goal: provision one clean DigitalOcean VM, install the npm-delivered Relay Host
+supervisor, pull the signed Relay Cell image by digest, and prove local/cloud
+appliance parity plus one-cell and same-host multi-cell use.
 
 Operator gates before live work: approve DigitalOcean OAuth/token scopes,
 provide/authorize account and spending cap, approve target region and temporary
@@ -426,9 +430,10 @@ recorded isolation, recovery, operations and actual spend.
 
 ### G-086 — Prove Relay Host portability before GA
 
-Goal: after DigitalOcean/customer demand, install the identical Host/cell
-manifest on a second VM provider or representative local server and prove the
-appliance is portable. PaaS single-cell proof is separate and trigger-gated.
+Goal: after DigitalOcean/customer demand, install the identical npm-delivered
+Host supervisor and Host/Cell manifest on a second VM provider or representative
+local server, pull the same Cell-image digest, and prove the appliance is
+portable. PaaS single-cell proof is separate and trigger-gated.
 
 Operator gates before live work: choose the second Host target (recommended
 Hetzner or customer hardware), authorize machine/account/spending and approve

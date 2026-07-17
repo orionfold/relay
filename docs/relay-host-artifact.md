@@ -1,8 +1,49 @@
-# Relay Host cell artifact
+# Relay Cell OCI artifact
 
-This is the engineering contract for the G-080/G-093 Relay Host/cell OCI artifact.
+This is the engineering contract for the G-080/G-093 Relay Cell OCI artifact.
 It is a local alpha input to the customer-owned Relay Host release train, not a
 published image, paid-edition entitlement, or public capacity/support claim.
+
+## Distribution boundary
+
+- `npx orionfold-relay` remains the direct local single-Cell path. G-083 will
+  add the managed-Host bootstrap/supervisor to the same npm package.
+- A managed Host pulls this immutable Cell image from the approved OCI registry
+  and runs one container per Cell. The image never contains or starts the Host
+  supervisor and offers no Host/Cell mode switch.
+- The common release manifest binds npm/supervisor compatibility to an exact
+  Cell-image digest. The npm package references and verifies the image but does
+  not contain its bytes.
+
+The checked-in `Dockerfile.relay-host`, `host:artifact:*` scripts and output
+directory retain historical internal names for compatibility. Their OCI output
+is a Relay Cell image.
+
+## Host and Cell in plain terms
+
+A **Host** is a laptop or server that owns the machine, storage, networking, and
+administrative controls. A **Cell** is one complete Relay instance on that Host,
+with its own database, files, identity, secrets, license, logs, limits, and
+backup history. A customer row, project, or folder inside Relay organizes work;
+it does not create a separate Cell or security boundary.
+
+Common deployments are:
+
+1. **One person on one laptop:** `npx orionfold-relay` runs one direct local
+   Cell. No OCI image or managed-Host supervisor is required.
+2. **Several customers on one laptop:** the laptop is a Host. Use a separate
+   process and data root per customer today; G-083 will let the npm-installed
+   supervisor run a separate OCI Cell container per customer. Every customer
+   must trust the laptop administrator.
+3. **Several customers on one operator server:** npm installs the Host control
+   surface and the Host pulls one signed OCI Cell image per isolated customer
+   instance. Customers access their own Cell through authenticated ingress.
+4. **One customer on the customer's server:** that server is the customer's
+   Host, even with only one Cell. The customer owns the Host and data; a provider
+   manages it only under explicitly granted authority.
+
+Customers that must not trust the same Host administrator use separate VMs or
+machines, not merely separate folders.
 
 ## What the artifact guarantees
 

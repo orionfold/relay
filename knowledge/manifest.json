@@ -1,9 +1,9 @@
 {
-  "bundleHash": "05be632d46c053836a9931e8754c79d5a0bc97d0eb53b5eeb4d8efaaac7d5c59",
+  "bundleHash": "d808be528203a32d5c8b64f610077f3173210203d23f41f4e715a4cbd5fef815",
   "corpus": {
     "apiDocsVersion": "2026-07-08.initial-plan",
-    "apiTrackerHash": "75511662010351899407510e7475bfee1eddace1004354f183cdf09a06a38bcd",
-    "guideTrackerHash": "d2f64ec0e81c0d45a9faca6ac19d4480fbd0984c42043d9b8acfb754062b56f6",
+    "apiTrackerHash": "67b038ce2ec45d1b309d060ca0e6526ab8b97f57d542eec443b27da845c4f111",
+    "guideTrackerHash": "bd2ff69542ec141a40209397ec1a5279079f4597987c928a663a25f4c4b9e428",
     "guideVersion": "2026-07-09.narrative-book-guide",
     "screenshotManifestHash": "407f643e64fcd405366b709b047fdf69ebdef98aee8bfb5611f42c0d95c591b3"
   },
@@ -59,23 +59,23 @@
       "title": "Packs, Apps, Tables, And Publishing API"
     },
     {
-      "contentHash": "b55f4908f49d83291479c8a96d5e9222a2356bbc141d416e37f6adba21118656",
+      "contentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
       "id": "api:06-settings-license-instance",
       "kind": "api",
       "path": "entries/api.06-settings-license-instance.json",
       "publicUrl": "https://orionfold.com/relay/api/06-settings-license-instance/",
-      "sourceHash": "111b5b33a0a27507d48188070027e01de345be3f48f6a82f570697cdbb301d01",
-      "sourceStateHash": "5e03702c682144e1194c14156ed0666914c96ee9cbc400f9430e4983e199be36",
+      "sourceHash": "5e1fd3f9ebeb668a8f3051184ba4c38f509c87c6c5a5be9ae237c71a4fe36292",
+      "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
       "title": "Settings, License, And Instance API"
     },
     {
-      "contentHash": "23553f671c58855fad741c0ba3b425e98644e086913028fe8e989931f94c769d",
+      "contentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
       "id": "api:07-files-observability-maintenance",
       "kind": "api",
       "path": "entries/api.07-files-observability-maintenance.json",
       "publicUrl": "https://orionfold.com/relay/api/07-files-observability-maintenance/",
-      "sourceHash": "1b89930966f893486fc9268d013b9d9b58e01c5f2cc13851291f56891df4d9b0",
-      "sourceStateHash": "9927036fbf49673203fe31daee8a9376b500928b3fc350cb0772938fef98f7b0",
+      "sourceHash": "af96cf95cb72a19a941f86c4c5b905558de59fd6579ff768f06051ea8753ddc6",
+      "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
       "title": "Files, Observability, And Maintenance API"
     },
     {
@@ -169,20 +169,20 @@
       "title": "Build And Publish A Small Website"
     },
     {
-      "contentHash": "4063cf29634556c2dcebfdb302e05748b1d753c7b3358888cc188dda47c340ac",
+      "contentHash": "01b011947af4d560571c57611dba4e99f55c060fcedefd87f39613d7bc7ea0c3",
       "id": "guide:09-settings-trust",
       "kind": "guide",
       "path": "entries/guide.09-settings-trust.json",
       "publicUrl": "https://orionfold.com/relay/docs/set-trust-runtime-and-local-controls/",
-      "sourceHash": "cb225c3b756d021d8b3a064b73052a0cd35e8f43f3f0c236f0842ea24168919b",
+      "sourceHash": "c0ff943b51feb786d6f4fdb3cae53e92d0d4d216b22492791afceaf284d29d70",
       "sourceStateHash": "bdcfa5cceb7a10b0cb56352dbc50c0758fd0e88e9091f75a5a8e99da69938fde",
       "title": "Set Trust, Runtime, And Local Controls"
     }
   ],
   "entryCount": 17,
-  "indexHash": "1e3110e7b394fdd42fb5838b35ecb6e3ee49ab86551846220f61726d29319910",
+  "indexHash": "6d86ba404757a764cd1788bb34b865753bba7a494d264f7f55699beb1749057d",
   "releaseVersion": "0.43.0",
   "schemaVersion": 2,
-  "sectionCount": 431,
-  "sourceBundleHash": "925c59384bf27805a91f035363398af09d02da8f8aa4c9360133b203b21868b3"
+  "sectionCount": 434,
+  "sourceBundleHash": "37d64bdf364b5c0dbf2c3ac677d78dcf0a1a973e73b76fd9d5d09b475edbf751"
 }

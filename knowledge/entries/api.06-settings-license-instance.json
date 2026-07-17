@@ -17,6 +17,7 @@
     "/api/settings/browser-tools",
     "/api/settings/budgets",
     "/api/settings/chat",
+    "/api/settings/chat/model-prompt-impression",
     "/api/settings/chat/pins",
     "/api/settings/chat/saved-searches",
     "/api/settings/dashboard",
@@ -37,7 +38,7 @@
     "/api/settings/test",
     "/api/settings/web-search"
   ],
-  "contentHash": "b55f4908f49d83291479c8a96d5e9222a2356bbc141d416e37f6adba21118656",
+  "contentHash": "89a6c572b5baa60a206034e9c64a666dcfc1768cdc738a616369a00c513d061f",
   "features": [],
   "id": "api:06-settings-license-instance",
   "journeys": [],
@@ -86,8 +87,8 @@
       "heading": "Endpoints",
       "id": "endpoints",
       "level": 2,
-      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/environment/rescan-if-stale` | `app-internal` | `src/app/api/environment/rescan-if-stale/route.ts` |\n| `GET` | `/api/environment/skills` | `app-internal` | `src/app/api/environment/skills/route.ts` |\n| `GET` | `/api/instance/config` | `app-internal` | `src/app/api/instance/config/route.ts` |\n| `GET` | `/api/instance/identity` | `app-internal` | `src/app/api/instance/identity/route.ts` |\n| `POST` | `/api/instance/init` | `app-internal` | `src/app/api/instance/init/route.ts` |\n| `POST` | `/api/instance/upgrade` | `app-internal` | `src/app/api/instance/upgrade/route.ts` |\n| `POST` | `/api/instance/upgrade/check` | `app-internal` | `src/app/api/instance/upgrade/check/route.ts` |\n| `GET` | `/api/instance/upgrade/status` | `app-internal` | `src/app/api/instance/upgrade/status/route.ts` |\n| `GET`, `POST` | `/api/license` | `app-internal` | `src/app/api/license/route.ts` |\n| `DELETE` | `/api/license/{id}` | `app-internal` | `src/app/api/license/[id]/route.ts` |\n| `GET` | `/api/onboarding/progress` | `app-internal` | `src/app/api/onboarding/progress/route.ts` |\n| `GET`, `POST` | `/api/settings` | `app-internal` | `src/app/api/settings/route.ts` |\n| `GET`, `POST` | `/api/settings/apps` | `app-internal` | `src/app/api/settings/apps/route.ts` |\n| `GET` | `/api/settings/author-default` | `app-internal` | `src/app/api/settings/author-default/route.ts` |\n| `GET`, `POST` | `/api/settings/browser-tools` | `app-internal` | `src/app/api/settings/browser-tools/route.ts` |\n| `GET`, `POST` | `/api/settings/budgets` | `app-internal` | `src/app/api/settings/budgets/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat` | `app-internal` | `src/app/api/settings/chat/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/pins` | `app-internal` | `src/app/api/settings/chat/pins/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/saved-searches` | `app-internal` | `src/app/api/settings/chat/saved-searches/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/dashboard` | `app-internal` | `src/app/api/settings/dashboard/route.ts` |\n| `GET`, `POST` | `/api/settings/environment` | `app-internal` | `src/app/api/settings/environment/route.ts` |\n| `GET` | `/api/settings/glance` | `app-internal` | `src/app/api/settings/glance/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/github` | `app-internal` | `src/app/api/settings/github/route.ts` |\n| `GET` | `/api/settings/github/repositories` | `app-internal` | `src/app/api/settings/github/repositories/route.ts` |\n| `GET`, `POST` | `/api/settings/learning` | `app-internal` | `src/app/api/settings/learning/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/ollama` | `app-internal` | `src/app/api/settings/ollama/route.ts` |\n| `GET`, `POST` | `/api/settings/openai` | `app-internal` | `src/app/api/settings/openai/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/openai/login` | `app-internal` | `src/app/api/settings/openai/login/route.ts` |\n| `POST` | `/api/settings/openai/logout` | `app-internal` | `src/app/api/settings/openai/logout/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/settings/openai-compatible/{runtimeId}` | `app-internal` | `src/app/api/settings/openai-compatible/[runtimeId]/route.ts` |\n| `GET`, `POST` | `/api/settings/pricing` | `app-internal` | `src/app/api/settings/pricing/route.ts` |\n| `GET` | `/api/settings/providers` | `app-internal` | `src/app/api/settings/providers/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/routing` | `app-internal` | `src/app/api/settings/routing/route.ts` |\n| `GET`, `POST` | `/api/settings/runtime` | `app-internal` | `src/app/api/settings/runtime/route.ts` |\n| `POST` | `/api/settings/test` | `app-internal` | `src/app/api/settings/test/route.ts` |\n| `GET`, `POST` | `/api/settings/web-search` | `app-internal` | `src/app/api/settings/web-search/route.ts` |",
-      "wordCount": 475
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/environment/rescan-if-stale` | `app-internal` | `src/app/api/environment/rescan-if-stale/route.ts` |\n| `GET` | `/api/environment/skills` | `app-internal` | `src/app/api/environment/skills/route.ts` |\n| `GET` | `/api/instance/config` | `app-internal` | `src/app/api/instance/config/route.ts` |\n| `GET` | `/api/instance/identity` | `app-internal` | `src/app/api/instance/identity/route.ts` |\n| `POST` | `/api/instance/init` | `app-internal` | `src/app/api/instance/init/route.ts` |\n| `POST` | `/api/instance/upgrade` | `app-internal` | `src/app/api/instance/upgrade/route.ts` |\n| `POST` | `/api/instance/upgrade/check` | `app-internal` | `src/app/api/instance/upgrade/check/route.ts` |\n| `GET` | `/api/instance/upgrade/status` | `app-internal` | `src/app/api/instance/upgrade/status/route.ts` |\n| `GET`, `POST` | `/api/license` | `app-internal` | `src/app/api/license/route.ts` |\n| `DELETE` | `/api/license/{id}` | `app-internal` | `src/app/api/license/[id]/route.ts` |\n| `GET` | `/api/onboarding/progress` | `app-internal` | `src/app/api/onboarding/progress/route.ts` |\n| `GET`, `POST` | `/api/settings` | `app-internal` | `src/app/api/settings/route.ts` |\n| `GET`, `POST` | `/api/settings/apps` | `app-internal` | `src/app/api/settings/apps/route.ts` |\n| `GET` | `/api/settings/author-default` | `app-internal` | `src/app/api/settings/author-default/route.ts` |\n| `GET`, `POST` | `/api/settings/browser-tools` | `app-internal` | `src/app/api/settings/browser-tools/route.ts` |\n| `GET`, `POST` | `/api/settings/budgets` | `app-internal` | `src/app/api/settings/budgets/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat` | `app-internal` | `src/app/api/settings/chat/route.ts` |\n| `POST` | `/api/settings/chat/model-prompt-impression` | `app-internal` | `src/app/api/settings/chat/model-prompt-impression/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/pins` | `app-internal` | `src/app/api/settings/chat/pins/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/saved-searches` | `app-internal` | `src/app/api/settings/chat/saved-searches/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/dashboard` | `app-internal` | `src/app/api/settings/dashboard/route.ts` |\n| `GET`, `POST` | `/api/settings/environment` | `app-internal` | `src/app/api/settings/environment/route.ts` |\n| `GET` | `/api/settings/glance` | `app-internal` | `src/app/api/settings/glance/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/github` | `app-internal` | `src/app/api/settings/github/route.ts` |\n| `GET` | `/api/settings/github/repositories` | `app-internal` | `src/app/api/settings/github/repositories/route.ts` |\n| `GET`, `POST` | `/api/settings/learning` | `app-internal` | `src/app/api/settings/learning/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/ollama` | `app-internal` | `src/app/api/settings/ollama/route.ts` |\n| `GET`, `POST` | `/api/settings/openai` | `app-internal` | `src/app/api/settings/openai/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/openai/login` | `app-internal` | `src/app/api/settings/openai/login/route.ts` |\n| `POST` | `/api/settings/openai/logout` | `app-internal` | `src/app/api/settings/openai/logout/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/settings/openai-compatible/{runtimeId}` | `app-internal` | `src/app/api/settings/openai-compatible/[runtimeId]/route.ts` |\n| `GET`, `POST` | `/api/settings/pricing` | `app-internal` | `src/app/api/settings/pricing/route.ts` |\n| `GET` | `/api/settings/providers` | `app-internal` | `src/app/api/settings/providers/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/routing` | `app-internal` | `src/app/api/settings/routing/route.ts` |\n| `GET`, `POST` | `/api/settings/runtime` | `app-internal` | `src/app/api/settings/runtime/route.ts` |\n| `POST` | `/api/settings/test` | `app-internal` | `src/app/api/settings/test/route.ts` |\n| `GET`, `POST` | `/api/settings/web-search` | `app-internal` | `src/app/api/settings/web-search/route.ts` |",
+      "wordCount": 489
     },
     {
       "heading": "Endpoint Reference",
@@ -95,6 +96,13 @@
       "level": 2,
       "markdown": "",
       "wordCount": 0
+    },
+    {
+      "heading": "POST /api/settings/chat/model-prompt-impression",
+      "id": "post-api-settings-chat-model-prompt-impression",
+      "level": 3,
+      "markdown": "Atomically claims permission for at most one browser session to show the\nautomatic default-model prompt for the active Relay data directory.\n\n- **Request**: none.\n- **Response** `200`: `{ \"claimed\": true | false }`. `true` means this caller\n  won the one-time claim; `false` means another or earlier session already\n  claimed it or the instance was previously configured.\n- **Errors**: `500` with `{ \"error\":\n  \"MODEL_PREFERENCE_PROMPT_IMPRESSION_WRITE_FAILED\", \"message\": \"<recovery\n  guidance>\" }` when Relay cannot persist the claim.\n- **Side effects**: atomically writes the instance-local prompt-impression\n  marker before any browser displays the prompt. It does not choose or change a\n  model.",
+      "wordCount": 86
     },
     {
       "heading": "GET /api/settings",
@@ -105,7 +113,7 @@
     },
     {
       "heading": "POST /api/settings",
-      "id": "post-api-settings",
+      "id": "post-api-settings-2",
       "level": 3,
       "markdown": "Updates the Anthropic auth settings.\n\n- **Request** body (JSON), validated by Zod, all optional:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `method` | `string` | no | `api_key` or `oauth`. |\n| `apiKey` | `string` | no | Must start with `sk-ant-`. Encrypted before storage. |\n| `model` | `string` | no | The Anthropic direct model id. |\n\n- **Response** `200`: the re-read auth settings (same shape as `GET`, no secret).\n- **Errors**: `400` on validation failure: `{ \"error\": <flattened Zod error> }`.\n- **Side effects**: writes the auth method; encrypts and stores a supplied key; switching to `oauth` deletes any stored key; invalidates cached runtime health.",
       "wordCount": 84
@@ -538,9 +546,9 @@
       "wordCount": 129
     }
   ],
-  "sourceHash": "111b5b33a0a27507d48188070027e01de345be3f48f6a82f570697cdbb301d01",
+  "sourceHash": "5e1fd3f9ebeb668a8f3051184ba4c38f509c87c6c5a5be9ae237c71a4fe36292",
   "sourcePath": "api/reference/06-settings-license-instance.md",
-  "sourceStateHash": "5e03702c682144e1194c14156ed0666914c96ee9cbc400f9430e4983e199be36",
+  "sourceStateHash": "a9155718bc1831649e92a5fc6ae15c4b8940c92f8626ad5cb0cd3389ec9d938e",
   "stability": "admin-local",
   "summary": "Document local settings, license lifecycle, instance identity, upgrade, environment, and onboarding routes.",
   "title": "Settings, License, And Instance API"

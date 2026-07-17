@@ -13,7 +13,7 @@ mode: next-steps
 ### Recommendation
 
 **Do this:** Complete **G-025 — Run the next evidence-producing staging
-regression slice** against the optimized Relay Host artifact.
+regression slice** against the optimized Relay Cell image on a Relay Host.
 
 **Why:** G-093 is accepted with a 129,913,772-byte distroless arm64 image, full
 artifact evidence and Host lifecycle conformance. Customer-identical staging is

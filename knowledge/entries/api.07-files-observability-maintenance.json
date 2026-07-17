@@ -3,6 +3,8 @@
     "/api/data/clear",
     "/api/data/seed",
     "/api/diagnostics/chat-streams",
+    "/api/health/live",
+    "/api/health/ready",
     "/api/logs/stream",
     "/api/plugins",
     "/api/plugins/reload",
@@ -16,7 +18,7 @@
     "/api/uploads/{id}",
     "/api/uploads/cleanup"
   ],
-  "contentHash": "23553f671c58855fad741c0ba3b425e98644e086913028fe8e989931f94c769d",
+  "contentHash": "5fc7efac8aab1ba688d87fc1e57f5f0ff454b85446599ebe6d5c10e60e5d18ba",
   "features": [],
   "id": "api:07-files-observability-maintenance",
   "journeys": [],
@@ -30,8 +32,8 @@
       "heading": "Who This Is For",
       "id": "who-this-is-for",
       "level": 2,
-      "markdown": "This group is for a developer running and maintaining a local Relay instance: uploading and serving files, taking and restoring full-state snapshots, loading and scaffolding plugins, reading live telemetry and stream diagnostics, and seeding or clearing data in a staging build. Read this if you are building a backup workflow, wiring an upload flow into a task, polling a live log stream, or standing up a disposable staging instance with realistic sample data.\n\nSeveral routes here are destructive or gated. Restore overwrites the live database; data seed and clear only run on a staging build; diagnostics is disabled in production. Each such gate is called out on the route.",
-      "wordCount": 109
+      "markdown": "This group is for a developer running and maintaining a local Relay instance: uploading and serving files, taking and restoring full-state snapshots, loading and scaffolding plugins, checking liveness/readiness, reading live telemetry and stream diagnostics, and seeding or clearing data in a staging build. Read this if you are building a backup workflow, wiring an upload flow into a task, polling a live log stream, or standing up a disposable staging instance with realistic sample data.\n\nSeveral routes here are destructive or gated. Restore overwrites the live database; data seed and clear only run on a staging build; diagnostics is disabled in production. Each such gate is called out on the route.",
+      "wordCount": 112
     },
     {
       "heading": "Stability",
@@ -58,15 +60,15 @@
       "heading": "Endpoint Families",
       "id": "endpoint-families",
       "level": 2,
-      "markdown": "- `uploads`\n- `snapshots`\n- `plugins`\n- `telemetry`\n- `diagnostics`\n- `data`",
-      "wordCount": 6
+      "markdown": "- `uploads`\n- `snapshots`\n- `plugins`\n- `health`\n- `telemetry`\n- `diagnostics`\n- `data`",
+      "wordCount": 7
     },
     {
       "heading": "Endpoints",
       "id": "endpoints",
       "level": 2,
-      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/data/clear` | `app-internal` | `src/app/api/data/clear/route.ts` |\n| `POST` | `/api/data/seed` | `app-internal` | `src/app/api/data/seed/route.ts` |\n| `GET` | `/api/diagnostics/chat-streams` | `app-internal` | `src/app/api/diagnostics/chat-streams/route.ts` |\n| `GET` | `/api/logs/stream` | `app-internal` | `src/app/api/logs/stream/route.ts` |\n| `GET` | `/api/plugins` | `app-internal` | `src/app/api/plugins/route.ts` |\n| `POST` | `/api/plugins/reload` | `app-internal` | `src/app/api/plugins/reload/route.ts` |\n| `POST` | `/api/plugins/scaffold` | `app-internal` | `src/app/api/plugins/scaffold/route.ts` |\n| `GET`, `POST` | `/api/snapshots` | `app-internal` | `src/app/api/snapshots/route.ts` |\n| `DELETE`, `GET` | `/api/snapshots/{id}` | `app-internal` | `src/app/api/snapshots/[id]/route.ts` |\n| `POST` | `/api/snapshots/{id}/restore` | `app-internal` | `src/app/api/snapshots/[id]/restore/route.ts` |\n| `GET`, `PUT` | `/api/snapshots/settings` | `app-internal` | `src/app/api/snapshots/settings/route.ts` |\n| `GET` | `/api/telemetry` | `app-internal` | `src/app/api/telemetry/route.ts` |\n| `POST` | `/api/uploads` | `app-internal` | `src/app/api/uploads/route.ts` |\n| `DELETE`, `GET` | `/api/uploads/{id}` | `app-internal` | `src/app/api/uploads/[id]/route.ts` |\n| `POST` | `/api/uploads/cleanup` | `app-internal` | `src/app/api/uploads/cleanup/route.ts` |",
-      "wordCount": 183
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/data/clear` | `app-internal` | `src/app/api/data/clear/route.ts` |\n| `POST` | `/api/data/seed` | `app-internal` | `src/app/api/data/seed/route.ts` |\n| `GET` | `/api/diagnostics/chat-streams` | `app-internal` | `src/app/api/diagnostics/chat-streams/route.ts` |\n| `GET` | `/api/health/live` | `app-internal` | `src/app/api/health/live/route.ts` |\n| `GET` | `/api/health/ready` | `app-internal` | `src/app/api/health/ready/route.ts` |\n| `GET` | `/api/logs/stream` | `app-internal` | `src/app/api/logs/stream/route.ts` |\n| `GET` | `/api/plugins` | `app-internal` | `src/app/api/plugins/route.ts` |\n| `POST` | `/api/plugins/reload` | `app-internal` | `src/app/api/plugins/reload/route.ts` |\n| `POST` | `/api/plugins/scaffold` | `app-internal` | `src/app/api/plugins/scaffold/route.ts` |\n| `GET`, `POST` | `/api/snapshots` | `app-internal` | `src/app/api/snapshots/route.ts` |\n| `DELETE`, `GET` | `/api/snapshots/{id}` | `app-internal` | `src/app/api/snapshots/[id]/route.ts` |\n| `POST` | `/api/snapshots/{id}/restore` | `app-internal` | `src/app/api/snapshots/[id]/restore/route.ts` |\n| `GET`, `PUT` | `/api/snapshots/settings` | `app-internal` | `src/app/api/snapshots/settings/route.ts` |\n| `GET` | `/api/telemetry` | `app-internal` | `src/app/api/telemetry/route.ts` |\n| `POST` | `/api/uploads` | `app-internal` | `src/app/api/uploads/route.ts` |\n| `DELETE`, `GET` | `/api/uploads/{id}` | `app-internal` | `src/app/api/uploads/[id]/route.ts` |\n| `POST` | `/api/uploads/cleanup` | `app-internal` | `src/app/api/uploads/cleanup/route.ts` |",
+      "wordCount": 207
     },
     {
       "heading": "Endpoint Reference",
@@ -74,6 +76,20 @@
       "level": 2,
       "markdown": "",
       "wordCount": 0
+    },
+    {
+      "heading": "GET /api/health/live",
+      "id": "get-api-health-live",
+      "level": 3,
+      "markdown": "Reports that the Relay process can answer HTTP. It deliberately does not touch\nthe database or other storage.\n\n- **Request**: none.\n- **Response** `200`: `{ \"status\": \"live\", \"contractVersion\": 1 }`.\n- **Errors**: none returned explicitly. A failed process or network path cannot\n  return the response.\n- **Side effects**: none. The response sets `Cache-Control: no-store`.",
+      "wordCount": 48
+    },
+    {
+      "heading": "GET /api/health/ready",
+      "id": "get-api-health-ready",
+      "level": 3,
+      "markdown": "Reports whether the active Relay Cell has a valid Cell id and can query SQLite.\n\n- **Request**: none.\n- **Response** `200`: `{ \"status\": \"ready\", \"cellId\": \"<DNS label>\",\n  \"relayVersion\": \"<version>\", \"schema\": { \"contractVersion\": 1, \"min\": 1,\n  \"max\": 1 } }`. When `RELAY_CELL_ID` is absent, local mode reports `local`.\n- **Errors**: `503` with `{ \"status\": \"not_ready\", \"reason\":\n  \"CELL_ID_INVALID\", \"contractVersion\": 1 }` for an invalid Cell id, or the\n  same shape with `reason: \"SQLITE_UNAVAILABLE\"` when the database probe fails.\n- **Side effects**: performs `SELECT 1` against SQLite and sets\n  `Cache-Control: no-store`; it returns no data paths, credentials, or customer\n  content.",
+      "wordCount": 83
     },
     {
       "heading": "POST /api/uploads",
@@ -216,9 +232,9 @@
       "wordCount": 105
     }
   ],
-  "sourceHash": "1b89930966f893486fc9268d013b9d9b58e01c5f2cc13851291f56891df4d9b0",
+  "sourceHash": "af96cf95cb72a19a941f86c4c5b905558de59fd6579ff768f06051ea8753ddc6",
   "sourcePath": "api/reference/07-files-observability-maintenance.md",
-  "sourceStateHash": "9927036fbf49673203fe31daee8a9376b500928b3fc350cb0772938fef98f7b0",
+  "sourceStateHash": "e88d159217c752f607a544768fafc210a2b799290b1f5ab495dcad3179c60344",
   "stability": "admin-local",
   "summary": "Document upload, snapshot, logs, telemetry, diagnostics, seed/clear, and plugin routes.",
   "title": "Files, Observability, And Maintenance API"

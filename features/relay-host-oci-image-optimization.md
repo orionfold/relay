@@ -1,5 +1,5 @@
 ---
-title: Thoroughly optimize and harden the Relay Host OCI image
+title: Thoroughly optimize and harden the Relay Cell OCI image
 status: accepted
 priority: P1
 milestone: post-mvp
@@ -7,11 +7,11 @@ source: G-080 acceptance receipt and operator request 2026-07-16
 dependencies: [relay-host-artifact]
 ---
 
-# Thoroughly optimize and harden the Relay Host OCI image
+# Thoroughly optimize and harden the Relay Cell OCI image
 
 ## Description
 
-G-080 proved a signed, reproducible Relay Host cell artifact and its lifecycle
+G-080 proved a signed, reproducible Relay Cell image and its Host lifecycle
 contract, but the accepted arm64 alpha image measured 889,827,989 bytes. The
 largest compressed layer contains material that is not part of the Relay
 runtime: approximately 624 MB of historical `dist-artifacts`, 77 MB of
@@ -108,7 +108,7 @@ operator tooling or repository history into my environment.
   vulnerabilities is required unless a time-bounded explicit exception is
   approved and recorded.
 
-### 5. Re-prove the Host artifact
+### 5. Re-prove the Cell image on a Host
 
 - Rebuild twice from the same clean committed inputs and prove identical image
   configuration/content digests under the existing reproducibility contract.
@@ -195,7 +195,7 @@ operator tooling or repository history into my environment.
       is not part of G-093's artifact-production outcome.
 - [x] The npm tarball remains under its independent 10 MB release ceiling and
       does not contain the OCI image or OCI-only build output.
-- [x] The durable Host artifact documentation records before/after size,
+- [x] The durable Cell-image documentation records before/after size,
       contents, package inventory, security results, timing, retained tradeoffs,
       and the command that reproduces every receipt.
 
@@ -234,7 +234,7 @@ operator tooling or repository history into my environment.
 
 **Included:**
 
-- Linux Relay Host cell image build context, Next standalone tracing, runtime
+- Linux Relay Cell image build context, Next standalone tracing, runtime
   stage, final-image contents, package/SBOM inventory, content/privacy policy,
   reproducibility, size/performance budgets, repeatable local/CI generation,
   evidence bundling, change detection, and G-080 regression evidence.
