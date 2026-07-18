@@ -1,5 +1,5 @@
 {
-  "contractVersion": 1,
+  "contractVersion": 2,
   "baselineImageBytes": 889827989,
   "budgets": {
     "maxImageBytes": 300000000,
@@ -20,6 +20,12 @@
     "sbin": "distroless compatibility symlink",
     "usr": "minimal distroless Debian runtime libraries and metadata",
     "var": "Relay data mount parent and distroless package metadata"
+  },
+  "allowedPlatformRootSurfaces": {
+    "linux/amd64": {
+      "lib64": "distroless amd64 dynamic-loader compatibility surface"
+    },
+    "linux/arm64": {}
   },
   "allowedAppSurfaces": {
     ".next": "compiled Next standalone server and static assets",

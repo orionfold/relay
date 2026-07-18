@@ -257,8 +257,11 @@ export function evaluateOciPolicy(inventory, policy) {
   if ((inventory.largestFiles[0]?.size ?? 0) > budgets.maxLargestFileBytes) {
     add("OCI_LARGEST_FILE_BUDGET_EXCEEDED", "largest runtime file exceeds budget", inventory.largestFiles[0]);
   }
+  const allowedPlatformRootSurfaces = policy.allowedPlatformRootSurfaces?.[inventory.platform] ?? {};
   for (const surface of Object.keys(inventory.rootSurfaces)) {
-    if (!policy.allowedRootSurfaces[surface]) add("OCI_ROOT_SURFACE_UNEXPLAINED", `unexplained root surface: /${surface}`);
+    if (!policy.allowedRootSurfaces[surface] && !allowedPlatformRootSurfaces[surface]) {
+      add("OCI_ROOT_SURFACE_UNEXPLAINED", `unexplained root surface: /${surface}`);
+    }
   }
   for (const surface of Object.keys(inventory.appSurfaces)) {
     if (!policy.allowedAppSurfaces[surface]) add("OCI_APP_SURFACE_UNEXPLAINED", `unexplained /app surface: ${surface}`);

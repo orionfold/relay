@@ -8,7 +8,7 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
-## [0.44.2] — 2026-07-18
+## [0.44.3] — 2026-07-18
 
 ### Added
 

@@ -147,6 +147,11 @@ tag-verified → platform-pushed/signed/attested → index-published/verified
   by storage driver. The latter now has a regression guard: publication budgets
   use compressed OCI layer bytes and report loaded/unpacked observations
   separately. Immutable failed source tags were not moved.
+- The `cell-v0.44.2` proof passed arm64 audit and private staging, while amd64
+  failed before registry login on the pinned distroless base's `/lib64`
+  compatibility surface. The platform-specific policy now permits that surface
+  only on amd64 and retains an arm64 rejection regression. The isolated arm64
+  digest stayed quarantined; no multi-platform index or production tag moved.
 
 - Publication contract: 8 focused tests pass, including negative tag/source,
   platform-set, digest drift, signer/tag identity, missing attestation, npm

@@ -53,7 +53,7 @@ function writeBlob(layout, value) {
   return { digest: valueDigest, size: bytes.length, path };
 }
 
-async function fixture(files, { includeEmptyLayer = false } = {}) {
+async function fixture(files, { architecture = "arm64", includeEmptyLayer = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), "relay-host-policy-test-"));
   const layerRoot = join(root, "layer");
   const layout = join(root, "layout");
@@ -68,7 +68,7 @@ async function fixture(files, { includeEmptyLayer = false } = {}) {
   await createTar({ cwd: layerRoot, file: layerPath, gzip: true, portable: true }, ["."]);
   const layer = writeBlob(layout, readFileSync(layerPath));
   const emptyLayer = includeEmptyLayer ? writeBlob(layout, gzipSync(Buffer.alloc(1024))) : null;
-  const config = writeBlob(layout, { architecture: "arm64", os: "linux", config: {} });
+  const config = writeBlob(layout, { architecture, os: "linux", config: {} });
   const manifest = writeBlob(layout, {
     schemaVersion: 2,
     mediaType: "application/vnd.oci.image.manifest.v1+json",
@@ -127,6 +127,19 @@ test("fails closed on a forbidden final-image path", async () => {
     assert.ok(result.violations.some((violation) => violation.code === "OCI_CONTENT_POLICY_FAILED"));
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("allows the distroless lib64 surface only on amd64", async () => {
+  const amd64 = await fixture({ "app/server.js": "ok", "lib64/ld-linux-x86-64.so.2": "loader" }, { architecture: "amd64" });
+  const arm64 = await fixture({ "app/server.js": "ok", "lib64/ld-linux-aarch64.so.1": "loader" });
+  try {
+    assert.equal(evaluateOciPolicy(await inspectOciArchive(amd64.archive), fixturePolicy).status, "pass");
+    const arm64Result = evaluateOciPolicy(await inspectOciArchive(arm64.archive), fixturePolicy);
+    assert.ok(arm64Result.violations.some((violation) => violation.code === "OCI_ROOT_SURFACE_UNEXPLAINED"));
+  } finally {
+    rmSync(amd64.root, { recursive: true, force: true });
+    rmSync(arm64.root, { recursive: true, force: true });
   }
 });
 
