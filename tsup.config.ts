@@ -5,7 +5,10 @@ import { resolve } from "path";
 const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 
 export default defineConfig({
-  entry: ["bin/cli.ts"],
+  entry: {
+    cli: "bin/cli.ts",
+    "relay-host": "bin/relay-host.ts",
+  },
   format: ["esm"],
   target: "node20",
   platform: "node",

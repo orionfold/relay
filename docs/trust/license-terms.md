@@ -62,10 +62,11 @@ For managed Hosts, the accepted contract is similarly customer-protective:
 - An over-limit request refuses before allocating a path, port, volume,
   network, Host record, or customer state.
 
-The future Host supervisor must consume the executable policy in
+The Host-local supervisor consumes the executable policy in
 [`host-entitlement.ts`](../../src/lib/licensing/host-entitlement.ts). Until
-G-083 ships that supervisor, these are the accepted fulfillment/runtime terms,
-not a claim that managed Host lifecycle is already present in npm.
+the next npm release and the separate OCI/commerce/UX gates complete, this is a
+pre-release local control-plane implementation rather than a purchasable,
+end-to-end managed Host claim.
 
 ## Seats, Hosts, and managed Cells
 

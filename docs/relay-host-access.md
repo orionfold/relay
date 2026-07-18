@@ -63,7 +63,7 @@ route around that ingress.
 - Relay's internal HTTP calls use a per-process token accepted only on loopback.
 
 One Cell still serves one customer organization. The current implementation
-supplies the Cell-side hostname/path assertion. The paid Host supervisor and
+supplies the Cell-side hostname/path assertion. The pre-release paid Host supervisor and
 actual multi-Cell router remain G-083 work; do not present G-081 alone as a
 Fleet Controller or completed managed-Host product.
 

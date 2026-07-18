@@ -145,10 +145,12 @@ maintained content or managed lifecycle authority; they do not repossess Core.
 | Relay Host | Host/Cell contract and free direct Cell remain available | `product:relay-host` permits the npm-delivered supervisor to manage one Host and up to ten managed Cells under the launch contract |
 | Operator bundle | Same free Core and image | Both independent entitlements in one signed envelope; Pack seats never become Host/Cell capacity |
 
-The managed Host supervisor and public Cell registry are release-train work, not
-features in the current npm release. Their accepted fulfillment contract is
-documented now so the Website issuer, future supervisor, and customer promise
-cannot drift. The prepared, still-unpublished registry verification contract is
+The Host-local supervisor is implemented on mainline as the separately invoked
+`relay host` / `relay-host` CLI. It remains pre-release and cannot provide the
+production managed-Cell journey until the public Cell image, Host offer, and
+browser lifecycle UX complete their separately gated release goals. See the
+[Relay Host supervisor guide](docs/relay-host-supervisor.md). The prepared,
+still-unpublished registry verification contract is
 documented in [Relay Cell OCI acquisition and verification](docs/relay-cell-oci-release.md).
 
 Buying one takes a license file, redeemed once:

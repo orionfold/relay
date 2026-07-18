@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "88a7d4f4f8f2694730d40ce4364c1803717bad540229b2c55e62a87b68122704",
+  "contentHash": "aa4688a15b47d0355eb4952c1144ae19600e55ca54d3bf965dd30d8932c96307",
   "features": [
     "Human-in-the-loop workflow questions",
     "Inbox",
@@ -346,8 +346,8 @@
       "heading": "Walk The Screen Like An Operator",
       "id": "walk-the-screen-like-an-operator",
       "level": 2,
-      "markdown": "Open **Workflows**. Use the list to find the process you want to run.\n\nWhat you should notice:\n\n- Workflow rows or cards.\n- Run, Re-run, or Stop actions where valid.\n- Status labels that match the current execution state.\n\n[Figure: Workflow list with run state and actions]\n\nThis screen is a control surface. Read state before you click. A draft workflow is not the same as a failed workflow. A running workflow should expose Stop when stopping is valid. A completed workflow may offer Re-run. A waiting workflow should point you to the human action that blocks it.\n\nIf you do not have the right workflow yet, open **Blueprints**. A blueprint is a reusable workflow pattern.\n\n[Figure: Blueprint gallery for reusable workflow patterns]\n\nBlueprints help you start from a known shape. They are useful when you need a process, not just a one-time task. Some blueprints can run directly. Others can create a draft workflow that you review before using. The difference matters because a direct run acts now, while a draft gives you time to configure.",
-      "wordCount": 174
+      "markdown": "Open **Workflows**. Use the list to find the process you want to run.\n\nWhat you should notice:\n\n- Workflow rows or cards.\n- Run, Re-run, or Stop actions where valid.\n- Status labels that match the current execution state.\n\n[Figure: Workflow list with run state and actions]\n\nThis screen is a control surface. Read state before you click. A draft workflow is not the same as a failed workflow. A running workflow should expose Stop when stopping is valid. A completed workflow may offer Re-run. A waiting workflow should point you to the human action that blocks it.\n\nWhen a workflow belongs to a project, its detail header names that project and\nlinks back to it. The same Project choice is available when you create or edit\nthe workflow. Choosing **None** clears the link; leaving a workflow unlinked is\nvalid for intentionally global work.\n\nThe **Input Documents** picker follows that project context. Ready files can be\nselected as workflow context. Files that are uploaded, processing, or in error\nremain visible with their real state, but Relay disables selection until they\nare ready. This keeps \"not ready yet\" separate from \"missing.\" To bring a new\nfile into the pool, upload it from Documents with the same project selected.\n\nIf you do not have the right workflow yet, open **Blueprints**. A blueprint is a reusable workflow pattern.\n\n[Figure: Blueprint gallery for reusable workflow patterns]\n\nBlueprints help you start from a known shape. They are useful when you need a process, not just a one-time task. Some blueprints can run directly. Others can create a draft workflow that you review before using. The difference matters because a direct run acts now, while a draft gives you time to configure.",
+      "wordCount": 283
     },
     {
       "heading": "Run The Work Carefully",
@@ -360,8 +360,8 @@
       "heading": "What To Do When The State Looks Wrong",
       "id": "what-to-do-when-the-state-looks-wrong",
       "level": 2,
-      "markdown": "If a workflow says waiting, check Inbox before you click Run again. Starting another run may duplicate the process.\n\nIf a workflow says stalled, open Monitor and read the last visible run state. Stalled active rows can happen when persisted state no longer reflects live child tasks.\n\nIf a workflow failed, keep the error text. Relay should show the failure path so you can decide what to fix.\n\nIf a blueprint run creates a draft instead of running, open the draft. That may be the safer path when variables or configuration need review.\n\nIf a Stop action appears, use it only when you understand the effect. Stopping a workflow may leave child tasks or approvals that still need review.\n\nIf the same workflow keeps asking for the same approval, do not assume the approver made a mistake. Check the run state. A repeated prompt can mean the workflow retried, the browser refreshed during a stream, or the previous answer did not reach the waiting step. The safest next move is to inspect Inbox and Monitor together.\n\nIf Workshop preflight fails, use the named recovery beside the failed check. Do not force installation into an incompatible version or unwritable data directory. If the starter conflicts with an existing app or project, move to an isolated workspace or resolve the named conflict. Relay will not overwrite the existing item.",
-      "wordCount": 227
+      "markdown": "If a workflow says waiting, check Inbox before you click Run again. Starting another run may duplicate the process.\n\nIf a workflow says stalled, open Monitor and read the last visible run state. Stalled active rows can happen when persisted state no longer reflects live child tasks.\n\nIf a workflow failed, keep the error text. Relay should show the failure path so you can decide what to fix.\n\nIf a workflow shows the wrong project after an edit, stop before running it and\nsave the intended Project again. A successful save should retain a set, changed,\nor cleared project link. If Relay cannot save the workflow's document context,\nit reports that failure instead of navigating away with a success message.\n\nIf a blueprint run creates a draft instead of running, open the draft. That may be the safer path when variables or configuration need review.\n\nIf a Stop action appears, use it only when you understand the effect. Stopping a workflow may leave child tasks or approvals that still need review.\n\nIf the same workflow keeps asking for the same approval, do not assume the approver made a mistake. Check the run state. A repeated prompt can mean the workflow retried, the browser refreshed during a stream, or the previous answer did not reach the waiting step. The safest next move is to inspect Inbox and Monitor together.\n\nIf Workshop preflight fails, use the named recovery beside the failed check. Do not force installation into an incompatible version or unwritable data directory. If the starter conflicts with an existing app or project, move to an isolated workspace or resolve the named conflict. Relay will not overwrite the existing item.",
+      "wordCount": 279
     },
     {
       "heading": "What This Changes In Daily Work",
@@ -378,7 +378,7 @@
       "wordCount": 16
     }
   ],
-  "sourceHash": "4ae51f9f5a4eaa3f19e35bec002d9b7a419fa8e4623bc36d154807152219d4d9",
+  "sourceHash": "6328aef35a0ed00162f988e11a1a42944bf24b2beffae406f6ea3992ba81305a",
   "sourcePath": "docs/guides/05-run-workflows-with-human-checkpoints.md",
   "sourceStateHash": "58193c11331de1df48c12bcb006de86a865a0fd4a6a3edb3c63ebcbfeb4e4dfd",
   "summary": "Explain how to start a workflow, read its state, answer a question, and recover from visible failures.",

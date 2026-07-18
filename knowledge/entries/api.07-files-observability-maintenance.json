@@ -9,6 +9,9 @@
     "/api/plugins",
     "/api/plugins/reload",
     "/api/plugins/scaffold",
+    "/api/recovery",
+    "/api/recovery/drill",
+    "/api/recovery/verify",
     "/api/snapshots",
     "/api/snapshots/{id}",
     "/api/snapshots/{id}/restore",
@@ -18,7 +21,7 @@
     "/api/uploads/{id}",
     "/api/uploads/cleanup"
   ],
-  "contentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
+  "contentHash": "bbb25f8663394a626ca9a6bc81aef63c342f9e18e798e7f7d4305a7f55f8a7be",
   "features": [],
   "id": "api:07-files-observability-maintenance",
   "journeys": [],
@@ -60,15 +63,15 @@
       "heading": "Endpoint Families",
       "id": "endpoint-families",
       "level": 2,
-      "markdown": "- `uploads`\n- `snapshots`\n- `plugins`\n- `health`\n- `telemetry`\n- `diagnostics`\n- `data`",
-      "wordCount": 7
+      "markdown": "- `uploads`\n- `snapshots`\n- `recovery`\n- `plugins`\n- `health`\n- `telemetry`\n- `diagnostics`\n- `data`",
+      "wordCount": 8
     },
     {
       "heading": "Endpoints",
       "id": "endpoints",
       "level": 2,
-      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/data/clear` | `app-internal` | `src/app/api/data/clear/route.ts` |\n| `POST` | `/api/data/seed` | `app-internal` | `src/app/api/data/seed/route.ts` |\n| `GET` | `/api/diagnostics/chat-streams` | `app-internal` | `src/app/api/diagnostics/chat-streams/route.ts` |\n| `GET` | `/api/health/live` | `app-internal` | `src/app/api/health/live/route.ts` |\n| `GET` | `/api/health/ready` | `app-internal` | `src/app/api/health/ready/route.ts` |\n| `GET` | `/api/logs/stream` | `app-internal` | `src/app/api/logs/stream/route.ts` |\n| `GET` | `/api/plugins` | `app-internal` | `src/app/api/plugins/route.ts` |\n| `POST` | `/api/plugins/reload` | `app-internal` | `src/app/api/plugins/reload/route.ts` |\n| `POST` | `/api/plugins/scaffold` | `app-internal` | `src/app/api/plugins/scaffold/route.ts` |\n| `GET`, `POST` | `/api/snapshots` | `app-internal` | `src/app/api/snapshots/route.ts` |\n| `DELETE`, `GET` | `/api/snapshots/{id}` | `app-internal` | `src/app/api/snapshots/[id]/route.ts` |\n| `POST` | `/api/snapshots/{id}/restore` | `app-internal` | `src/app/api/snapshots/[id]/restore/route.ts` |\n| `GET`, `PUT` | `/api/snapshots/settings` | `app-internal` | `src/app/api/snapshots/settings/route.ts` |\n| `GET` | `/api/telemetry` | `app-internal` | `src/app/api/telemetry/route.ts` |\n| `POST` | `/api/uploads` | `app-internal` | `src/app/api/uploads/route.ts` |\n| `DELETE`, `GET` | `/api/uploads/{id}` | `app-internal` | `src/app/api/uploads/[id]/route.ts` |\n| `POST` | `/api/uploads/cleanup` | `app-internal` | `src/app/api/uploads/cleanup/route.ts` |",
-      "wordCount": 207
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/data/clear` | `app-internal` | `src/app/api/data/clear/route.ts` |\n| `POST` | `/api/data/seed` | `app-internal` | `src/app/api/data/seed/route.ts` |\n| `GET` | `/api/diagnostics/chat-streams` | `app-internal` | `src/app/api/diagnostics/chat-streams/route.ts` |\n| `GET` | `/api/health/live` | `app-internal` | `src/app/api/health/live/route.ts` |\n| `GET` | `/api/health/ready` | `app-internal` | `src/app/api/health/ready/route.ts` |\n| `GET` | `/api/logs/stream` | `app-internal` | `src/app/api/logs/stream/route.ts` |\n| `GET` | `/api/plugins` | `app-internal` | `src/app/api/plugins/route.ts` |\n| `POST` | `/api/plugins/reload` | `app-internal` | `src/app/api/plugins/reload/route.ts` |\n| `POST` | `/api/plugins/scaffold` | `app-internal` | `src/app/api/plugins/scaffold/route.ts` |\n| `GET`, `POST` | `/api/recovery` | `app-internal` | `src/app/api/recovery/route.ts` |\n| `POST` | `/api/recovery/drill` | `app-internal` | `src/app/api/recovery/drill/route.ts` |\n| `POST` | `/api/recovery/verify` | `app-internal` | `src/app/api/recovery/verify/route.ts` |\n| `GET`, `POST` | `/api/snapshots` | `app-internal` | `src/app/api/snapshots/route.ts` |\n| `DELETE`, `GET` | `/api/snapshots/{id}` | `app-internal` | `src/app/api/snapshots/[id]/route.ts` |\n| `POST` | `/api/snapshots/{id}/restore` | `app-internal` | `src/app/api/snapshots/[id]/restore/route.ts` |\n| `GET`, `PUT` | `/api/snapshots/settings` | `app-internal` | `src/app/api/snapshots/settings/route.ts` |\n| `GET` | `/api/telemetry` | `app-internal` | `src/app/api/telemetry/route.ts` |\n| `POST` | `/api/uploads` | `app-internal` | `src/app/api/uploads/route.ts` |\n| `DELETE`, `GET` | `/api/uploads/{id}` | `app-internal` | `src/app/api/uploads/[id]/route.ts` |\n| `POST` | `/api/uploads/cleanup` | `app-internal` | `src/app/api/uploads/cleanup/route.ts` |",
+      "wordCount": 242
     },
     {
       "heading": "Endpoint Reference",
@@ -95,8 +98,8 @@
       "heading": "POST /api/uploads",
       "id": "post-api-uploads",
       "level": 3,
-      "markdown": "Accepts a file upload, writes it to disk, records a document row, and starts background processing.\n\n- **Request** `multipart/form-data`:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `file` | File | yes | Maximum 50 MB. |\n| `taskId` | `string` | no | Associates the upload with a task. |\n\n- **Response** `201`:\n  ```json\n  {\n    \"id\": \"string\",\n    \"filename\": \"string\",\n    \"originalName\": \"string\",\n    \"size\": 12345,\n    \"type\": \"application/pdf\",\n    \"taskId\": \"string\"\n  }\n  ```\n  `filename` is a generated `<uuid>.<ext>`. `taskId` is null when not supplied.\n- **Errors**:\n  - `400` when no file is present: `{ \"error\": \"No file provided\" }`.\n  - `400` when the file is over the limit: `{ \"error\": \"File too large (max 50MB)\" }`.\n- **Side effects**: writes the file to the uploads directory, inserts a `documents` row with `status` `uploaded`, and starts background text extraction. If extraction fails, the row is updated to `status` `error`.",
-      "wordCount": 122
+      "markdown": "Accepts a file upload, writes it to disk, records a document row, and starts background processing.\n\n- **Request** `multipart/form-data`:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `file` | File | yes | Maximum 50 MB. |\n| `taskId` | `string` | no | Associates the upload with an existing task. |\n| `projectId` | `string` | no | Associates the upload with an existing project before processing starts. |\n\n- **Response** `201`:\n  ```json\n  {\n    \"id\": \"string\",\n    \"filename\": \"string\",\n    \"originalName\": \"string\",\n    \"size\": 12345,\n    \"type\": \"application/pdf\",\n    \"taskId\": \"string | null\",\n    \"projectId\": \"string | null\"\n  }\n  ```\n  `filename` is a generated `<uuid>.<ext>`. `taskId` is null when not supplied.\n- **Errors**:\n  - `400` when the multipart body cannot be parsed: `{ \"error\": \"Invalid multipart form data\" }`.\n  - `400` when no file is present: `{ \"error\": \"No file provided\" }`.\n  - `400` when the file is over the limit: `{ \"error\": \"File too large (max 50MB)\" }`.\n  - `404` when `taskId` does not resolve: `{ \"error\": \"Task not found: <id>\" }`.\n  - `404` when `projectId` does not resolve: `{ \"error\": \"Project not found: <id>\" }`.\n- **Side effects**: writes the file to the uploads directory, inserts a `documents` row with `status` `uploaded` and the requested task/project association, and starts background text extraction. If extraction fails, the row is updated to `status` `error`.",
+      "wordCount": 181
     },
     {
       "heading": "GET /api/uploads/{id}",
@@ -118,6 +121,34 @@
       "level": 3,
       "markdown": "Deletes orphaned upload files: files older than 24 hours with no matching document row.\n\n- **Request**: none.\n- **Response** `200`: `{ \"deleted\": [\"string\"], \"errors\": [\"string\"] }`. `deleted` lists removed filenames; `errors` lists `\"<filename>: <message>\"` strings for files that could not be removed.\n- **Errors**: none returned at the HTTP layer; a directory-read failure is logged and the route still returns `200` with whatever was collected.\n- **Side effects**: removes orphaned files from disk.",
       "wordCount": 67
+    },
+    {
+      "heading": "GET /api/recovery",
+      "id": "get-api-recovery",
+      "level": 3,
+      "markdown": "Returns the encrypted-recovery configuration posture and recent content-free\nreceipts. It never returns a raw destination path, key path, or key bytes.\n\n- **Request**: none.\n- **Response** `200`: `{ \"destinationConfigured\": true, \"keyConfigured\": true,\n  \"destinationSource\": \"environment\", \"keySource\": \"environment\", \"latest\":\n  { ...receipt } | null, \"receipts\": [ ... ] }`. Sources are `environment` or\n  `none`. Receipts include the operation, status, stable reason code, bundle\n  basename, integrity outcomes, timestamps, duration, Cell/snapshot identity,\n  content hash, and a non-secret key fingerprint.\n- **Errors**: `500` with `{ \"error\": \"RECOVERY_RECEIPT_INVALID\", \"detail\":\n  \"...\" }` when stored recovery evidence is corrupt; it is never silently\n  omitted.\n- **Side effects**: reads only and sets `Cache-Control: no-store`.",
+      "wordCount": 90
+    },
+    {
+      "heading": "POST /api/recovery",
+      "id": "post-api-recovery",
+      "level": 3,
+      "markdown": "Creates a live-safe snapshot and customer-owned AES-256-GCM recovery bundle\nusing server-side environment configuration. The bundle is promoted to its\nfinal name only after authenticated decryption, manifest/checksum validation,\nand SQLite integrity checks pass.\n\n- **Request**: no body. The server must define `RELAY_RECOVERY_DESTINATION` and\n  `RELAY_RECOVERY_KEY_FILE` outside the Cell data root.\n- **Response** `201`: `{ \"receipt\": { ... } }` with status `ready` and reason\n  `RECOVERY_READY`. Paths and key bytes are omitted.\n- **Errors**: named `{ \"error\", \"detail\" }` failures; `409` when configuration\n  is absent or another recovery operation is active; `400` for key, identity,\n  integrity, or containment failures; `500` for an internal failure.\n- **Side effects**: creates a snapshot, encrypted bundle, local receipt, and\n  bundle-sidecar receipt. Partial/candidate artifacts are removed on failure.",
+      "wordCount": 108
+    },
+    {
+      "heading": "POST /api/recovery/verify",
+      "id": "post-api-recovery-verify",
+      "level": 3,
+      "markdown": "Authenticates and validates one completed bundle without changing live state.\n\n- **Request** JSON: `{ \"bundleFile\": \"<basename>.relay-recovery\" }`. Only a\n  basename inside the configured destination is accepted.\n- **Response** `200`: `{ \"receipt\": { ... } }` with status `verified`, reason\n  `RECOVERY_VERIFIED`, and database/access integrity results.\n- **Errors**: `400` for invalid JSON/name, wrong key/Cell, damage, unsafe archive\n  content, or failed integrity; `404` when the bundle is absent; `409` while\n  another recovery operation runs.\n- **Side effects**: decrypts into a private temporary directory, writes a\n  content-free receipt, and removes plaintext staging.",
+      "wordCount": 80
+    },
+    {
+      "heading": "POST /api/recovery/drill",
+      "id": "post-api-recovery-drill",
+      "level": 3,
+      "markdown": "Runs verify plus an isolated extraction of the Cell file archive. It never\noverwrites the live Cell. Destructive restore is deliberately CLI-only and\naccepts only a missing or empty target data root.\n\n- **Request** JSON: `{ \"bundleFile\": \"<basename>.relay-recovery\" }`.\n- **Response** `200`: `{ \"receipt\": { ... } }` with status `verified`, reason\n  `RECOVERY_DRILL_VERIFIED`, and `restoredFileCount`.\n- **Errors**: the same named failures as verify, plus\n  `RECOVERY_FILE_ARCHIVE_INVALID` when isolated extraction fails.\n- **Side effects**: writes a content-free drill receipt and removes all\n  temporary plaintext.",
+      "wordCount": 70
     },
     {
       "heading": "GET /api/snapshots",
@@ -232,10 +263,10 @@
       "wordCount": 105
     }
   ],
-  "sourceHash": "af96cf95cb72a19a941f86c4c5b905558de59fd6579ff768f06051ea8753ddc6",
+  "sourceHash": "27b79bdcc46e86f1c358f7cbf06b41f7073caa7bd668a2203b7e07e4187946b4",
   "sourcePath": "api/reference/07-files-observability-maintenance.md",
-  "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
+  "sourceStateHash": "86e4da5a4e718d27449fdecf62e2e92d9642e5efeeb11f00e2dfee78d99297c2",
   "stability": "admin-local",
-  "summary": "Document upload, snapshot, logs, telemetry, diagnostics, seed/clear, and plugin routes.",
+  "summary": "Document upload, snapshot, encrypted recovery, logs, telemetry, diagnostics, seed/clear, and plugin routes.",
   "title": "Files, Observability, And Maintenance API"
 }

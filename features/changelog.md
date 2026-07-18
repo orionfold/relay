@@ -1,5 +1,18 @@
 # Feature Changelog
 
+## 2026-07-18
+
+### Completed
+
+- `relay-host-supervisor` (G-083) — added the separately invoked `relay host` /
+  `relay-host` control plane with a dedicated content-free registry, strict
+  Host/Cell/receipt contracts, G-095 licensed and physical admission,
+  idempotent lifecycle and crash reconciliation, exact G-082 checkpoint
+  evidence, fake/provider ports, and a hardened ownership-validating Docker
+  adapter. The npm package includes the supervisor without test/evidence
+  residue; G-084 UX, Website pricing/cloud providers, and G-094 external GHCR
+  proof remain separate gates.
+
 ## 2026-07-17 — Accept G-100 and Host R2 secure/recoverable alpha
 
 ### Completed

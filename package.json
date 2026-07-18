@@ -25,7 +25,8 @@
   "type": "module",
   "bin": {
     "relay": "./dist/cli.js",
-    "orionfold-relay": "./dist/cli.js"
+    "orionfold-relay": "./dist/cli.js",
+    "relay-host": "./dist/relay-host.js"
   },
   "files": [
     "dist/",
@@ -83,7 +84,7 @@
     "test:audit": "node scripts/test-audit.mjs",
     "test:harness-safety": "node scripts/test-harness-safety.mjs",
     "test:runtime-graph": "node scripts/runtime-module-graph-smoke.mjs",
-    "test:relay-host": "node --test scripts/relay-host-manifest.test.mjs scripts/relay-host-artifact-policy.test.mjs && vitest run src/lib/host/__tests__/cell-shutdown.test.ts src/app/api/health/__tests__/routes.test.ts src/lib/documents/processors/__tests__/pdf.test.ts",
+    "test:relay-host": "node --test scripts/relay-host-manifest.test.mjs scripts/relay-host-artifact-policy.test.mjs && vitest run src/lib/host/__tests__/cell-shutdown.test.ts src/lib/host/supervisor/__tests__ src/lib/licensing/__tests__/host-entitlement.test.ts src/lib/host-ingress/__tests__ src/lib/recovery/__tests__/recovery.test.ts src/app/api/health/__tests__/routes.test.ts src/lib/documents/processors/__tests__/pdf.test.ts",
     "test:relay-cell-publication": "node --test scripts/relay-cell-publication.test.mjs",
     "check:relay-cell-publication": "node scripts/check-relay-cell-publication.mjs",
     "relay-cell:publication:dry-run": "node scripts/relay-cell-publication-dry-run.mjs",

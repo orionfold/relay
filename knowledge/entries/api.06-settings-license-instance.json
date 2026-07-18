@@ -1,5 +1,12 @@
 {
   "apiPaths": [
+    "/api/auth/bootstrap",
+    "/api/auth/events",
+    "/api/auth/login",
+    "/api/auth/logout",
+    "/api/auth/recovery",
+    "/api/auth/sessions",
+    "/api/auth/status",
     "/api/environment/rescan-if-stale",
     "/api/environment/skills",
     "/api/instance/config",
@@ -38,7 +45,7 @@
     "/api/settings/test",
     "/api/settings/web-search"
   ],
-  "contentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
+  "contentHash": "c79e914faf51265a8a1c0df294eef4af8d8e737163dd32bfc1f4720a194c7fd7",
   "features": [],
   "id": "api:06-settings-license-instance",
   "journeys": [],
@@ -66,8 +73,8 @@
       "heading": "Local Access Model",
       "id": "local-access-model",
       "level": 2,
-      "markdown": "Relay API routes run inside the local Relay app. Use `http://127.0.0.1:<port>` in examples, where `<port>` is the port your instance is bound to (3000 by default).\n\nDo not expose these routes on a public network without your own access controls. These routes read and write settings and license files, run git operations for the upgrade flow, scan the local filesystem, and can spawn subprocesses to test provider connections.",
-      "wordCount": 73
+      "markdown": "Relay API routes run inside the local Relay app. Use `http://127.0.0.1:<port>` in examples, where `<port>` is the port your instance is bound to (3000 by default).\n\nIn `trusted-local`, use loopback as before. In an authenticated exposure profile,\nthe Relay Proxy protects these routes with a live administrator session and\nexact-origin checks for mutations. Do not bypass that boundary or expose the\nNext.js listener around the configured ingress. Remote-authenticated v1 binds\nloopback and rejects requests without the configured ingress credential.",
+      "wordCount": 85
     },
     {
       "heading": "Conventions For This Group",
@@ -80,15 +87,15 @@
       "heading": "Endpoint Families",
       "id": "endpoint-families",
       "level": 2,
-      "markdown": "- `settings`\n- `license`\n- `instance`\n- `environment`\n- `onboarding`",
-      "wordCount": 5
+      "markdown": "- `settings`\n- `license`\n- `instance`\n- `environment`\n- `onboarding`\n- `auth`",
+      "wordCount": 6
     },
     {
       "heading": "Endpoints",
       "id": "endpoints",
       "level": 2,
-      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/environment/rescan-if-stale` | `app-internal` | `src/app/api/environment/rescan-if-stale/route.ts` |\n| `GET` | `/api/environment/skills` | `app-internal` | `src/app/api/environment/skills/route.ts` |\n| `GET` | `/api/instance/config` | `app-internal` | `src/app/api/instance/config/route.ts` |\n| `GET` | `/api/instance/identity` | `app-internal` | `src/app/api/instance/identity/route.ts` |\n| `POST` | `/api/instance/init` | `app-internal` | `src/app/api/instance/init/route.ts` |\n| `POST` | `/api/instance/upgrade` | `app-internal` | `src/app/api/instance/upgrade/route.ts` |\n| `POST` | `/api/instance/upgrade/check` | `app-internal` | `src/app/api/instance/upgrade/check/route.ts` |\n| `GET` | `/api/instance/upgrade/status` | `app-internal` | `src/app/api/instance/upgrade/status/route.ts` |\n| `GET`, `POST` | `/api/license` | `app-internal` | `src/app/api/license/route.ts` |\n| `DELETE` | `/api/license/{id}` | `app-internal` | `src/app/api/license/[id]/route.ts` |\n| `GET` | `/api/onboarding/progress` | `app-internal` | `src/app/api/onboarding/progress/route.ts` |\n| `GET`, `POST` | `/api/settings` | `app-internal` | `src/app/api/settings/route.ts` |\n| `GET`, `POST` | `/api/settings/apps` | `app-internal` | `src/app/api/settings/apps/route.ts` |\n| `GET` | `/api/settings/author-default` | `app-internal` | `src/app/api/settings/author-default/route.ts` |\n| `GET`, `POST` | `/api/settings/browser-tools` | `app-internal` | `src/app/api/settings/browser-tools/route.ts` |\n| `GET`, `POST` | `/api/settings/budgets` | `app-internal` | `src/app/api/settings/budgets/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat` | `app-internal` | `src/app/api/settings/chat/route.ts` |\n| `POST` | `/api/settings/chat/model-prompt-impression` | `app-internal` | `src/app/api/settings/chat/model-prompt-impression/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/pins` | `app-internal` | `src/app/api/settings/chat/pins/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/saved-searches` | `app-internal` | `src/app/api/settings/chat/saved-searches/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/dashboard` | `app-internal` | `src/app/api/settings/dashboard/route.ts` |\n| `GET`, `POST` | `/api/settings/environment` | `app-internal` | `src/app/api/settings/environment/route.ts` |\n| `GET` | `/api/settings/glance` | `app-internal` | `src/app/api/settings/glance/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/github` | `app-internal` | `src/app/api/settings/github/route.ts` |\n| `GET` | `/api/settings/github/repositories` | `app-internal` | `src/app/api/settings/github/repositories/route.ts` |\n| `GET`, `POST` | `/api/settings/learning` | `app-internal` | `src/app/api/settings/learning/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/ollama` | `app-internal` | `src/app/api/settings/ollama/route.ts` |\n| `GET`, `POST` | `/api/settings/openai` | `app-internal` | `src/app/api/settings/openai/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/openai/login` | `app-internal` | `src/app/api/settings/openai/login/route.ts` |\n| `POST` | `/api/settings/openai/logout` | `app-internal` | `src/app/api/settings/openai/logout/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/settings/openai-compatible/{runtimeId}` | `app-internal` | `src/app/api/settings/openai-compatible/[runtimeId]/route.ts` |\n| `GET`, `POST` | `/api/settings/pricing` | `app-internal` | `src/app/api/settings/pricing/route.ts` |\n| `GET` | `/api/settings/providers` | `app-internal` | `src/app/api/settings/providers/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/routing` | `app-internal` | `src/app/api/settings/routing/route.ts` |\n| `GET`, `POST` | `/api/settings/runtime` | `app-internal` | `src/app/api/settings/runtime/route.ts` |\n| `POST` | `/api/settings/test` | `app-internal` | `src/app/api/settings/test/route.ts` |\n| `GET`, `POST` | `/api/settings/web-search` | `app-internal` | `src/app/api/settings/web-search/route.ts` |",
-      "wordCount": 489
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/auth/bootstrap` | `app-internal` | `src/app/api/auth/bootstrap/route.ts` |\n| `GET` | `/api/auth/events` | `app-internal` | `src/app/api/auth/events/route.ts` |\n| `POST` | `/api/auth/login` | `app-internal` | `src/app/api/auth/login/route.ts` |\n| `POST` | `/api/auth/logout` | `app-internal` | `src/app/api/auth/logout/route.ts` |\n| `POST` | `/api/auth/recovery` | `app-internal` | `src/app/api/auth/recovery/route.ts` |\n| `DELETE`, `GET` | `/api/auth/sessions` | `app-internal` | `src/app/api/auth/sessions/route.ts` |\n| `GET` | `/api/auth/status` | `app-internal` | `src/app/api/auth/status/route.ts` |\n| `POST` | `/api/environment/rescan-if-stale` | `app-internal` | `src/app/api/environment/rescan-if-stale/route.ts` |\n| `GET` | `/api/environment/skills` | `app-internal` | `src/app/api/environment/skills/route.ts` |\n| `GET` | `/api/instance/config` | `app-internal` | `src/app/api/instance/config/route.ts` |\n| `GET` | `/api/instance/identity` | `app-internal` | `src/app/api/instance/identity/route.ts` |\n| `POST` | `/api/instance/init` | `app-internal` | `src/app/api/instance/init/route.ts` |\n| `POST` | `/api/instance/upgrade` | `app-internal` | `src/app/api/instance/upgrade/route.ts` |\n| `POST` | `/api/instance/upgrade/check` | `app-internal` | `src/app/api/instance/upgrade/check/route.ts` |\n| `GET` | `/api/instance/upgrade/status` | `app-internal` | `src/app/api/instance/upgrade/status/route.ts` |\n| `GET`, `POST` | `/api/license` | `app-internal` | `src/app/api/license/route.ts` |\n| `DELETE` | `/api/license/{id}` | `app-internal` | `src/app/api/license/[id]/route.ts` |\n| `GET` | `/api/onboarding/progress` | `app-internal` | `src/app/api/onboarding/progress/route.ts` |\n| `GET`, `POST` | `/api/settings` | `app-internal` | `src/app/api/settings/route.ts` |\n| `GET`, `POST` | `/api/settings/apps` | `app-internal` | `src/app/api/settings/apps/route.ts` |\n| `GET` | `/api/settings/author-default` | `app-internal` | `src/app/api/settings/author-default/route.ts` |\n| `GET`, `POST` | `/api/settings/browser-tools` | `app-internal` | `src/app/api/settings/browser-tools/route.ts` |\n| `GET`, `POST` | `/api/settings/budgets` | `app-internal` | `src/app/api/settings/budgets/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat` | `app-internal` | `src/app/api/settings/chat/route.ts` |\n| `POST` | `/api/settings/chat/model-prompt-impression` | `app-internal` | `src/app/api/settings/chat/model-prompt-impression/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/pins` | `app-internal` | `src/app/api/settings/chat/pins/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/saved-searches` | `app-internal` | `src/app/api/settings/chat/saved-searches/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/dashboard` | `app-internal` | `src/app/api/settings/dashboard/route.ts` |\n| `GET`, `POST` | `/api/settings/environment` | `app-internal` | `src/app/api/settings/environment/route.ts` |\n| `GET` | `/api/settings/glance` | `app-internal` | `src/app/api/settings/glance/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/github` | `app-internal` | `src/app/api/settings/github/route.ts` |\n| `GET` | `/api/settings/github/repositories` | `app-internal` | `src/app/api/settings/github/repositories/route.ts` |\n| `GET`, `POST` | `/api/settings/learning` | `app-internal` | `src/app/api/settings/learning/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/ollama` | `app-internal` | `src/app/api/settings/ollama/route.ts` |\n| `GET`, `POST` | `/api/settings/openai` | `app-internal` | `src/app/api/settings/openai/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/openai/login` | `app-internal` | `src/app/api/settings/openai/login/route.ts` |\n| `POST` | `/api/settings/openai/logout` | `app-internal` | `src/app/api/settings/openai/logout/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/settings/openai-compatible/{runtimeId}` | `app-internal` | `src/app/api/settings/openai-compatible/[runtimeId]/route.ts` |\n| `GET`, `POST` | `/api/settings/pricing` | `app-internal` | `src/app/api/settings/pricing/route.ts` |\n| `GET` | `/api/settings/providers` | `app-internal` | `src/app/api/settings/providers/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/routing` | `app-internal` | `src/app/api/settings/routing/route.ts` |\n| `GET`, `POST` | `/api/settings/runtime` | `app-internal` | `src/app/api/settings/runtime/route.ts` |\n| `POST` | `/api/settings/test` | `app-internal` | `src/app/api/settings/test/route.ts` |\n| `GET`, `POST` | `/api/settings/web-search` | `app-internal` | `src/app/api/settings/web-search/route.ts` |",
+      "wordCount": 574
     },
     {
       "heading": "Endpoint Reference",
@@ -96,6 +103,62 @@
       "level": 2,
       "markdown": "",
       "wordCount": 0
+    },
+    {
+      "heading": "GET /api/auth/status",
+      "id": "get-api-auth-status",
+      "level": 3,
+      "markdown": "Public status exchange. Returns the exposure profile, configured and\nauthenticated booleans, Cell id, and current session summary. It returns no\ncredential or password state.",
+      "wordCount": 24
+    },
+    {
+      "heading": "POST /api/auth/bootstrap",
+      "id": "post-api-auth-bootstrap",
+      "level": 3,
+      "markdown": "Public first-admin exchange with strict body `{ token, password, deviceName }`.\nThe password must contain at least 12 characters. A successful atomic exchange\nsets an HttpOnly session cookie and returns eight recovery codes once. Exact\nconfigured `Origin` is required. Invalid, expired, replayed, or rate-limited\nattempts return stable named errors.",
+      "wordCount": 47
+    },
+    {
+      "heading": "POST /api/auth/login",
+      "id": "post-api-auth-login",
+      "level": 3,
+      "markdown": "Public password exchange with `{ password, deviceName }`. A successful request\napproves a fresh named 12-hour session and sets a new HttpOnly cookie. Exact\nconfigured `Origin` is required. Invalid credentials use `LOGIN_INVALID`; the\npersistent client bucket uses `AUTH_RATE_LIMITED`.",
+      "wordCount": 34
+    },
+    {
+      "heading": "POST /api/auth/logout",
+      "id": "post-api-auth-logout",
+      "level": 3,
+      "markdown": "Public idempotent exchange that revokes the presented session when valid and\nexpires the cookie. Exact configured `Origin` is required.",
+      "wordCount": 19
+    },
+    {
+      "heading": "POST /api/auth/recovery",
+      "id": "post-api-auth-recovery",
+      "level": 3,
+      "markdown": "Public recovery exchange with `{ recoveryCode, newPassword, deviceName }`.\nSuccess consumes the code, changes the password, revokes all old sessions,\nrotates every recovery code, returns the new eight codes once, and issues a new\nsession. Exact configured `Origin` is required.",
+      "wordCount": 38
+    },
+    {
+      "heading": "GET /api/auth/sessions",
+      "id": "get-api-auth-sessions",
+      "level": 3,
+      "markdown": "Requires a live administrator session. Returns active named sessions with\ncreated, last-seen, and expiry timestamps plus a `current` marker. It never\nreturns session tokens.",
+      "wordCount": 24
+    },
+    {
+      "heading": "DELETE /api/auth/sessions",
+      "id": "delete-api-auth-sessions",
+      "level": 3,
+      "markdown": "Requires a live administrator session and strict `{ sessionId }`. Revokes the\nnamed active session and returns `{ ok: true | false }`.",
+      "wordCount": 18
+    },
+    {
+      "heading": "GET /api/auth/events",
+      "id": "get-api-auth-events",
+      "level": 3,
+      "markdown": "Requires a live administrator session. Optional `limit` is bounded to 1 through\n100. Returns content-free event and reason codes, session ids, timestamps, and\nhashed client fingerprints. It never returns raw credentials, IP addresses,\nuser agents, prompts, or customer content.",
+      "wordCount": 39
     },
     {
       "heading": "POST /api/settings/chat/model-prompt-impression",
@@ -546,9 +609,9 @@
       "wordCount": 129
     }
   ],
-  "sourceHash": "cab62b123eaa13385eea380b58bd7da390686480a67eed9e32258bf376145d2e",
+  "sourceHash": "83638884962032095833a808367bc5c76ab3e1c5430f9e6f428485a36d3d46ce",
   "sourcePath": "api/reference/06-settings-license-instance.md",
-  "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
+  "sourceStateHash": "e84d86af80e51f9d8804baee57a490a61a7c6e31bd355666caf42aeb37cc1014",
   "stability": "admin-local",
   "summary": "Document local settings, license lifecycle, instance identity, upgrade, environment, and onboarding routes.",
   "title": "Settings, License, And Instance API"

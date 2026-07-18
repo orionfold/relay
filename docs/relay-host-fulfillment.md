@@ -3,7 +3,7 @@
 Relay uses two distribution channels for one release family:
 
 - npm provides the Relay CLI/application, direct local single-Cell path, and
-  the future Host supervisor;
+  the Host-local supervisor;
 - an OCI registry provides the sealed Linux Relay Cell runtime used by a
   managed Host.
 
@@ -36,8 +36,10 @@ which boundary failed instead of reducing them all to “not authorized.”
 The accepted launch Host grant is annual, one Host, and ten managed Cells.
 Website owns the amount and checkout lookup key; the canonical public source is
 [orionfold.com/relay/pricing.json](https://orionfold.com/relay/pricing.json).
-Until that feed contains the Host offer and G-083/G-084 ship the supervisor and
-UX, Relay must describe Host as planned rather than purchasable.
+Until that feed contains the Host offer and G-084 ships the lifecycle UX, Relay
+must describe Host as pre-release rather than purchasable. G-083 supplies the
+local CLI/domain implementation, but does not authorize a public image pull,
+purchase, or cloud deployment by itself.
 
 ## What counts
 
@@ -83,7 +85,10 @@ be separately specified for privacy, availability, recovery, and offline grace.
    capacity checks pass.
 
 Website implementation is owned by Website G-030. OCI publication is G-094.
-Host lifecycle enforcement and UX are G-083/G-084. The accepted machine-readable
+Host lifecycle enforcement is G-083; browser UX is G-084. The accepted machine-readable
 contract lives at [`contracts/relay-host-license-v1.schema.json`](../contracts/relay-host-license-v1.schema.json),
 with executable policy in
 [`src/lib/licensing/host-entitlement.ts`](../src/lib/licensing/host-entitlement.ts).
+
+The implemented local commands and their current release gates are documented
+in [Relay Host supervisor](./relay-host-supervisor.md).

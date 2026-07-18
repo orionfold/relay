@@ -1,5 +1,5 @@
 ---
-generated: 2026-07-17
+generated: 2026-07-18
 mode: next-steps
 ---
 
@@ -8,44 +8,46 @@ mode: next-steps
 > Non-authoritative snapshot generated from `_IDEAS/backlog.md`. Relay's live
 > portfolio and goal state remain canonical only in that backlog.
 
-## Next Steps — 2026-07-17
+## Next Steps — 2026-07-18
 
 ### Recommendation
 
-**Do this next, after operator approval:** Complete **G-094 — Publish signed
-multi-architecture Relay Cell OCI releases**. G-100 accepted the combined
-packaged ingress/recovery journey, so Host R2 is complete and R3 is current.
+**Do this next:** Complete **G-084 — Implement the local-device/cloud-Host
+deployment and lifecycle UX** against G-083's accepted local domain, fake
+runtime/provider ports, and content-free receipts.
 
-**Why:** The next hard dependency for the paid Host supervisor is an immutable,
-publicly verifiable Cell image on both supported Linux architectures. The local
-artifact policy already passes; G-094 turns that accepted local evidence into a
-registry, signing, attestation and rollback contract.
+**Why:** G-083 is now locally accepted, so the browser journey can be built and
+tested without inventing another lifecycle implementation. G-094's external
+GHCR proof remains a parallel R3 release gate, but its unavailable external
+authority need not block local fake-runtime UX progress.
 
-**Invoke:** first approve G-094's registry/provider and namespace visibility,
-tag/promotion/retention policy, OIDC workflow identity, and public verification
-wording. Then execute its clean-tag multi-architecture publication and
-digest-pinned conformance gate. No external write starts before that approval.
+**Invoke:** `/product-manager` for G-084's accepted flow and error-state
+contract, then implement it through the G-083 domain. Keep real provider spend,
+GHCR writes, public promotion and release outside the goal unless separately
+authorized.
 
-**Priority category:** R3 supply-chain/distribution foundation — hard
-prerequisite to G-083 and distributable Host claims.
+**Priority category:** customer-visible R3 value on top of the accepted local
+control plane.
 
 ### Context
 
-- Active workstream: **Customer-owned Relay Host** — R3 current.
-- Accepted in R1: **G-080/G-034/G-038/G-093/G-025/G-096/G-097/G-099**.
-- Accepted cross-train contract: **G-095** Host fulfillment.
-- Accepted in R2: **G-081** internet-safe ingress/identity, **G-082**
-  customer-owned encrypted recovery/portability, and **G-100** combined
-  customer-identical destruction/recovery staging.
-- Next prioritized goal: **G-094**, pending its explicit publication decisions.
-- Enterprise connectors remains queued until an intentional WIP decision.
+- Active workstream: **Customer-owned Relay Host**, increment **R3 — Licensed
+  local Host beta**.
+- Accepted locally: **G-083** Host supervisor and Cell contract.
+- In progress/gated: **G-094**; local implementation commit `7054114f` passes,
+  while native staging and production publication still require explicit
+  external-write authority.
+- Next implementation: **G-084** browser lifecycle UX. It remains unreleasable
+  until G-094, Website Host fulfillment, pricing freshness/retention semantics,
+  and fresh staging gates pass.
+- Enterprise connectors E0 is ready but intentionally queued behind the active
+  Host workstream.
 
 ### If You Have More Time
 
-1. Approve and complete **G-094**; it remains separately gated and is not
-   implied by local R1/R2 acceptance.
-2. Website G-030 may consume G-095's schema/vectors in parallel; after G-094,
-   G-083 is the next Relay implementation goal.
+1. Prepare the explicit external-write approval packet for G-094.
+2. Coordinate G-020 pricing freshness, G-030 retention language, and Website
+   G-030 Host offer issuance before the R3 release candidate.
 
 ---
 

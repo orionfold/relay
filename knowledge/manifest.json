@@ -1,9 +1,9 @@
 {
-  "bundleHash": "36a5b7706aee156e2cf4e55a0f8e5d31c0be16318a0c73d0ab8690a96ca2b9e5",
+  "bundleHash": "3a9e730aaec38e74a5cc512f29827c23c0f59129c5cd80a82f7495af6012cb28",
   "corpus": {
     "apiDocsVersion": "2026-07-08.initial-plan",
-    "apiTrackerHash": "b33a5ab7a7de43d8f5344fc71962e3f5cf1acb82b9efbb323fc728e0c92031d0",
-    "guideTrackerHash": "1e51332e26bcd33fc369a5a25ba572d7d2d9ca5f8c24ee04afc3145ec83f1737",
+    "apiTrackerHash": "4284ea4f3f7d65ef25b462896cfbd88d50e9a0e886f1114dbe29ceaaac83bb0b",
+    "guideTrackerHash": "57fee2eb9d950c14bd2bf1d0aca62a9b48a81426e3c3de3b35be21fec4913ca0",
     "guideVersion": "2026-07-09.narrative-book-guide",
     "screenshotManifestHash": "407f643e64fcd405366b709b047fdf69ebdef98aee8bfb5611f42c0d95c591b3"
   },
@@ -19,13 +19,13 @@
       "title": "Relay Local API Overview"
     },
     {
-      "contentHash": "31bf1bb299790f5fee31f9266b549c0e9255b6b4256c25d9ad0a6db2d0a87622",
+      "contentHash": "5790d332ac432f61badd982765561d296f2ecd69b5133ec516f2a81bff818f1b",
       "id": "api:02-core-records",
       "kind": "api",
       "path": "entries/api.02-core-records.json",
       "publicUrl": "https://orionfold.com/relay/api/02-core-records/",
-      "sourceHash": "1a9ffd2fed9b6013281b6fa7b37eedac39306844463d4b58c384fd6a6b163196",
-      "sourceStateHash": "6a35c152823d81186c88638ddb4e2efa41deda31b298322ee9f842ac7cbfd0f0",
+      "sourceHash": "e8ddf524a8336387587fc33bd48e09e2cc1ff4b3e0686563bc161f1a33cb3a5b",
+      "sourceStateHash": "d4662908b29698e518c2c100d50dfe728525893dffbd6f463147e362fa5abd84",
       "title": "Core Records API"
     },
     {
@@ -39,13 +39,13 @@
       "title": "Agents, Chat, And Runtimes API"
     },
     {
-      "contentHash": "cb9e932bf1e70e4d3da83766e626532faf8c5e8ef641e0f0cfcfedb4304ecc2f",
+      "contentHash": "f8957112a62c5fb6f35567c346043c7494f0d1b2c0d4c74b0917de130d3965e3",
       "id": "api:04-workflows-automation",
       "kind": "api",
       "path": "entries/api.04-workflows-automation.json",
       "publicUrl": "https://orionfold.com/relay/api/04-workflows-automation/",
-      "sourceHash": "00eda4432e385f38fdd5a7e49d78d79a5f745070050bcabd3737bacddadbdabc",
-      "sourceStateHash": "439440b4c85d28fe7f540cd0201d2baddcdc82f54f3a15f78ef42c03c0fc6399",
+      "sourceHash": "d2dedb5058a4e7dc3a29381eed37b06f7e6411fc2722e10f6530e4aadbc08e9f",
+      "sourceStateHash": "f1fc958cca3789e38130e00c202d6cc5486c1eb63bd844e07a973798ab391fab",
       "title": "Workflows And Automation API"
     },
     {
@@ -59,23 +59,23 @@
       "title": "Packs, Apps, Tables, And Publishing API"
     },
     {
-      "contentHash": "1d9c2adf3d116eb754c907e99acd201714e55eeb91cce98da7c3e9786298edc2",
+      "contentHash": "c79e914faf51265a8a1c0df294eef4af8d8e737163dd32bfc1f4720a194c7fd7",
       "id": "api:06-settings-license-instance",
       "kind": "api",
       "path": "entries/api.06-settings-license-instance.json",
       "publicUrl": "https://orionfold.com/relay/api/06-settings-license-instance/",
-      "sourceHash": "cab62b123eaa13385eea380b58bd7da390686480a67eed9e32258bf376145d2e",
-      "sourceStateHash": "7932e37ae12a27afedb73b8c88e8d4b0f97213142409067345b9da22782f922e",
+      "sourceHash": "83638884962032095833a808367bc5c76ab3e1c5430f9e6f428485a36d3d46ce",
+      "sourceStateHash": "e84d86af80e51f9d8804baee57a490a61a7c6e31bd355666caf42aeb37cc1014",
       "title": "Settings, License, And Instance API"
     },
     {
-      "contentHash": "06eb5b45383659f0a8a8b8465bbe6cb7c15bfe1d29946cc4ad25f75bf30b4e93",
+      "contentHash": "bbb25f8663394a626ca9a6bc81aef63c342f9e18e798e7f7d4305a7f55f8a7be",
       "id": "api:07-files-observability-maintenance",
       "kind": "api",
       "path": "entries/api.07-files-observability-maintenance.json",
       "publicUrl": "https://orionfold.com/relay/api/07-files-observability-maintenance/",
-      "sourceHash": "af96cf95cb72a19a941f86c4c5b905558de59fd6579ff768f06051ea8753ddc6",
-      "sourceStateHash": "5426b624b00c8f9d8e8e7732ab4bc79b0e90e8fa4724ce3ee650a0bbfe16c2ae",
+      "sourceHash": "27b79bdcc46e86f1c358f7cbf06b41f7073caa7bd668a2203b7e07e4187946b4",
+      "sourceStateHash": "86e4da5a4e718d27449fdecf62e2e92d9642e5efeeb11f00e2dfee78d99297c2",
       "title": "Files, Observability, And Maintenance API"
     },
     {
@@ -109,13 +109,13 @@
       "title": "Use Packs And Licenses"
     },
     {
-      "contentHash": "d779f10738bf610697dd50153d99381fbd17a5aaaf72375b49d0c03f50258c8d",
+      "contentHash": "1b19679ec5e377cafbb6246512d9f19572a40ebc335abc8cdfaa825313897971",
       "id": "guide:03-customers-projects-tasks",
       "kind": "guide",
       "path": "entries/guide.03-customers-projects-tasks.json",
       "publicUrl": "https://orionfold.com/relay/docs/organize-customers-projects-and-tasks/",
-      "sourceHash": "8f3a7bfd3fd7178c12714af64cdeea5cfec1c8856846ead488ec05066eacf41c",
-      "sourceStateHash": "651c6b7f08480511b7deec4b601fb1a289eb35eac97186c044bd38471b86d4ba",
+      "sourceHash": "ae7b3476bc2d58b9c27b886d3fc4392814d61c9380a66f280ca44930ea3206da",
+      "sourceStateHash": "b0cba702b82e0be557d32b5199c8f1b705668502c06c3202b8702cba37588c0d",
       "title": "Organize Customers, Projects, And Tasks"
     },
     {
@@ -129,12 +129,12 @@
       "title": "Plan Work With Chat, Agents, And Runtimes"
     },
     {
-      "contentHash": "88a7d4f4f8f2694730d40ce4364c1803717bad540229b2c55e62a87b68122704",
+      "contentHash": "aa4688a15b47d0355eb4952c1144ae19600e55ca54d3bf965dd30d8932c96307",
       "id": "guide:05-workflows-and-inbox",
       "kind": "guide",
       "path": "entries/guide.05-workflows-and-inbox.json",
       "publicUrl": "https://orionfold.com/relay/docs/run-workflows-with-human-checkpoints/",
-      "sourceHash": "4ae51f9f5a4eaa3f19e35bec002d9b7a419fa8e4623bc36d154807152219d4d9",
+      "sourceHash": "6328aef35a0ed00162f988e11a1a42944bf24b2beffae406f6ea3992ba81305a",
       "sourceStateHash": "58193c11331de1df48c12bcb006de86a865a0fd4a6a3edb3c63ebcbfeb4e4dfd",
       "title": "Run Workflows With Human Checkpoints"
     },
@@ -169,20 +169,20 @@
       "title": "Build And Publish A Small Website"
     },
     {
-      "contentHash": "c4d602bfdc9d84cbfba302cc103ccd86ffcb6105be842a0ce7f0b8fa22bf5d97",
+      "contentHash": "9f790aa50167c1b1537ee6c1ce514e94d8395a798093431f1f719bcf4a4376f8",
       "id": "guide:09-settings-trust",
       "kind": "guide",
       "path": "entries/guide.09-settings-trust.json",
       "publicUrl": "https://orionfold.com/relay/docs/set-trust-runtime-and-local-controls/",
-      "sourceHash": "b2a8fafee0cce4b1ea8cf20d4ee3d47200e4b65524f955e4c794e3a669da295e",
-      "sourceStateHash": "bdcfa5cceb7a10b0cb56352dbc50c0758fd0e88e9091f75a5a8e99da69938fde",
+      "sourceHash": "42ea30a5c225a7b0ddaf3c4346630f8fd541acf4d401fd7914f3fe095f66b804",
+      "sourceStateHash": "00141a6ef05a34671cfe4ce2f2766f85436f95456e70e7d39b2fe0ca4440819f",
       "title": "Set Trust, Runtime, And Local Controls"
     }
   ],
   "entryCount": 17,
-  "indexHash": "3eb2e6b874f7d4ee843fee02234f542b18e0cb05f211758cbc73562cd8988d4a",
+  "indexHash": "d0785059f6fe43f553af650a08c77561a8d166e41eef9378d5f51d8da8285a4a",
   "releaseVersion": "0.43.0",
   "schemaVersion": 2,
-  "sectionCount": 434,
-  "sourceBundleHash": "ad502ac5601807ee26496341abce017deec58a30a3246efe117e0cf9c07f4c3e"
+  "sectionCount": 448,
+  "sourceBundleHash": "00f9b777ba9f2ffa3765fa613afca003b64ac8d5a60edfa71ce5ec9146c98366"
 }

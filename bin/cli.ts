@@ -58,10 +58,12 @@ const _envLocalPath = join(launchCwd, ".env.local");
 const _hasDataDirFlag = process.argv
   .slice(2)
   .some((a) => a === "--data-dir" || a.startsWith("--data-dir="));
+const _isHostCommand = process.argv[2] === "host";
 const _firstRunNeedsEnv =
   !existsSync(_envLocalPath) &&
   !process.env.RELAY_DATA_DIR &&
   !_hasDataDirFlag &&
+  !_isHostCommand &&
   !isDevMode(launchCwd);
 
 if (_firstRunNeedsEnv) {
@@ -182,6 +184,7 @@ Examples:
   node dist/cli.js recovery create --destination /mnt/relay-backups --key-file /secure/relay-cell.key
   node dist/cli.js recovery verify --bundle <path> --key-file /secure/relay-cell.key
   node dist/cli.js recovery restore --bundle <path> --key-file <path> --target-data-dir ~/.relay-restored
+  node dist/cli.js host inventory            # inspect the local Relay Host supervisor registry
 `;
 }
 
@@ -227,6 +230,7 @@ const isPackSubcommand = firstArg === "pack";
 const isLicenseSubcommand = firstArg === "license";
 const isAuthSubcommand = firstArg === "auth";
 const isRecoverySubcommand = firstArg === "recovery";
+const isHostSubcommand = firstArg === "host";
 
 if (isPluginSubcommand) {
   const action = process.argv[3];
@@ -294,6 +298,23 @@ if (isRecoverySubcommand) {
     log: (m) => console.log(m),
     error: (m) => console.error(m),
   });
+  process.exit(code);
+}
+
+if (isHostSubcommand) {
+  await ensureNativeSqliteOrExit();
+  const [{ runHostCommand }, { relayProductVersion }] = await Promise.all([
+    import("../src/lib/host/supervisor/cli"),
+    import("../src/lib/config/version"),
+  ]);
+  const code = await runHostCommand(
+    process.argv.slice(3),
+    {
+      log: (message) => console.log(message),
+      error: (message) => console.error(message),
+    },
+    { version: relayProductVersion() },
+  );
   process.exit(code);
 }
 
