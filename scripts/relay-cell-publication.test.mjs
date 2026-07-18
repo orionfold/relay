@@ -6,6 +6,7 @@ import { test } from "node:test";
 import {
   RelayCellPublicationError,
   createReleaseIndexPlan,
+  validateDocumentation,
   validateIndexManifest,
   validatePlatformEvidence,
   validatePromotionInput,
@@ -64,6 +65,15 @@ test("approved publication policy is exact and dependency-free", () => {
     mutation(copy);
     expectCode(() => validatePublicationPolicy(copy), "CELL_PUBLICATION_POLICY_INVALID");
   }
+});
+
+test("publication documentation requires the accepted public proof and rejects stale status", () => {
+  const documentation = readFileSync(new URL("docs/relay-cell-oci-release.md", root), "utf8");
+  assert.equal(validateDocumentation(documentation, policy), true);
+  expectCode(
+    () => validateDocumentation(`${documentation}\nNo Relay Cell image has been published`, policy),
+    "CELL_PUBLICATION_POLICY_INVALID",
+  );
 });
 
 test("npm closure measurement counts regular files without following symlinks", () => {

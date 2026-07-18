@@ -18,12 +18,13 @@ cannot reach into Cells on other Hosts.
 
 ## Current release state
 
-The local G-083 control plane is implemented on mainline. Production managed
-Cell fulfillment is not yet released: G-094 must publish and prove the public
-signed multi-architecture Cell image, Website must publish the Host offer and
-issue its signed grant, and G-084 owns browser lifecycle UX. The supervisor
-therefore must not be presented as currently purchasable or as proof that a
-public Cell digest is available.
+The local G-083 control plane is implemented on mainline. G-094 has published
+and proved the public signed multi-architecture Cell image at immutable index
+digest `sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73`.
+Production managed-Cell fulfillment is still not released: Website must publish
+the Host offer and issue its signed grant, and G-084 owns browser lifecycle UX.
+The supervisor therefore must not be presented as currently purchasable merely
+because its free runtime image is available.
 
 ## What it stores
 
@@ -72,9 +73,9 @@ execution authority is the immutable image reference, never a mutable tag:
   "ownerRef": "owner_customer_a",
   "origin": "create",
   "artifact": {
-    "version": "0.43.0",
-    "imageReference": "ghcr.io/orionfold/relay-cell@sha256:<64-lowercase-hex>",
-    "imageDigest": "sha256:<same-64-lowercase-hex>",
+    "version": "0.44.3",
+    "imageReference": "ghcr.io/orionfold/relay-cell@sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73",
+    "imageDigest": "sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73",
     "schemaMin": 1,
     "schemaMax": 1
   },

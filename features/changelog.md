@@ -4,14 +4,25 @@
 
 ### Completed
 
+- `relay-cell-oci-publication` (G-094) — published the free Relay Cell
+  `v0.44.3` image to public GHCR as a signed, attested multi-architecture index
+  at `sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73`.
+  Native amd64/arm64 runners passed artifact policy, reproducibility and full
+  lifecycle conformance before exact-digest staging and production copy. A
+  credential-free client then pulled the index and proved startup, readiness,
+  active-task checkpointing and restart recovery. Partial staging failure was
+  quarantined and recovered with a new immutable version. npm, GitHub Release
+  and `stable` were deliberately untouched; G-084 and Website G-030 remain R3
+  product-release gates.
+
 - `relay-host-supervisor` (G-083) — added the separately invoked `relay host` /
   `relay-host` control plane with a dedicated content-free registry, strict
   Host/Cell/receipt contracts, G-095 licensed and physical admission,
   idempotent lifecycle and crash reconciliation, exact G-082 checkpoint
   evidence, fake/provider ports, and a hardened ownership-validating Docker
   adapter. The npm package includes the supervisor without test/evidence
-  residue; G-084 UX, Website pricing/cloud providers, and G-094 external GHCR
-  proof remain separate gates.
+  residue. G-094 external GHCR proof was subsequently accepted; G-084 UX and
+  Website pricing/cloud-provider fulfillment remain separate gates.
 
 ## 2026-07-17 — Accept G-100 and Host R2 secure/recoverable alpha
 

@@ -1,8 +1,10 @@
 # Relay Cell OCI acquisition and verification
 
-> Publication status (2026-07-18): the local release mechanism is prepared,
-> but **No Relay Cell image has been published** by G-094. Commands below apply
-> after an operator-authorized GHCR release produces an accepted digest.
+> Publication status (2026-07-18): G-094 published and verified Relay Cell
+> `v0.44.3` for `linux/amd64` and `linux/arm64`. The immutable accepted index is
+> `sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73`.
+> This makes the free Cell runtime available; it does not make the separately
+> licensed Relay Host journey customer-ready.
 
 Relay Host is the local control plane installed through npm. A managed Relay
 Cell is Relay's isolated customer runtime. A Host may start a Cell from the npm
@@ -21,7 +23,7 @@ Host, not by making the Cell image private.
 Release notes and the Host manifest provide a value such as:
 
 ```text
-ghcr.io/orionfold/relay-cell@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+ghcr.io/orionfold/relay-cell@sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73
 ```
 
 Use that complete reference for deployment. `vX.Y.Z`, `vX.Y`, and `stable`
@@ -31,7 +33,7 @@ is the authority. The tag `latest` is not part of Relay's publication policy.
 Pull and inspect the accepted digest:
 
 ```bash
-export RELAY_CELL_DIGEST='sha256:<64 lowercase hexadecimal characters>'
+export RELAY_CELL_DIGEST='sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73'
 docker pull "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST"
 docker buildx imagetools inspect "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST"
 ```
@@ -109,22 +111,31 @@ separate errors. A license lapse or registry outage must not stop existing
 Cells or prevent export/recovery; it only affects new managed-Cell operations
 according to the Host license contract.
 
-## One-time production setup and release gate
+## First production proof and remaining release gate
 
-Before the first external run, an operator must separately authorize and verify:
+The authorized G-094 run completed these one-time production checks:
 
 1. GitHub environments `oci-staging` and `oci-production` exist with required
    reviewers; production deployment is limited to protected release tags.
-2. `ghcr.io/orionfold/relay-cell-staging` remains private and the candidate has
-   passed native pull/start/task, partial-publication rescue, and rollback.
-3. The production package is deliberately changed to public. GHCR public
-   visibility is a consequential, one-time external operation.
+2. `ghcr.io/orionfold/relay-cell-staging` remained private while both native
+   candidates passed content, vulnerability, reproducibility and complete Cell
+   lifecycle conformance before exact-digest production copy.
+3. `ghcr.io/orionfold/relay-cell` is public; a fresh credential-free Docker
+   configuration pulled the accepted index successfully.
 4. The exact release receipt, platform receipts, SBOM, provenance, signatures,
-   anonymous pull and customer-identical smoke all pass before `stable` moves.
+   anonymous pull, startup, readiness, task checkpoint and restart recovery all
+   passed. The run is
+   [29663211815](https://github.com/orionfold/relay/actions/runs/29663211815).
 5. No registry credential, signing key or paid/mirror dependency was added.
 
-Local preparation and dry-run do not satisfy these gates and do not authorize a
-tag, push, package visibility change, workflow dispatch or registry write.
+The release receipt records amd64 digest
+`sha256:c269278e16218cbe92b0a48c336799cb2e267421bfb7e9160791f28aa5e49e4d`
+at 131,021,904 compressed-layer bytes and arm64 digest
+`sha256:61afeafcac77f78dcaa32313a1ec515fcfa983dba5f498ed1c77c6d651c1640b`
+at 130,138,470 bytes. The public index is an acquisition artifact, not a paid
+entitlement or a Host release. `stable` remains unmoved until the R3
+customer-identical staging gate passes; exact `v0.44.3` and digest references
+are the current discovery and authority surfaces.
 
 Primary references: [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry),
 [GitHub artifact attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations),

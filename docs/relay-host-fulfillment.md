@@ -38,8 +38,8 @@ Website owns the amount and checkout lookup key; the canonical public source is
 [orionfold.com/relay/pricing.json](https://orionfold.com/relay/pricing.json).
 Until that feed contains the Host offer and G-084 ships the lifecycle UX, Relay
 must describe Host as pre-release rather than purchasable. G-083 supplies the
-local CLI/domain implementation, but does not authorize a public image pull,
-purchase, or cloud deployment by itself.
+local CLI/domain implementation, and G-094 now supplies the verified public Cell
+image; neither authorizes a Host purchase or cloud deployment by itself.
 
 ## What counts
 
@@ -84,8 +84,9 @@ be separately specified for privacy, availability, recovery, and offline grace.
 5. It admits the requested lifecycle operation only after licensed and physical
    capacity checks pass.
 
-Website implementation is owned by Website G-030. OCI publication is G-094.
-Host lifecycle enforcement is G-083; browser UX is G-084. The accepted machine-readable
+Website implementation is owned by Website G-030. OCI publication was accepted
+under G-094 at the immutable `v0.44.3` index digest. Host lifecycle enforcement
+is G-083; browser UX is G-084. The accepted machine-readable
 contract lives at [`contracts/relay-host-license-v1.schema.json`](../contracts/relay-host-license-v1.schema.json),
 with executable policy in
 [`src/lib/licensing/host-entitlement.ts`](../src/lib/licensing/host-entitlement.ts).

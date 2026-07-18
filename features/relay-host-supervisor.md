@@ -210,11 +210,11 @@ receipts can contain provider/Host resource IDs but never provider credentials.
   includes `dist/relay-host.js` plus the source contracts, and excludes all
   supervisor tests. Public-boundary, Host fulfillment, knowledge, guide and
   local-link gates pass after staging the new guide.
-- The accepted G-093 local artifact bundle still verifies at
+- At G-083 acceptance, the G-093 local artifact bundle verified at
   `sha256:36af53a89e3a7c82d990eaf0ce967abf05e5145921750e80b7844338deba6d47`.
-  This proves local mechanics only. G-094's native GHCR publication,
-  signature/attestation and digest-pinned pull/run proof remains the explicit
-  external release gate and is not claimed by G-083.
+  That proved local mechanics only and was not claimed by G-083. G-094
+  subsequently accepted native GHCR publication, signature/attestation and
+  digest-pinned pull/run proof at the public `v0.44.3` index digest.
 
 ## Compatibility and migration
 

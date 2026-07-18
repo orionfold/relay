@@ -301,9 +301,12 @@ export function validateDocumentation(source, policy) {
     "gh attestation verify",
     "oras cp",
     "vulnerability-free",
-    "No Relay Cell image has been published",
+    "published and verified Relay Cell",
+    "credential-free Docker",
+    "`stable` remains unmoved",
   ]) {
     assert(source.includes(phrase), "CELL_PUBLICATION_POLICY_INVALID", `OCI release documentation is missing: ${phrase}`);
   }
+  assert(!source.includes("No Relay Cell image has been published"), "CELL_PUBLICATION_POLICY_INVALID", "OCI release documentation still claims that no image is published");
   return true;
 }

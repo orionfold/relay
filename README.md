@@ -140,18 +140,17 @@ maintained content or managed lifecycle authority; they do not repossess Core.
 | Product | What is free | What a license adds |
 |---|---|---|
 | Relay Core | npm CLI/app and direct unmanaged single Cell | Nothing; Core remains free |
-| Relay Cell OCI image | Public, signed Cell-runtime bytes when G-094 publishes them | Nothing; image possession is not an entitlement |
+| Relay Cell OCI image | Public, signed Cell-runtime bytes at the verified `v0.44.3` digest | Nothing; image possession is not an entitlement |
 | Relay Packs | Free Packs and every installed Pack keep working | `product:orionfold-relay` permits premium Pack installation and forward updates |
 | Relay Host | Host/Cell contract and free direct Cell remain available | `product:relay-host` permits the npm-delivered supervisor to manage one Host and up to ten managed Cells under the launch contract |
 | Operator bundle | Same free Core and image | Both independent entitlements in one signed envelope; Pack seats never become Host/Cell capacity |
 
 The Host-local supervisor is implemented on mainline as the separately invoked
-`relay host` / `relay-host` CLI. It remains pre-release and cannot provide the
-production managed-Cell journey until the public Cell image, Host offer, and
-browser lifecycle UX complete their separately gated release goals. See the
-[Relay Host supervisor guide](docs/relay-host-supervisor.md). The prepared,
-still-unpublished registry verification contract is
-documented in [Relay Cell OCI acquisition and verification](docs/relay-cell-oci-release.md).
+`relay host` / `relay-host` CLI. The public multi-architecture Cell image is now
+available by verified immutable digest, but the paid Host remains pre-release
+until the Host offer and browser lifecycle UX complete their separately gated
+release goals. See the [Relay Host supervisor guide](docs/relay-host-supervisor.md)
+and [Relay Cell OCI acquisition and verification](docs/relay-cell-oci-release.md).
 
 Buying one takes a license file, redeemed once:
 

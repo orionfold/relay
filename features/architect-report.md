@@ -92,9 +92,9 @@ or a browser lifecycle API.
 
 Proceed in dependency-neutral vertical slices: strict contracts and state
 grammar; dedicated registry; licensed/physical admission; fake runtime; Docker
-adapter and local CLI; then deterministic conformance and packaging. Keep G-084
-UX, Website G-030 prices, live provider authorization and G-094 external GHCR
-proof outside this implementation.
+adapter and local CLI; then deterministic conformance and packaging. G-094's
+external GHCR proof was subsequently accepted; keep G-084 UX, Website G-030
+prices and live provider authorization outside this implementation.
 
 ---
 

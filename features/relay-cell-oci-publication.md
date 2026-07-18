@@ -1,6 +1,6 @@
 ---
 title: Signed multi-architecture Relay Cell OCI publication
-status: implementation
+status: accepted
 priority: P1
 milestone: host-r3
 goal: G-094
@@ -28,9 +28,10 @@ continues to listen only for `vX.Y.Z`. The registry still exposes the immutable
 customer-facing image tag `vX.Y.Z`, so distribution channels share a semantic
 version without sharing a publication trigger.
 
-This goal creates the repeatable publication mechanism. It does not authorize
-or perform a registry write, package visibility change, tag, push, npm publish,
-GitHub Release or customer release by itself.
+This goal creates the repeatable publication mechanism. The accepted G-094
+proof used the separately authorized OCI-only path to publish `v0.44.3`; it did
+not publish npm, create a GitHub Release, move `stable`, or claim the unfinished
+paid Host journey as customer-ready.
 
 ## Approved policy — 2026-07-18
 
@@ -135,11 +136,11 @@ tag-verified → platform-pushed/signed/attested → index-published/verified
   language.
 - [x] G-093 artifact tests, publication tests, full Relay tests, production
   build, documentation checks and fresh security review pass.
-- [ ] An authorized staging/production run later proves native pull/start/task,
+- [x] An authorized staging/production run proves native pull/start/task,
   anonymous production pull, partial-publication rescue and rollback before
   G-094 and Host R3 are accepted.
 
-## Local implementation receipt — 2026-07-18
+## Completion receipt — 2026-07-18
 
 - The first two authorized clean-run proofs failed closed before registry
   login, so neither wrote GHCR bytes. `cell-v0.44.0` exposed an untracked
@@ -153,7 +154,7 @@ tag-verified → platform-pushed/signed/attested → index-published/verified
   only on amd64 and retains an arm64 rejection regression. The isolated arm64
   digest stayed quarantined; no multi-platform index or production tag moved.
 
-- Publication contract: 8 focused tests pass, including negative tag/source,
+- Publication contract: 8 focused tests passed, including negative tag/source,
   platform-set, digest drift, signer/tag identity, missing attestation, npm
   parity, workflow trigger/permission/action-pin, index and rollback cases.
 - G-093 regression contract: 17 Node artifact/manifest tests and 7 targeted
@@ -168,16 +169,42 @@ tag-verified → platform-pushed/signed/attested → index-published/verified
   symlink traversal. Publication remains `none` with zero external writes.
 - Documentation links, knowledge-bundle verification, tracked-tree privacy,
   staged whitespace and public-boundary fixtures pass.
-- The local Docker conformance rerun was unavailable because Docker Desktop's
-  daemon was stopped. No build or network mutation started. Accepted G-099
-  remains the container baseline; the required clean native amd64/arm64 build,
-  private staging push/pull, production copy, signatures, attestations,
-  anonymous pull, partial recovery and rollback remain the visible external
-  acceptance gate rather than being simulated locally.
-- Fresh two-pass security review: **APPROVE for local commit**. No unresolved
-  critical finding. The only remaining test gap is deliberately the gated real
-  GitHub/GHCR execution above; staging retention cleanup is policy/manual until
-  an authorized registry operation implements it.
+- Authorized workflow run
+  [29663211815](https://github.com/orionfold/relay/actions/runs/29663211815)
+  passed the release quality gate, then built, audited, reproduced and ran the
+  full Cell conformance lifecycle on native `linux/amd64` and `linux/arm64`
+  runners before copying those exact audited digests through private staging to
+  production. The production jobs verified keyless signatures, provenance,
+  CycloneDX SBOMs and complete platform receipts before creating the index.
+- The immutable production index is
+  `ghcr.io/orionfold/relay-cell@sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73`.
+  It contains exactly amd64 digest
+  `sha256:c269278e16218cbe92b0a48c336799cb2e267421bfb7e9160791f28aa5e49e4d`
+  and arm64 digest
+  `sha256:61afeafcac77f78dcaa32313a1ec515fcfa983dba5f498ed1c77c6d651c1640b`.
+  The signed aggregate receipt is retained by the workflow and links GitHub
+  attestation `35991819`.
+- A fresh Docker configuration with no GHCR credentials anonymously pulled the
+  exact index. The digest-pinned arm64 Cell started under the production
+  non-root/read-only/capability/resource contract, returned ready identity
+  `g094-anonymous-proof` at Relay `0.44.3`, retained and checkpointed one active
+  task on SIGTERM, and returned ready after restart. Its disposable container,
+  network and data volume were then removed.
+- Partial-publication recovery was exercised rather than hidden: the
+  `cell-v0.44.2` run quarantined its valid arm64 staging digest when amd64 failed
+  its platform policy, advanced no customer index, and the corrected immutable
+  `cell-v0.44.3` run completed both platforms. Native conformance also exercised
+  export, upgrade and rollback to the supported prior Cell fixture. The separate
+  stable-pointer rollback workflow remains fixture-covered; `stable` was not
+  moved because this first production index has no prior stable digest and the
+  R3 customer-identical staging gate has not yet passed.
+- The receipts report npm `0.44.3` at 2,568,129 compressed bytes / 8,961,418
+  unpacked bytes / 1,365 files. OCI compressed-layer transport is 131,021,904
+  bytes for amd64 and 130,138,470 bytes for arm64. npm was not published and no
+  `v0.44.3` npm source tag or GitHub Release was created.
+- Fresh two-pass security review remained **APPROVE**. No long-lived registry or
+  signing credential, paid dependency, mirror, `latest` tag, stable promotion,
+  or unsupported vulnerability/uptime/durability claim was introduced.
 
 ## Not in scope
 

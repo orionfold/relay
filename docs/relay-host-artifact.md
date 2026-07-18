@@ -1,15 +1,17 @@
 # Relay Cell OCI artifact
 
 This is the engineering contract for the G-080/G-093 Relay Cell OCI artifact.
-It is a local alpha input to the customer-owned Relay Host release train, not a
-published image, paid-edition entitlement, or public capacity/support claim.
+G-094 used this contract to publish the verified `v0.44.3` multi-architecture
+image. The image is not a paid-edition entitlement or a public capacity/support
+claim.
 The separate commercial and fulfillment boundary is documented in
 [Relay Host fulfillment](./relay-host-fulfillment.md).
 
 ## Distribution boundary
 
-- `npx orionfold-relay` remains the direct local single-Cell path. G-083 will
-  add the managed-Host bootstrap/supervisor to the same npm package.
+- `npx orionfold-relay` remains the direct local single-Cell path. G-083 added
+  the separately invoked managed-Host bootstrap/supervisor to the same npm
+  package.
 - A managed Host pulls this immutable Cell image from the approved OCI registry
   and runs one container per Cell. The image never contains or starts the Host
   supervisor and offers no Host/Cell mode switch.
@@ -29,15 +31,17 @@ have similar download sizes.
 
 | Artifact | What it delivers | What the destination supplies |
 |---|---|---|
-| npm tarball | Relay CLI/application files, package metadata, and the direct local single-Cell path; later, the Host bootstrap/supervisor | Node.js, npm dependency installation, the operating system, native system libraries, and process administration |
+| npm tarball | Relay CLI/application files, package metadata, the direct local single-Cell path, and the separately invoked Host bootstrap/supervisor | Node.js, npm dependency installation, the operating system, native system libraries, and process administration |
 | Relay Cell OCI image | A sealed Linux Cell runtime: Relay application, pinned Node runtime, required production/native runtime files, Linux base, filesystem ownership, and container metadata | An OCI-compatible container engine plus the Cell's mounted data and configuration |
 
-The current npm dry-run measurement is `2,782,070` compressed bytes and `9,970,829`
-unpacked bytes. That is the package payload before the destination supplies
+The accepted `0.44.3` npm measurement is `2,568,129` compressed bytes and
+`8,961,418` unpacked bytes. That is the package payload before the destination
+supplies
 Node.js, installs the dependency closure, and provides its OS/native libraries.
-The optimized Linux/arm64 Cell image is `129,934,743` bytes and its OCI archive
-is `129,959,936` bytes because it carries the complete pinned Linux runtime
-closure required to start a Cell. The useful comparison is therefore an
+The accepted Linux/arm64 Cell image is `130,138,470` compressed-layer bytes and
+its OCI archive is `130,176,512` bytes because it carries the complete pinned
+Linux runtime closure required to start a Cell. The useful comparison is
+therefore an
 installed npm deployment plus Node and its host runtime prerequisites versus a
 complete OCI image—not the npm tarball alone versus the image. OCI layers can
 also be cached and reused between Cell releases.
@@ -161,10 +165,10 @@ npm run host:artifact:verify
 ```
 
 The manifest reports `sourceState: dirty-local` when it was created from local
-uncommitted inputs. Only a clean, committed source state may be considered by a
-future publication job. Production signing key custody, OIDC/cosign registry
-attestation, multi-architecture publication, and paid-license authorization
-belong to later release-train goals and are intentionally absent here.
+uncommitted inputs. Only a clean, committed source state may be considered by
+the publication job. G-094 now owns the protected OIDC/Cosign registry path and
+published release receipts; this local artifact command still performs no push
+or publication. Paid-license authorization remains a separate Host boundary.
 
 ## Volume export contract
 
