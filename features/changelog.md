@@ -1,5 +1,33 @@
 # Feature Changelog
 
+## 2026-07-17 — Accept G-100 and Host R2 secure/recoverable alpha
+
+### Completed
+
+- Packed and installed Relay `0.43.0` from an empty non-git directory, then
+  proved first-admin, login, named sessions, revocation, administrator recovery
+  rotation, protected-route refusal, exact-origin checks, and private/remote
+  authenticated ingress behavior.
+- Verified the redacted recovery Settings card at 1,440 px and 390 px and drove
+  encrypted create, verify, and isolated drill through the packaged UI.
+- Closed `F-G100-001`, found by the first destruction run: filesystem-backed
+  licenses were absent after restore. Added `licenses/` to both fixed archive
+  allowlists and to the recovery round-trip regression, rebuilt the artifact,
+  and repeated the journey from zero.
+- Destroyed the accepted rerun's source Cell, restored into a different empty
+  root, and restarted the packaged CLI from that root. Cell identity, health,
+  access sessions, encrypted setting, signed fixture license, seeded records,
+  and completed task marker survived.
+- Accepted Host R2 and advanced the active train to R3, with G-094 next behind
+  its explicit registry/provider/publication operator gates. Evidence is under
+  `output/staging/2026-07-17-g100-r2/`.
+
+### Not performed
+
+- No public artifact, external ingress, production credential/service,
+  registry write, push, publish, tag, version change, release, KMS integration,
+  durability SLA, RPO, or RTO claim.
+
 ## 2026-07-17 — Complete G-081 Host ingress and first-admin identity
 
 ### Completed

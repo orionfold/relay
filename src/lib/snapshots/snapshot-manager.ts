@@ -3,7 +3,7 @@
  *
  * A snapshot includes:
  *   1. Atomic SQLite backup via .backup() API (WAL-safe)
- *   2. Tarball of all ~/.ainative/ file directories (uploads, screenshots, outputs, etc.)
+ *   2. Tarball of Cell-owned file directories (uploads, licenses, screenshots, outputs, etc.)
  *   3. manifest.json with metadata
  */
 
@@ -39,6 +39,7 @@ import { backupAuthStore } from "@/lib/host-ingress/store";
 // Directories included in snapshot (relative to ainative data dir)
 const SNAPSHOT_DIRS = [
   "uploads",
+  "licenses",
   "screenshots",
   "outputs",
   "sessions",

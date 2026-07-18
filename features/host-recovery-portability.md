@@ -162,3 +162,28 @@ explicit operator policy.
 G-100 owns the fresh packaged, customer-identical combined G-081/G-082 staging
 gate. Provider adapters, managed storage, KMS, retention defaults, SLA claims,
 push, publish, and release remain separately gated.
+
+## G-100 packaged acceptance receipt — 2026-07-17
+
+- A clean `0.43.0` npm tarball and production-build mirror were installed from
+  an empty non-git directory. First-admin, login, session revocation,
+  administrator recovery-code rotation, protected-route refusal, exact-origin
+  mutation checks, and private/remote ingress credentials all passed with
+  their named reason codes.
+- The configured Settings recovery card exposed neither key bytes nor raw
+  paths and remained internally overflow-free at 1,440 px and 390 px. Create,
+  verify, and drill returned `RECOVERY_READY`, `RECOVERY_VERIFIED`, and
+  `RECOVERY_DRILL_VERIFIED` with Relay/access DB integrity `ok` and the Cell
+  secret root present.
+- The first destroyed-source run exposed and closed `F-G100-001`: the snapshot
+  and recovery file allowlists omitted the filesystem-backed `licenses/`
+  directory. The allowlists and round-trip regression were repaired, then the
+  production artifact was rebuilt and the entire run repeated from zero.
+- The accepted rerun destroyed the source Cell, restored into a different empty
+  root, and started the packaged CLI directly from that root. Health, recovered
+  browser/API sessions, the encrypted synthetic setting, valid signed fixture
+  license, seeded data, and completed task marker all survived. The evidence
+  bundle is `output/staging/2026-07-17-g100-r2/`.
+- The reusable G-025 gate accepted Host R2. No public artifact, external
+  ingress, production credential, registry write, push, publish, tag, version,
+  release, provider durability, KMS, or RPO/RTO claim was authorized.

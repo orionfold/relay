@@ -37,7 +37,7 @@ import { recoveryPayloadSchema, recoveryReceiptSchema, type RecoveryReceipt, typ
 
 const RECOVERY_LOCK_STALE_MS = 60 * 60 * 1000;
 const RECEIPT_DIR = "recovery/receipts";
-const FILE_ARCHIVE_ROOTS = new Set(["uploads", "screenshots", "outputs", "sessions", "documents", "logs"]);
+const FILE_ARCHIVE_ROOTS = new Set(["uploads", "licenses", "screenshots", "outputs", "sessions", "documents", "logs"]);
 let recoveryLocked = false;
 
 export type RecoveryOptions = {

@@ -12,37 +12,40 @@ mode: next-steps
 
 ### Recommendation
 
-**Do this:** Complete **G-100 — Stage the secure and recoverable Relay Host
-alpha**. G-081 ingress/identity and G-082 encrypted recovery are accepted; the
-remaining R2 gate is a combined fresh packaged customer journey.
+**Do this next, after operator approval:** Complete **G-094 — Publish signed
+multi-architecture Relay Cell OCI releases**. G-100 accepted the combined
+packaged ingress/recovery journey, so Host R2 is complete and R3 is current.
 
-**Why:** The individual security slices and isolated destroyed-Host runtime
-smoke pass. The next load-bearing uncertainty is packaging and integration:
-whether a customer-identical first run can authenticate, recover, restart and
-resume representative work without source-checkout shortcuts.
+**Why:** The next hard dependency for the paid Host supervisor is an immutable,
+publicly verifiable Cell image on both supported Linux architectures. The local
+artifact policy already passes; G-094 turns that accepted local evidence into a
+registry, signing, attestation and rollback contract.
 
-**Invoke:** run G-100 under the reusable G-025 staging contract against a clean
-packed artifact, including authenticated ingress, Settings recovery UX,
-destroyed-source restore, post-restart sign-in/work, and cleanup evidence.
+**Invoke:** first approve G-094's registry/provider and namespace visibility,
+tag/promotion/retention policy, OIDC workflow identity, and public verification
+wording. Then execute its clean-tag multi-architecture publication and
+digest-pinned conformance gate. No external write starts before that approval.
 
-**Priority category:** R2 security foundation — required before any public Host
-or cloud-server customer journey.
+**Priority category:** R3 supply-chain/distribution foundation — hard
+prerequisite to G-083 and distributable Host claims.
 
 ### Context
 
-- Active workstream: **Customer-owned Relay Host** — R2 current.
+- Active workstream: **Customer-owned Relay Host** — R3 current.
 - Accepted in R1: **G-080/G-034/G-038/G-093/G-025/G-096/G-097/G-099**.
 - Accepted cross-train contract: **G-095** Host fulfillment.
-- Accepted in R2: **G-081** internet-safe ingress/identity and **G-082**
-  customer-owned encrypted recovery/portability.
-- Next prioritized goal: **G-100** combined customer-identical R2 staging.
+- Accepted in R2: **G-081** internet-safe ingress/identity, **G-082**
+  customer-owned encrypted recovery/portability, and **G-100** combined
+  customer-identical destruction/recovery staging.
+- Next prioritized goal: **G-094**, pending its explicit publication decisions.
 - Enterprise connectors remains queued until an intentional WIP decision.
 
 ### If You Have More Time
 
-1. Complete **G-100** to accept R2 before beginning the R3 implementation chain.
-2. Website G-030 may now consume G-095's schema/vectors; G-094 publication
-   remains separately gated and is not implied by local R1 acceptance.
+1. Approve and complete **G-094**; it remains separately gated and is not
+   implied by local R1/R2 acceptance.
+2. Website G-030 may consume G-095's schema/vectors in parallel; after G-094,
+   G-083 is the next Relay implementation goal.
 
 ---
 

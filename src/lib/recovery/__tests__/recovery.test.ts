@@ -49,6 +49,8 @@ describe("customer-owned recovery", () => {
     rmSync(`${authStorePath()}-shm`, { force: true });
     mkdirSync(join(getAinativeDataDir(), "uploads"), { recursive: true });
     writeFileSync(join(getAinativeDataDir(), "uploads", "customer.txt"), "portable customer state");
+    mkdirSync(join(getAinativeDataDir(), "licenses"), { recursive: true });
+    writeFileSync(join(getAinativeDataDir(), "licenses", "customer.license.json"), "synthetic signed license");
     writeFileSync(join(getAinativeDataDir(), ".keyfile"), randomBytes(32), { mode: 0o600 });
     createRecoveryKeyFile(keyFile);
     const bootstrap = createBootstrapToken();
@@ -75,13 +77,14 @@ describe("customer-owned recovery", () => {
     await expect(drillRecoveryBundle({ bundlePath: created.bundlePath, keyFile })).resolves.toMatchObject({
       status: "verified",
       reasonCode: "RECOVERY_DRILL_VERIFIED",
-      restoredFileCount: 1,
+      restoredFileCount: 2,
     });
 
     const restoredRoot = join(externalRoot, "restored-cell");
     const restored = await restoreRecoveryBundle({ bundlePath: created.bundlePath, keyFile, targetDataDir: restoredRoot });
     expect(restored.status).toBe("restored");
     expect(readFileSync(join(restoredRoot, "uploads", "customer.txt"), "utf8")).toBe("portable customer state");
+    expect(readFileSync(join(restoredRoot, "licenses", "customer.license.json"), "utf8")).toBe("synthetic signed license");
     expect(readFileSync(join(restoredRoot, ".keyfile"))).toEqual(readFileSync(join(getAinativeDataDir(), ".keyfile")));
     expect(existsSync(join(restoredRoot, "relay-auth.db"))).toBe(true);
     expect(statSync(join(restoredRoot, ".keyfile")).mode & 0o077).toBe(0);

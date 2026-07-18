@@ -116,7 +116,7 @@ mere architectural alignment:
 | G-094 | G-025 acceptance after G-093 | reuses G-080/G-093 image policy; registry, signing identity and every external write remain operator-gated | published signed multi-architecture Cell image for managed Hosts |
 | G-081 | accepted 2026-07-17 after G-079 | accepted against the G-080 artifact; G-083 must consume its ingress/path/session contract | authenticated remote Host access and server-owned Cell-side routing contract |
 | G-082 (accepted 2026-07-17) | G-079, G-080 | accepted provider-neutral encrypted bundle, per-Cell secret root, empty-root restore and local-directory transport; connector secrets/backups consume this contract | recoverable, portable cells and per-cell secret roots |
-| G-100 | G-081 and G-082 accepted | fresh reusable G-025 customer-identical staging invocation; no external publish or durability SLA | combined authenticated and destroyed-Host R2 release-candidate evidence |
+| G-100 (accepted 2026-07-17) | G-081 and G-082 accepted | reusable G-025 customer-identical staging passed after repairing license-directory continuity; no external publish or durability SLA | combined authenticated and destroyed-Host R2 release-candidate evidence |
 | G-020 | — | G-084 must reuse its dated freshness/staleness semantics or explicitly own a separate cloud-price catalog contract | prevents duplicated or falsely-current estimate behavior |
 | G-030 | — | G-083/G-084 reuse retain-by-default versus separately confirmed purge semantics | immediate removal clarity and consistent destructive-language policy |
 | G-083 | G-079, G-080, G-081 and G-082 accepted; G-094 remains | G-030 retention semantics; entitlement policy remains operator-gated | npm-delivered paid local Host supervisor beta and stable Host/Cell lifecycle API |
@@ -159,7 +159,7 @@ improvements.
 |---|---|---|---|
 | **R0 — Isolation contract** | G-058 → G-060 → G-079 | customers and operators can tell attribution from a real security boundary and choose same-Host versus separate-VM placement truthfully | approved Host/cell contract, trust copy and TDR disposition; no provisioning claim |
 | **R1 — Local Host alpha** | G-034 conditional preflight; G-038 parallel quick win; G-080 → G-025 | reproducible local-device installation, isolated Cell data roots and a signed Cell image; first-run prompts no longer recur per Cell | local one-Host/two-cell smoke, package/native checks, rollback/export and customer-identical staging |
-| **R2 — Secure and recoverable Host alpha** | G-081 and G-082 accepted 2026-07-17 → G-100 fresh staging | authenticated remote use plus encrypted off-Host recovery and portable export, useful even before automated cloud provisioning | implementation and isolated Host-loss smoke accepted; combined packaged customer-identical journey remains |
+| **R2 — Secure and recoverable Host alpha** | G-081, G-082 and G-100 accepted 2026-07-17 | authenticated remote use plus encrypted off-Host recovery and portable export, useful even before automated cloud provisioning | clean packaged first-admin, ingress, destruction, empty-root restore and restarted-work evidence accepted |
 | **R3 — Licensed local Host beta** | G-094; G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 → G-025 | npm-delivered Host supervisor, registry-delivered Cell image and paid self-service Host/Cell lifecycle on a local device and fake VM | signed registry Cell image, entitlement/lifecycle acceptance, real-browser journey and staging release candidate |
 | **R4 — DigitalOcean beta** | G-085 → G-025 | an end customer can provision and operate one customer-owned DigitalOcean Relay Host with verified bill, cleanup and recovery | operator-approved external conformance, spend reconciliation and beta release |
 | **R5 — Portable Host GA** | G-086 | the same npm Host control surface, Host/Cell manifest and signed Cell-image digest work on a second VM provider or representative customer hardware | second-target conformance and approved portability/GA claim |
@@ -343,9 +343,10 @@ Accepted checkpoint — 2026-07-17: the provider-neutral AES-256-GCM bundle,
 external customer key, snapshot v2 artifact hashes, auth/secret-root coverage,
 content-free receipts, isolated verify/drill, explicit retention and offline
 empty-root restore passed targeted, full-suite, production-build, responsive
-browser and isolated destroyed-Host runtime checks. G-100 owns the remaining
-fresh packaged R2 journey; provider storage, KMS and RPO/RTO promises remain
-gated.
+browser and isolated destroyed-Host runtime checks. G-100 subsequently accepted
+the fresh packaged R2 journey after its first destruction pass exposed and
+closed missing license-directory continuity. Provider storage, KMS and RPO/RTO
+promises remain gated.
 
 ### G-083 — Build the entitlement-gated Relay Host supervisor and cell contract
 

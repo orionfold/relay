@@ -28,6 +28,13 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Validated
 
+- **The secure and recoverable Host alpha passed its packaged destruction
+  gate.** A fresh npm-installed Relay completed first-admin, session revocation,
+  recovery-code rotation, private and remote ingress negatives, responsive
+  recovery Settings, encrypted create/verify/drill, source-Cell destruction,
+  empty-root restore, and restarted sign-in/work. The rerun proved database,
+  files, encrypted settings, license, access state, and Cell identity survived;
+  no public artifact, release, or durability claim was made.
 - **The Local Host alpha passed its rebuilt-artifact release gate.** A clean,
   optimized linux/arm64 Relay Cell image passed the signed artifact policy and
   complete lifecycle suite, then a fresh-volume customer-identical J0–J3 run
@@ -37,6 +44,9 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Fixed
 
+- **Encrypted Cell recovery now carries filesystem-backed licenses.** The
+  snapshot and extraction allowlists include the Cell `licenses/` directory,
+  with a destruction-and-restore regression protecting paid-state continuity.
 - **Foundation workflows preserve customer, project, and document context.**
   Workflow project edits now set, change, or explicitly clear validated links;
   project details identify their customer; project-aware uploads enter the
