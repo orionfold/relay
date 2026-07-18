@@ -73,8 +73,9 @@ The machine-readable authority is
    issuer. GitHub provenance and per-platform CycloneDX SBOM attestations bind
    to the same subject digests.
 7. The release receipt reports npm compressed/unpacked size separately from
-   OCI image/archive size and states that npm relies on destination Node,
-   dependencies, OS and native libraries.
+   OCI compressed-layer transport size, OCI archive size, unpacked runtime
+   size, and the non-authoritative Docker storage-driver observation. It states
+   that npm relies on destination Node, dependencies, OS and native libraries.
 8. A partial publication never advances `vX.Y`, `stable`, or customer docs.
    Exact uploaded platform digests remain quarantined evidence until a complete
    index verifies.
@@ -139,6 +140,13 @@ tag-verified → platform-pushed/signed/attested → index-published/verified
   G-094 and Host R3 are accepted.
 
 ## Local implementation receipt — 2026-07-18
+
+- The first two authorized clean-run proofs failed closed before registry
+  login, so neither wrote GHCR bytes. `cell-v0.44.0` exposed an untracked
+  Docker build input; `cell-v0.44.1` exposed that Docker daemon `.Size` varies
+  by storage driver. The latter now has a regression guard: publication budgets
+  use compressed OCI layer bytes and report loaded/unpacked observations
+  separately. Immutable failed source tags were not moved.
 
 - Publication contract: 8 focused tests pass, including negative tag/source,
   platform-set, digest drift, signer/tag identity, missing attestation, npm

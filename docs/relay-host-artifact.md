@@ -108,8 +108,13 @@ machines, not merely separate folders.
   archive, npm version, schema range, runtime contract, SBOM, rollback digest,
   source revision, exact worktree digest, and whether the source was clean.
 - The real OCI archive must satisfy the checked-in path, size, layer, native
-  platform and component budgets. Checksum-pinned Trivy generates the
-  CycloneDX SBOM and rejects any unapproved high/critical final-image finding.
+  platform and component budgets. The authoritative image-size measurement is
+  the sum of compressed OCI layer bytes—the payload transported by a registry.
+  OCI archive bytes and unpacked runtime bytes are reported separately. Docker
+  daemon `.Size` is retained only as a storage-driver observation because it
+  can represent compressed bytes on Docker Desktop and unpacked bytes on a
+  Linux runner. Checksum-pinned Trivy generates the CycloneDX SBOM and rejects
+  any unapproved high/critical final-image finding.
 
 Mutable image tags and the locally generated test key are never launch or
 publication authority.

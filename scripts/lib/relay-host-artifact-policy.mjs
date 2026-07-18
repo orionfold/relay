@@ -232,11 +232,14 @@ export async function inspectOciArchive(archivePath) {
   }
 }
 
-export function evaluateOciPolicy(inventory, policy, measurements = {}) {
+export function evaluateOciPolicy(inventory, policy) {
   const violations = [];
   const add = (code, message, details = {}) => violations.push({ code, message, details });
   const { budgets } = policy;
-  const imageBytes = measurements.imageBytes ?? inventory.archiveBytes;
+  // OCI compressed layer bytes are stable across Docker storage drivers and
+  // match the payload a registry transports. Docker image inspect `.Size` is
+  // driver-dependent and can report either compressed or unpacked bytes.
+  const imageBytes = inventory.layers.reduce((total, layer) => total + layer.compressedBytes, 0);
   const reductionFraction = 1 - imageBytes / policy.baselineImageBytes;
   if (imageBytes > budgets.maxImageBytes || reductionFraction < budgets.minimumReductionFraction) {
     add("OCI_SIZE_BUDGET_EXCEEDED", "image exceeds size or reduction budget", { imageBytes, reductionFraction });
@@ -278,6 +281,7 @@ export function evaluateOciPolicy(inventory, policy, measurements = {}) {
     contractVersion: 1,
     status: violations.length === 0 ? "pass" : "fail",
     imageBytes,
+    imageBytesBasis: "sum-compressed-oci-layers",
     baselineImageBytes: policy.baselineImageBytes,
     reductionFraction,
     budgets,

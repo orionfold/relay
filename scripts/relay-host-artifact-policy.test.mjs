@@ -98,7 +98,10 @@ test("inspects an OCI archive deterministically and explains allowed surfaces", 
     assert.match(first.pathInventoryDigest, /^sha256:[a-f0-9]{64}$/u);
     assert.match(first.semanticRootfsDigest, /^sha256:[a-f0-9]{64}$/u);
     assert.deepEqual(first.paths, ["app/server.js", "usr/bin/node"]);
-    assert.equal(evaluateOciPolicy(first, fixturePolicy, { imageBytes: 10 }).status, "pass");
+    const result = evaluateOciPolicy(first, fixturePolicy);
+    assert.equal(result.status, "pass");
+    assert.equal(result.imageBytes, first.layers.reduce((total, layer) => total + layer.compressedBytes, 0));
+    assert.equal(result.imageBytesBasis, "sum-compressed-oci-layers");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -119,7 +122,7 @@ test("accepts a valid empty gzip layer without weakening malformed-layer checks"
 test("fails closed on a forbidden final-image path", async () => {
   const { root, archive } = await fixture({ "app/server.js": "ok", "app/.claude/session.json": "secret" });
   try {
-    const result = evaluateOciPolicy(await inspectOciArchive(archive), fixturePolicy, { imageBytes: 10 });
+    const result = evaluateOciPolicy(await inspectOciArchive(archive), fixturePolicy);
     assert.equal(result.status, "fail");
     assert.ok(result.violations.some((violation) => violation.code === "OCI_CONTENT_POLICY_FAILED"));
   } finally {
@@ -127,11 +130,27 @@ test("fails closed on a forbidden final-image path", async () => {
   }
 });
 
-test("names image size and reduction failures", async () => {
+test("names compressed transport size and reduction failures", async () => {
   const { root, archive } = await fixture({ "app/server.js": "ok" });
   try {
-    const result = evaluateOciPolicy(await inspectOciArchive(archive), fixturePolicy, { imageBytes: 800_000_000 });
+    const result = evaluateOciPolicy(await inspectOciArchive(archive), {
+      ...fixturePolicy,
+      baselineImageBytes: 1,
+      budgets: { ...fixturePolicy.budgets, maxImageBytes: 1 },
+    });
     assert.ok(result.violations.some((violation) => violation.code === "OCI_SIZE_BUDGET_EXCEEDED"));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("ignores Docker storage-driver size observations when enforcing OCI budgets", async () => {
+  const { root, archive } = await fixture({ "app/server.js": "ok" });
+  try {
+    const inventory = await inspectOciArchive(archive);
+    const result = evaluateOciPolicy(inventory, fixturePolicy, { imageBytes: 800_000_000 });
+    assert.equal(result.status, "pass");
+    assert.equal(result.imageBytes, inventory.layers.reduce((total, layer) => total + layer.compressedBytes, 0));
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -143,7 +162,7 @@ test("fails closed when a required traced runtime path is absent", async () => {
     const result = evaluateOciPolicy(await inspectOciArchive(archive), {
       ...fixturePolicy,
       requiredPaths: ["app/server.js", "app/node_modules/next/dist/build/output/log.js"],
-    }, { imageBytes: 10 });
+    });
     assert.ok(result.violations.some((violation) => violation.code === "OCI_REQUIRED_PATH_MISSING"));
   } finally {
     rmSync(root, { recursive: true, force: true });

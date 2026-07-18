@@ -281,9 +281,9 @@ try {
   };
   writeJson(resolve(outputDir, "reproducibility.json"), reproducibility);
 
-  const imageBytes = Number(run("docker", ["image", "inspect", "--format", "{{.Size}}", tag], { code: "ARTIFACT_IMAGE_INSPECT_FAILED" }));
+  const loadedImageBytes = Number(run("docker", ["image", "inspect", "--format", "{{.Size}}", tag], { code: "ARTIFACT_IMAGE_INSPECT_FAILED" }));
   const loadedImageId = run("docker", ["image", "inspect", "--format", "{{.Id}}", tag], { code: "ARTIFACT_IMAGE_INSPECT_FAILED" });
-  const contentPolicy = evaluateOciPolicy(inventory, policy, { imageBytes });
+  const contentPolicy = evaluateOciPolicy(inventory, policy);
   writeJson(resolve(outputDir, "content-inventory.json"), inventory);
   writeJson(resolve(outputDir, "content-policy.json"), contentPolicy);
 
@@ -337,7 +337,7 @@ try {
   ], { code: "MANIFEST_VERIFICATION_FAILED" });
 
   const measurements = {
-    contractVersion: 2,
+    contractVersion: 3,
     tag,
     relayVersion: pkg.version,
     platform: inventory.platform,
@@ -347,7 +347,10 @@ try {
     imageDigest: oci.imageDigest,
     imageConfigDigest: oci.configDigest,
     loadedImageId,
-    imageBytes,
+    imageBytes: contentPolicy.imageBytes,
+    imageBytesBasis: contentPolicy.imageBytesBasis,
+    loadedImageBytes,
+    loadedImageBytesBasis: "docker-storage-driver-observation",
     ociArchiveBytes: inventory.archiveBytes,
     ociArchiveDigest: inventory.archiveDigest,
     unpackedFileBytes: inventory.unpackedFileBytes,
