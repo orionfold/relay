@@ -44,12 +44,12 @@ export function validatePublicationPolicy(policy) {
   assert(policy?.images?.staging === "ghcr.io/orionfold/relay-cell-staging", "CELL_PUBLICATION_POLICY_INVALID", "staging image namespace differs from the approved namespace");
   assert(policy?.visibility?.production === "public" && policy.visibility.staging === "private" && policy.visibility.anonymousProductionPull === true, "CELL_PUBLICATION_POLICY_INVALID", "registry visibility policy differs from the approved public/private split");
   assert(policy?.release?.workflow === ".github/workflows/publish-relay-cell.yml", "CELL_PUBLICATION_POLICY_INVALID", "release workflow path differs from the trusted identity");
-  assert(policy?.release?.triggerTagPattern === "^v[0-9]+\\.[0-9]+\\.[0-9]+$", "CELL_PUBLICATION_POLICY_INVALID", "release tag pattern must accept exact semantic versions only");
+  assert(policy?.release?.triggerTagPattern === "^cell-v[0-9]+\\.[0-9]+\\.[0-9]+$" && policy.release.sourceTagTemplate === "cell-v{version}", "CELL_PUBLICATION_POLICY_INVALID", "source tag policy must use exact OCI-only cell-v semantic versions");
   assert(policy?.release?.immutableTagTemplate === "v{version}" && policy.release.minorTagTemplate === "v{major}.{minor}" && policy.release.promotionTag === "stable" && policy.release.previousPromotionTag === "stable-previous", "CELL_PUBLICATION_POLICY_INVALID", "release tag policy differs from the approved exact/minor/stable policy");
   assert(sameMembers(policy?.release?.forbiddenTags, ["latest"]), "CELL_PUBLICATION_POLICY_INVALID", "latest must be the only explicitly forbidden launch tag");
   assert(policy?.release?.productionEnvironment === "oci-production" && policy.release.stagingEnvironment === "oci-staging", "CELL_PUBLICATION_POLICY_INVALID", "protected environment names differ from policy");
   assert(policy?.identity?.oidcIssuer === "https://token.actions.githubusercontent.com", "CELL_PUBLICATION_POLICY_INVALID", "OIDC issuer must be GitHub Actions");
-  assert(policy?.identity?.certificateIdentityPattern === "^https://github\\.com/orionfold/relay/\\.github/workflows/publish-relay-cell\\.yml@refs/tags/v[0-9]+\\.[0-9]+\\.[0-9]+$", "CELL_PUBLICATION_POLICY_INVALID", "certificate identity must bind the release workflow and exact tag");
+  assert(policy?.identity?.certificateIdentityPattern === "^https://github\\.com/orionfold/relay/\\.github/workflows/publish-relay-cell\\.yml@refs/tags/cell-v[0-9]+\\.[0-9]+\\.[0-9]+$", "CELL_PUBLICATION_POLICY_INVALID", "certificate identity must bind the release workflow and exact OCI-only tag");
   assert(sameMembers(policy?.platforms, ["linux/amd64", "linux/arm64"]), "CELL_PUBLICATION_POLICY_INVALID", "exactly linux/amd64 and linux/arm64 are required");
   assert(exactObject(policy?.permissions, { contents: "read", packages: "write", "id-token": "write", attestations: "write", "artifact-metadata": "write" }), "CELL_PUBLICATION_PERMISSION_EXCESSIVE", "publication permissions must be the exact approved least-privilege set");
   assert(policy?.retention?.productionExactReleases === "indefinite" && policy.retention.stagingMaxAgeDays === 30 && policy.retention.stagingMaxCount === 5 && policy.retention.automaticProductionDeletion === false, "CELL_PUBLICATION_POLICY_INVALID", "retention policy differs from the approved launch policy");
@@ -63,8 +63,8 @@ export function validatePublicationPolicy(policy) {
 
 export function validateReleaseInput(input, policy) {
   validatePublicationPolicy(policy);
-  assert(new RegExp(policy.release.triggerTagPattern, "u").test(input?.tag ?? ""), "CELL_PUBLICATION_TAG_INVALID", "release ref must be an exact vX.Y.Z tag");
-  const version = input.tag.slice(1);
+  assert(new RegExp(policy.release.triggerTagPattern, "u").test(input?.tag ?? ""), "CELL_PUBLICATION_TAG_INVALID", "release ref must be an exact cell-vX.Y.Z tag");
+  const version = input.tag.slice("cell-v".length);
   assert(VERSION_PATTERN.test(version), "CELL_PUBLICATION_TAG_INVALID", "release version must be semantic X.Y.Z");
   assert(input?.packageVersion === version, "CELL_PUBLICATION_VERSION_MISMATCH", `tag ${input?.tag} does not match package version ${input?.packageVersion}`);
   assert(input?.sourceState === "clean", "CELL_PUBLICATION_SOURCE_DIRTY", "publication requires a clean source tree");
@@ -82,7 +82,7 @@ export function validateReleaseInput(input, policy) {
 }
 
 function expectedIdentity(policy, version) {
-  return `https://github.com/${policy.sourceRepository}/.github/workflows/publish-relay-cell.yml@refs/tags/v${version}`;
+  return `https://github.com/${policy.sourceRepository}/.github/workflows/publish-relay-cell.yml@refs/tags/cell-v${version}`;
 }
 
 function validateAttestation(attestation, type, policy, version) {
@@ -212,7 +212,7 @@ export function validatePublicationWorkflow(source, policy) {
   validatePublicationPolicy(policy);
   const workflow = parseWorkflowLiteral(source);
   const trigger = workflow?.on;
-  assert(trigger && Object.keys(trigger).length === 1 && Array.isArray(trigger?.push?.tags) && sameMembers(trigger.push.tags, ["v*"]), "CELL_PUBLICATION_WORKFLOW_INVALID", "production publication must be triggered only by v* tag pushes");
+  assert(trigger && Object.keys(trigger).length === 1 && Array.isArray(trigger?.push?.tags) && sameMembers(trigger.push.tags, ["cell-v*"]), "CELL_PUBLICATION_WORKFLOW_INVALID", "Cell publication must be triggered only by OCI-specific cell-v* tag pushes");
   assert(exactObject(workflow?.permissions, { contents: "read" }), "CELL_PUBLICATION_PERMISSION_EXCESSIVE", "workflow default permissions must be contents: read only");
   assert(workflow?.jobs?.platform && workflow?.jobs?.publish && workflow?.jobs?.index, "CELL_PUBLICATION_WORKFLOW_INVALID", "staging platform, production publish, and index jobs are required");
   assert(workflow.jobs.platform.needs === "quality" && workflow.jobs.publish.needs === "platform" && workflow.jobs.index.needs === "publish", "CELL_PUBLICATION_WORKFLOW_INVALID", "publication jobs must preserve quality → staging → production → index ordering");

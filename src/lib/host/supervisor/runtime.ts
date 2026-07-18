@@ -164,7 +164,7 @@ export class KeylessRelayArtifactVerifier implements RelayArtifactVerifier {
       "--certificate-oidc-issuer",
       "https://token.actions.githubusercontent.com",
       "--certificate-identity-regexp",
-      "^https://github\\.com/orionfold/relay/\\.github/workflows/publish-relay-cell\\.yml@refs/tags/v[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "^https://github\\.com/orionfold/relay/\\.github/workflows/publish-relay-cell\\.yml@refs/tags/cell-v[0-9]+\\.[0-9]+\\.[0-9]+$",
     ]);
     this.runner.run("gh", [
       "attestation",

@@ -22,7 +22,7 @@ console.log(JSON.stringify({
   productionImage: policy.images.production,
   stagingImage: policy.images.staging,
   platforms: policy.platforms,
-  releaseTrigger: "exact-version-tag-only",
+  releaseTrigger: "exact-oci-version-tag-only",
   signatureAuthority: "github-actions-oidc",
   manifestAuthority: policy.support.authority,
   paidDependencies: policy.paidDependencies.length,

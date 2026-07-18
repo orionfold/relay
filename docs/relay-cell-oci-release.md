@@ -42,12 +42,15 @@ must continue to pin the digest rather than save `stable` as runtime authority.
 ## Verify origin, integrity, provenance, and SBOM
 
 Relay releases are signed keylessly by the protected GitHub Actions tag
-workflow. Verification is intentionally narrow:
+workflow. The source tag uses the OCI-only `cell-vX.Y.Z` namespace so publishing
+a Cell image cannot accidentally publish the npm package or create a GitHub
+Release. The customer-facing image still uses `vX.Y.Z`; verification is
+intentionally narrow:
 
 ```bash
 cosign verify "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST" \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-  --certificate-identity-regexp '^https://github\.com/orionfold/relay/\.github/workflows/publish-relay-cell\.yml@refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$'
+  --certificate-identity-regexp '^https://github\.com/orionfold/relay/\.github/workflows/publish-relay-cell\.yml@refs/tags/cell-v[0-9]+\.[0-9]+\.[0-9]+$'
 
 gh attestation verify \
   "oci://ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST" \

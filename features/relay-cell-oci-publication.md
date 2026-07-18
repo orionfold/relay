@@ -14,13 +14,19 @@ tdr: TDR-044
 
 ## Outcome
 
-A clean Relay release tag can drive one protected GitHub Actions workflow that
+A clean OCI-only `cell-vX.Y.Z` source tag can drive one protected GitHub Actions workflow that
 publishes the already-audited G-093 Relay Cell artifact for `linux/amd64` and
 `linux/arm64` to `ghcr.io/orionfold/relay-cell`. Each platform manifest and the
 multi-platform index are addressed by immutable digest, signed through the
 GitHub Actions OIDC identity, and accompanied by SBOM, provenance, compatibility
 and checksum evidence. The Host consumes the digest; tags only help a person
 discover an accepted release.
+
+The dedicated source-tag namespace is a release-safety boundary: `cell-vX.Y.Z`
+can publish only OCI artifacts, while the stable npm/GitHub release workflow
+continues to listen only for `vX.Y.Z`. The registry still exposes the immutable
+customer-facing image tag `vX.Y.Z`, so distribution channels share a semantic
+version without sharing a publication trigger.
 
 This goal creates the repeatable publication mechanism. It does not authorize
 or perform a registry write, package visibility change, tag, push, npm publish,
@@ -33,7 +39,7 @@ GitHub Release or customer release by itself.
   after an explicit one-time visibility approval.
 - Validation is `ghcr.io/orionfold/relay-cell-staging`, private and never a
   customer manifest authority.
-- Exact `vX.Y.Z` tags are never overwritten. `vX.Y`, `stable`, and the bounded
+- Exact registry `vX.Y.Z` tags are never overwritten. `vX.Y`, `stable`, and the bounded
   recovery pointer `stable-previous` are mutable discovery pointers; `latest`
   is forbidden. Host manifests always pin a `sha256` digest.
 - `stable` moves only after customer-identical staging. Each move preserves the
@@ -51,7 +57,7 @@ The machine-readable authority is
 
 ## Invariants and states
 
-1. Source must be a clean checkout of the exact `vX.Y.Z` tag, and the tag
+1. Source must be a clean checkout of the exact `cell-vX.Y.Z` tag, and the tag
    version must equal `package.json`.
 2. G-093 publication-profile content, privacy, size, component, vulnerability,
    reproducibility, npm-boundary, manifest and conformance gates must pass on
@@ -114,7 +120,8 @@ tag-verified → platform-pushed/signed/attested → index-published/verified
 - [x] Pure release-evidence tests reject dirty source, tag/version mismatch,
   missing/duplicate/wrong platforms, manifest drift, missing SBOM/provenance,
   wrong signer/issuer and mutable-tag authority.
-- [x] The production workflow is tag-only, builds on native amd64/arm64 runners,
+- [x] The production workflow is OCI-tag-only (`cell-v*`), cannot match the npm
+  workflow's `v*` trigger, builds on native amd64/arm64 runners,
   copies the audited OCI layouts to GHCR, verifies the copied digests, signs and
   attests them, creates one multi-platform index and emits retained evidence.
 - [x] Stable promotion/rollback is a separate protected, digest-only operation

@@ -29,7 +29,7 @@ function git(args) {
 const sourceRevision = git(["rev-parse", "HEAD"]);
 const dirty = git(["status", "--porcelain", "--untracked-files=all"]).length > 0;
 const simulatedTreeDigest = sha(`clean-tag-tree:${sourceRevision}`);
-const tag = `v${pkg.version}`;
+const tag = `cell-v${pkg.version}`;
 const release = validateReleaseInput({ tag, packageVersion: pkg.version, sourceState: "clean", sourceRevision, sourceTreeDigest: simulatedTreeDigest }, policy);
 const identity = `https://github.com/orionfold/relay/.github/workflows/publish-relay-cell.yml@refs/tags/${tag}`;
 

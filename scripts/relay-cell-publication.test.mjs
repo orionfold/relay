@@ -20,10 +20,11 @@ import { measureDirectoryClosure } from "./lib/npm-closure.mjs";
 const root = new URL("..", import.meta.url);
 const policy = JSON.parse(readFileSync(new URL("config/relay-cell-publication-policy.json", root), "utf8"));
 const productionWorkflow = readFileSync(new URL(".github/workflows/publish-relay-cell.yml", root), "utf8");
+const npmWorkflow = readFileSync(new URL(".github/workflows/publish.yml", root), "utf8");
 const promotionWorkflow = readFileSync(new URL(".github/workflows/promote-relay-cell.yml", root), "utf8");
 const digest = (character) => `sha256:${character.repeat(64)}`;
 const revision = "a".repeat(40);
-const identity = "https://github.com/orionfold/relay/.github/workflows/publish-relay-cell.yml@refs/tags/v1.2.3";
+const identity = "https://github.com/orionfold/relay/.github/workflows/publish-relay-cell.yml@refs/tags/cell-v1.2.3";
 
 function expectCode(action, code) {
   assert.throws(action, (error) => error instanceof RelayCellPublicationError && error.code === code);
@@ -81,7 +82,7 @@ test("npm closure measurement counts regular files without following symlinks", 
 });
 
 test("release input requires exact matching tag and clean full-SHA source", () => {
-  const input = { tag: "v1.2.3", packageVersion: "1.2.3", sourceState: "clean", sourceRevision: revision, sourceTreeDigest: digest("e") };
+  const input = { tag: "cell-v1.2.3", packageVersion: "1.2.3", sourceState: "clean", sourceRevision: revision, sourceTreeDigest: digest("e") };
   assert.deepEqual(validateReleaseInput(input, policy), { version: "1.2.3", major: 1, minor: 2, patch: 3, immutableTag: "v1.2.3", minorTag: "v1.2" });
   expectCode(() => validateReleaseInput({ ...input, tag: "main" }, policy), "CELL_PUBLICATION_TAG_INVALID");
   expectCode(() => validateReleaseInput({ ...input, packageVersion: "1.2.4" }, policy), "CELL_PUBLICATION_VERSION_MISMATCH");
@@ -139,11 +140,21 @@ test("promotion accepts stable by digest and refuses mutable or forbidden author
 
 test("production workflow is tag-only, protected, native, pinned, and complete", () => {
   assert.ok(validatePublicationWorkflow(productionWorkflow, policy));
-  expectCode(() => validatePublicationWorkflow(productionWorkflow.replace('tags:\n      - "v*"', 'branches:\n      - "main"'), policy), "CELL_PUBLICATION_WORKFLOW_INVALID");
+  expectCode(() => validatePublicationWorkflow(productionWorkflow.replace('tags:\n      - "cell-v*"', 'branches:\n      - "main"'), policy), "CELL_PUBLICATION_WORKFLOW_INVALID");
+  expectCode(() => validatePublicationWorkflow(productionWorkflow.replace('tags:\n      - "cell-v*"', 'tags:\n      - "v*"'), policy), "CELL_PUBLICATION_WORKFLOW_INVALID");
   expectCode(() => validatePublicationWorkflow(productionWorkflow.replace("actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd", "actions/checkout@v5"), policy), "CELL_PUBLICATION_WORKFLOW_INVALID");
   expectCode(() => validatePublicationWorkflow(productionWorkflow.replace("packages: write", "packages: read"), policy), "CELL_PUBLICATION_PERMISSION_EXCESSIVE");
   expectCode(() => validatePublicationWorkflow(productionWorkflow.replace("environment: oci-production", "environment: arbitrary"), policy), "CELL_PUBLICATION_WORKFLOW_INVALID");
   expectCode(() => validatePublicationWorkflow(productionWorkflow.replace("oras cp --from-oci-layout", "oras cp"), policy), "CELL_PUBLICATION_WORKFLOW_INVALID");
+});
+
+test("OCI and npm publication use disjoint source tag namespaces", () => {
+  assert.match(productionWorkflow, /tags:\n\s+- "cell-v\*"/u);
+  assert.doesNotMatch(productionWorkflow, /tags:\n\s+- "v\*"/u);
+  assert.match(npmWorkflow, /tags:\n\s+- "v\*"/u);
+  assert.doesNotMatch(npmWorkflow, /tags:\n\s+- "cell-v\*"/u);
+  assert.equal(new RegExp(policy.release.triggerTagPattern, "u").test("cell-v1.2.3"), true);
+  assert.equal(new RegExp(policy.release.triggerTagPattern, "u").test("v1.2.3"), false);
 });
 
 test("promotion workflow is manual, protected, digest-verifying, pinned, and non-deleting", () => {

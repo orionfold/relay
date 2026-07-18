@@ -80,7 +80,7 @@ authority and failure modes without increasing first-beta customer value.
 
 | Risk | Protecting evidence |
 |---|---|
-| Ordinary commit can publish | workflow parser requires only `push.tags: v*` and protected environment |
+| Ordinary commit or npm release can publish | workflow parser requires only `push.tags: cell-v*`; npm remains on the disjoint `v*` namespace; protected environment still gates writes |
 | Workflow gains excessive token authority | exact permissions comparison; no `contents: write` |
 | Action supply-chain drift | every external `uses:` reference must be a full commit SHA |
 | Wrong tag/version/source | release-input positive/negative matrix |

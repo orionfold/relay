@@ -1,5 +1,11 @@
 # Releasing `orionfold-relay` to npm
 
+> npm/GitHub releases and Relay Cell OCI releases deliberately use disjoint
+> source tags. `vX.Y.Z` triggers only this npm/GitHub release path;
+> `cell-vX.Y.Z` triggers only the signed GHCR Cell publication path. Never use
+> an OCI-only tag as a substitute for the npm release tag. Both channels may
+> expose the same semantic version while retaining independent release gates.
+
 Publishing is automated via **npm Trusted Publishing (OIDC)** from GitHub Actions.
 There are **no tokens, no 2FA prompts, and no OTP** — the whole reason this exists
 is that the `orionfoldllc` npm account uses passkey/WebAuthn 2FA that the CLI cannot

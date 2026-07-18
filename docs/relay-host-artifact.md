@@ -237,10 +237,13 @@ Host R1 — Local Host alpha is accepted. G-094 still owns any signed registry
 publication, while the accepted G-095 contract owns paid Host fulfillment.
 
 G-094 now supplies a checked-in, no-secret publication mechanism for the next
-gate. An exact `vX.Y.Z` tag runs the audited G-093 publication profile natively
+gate. An exact OCI-only `cell-vX.Y.Z` source tag runs the audited G-093 publication profile natively
 on `linux/amd64` and `linux/arm64`, copies each audited digest to the private
 `ghcr.io/orionfold/relay-cell-staging` namespace, and only then lets protected
 production jobs copy the same bytes to `ghcr.io/orionfold/relay-cell`. The
+separate source-tag namespace means the OCI proof cannot trigger npm publishing
+or GitHub Release creation; the registry's immutable customer-facing tag remains
+`vX.Y.Z`. The
 production workflow uses GitHub OIDC for Cosign signatures and GitHub SBOM,
 provenance, platform-evidence and compatibility attestations. Exact tags and
 digests are immutable; `vX.Y`, `stable`, and `stable-previous` are discovery

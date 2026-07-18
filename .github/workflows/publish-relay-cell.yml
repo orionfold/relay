@@ -3,7 +3,7 @@ name: Publish signed Relay Cell OCI release
 on:
   push:
     tags:
-      - "v*"
+      - "cell-v*"
 
 permissions:
   contents: read
@@ -68,11 +68,11 @@ jobs:
       - name: Validate policy, workflow, tag, version, and clean source
         run: |
           npm run check:relay-cell-publication
-          if ! printf '%s' "$GITHUB_REF_NAME" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+          if ! printf '%s' "$GITHUB_REF_NAME" | grep -Eq '^cell-v[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "::error::CELL_PUBLICATION_TAG_INVALID tag=$GITHUB_REF_NAME"
             exit 1
           fi
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          TAG_VERSION="${GITHUB_REF_NAME#cell-v}"
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
           if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
             echo "::error::CELL_PUBLICATION_VERSION_MISMATCH tag=$GITHUB_REF_NAME package=$PACKAGE_VERSION"
@@ -188,7 +188,8 @@ jobs:
         id: publish
         run: |
           EXPECTED="$(node -p "require('./${OUTPUT}/summary.json').immutableImageDigest")"
-          TARGET="$IMAGE:${GITHUB_REF_NAME}-${{ matrix.slug }}"
+          RELEASE_TAG="v${GITHUB_REF_NAME#cell-v}"
+          TARGET="$IMAGE:${RELEASE_TAG}-${{ matrix.slug }}"
           set +e
           EXISTING="$(oras resolve "$TARGET" 2>&1)"
           RESOLVE_STATUS=$?
@@ -344,7 +345,8 @@ jobs:
         run: |
           AMD64="$(node -e "const p=require('./output/relay-cell/index-plan.json'); console.log(p.platforms.find(x=>x.platform==='linux/amd64').imageDigest)")"
           ARM64="$(node -e "const p=require('./output/relay-cell/index-plan.json'); console.log(p.platforms.find(x=>x.platform==='linux/arm64').imageDigest)")"
-          TARGET="$IMAGE:$GITHUB_REF_NAME"
+          RELEASE_TAG="v${GITHUB_REF_NAME#cell-v}"
+          TARGET="$IMAGE:$RELEASE_TAG"
           set +e
           EXISTING="$(oras resolve "$TARGET" 2>&1)"
           RESOLVE_STATUS=$?
