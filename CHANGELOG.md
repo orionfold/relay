@@ -8,7 +8,21 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.44.0] — 2026-07-18
+
 ### Added
+
+- **Relay now includes an entitlement-gated local Host supervisor.** The npm
+  package exposes `relay host` and `relay-host` for content-free Host registry,
+  licensed managed-Cell admission, digest-verified OCI acquisition, hardened
+  local Docker isolation, idempotent lifecycle, recovery-gated release, and
+  explicit crash reconciliation. Direct unmanaged single-Cell use remains
+  free and separate from Host capacity.
+- **Relay Cell releases have a protected multi-architecture GHCR path.** Exact
+  release tags drive native amd64 and arm64 artifact audits, private staging,
+  immutable production digests, GitHub OIDC signing, SBOM and provenance
+  attestations, a two-platform index, and separately protected stable promotion
+  or rollback. Tags aid discovery; Host manifests retain digest authority.
 
 - **Relay Cells now have customer-owned encrypted disaster recovery.** A
   versioned AES-256-GCM bundle carries live-safe SQLite and access backups,
