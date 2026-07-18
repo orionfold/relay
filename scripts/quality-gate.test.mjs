@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
@@ -370,4 +371,14 @@ test("required quality scripts use installed tools without opportunistic npx dow
     assert.ok(script, `${lane} references a missing package script`);
     assert.doesNotMatch(script, /(?:^|\s)npx(?:\s|$)/, lane);
   }
+});
+
+test("test audit follows the installed Vitest browser adapter instead of a stale release pin", () => {
+  const report = JSON.parse(
+    execFileSync(process.execPath, ["scripts/test-audit.mjs", "--json"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    })
+  );
+  assert.equal(report.topology.nodeJsdomBrowserProjectsConfigured, true);
 });

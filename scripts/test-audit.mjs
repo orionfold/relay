@@ -3,6 +3,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import semver from "semver";
 import { RISK_SURFACES } from "./quality-policy.mjs";
 import { classifyTestFile } from "./test-projects.mjs";
 
@@ -24,6 +25,12 @@ function walk(directory) {
 
 function countMatches(source, pattern) {
   return source.match(pattern)?.length ?? 0;
+}
+
+function sameMinimumVersion(left, right) {
+  const leftMinimum = semver.minVersion(left ?? "");
+  const rightMinimum = semver.minVersion(right ?? "");
+  return leftMinimum !== null && leftMinimum.version === rightMinimum?.version;
 }
 
 function areaFor(path) {
@@ -265,7 +272,10 @@ const report = {
       vitestConfig.includes('environment: "jsdom"') &&
       vitestConfig.includes('name: "browser"') &&
       vitestConfig.includes("provider: playwright()") &&
-      packageJson.devDependencies?.["@vitest/browser-playwright"] === "4.1.4" &&
+      sameMinimumVersion(
+        packageJson.devDependencies?.["@vitest/browser-playwright"],
+        packageJson.devDependencies?.vitest
+      ) &&
       packageJson.devDependencies?.playwright === "1.61.1" &&
       qualityWorkflow.includes("playwright install --with-deps chromium"),
     projectMembershipGuardConfigured:
