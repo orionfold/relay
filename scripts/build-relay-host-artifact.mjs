@@ -23,6 +23,7 @@ import {
 } from "./lib/relay-host-artifact-policy.mjs";
 import { ensureTrivy } from "./lib/relay-host-tools.mjs";
 import { sha256, sha256File } from "./lib/relay-host-manifest.mjs";
+import { extractAndMeasureNpmClosure } from "./lib/npm-closure.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 
@@ -122,6 +123,7 @@ function buildInputDigest(policyPath) {
     "scripts/lib/relay-host-artifact-policy.mjs",
     "scripts/lib/relay-host-manifest.mjs",
     "scripts/lib/relay-host-tools.mjs",
+    "scripts/lib/npm-closure.mjs",
     "scripts/check-public-boundary.mjs",
     policyPath,
   ];
@@ -158,7 +160,7 @@ function checkPolicies(...reports) {
   }
 }
 
-function npmTarballReceipt(policy) {
+async function npmTarballReceipt(policy) {
   const directory = mkdtempSync(join(tmpdir(), "relay-host-npm-pack-"));
   try {
     run("npm", ["pack", "--pack-destination", directory], { code: "NPM_TARBALL_BUILD_FAILED" });
@@ -173,7 +175,17 @@ function npmTarballReceipt(policy) {
       );
     }
     run("node", ["scripts/check-public-boundary.mjs", "npm", path], { code: "NPM_TARBALL_CONTENT_POLICY_FAILED" });
-    return { name, bytes, digest: sha256File(path), maxBytes: policy.budgets.maxNpmTarballBytes, status: "pass" };
+    const unpackedDirectory = join(directory, "unpacked");
+    mkdirSync(unpackedDirectory);
+    const unpacked = await extractAndMeasureNpmClosure(path, unpackedDirectory);
+    return {
+      name,
+      bytes,
+      ...unpacked,
+      digest: sha256File(path),
+      maxBytes: policy.budgets.maxNpmTarballBytes,
+      status: "pass",
+    };
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
@@ -294,7 +306,7 @@ try {
   const vulnerabilityPolicy = evaluateVulnerabilities(JSON.parse(readFileSync(vulnerabilityRawPath, "utf8")), policy);
   writeJson(resolve(outputDir, "vulnerability-policy.json"), vulnerabilityPolicy);
 
-  const npmReceipt = await timed(timings, "npmBoundaryMs", async () => npmTarballReceipt(policy));
+  const npmReceipt = await timed(timings, "npmBoundaryMs", () => npmTarballReceipt(policy));
   writeJson(resolve(outputDir, "npm-boundary.json"), npmReceipt);
   checkPolicies(contentPolicy, componentInventory, vulnerabilityPolicy);
 

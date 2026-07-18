@@ -1,0 +1,137 @@
+name: Promote or roll back Relay Cell stable digest
+
+on:
+  workflow_dispatch:
+    inputs:
+      digest:
+        description: Verified multi-platform sha256 digest
+        required: true
+        type: string
+      version:
+        description: Exact Relay version whose release tag already resolves to the digest
+        required: true
+        type: string
+      operation:
+        description: Promote the current package version, or roll back to stable-previous
+        required: true
+        type: choice
+        options:
+          - promote
+          - rollback
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    name: Verify and retarget stable
+    environment: oci-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/orionfold/relay-cell
+      DIGEST: ${{ inputs.digest }}
+      VERSION: ${{ inputs.version }}
+      OPERATION: ${{ inputs.operation }}
+    steps:
+      - name: Check out promotion policy
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: "22.23.1"
+          cache: npm
+
+      - name: Set up ORAS
+        uses: oras-project/setup-oras@22ce207df3b08e061f537244349aac6ae1d214f6
+
+      - name: Set up Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Log in to GHCR with the job token
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate digest-only promotion input and exact release authority
+        run: |
+          node scripts/relay-cell-publication-receipt.mjs validate-promotion \
+            --digest "$DIGEST" \
+            --version "$VERSION" \
+            --tag stable \
+            --operation "$OPERATION" \
+            --package-version "$(node -p "require('./package.json').version")"
+          RELEASE_DIGEST="$(oras resolve "$IMAGE:v$VERSION")"
+          if [ "$RELEASE_DIGEST" != "$DIGEST" ]; then
+            echo "::error::CELL_PUBLICATION_DIGEST_MISMATCH release=$RELEASE_DIGEST requested=$DIGEST"
+            exit 1
+          fi
+
+      - name: Verify protected release identity before promotion
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cosign verify "$IMAGE@$DIGEST" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            --certificate-identity-regexp '^https://github\.com/orionfold/relay/\.github/workflows/publish-relay-cell\.yml@refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$'
+          gh attestation verify "oci://$IMAGE@$DIGEST" --repo orionfold/relay
+
+      - name: Retarget stable to the verified digest and prove the result
+        run: |
+          resolve_optional() {
+            set +e
+            VALUE="$(oras resolve "$1" 2>&1)"
+            STATUS=$?
+            set -e
+            if [ "$STATUS" -eq 0 ]; then
+              printf '%s' "$VALUE"
+              return 0
+            fi
+            if printf '%s' "$VALUE" | grep -Eqi 'not found|404|manifest unknown|manifest_unknown'; then
+              return 0
+            fi
+            echo "::error::CELL_PUBLICATION_REGISTRY_UNAVAILABLE target=$1 detail=$VALUE" >&2
+            return 1
+          }
+          CURRENT="$(resolve_optional "$IMAGE:stable")"
+          PREVIOUS="$(resolve_optional "$IMAGE:stable-previous")"
+          if [ "$OPERATION" = "rollback" ]; then
+            if [ -z "$CURRENT" ] || [ "$PREVIOUS" != "$DIGEST" ]; then
+              echo "::error::CELL_PUBLICATION_TAG_REFUSED rollback requires digest=$PREVIOUS from stable-previous"
+              exit 1
+            fi
+            oras tag "$IMAGE@$CURRENT" stable-previous
+          elif [ -n "$CURRENT" ] && [ "$CURRENT" != "$DIGEST" ]; then
+            oras tag "$IMAGE@$CURRENT" stable-previous
+          fi
+          oras tag "$IMAGE@$DIGEST" stable
+          RESOLVED="$(oras resolve "$IMAGE:stable")"
+          if [ "$RESOLVED" != "$DIGEST" ]; then
+            echo "::error::CELL_PUBLICATION_DIGEST_MISMATCH stable=$RESOLVED requested=$DIGEST"
+            exit 1
+          fi
+          if [ -n "$CURRENT" ] && [ "$CURRENT" != "$DIGEST" ] && [ "$(oras resolve "$IMAGE:stable-previous")" != "$CURRENT" ]; then
+            echo "::error::CELL_PUBLICATION_DIGEST_MISMATCH stable-previous did not preserve the displaced digest"
+            exit 1
+          fi
+          PREVIOUS_STABLE="$CURRENT" node -e "require('fs').writeFileSync('promotion-receipt.json', JSON.stringify({contractVersion:1,status:'verified',operation:process.env.OPERATION,image:process.env.IMAGE,digest:process.env.DIGEST,version:process.env.VERSION,tag:'stable',previousDigest:process.env.PREVIOUS_STABLE||null,workflowRun:process.env.GITHUB_RUN_ID},null,2)+'\\n')"
+
+      - name: Retain promotion evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: relay-cell-stable-${{ inputs.version }}-${{ github.run_id }}
+          path: promotion-receipt.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 90

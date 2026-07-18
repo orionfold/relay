@@ -200,8 +200,8 @@ the accepted `0.43.0` linux/arm64 local-alpha bundle. It proved isolated startup
 readiness, customer/project setup, document upload, Agent duplication, workflow
 creation, blueprint authoring and deterministic teardown. The run also did what
 a release gate should do: it exposed inconsistent managed-Cell identity and a
-silently dropped workflow project edit. Host R1 therefore remains open until
-those defects are fixed and the rebuilt optimized image passes the same journey.
+silently dropped workflow project edit. G-096 and G-097 fixed those defects,
+and G-099 subsequently rebuilt and accepted R1.
 
 The first defect is now closed by G-096. In a managed OCI Cell,
 `RELAY_CELL_ID` is the validated identity authority and the same value appears
@@ -235,3 +235,19 @@ only the isolated browser/container/network/volume resources and left the
 default Relay database hash unchanged. With zero surviving release blockers,
 Host R1 — Local Host alpha is accepted. G-094 still owns any signed registry
 publication, while the accepted G-095 contract owns paid Host fulfillment.
+
+G-094 now supplies a checked-in, no-secret publication mechanism for the next
+gate. An exact `vX.Y.Z` tag runs the audited G-093 publication profile natively
+on `linux/amd64` and `linux/arm64`, copies each audited digest to the private
+`ghcr.io/orionfold/relay-cell-staging` namespace, and only then lets protected
+production jobs copy the same bytes to `ghcr.io/orionfold/relay-cell`. The
+production workflow uses GitHub OIDC for Cosign signatures and GitHub SBOM,
+provenance, platform-evidence and compatibility attestations. Exact tags and
+digests are immutable; `vX.Y`, `stable`, and `stable-previous` are discovery
+pointers, and a separate protected workflow moves `stable` only by verified
+digest while preserving exactly one rollback digest.
+
+The mechanism has passed local policy tests and a no-registry dry-run. No GHCR
+package, visibility change, signature, tag, push or release has occurred. The
+operator/customer commands and conservative support boundary are in
+[Relay Cell OCI acquisition and verification](./relay-cell-oci-release.md).

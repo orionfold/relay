@@ -148,7 +148,8 @@ maintained content or managed lifecycle authority; they do not repossess Core.
 The managed Host supervisor and public Cell registry are release-train work, not
 features in the current npm release. Their accepted fulfillment contract is
 documented now so the Website issuer, future supervisor, and customer promise
-cannot drift.
+cannot drift. The prepared, still-unpublished registry verification contract is
+documented in [Relay Cell OCI acquisition and verification](docs/relay-cell-oci-release.md).
 
 Buying one takes a license file, redeemed once:
 

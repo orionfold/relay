@@ -1,0 +1,52 @@
+{
+  "contractVersion": 1,
+  "sourceRepository": "orionfold/relay",
+  "registry": "ghcr.io",
+  "images": {
+    "production": "ghcr.io/orionfold/relay-cell",
+    "staging": "ghcr.io/orionfold/relay-cell-staging"
+  },
+  "visibility": {
+    "production": "public",
+    "staging": "private",
+    "anonymousProductionPull": true
+  },
+  "release": {
+    "workflow": ".github/workflows/publish-relay-cell.yml",
+    "triggerTagPattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$",
+    "immutableTagTemplate": "v{version}",
+    "minorTagTemplate": "v{major}.{minor}",
+    "promotionTag": "stable",
+    "previousPromotionTag": "stable-previous",
+    "forbiddenTags": ["latest"],
+    "productionEnvironment": "oci-production",
+    "stagingEnvironment": "oci-staging"
+  },
+  "identity": {
+    "oidcIssuer": "https://token.actions.githubusercontent.com",
+    "certificateIdentityPattern": "^https://github\\.com/orionfold/relay/\\.github/workflows/publish-relay-cell\\.yml@refs/tags/v[0-9]+\\.[0-9]+\\.[0-9]+$"
+  },
+  "platforms": ["linux/amd64", "linux/arm64"],
+  "permissions": {
+    "contents": "read",
+    "packages": "write",
+    "id-token": "write",
+    "attestations": "write",
+    "artifact-metadata": "write"
+  },
+  "retention": {
+    "productionExactReleases": "indefinite",
+    "stagingMaxAgeDays": 30,
+    "stagingMaxCount": 5,
+    "automaticProductionDeletion": false
+  },
+  "support": {
+    "supportedStableDigests": 2,
+    "authority": "digest",
+    "tagsAreDiscoveryOnly": true,
+    "claims": ["origin", "integrity", "provenance", "compatibility"],
+    "excludedClaims": ["vulnerability-free", "uptime-sla", "rpo", "rto"]
+  },
+  "paidDependencies": [],
+  "mirrors": []
+}

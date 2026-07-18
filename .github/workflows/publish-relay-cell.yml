@@ -1,0 +1,433 @@
+name: Publish signed Relay Cell OCI release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: relay-cell-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    name: Relay release quality gate
+    uses: ./.github/workflows/quality-gate.yml
+    with:
+      profile: release
+    permissions:
+      contents: read
+
+  platform:
+    name: Audit and stage ${{ matrix.platform }}
+    needs: quality
+    environment: oci-staging
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-24.04
+            slug: amd64
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            slug: arm64
+    env:
+      IMAGE: ghcr.io/orionfold/relay-cell-staging
+      OUTPUT: output/relay-cell/${{ matrix.slug }}
+    steps:
+      - name: Check out the exact release tag
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: "22.23.1"
+          cache: npm
+
+      - name: Set up native Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+
+      - name: Set up ORAS
+        uses: oras-project/setup-oras@22ce207df3b08e061f537244349aac6ae1d214f6
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate policy, workflow, tag, version, and clean source
+        run: |
+          npm run check:relay-cell-publication
+          if ! printf '%s' "$GITHUB_REF_NAME" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::CELL_PUBLICATION_TAG_INVALID tag=$GITHUB_REF_NAME"
+            exit 1
+          fi
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "::error::CELL_PUBLICATION_VERSION_MISMATCH tag=$GITHUB_REF_NAME package=$PACKAGE_VERSION"
+            exit 1
+          fi
+          if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+            echo "::error::CELL_PUBLICATION_SOURCE_DIRTY"
+            exit 1
+          fi
+
+      - name: Build, audit, reproduce, and conformance-test the native G-093 archive
+        run: npm run host:artifact:build -- --profile publication --out "$OUTPUT"
+
+      - name: Log in to the private staging namespace
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Copy the exact audited OCI archive to private staging
+        id: stage
+        run: |
+          EXPECTED="$(node -p "require('./${OUTPUT}/summary.json').immutableImageDigest")"
+          ARCHIVE="${OUTPUT}/relay-host.oci.tar"
+          CANDIDATE="candidate-${GITHUB_REF_NAME}-${{ matrix.slug }}-${GITHUB_RUN_ID}"
+          oras cp --from-oci-layout "$ARCHIVE@$EXPECTED" "$IMAGE:$CANDIDATE"
+          RESOLVED="$(oras resolve "$IMAGE:$CANDIDATE")"
+          if [ "$RESOLVED" != "$EXPECTED" ]; then
+            echo "::error::CELL_PUBLICATION_DIGEST_MISMATCH expected=$EXPECTED staged=$RESOLVED"
+            exit 1
+          fi
+          docker pull "$IMAGE@$RESOLVED"
+          echo "digest=$RESOLVED" >> "$GITHUB_OUTPUT"
+
+      - name: Retain the audited evidence needed for production publication
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: relay-cell-stage-${{ github.ref_name }}-${{ matrix.slug }}
+          path: |
+            ${{ env.OUTPUT }}/summary.json
+            ${{ env.OUTPUT }}/measurements.json
+            ${{ env.OUTPUT }}/npm-boundary.json
+            ${{ env.OUTPUT }}/relay-host.manifest.json
+            ${{ env.OUTPUT }}/relay-host.sbom.cdx.json
+            ${{ env.OUTPUT }}/vulnerability-policy.json
+            ${{ env.OUTPUT }}/SHA256SUMS
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 90
+
+  publish:
+    name: Publish signed ${{ matrix.platform }} digest
+    needs: platform
+    environment: oci-production
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-24.04
+            slug: amd64
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            slug: arm64
+    env:
+      IMAGE: ghcr.io/orionfold/relay-cell
+      STAGING_IMAGE: ghcr.io/orionfold/relay-cell-staging
+      OUTPUT: output/relay-cell/${{ matrix.slug }}
+    steps:
+      - name: Check out release policy and receipt code
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: "22.23.1"
+          cache: npm
+
+      - name: Set up ORAS
+        uses: oras-project/setup-oras@22ce207df3b08e061f537244349aac6ae1d214f6
+
+      - name: Set up Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download this platform's audited staging evidence
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: relay-cell-stage-${{ github.ref_name }}-${{ matrix.slug }}
+          path: ${{ env.OUTPUT }}
+
+      - name: Log in to GHCR with the job token
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Copy the staged audited digest without rebuilding or overwriting
+        id: publish
+        run: |
+          EXPECTED="$(node -p "require('./${OUTPUT}/summary.json').immutableImageDigest")"
+          TARGET="$IMAGE:${GITHUB_REF_NAME}-${{ matrix.slug }}"
+          set +e
+          EXISTING="$(oras resolve "$TARGET" 2>&1)"
+          RESOLVE_STATUS=$?
+          set -e
+          if [ "$RESOLVE_STATUS" -ne 0 ]; then
+            if printf '%s' "$EXISTING" | grep -Eqi 'not found|404|manifest unknown|manifest_unknown'; then
+              EXISTING=""
+            else
+              echo "::error::CELL_PUBLICATION_REGISTRY_UNAVAILABLE target=$TARGET detail=$EXISTING"
+              exit 1
+            fi
+          fi
+          if [ -n "$EXISTING" ] && [ "$EXISTING" != "$EXPECTED" ]; then
+            echo "::error::CELL_PUBLICATION_TAG_REFUSED immutable target already points to $EXISTING"
+            exit 1
+          fi
+          if [ -z "$EXISTING" ]; then
+            oras cp "$STAGING_IMAGE@$EXPECTED" "$TARGET"
+          fi
+          RESOLVED="$(oras resolve "$TARGET")"
+          if [ "$RESOLVED" != "$EXPECTED" ]; then
+            echo "::error::CELL_PUBLICATION_DIGEST_MISMATCH expected=$EXPECTED resolved=$RESOLVED"
+            exit 1
+          fi
+          echo "digest=$RESOLVED" >> "$GITHUB_OUTPUT"
+
+      - name: Sign and verify the immutable platform digest
+        env:
+          DIGEST: ${{ steps.publish.outputs.digest }}
+        run: |
+          IDENTITY="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/publish-relay-cell.yml@${GITHUB_REF}"
+          cosign sign --yes "$IMAGE@$DIGEST"
+          cosign verify "$IMAGE@$DIGEST" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            --certificate-identity "$IDENTITY"
+
+      - name: Attest platform provenance
+        id: provenance
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6
+        with:
+          subject-name: ghcr.io/orionfold/relay-cell
+          subject-digest: ${{ steps.publish.outputs.digest }}
+          push-to-registry: true
+
+      - name: Attest the CycloneDX SBOM
+        id: sbom
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6
+        with:
+          subject-name: ghcr.io/orionfold/relay-cell
+          subject-digest: ${{ steps.publish.outputs.digest }}
+          sbom-path: ${{ env.OUTPUT }}/relay-host.sbom.cdx.json
+          push-to-registry: true
+
+      - name: Create validated platform evidence
+        env:
+          DIGEST: ${{ steps.publish.outputs.digest }}
+          PROVENANCE_URL: ${{ steps.provenance.outputs.attestation-url }}
+          SBOM_URL: ${{ steps.sbom.outputs.attestation-url }}
+        run: |
+          IDENTITY="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/publish-relay-cell.yml@${GITHUB_REF}"
+          node scripts/relay-cell-publication-receipt.mjs platform \
+            --artifact-dir "$OUTPUT" \
+            --registry-digest "$DIGEST" \
+            --identity "$IDENTITY" \
+            --provenance-url "$PROVENANCE_URL" \
+            --sbom-url "$SBOM_URL" \
+            --out "$OUTPUT/platform-receipt.json"
+
+      - name: Attest the complete platform evidence receipt
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6
+        with:
+          subject-name: ghcr.io/orionfold/relay-cell
+          subject-digest: ${{ steps.publish.outputs.digest }}
+          predicate-type: https://orionfold.com/relay/platform-evidence/v1
+          predicate-path: ${{ env.OUTPUT }}/platform-receipt.json
+          push-to-registry: true
+
+      - name: Verify registry attestations are discoverable
+        env:
+          DIGEST: ${{ steps.publish.outputs.digest }}
+          GH_TOKEN: ${{ github.token }}
+        run: gh attestation verify "oci://$IMAGE@$DIGEST" --repo orionfold/relay
+
+      - name: Retain platform evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: relay-cell-${{ github.ref_name }}-${{ matrix.slug }}
+          path: ${{ env.OUTPUT }}/platform-receipt.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 90
+
+  index:
+    name: Publish and verify the multi-platform index
+    needs: publish
+    environment: oci-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    env:
+      IMAGE: ghcr.io/orionfold/relay-cell
+    steps:
+      - name: Check out release policy and receipt code
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: "22.23.1"
+          cache: npm
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+
+      - name: Set up ORAS
+        uses: oras-project/setup-oras@22ce207df3b08e061f537244349aac6ae1d214f6
+
+      - name: Set up Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download both platform receipts
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          pattern: relay-cell-${{ github.ref_name }}-*
+          path: output/relay-cell/receipts
+
+      - name: Validate the exact platform set and create the index plan
+        run: |
+          npm run check:relay-cell-publication
+          node scripts/relay-cell-publication-receipt.mjs index-plan \
+            --receipts-dir output/relay-cell/receipts \
+            --out output/relay-cell/index-plan.json
+
+      - name: Log in to GHCR with the job token
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or resume the exact release index without overwriting
+        id: index
+        run: |
+          AMD64="$(node -e "const p=require('./output/relay-cell/index-plan.json'); console.log(p.platforms.find(x=>x.platform==='linux/amd64').imageDigest)")"
+          ARM64="$(node -e "const p=require('./output/relay-cell/index-plan.json'); console.log(p.platforms.find(x=>x.platform==='linux/arm64').imageDigest)")"
+          TARGET="$IMAGE:$GITHUB_REF_NAME"
+          set +e
+          EXISTING="$(oras resolve "$TARGET" 2>&1)"
+          RESOLVE_STATUS=$?
+          set -e
+          if [ "$RESOLVE_STATUS" -ne 0 ]; then
+            if printf '%s' "$EXISTING" | grep -Eqi 'not found|404|manifest unknown|manifest_unknown'; then
+              EXISTING=""
+            else
+              echo "::error::CELL_PUBLICATION_REGISTRY_UNAVAILABLE target=$TARGET detail=$EXISTING"
+              exit 1
+            fi
+          fi
+          if [ -z "$EXISTING" ]; then
+            docker buildx imagetools create \
+              --tag "$TARGET" \
+              "$IMAGE@$AMD64" \
+              "$IMAGE@$ARM64"
+            EXISTING="$(oras resolve "$TARGET")"
+          fi
+          docker buildx imagetools inspect --raw "$IMAGE@$EXISTING" > output/relay-cell/index-manifest.json
+          node scripts/relay-cell-publication-receipt.mjs validate-index \
+            --plan output/relay-cell/index-plan.json \
+            --manifest output/relay-cell/index-manifest.json \
+            --digest "$EXISTING"
+          echo "digest=$EXISTING" >> "$GITHUB_OUTPUT"
+
+      - name: Sign and verify the immutable index digest
+        env:
+          DIGEST: ${{ steps.index.outputs.digest }}
+        run: |
+          IDENTITY="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/publish-relay-cell.yml@${GITHUB_REF}"
+          cosign sign --yes "$IMAGE@$DIGEST"
+          cosign verify "$IMAGE@$DIGEST" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            --certificate-identity "$IDENTITY"
+
+      - name: Attest index provenance
+        id: provenance
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6
+        with:
+          subject-name: ghcr.io/orionfold/relay-cell
+          subject-digest: ${{ steps.index.outputs.digest }}
+          push-to-registry: true
+
+      - name: Attest the Relay compatibility predicate
+        id: compatibility
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6
+        with:
+          subject-name: ghcr.io/orionfold/relay-cell
+          subject-digest: ${{ steps.index.outputs.digest }}
+          predicate-type: https://orionfold.com/relay/compatibility/v1
+          predicate-path: output/relay-cell/index-plan.json
+          push-to-registry: true
+
+      - name: Verify evidence, finalize the receipt, and create the minor discovery pointer
+        env:
+          DIGEST: ${{ steps.index.outputs.digest }}
+          ATTESTATION_URL: ${{ steps.compatibility.outputs.attestation-url }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh attestation verify "oci://$IMAGE@$DIGEST" --repo orionfold/relay
+          IDENTITY="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/publish-relay-cell.yml@${GITHUB_REF}"
+          node scripts/relay-cell-publication-receipt.mjs index-finalize \
+            --plan output/relay-cell/index-plan.json \
+            --digest "$DIGEST" \
+            --identity "$IDENTITY" \
+            --attestation-url "$ATTESTATION_URL" \
+            --out output/relay-cell/release-receipt.json
+          MINOR="v$(node -p "require('./package.json').version.split('.').slice(0,2).join('.')")"
+          oras tag "$IMAGE@$DIGEST" "$MINOR"
+          if [ "$(oras resolve "$IMAGE:$MINOR")" != "$DIGEST" ]; then
+            echo "::error::CELL_PUBLICATION_DIGEST_MISMATCH minor=$MINOR"
+            exit 1
+          fi
+
+      - name: Retain aggregate release evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: relay-cell-${{ github.ref_name }}-release-evidence
+          path: |
+            output/relay-cell/index-plan.json
+            output/relay-cell/index-manifest.json
+            output/relay-cell/release-receipt.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 90

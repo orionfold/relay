@@ -3,9 +3,9 @@ id: TDR-044
 title: Customer-owned Relay Host with isolated cells
 status: accepted
 date: 2026-07-15
-amended: 2026-07-16 (G-060 local Host supervisor contract); 2026-07-17 (Host/Cell distribution, Supervisor/Fleet boundaries, and G-095 fulfillment contract)
+amended: 2026-07-16 (G-060 local Host supervisor contract); 2026-07-17 (Host/Cell distribution, Supervisor/Fleet boundaries, and G-095 fulfillment contract); 2026-07-18 (G-094 OCI publication authority)
 accepted: 2026-07-16 (G-079 authority and isolation contract)
-goal: G-078, G-060, G-079
+goal: G-078, G-060, G-079, G-094
 ---
 
 # TDR-044: Customer-owned Relay Host with isolated cells
@@ -216,6 +216,22 @@ or cloud VM.
     Host reserve, 90% maximum memory utilization, three cells per vCPU, and an
     explicit per-cell storage ceiling. G-080 must measure and confirm or revise
     these inputs before any capacity or support claim.
+24. Use GHCR as the only launch registry. The public production subject is
+    `ghcr.io/orionfold/relay-cell`; private candidate validation uses
+    `ghcr.io/orionfold/relay-cell-staging`. An exact release tag runs one
+    protected tag-only workflow on native amd64 and arm64 runners. It copies the
+    already-audited G-093 OCI layout to staging, then copies the verified digest
+    to production without rebuilding. GitHub Actions OIDC is the sole launch
+    signing identity; Cosign signatures and GitHub provenance, CycloneDX SBOM,
+    platform-evidence and compatibility attestations bind the digest. Exact
+    `vX.Y.Z` references and digest subjects are immutable. `vX.Y`, `stable`, and
+    `stable-previous` are discovery pointers only; each forward promotion
+    preserves the displaced digest at `stable-previous`, and rollback may only
+    swap back to that digest in a separate protected, digest-verifying
+    operation. Production exact releases are not
+    automatically deleted. Launch adds no paid registry, mirror, runner, KMS or
+    long-lived registry/signing secret. These decisions prepare a mechanism;
+    they do not authorize its first external run or public visibility change.
 
 ### Architecture posture by layer
 
@@ -347,6 +363,18 @@ entitlement with `product:relay-host` and accepts an additive signed
 online activation, registry token broker, live Website commerce change, or Host
 supervisor effect is introduced by this architecture amendment.
 
+The G-094 publication amendment makes the registry trust root executable while
+preserving the three-authority boundary. Public Cell bytes and a valid OCI
+signature prove neither a paid Host grant nor lifecycle admission. The Host
+must pin the accepted multi-platform digest; tags never become manifest
+authority. The initial support statement covers origin, integrity, provenance
+and declared compatibility for the current and prior stable digests. It does
+not claim vulnerability-free software, registry uptime, durability, RPO, RTO or
+a mirrored service. The local implementation and dry-run are accepted design
+evidence only; native registry pull/start/task, anonymous production pull,
+partial-publication recovery and stable rollback remain operator-gated release
+evidence.
+
 ## References
 
 - `features/licensed-self-service-cloud-deploy.md`
@@ -356,6 +384,8 @@ supervisor effect is introduced by this architecture amendment.
 - `features/relay-host-fleet-manager-contract.md`
 - `features/relay-host-fleet-manager-plan.md`
 - `features/relay-host-authority-isolation-contract.md`
+- `features/relay-cell-oci-publication.md`
+- `docs/relay-cell-oci-release.md`
 - `relay-threat-model.md`
 - `features/architect-report.md`
 - TDR-010, TDR-029, TDR-030, TDR-041, TDR-042, and TDR-043
