@@ -25,7 +25,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 # Keep the build stage as narrow as the application build contract. A broad
 # checkout copy lets dynamic Next.js file tracing pull operator-only repository
 # material into standalone output even when the runtime stage looks selective.
-COPY package.json package-lock.json next.config.mjs tsconfig.json next-env.d.ts postcss.config.mjs components.json ./
+COPY package.json package-lock.json next.config.mjs tsconfig.json postcss.config.mjs components.json ./
 COPY src ./src
 COPY public ./public
 COPY knowledge ./knowledge

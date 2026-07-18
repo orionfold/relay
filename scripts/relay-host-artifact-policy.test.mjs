@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -20,6 +21,25 @@ import { ensureTrivy } from "./lib/relay-host-tools.mjs";
 
 const policy = JSON.parse(readFileSync(new URL("../config/relay-host-artifact-policy.json", import.meta.url)));
 const fixturePolicy = { ...policy, requiredPaths: [] };
+
+test("every direct Docker build input is tracked in a clean checkout", () => {
+  const root = new URL("..", import.meta.url);
+  const dockerfile = readFileSync(new URL("../Dockerfile.relay-host", import.meta.url), "utf8");
+  const tracked = execFileSync("git", ["ls-files"], { cwd: root, encoding: "utf8" })
+    .trim()
+    .split("\n");
+  const directCopies = dockerfile
+    .split("\n")
+    .filter((line) => line.startsWith("COPY ") && !line.startsWith("COPY --from="))
+    .flatMap((line) => line.slice("COPY ".length).trim().split(/\s+/u).slice(0, -1));
+
+  for (const source of directCopies) {
+    assert.ok(
+      tracked.some((path) => path === source || path.startsWith(`${source}/`)),
+      `Docker build input must be tracked for clean CI checkouts: ${source}`,
+    );
+  }
+});
 
 function digest(value) {
   return `sha256:${createHash("sha256").update(value).digest("hex")}`;
