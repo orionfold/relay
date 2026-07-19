@@ -108,13 +108,12 @@ describe("Host runtime adapters", () => {
       "--security-opt",
       "no-new-privileges",
       "--entrypoint",
-      "chown",
+      "/nodejs/bin/node",
       "--mount",
       `type=bind,src=${cell.allocation.dataRoot},dst=/var/lib/relay`,
       cell.artifact.imageReference,
-      "-R",
-      "10001:10001",
-      "/var/lib/relay",
+      "-e",
+      expect.stringContaining("fs.lchownSync(target,10001,10001)"),
     ]);
     expect(runner.calls[2].args.slice(0, 3)).toEqual(["network", "create", "--driver"]);
     expect(runner.calls[2].args).toContain("com.docker.network.bridge.enable_icc=false");

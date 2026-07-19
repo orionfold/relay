@@ -346,7 +346,9 @@ if (opts.safeMode) {
 // Relay's own words instead of crashing during ESM module evaluation.
 await ensureNativeSqliteOrExit();
 
-const { migrateLegacyData } = await import("../src/lib/utils/migrate-to-ainative");
+const { migrateLegacyData, shouldMigrateLegacyHomeData } = await import(
+  "../src/lib/utils/migrate-to-ainative"
+);
 const { default: Database } = await import("better-sqlite3");
 const { drizzle } = await import("drizzle-orm/better-sqlite3");
 const { migrate } = await import("drizzle-orm/better-sqlite3/migrator");
@@ -357,11 +359,15 @@ const {
   markAllMigrationsApplied,
 } = await import("../src/lib/db/bootstrap");
 
-// Migrate any legacy ~/.stagent/ layout to ~/.ainative/ before resolving any
-// data-dir paths below. Must run here at module top-level (not inside main())
-// because the following const declarations and mkdirSync/Database calls also
-// execute at module-load time. Idempotent — safe on every invocation.
-await migrateLegacyData();
+// Migrate a legacy home layout only when this process owns the default
+// ~/.relay data surface. An explicit/private RELAY_DATA_DIR is an isolation
+// boundary: starting that Cell must never inspect or rewrite the operator's
+// default database.
+if (shouldMigrateLegacyHomeData()) {
+  await migrateLegacyData();
+} else {
+  console.log("[migrate] skipped legacy home migration: custom RELAY_DATA_DIR is active");
+}
 
 const DATA_DIR = getAinativeDataDir();
 const dbPath = getAinativeDbPath();

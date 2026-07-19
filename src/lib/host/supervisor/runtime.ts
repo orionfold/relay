@@ -154,6 +154,18 @@ export interface RelayArtifactVerifier {
   verify(imageReference: string): void;
 }
 
+const DISTROLESS_NODE = "/nodejs/bin/node";
+const NORMALIZE_DATA_OWNERSHIP = [
+  "const fs=require('node:fs');",
+  "const path=require('node:path');",
+  "function own(target){",
+  "const stat=fs.lstatSync(target);",
+  "if(stat.isDirectory()){for(const name of fs.readdirSync(target)){own(path.join(target,name));}}",
+  "fs.lchownSync(target,10001,10001);",
+  "}",
+  "own('/var/lib/relay');",
+].join("");
+
 export class KeylessRelayArtifactVerifier implements RelayArtifactVerifier {
   constructor(private readonly runner: HostCommandRunner) {}
 
@@ -205,13 +217,12 @@ export class DockerHostRuntimeAdapter implements HostRuntimeAdapter {
       "--security-opt",
       "no-new-privileges",
       "--entrypoint",
-      "chown",
+      DISTROLESS_NODE,
       "--mount",
       `type=bind,src=${cell.allocation.dataRoot},dst=/var/lib/relay`,
       cell.artifact.imageReference,
-      "-R",
-      "10001:10001",
-      "/var/lib/relay",
+      "-e",
+      NORMALIZE_DATA_OWNERSHIP,
     ]);
   }
 

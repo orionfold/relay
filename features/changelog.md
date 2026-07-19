@@ -4,6 +4,27 @@
 
 ### Completed
 
+- `relay-host-cell-release-candidate-proof` (G-101) — packed Relay `0.44.3`
+  from the identified source revision, installed it in the isolated staging
+  customer environment, and accepted a 65-check Host/Cell receipt against the
+  public signed image index at
+  `sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73`.
+  The journey covered anonymous digest acquisition, signature/attestation
+  authority, invalid-license and unknown-digest refusal, one Host/ten managed
+  Cells, real Docker create/start/restart/stop, persistence, cross-Cell
+  isolation, eleventh-Cell refusal, retain/purge capacity, Host-secret
+  exclusion, encrypted export/recovery, and owned-resource cleanup.
+- Fixed two release blockers found only by customer-identical execution:
+  custom `RELAY_DATA_DIR` startup no longer migrates or mutates the default
+  `~/.relay` database, and the Host's distroless Cell image now normalizes its
+  mounted data ownership with its bundled Node runtime instead of assuming a
+  missing `chown` executable. The staging driver also binds an isolated Host
+  root and verifies both normal Relay and Host databases remain byte-identical.
+- Added the repeatable `scripts/staging/host-cell-release-candidate.mjs` proof
+  driver, targeted isolation/runtime regressions, a clean in-app browser check,
+  and broader Host fulfillment, ingress, publication, lifecycle, lapse, and
+  replacement checks. No Website mutation, purchase, push, publish, tag,
+  release, or other external write was performed.
 - `pack-removal-retention` (G-030) — separated ordinary Pack removal from the
   destructive internal purge path. Removing a Pack now deletes only its
   installed files and Pack-owned schedules; tables and their rows, reusable
@@ -16,6 +37,19 @@
   database, API/component/CLI regressions, a browser dialog inspection with no
   console errors, the full 3,791-test suite, TypeScript, and Next/CLI production
   builds. No Pack or Cell was removed during browser verification.
+
+### Re-prioritized
+
+- Locked active execution to the Relay Cell/Host release and customer-owned
+  cloud train (R3-R5). Enterprise connectors and unrelated standalone goals
+  remain queued until the operator changes focus.
+- Removed general model/Pack pricing freshness (G-020) from the R3 gate. G-084
+  already owns cloud-infrastructure estimates, Website owns Host SKU truth, and
+  Relay does not currently hardcode the Host amount. The focused sequence is
+  now Website G-041 → R3 release → G-085 → cloud Website response → G-086 →
+  GA Website response. G-101 has supplied Website's exact Relay conformance
+  prerequisite; Website staging mutation and a test purchase remain separately
+  operator-gated.
 
 ## 2026-07-18
 

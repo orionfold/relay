@@ -35,6 +35,7 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { assert, PACKAGE_NAME, run, runCliCommand, sleep, waitForHttpOk } from "./lib/harness.mjs";
+import { isolatedStagingEnvironment } from "./lib/staging-environment.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = JSON.parse(readFileSync(path.join(repoRoot, "package.json"), "utf-8"));
@@ -46,12 +47,13 @@ const SCRATCH_DIR = path.join(STAGING_HOME, "run"); // empty non-git install cwd
 const STATE_FILE = path.join(STAGING_HOME, "state.json"); // cross-invocation state
 const DATA_DIR = path.join(HOME, ".relay-staging"); // isolated data dir
 const DEFAULT_DB = path.join(HOME, ".relay", "relay.db"); // the dir we must NOT touch
+const DEFAULT_HOST_DB = path.join(HOME, ".relay-host", "host.db"); // Host state we must NOT touch
 const PORT = 3199;
 const READY_TIMEOUT_MS = 180_000; // prod first-run may extract the artifact
 
 // The customer never has the repo's .git; the installed CLI must never see
 // dev-mode. launchCli already zeroes these — assert the invariant loudly too.
-const CUSTOMER_ENV = { RELAY_DEV_MODE: "", RELAY_INSTANCE_MODE: "" };
+const CUSTOMER_ENV = isolatedStagingEnvironment(DATA_DIR);
 
 function log(msg) {
   console.log(`[staging] ${msg}`);
@@ -105,9 +107,13 @@ function isAlive(pid) {
  * hashing catches exactly that while ignoring benign mtime touches. Returns null
  * if the DB doesn't exist (a machine that never ran Relay in the default dir).
  */
+function fingerprintFile(filePath) {
+  if (!existsSync(filePath)) return null;
+  return createHash("sha256").update(readFileSync(filePath)).digest("hex");
+}
+
 function fingerprintDefaultDb() {
-  if (!existsSync(DEFAULT_DB)) return null;
-  return createHash("sha256").update(readFileSync(DEFAULT_DB)).digest("hex");
+  return fingerprintFile(DEFAULT_DB);
 }
 
 // ------------------------------------------------------------------ setup ----
@@ -182,6 +188,7 @@ async function launch() {
   // teardown can prove no staging app-data leaked into ~/.relay (see
   // fingerprintDefaultDb for why content, not mtime).
   const dbFingerprintBefore = fingerprintDefaultDb();
+  const hostDbFingerprintBefore = fingerprintFile(DEFAULT_HOST_DB);
 
   mkdirSync(DATA_DIR, { recursive: true });
   const artifactUrl = pathToFileURL(state.artifact).href;
@@ -201,7 +208,6 @@ async function launch() {
       cwd: state.scratchDir,
       env: {
         ...process.env,
-        RELAY_DATA_DIR: DATA_DIR,
         RELAY_BUILD_ARTIFACT_URL: artifactUrl,
         RELAY_STAGING: "true",
         ...CUSTOMER_ENV,
@@ -213,7 +219,14 @@ async function launch() {
   closeSync(logFd); // the child holds its own dup'd fd now
 
   // Persist the PID immediately so a crash mid-readiness is still tearable.
-  writeState({ ...state, pid: child.pid, port: PORT, dbFingerprintBefore, launchedAt: new Date().toISOString() });
+  writeState({
+    ...state,
+    pid: child.pid,
+    port: PORT,
+    dbFingerprintBefore,
+    hostDbFingerprintBefore,
+    launchedAt: new Date().toISOString(),
+  });
 
   try {
     await waitForHttpOk(`http://127.0.0.1:${PORT}/`, READY_TIMEOUT_MS);
@@ -275,6 +288,7 @@ async function status() {
 async function teardown() {
   const state = readState();
   const dbFingerprintBefore = state?.dbFingerprintBefore ?? null;
+  const hostDbFingerprintBefore = state?.hostDbFingerprintBefore ?? null;
 
   // 1. Stop the held-open server (by PID from state — we can't reach the child
   //    object across process boundaries).
@@ -326,6 +340,16 @@ async function teardown() {
   } else {
     log("No pre-launch DB fingerprint recorded (setup-only teardown); isolation check skipped.");
   }
+
+  const hostDbFingerprintAfter = fingerprintFile(DEFAULT_HOST_DB);
+  assert(
+    hostDbFingerprintAfter === hostDbFingerprintBefore,
+    `ISOLATION BREACH (R4): ~/.relay-host/host.db changed during the staging run\n` +
+      `  before sha256: ${hostDbFingerprintBefore ?? "absent"}\n` +
+      `  after  sha256: ${hostDbFingerprintAfter ?? "absent"}\n` +
+      `  staging Host state must remain inside ~/.relay-staging/host.`,
+  );
+  log("Isolation invariant holds (R4): ~/.relay-host/host.db unchanged.");
 
   log("Teardown complete. Environment wiped clean.");
 }

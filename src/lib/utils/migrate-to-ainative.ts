@@ -6,7 +6,7 @@ import {
   readFileSync,
   readdirSync,
 } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import Database from "better-sqlite3";
 
@@ -25,6 +25,23 @@ export interface MigrationOptions {
   home?: string;
   gitDir?: string;
   logger?: (msg: string) => void;
+}
+
+/**
+ * Home-brand migration owns only Relay's default ~/.relay data surface.
+ *
+ * A customer who supplies RELAY_DATA_DIR has selected an isolated Cell or
+ * private instance. Starting that runtime must never inspect or mutate the
+ * operator's default ~/.relay database as a side effect.
+ */
+export function shouldMigrateLegacyHomeData(options: {
+  dataDirOverride?: string;
+  home?: string;
+} = {}): boolean {
+  const home = options.home ?? homedir();
+  const override = options.dataDirOverride ?? process.env.RELAY_DATA_DIR;
+  if (!override) return true;
+  return resolve(override) === resolve(join(home, ".relay"));
 }
 
 interface KeychainMigrateModule {

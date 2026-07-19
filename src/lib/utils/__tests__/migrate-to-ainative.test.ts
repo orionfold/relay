@@ -3,7 +3,10 @@ import { mkdtempSync, existsSync, mkdirSync, writeFileSync, readFileSync, rmSync
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import Database from "better-sqlite3";
-import { migrateLegacyData } from "../migrate-to-ainative";
+import {
+  migrateLegacyData,
+  shouldMigrateLegacyHomeData,
+} from "../migrate-to-ainative";
 
 function makeTempHome(): string {
   return mkdtempSync(join(tmpdir(), "ainative-migrate-test-"));
@@ -20,6 +23,26 @@ describe("migrateLegacyData", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
     rmSync(tempHome, { recursive: true, force: true });
+  });
+
+  describe("custom data-dir isolation", () => {
+    it("runs home migration with no override or the exact default", () => {
+      expect(shouldMigrateLegacyHomeData({
+        home: tempHome,
+        dataDirOverride: "",
+      })).toBe(true);
+      expect(shouldMigrateLegacyHomeData({
+        home: tempHome,
+        dataDirOverride: join(tempHome, ".relay"),
+      })).toBe(true);
+    });
+
+    it("refuses to touch the default home data when a custom data dir is active", () => {
+      expect(shouldMigrateLegacyHomeData({
+        home: tempHome,
+        dataDirOverride: join(tempHome, ".relay-customer-a"),
+      })).toBe(false);
+    });
   });
 
   it("chains ~/.stagent/ all the way to ~/.relay/ when only the oldest dir exists", async () => {

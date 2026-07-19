@@ -21,10 +21,13 @@ cannot reach into Cells on other Hosts.
 The local G-083 control plane is implemented on mainline. G-094 has published
 and proved the public signed multi-architecture Cell image at immutable index
 digest `sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73`.
-Production managed-Cell fulfillment is still not released: Website must publish
-the Host offer and issue its signed grant, and G-084 owns browser lifecycle UX.
-The supervisor therefore must not be presented as currently purchasable merely
-because its free runtime image is available.
+G-084 has accepted the browser lifecycle UX, and G-101 has accepted the fresh
+customer-identical npm-to-Host-to-managed-Cell release-candidate journey.
+Production managed-Cell fulfillment is still not released: Website G-041 must
+complete the separately authorized staged purchase, signed-grant delivery, and
+cross-surface conformance packet before an R3 release is authorized. The
+supervisor therefore must not be presented as currently purchasable merely
+because its free runtime image and Relay-side release evidence are available.
 
 ## What it stores
 
@@ -108,6 +111,28 @@ loopback-only ingress, a non-root user,
 read-only root filesystem, dropped capabilities, no-new-privileges, bounded
 CPU/memory/PIDs, and a distinct data bind mount. Docker command failures remain
 visible as named Host failures rather than being reported as a missing Cell.
+
+## Repeat the Host/Cell release-candidate proof
+
+Use the permanent staging driver for a fresh release candidate rather than
+assembling an ad hoc source-checkout smoke:
+
+```bash
+node scripts/staging.mjs build
+node scripts/staging.mjs launch
+RELAY_G101_EVIDENCE_DIR=output/staging/<date>-host-cell-release-candidate \
+  node scripts/staging/host-cell-release-candidate.mjs
+node scripts/staging.mjs teardown
+```
+
+The proof installs the packed npm artifact into the isolated staging scratch
+environment, binds both `RELAY_DATA_DIR` and `RELAY_HOST_ROOT` under the staging
+root, verifies the accepted public Cell digest with Cosign and GitHub
+attestations, exercises the licensed ten-Cell lifecycle and recovery boundary,
+and cleans only Docker resources bearing its Host labels. The final teardown
+must report that the normal `~/.relay/relay.db` and `~/.relay-host/host.db`
+remain byte-identical. Keep the evidence directory as the content-safe receipt;
+do not substitute a source-checkout run for a release claim.
 
 ## Retain, release, and purge
 
