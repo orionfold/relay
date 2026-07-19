@@ -38,6 +38,18 @@
   console errors, the full 3,791-test suite, TypeScript, and Next/CLI production
   builds. No Pack or Cell was removed during browser verification.
 
+### Groomed
+
+- `relay-host-cell-memo-series` (G-102) — created a supporting Host/Cell
+  customer-education workstream and one executable goal for six high-quality,
+  copy-verbatim memo source packages. The contract reuses the proven Relay
+  Packs eight-section, claim-ledger, accessible-signature, honest-gap, and
+  corpus-verification discipline. Five memos may reach editorial review from
+  accepted G-101 evidence; the customer-owned-cloud capstone remains a visibly
+  gated draft until G-085 proves the real provider journey. Memo completion is
+  non-gating for R3, and Website copy, public claims, publication, and launch
+  remain separately operator-gated.
+
 ### Re-prioritized
 
 - Locked active execution to the Relay Cell/Host release and customer-owned
