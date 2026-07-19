@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "1b19679ec5e377cafbb6246512d9f19572a40ebc335abc8cdfaa825313897971",
+  "contentHash": "d15ed906ffa5c5b1c24a967aa270e38df69a5fd9eaf89368664f89871b3db4bf",
   "features": [
     "Card system",
     "Customer book",
@@ -20,38 +20,23 @@
   "productRoutes": [
     "/",
     "/apps",
-    "/apps/demo-agency-ops",
     "/blueprints",
     "/costs",
     "/customers",
     "/packs",
     "/projects",
+    "/settings#settings-host-deployment",
+    "/settings#settings-instance",
     "/tasks"
   ],
   "publicUrl": "https://orionfold.com/relay/docs/organize-customers-projects-and-tasks/",
   "schemaVersion": 2,
   "screenshots": [
     {
-      "id": "agency-app-detail",
-      "path": "dark/apps/agency-app-detail__desktop.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "e4f10dee14fdf1a2353c757b6a4322b5a5853da503ceeb3c0d6a8da457628bbc",
-      "theme": "dark",
-      "viewport": "desktop"
-    },
-    {
-      "id": "agency-app-detail",
-      "path": "dark/apps/agency-app-detail__mobile.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "c8b6b1a1617e0f62b63f9ddc954592e81d031b87a49fe392d351051df4a59ce1",
-      "theme": "dark",
-      "viewport": "mobile"
-    },
-    {
       "id": "apps-list",
       "path": "dark/apps/apps-list__desktop.png",
       "productRoute": "/apps",
-      "sha256": "f817867b64c7caceaa0af1025fdcafd5ea8c064b1eb403bc9bbd9669fb4abe44",
+      "sha256": "3f9d352c33c872912faf4352d52739bb3215ac4054feb725e190b4d5ca6eca8e",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -59,7 +44,7 @@
       "id": "apps-list",
       "path": "dark/apps/apps-list__mobile.png",
       "productRoute": "/apps",
-      "sha256": "9fbf55c7b47d15d04519162096aca35a4f1f8edadeacf6507faa00f4ca583627",
+      "sha256": "83df1c0fa86e43831eb243db132ef9a03c4870d3be6c27bc79a95b394e5d7a3b",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -67,7 +52,7 @@
       "id": "costs",
       "path": "dark/costs/costs__desktop.png",
       "productRoute": "/costs",
-      "sha256": "064532735001aba3d4053757d0e470c6bd38ea721d9d20387da5b2e9bdde42d6",
+      "sha256": "864359e6d71559b8624ddcdbd95b28242aa0a6221865ba1ec2acdab63e17cf5d",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -75,7 +60,7 @@
       "id": "costs",
       "path": "dark/costs/costs__mobile.png",
       "productRoute": "/costs",
-      "sha256": "66059a1472c942885467f86e706d3cb31f15329d7bd7eae74fef01d6bd1ff264",
+      "sha256": "31dea469da8e1528f7a629db9791accb2ec025b326ad65c3f46db0ae6cdbef53",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -83,7 +68,7 @@
       "id": "customers-list",
       "path": "dark/customers/customers-list__desktop.png",
       "productRoute": "/customers",
-      "sha256": "6ed081c221f075a01300a1f1ca367add1e8bb92c0b534d49fc8d408480b48645",
+      "sha256": "23a8525cab49f4ec9dec1b04f287edf059ccef0eed5a1cc5694faa36bef70226",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -91,7 +76,7 @@
       "id": "customers-list",
       "path": "dark/customers/customers-list__mobile.png",
       "productRoute": "/customers",
-      "sha256": "8df457371dfc7d58ce3be31a73caa185a4bc33b1b1c2a93d098a5dbc58ee7025",
+      "sha256": "b54031b0756e183468d7223f5614331c66ade6452c17910388edd25e1cc82d76",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -99,7 +84,7 @@
       "id": "home-cockpit",
       "path": "dark/home/home-cockpit__desktop.png",
       "productRoute": "/",
-      "sha256": "4863ba6cf5b44394f8e678d0698fbffb04ae13ee62eaa6a4897023fca5f0d885",
+      "sha256": "373e3d00bc7b4495cdaec6acc5a718ad5ccb82378778e82c59aa425f7e2cbc83",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -107,7 +92,7 @@
       "id": "home-cockpit",
       "path": "dark/home/home-cockpit__mobile.png",
       "productRoute": "/",
-      "sha256": "5cc6d08d266d86b442b2fdc31c794d59dc08673676d08f17619a34d81c00cfbf",
+      "sha256": "74b63844d0506d85cd5df0b65ef4a142a6f892a927910b8927c39d9aa87a855b",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -115,7 +100,7 @@
       "id": "packs-gallery",
       "path": "dark/packs/packs-gallery__desktop.png",
       "productRoute": "/packs",
-      "sha256": "1398ecc3759fa8308d801774f747a541743d1f59404b6fa0039afb3e0da534e5",
+      "sha256": "1cdf668f10dd0c81299bb0d1c37504b24294ccc993b05ce030f461ebf9a042fc",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -123,7 +108,7 @@
       "id": "packs-gallery",
       "path": "dark/packs/packs-gallery__mobile.png",
       "productRoute": "/packs",
-      "sha256": "5bce477901b24f7ec1db85d5629f001cd89c185da2d2b0da1eac8dec0692e12a",
+      "sha256": "4123142831bfd27c2049d376a5be3e81e08e0d04e43747b9f37d0edd96e30851",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -131,7 +116,7 @@
       "id": "projects-list",
       "path": "dark/projects/projects-list__desktop.png",
       "productRoute": "/projects",
-      "sha256": "8c893a88d3ab5298308534dbc9dab05166875fc0d8fd00d151460f42d8bc2315",
+      "sha256": "adaa489468ebdb99c30e573c444fe07b2d3677a644273636885fb2eff131850a",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -139,7 +124,39 @@
       "id": "projects-list",
       "path": "dark/projects/projects-list__mobile.png",
       "productRoute": "/projects",
-      "sha256": "4bba1f7e91ab1e16a70a145ac69086beb0c3f853a4bbb7faa5829594007c0a25",
+      "sha256": "ef3036334aedadd8b12f98eb14ddc4b410cc4f46e84684e2302e65299acc3eeb",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-cell-boundary",
+      "path": "dark/settings/settings-cell-boundary__desktop.png",
+      "productRoute": "/settings#settings-instance",
+      "sha256": "b38cf886026540ebcb065a1c2b24abb9a1558b11d4232d18a6f1f75520b8f21d",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-cell-boundary",
+      "path": "dark/settings/settings-cell-boundary__mobile.png",
+      "productRoute": "/settings#settings-instance",
+      "sha256": "34bac7905f46b577aae3877e7d9ffb3b9e00449d7f8dcf184d8b3551328c0482",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "dark/settings/settings-host-deployment__desktop.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "7b54e02c32d7d740a7ae3051f2fdc72fc45e8687317f97ca7be68a48fa9a38c8",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "dark/settings/settings-host-deployment__mobile.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "158c9ab6e721410c6e27b88a8e7a1af4422f372c72a4d8ca9a0216a610937708",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -147,7 +164,7 @@
       "id": "tasks-board",
       "path": "dark/tasks/tasks-board__desktop.png",
       "productRoute": "/tasks",
-      "sha256": "c417c82b16cac7599bd3bcdb2ead7829c836bbe54ebab99bdcfb6ef2d2d6074f",
+      "sha256": "3968f6679707e7fadf42da61945596cde2b9f31802519f53d68cf2e59bedfbbe",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -155,7 +172,7 @@
       "id": "tasks-board",
       "path": "dark/tasks/tasks-board__mobile.png",
       "productRoute": "/tasks",
-      "sha256": "d90cf1e49df41fbc159cc9c1f17aeda54abcc1298f2a196c9e7216e8e69eb0b8",
+      "sha256": "eace95635fe84dfd6065940eaabc9b772628205328207ab76363efbf6092f098",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -163,7 +180,7 @@
       "id": "blueprints-gallery",
       "path": "dark/workflows/blueprints-gallery__desktop.png",
       "productRoute": "/blueprints",
-      "sha256": "12953e1398fe3ab231e5b1165799206c42519e16d5b279e828fbe556923f902b",
+      "sha256": "b48f85ed16453e921d0a6a28dfa0e1735e9b1eaec69ea295bc20ea888dce8869",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -171,31 +188,15 @@
       "id": "blueprints-gallery",
       "path": "dark/workflows/blueprints-gallery__mobile.png",
       "productRoute": "/blueprints",
-      "sha256": "40cf87ca05118a798fcf2c09a367385f3d55ab17ede74cbc2d9c67db95c57e32",
+      "sha256": "4bd345d599d3dfbf8a448e7ac7b769225e2598973d51538e40a179b1f715034c",
       "theme": "dark",
-      "viewport": "mobile"
-    },
-    {
-      "id": "agency-app-detail",
-      "path": "light/apps/agency-app-detail__desktop.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "5da8b27671aae4807c9732ec4c38f1192abd8f3014aa7feda75595205a21e1ad",
-      "theme": "light",
-      "viewport": "desktop"
-    },
-    {
-      "id": "agency-app-detail",
-      "path": "light/apps/agency-app-detail__mobile.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "d3d423d92d06a44a754283fc1efc64ad9dd0b03e9137de1880c714783b02ce11",
-      "theme": "light",
       "viewport": "mobile"
     },
     {
       "id": "apps-list",
       "path": "light/apps/apps-list__desktop.png",
       "productRoute": "/apps",
-      "sha256": "22f01daffd27a89f22a6d61fb567dbe0734799578d80b095bdc58851b37a881a",
+      "sha256": "dcc516b4b3a2b1ab43f888663012781b3fb0e54f165775a5b23a35b2c2c82d31",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -203,7 +204,7 @@
       "id": "apps-list",
       "path": "light/apps/apps-list__mobile.png",
       "productRoute": "/apps",
-      "sha256": "6ab59c0acf44f2c6d6d93cbdd078f9a454c28f8ae354f6715ec4bf22edc92c2c",
+      "sha256": "6f4965049b0111c4ff52bc7ec5202d61f645b1cf968ceb58ccb27cb3f7ff7252",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -211,7 +212,7 @@
       "id": "costs",
       "path": "light/costs/costs__desktop.png",
       "productRoute": "/costs",
-      "sha256": "fdc51e83e12e2c256835161e0abe62881d4b433e897ae652204954a1a6c85257",
+      "sha256": "68b2d402dd73106e213cf699cc6863346a403858179b4cedc98f21ba04516192",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -219,7 +220,7 @@
       "id": "costs",
       "path": "light/costs/costs__mobile.png",
       "productRoute": "/costs",
-      "sha256": "3811a10e3c36b3520934931fbc8d48d27425140cd8fd687e6c6174e5ca586ea5",
+      "sha256": "60a8897256dda7eafd87eb50a2a919c4f9af9937d4f3f1b45d4c49f816915269",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -227,7 +228,7 @@
       "id": "customers-list",
       "path": "light/customers/customers-list__desktop.png",
       "productRoute": "/customers",
-      "sha256": "94857c6407139713d2670482d69e99c089368b04ba2f851d00affa0e9c91e03f",
+      "sha256": "759761a12f08b8197fe503cb4dbbd60310d766670246dcabb2c7f408ccd58ac3",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -235,7 +236,7 @@
       "id": "customers-list",
       "path": "light/customers/customers-list__mobile.png",
       "productRoute": "/customers",
-      "sha256": "d9a1de177cd7eb555ec8d4807d7914fde90fe92a0c2c3ba84c1c46febc7d752e",
+      "sha256": "ccc5c60196142ba5c07d3d1da08fec0dc7cf77a2624b63ee028361e7635d5d25",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -243,7 +244,7 @@
       "id": "home-cockpit",
       "path": "light/home/home-cockpit__desktop.png",
       "productRoute": "/",
-      "sha256": "af2a9d9388ff64178cfa7d823881bab6223eae209dfb0e761c0dbe607bba99e7",
+      "sha256": "595f826f591db637306a2b00f7f8650409c22b9c23c00b76f96f678368b802b3",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -251,7 +252,7 @@
       "id": "home-cockpit",
       "path": "light/home/home-cockpit__mobile.png",
       "productRoute": "/",
-      "sha256": "1aa905fce1a571762e5a07be1037967abed30bf2a9b4634b4307a50dd8d2eeb5",
+      "sha256": "a0989eb8650b584cba02d48f513d9f5941bdf77bd1fee7c7390833965ac7f5db",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -259,7 +260,7 @@
       "id": "packs-gallery",
       "path": "light/packs/packs-gallery__desktop.png",
       "productRoute": "/packs",
-      "sha256": "21e5f1ca5e6590c07f58247cbc2c29fa0a45aa556d2e92550e1593cfecf83070",
+      "sha256": "ff0cfdba54caae68072d9eed3aa2a6ef99e4383b362f91333833338c7fcf87eb",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -267,7 +268,7 @@
       "id": "packs-gallery",
       "path": "light/packs/packs-gallery__mobile.png",
       "productRoute": "/packs",
-      "sha256": "c2f57875b8e63e60c03cc10aefbb4419196ac505cbabc92183e69ca6daa05b39",
+      "sha256": "34c2cecbcd4050184c75b7d03a1753dcf3e131d43c969c2bdc26ecfef67c8dd1",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -275,7 +276,7 @@
       "id": "projects-list",
       "path": "light/projects/projects-list__desktop.png",
       "productRoute": "/projects",
-      "sha256": "7ad8574a8545b0b0cb45abe8d1849d8d99e0ecfa2e3949ba84fbf41cf1697897",
+      "sha256": "e7714c82bf19b712d525c78d0bc846fc6f7f08df323738444a33f86504e6dfc1",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -283,7 +284,39 @@
       "id": "projects-list",
       "path": "light/projects/projects-list__mobile.png",
       "productRoute": "/projects",
-      "sha256": "122fd95663b83a1845e0e37aa9d58f3a0120fbcbdf04026769c1e232c85a4f6c",
+      "sha256": "e9a5fab2b888daaf5f78984d6c6ee858b48a39103bf4b1d4a3fea88699e175da",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-cell-boundary",
+      "path": "light/settings/settings-cell-boundary__desktop.png",
+      "productRoute": "/settings#settings-instance",
+      "sha256": "9365b2c6c2f365fc43dc684406e59292b8111f77d36b0d058d1fb6315e7a8ea3",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-cell-boundary",
+      "path": "light/settings/settings-cell-boundary__mobile.png",
+      "productRoute": "/settings#settings-instance",
+      "sha256": "9414be088fdf39b35e0977756ea915c7a764d21af6095e9ce054117d11423043",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "light/settings/settings-host-deployment__desktop.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "4c4374250183d53b2fa28c65c5b130b510ae359daff7ef34338b4723b3f4a323",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "light/settings/settings-host-deployment__mobile.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "c799e892c999f33db78a84c5f9651305a9b52a16739fa38933279cd9abccf79d",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -291,7 +324,7 @@
       "id": "tasks-board",
       "path": "light/tasks/tasks-board__desktop.png",
       "productRoute": "/tasks",
-      "sha256": "6c0e24aae432b64a435be23a2332292349a5c6602eb226631ef46f2a95d23702",
+      "sha256": "c037a0710a6e64db99de2aa5974352e6b0cc281079cd0f9ce891cfa6ab5f05d1",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -299,7 +332,7 @@
       "id": "tasks-board",
       "path": "light/tasks/tasks-board__mobile.png",
       "productRoute": "/tasks",
-      "sha256": "e2aeb20f857e53c686e8f15d14e2c8b335c12629654cf80892cf98003b0a57b0",
+      "sha256": "4ff5deb3e4f6fed5d3b47994adb17a65d85a1306c81c99f61cc46a7f94d29cc8",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -307,7 +340,7 @@
       "id": "blueprints-gallery",
       "path": "light/workflows/blueprints-gallery__desktop.png",
       "productRoute": "/blueprints",
-      "sha256": "6dbb0670d658d88eb7535934ad33a5f048ca7a880882b66ab9404e72000c6933",
+      "sha256": "b5ebc532487dbb08ba818613aa0e5c0c844300dd25738349be6ec6bf2dec9704",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -315,7 +348,7 @@
       "id": "blueprints-gallery",
       "path": "light/workflows/blueprints-gallery__mobile.png",
       "productRoute": "/blueprints",
-      "sha256": "8833e95e72764e3b08f6fae10fefe71a3b9834ed92f79b2f7368d7ed5f10a990",
+      "sha256": "79acc63f8b73488d4012e0bb8b49b61abc966ec8947e521bad738db0ed3797f7",
       "theme": "light",
       "viewport": "mobile"
     }
@@ -360,8 +393,8 @@
       "heading": "What To Do When The State Looks Wrong",
       "id": "what-to-do-when-the-state-looks-wrong",
       "level": 2,
-      "markdown": "If a project is missing, search from the current list before creating another one. Duplicate projects make later audits harder.\n\nIf a task looks stuck, open Monitor or the task detail before running it again. A stalled workflow, a waiting approval, and a failed provider call need different fixes.\n\nIf spend attribution looks empty, check whether the task or run is linked to the right customer or project. Empty attribution may be honest if the work had no owner. It is still a signal to improve how future work starts.\n\nIf a card action is unclear, use the detail view rather than guessing. Detail screens exist so important work does not depend on tiny card text.\n\nIf a customer record has no projects, decide if that is a real empty state or a setup gap. Relay should make both cases visible.\n\nIf an uploaded file does not appear as ready context, check its status in\nDocuments. **Uploaded** and **Processing** mean Relay is still preparing it.\n**Error** means processing failed and needs inspection. The workflow picker keeps\nthese rows visible but does not let you select them until they are **Ready**.\n\nIf two client records must not share data, files, credentials, agents, or\nruntimes, do not try to solve that with customer links or working directories.\nUse separate Relay cells with distinct processes/containers and data roots. If\nthe clients must not trust the same Relay Host administrator, use separate VMs\nor machines. Mainline's separately invoked `relay host` CLI can enforce local\nCell roots, ports, networks, resource reservations, and signed managed-Cell\ncapacity on one Host. The public Cell image, Host offer, browser lifecycle UX,\nand cloud provisioning remain separate release gates, so do not present that\nCLI as an end-to-end purchasable Host experience yet.",
-      "wordCount": 293
+      "markdown": "If a project is missing, search from the current list before creating another one. Duplicate projects make later audits harder.\n\nIf a task looks stuck, open Monitor or the task detail before running it again. A stalled workflow, a waiting approval, and a failed provider call need different fixes.\n\nIf spend attribution looks empty, check whether the task or run is linked to the right customer or project. Empty attribution may be honest if the work had no owner. It is still a signal to improve how future work starts.\n\nIf a card action is unclear, use the detail view rather than guessing. Detail screens exist so important work does not depend on tiny card text.\n\nIf a customer record has no projects, decide if that is a real empty state or a setup gap. Relay should make both cases visible.\n\nIf an uploaded file does not appear as ready context, check its status in\nDocuments. **Uploaded** and **Processing** mean Relay is still preparing it.\n**Error** means processing failed and needs inspection. The workflow picker keeps\nthese rows visible but does not let you select them until they are **Ready**.\n\nIf two client records must not share data, files, credentials, agents, or\nruntimes, do not try to solve that with customer links or working directories.\nUse separate Relay cells with distinct processes/containers and data roots. If\nthe clients must not trust the same Relay Host administrator, use separate VMs\nor machines. The local `relay host` CLI and licensed **Settings → Relay Host\ndeployment** journey enforce local Cell roots, ports, networks, resource\nreservations, signed managed-Cell capacity, and content-free lifecycle receipts\non one Host. Cloud Server Preview is a deterministic simulation and creates no\nprovider resources. Upgrade, rollback, transfer, and Fleet control are outside\nthe current local Host lifecycle surface.",
+      "wordCount": 298
     },
     {
       "heading": "What This Changes In Daily Work",
@@ -378,9 +411,9 @@
       "wordCount": 18
     }
   ],
-  "sourceHash": "ae7b3476bc2d58b9c27b886d3fc4392814d61c9380a66f280ca44930ea3206da",
+  "sourceHash": "87f4bd89bbb2cc8112116dee4b08225c0bf3d4a32e59cc89dfcb48b00d6e89d4",
   "sourcePath": "docs/guides/03-organize-customers-projects-and-tasks.md",
-  "sourceStateHash": "b0cba702b82e0be557d32b5199c8f1b705668502c06c3202b8702cba37588c0d",
+  "sourceStateHash": "f14b89ba6506e1be52dc87e70299ff404706fec37bb374fa6ab7d043494bb238",
   "summary": "Show how Relay groups work by customer, project, and task so a small business can see what is happening.",
   "title": "Organize Customers, Projects, And Tasks"
 }

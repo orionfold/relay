@@ -14,9 +14,9 @@ describe("ensureBetterSqlite3NativeBinding", () => {
       "await ensureNativeSqliteOrExit();",
       cliSource.indexOf("program.parse();"),
     );
-    const firstDatabaseImport = cliSource.indexOf(
-      'await import("../src/lib/utils/migrate-to-ainative")',
-    );
+    const firstDatabaseImport = cliSource.match(
+      /await\s+import\(\s*["']\.\.\/src\/lib\/utils\/migrate-to-ainative["']\s*\)/,
+    )?.index ?? -1;
 
     expect(cliSource).not.toMatch(/^import .*better-sqlite3/m);
     expect(cliSource).not.toMatch(/^import .*\.\.\/src\/lib\/db/m);

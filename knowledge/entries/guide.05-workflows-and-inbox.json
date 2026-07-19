@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "aa4688a15b47d0355eb4952c1144ae19600e55ca54d3bf965dd30d8932c96307",
+  "contentHash": "3ede86fe7f93267a01342538ce57fda861a846b7b3bbeca67be60a9c2f4e54e7",
   "features": [
     "Human-in-the-loop workflow questions",
     "Inbox",
@@ -18,7 +18,6 @@
   ],
   "kind": "guide",
   "productRoutes": [
-    "/apps/demo-agency-ops",
     "/blueprints",
     "/chat",
     "/inbox",
@@ -32,26 +31,10 @@
   "schemaVersion": 2,
   "screenshots": [
     {
-      "id": "agency-app-detail",
-      "path": "dark/apps/agency-app-detail__desktop.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "e4f10dee14fdf1a2353c757b6a4322b5a5853da503ceeb3c0d6a8da457628bbc",
-      "theme": "dark",
-      "viewport": "desktop"
-    },
-    {
-      "id": "agency-app-detail",
-      "path": "dark/apps/agency-app-detail__mobile.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "c8b6b1a1617e0f62b63f9ddc954592e81d031b87a49fe392d351051df4a59ce1",
-      "theme": "dark",
-      "viewport": "mobile"
-    },
-    {
       "id": "chat-workspace",
       "path": "dark/chat/chat-workspace__desktop.png",
       "productRoute": "/chat",
-      "sha256": "61dfb6e43f51b316df4c88357e9774f957cf1cdea6a0560c6059934eb8ed417d",
+      "sha256": "f19ed75c079b343752b74859f8354fd8c917a39e33f1e227268f906b3167ebe2",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -59,7 +42,7 @@
       "id": "chat-workspace",
       "path": "dark/chat/chat-workspace__mobile.png",
       "productRoute": "/chat",
-      "sha256": "6158d7916a9e0507d3e402db137acbc101b57f5e49fc9058e405280d1add4b86",
+      "sha256": "7b0069765c94e8122e3d31962e11f44daf02eae1cf19aaa05f374896cba6f6a3",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -67,7 +50,7 @@
       "id": "inbox-approvals",
       "path": "dark/inbox/inbox-approvals__desktop.png",
       "productRoute": "/inbox",
-      "sha256": "ce0f9a40cd5b139ddd9f4b49c4608bdb39e3a75e8b3ccc15d144d3169294c7c4",
+      "sha256": "b92b4567ca748f58f880a7748e2eb071802d601b12e56f5713c585fd86382f97",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -75,7 +58,7 @@
       "id": "inbox-approvals",
       "path": "dark/inbox/inbox-approvals__mobile.png",
       "productRoute": "/inbox",
-      "sha256": "bdc78d557ac421470bed01cc511c5122ea3070a4e7c4fbec062bde78919d6eb0",
+      "sha256": "b47578dbb366faba0d7907831927c04734b9af33127fe9e1e3edfae0c618554b",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -83,7 +66,7 @@
       "id": "monitor",
       "path": "dark/monitor/monitor__desktop.png",
       "productRoute": "/monitor",
-      "sha256": "6fc0033a16d9c050ecac1be7c2f1612a65717f75b0c256338cd57e6b337b1132",
+      "sha256": "64efebdc6da61eaa5dbbc1dccbe1f8c8ad38e73fa911f298325c0a1f91e21493",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -91,7 +74,7 @@
       "id": "monitor",
       "path": "dark/monitor/monitor__mobile.png",
       "productRoute": "/monitor",
-      "sha256": "91f889887d5119589e49f57407d645559611a0e914fb0ef5a13699d99f2aa093",
+      "sha256": "286ee4281b8cc53799bd9d29b2386fecaca3360ed738129784c88cf1e71ca62d",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -99,7 +82,7 @@
       "id": "settings-summary",
       "path": "dark/settings/settings-summary__desktop.png",
       "productRoute": "/settings",
-      "sha256": "c4a65ffd595941e26bad8b446e7976787ea777462cd8df0ef3bc816083799f3e",
+      "sha256": "65a8e5c169bbaa0d4b487c84ef9a419628175fc0494e55a538d8f9521feb4c52",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -107,7 +90,7 @@
       "id": "settings-summary",
       "path": "dark/settings/settings-summary__mobile.png",
       "productRoute": "/settings",
-      "sha256": "56d668062a3b9cab9f1394daf175ad4e8e88e357f502b9ed2ade59aebea93b00",
+      "sha256": "3445116f3eb95917748b16dab3cb797a1c6de45cbb32794769e921755d695f16",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -115,7 +98,7 @@
       "id": "support-queue-table",
       "path": "dark/tables/support-queue-table__desktop.png",
       "productRoute": "/tables/demo_table_support_queue",
-      "sha256": "082aeb7ab49448ff05675530d4d634a3222d9acb50e4529dd85dc2eaa693f821",
+      "sha256": "f3c240646a04a700d68268e5fe35f26e7a67abaf4971f6edf1ed1bfd7724e9b3",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -123,7 +106,7 @@
       "id": "support-queue-table",
       "path": "dark/tables/support-queue-table__mobile.png",
       "productRoute": "/tables/demo_table_support_queue",
-      "sha256": "b346e816d6b12502cec92f182d7530fd91aa18b84900a81bb0e7a514331f70c9",
+      "sha256": "913dc67b70f1e644047030e813c9b0ef800d38d6dc105ac5ca7603e56a3e8bb8",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -131,7 +114,7 @@
       "id": "tasks-board",
       "path": "dark/tasks/tasks-board__desktop.png",
       "productRoute": "/tasks",
-      "sha256": "c417c82b16cac7599bd3bcdb2ead7829c836bbe54ebab99bdcfb6ef2d2d6074f",
+      "sha256": "3968f6679707e7fadf42da61945596cde2b9f31802519f53d68cf2e59bedfbbe",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -139,7 +122,7 @@
       "id": "tasks-board",
       "path": "dark/tasks/tasks-board__mobile.png",
       "productRoute": "/tasks",
-      "sha256": "d90cf1e49df41fbc159cc9c1f17aeda54abcc1298f2a196c9e7216e8e69eb0b8",
+      "sha256": "eace95635fe84dfd6065940eaabc9b772628205328207ab76363efbf6092f098",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -147,7 +130,7 @@
       "id": "blueprints-gallery",
       "path": "dark/workflows/blueprints-gallery__desktop.png",
       "productRoute": "/blueprints",
-      "sha256": "12953e1398fe3ab231e5b1165799206c42519e16d5b279e828fbe556923f902b",
+      "sha256": "b48f85ed16453e921d0a6a28dfa0e1735e9b1eaec69ea295bc20ea888dce8869",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -155,7 +138,7 @@
       "id": "blueprints-gallery",
       "path": "dark/workflows/blueprints-gallery__mobile.png",
       "productRoute": "/blueprints",
-      "sha256": "40cf87ca05118a798fcf2c09a367385f3d55ab17ede74cbc2d9c67db95c57e32",
+      "sha256": "4bd345d599d3dfbf8a448e7ac7b769225e2598973d51538e40a179b1f715034c",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -163,7 +146,7 @@
       "id": "workflows-list",
       "path": "dark/workflows/workflows-list__desktop.png",
       "productRoute": "/workflows",
-      "sha256": "fd9e6637027985ba20be1bbbc2a37d7d639d75465223fe9dac8d309701f546d4",
+      "sha256": "c056af8fe92ee79df3b3c83aea0423b760ab2ee491eb66be886806c8c3c59308",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -171,31 +154,15 @@
       "id": "workflows-list",
       "path": "dark/workflows/workflows-list__mobile.png",
       "productRoute": "/workflows",
-      "sha256": "1086e8dc9d8f1f01d372976736bad93c6b732e1b4468afe8e8a650cf3cfb3ad7",
+      "sha256": "5732f5b85496f072764ab308e01b6c1444b3c21caa1776d2c213be5dec96aaa6",
       "theme": "dark",
-      "viewport": "mobile"
-    },
-    {
-      "id": "agency-app-detail",
-      "path": "light/apps/agency-app-detail__desktop.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "5da8b27671aae4807c9732ec4c38f1192abd8f3014aa7feda75595205a21e1ad",
-      "theme": "light",
-      "viewport": "desktop"
-    },
-    {
-      "id": "agency-app-detail",
-      "path": "light/apps/agency-app-detail__mobile.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "d3d423d92d06a44a754283fc1efc64ad9dd0b03e9137de1880c714783b02ce11",
-      "theme": "light",
       "viewport": "mobile"
     },
     {
       "id": "chat-workspace",
       "path": "light/chat/chat-workspace__desktop.png",
       "productRoute": "/chat",
-      "sha256": "3b8aa9b3b718114248e430b438bf5e46f3513b011a682a81756b467ddc321b37",
+      "sha256": "1d962db220211103fcef2711ced35be0deb4d50a61e9d2324b9cddb7c0dd25b9",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -203,7 +170,7 @@
       "id": "chat-workspace",
       "path": "light/chat/chat-workspace__mobile.png",
       "productRoute": "/chat",
-      "sha256": "85888d5ebfbb5591ca5efa56be0a33eb776717bc0419b82c5c2c8400200a711b",
+      "sha256": "8d3e76d254ea394f720c5c4f84923720da5d1f950a418fce729d7d2d8d17afc2",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -211,7 +178,7 @@
       "id": "inbox-approvals",
       "path": "light/inbox/inbox-approvals__desktop.png",
       "productRoute": "/inbox",
-      "sha256": "bc2d7ddc06198fc654bcbb1ec9efd69be37babc57e7b701b52b2663e900ab22a",
+      "sha256": "26e6da895b0ca616ef5e09d24f42f4cb43b8daa5eab10b79f734d94afae9aac8",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -219,7 +186,7 @@
       "id": "inbox-approvals",
       "path": "light/inbox/inbox-approvals__mobile.png",
       "productRoute": "/inbox",
-      "sha256": "306b41d9c4076e0d4a972330e06167f763bfe1ffc021f59c3ef86e21650a6f45",
+      "sha256": "2c399493bdcdd5a2caba2cfa3e987f2c52a177af1a55b6f6f3bd6f5e39aa12e3",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -227,7 +194,7 @@
       "id": "monitor",
       "path": "light/monitor/monitor__desktop.png",
       "productRoute": "/monitor",
-      "sha256": "b748842372e0edf9231a87c1fcd63ab163bfb9d75766d65f02f598a54bc6f65d",
+      "sha256": "173c466b13a86660fe6ba7895c5544135576b37dbf1cf996c22df0c330f6a5c2",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -235,7 +202,7 @@
       "id": "monitor",
       "path": "light/monitor/monitor__mobile.png",
       "productRoute": "/monitor",
-      "sha256": "4c50f002cef2da073508c4c26b3be89fc901e82e64269db4f7a815261233e964",
+      "sha256": "495ec397ce0a963d702560a6bf518e051c7a5b680016abcf31a8548327c8b7d2",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -243,7 +210,7 @@
       "id": "settings-summary",
       "path": "light/settings/settings-summary__desktop.png",
       "productRoute": "/settings",
-      "sha256": "a8626db9367e1186c2cbfbb0e3f463f838bf1f13a44a6bbdf857dc8b8aed1790",
+      "sha256": "ce182db91de7ca96e149ccd65435fcc7ac737d08083fd3b46f0231501752fa93",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -251,7 +218,7 @@
       "id": "settings-summary",
       "path": "light/settings/settings-summary__mobile.png",
       "productRoute": "/settings",
-      "sha256": "2784383451f5803a9174566ffb67974384530734e89d0b130ab85086b09897a7",
+      "sha256": "f1c1b33a9dbcb6bc4e9b87f4dd8c2a173253557634db90ea9c1dc665d7b3423a",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -259,7 +226,7 @@
       "id": "support-queue-table",
       "path": "light/tables/support-queue-table__desktop.png",
       "productRoute": "/tables/demo_table_support_queue",
-      "sha256": "847a6cb57b97976839ad5c17075775dee5064b7a0d9736062ac60638cb02ed95",
+      "sha256": "b1f27e27cca28fd361b44e0bae80b57820aae71769a01e84fd3fba1789d8a890",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -267,7 +234,7 @@
       "id": "support-queue-table",
       "path": "light/tables/support-queue-table__mobile.png",
       "productRoute": "/tables/demo_table_support_queue",
-      "sha256": "cc9f043cbe24a7005ed0cf69b204f3ba65b3e698debc528de2089df65a908309",
+      "sha256": "eadc417e12df62258c6fbdd72b7666b3d0a48c31e4ee42a0a910a7fb25cabe47",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -275,7 +242,7 @@
       "id": "tasks-board",
       "path": "light/tasks/tasks-board__desktop.png",
       "productRoute": "/tasks",
-      "sha256": "6c0e24aae432b64a435be23a2332292349a5c6602eb226631ef46f2a95d23702",
+      "sha256": "c037a0710a6e64db99de2aa5974352e6b0cc281079cd0f9ce891cfa6ab5f05d1",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -283,7 +250,7 @@
       "id": "tasks-board",
       "path": "light/tasks/tasks-board__mobile.png",
       "productRoute": "/tasks",
-      "sha256": "e2aeb20f857e53c686e8f15d14e2c8b335c12629654cf80892cf98003b0a57b0",
+      "sha256": "4ff5deb3e4f6fed5d3b47994adb17a65d85a1306c81c99f61cc46a7f94d29cc8",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -291,7 +258,7 @@
       "id": "blueprints-gallery",
       "path": "light/workflows/blueprints-gallery__desktop.png",
       "productRoute": "/blueprints",
-      "sha256": "6dbb0670d658d88eb7535934ad33a5f048ca7a880882b66ab9404e72000c6933",
+      "sha256": "b5ebc532487dbb08ba818613aa0e5c0c844300dd25738349be6ec6bf2dec9704",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -299,7 +266,7 @@
       "id": "blueprints-gallery",
       "path": "light/workflows/blueprints-gallery__mobile.png",
       "productRoute": "/blueprints",
-      "sha256": "8833e95e72764e3b08f6fae10fefe71a3b9834ed92f79b2f7368d7ed5f10a990",
+      "sha256": "79acc63f8b73488d4012e0bb8b49b61abc966ec8947e521bad738db0ed3797f7",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -307,7 +274,7 @@
       "id": "workflows-list",
       "path": "light/workflows/workflows-list__desktop.png",
       "productRoute": "/workflows",
-      "sha256": "3f4b83a2a8efa5811ac950041d6271896380ad18f9d34e92e6e32cc24bfa81a1",
+      "sha256": "5b0896493fa5819ca3f126971993e7542408669b23c85ce271b94caedcd79f56",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -315,7 +282,7 @@
       "id": "workflows-list",
       "path": "light/workflows/workflows-list__mobile.png",
       "productRoute": "/workflows",
-      "sha256": "652a6bcaa1ae00d5fa346434778125b9a5e5f91f9294c5dc473ba9fd7c2d750a",
+      "sha256": "609fa3784310bdf7060b2dff691a32df0c6601f49909edcff75210a980645244",
       "theme": "light",
       "viewport": "mobile"
     }
@@ -378,9 +345,9 @@
       "wordCount": 16
     }
   ],
-  "sourceHash": "6328aef35a0ed00162f988e11a1a42944bf24b2beffae406f6ea3992ba81305a",
+  "sourceHash": "c830766b3306007c9ff3f727a450b7925ff71fa6a5534c5bc89635cd4b5561ba",
   "sourcePath": "docs/guides/05-run-workflows-with-human-checkpoints.md",
-  "sourceStateHash": "58193c11331de1df48c12bcb006de86a865a0fd4a6a3edb3c63ebcbfeb4e4dfd",
+  "sourceStateHash": "b6bda94b7a3b0e695b6df968647509d71fafbc532a73dda1f9672f52d3740564",
   "summary": "Explain how to start a workflow, read its state, answer a question, and recover from visible failures.",
   "title": "Run Workflows With Human Checkpoints"
 }

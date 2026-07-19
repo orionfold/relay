@@ -89,10 +89,21 @@ export async function stopChild(child) {
  * Returns { child, getOutput } where getOutput() is the accumulated
  * stdout+stderr. Callers own the child's lifetime (stopChild).
  */
-export function launchCli({ installDir, dataDir, port, artifactUrl, hostname, extraEnv }) {
+export function launchCli({
+  installDir,
+  dataDir,
+  port,
+  artifactUrl,
+  hostname,
+  exposureProfile,
+  publicOrigin,
+  extraEnv,
+}) {
   const cliPath = path.join(installDir, "node_modules", PACKAGE_NAME, "dist", "cli.js");
   const args = [cliPath, "--no-open", "--port", String(port)];
   if (hostname) args.push("--hostname", hostname);
+  if (exposureProfile) args.push("--exposure-profile", exposureProfile);
+  if (publicOrigin) args.push("--public-origin", publicOrigin);
   const child = spawn(process.execPath, args, {
     cwd: installDir,
     env: {

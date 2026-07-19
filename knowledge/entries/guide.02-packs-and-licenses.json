@@ -1,10 +1,11 @@
 {
   "apiPaths": [],
-  "contentHash": "add8e65bcb1e3b9e86c1ad7058705a0d1c7ce64339a55bb0db32dbf1e8621ad2",
+  "contentHash": "a49daf283ff26162e6be7d031de18c79869772b48ed34b40c6a80b98ed427f39",
   "features": [
     "Current bundled pack families",
     "Offline license lifecycle",
     "Pack install",
+    "Pack removal retention",
     "Pack update",
     "Packs gallery",
     "Packs-first navigation",
@@ -22,6 +23,7 @@
     "/packs",
     "/schedules",
     "/settings",
+    "/settings#settings-host-deployment",
     "/settings#settings-license"
   ],
   "publicUrl": "https://orionfold.com/relay/docs/use-packs-and-licenses/",
@@ -31,7 +33,7 @@
       "id": "agents-list",
       "path": "dark/agents/agents-list__desktop.png",
       "productRoute": "/agents",
-      "sha256": "978838ca1b69f887eb0183e5c943daaaae58813a0592979abbce16e89f9e7e1c",
+      "sha256": "916ad43fb613d9322f0903480f5d181815f62d5a499e142d4ecc021184f14b48",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -39,7 +41,7 @@
       "id": "agents-list",
       "path": "dark/agents/agents-list__mobile.png",
       "productRoute": "/agents",
-      "sha256": "6213f828ef42f1c8737b12131c79974a1884240bfbb73588e7a06605071a541c",
+      "sha256": "7a1079f8f308353c4955474a0ad5f1317713690bfa39e911b10913c6cc6052e1",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -47,7 +49,7 @@
       "id": "packs-gallery",
       "path": "dark/packs/packs-gallery__desktop.png",
       "productRoute": "/packs",
-      "sha256": "1398ecc3759fa8308d801774f747a541743d1f59404b6fa0039afb3e0da534e5",
+      "sha256": "1cdf668f10dd0c81299bb0d1c37504b24294ccc993b05ce030f461ebf9a042fc",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -55,7 +57,7 @@
       "id": "packs-gallery",
       "path": "dark/packs/packs-gallery__mobile.png",
       "productRoute": "/packs",
-      "sha256": "5bce477901b24f7ec1db85d5629f001cd89c185da2d2b0da1eac8dec0692e12a",
+      "sha256": "4123142831bfd27c2049d376a5be3e81e08e0d04e43747b9f37d0edd96e30851",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -63,7 +65,7 @@
       "id": "schedules-list",
       "path": "dark/schedules/schedules-list__desktop.png",
       "productRoute": "/schedules",
-      "sha256": "73de41077b78a8a03986d59f704e247b37ff5f9e763f20a14b9791ca0c4bcc6d",
+      "sha256": "2a6d86672739db009e309f51b4fd635b1c0b63eddb090384b36c891f14e6c035",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -71,7 +73,23 @@
       "id": "schedules-list",
       "path": "dark/schedules/schedules-list__mobile.png",
       "productRoute": "/schedules",
-      "sha256": "d24d1a8a0a812441928a5f38f949dca1e23e272297d57cf3cc2e2d7c435bbe5e",
+      "sha256": "c6a3fc5d89ee544f379845c37c0d8c35c6bf9517dea9b704afa40f31c603097a",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "dark/settings/settings-host-deployment__desktop.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "7b54e02c32d7d740a7ae3051f2fdc72fc45e8687317f97ca7be68a48fa9a38c8",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "dark/settings/settings-host-deployment__mobile.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "158c9ab6e721410c6e27b88a8e7a1af4422f372c72a4d8ca9a0216a610937708",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -79,7 +97,7 @@
       "id": "settings-license",
       "path": "dark/settings/settings-license__desktop.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "sha256": "d61b9faa2c81ff3a89195e1025f74f898e9c9f15e13c16fecb5d2465bb96a19e",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -87,7 +105,7 @@
       "id": "settings-license",
       "path": "dark/settings/settings-license__mobile.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
+      "sha256": "f843f27c01cb376d8513bad0c3f77e6b7aed45fa305d663191e57863fc3d8fcb",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -95,7 +113,7 @@
       "id": "settings-summary",
       "path": "dark/settings/settings-summary__desktop.png",
       "productRoute": "/settings",
-      "sha256": "c4a65ffd595941e26bad8b446e7976787ea777462cd8df0ef3bc816083799f3e",
+      "sha256": "65a8e5c169bbaa0d4b487c84ef9a419628175fc0494e55a538d8f9521feb4c52",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -103,7 +121,7 @@
       "id": "settings-summary",
       "path": "dark/settings/settings-summary__mobile.png",
       "productRoute": "/settings",
-      "sha256": "56d668062a3b9cab9f1394daf175ad4e8e88e357f502b9ed2ade59aebea93b00",
+      "sha256": "3445116f3eb95917748b16dab3cb797a1c6de45cbb32794769e921755d695f16",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -111,7 +129,7 @@
       "id": "agents-list",
       "path": "light/agents/agents-list__desktop.png",
       "productRoute": "/agents",
-      "sha256": "30dc34ffead313cf6bd2a6ed82f2ae23e66b6b5b722f0110b9ffd2c488937023",
+      "sha256": "99b287435a9ba581ad61e8438b226ed23e9671c5c67ce0b42ef21c0af65aecf5",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -119,7 +137,7 @@
       "id": "agents-list",
       "path": "light/agents/agents-list__mobile.png",
       "productRoute": "/agents",
-      "sha256": "fd14e2980f247d6d29ba3a2c9edb300cc3d6654779bf929c8290e4bbda9242bf",
+      "sha256": "dba927c81997e62c5c6d7bf830ef59d57ca4af967f98b92a61519ab7e718a807",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -127,7 +145,7 @@
       "id": "packs-gallery",
       "path": "light/packs/packs-gallery__desktop.png",
       "productRoute": "/packs",
-      "sha256": "21e5f1ca5e6590c07f58247cbc2c29fa0a45aa556d2e92550e1593cfecf83070",
+      "sha256": "ff0cfdba54caae68072d9eed3aa2a6ef99e4383b362f91333833338c7fcf87eb",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -135,7 +153,7 @@
       "id": "packs-gallery",
       "path": "light/packs/packs-gallery__mobile.png",
       "productRoute": "/packs",
-      "sha256": "c2f57875b8e63e60c03cc10aefbb4419196ac505cbabc92183e69ca6daa05b39",
+      "sha256": "34c2cecbcd4050184c75b7d03a1753dcf3e131d43c969c2bdc26ecfef67c8dd1",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -143,7 +161,7 @@
       "id": "schedules-list",
       "path": "light/schedules/schedules-list__desktop.png",
       "productRoute": "/schedules",
-      "sha256": "cafa6be8ad9859767ff8422d8f88e9e8f769ffc4897875b854266497e7486b46",
+      "sha256": "478f150b3595de3d3104fc227a7e50af4967b6bfdadf34ff0ce2980de18a4ea2",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -151,7 +169,23 @@
       "id": "schedules-list",
       "path": "light/schedules/schedules-list__mobile.png",
       "productRoute": "/schedules",
-      "sha256": "3712b664393a2d9f6fad907ddd0b55892beb14fb60a29ecbf88d71515538939b",
+      "sha256": "9cdb2c99f482794326bdbde08e3037b8217c72783c35788be92b9819ce58c386",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "light/settings/settings-host-deployment__desktop.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "4c4374250183d53b2fa28c65c5b130b510ae359daff7ef34338b4723b3f4a323",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "light/settings/settings-host-deployment__mobile.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "c799e892c999f33db78a84c5f9651305a9b52a16739fa38933279cd9abccf79d",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -159,7 +193,7 @@
       "id": "settings-license",
       "path": "light/settings/settings-license__desktop.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
+      "sha256": "93cc1fc886b48d97fb15e09002534ed30da71e740e4e010c070def7403cb7e53",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -167,7 +201,7 @@
       "id": "settings-license",
       "path": "light/settings/settings-license__mobile.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "sha256": "1aebe8ce45975638e39a10021f225a29d49a848a6f1951cf2bf51864dcec6427",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -175,7 +209,7 @@
       "id": "settings-summary",
       "path": "light/settings/settings-summary__desktop.png",
       "productRoute": "/settings",
-      "sha256": "a8626db9367e1186c2cbfbb0e3f463f838bf1f13a44a6bbdf857dc8b8aed1790",
+      "sha256": "ce182db91de7ca96e149ccd65435fcc7ac737d08083fd3b46f0231501752fa93",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -183,7 +217,7 @@
       "id": "settings-summary",
       "path": "light/settings/settings-summary__mobile.png",
       "productRoute": "/settings",
-      "sha256": "2784383451f5803a9174566ffb67974384530734e89d0b130ab85086b09897a7",
+      "sha256": "f1c1b33a9dbcb6bc4e9b87f4dd8c2a173253557634db90ea9c1dc665d7b3423a",
       "theme": "light",
       "viewport": "mobile"
     }
@@ -221,15 +255,15 @@
       "heading": "Run The Work Carefully",
       "id": "run-the-work-carefully",
       "level": 2,
-      "markdown": "Install or update one pack only after you understand what it adds. The app can handle pack actions, and the CLI can install or update packs too:\n\n```bash\nrelay pack add <pack-id>\nrelay pack update <pack-id>\n```\n\nAfter install, do not stop at the Packs page. Open **Apps** to see whether the pack added an operating surface.\n\n[Figure: Installed app surfaces created by packs]\n\nApps are where pack content becomes day-to-day work. A pack might add a support surface, a web designer surface, or an agency operations surface. This screen tells you which installed modules now have a place to operate.\n\nNext, open **Agents**. Some packs add reusable instruction profiles. These are not the same as workflows. They are named behavior profiles that can help with repeated work.\n\n[Figure: Agents list with reusable instruction profiles]\n\nThe Agents list helps you see what new work styles are available after a pack install. If the pack came from a known family, the card should preserve that source context so the workspace does not become a pile of unnamed helpers.\n\nOpen **Schedules** if the pack includes recurring work. A schedule means Relay can run a task or workflow on a cadence. That is useful for reviews, reports, checks, and routines that should not depend on someone remembering to click a button.\n\n[Figure: Schedules list with pack-aware recurring work]\n\nSchedules are where pack installs can become ongoing operations. Before you trust one, check its state, cadence, and source. Pack updates should preserve schedule state. If an update would replace user-edited files, Relay should back them up rather than overwrite without a trace.\n\nFinally, open **Settings** and review License. This is the place to confirm premium access before a pack update matters.\n\n[Figure: License panel used for premium pack access]\n\nThe license panel reads the same saved license store as the CLI. License verification is offline. That means Relay can verify a license file locally, without turning your local workspace into an Orionfold-hosted account.",
-      "wordCount": 328
+      "markdown": "Install or update one pack only after you understand what it adds. The app can handle pack actions, and the CLI can install or update packs too:\n\n```bash\nrelay pack add <pack-id>\nrelay pack update <pack-id>\n```\n\nAfter install, do not stop at the Packs page. Open **Apps** to see whether the pack added an operating surface.\n\n[Figure: Installed app surfaces created by packs]\n\nApps are where pack content becomes day-to-day work. A pack might add a support surface, a web designer surface, or an agency operations surface. This screen tells you which installed modules now have a place to operate.\n\nNext, open **Agents**. Some packs add reusable instruction profiles. These are not the same as workflows. They are named behavior profiles that can help with repeated work.\n\n[Figure: Agents list with reusable instruction profiles]\n\nThe Agents list helps you see what new work styles are available after a pack install. If the pack came from a known family, the card should preserve that source context so the workspace does not become a pile of unnamed helpers.\n\nOpen **Schedules** if the pack includes recurring work. A schedule means Relay can run a task or workflow on a cadence. That is useful for reviews, reports, checks, and routines that should not depend on someone remembering to click a button.\n\n[Figure: Schedules list with pack-aware recurring work]\n\nSchedules are where pack installs can become ongoing operations. Before you trust one, check its state, cadence, and source. Pack updates should preserve schedule state. If an update would replace user-edited files, Relay should back them up rather than overwrite without a trace.\n\nWhen you no longer want a Pack installed, open **Apps** and choose **Remove\npack**, or use `relay pack remove <pack-id>`. Read the confirmation as a data\nretention receipt. Relay removes the installed Pack files and its schedules. It\nkeeps tables and their rows, reusable agents and blueprints, durable customers,\nand customer cost attribution. Delete those retained records separately from\ntheir owning screen only when that is your intent.\n\nRemoving a Pack is not the same as removing or purging a Relay Cell. A Cell is\nthe complete isolated Relay runtime and data root. Pack removal changes what is\ninstalled inside one Cell; it does not delete that Cell.\n\nFinally, open **Settings** and review License. This is the place to confirm premium access before a pack update matters.\n\n[Figure: License panel used for premium pack access]\n\nThe license panel reads the same saved license store as the CLI. License verification is offline. That means Relay can verify a license file locally, without turning your local workspace into an Orionfold-hosted account.",
+      "wordCount": 436
     },
     {
       "heading": "What To Do When The State Looks Wrong",
       "id": "what-to-do-when-the-state-looks-wrong",
       "level": 2,
-      "markdown": "If a premium pack asks for a license, open Settings and check License. Do not keep clicking install. The card is telling you which prerequisite is missing.\n\nIf a pack update is blocked, keep using the installed version while you fix the license state. A blocked premium update should not remove installed local content.\n\nIf a pack installs but a screen looks empty, open Apps first. Some pack parts live inside an app surface instead of the top-level list. Also check Workflows, Tables, Agents, and Schedules depending on what the pack said it added.\n\nIf a CLI install succeeds but the running app does not reflect the change, refresh the app. The current product is designed to pick up CLI-installed bundled packs without a full restart, but a refresh is still the simplest first check.\n\nIf a pack update mentions backups, read the backup path before you continue. Backups matter when someone has edited pack files locally.",
-      "wordCount": 157
+      "markdown": "If a premium pack asks for a license, open Settings and check License. Do not keep clicking install. The card is telling you which prerequisite is missing.\n\nIf a pack update is blocked, keep using the installed version while you fix the license state. A blocked premium update should not remove installed local content.\n\nIf a pack installs but a screen looks empty, open Apps first. Some pack parts live inside an app surface instead of the top-level list. Also check Workflows, Tables, Agents, and Schedules depending on what the pack said it added.\n\nIf a CLI install succeeds but the running app does not reflect the change, refresh the app. The current product is designed to pick up CLI-installed bundled packs without a full restart, but a refresh is still the simplest first check.\n\nIf a pack update mentions backups, read the backup path before you continue. Backups matter when someone has edited pack files locally.\n\nIf you removed a Pack and still see its tables, agents, blueprints, customers,\nor attributed costs, that is expected retention rather than a failed removal.\nUse the owning view to review and delete retained data separately.",
+      "wordCount": 193
     },
     {
       "heading": "What This Changes In Daily Work",
@@ -246,9 +280,9 @@
       "wordCount": 16
     }
   ],
-  "sourceHash": "19f71df161c96f451a6d5000ee87f737bbbe49b16f6a7cd7f3673f1ffe38302e",
+  "sourceHash": "e73614e6a35cc4e360a712fc19c05489189ec7cce660468ced6b88786ec21aa1",
   "sourcePath": "docs/guides/02-use-packs-and-licenses.md",
-  "sourceStateHash": "a8617b5e03b095d885298d9e017a694a943d0405014a5a90b0aae096f1030fa1",
+  "sourceStateHash": "253df2d9a31a36a7a15d5d26c56eb1d3c1889fcbca4010e4b6f8b87001cfcbe1",
   "summary": "Explain what packs are, how to install or update them, and how license state affects premium pack actions.",
   "title": "Use Packs And Licenses"
 }

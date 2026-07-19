@@ -38,7 +38,7 @@
     "/api/views",
     "/api/views/{id}"
   ],
-  "contentHash": "922a18ef78b7a87b5cd2648f66927fc7bd40631ff732c5d0b9487e1ceb261b50",
+  "contentHash": "800198424780ef5a4a4522f3b21279824d366fee1e2bf64c79025b263c55d6dd",
   "features": [],
   "id": "api:05-packs-apps-tables-publishing",
   "journeys": [],
@@ -129,8 +129,8 @@
       "heading": "DELETE /api/apps/{id}",
       "id": "delete-api-apps-id",
       "level": 3,
-      "markdown": "Cascade-deletes an app: its manifest directory, its project, its namespaced profiles and blueprints, and its schedule rows.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true, \"filesRemoved\": true, \"projectRemoved\": true, \"profilesRemoved\": 0, \"blueprintsRemoved\": 0 }`.\n- **Errors**:\n  - `400` when the id is empty: `{ \"error\": \"Pack id is required\" }`.\n  - `404` when nothing was removed: `{ \"error\": \"Pack not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to delete pack\" }`.\n- **Side effects**: deletes the app directory, the project (cascade), the app's profile directories and blueprint files, and its schedule rows, then invalidates the apps cache.",
-      "wordCount": 85
+      "markdown": "Removes an installed Pack while retaining the durable business data and reusable primitives it introduced. This is Pack removal, not Relay Cell removal or purge.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true, \"manifestRemoved\": true, \"schedulesRemoved\": 2, \"retained\": { \"tables\": 2, \"profiles\": 2, \"blueprints\": 2, \"customersAndAttribution\": true } }`.\n- **Errors**:\n  - `400` when the id is empty: `{ \"error\": \"Pack id is required\" }`.\n  - `404` when the Pack is not installed: `{ \"error\": \"Pack not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to remove pack\" }`.\n- **Side effects**: deletes the installed-Pack directory and Pack-owned schedule rows, then invalidates the Apps cache. It retains the project, tables and rows, reusable agents/profiles and blueprints, customers, and customer cost attribution; operators delete retained data separately from its owning surface.",
+      "wordCount": 116
     },
     {
       "heading": "GET /api/apps/{id}/deployments",
@@ -511,9 +511,9 @@
       "wordCount": 136
     }
   ],
-  "sourceHash": "383fbd28d175368369080f818055d402970f632773efc89e819ce17201d26e64",
+  "sourceHash": "c274404f65bb535b2f1f9451fbd228b4e10d1d8804c13929586056ed27bba98b",
   "sourcePath": "api/reference/05-packs-apps-tables-publishing.md",
-  "sourceStateHash": "a8369935d94476cbd6c845fca6b809cb2e426eb0d3399975661af1724a79ba55",
+  "sourceStateHash": "7ad3a7eeee7e0c50e375d64f42c83c797aa74f5b5e8f365fed508c033440af5c",
   "stability": "app-internal",
   "summary": "Document pack lifecycle, installed app surfaces, user tables, views, Web Designer preview, and publishing routes.",
   "title": "Packs, Apps, Tables, And Publishing API"

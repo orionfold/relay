@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "6f86c279ef1e2ab2bf8263d7a203902e3b2c0c0474c4ca2de453d1783fffd4cd",
+  "contentHash": "465bc34d9f566124996bea29adf29e0b71c837aa65ac00aac6742b937f0932a9",
   "features": [
     "Current bundled pack families",
     "Installed packs/apps",
@@ -19,7 +19,6 @@
   "productRoutes": [
     "/agents",
     "/apps",
-    "/apps/demo-agency-ops",
     "/apps/demo-web-designer",
     "/packs",
     "/schedules",
@@ -33,7 +32,7 @@
       "id": "agents-list",
       "path": "dark/agents/agents-list__desktop.png",
       "productRoute": "/agents",
-      "sha256": "978838ca1b69f887eb0183e5c943daaaae58813a0592979abbce16e89f9e7e1c",
+      "sha256": "916ad43fb613d9322f0903480f5d181815f62d5a499e142d4ecc021184f14b48",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -41,23 +40,7 @@
       "id": "agents-list",
       "path": "dark/agents/agents-list__mobile.png",
       "productRoute": "/agents",
-      "sha256": "6213f828ef42f1c8737b12131c79974a1884240bfbb73588e7a06605071a541c",
-      "theme": "dark",
-      "viewport": "mobile"
-    },
-    {
-      "id": "agency-app-detail",
-      "path": "dark/apps/agency-app-detail__desktop.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "e4f10dee14fdf1a2353c757b6a4322b5a5853da503ceeb3c0d6a8da457628bbc",
-      "theme": "dark",
-      "viewport": "desktop"
-    },
-    {
-      "id": "agency-app-detail",
-      "path": "dark/apps/agency-app-detail__mobile.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "c8b6b1a1617e0f62b63f9ddc954592e81d031b87a49fe392d351051df4a59ce1",
+      "sha256": "7a1079f8f308353c4955474a0ad5f1317713690bfa39e911b10913c6cc6052e1",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -65,7 +48,7 @@
       "id": "apps-list",
       "path": "dark/apps/apps-list__desktop.png",
       "productRoute": "/apps",
-      "sha256": "f817867b64c7caceaa0af1025fdcafd5ea8c064b1eb403bc9bbd9669fb4abe44",
+      "sha256": "3f9d352c33c872912faf4352d52739bb3215ac4054feb725e190b4d5ca6eca8e",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -73,7 +56,7 @@
       "id": "apps-list",
       "path": "dark/apps/apps-list__mobile.png",
       "productRoute": "/apps",
-      "sha256": "9fbf55c7b47d15d04519162096aca35a4f1f8edadeacf6507faa00f4ca583627",
+      "sha256": "83df1c0fa86e43831eb243db132ef9a03c4870d3be6c27bc79a95b394e5d7a3b",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -81,7 +64,7 @@
       "id": "packs-gallery",
       "path": "dark/packs/packs-gallery__desktop.png",
       "productRoute": "/packs",
-      "sha256": "1398ecc3759fa8308d801774f747a541743d1f59404b6fa0039afb3e0da534e5",
+      "sha256": "1cdf668f10dd0c81299bb0d1c37504b24294ccc993b05ce030f461ebf9a042fc",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -89,7 +72,7 @@
       "id": "packs-gallery",
       "path": "dark/packs/packs-gallery__mobile.png",
       "productRoute": "/packs",
-      "sha256": "5bce477901b24f7ec1db85d5629f001cd89c185da2d2b0da1eac8dec0692e12a",
+      "sha256": "4123142831bfd27c2049d376a5be3e81e08e0d04e43747b9f37d0edd96e30851",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -97,7 +80,7 @@
       "id": "web-designer-app",
       "path": "dark/publisher/web-designer-app__desktop.png",
       "productRoute": "/apps/demo-web-designer",
-      "sha256": "67e15b8da9925fb0070631f6f9a112a074383fab7e6beb3e8c15a4d2c82b5a22",
+      "sha256": "c1894d02821222341d4a215607191cfedc7ec5a28b0de163251c0f44d77df4c0",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -105,7 +88,7 @@
       "id": "web-designer-app",
       "path": "dark/publisher/web-designer-app__mobile.png",
       "productRoute": "/apps/demo-web-designer",
-      "sha256": "474f787e49e00a0fbdbc160ecff25e54cacf644ca589b69fd300d0e42d8d4148",
+      "sha256": "b4d702aa80951af1ad0745bbd95e221f9015d25a3332da2c048c9f5900658bb0",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -113,7 +96,7 @@
       "id": "schedules-list",
       "path": "dark/schedules/schedules-list__desktop.png",
       "productRoute": "/schedules",
-      "sha256": "73de41077b78a8a03986d59f704e247b37ff5f9e763f20a14b9791ca0c4bcc6d",
+      "sha256": "2a6d86672739db009e309f51b4fd635b1c0b63eddb090384b36c891f14e6c035",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -121,7 +104,7 @@
       "id": "schedules-list",
       "path": "dark/schedules/schedules-list__mobile.png",
       "productRoute": "/schedules",
-      "sha256": "d24d1a8a0a812441928a5f38f949dca1e23e272297d57cf3cc2e2d7c435bbe5e",
+      "sha256": "c6a3fc5d89ee544f379845c37c0d8c35c6bf9517dea9b704afa40f31c603097a",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -129,7 +112,7 @@
       "id": "support-queue-table",
       "path": "dark/tables/support-queue-table__desktop.png",
       "productRoute": "/tables/demo_table_support_queue",
-      "sha256": "082aeb7ab49448ff05675530d4d634a3222d9acb50e4529dd85dc2eaa693f821",
+      "sha256": "f3c240646a04a700d68268e5fe35f26e7a67abaf4971f6edf1ed1bfd7724e9b3",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -137,7 +120,7 @@
       "id": "support-queue-table",
       "path": "dark/tables/support-queue-table__mobile.png",
       "productRoute": "/tables/demo_table_support_queue",
-      "sha256": "b346e816d6b12502cec92f182d7530fd91aa18b84900a81bb0e7a514331f70c9",
+      "sha256": "913dc67b70f1e644047030e813c9b0ef800d38d6dc105ac5ca7603e56a3e8bb8",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -145,7 +128,7 @@
       "id": "tables-list",
       "path": "dark/tables/tables-list__desktop.png",
       "productRoute": "/tables",
-      "sha256": "9a9a5d0d37ca28462ad124daff15f1923d261adae344641c3c149fcbe06977ba",
+      "sha256": "dc1cf6b2d9a83447daf07901c2c5042c7c3c9c674921c0dc41db5888636d24e2",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -153,7 +136,7 @@
       "id": "tables-list",
       "path": "dark/tables/tables-list__mobile.png",
       "productRoute": "/tables",
-      "sha256": "f176e9aa01bbaef88b23819a890c58626705ca422b4bbca0f2f1fc03ef679211",
+      "sha256": "533406a7ac3490fa0c818fef92f2f14143c8b8258822a96baab75b636b359f53",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -161,7 +144,7 @@
       "id": "agents-list",
       "path": "light/agents/agents-list__desktop.png",
       "productRoute": "/agents",
-      "sha256": "30dc34ffead313cf6bd2a6ed82f2ae23e66b6b5b722f0110b9ffd2c488937023",
+      "sha256": "99b287435a9ba581ad61e8438b226ed23e9671c5c67ce0b42ef21c0af65aecf5",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -169,23 +152,7 @@
       "id": "agents-list",
       "path": "light/agents/agents-list__mobile.png",
       "productRoute": "/agents",
-      "sha256": "fd14e2980f247d6d29ba3a2c9edb300cc3d6654779bf929c8290e4bbda9242bf",
-      "theme": "light",
-      "viewport": "mobile"
-    },
-    {
-      "id": "agency-app-detail",
-      "path": "light/apps/agency-app-detail__desktop.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "5da8b27671aae4807c9732ec4c38f1192abd8f3014aa7feda75595205a21e1ad",
-      "theme": "light",
-      "viewport": "desktop"
-    },
-    {
-      "id": "agency-app-detail",
-      "path": "light/apps/agency-app-detail__mobile.png",
-      "productRoute": "/apps/demo-agency-ops",
-      "sha256": "d3d423d92d06a44a754283fc1efc64ad9dd0b03e9137de1880c714783b02ce11",
+      "sha256": "dba927c81997e62c5c6d7bf830ef59d57ca4af967f98b92a61519ab7e718a807",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -193,7 +160,7 @@
       "id": "apps-list",
       "path": "light/apps/apps-list__desktop.png",
       "productRoute": "/apps",
-      "sha256": "22f01daffd27a89f22a6d61fb567dbe0734799578d80b095bdc58851b37a881a",
+      "sha256": "dcc516b4b3a2b1ab43f888663012781b3fb0e54f165775a5b23a35b2c2c82d31",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -201,7 +168,7 @@
       "id": "apps-list",
       "path": "light/apps/apps-list__mobile.png",
       "productRoute": "/apps",
-      "sha256": "6ab59c0acf44f2c6d6d93cbdd078f9a454c28f8ae354f6715ec4bf22edc92c2c",
+      "sha256": "6f4965049b0111c4ff52bc7ec5202d61f645b1cf968ceb58ccb27cb3f7ff7252",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -209,7 +176,7 @@
       "id": "packs-gallery",
       "path": "light/packs/packs-gallery__desktop.png",
       "productRoute": "/packs",
-      "sha256": "21e5f1ca5e6590c07f58247cbc2c29fa0a45aa556d2e92550e1593cfecf83070",
+      "sha256": "ff0cfdba54caae68072d9eed3aa2a6ef99e4383b362f91333833338c7fcf87eb",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -217,7 +184,7 @@
       "id": "packs-gallery",
       "path": "light/packs/packs-gallery__mobile.png",
       "productRoute": "/packs",
-      "sha256": "c2f57875b8e63e60c03cc10aefbb4419196ac505cbabc92183e69ca6daa05b39",
+      "sha256": "34c2cecbcd4050184c75b7d03a1753dcf3e131d43c969c2bdc26ecfef67c8dd1",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -225,7 +192,7 @@
       "id": "web-designer-app",
       "path": "light/publisher/web-designer-app__desktop.png",
       "productRoute": "/apps/demo-web-designer",
-      "sha256": "76d28567329fba00eb53c78383b334cfc0a9115534210a39f610eb923bbade8b",
+      "sha256": "eb2530d435eedb022a874d5b9db71c14fd68229ed6616243f3904fc1d21d0c58",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -233,7 +200,7 @@
       "id": "web-designer-app",
       "path": "light/publisher/web-designer-app__mobile.png",
       "productRoute": "/apps/demo-web-designer",
-      "sha256": "a1c2928efa3f655fdfb868ef09ed2965137ba6eca7fa90f1466f7340bd379162",
+      "sha256": "6d0a148e2413c0f01ae2e8428e2d7a410e786924010a090a08b21de33fb8f2f4",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -241,7 +208,7 @@
       "id": "schedules-list",
       "path": "light/schedules/schedules-list__desktop.png",
       "productRoute": "/schedules",
-      "sha256": "cafa6be8ad9859767ff8422d8f88e9e8f769ffc4897875b854266497e7486b46",
+      "sha256": "478f150b3595de3d3104fc227a7e50af4967b6bfdadf34ff0ce2980de18a4ea2",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -249,7 +216,7 @@
       "id": "schedules-list",
       "path": "light/schedules/schedules-list__mobile.png",
       "productRoute": "/schedules",
-      "sha256": "3712b664393a2d9f6fad907ddd0b55892beb14fb60a29ecbf88d71515538939b",
+      "sha256": "9cdb2c99f482794326bdbde08e3037b8217c72783c35788be92b9819ce58c386",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -257,7 +224,7 @@
       "id": "support-queue-table",
       "path": "light/tables/support-queue-table__desktop.png",
       "productRoute": "/tables/demo_table_support_queue",
-      "sha256": "847a6cb57b97976839ad5c17075775dee5064b7a0d9736062ac60638cb02ed95",
+      "sha256": "b1f27e27cca28fd361b44e0bae80b57820aae71769a01e84fd3fba1789d8a890",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -265,7 +232,7 @@
       "id": "support-queue-table",
       "path": "light/tables/support-queue-table__mobile.png",
       "productRoute": "/tables/demo_table_support_queue",
-      "sha256": "cc9f043cbe24a7005ed0cf69b204f3ba65b3e698debc528de2089df65a908309",
+      "sha256": "eadc417e12df62258c6fbdd72b7666b3d0a48c31e4ee42a0a910a7fb25cabe47",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -273,7 +240,7 @@
       "id": "tables-list",
       "path": "light/tables/tables-list__desktop.png",
       "productRoute": "/tables",
-      "sha256": "a65ce367aeb7b5af5723e5b8fe6eb55142bb8c4e8bbe7de716c81453124b46e1",
+      "sha256": "68ef60091f26f385c4ffe1659d1359a1a952cada6d5cc388f11eb98c1d9ed9f8",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -281,7 +248,7 @@
       "id": "tables-list",
       "path": "light/tables/tables-list__mobile.png",
       "productRoute": "/tables",
-      "sha256": "77f7686f9621f2b8fe4130aff9fb7e37a096c8ec09b235b7f8fb67d84df6ac40",
+      "sha256": "ef32e471ff442b2e0b2c03478c60abda376caa7c849e01e8c206d465596de7b1",
       "theme": "light",
       "viewport": "mobile"
     }
@@ -344,9 +311,9 @@
       "wordCount": 16
     }
   ],
-  "sourceHash": "171eeb6f4f77ab9fe6578730f21854fe2731d4885c4469aa76bd5ec28abb5f9b",
+  "sourceHash": "05d46efa0d9e2594eb39b63ecf4538b8e08da6c45a64cef14099fb0782b95d28",
   "sourcePath": "docs/guides/08-build-and-publish-a-small-website.md",
-  "sourceStateHash": "a55f25326b2d10916165443679b428202b4479af461f6228a26c67cca17a5cb6",
+  "sourceStateHash": "073c24ea1709041d15e7b7d9b63dc3d5bcc28983645728426fa018fd6601c26c",
   "summary": "Walk through structured site content, design controls, preview, and publish behavior.",
   "title": "Build And Publish A Small Website"
 }

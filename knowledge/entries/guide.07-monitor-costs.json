@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "c67cc52127bc0de0fc9d9136342fe8dbe41617b7aab84afb463a382192c7f7c2",
+  "contentHash": "ff44c9dffa0ccfe547f11bc18943cbcfe25097f4907db9482f0dc017ad8d309c",
   "features": [
     "Cost and Usage",
     "Customers and spend attribution",
@@ -23,6 +23,7 @@
     "/customers",
     "/monitor",
     "/settings",
+    "/settings#settings-host-deployment",
     "/settings#settings-license",
     "/settings#settings-providers",
     "/tasks"
@@ -34,7 +35,7 @@
       "id": "chat-workspace",
       "path": "dark/chat/chat-workspace__desktop.png",
       "productRoute": "/chat",
-      "sha256": "61dfb6e43f51b316df4c88357e9774f957cf1cdea6a0560c6059934eb8ed417d",
+      "sha256": "f19ed75c079b343752b74859f8354fd8c917a39e33f1e227268f906b3167ebe2",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -42,7 +43,7 @@
       "id": "chat-workspace",
       "path": "dark/chat/chat-workspace__mobile.png",
       "productRoute": "/chat",
-      "sha256": "6158d7916a9e0507d3e402db137acbc101b57f5e49fc9058e405280d1add4b86",
+      "sha256": "7b0069765c94e8122e3d31962e11f44daf02eae1cf19aaa05f374896cba6f6a3",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -50,7 +51,7 @@
       "id": "costs",
       "path": "dark/costs/costs__desktop.png",
       "productRoute": "/costs",
-      "sha256": "064532735001aba3d4053757d0e470c6bd38ea721d9d20387da5b2e9bdde42d6",
+      "sha256": "864359e6d71559b8624ddcdbd95b28242aa0a6221865ba1ec2acdab63e17cf5d",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -58,7 +59,7 @@
       "id": "costs",
       "path": "dark/costs/costs__mobile.png",
       "productRoute": "/costs",
-      "sha256": "66059a1472c942885467f86e706d3cb31f15329d7bd7eae74fef01d6bd1ff264",
+      "sha256": "31dea469da8e1528f7a629db9791accb2ec025b326ad65c3f46db0ae6cdbef53",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -66,7 +67,7 @@
       "id": "customers-list",
       "path": "dark/customers/customers-list__desktop.png",
       "productRoute": "/customers",
-      "sha256": "6ed081c221f075a01300a1f1ca367add1e8bb92c0b534d49fc8d408480b48645",
+      "sha256": "23a8525cab49f4ec9dec1b04f287edf059ccef0eed5a1cc5694faa36bef70226",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -74,7 +75,7 @@
       "id": "customers-list",
       "path": "dark/customers/customers-list__mobile.png",
       "productRoute": "/customers",
-      "sha256": "8df457371dfc7d58ce3be31a73caa185a4bc33b1b1c2a93d098a5dbc58ee7025",
+      "sha256": "b54031b0756e183468d7223f5614331c66ade6452c17910388edd25e1cc82d76",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -82,7 +83,7 @@
       "id": "home-cockpit",
       "path": "dark/home/home-cockpit__desktop.png",
       "productRoute": "/",
-      "sha256": "4863ba6cf5b44394f8e678d0698fbffb04ae13ee62eaa6a4897023fca5f0d885",
+      "sha256": "373e3d00bc7b4495cdaec6acc5a718ad5ccb82378778e82c59aa425f7e2cbc83",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -90,7 +91,7 @@
       "id": "home-cockpit",
       "path": "dark/home/home-cockpit__mobile.png",
       "productRoute": "/",
-      "sha256": "5cc6d08d266d86b442b2fdc31c794d59dc08673676d08f17619a34d81c00cfbf",
+      "sha256": "74b63844d0506d85cd5df0b65ef4a142a6f892a927910b8927c39d9aa87a855b",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -98,7 +99,7 @@
       "id": "monitor",
       "path": "dark/monitor/monitor__desktop.png",
       "productRoute": "/monitor",
-      "sha256": "6fc0033a16d9c050ecac1be7c2f1612a65717f75b0c256338cd57e6b337b1132",
+      "sha256": "64efebdc6da61eaa5dbbc1dccbe1f8c8ad38e73fa911f298325c0a1f91e21493",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -106,7 +107,23 @@
       "id": "monitor",
       "path": "dark/monitor/monitor__mobile.png",
       "productRoute": "/monitor",
-      "sha256": "91f889887d5119589e49f57407d645559611a0e914fb0ef5a13699d99f2aa093",
+      "sha256": "286ee4281b8cc53799bd9d29b2386fecaca3360ed738129784c88cf1e71ca62d",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "dark/settings/settings-host-deployment__desktop.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "7b54e02c32d7d740a7ae3051f2fdc72fc45e8687317f97ca7be68a48fa9a38c8",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "dark/settings/settings-host-deployment__mobile.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "158c9ab6e721410c6e27b88a8e7a1af4422f372c72a4d8ca9a0216a610937708",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -114,7 +131,7 @@
       "id": "settings-license",
       "path": "dark/settings/settings-license__desktop.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "sha256": "d61b9faa2c81ff3a89195e1025f74f898e9c9f15e13c16fecb5d2465bb96a19e",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -122,7 +139,7 @@
       "id": "settings-license",
       "path": "dark/settings/settings-license__mobile.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
+      "sha256": "f843f27c01cb376d8513bad0c3f77e6b7aed45fa305d663191e57863fc3d8fcb",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -130,7 +147,7 @@
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__desktop.png",
       "productRoute": "/settings#settings-providers",
-      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "sha256": "9eafb3431ef40f1f515820798a7d17bdb116602d9f146c4d5954c5d3db696b24",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -138,7 +155,7 @@
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__mobile.png",
       "productRoute": "/settings#settings-providers",
-      "sha256": "74d7110d1ba5a3e63aef651e58361aad164fbb316e08ed35d875a8d8ff41c1a3",
+      "sha256": "615353cfc35e15af675f01e4118527be203b713d5312aed1348197c70ea61928",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -146,7 +163,7 @@
       "id": "settings-summary",
       "path": "dark/settings/settings-summary__desktop.png",
       "productRoute": "/settings",
-      "sha256": "c4a65ffd595941e26bad8b446e7976787ea777462cd8df0ef3bc816083799f3e",
+      "sha256": "65a8e5c169bbaa0d4b487c84ef9a419628175fc0494e55a538d8f9521feb4c52",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -154,7 +171,7 @@
       "id": "settings-summary",
       "path": "dark/settings/settings-summary__mobile.png",
       "productRoute": "/settings",
-      "sha256": "56d668062a3b9cab9f1394daf175ad4e8e88e357f502b9ed2ade59aebea93b00",
+      "sha256": "3445116f3eb95917748b16dab3cb797a1c6de45cbb32794769e921755d695f16",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -162,7 +179,7 @@
       "id": "tasks-board",
       "path": "dark/tasks/tasks-board__desktop.png",
       "productRoute": "/tasks",
-      "sha256": "c417c82b16cac7599bd3bcdb2ead7829c836bbe54ebab99bdcfb6ef2d2d6074f",
+      "sha256": "3968f6679707e7fadf42da61945596cde2b9f31802519f53d68cf2e59bedfbbe",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -170,7 +187,7 @@
       "id": "tasks-board",
       "path": "dark/tasks/tasks-board__mobile.png",
       "productRoute": "/tasks",
-      "sha256": "d90cf1e49df41fbc159cc9c1f17aeda54abcc1298f2a196c9e7216e8e69eb0b8",
+      "sha256": "eace95635fe84dfd6065940eaabc9b772628205328207ab76363efbf6092f098",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -178,7 +195,7 @@
       "id": "chat-workspace",
       "path": "light/chat/chat-workspace__desktop.png",
       "productRoute": "/chat",
-      "sha256": "3b8aa9b3b718114248e430b438bf5e46f3513b011a682a81756b467ddc321b37",
+      "sha256": "1d962db220211103fcef2711ced35be0deb4d50a61e9d2324b9cddb7c0dd25b9",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -186,7 +203,7 @@
       "id": "chat-workspace",
       "path": "light/chat/chat-workspace__mobile.png",
       "productRoute": "/chat",
-      "sha256": "85888d5ebfbb5591ca5efa56be0a33eb776717bc0419b82c5c2c8400200a711b",
+      "sha256": "8d3e76d254ea394f720c5c4f84923720da5d1f950a418fce729d7d2d8d17afc2",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -194,7 +211,7 @@
       "id": "costs",
       "path": "light/costs/costs__desktop.png",
       "productRoute": "/costs",
-      "sha256": "fdc51e83e12e2c256835161e0abe62881d4b433e897ae652204954a1a6c85257",
+      "sha256": "68b2d402dd73106e213cf699cc6863346a403858179b4cedc98f21ba04516192",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -202,7 +219,7 @@
       "id": "costs",
       "path": "light/costs/costs__mobile.png",
       "productRoute": "/costs",
-      "sha256": "3811a10e3c36b3520934931fbc8d48d27425140cd8fd687e6c6174e5ca586ea5",
+      "sha256": "60a8897256dda7eafd87eb50a2a919c4f9af9937d4f3f1b45d4c49f816915269",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -210,7 +227,7 @@
       "id": "customers-list",
       "path": "light/customers/customers-list__desktop.png",
       "productRoute": "/customers",
-      "sha256": "94857c6407139713d2670482d69e99c089368b04ba2f851d00affa0e9c91e03f",
+      "sha256": "759761a12f08b8197fe503cb4dbbd60310d766670246dcabb2c7f408ccd58ac3",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -218,7 +235,7 @@
       "id": "customers-list",
       "path": "light/customers/customers-list__mobile.png",
       "productRoute": "/customers",
-      "sha256": "d9a1de177cd7eb555ec8d4807d7914fde90fe92a0c2c3ba84c1c46febc7d752e",
+      "sha256": "ccc5c60196142ba5c07d3d1da08fec0dc7cf77a2624b63ee028361e7635d5d25",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -226,7 +243,7 @@
       "id": "home-cockpit",
       "path": "light/home/home-cockpit__desktop.png",
       "productRoute": "/",
-      "sha256": "af2a9d9388ff64178cfa7d823881bab6223eae209dfb0e761c0dbe607bba99e7",
+      "sha256": "595f826f591db637306a2b00f7f8650409c22b9c23c00b76f96f678368b802b3",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -234,7 +251,7 @@
       "id": "home-cockpit",
       "path": "light/home/home-cockpit__mobile.png",
       "productRoute": "/",
-      "sha256": "1aa905fce1a571762e5a07be1037967abed30bf2a9b4634b4307a50dd8d2eeb5",
+      "sha256": "a0989eb8650b584cba02d48f513d9f5941bdf77bd1fee7c7390833965ac7f5db",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -242,7 +259,7 @@
       "id": "monitor",
       "path": "light/monitor/monitor__desktop.png",
       "productRoute": "/monitor",
-      "sha256": "b748842372e0edf9231a87c1fcd63ab163bfb9d75766d65f02f598a54bc6f65d",
+      "sha256": "173c466b13a86660fe6ba7895c5544135576b37dbf1cf996c22df0c330f6a5c2",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -250,7 +267,23 @@
       "id": "monitor",
       "path": "light/monitor/monitor__mobile.png",
       "productRoute": "/monitor",
-      "sha256": "4c50f002cef2da073508c4c26b3be89fc901e82e64269db4f7a815261233e964",
+      "sha256": "495ec397ce0a963d702560a6bf518e051c7a5b680016abcf31a8548327c8b7d2",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "light/settings/settings-host-deployment__desktop.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "4c4374250183d53b2fa28c65c5b130b510ae359daff7ef34338b4723b3f4a323",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "light/settings/settings-host-deployment__mobile.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "c799e892c999f33db78a84c5f9651305a9b52a16739fa38933279cd9abccf79d",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -258,7 +291,7 @@
       "id": "settings-license",
       "path": "light/settings/settings-license__desktop.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
+      "sha256": "93cc1fc886b48d97fb15e09002534ed30da71e740e4e010c070def7403cb7e53",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -266,7 +299,7 @@
       "id": "settings-license",
       "path": "light/settings/settings-license__mobile.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "sha256": "1aebe8ce45975638e39a10021f225a29d49a848a6f1951cf2bf51864dcec6427",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -274,7 +307,7 @@
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__desktop.png",
       "productRoute": "/settings#settings-providers",
-      "sha256": "e3e4ba5ef17e207de5dc8a4d69860eee24d17b112dd8e2e6c72843b24b97f8ee",
+      "sha256": "12194e2b7c86f6e0514032426416446caa323a4a3b6488af47c6113251a838e6",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -282,7 +315,7 @@
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__mobile.png",
       "productRoute": "/settings#settings-providers",
-      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "sha256": "56195f819d537227462abf2fb22a49f992ecaf31221d59f44b21ce8a96c82945",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -290,7 +323,7 @@
       "id": "settings-summary",
       "path": "light/settings/settings-summary__desktop.png",
       "productRoute": "/settings",
-      "sha256": "a8626db9367e1186c2cbfbb0e3f463f838bf1f13a44a6bbdf857dc8b8aed1790",
+      "sha256": "ce182db91de7ca96e149ccd65435fcc7ac737d08083fd3b46f0231501752fa93",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -298,7 +331,7 @@
       "id": "settings-summary",
       "path": "light/settings/settings-summary__mobile.png",
       "productRoute": "/settings",
-      "sha256": "2784383451f5803a9174566ffb67974384530734e89d0b130ab85086b09897a7",
+      "sha256": "f1c1b33a9dbcb6bc4e9b87f4dd8c2a173253557634db90ea9c1dc665d7b3423a",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -306,7 +339,7 @@
       "id": "tasks-board",
       "path": "light/tasks/tasks-board__desktop.png",
       "productRoute": "/tasks",
-      "sha256": "6c0e24aae432b64a435be23a2332292349a5c6602eb226631ef46f2a95d23702",
+      "sha256": "c037a0710a6e64db99de2aa5974352e6b0cc281079cd0f9ce891cfa6ab5f05d1",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -314,7 +347,7 @@
       "id": "tasks-board",
       "path": "light/tasks/tasks-board__mobile.png",
       "productRoute": "/tasks",
-      "sha256": "e2aeb20f857e53c686e8f15d14e2c8b335c12629654cf80892cf98003b0a57b0",
+      "sha256": "4ff5deb3e4f6fed5d3b47994adb17a65d85a1306c81c99f61cc46a7f94d29cc8",
       "theme": "light",
       "viewport": "mobile"
     }
@@ -379,7 +412,7 @@
   ],
   "sourceHash": "59127a4919218e95ebc312704e1a2ed0a9b284dc65bf77c5b9a96024d55974d2",
   "sourcePath": "docs/guides/07-watch-runs-costs-and-budget-signals.md",
-  "sourceStateHash": "387370ed5c6b86e6cd236b719b0fe1af5cfbac24185cdb96c47ddff69cd825b3",
+  "sourceStateHash": "7b77b33c407aa94e0b9a5c6f57c143bc845eecfb6e9b5b2400e14d278c9dcc1f",
   "summary": "Teach the reader how to audit what ran, what it cost, and where to tune the setup.",
   "title": "Watch Runs, Costs, And Budget Signals"
 }

@@ -12,8 +12,8 @@
 //      `next start` (Mode: production), serves /, /chat, /tasks, /workflows,
 //      serves a /_next/static asset, and never prints the dev-only
 //      "Can't resolve" transport warning (#8) or spins up HMR (#7).
-//   B. Second run (LAN bind --hostname 0.0.0.0): no re-download, still
-//      production, and /_next/* serves to a cross-origin client — the
+//   B. Second run (secure LAN bind --hostname 0.0.0.0): no re-download, still
+//      production, and /_next/* serves to the configured LAN origin — the
 //      #13/#5/#6/#11/#12 class check (`next start` has no dev-origin gate).
 //   L. License lifecycle (feat-license-lifecycle, PLG-1 Mode C buy-simulation):
 //      `relay license add` with the REAL prod-signed fixture → activation
@@ -104,6 +104,7 @@ async function main() {
   await run("npm", ["install", "--no-audit", "--no-fund", tarballPath], { cwd: installDir });
 
   const artifactUrl = pathToFileURL(artifactPath).href;
+  let productionAssetPath;
 
   // ---- Case A: first run — download, verify, extract, next start ----
   console.log("\n[smoke] Case A: first run → production mode");
@@ -123,7 +124,8 @@ async function main() {
       // #7: production serves static assets, no HMR websocket endpoint.
       const assetMatch = html.match(/\/_next\/static\/[^"']+\.(?:js|css)/);
       assert(assetMatch, "homepage HTML should reference /_next/static assets");
-      const asset = await fetch(`http://127.0.0.1:${port}${assetMatch[0]}`);
+      productionAssetPath = assetMatch[0];
+      const asset = await fetch(`http://127.0.0.1:${port}${productionAssetPath}`);
       assert(asset.status === 200, `/_next/static asset should serve (got ${asset.status})`);
       assert(!html.includes("webpack-hmr"), "production HTML must not wire up the HMR socket (#7)");
 
@@ -136,31 +138,33 @@ async function main() {
   }
 
   // ---- Case B: second run + LAN bind — cached, still production, no origin gate ----
-  console.log("\n[smoke] Case B: second run, --hostname 0.0.0.0 → cross-origin /_next/*");
+  console.log("\n[smoke] Case B: second run, secure LAN bind → cross-origin /_next/*");
   {
     const dataDir = path.join(workDir, "data-a"); // same data dir: exercise the cache/no-op path
     const port = await reserveLoopbackPort();
+    const publicOrigin = `http://192.168.99.99:${port}`;
     const { child, getOutput } = launchCli({
       installDir,
       dataDir,
       port,
       artifactUrl,
       hostname: "0.0.0.0",
+      exposureProfile: "private-authenticated",
+      publicOrigin,
     });
     try {
       await waitForOutput(getOutput, /Mode: production/, PROD_START_TIMEOUT_MS, "production banner");
+      assert(/Exposure: private-authenticated/.test(getOutput()), "LAN run must use authenticated exposure");
       assert(!/Downloading production build/.test(getOutput()), "second run must not re-download");
-
-      const html = await waitForHttpOk(`http://127.0.0.1:${port}/`, PROD_START_TIMEOUT_MS);
-      const assetMatch = html.match(/\/_next\/static\/[^"']+\.(?:js|css)/);
-      assert(assetMatch, "homepage HTML should reference /_next/static assets");
+      assert(productionAssetPath, "Case A must capture a production static-asset path");
       // Simulate the Windows-browser→Alpine-VM LAN client: a cross-origin
       // request for a dev asset. In dev mode Next's origin gate blocks this
-      // class (#13 et al.); `next start` must serve it.
-      const crossOrigin = await fetch(`http://127.0.0.1:${port}${assetMatch[0]}`, {
+      // class (#13 et al.); `next start` must serve it. The TCP probe uses
+      // loopback because 192.168.99.99 is a synthetic browser-visible origin.
+      const crossOrigin = await fetch(`http://127.0.0.1:${port}${productionAssetPath}`, {
         headers: {
-          Origin: "http://192.168.99.99:3000",
-          Referer: "http://192.168.99.99:3000/",
+          Origin: publicOrigin,
+          Referer: `${publicOrigin}/`,
         },
       });
       assert(

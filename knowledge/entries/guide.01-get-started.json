@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "06eb57c6001a22d7ec4a8bcb0f36ab771e12f2477202c9e330570607ef592726",
+  "contentHash": "6f98ddf9e5227dca9e89ca9cd6814c79401b9bebd44abdd2c666ab58495210ec",
   "features": [
     "Command palette and navigation",
     "Dashboard and settings drill-downs",
@@ -18,6 +18,8 @@
   "productRoutes": [
     "/",
     "/settings",
+    "/settings#settings-host-deployment",
+    "/settings#settings-instance",
     "/settings#settings-license",
     "/settings#settings-providers"
   ],
@@ -28,7 +30,7 @@
       "id": "home-cockpit",
       "path": "dark/home/home-cockpit__desktop.png",
       "productRoute": "/",
-      "sha256": "4863ba6cf5b44394f8e678d0698fbffb04ae13ee62eaa6a4897023fca5f0d885",
+      "sha256": "373e3d00bc7b4495cdaec6acc5a718ad5ccb82378778e82c59aa425f7e2cbc83",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -36,7 +38,39 @@
       "id": "home-cockpit",
       "path": "dark/home/home-cockpit__mobile.png",
       "productRoute": "/",
-      "sha256": "5cc6d08d266d86b442b2fdc31c794d59dc08673676d08f17619a34d81c00cfbf",
+      "sha256": "74b63844d0506d85cd5df0b65ef4a142a6f892a927910b8927c39d9aa87a855b",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-cell-boundary",
+      "path": "dark/settings/settings-cell-boundary__desktop.png",
+      "productRoute": "/settings#settings-instance",
+      "sha256": "b38cf886026540ebcb065a1c2b24abb9a1558b11d4232d18a6f1f75520b8f21d",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-cell-boundary",
+      "path": "dark/settings/settings-cell-boundary__mobile.png",
+      "productRoute": "/settings#settings-instance",
+      "sha256": "34bac7905f46b577aae3877e7d9ffb3b9e00449d7f8dcf184d8b3551328c0482",
+      "theme": "dark",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "dark/settings/settings-host-deployment__desktop.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "7b54e02c32d7d740a7ae3051f2fdc72fc45e8687317f97ca7be68a48fa9a38c8",
+      "theme": "dark",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "dark/settings/settings-host-deployment__mobile.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "158c9ab6e721410c6e27b88a8e7a1af4422f372c72a4d8ca9a0216a610937708",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -44,7 +78,7 @@
       "id": "settings-license",
       "path": "dark/settings/settings-license__desktop.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "sha256": "d61b9faa2c81ff3a89195e1025f74f898e9c9f15e13c16fecb5d2465bb96a19e",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -52,7 +86,7 @@
       "id": "settings-license",
       "path": "dark/settings/settings-license__mobile.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "17484a75adfe804f80fe2fecafbd5821afced4777b276fcdb237f9b1ee1f7f0e",
+      "sha256": "f843f27c01cb376d8513bad0c3f77e6b7aed45fa305d663191e57863fc3d8fcb",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -60,7 +94,7 @@
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__desktop.png",
       "productRoute": "/settings#settings-providers",
-      "sha256": "4a44f68a553bbad389aac8b3129c1431c856dcc5d89f228c03643a875841686f",
+      "sha256": "9eafb3431ef40f1f515820798a7d17bdb116602d9f146c4d5954c5d3db696b24",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -68,7 +102,7 @@
       "id": "settings-runtime",
       "path": "dark/settings/settings-runtime__mobile.png",
       "productRoute": "/settings#settings-providers",
-      "sha256": "74d7110d1ba5a3e63aef651e58361aad164fbb316e08ed35d875a8d8ff41c1a3",
+      "sha256": "615353cfc35e15af675f01e4118527be203b713d5312aed1348197c70ea61928",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -76,7 +110,7 @@
       "id": "settings-summary",
       "path": "dark/settings/settings-summary__desktop.png",
       "productRoute": "/settings",
-      "sha256": "c4a65ffd595941e26bad8b446e7976787ea777462cd8df0ef3bc816083799f3e",
+      "sha256": "65a8e5c169bbaa0d4b487c84ef9a419628175fc0494e55a538d8f9521feb4c52",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -84,7 +118,7 @@
       "id": "settings-summary",
       "path": "dark/settings/settings-summary__mobile.png",
       "productRoute": "/settings",
-      "sha256": "56d668062a3b9cab9f1394daf175ad4e8e88e357f502b9ed2ade59aebea93b00",
+      "sha256": "3445116f3eb95917748b16dab3cb797a1c6de45cbb32794769e921755d695f16",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -92,7 +126,7 @@
       "id": "home-cockpit",
       "path": "light/home/home-cockpit__desktop.png",
       "productRoute": "/",
-      "sha256": "af2a9d9388ff64178cfa7d823881bab6223eae209dfb0e761c0dbe607bba99e7",
+      "sha256": "595f826f591db637306a2b00f7f8650409c22b9c23c00b76f96f678368b802b3",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -100,7 +134,39 @@
       "id": "home-cockpit",
       "path": "light/home/home-cockpit__mobile.png",
       "productRoute": "/",
-      "sha256": "1aa905fce1a571762e5a07be1037967abed30bf2a9b4634b4307a50dd8d2eeb5",
+      "sha256": "a0989eb8650b584cba02d48f513d9f5941bdf77bd1fee7c7390833965ac7f5db",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-cell-boundary",
+      "path": "light/settings/settings-cell-boundary__desktop.png",
+      "productRoute": "/settings#settings-instance",
+      "sha256": "9365b2c6c2f365fc43dc684406e59292b8111f77d36b0d058d1fb6315e7a8ea3",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-cell-boundary",
+      "path": "light/settings/settings-cell-boundary__mobile.png",
+      "productRoute": "/settings#settings-instance",
+      "sha256": "9414be088fdf39b35e0977756ea915c7a764d21af6095e9ce054117d11423043",
+      "theme": "light",
+      "viewport": "mobile"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "light/settings/settings-host-deployment__desktop.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "4c4374250183d53b2fa28c65c5b130b510ae359daff7ef34338b4723b3f4a323",
+      "theme": "light",
+      "viewport": "desktop"
+    },
+    {
+      "id": "settings-host-deployment",
+      "path": "light/settings/settings-host-deployment__mobile.png",
+      "productRoute": "/settings#settings-host-deployment",
+      "sha256": "c799e892c999f33db78a84c5f9651305a9b52a16739fa38933279cd9abccf79d",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -108,7 +174,7 @@
       "id": "settings-license",
       "path": "light/settings/settings-license__desktop.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "1b38b20ff7bede5135b7e418870dbad9c4472d00ac0bdbf317256012bce97607",
+      "sha256": "93cc1fc886b48d97fb15e09002534ed30da71e740e4e010c070def7403cb7e53",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -116,7 +182,7 @@
       "id": "settings-license",
       "path": "light/settings/settings-license__mobile.png",
       "productRoute": "/settings#settings-license",
-      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "sha256": "1aebe8ce45975638e39a10021f225a29d49a848a6f1951cf2bf51864dcec6427",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -124,7 +190,7 @@
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__desktop.png",
       "productRoute": "/settings#settings-providers",
-      "sha256": "e3e4ba5ef17e207de5dc8a4d69860eee24d17b112dd8e2e6c72843b24b97f8ee",
+      "sha256": "12194e2b7c86f6e0514032426416446caa323a4a3b6488af47c6113251a838e6",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -132,7 +198,7 @@
       "id": "settings-runtime",
       "path": "light/settings/settings-runtime__mobile.png",
       "productRoute": "/settings#settings-providers",
-      "sha256": "08b911c7e18474bab522a4b254e3f38b9113e8d14b6b3e69784a7b1190c7ad25",
+      "sha256": "56195f819d537227462abf2fb22a49f992ecaf31221d59f44b21ce8a96c82945",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -140,7 +206,7 @@
       "id": "settings-summary",
       "path": "light/settings/settings-summary__desktop.png",
       "productRoute": "/settings",
-      "sha256": "a8626db9367e1186c2cbfbb0e3f463f838bf1f13a44a6bbdf857dc8b8aed1790",
+      "sha256": "ce182db91de7ca96e149ccd65435fcc7ac737d08083fd3b46f0231501752fa93",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -148,7 +214,7 @@
       "id": "settings-summary",
       "path": "light/settings/settings-summary__mobile.png",
       "productRoute": "/settings",
-      "sha256": "2784383451f5803a9174566ffb67974384530734e89d0b130ab85086b09897a7",
+      "sha256": "f1c1b33a9dbcb6bc4e9b87f4dd8c2a173253557634db90ea9c1dc665d7b3423a",
       "theme": "light",
       "viewport": "mobile"
     }
@@ -213,7 +279,7 @@
   ],
   "sourceHash": "3bbd9362d6a2b486d9c5ac5a7e31a9796a46fe65bf2f3df97dc170137ca3bafb",
   "sourcePath": "docs/guides/01-get-started-with-relay.md",
-  "sourceStateHash": "9025b55020f85988f056d89f1789b3a89d3803406863e3a6f61cf159c473989a",
+  "sourceStateHash": "051114b8d6917ac58ac22fac7b43a8f649c9de0c718698e5007df74c2de26470",
   "summary": "Help a new reader start Relay, understand the local app, and know where to look first.",
   "title": "Get Started With Relay"
 }

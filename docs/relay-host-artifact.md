@@ -34,10 +34,10 @@ have similar download sizes.
 | npm tarball | Relay CLI/application files, package metadata, the direct local single-Cell path, and the separately invoked Host bootstrap/supervisor | Node.js, npm dependency installation, the operating system, native system libraries, and process administration |
 | Relay Cell OCI image | A sealed Linux Cell runtime: Relay application, pinned Node runtime, required production/native runtime files, Linux base, filesystem ownership, and container metadata | An OCI-compatible container engine plus the Cell's mounted data and configuration |
 
-The accepted `0.44.3` npm measurement is `2,568,129` compressed bytes and
-`8,961,418` unpacked bytes. That is the package payload before the destination
-supplies
-Node.js, installs the dependency closure, and provides its OS/native libraries.
+The final accepted `0.44.3` npm measurement is `2,918,641` compressed bytes and
+`10,622,312` unpacked bytes. That is the package payload before the destination
+supplies Node.js, installs the dependency closure, and provides its OS/native
+libraries.
 The accepted Linux/arm64 Cell image is `130,138,470` compressed-layer bytes and
 its OCI archive is `130,176,512` bytes because it carries the complete pinned
 Linux runtime closure required to start a Cell. The useful comparison is
@@ -81,10 +81,9 @@ Common deployments are:
 
 1. **One person on one laptop:** `npx orionfold-relay` runs one direct local
    Cell. No OCI image or managed-Host supervisor is required.
-2. **Several customers on one laptop:** the laptop is a Host. Use a separate
-   process and data root per customer today; G-083 will let the npm-installed
-   supervisor run a separate OCI Cell container per customer. Every customer
-   must trust the laptop administrator.
+2. **Several customers on one laptop:** the laptop is a Host. The npm-installed
+   G-083 supervisor can run a separate OCI Cell container per customer. Every
+   customer must trust the laptop administrator.
 3. **Several customers on one operator server:** npm installs the Host control
    surface and the Host pulls one signed OCI Cell image per isolated customer
    instance. Customers access their own Cell through authenticated ingress.
@@ -242,24 +241,21 @@ authoring. A reload preserved the customer → project → document → workflow
 references, and the API snapshot agreed with the visible UI. Teardown removed
 only the isolated browser/container/network/volume resources and left the
 default Relay database hash unchanged. With zero surviving release blockers,
-Host R1 — Local Host alpha is accepted. G-094 still owns any signed registry
-publication, while the accepted G-095 contract owns paid Host fulfillment.
+Host R1 — Local Host alpha was accepted. At that gate, G-094 still owned signed
+registry publication, while the accepted G-095 contract owned paid Host
+fulfillment.
 
-G-094 now supplies a checked-in, no-secret publication mechanism for the next
-gate. An exact OCI-only `cell-vX.Y.Z` source tag runs the audited G-093 publication profile natively
-on `linux/amd64` and `linux/arm64`, copies each audited digest to the private
-`ghcr.io/orionfold/relay-cell-staging` namespace, and only then lets protected
-production jobs copy the same bytes to `ghcr.io/orionfold/relay-cell`. The
-separate source-tag namespace means the OCI proof cannot trigger npm publishing
-or GitHub Release creation; the registry's immutable customer-facing tag remains
-`vX.Y.Z`. The
-production workflow uses GitHub OIDC for Cosign signatures and GitHub SBOM,
-provenance, platform-evidence and compatibility attestations. Exact tags and
-digests are immutable; `vX.Y`, `stable`, and `stable-previous` are discovery
-pointers, and a separate protected workflow moves `stable` only by verified
-digest while preserving exactly one rollback digest.
-
-The mechanism has passed local policy tests and a no-registry dry-run. No GHCR
-package, visibility change, signature, tag, push or release has occurred. The
-operator/customer commands and conservative support boundary are in
+G-094 supplied the checked-in, no-secret publication mechanism used for the
+first accepted Relay Cell release. The OCI-only `cell-v0.44.3` source tag ran
+the audited G-093 publication profile natively on `linux/amd64` and
+`linux/arm64`, staged both audited digests privately, then copied the same bytes
+to public `ghcr.io/orionfold/relay-cell`. GitHub OIDC produced the Cosign
+signatures plus SBOM, provenance, platform-evidence and compatibility
+attestations. The immutable accepted multi-architecture index is
+`sha256:b0dbee1535a2da9d963814591c8f0307d719b0d1ee43baebd2cbedf5f1d22c73`.
+The separate `cell-v*` tag namespace prevented this OCI publication from
+triggering npm or GitHub Release publication. Exact tags and digests remain
+authority; mutable discovery pointers move only through the separately
+protected digest-verifying promotion workflow. The operator/customer commands,
+release receipt, and conservative support boundary are in
 [Relay Cell OCI acquisition and verification](./relay-cell-oci-release.md).
