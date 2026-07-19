@@ -37,45 +37,47 @@ const baseProps = {
   appId: "wealth-tracker",
   appName: "Wealth Tracker",
   tableCount: 1,
+  profileCount: 1,
+  blueprintCount: 1,
   scheduleCount: 1,
   fileCount: 1,
 };
 
 async function openDeleteConfirm() {
-  // The toolbar renders "Delete pack" as a direct button (no kebab menu).
-  // Clicking it opens the confirm dialog, which has its own "Delete pack"
+  // The toolbar renders "Remove pack" as a direct button (no kebab menu).
+  // Clicking it opens the confirm dialog, which has its own "Remove pack"
   // confirm button — so before opening there is exactly one such button.
-  const trigger = screen.getByRole("button", { name: /^Delete pack$/i });
+  const trigger = screen.getByRole("button", { name: /^Remove pack$/i });
   fireEvent.click(trigger);
 }
 
-describe("AppDetailActions — delete button", () => {
-  it("renders the Delete pack button directly, not behind a kebab menu", () => {
+describe("AppDetailActions — remove button", () => {
+  it("renders the Remove pack button directly, not behind a kebab menu", () => {
     render(<AppDetailActions {...baseProps} />);
-    expect(screen.getByRole("button", { name: /^Delete pack$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Remove pack$/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /App actions/i })).toBeNull();
   });
 });
 
-describe("AppDetailActions — pluralization", () => {
+describe("AppDetailActions — removal and retention copy", () => {
   it("uses singular table copy when tableCount === 1", async () => {
     render(<AppDetailActions {...baseProps} />);
     await openDeleteConfirm();
     expect(
-      screen.getByText(/1 table \(and its rows, columns, triggers\)/i)
+      screen.getByText(/1 table and its rows, columns, and triggers/i)
     ).toBeInTheDocument();
-    expect(screen.queryByText(/their rows/i)).toBeNull();
+    expect(screen.getByText(/durable customers and customer attribution/i)).toBeInTheDocument();
   });
 
   it("uses plural table copy when tableCount > 1", async () => {
     render(<AppDetailActions {...baseProps} tableCount={3} />);
     await openDeleteConfirm();
     expect(
-      screen.getByText(/3 tables \(and their rows, columns, triggers\)/i)
+      screen.getByText(/3 tables and their rows, columns, and triggers/i)
     ).toBeInTheDocument();
   });
 
-  it("pluralizes schedules and manifest files independently", async () => {
+  it("pluralizes removed schedules and installed-pack files independently", async () => {
     render(
       <AppDetailActions
         {...baseProps}
@@ -85,11 +87,10 @@ describe("AppDetailActions — pluralization", () => {
       />
     );
     await openDeleteConfirm();
-    expect(screen.getByText(/2 schedules/)).toBeInTheDocument();
-    expect(screen.getByText(/2 manifest files/)).toBeInTheDocument();
+    expect(screen.getByText(/deletes 2 schedules and 2 installed-pack files/i)).toBeInTheDocument();
   });
 
-  it("falls back to 'its manifest' when all counts are zero", async () => {
+  it("still explains retention when the manifest reports no primitives", async () => {
     render(
       <AppDetailActions
         {...baseProps}
@@ -99,7 +100,8 @@ describe("AppDetailActions — pluralization", () => {
       />
     );
     await openDeleteConfirm();
-    expect(screen.getByText(/and its manifest\./)).toBeInTheDocument();
+    expect(screen.getByText(/removes Wealth Tracker from Installed packs\./)).toBeInTheDocument();
+    expect(screen.getByText(/any tables and their rows, columns, and triggers/i)).toBeInTheDocument();
   });
 });
 
@@ -107,7 +109,12 @@ describe("AppDetailActions — toast paths", () => {
   it("on success: shows toast, navigates to /apps, refreshes", async () => {
     fetchSpy.mockResolvedValue(
       new Response(
-        JSON.stringify({ success: true, filesRemoved: true, projectRemoved: true }),
+        JSON.stringify({
+          success: true,
+          manifestRemoved: true,
+          schedulesRemoved: 1,
+          retained: { tables: 1, profiles: 1, blueprints: 1, customersAndAttribution: true },
+        }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       )
     );
@@ -115,11 +122,13 @@ describe("AppDetailActions — toast paths", () => {
     render(<AppDetailActions {...baseProps} />);
     await openDeleteConfirm();
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
+      screen.getByRole("button", { name: /^Remove pack$/, hidden: false })
     );
 
     await waitFor(() => {
-      expect(toastSuccess).toHaveBeenCalledWith("Deleted Wealth Tracker");
+      expect(toastSuccess).toHaveBeenCalledWith(
+        "Removed Wealth Tracker; retained business data is unchanged."
+      );
     });
     expect(fetchSpy).toHaveBeenCalledWith(
       "/api/apps/wealth-tracker",
@@ -132,7 +141,7 @@ describe("AppDetailActions — toast paths", () => {
 
   it("on server error: shows toast.error with the server message", async () => {
     fetchSpy.mockResolvedValue(
-      new Response(JSON.stringify({ error: "Failed to delete pack" }), {
+      new Response(JSON.stringify({ error: "Failed to remove pack" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       })
@@ -141,11 +150,11 @@ describe("AppDetailActions — toast paths", () => {
     render(<AppDetailActions {...baseProps} />);
     await openDeleteConfirm();
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
+      screen.getByRole("button", { name: /^Remove pack$/, hidden: false })
     );
 
     await waitFor(() => {
-      expect(toastError).toHaveBeenCalledWith("Failed to delete pack");
+      expect(toastError).toHaveBeenCalledWith("Failed to remove pack");
     });
     expect(pushSpy).not.toHaveBeenCalled();
     expect(toastSuccess).not.toHaveBeenCalled();
@@ -157,7 +166,7 @@ describe("AppDetailActions — toast paths", () => {
     render(<AppDetailActions {...baseProps} />);
     await openDeleteConfirm();
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
+      screen.getByRole("button", { name: /^Remove pack$/, hidden: false })
     );
 
     await waitFor(() => {

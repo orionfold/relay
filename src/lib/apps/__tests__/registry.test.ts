@@ -13,6 +13,7 @@ import {
   listAppsCached,
   listAppsWithManifestsCached,
   parseAppManifest,
+  removeInstalledPack,
 } from "../registry";
 
 function makeTmp(): string {
@@ -315,6 +316,121 @@ describe("deleteAppCascade", () => {
       .where(eq(schedules.id, "app:wealth-tracker:monday-8am"))
       .get();
     expect(row).toBeUndefined();
+  });
+
+  it("removes the pack registration while retaining attributed business data and reusable primitives", async () => {
+    const appId = "g030-retention-pack";
+    const customerId = "g030-retention-customer";
+    const tableId = "g030-retention-table";
+    const rowId = "g030-retention-row";
+    const usageId = "g030-retention-usage";
+    const profileId = `${appId}--portfolio-coach`;
+    const blueprintId = `${appId}--weekly-review.yaml`;
+    const now = new Date("2026-07-19T00:00:00.000Z");
+    const { db } = await import("@/lib/db");
+    const {
+      customers,
+      projects,
+      usageLedger,
+      userTableRows,
+      userTables,
+    } = await import("@/lib/db/schema");
+    const { eq } = await import("drizzle-orm");
+
+    db.insert(customers)
+      .values({
+        id: customerId,
+        name: "Retained Customer",
+        slug: customerId,
+        status: "active",
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    db.insert(projects)
+      .values({
+        id: appId,
+        name: "Retention Pack Project",
+        customerId,
+        status: "active",
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    db.insert(userTables)
+      .values({
+        id: tableId,
+        projectId: appId,
+        name: "Retained table",
+        columnSchema: "[]",
+        rowCount: 1,
+        source: "template",
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    db.insert(userTableRows)
+      .values({
+        id: rowId,
+        tableId,
+        data: '{"value":"keep me"}',
+        position: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    db.insert(usageLedger)
+      .values({
+        id: usageId,
+        projectId: appId,
+        customerId,
+        activityType: "task_run",
+        runtimeId: "test-runtime",
+        providerId: "test-provider",
+        status: "completed",
+        usageCompleteness: "complete",
+        startedAt: now,
+        finishedAt: now,
+      })
+      .run();
+
+    writeManifest(
+      appsDir,
+      appId,
+      WEALTH_MANIFEST.replaceAll("wealth-tracker", appId)
+    );
+    fs.mkdirSync(path.join(profilesDir, profileId), { recursive: true });
+    fs.writeFileSync(path.join(profilesDir, profileId, "SKILL.md"), "keep", "utf-8");
+    fs.writeFileSync(path.join(blueprintsDir, blueprintId), "id: keep\n", "utf-8");
+
+    try {
+      const result = await removeInstalledPack(appId, { appsDir });
+
+      expect(result).toEqual({
+        manifestRemoved: true,
+        schedulesRemoved: 0,
+        retained: {
+          tables: 1,
+          profiles: 1,
+          blueprints: 1,
+          customersAndAttribution: true,
+        },
+      });
+      expect(fs.existsSync(path.join(appsDir, appId))).toBe(false);
+      expect(fs.existsSync(path.join(profilesDir, profileId))).toBe(true);
+      expect(fs.existsSync(path.join(blueprintsDir, blueprintId))).toBe(true);
+      expect(db.select().from(customers).where(eq(customers.id, customerId)).get()).toBeDefined();
+      expect(db.select().from(projects).where(eq(projects.id, appId)).get()).toBeDefined();
+      expect(db.select().from(userTables).where(eq(userTables.id, tableId)).get()).toBeDefined();
+      expect(db.select().from(userTableRows).where(eq(userTableRows.id, rowId)).get()).toBeDefined();
+      expect(db.select().from(usageLedger).where(eq(usageLedger.id, usageId)).get()).toBeDefined();
+    } finally {
+      db.delete(usageLedger).where(eq(usageLedger.id, usageId)).run();
+      db.delete(userTableRows).where(eq(userTableRows.id, rowId)).run();
+      db.delete(userTables).where(eq(userTables.id, tableId)).run();
+      db.delete(projects).where(eq(projects.id, appId)).run();
+      db.delete(customers).where(eq(customers.id, customerId)).run();
+    }
   });
 
   it("returns filesRemoved=false projectRemoved=false for an unknown app id", async () => {

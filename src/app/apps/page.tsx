@@ -59,6 +59,8 @@ export default function AppsPage() {
                           appId={app.id}
                           appName={app.name}
                           tableCount={app.tableCount}
+                          profileCount={app.profileCount}
+                          blueprintCount={app.blueprintCount}
                           scheduleCount={app.scheduleCount}
                           fileCount={app.files.length}
                         />

@@ -35,29 +35,34 @@ const baseProps = {
   appId: "wealth-tracker",
   appName: "Wealth Tracker",
   tableCount: 2,
+  profileCount: 2,
+  blueprintCount: 1,
   scheduleCount: 1,
   fileCount: 1,
 };
 
-describe("AppCardDeleteButton — pluralization", () => {
-  it("uses plural table copy when tableCount > 1 (their rows)", () => {
+describe("AppCardDeleteButton — retention copy", () => {
+  it("names retained tables, reusable primitives, customers, and the Cell boundary", () => {
     render(<AppCardDeleteButton {...baseProps} />);
     fireEvent.click(
-      screen.getByRole("button", { name: /Delete Wealth Tracker/i })
+      screen.getByRole("button", { name: /Remove Wealth Tracker/i })
     );
     expect(
-      screen.getByText(/2 tables \(and their rows, columns, triggers\)/i)
+      screen.getByText(/2 tables and their rows, columns, and triggers/i)
     ).toBeInTheDocument();
-    expect(screen.queryByText(/and its rows/i)).toBeNull();
+    expect(screen.getByText(/2 reusable profiles/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 reusable blueprint/i)).toBeInTheDocument();
+    expect(screen.getByText(/durable customers and customer attribution/i)).toBeInTheDocument();
+    expect(screen.getByText(/does not delete a Relay Cell/i)).toBeInTheDocument();
   });
 
-  it("uses singular table copy when tableCount === 1 (its rows)", () => {
+  it("uses singular table ownership copy when tableCount is one", () => {
     render(<AppCardDeleteButton {...baseProps} tableCount={1} />);
     fireEvent.click(
-      screen.getByRole("button", { name: /Delete Wealth Tracker/i })
+      screen.getByRole("button", { name: /Remove Wealth Tracker/i })
     );
     expect(
-      screen.getByText(/1 table \(and its rows, columns, triggers\)/i)
+      screen.getByText(/1 table and its rows, columns, and triggers/i)
     ).toBeInTheDocument();
   });
 });
@@ -72,7 +77,7 @@ describe("AppCardDeleteButton — click behavior + toast paths", () => {
       </div>
     );
     fireEvent.click(
-      screen.getByRole("button", { name: /Delete Wealth Tracker/i })
+      screen.getByRole("button", { name: /Remove Wealth Tracker/i })
     );
     expect(onParentClick).not.toHaveBeenCalled();
   });
@@ -80,21 +85,28 @@ describe("AppCardDeleteButton — click behavior + toast paths", () => {
   it("on success: shows toast, refreshes (no navigation away)", async () => {
     fetchSpy.mockResolvedValue(
       new Response(
-        JSON.stringify({ success: true, filesRemoved: true, projectRemoved: true }),
+        JSON.stringify({
+          success: true,
+          manifestRemoved: true,
+          schedulesRemoved: 1,
+          retained: { tables: 2, profiles: 2, blueprints: 1, customersAndAttribution: true },
+        }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       )
     );
 
     render(<AppCardDeleteButton {...baseProps} />);
     fireEvent.click(
-      screen.getByRole("button", { name: /Delete Wealth Tracker/i })
+      screen.getByRole("button", { name: /Remove Wealth Tracker/i })
     );
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
+      screen.getByRole("button", { name: /^Remove pack$/, hidden: false })
     );
 
     await waitFor(() => {
-      expect(toastSuccess).toHaveBeenCalledWith("Deleted Wealth Tracker");
+      expect(toastSuccess).toHaveBeenCalledWith(
+        "Removed Wealth Tracker; retained business data is unchanged."
+      );
     });
     expect(fetchSpy).toHaveBeenCalledWith(
       "/api/apps/wealth-tracker",
@@ -106,7 +118,7 @@ describe("AppCardDeleteButton — click behavior + toast paths", () => {
 
   it("on server error: shows toast.error with the server message", async () => {
     fetchSpy.mockResolvedValue(
-      new Response(JSON.stringify({ error: "Failed to delete pack" }), {
+      new Response(JSON.stringify({ error: "Failed to remove pack" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       })
@@ -114,14 +126,14 @@ describe("AppCardDeleteButton — click behavior + toast paths", () => {
 
     render(<AppCardDeleteButton {...baseProps} />);
     fireEvent.click(
-      screen.getByRole("button", { name: /Delete Wealth Tracker/i })
+      screen.getByRole("button", { name: /Remove Wealth Tracker/i })
     );
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
+      screen.getByRole("button", { name: /^Remove pack$/, hidden: false })
     );
 
     await waitFor(() => {
-      expect(toastError).toHaveBeenCalledWith("Failed to delete pack");
+      expect(toastError).toHaveBeenCalledWith("Failed to remove pack");
     });
     expect(refreshSpy).not.toHaveBeenCalled();
     expect(toastSuccess).not.toHaveBeenCalled();
@@ -130,7 +142,12 @@ describe("AppCardDeleteButton — click behavior + toast paths", () => {
   it("appId is URL-encoded in the request path", async () => {
     fetchSpy.mockResolvedValue(
       new Response(
-        JSON.stringify({ success: true, filesRemoved: true, projectRemoved: true }),
+        JSON.stringify({
+          success: true,
+          manifestRemoved: true,
+          schedulesRemoved: 0,
+          retained: { tables: 2, profiles: 2, blueprints: 1, customersAndAttribution: true },
+        }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       )
     );
@@ -142,9 +159,9 @@ describe("AppCardDeleteButton — click behavior + toast paths", () => {
         appName="Weird"
       />
     );
-    fireEvent.click(screen.getByRole("button", { name: /Delete Weird/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Remove Weird/i }));
     fireEvent.click(
-      screen.getByRole("button", { name: /^Delete pack$/, hidden: false })
+      screen.getByRole("button", { name: /^Remove pack$/, hidden: false })
     );
 
     await waitFor(() => {

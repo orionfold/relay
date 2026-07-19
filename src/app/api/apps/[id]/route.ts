@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { deleteAppCascade, getApp } from "@/lib/apps/registry";
+import { getApp, removeInstalledPack } from "@/lib/apps/registry";
 
 export async function GET(
   _req: NextRequest,
@@ -21,26 +21,18 @@ export async function DELETE(
   }
 
   try {
-    const result = await deleteAppCascade(id);
-    const removedAnything =
-      result.filesRemoved ||
-      result.projectRemoved ||
-      result.profilesRemoved > 0 ||
-      result.blueprintsRemoved > 0;
-    if (!removedAnything) {
+    const result = await removeInstalledPack(id);
+    if (!result) {
       return NextResponse.json({ error: "Pack not found" }, { status: 404 });
     }
     return NextResponse.json({
       success: true,
-      filesRemoved: result.filesRemoved,
-      projectRemoved: result.projectRemoved,
-      profilesRemoved: result.profilesRemoved,
-      blueprintsRemoved: result.blueprintsRemoved,
+      ...result,
     });
   } catch (err) {
-    console.error("Pack delete failed:", err);
+    console.error("Pack removal failed:", err);
     return NextResponse.json(
-      { error: "Failed to delete pack" },
+      { error: "Failed to remove pack" },
       { status: 500 }
     );
   }

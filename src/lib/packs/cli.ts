@@ -1,8 +1,4 @@
-import {
-  getAinativeAppsDir,
-  getAinativeBlueprintsDir,
-  getAinativeProfilesDir,
-} from "@/lib/utils/ainative-paths";
+import { getAinativeAppsDir } from "@/lib/utils/ainative-paths";
 
 /**
  * Testable command dispatcher for `relay pack <action>`. Kept separate from
@@ -28,7 +24,7 @@ const USAGE = [
   "Usage: relay pack <action>",
   "  add <name|path|git-url> [--license-url=<path|url>] [--allow-community]   install a pack",
   "  list                 list installed packs",
-  "  remove <id>          uninstall a pack",
+  "  remove <id>          remove a pack; retain its business data and reusable primitives",
   "  update <id> [source] [--license-url=<path|url>]      update to a newer version",
 ].join("\n");
 
@@ -184,34 +180,24 @@ async function runRemove(
     return 1;
   }
   try {
-    const { deleteAppCascade } = await import("@/lib/apps/registry");
-    const result = await deleteAppCascade(id, {
+    const { removeInstalledPack } = await import("@/lib/apps/registry");
+    const result = await removeInstalledPack(id, {
       appsDir: io.appsDir ?? getAinativeAppsDir(),
-      profilesDir: io.profilesDir ?? getAinativeProfilesDir(),
-      blueprintsDir: io.blueprintsDir ?? getAinativeBlueprintsDir(),
     });
-    if (
-      !result.filesRemoved &&
-      !result.projectRemoved &&
-      result.profilesRemoved === 0 &&
-      result.blueprintsRemoved === 0
-    ) {
+    if (!result) {
       io.log(`Pack not found: ${id} (nothing removed).`);
       return 0;
     }
     io.log(
       `Removed ${id}: ` +
-        `${result.projectRemoved ? "project + rows, " : ""}` +
-        `${result.filesRemoved ? "manifest, " : ""}` +
-        `${result.profilesRemoved} profile(s), ${result.blueprintsRemoved} blueprint(s).`
+        `installed-pack files and ${result.schedulesRemoved} schedule(s).`
     );
-    // Customers are durable business data, not namespaced pack files — the
-    // cascade deliberately does not touch them. Surface that so a "remove"
-    // never silently looks like it also wiped customer records + attribution.
     io.log(
-      `Note: customers seeded by this pack are retained (customer records and ` +
-        `their cost attribution are durable business data). Remove them ` +
-        `manually from /customers if intended.`
+      `Retained: ${result.retained.tables} table(s) with rows/columns/triggers, ` +
+        `${result.retained.profiles} profile(s), ` +
+        `${result.retained.blueprints} blueprint(s), durable customers, and ` +
+        `customer attribution. Delete retained data separately from its owning ` +
+        `view if intended; pack removal is not Relay Cell deletion.`
     );
     return 0;
   } catch (err) {

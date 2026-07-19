@@ -19,9 +19,9 @@ import { parseAppScheduleId } from "./app-schedule-id";
  * views (FEAT-7 filter) and the provenance pill (FEAT-8) never branch on a raw
  * id shape, and so the pack-aware seed gate (BUG-6) has a single question to
  * ask. Chosen over adding a persisted `packId` field because the prefix already
- * encodes the answer AND is load-bearing for uninstall (`deleteAppCascade`) —
- * a new field would force an uninstall rewrite + a backfill migration for zero
- * functional gain (Principles #5/#7).
+ * encodes provenance while the pack is installed. Pack removal deliberately
+ * retains these primitives; the installed-set gate then stops presenting them
+ * as owned by a pack that is no longer installed (Principles #5/#7).
  *
  * PURE by design: the installed-pack set is passed in, never read here. That
  * keeps the resolver testable without a filesystem/DB and usable both in a

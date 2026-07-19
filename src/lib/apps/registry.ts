@@ -778,6 +778,31 @@ export interface DeleteAppCascadeOptions {
   deleteProjectFn?: (projectId: string) => boolean;
 }
 
+export interface RemoveInstalledPackResult {
+  /** True when the installed-pack directory was removed. */
+  manifestRemoved: boolean;
+  /** Number of `app:<appId>:*` schedules disabled by removal. */
+  schedulesRemoved: number;
+  /** Manifest-declared primitives deliberately left available for reuse. */
+  retained: {
+    tables: number;
+    profiles: number;
+    blueprints: number;
+    customersAndAttribution: true;
+  };
+}
+
+export interface RemoveInstalledPackOptions {
+  appsDir?: string;
+}
+
+export class PackRemovalManifestError extends Error {
+  constructor(appId: string) {
+    super(`Failed to remove the installed-pack files for "${appId}"`);
+    this.name = "PackRemovalManifestError";
+  }
+}
+
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/;
 
 function sweepNamespacedProfiles(profilesDir: string, appId: string): number {
@@ -813,8 +838,65 @@ function sweepNamespacedBlueprints(blueprintsDir: string, appId: string): number
   return removed;
 }
 
+async function removeAppSchedules(appId: string): Promise<number> {
+  const { deleteAppUsageBudgetPolicies } = await import(
+    "@/lib/schedules/budget-policies"
+  );
+  await deleteAppUsageBudgetPolicies(appId);
+  const { db } = await import("@/lib/db");
+  const { schedules } = await import("@/lib/db/schema");
+  const { like } = await import("drizzle-orm");
+  return db
+    .delete(schedules)
+    .where(like(schedules.id, `app:${appId}:%`))
+    .run().changes;
+}
+
 /**
- * Cascade-delete an app: removes its DB project (and all FK-dependent rows)
+ * Remove a Pack registration without deleting the durable work it introduced.
+ *
+ * Pack removal deletes only the installed-pack directory and app-owned
+ * schedules. The project, tables/rows/triggers, usage attribution, profiles,
+ * blueprints, customers, and other business data stay available and must be
+ * deleted separately from their owning surfaces when intended.
+ */
+export async function removeInstalledPack(
+  appId: string,
+  options: RemoveInstalledPackOptions = {}
+): Promise<RemoveInstalledPackResult | null> {
+  const appsDir = options.appsDir ?? getAinativeAppsDir();
+  const resolvedApps = path.resolve(appsDir);
+  const rootDir = path.resolve(appsDir, appId);
+  if (!rootDir.startsWith(resolvedApps + path.sep) || !SLUG_RE.test(appId)) {
+    return null;
+  }
+
+  const app = getApp(appId, appsDir);
+  if (!app) return null;
+
+  const schedulesRemoved = await removeAppSchedules(appId);
+  const manifestRemoved = deleteApp(appId, appsDir);
+  if (!manifestRemoved) {
+    throw new PackRemovalManifestError(appId);
+  }
+
+  return {
+    manifestRemoved,
+    schedulesRemoved,
+    retained: {
+      tables: app.tableCount,
+      profiles: app.profileCount,
+      blueprints: app.blueprintCount,
+      customersAndAttribution: true,
+    },
+  };
+}
+
+/**
+ * Destructive internal purge for transactional rollback/test cleanup.
+ * User-facing Pack removal must call `removeInstalledPack` instead.
+ *
+ * Cascade-deletes an app: removes its DB project (and all FK-dependent rows)
  * via deleteProjectCascade, removes the manifest dir on disk, then sweeps
  * `<appId>--*` profile dirs and `<appId>--*.yaml` blueprint files from the
  * shared `~/.relay/profiles/` and `~/.relay/blueprints/` directories.
@@ -861,22 +943,11 @@ export async function deleteAppCascade(
   const blueprintsRemoved = sweepNamespacedBlueprints(blueprintsDir, appId);
 
   // Sweep app-owned schedule rows (`app:<appId>:*`, registered by the pack
-  // installer) so an uninstalled app's schedules don't refire into nothing.
+  // installer) so a purged app's schedules don't refire into nothing.
   // Dynamic import — this module must stay out of the DB static import graph.
   let schedulesRemoved = 0;
   try {
-    const { deleteAppUsageBudgetPolicies } = await import(
-      "@/lib/schedules/budget-policies"
-    );
-    await deleteAppUsageBudgetPolicies(appId);
-    const { db } = await import("@/lib/db");
-    const { schedules } = await import("@/lib/db/schema");
-    const { like } = await import("drizzle-orm");
-    const result = db
-      .delete(schedules)
-      .where(like(schedules.id, `app:${appId}:%`))
-      .run();
-    schedulesRemoved = result.changes;
+    schedulesRemoved = await removeAppSchedules(appId);
   } catch (err) {
     console.error(`[registry] schedule sweep failed for app "${appId}":`, err);
   }

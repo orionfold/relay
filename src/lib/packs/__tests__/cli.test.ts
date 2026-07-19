@@ -109,15 +109,25 @@ describe("runPackCommand", () => {
     expect(line).toMatch(/installed v0\.1\.0/);
   });
 
-  it("remove: uninstalls and reports", async () => {
+  it("remove: removes the pack registration and reports retained data", async () => {
     buildFixturePack();
     const { runPackCommand } = await load();
     await runPackCommand(["add", packDir], io());
+    const retainedProfile = path.join(profilesDir, "cli-pack--reusable");
+    const retainedBlueprint = path.join(blueprintsDir, "cli-pack--reusable.yaml");
+    fs.mkdirSync(retainedProfile, { recursive: true });
+    fs.mkdirSync(blueprintsDir, { recursive: true });
+    fs.writeFileSync(path.join(retainedProfile, "SKILL.md"), "keep", "utf-8");
+    fs.writeFileSync(retainedBlueprint, "id: keep\n", "utf-8");
+
     const code = await runPackCommand(["remove", "cli-pack"], io());
+
     expect(code).toBe(0);
     expect(fs.existsSync(path.join(appsDir, "cli-pack"))).toBe(false);
-    // Uninstall must warn that customers are retained (durable business data).
-    expect(logs.join("\n").toLowerCase()).toMatch(/customers.*retained/);
+    expect(fs.existsSync(retainedProfile)).toBe(true);
+    expect(fs.existsSync(retainedBlueprint)).toBe(true);
+    expect(logs.join("\n")).toMatch(/Retained:.*durable customers.*customer attribution/i);
+    expect(logs.join("\n")).toMatch(/pack removal is not Relay Cell deletion/i);
   });
 
   it("update: refuses a pack that is not installed, pointing at pack add", async () => {

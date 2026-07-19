@@ -6,11 +6,14 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { buildPackRemovalDescription } from "./pack-removal-copy";
 
 interface AppDetailActionsProps {
   appId: string;
   appName: string;
   tableCount: number;
+  profileCount: number;
+  blueprintCount: number;
   scheduleCount: number;
   fileCount: number;
 }
@@ -19,6 +22,8 @@ export function AppDetailActions({
   appId,
   appName,
   tableCount,
+  profileCount,
+  blueprintCount,
   scheduleCount,
   fileCount,
 }: AppDetailActionsProps) {
@@ -26,23 +31,14 @@ export function AppDetailActions({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  const summary = [
-    tableCount > 0
-      ? `${tableCount} ${tableCount === 1 ? "table (and its rows, columns, triggers)" : "tables (and their rows, columns, triggers)"}`
-      : null,
-    scheduleCount > 0
-      ? `${scheduleCount} schedule${scheduleCount === 1 ? "" : "s"}`
-      : null,
-    fileCount > 0
-      ? `${fileCount} manifest file${fileCount === 1 ? "" : "s"}`
-      : null,
-  ]
-    .filter(Boolean)
-    .join(", ");
-
-  const description =
-    `This will remove the installed pack ${appName} and ${summary || "its manifest"}. ` +
-    `Profiles and blueprints stay available for reuse. This cannot be undone.`;
+  const description = buildPackRemovalDescription({
+    appName,
+    tableCount,
+    profileCount,
+    blueprintCount,
+    scheduleCount,
+    fileCount,
+  });
 
   // The AlertDialog blocks pointer events while open, and `onOpenChange` is
   // gated by `!pending` — so a second click cannot fire while the delete is
@@ -58,7 +54,7 @@ export function AppDetailActions({
           const body = await res.json().catch(() => ({}));
           throw new Error(body.error ?? `HTTP ${res.status}`);
         }
-        toast.success(`Deleted ${appName}`);
+        toast.success(`Removed ${appName}; retained business data is unchanged.`);
         setConfirmOpen(false);
         router.push("/apps");
         router.refresh();
@@ -77,15 +73,15 @@ export function AppDetailActions({
         className="text-destructive hover:text-destructive"
       >
         <Trash2 className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
-        Delete pack
+        Remove pack
       </Button>
 
       <ConfirmDialog
         open={confirmOpen}
         onOpenChange={(open) => !pending && setConfirmOpen(open)}
-        title={`Delete ${appName}?`}
+        title={`Remove ${appName}?`}
         description={description}
-        confirmLabel={pending ? "Deleting…" : "Delete pack"}
+        confirmLabel={pending ? "Removing…" : "Remove pack"}
         destructive
         onConfirm={handleConfirm}
       />

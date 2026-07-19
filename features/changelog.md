@@ -1,5 +1,22 @@
 # Feature Changelog
 
+## 2026-07-19
+
+### Completed
+
+- `pack-removal-retention` (G-030) — separated ordinary Pack removal from the
+  destructive internal purge path. Removing a Pack now deletes only its
+  installed files and Pack-owned schedules; tables and their rows, reusable
+  agents and blueprints, durable customers, and customer cost attribution stay
+  available until the operator deletes them from their owning views.
+- Added the same retain-versus-remove contract to the Apps list/detail dialogs,
+  DELETE API receipt, and `relay pack remove` CLI output. The warning explicitly
+  distinguishes removing a Pack from deleting a Relay Cell.
+- Verified retained customer/project/table/row/usage attribution in the real
+  database, API/component/CLI regressions, a browser dialog inspection with no
+  console errors, the full 3,791-test suite, TypeScript, and Next/CLI production
+  builds. No Pack or Cell was removed during browser verification.
+
 ## 2026-07-18
 
 ### Completed

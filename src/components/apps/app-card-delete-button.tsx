@@ -6,11 +6,14 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { buildPackRemovalDescription } from "./pack-removal-copy";
 
 interface AppCardDeleteButtonProps {
   appId: string;
   appName: string;
   tableCount: number;
+  profileCount: number;
+  blueprintCount: number;
   scheduleCount: number;
   fileCount: number;
 }
@@ -19,6 +22,8 @@ export function AppCardDeleteButton({
   appId,
   appName,
   tableCount,
+  profileCount,
+  blueprintCount,
   scheduleCount,
   fileCount,
 }: AppCardDeleteButtonProps) {
@@ -26,23 +31,14 @@ export function AppCardDeleteButton({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  const summary = [
-    tableCount > 0
-      ? `${tableCount} ${tableCount === 1 ? "table (and its rows, columns, triggers)" : "tables (and their rows, columns, triggers)"}`
-      : null,
-    scheduleCount > 0
-      ? `${scheduleCount} schedule${scheduleCount === 1 ? "" : "s"}`
-      : null,
-    fileCount > 0
-      ? `${fileCount} manifest file${fileCount === 1 ? "" : "s"}`
-      : null,
-  ]
-    .filter(Boolean)
-    .join(", ");
-
-  const description =
-    `This will remove the installed pack ${appName} and ${summary || "its manifest"}. ` +
-    `Profiles and blueprints stay available for reuse. This cannot be undone.`;
+  const description = buildPackRemovalDescription({
+    appName,
+    tableCount,
+    profileCount,
+    blueprintCount,
+    scheduleCount,
+    fileCount,
+  });
 
   function handleConfirm() {
     startTransition(async () => {
@@ -54,7 +50,7 @@ export function AppCardDeleteButton({
           const body = await res.json().catch(() => ({}));
           throw new Error(body.error ?? `HTTP ${res.status}`);
         }
-        toast.success(`Deleted ${appName}`);
+        toast.success(`Removed ${appName}; retained business data is unchanged.`);
         setConfirmOpen(false);
         router.refresh();
       } catch (err) {
@@ -69,7 +65,7 @@ export function AppCardDeleteButton({
         variant="ghost"
         size="icon"
         className="h-7 w-7 text-destructive"
-        aria-label={`Delete ${appName}`}
+        aria-label={`Remove ${appName}`}
         onClick={(e) => {
           // Defensive: although the button is rendered as a sibling of the
           // Link (not inside it), stopPropagation guards against future DOM
@@ -85,9 +81,9 @@ export function AppCardDeleteButton({
       <ConfirmDialog
         open={confirmOpen}
         onOpenChange={(open) => !pending && setConfirmOpen(open)}
-        title={`Delete ${appName}?`}
+        title={`Remove ${appName}?`}
         description={description}
-        confirmLabel={pending ? "Deleting…" : "Delete pack"}
+        confirmLabel={pending ? "Removing…" : "Remove pack"}
         destructive
         onConfirm={handleConfirm}
       />
