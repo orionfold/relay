@@ -4,6 +4,20 @@
 
 ### Completed
 
+- `relay-host-cell-memo-series` (G-102) — completed six Website-ready source
+  packages under `_ASSETS/memos/`, each with an eight-section article,
+  provenance claim ledger, and accessible theme-token signature diagram. The
+  series covers Host/Cell topology, npm/OCI delivery, same-Host trust,
+  free-runtime versus licensed-management fulfillment, customer-owned recovery,
+  and a deliberately gated customer-owned-cloud capstone.
+- The complete eleven-memo corpus passed frontmatter, prose-number trace,
+  local-asset, SVG accessibility/theme, privacy, and design-system-drift gates.
+  The first five new memos are in `review`; the cloud capstone remains `draft`
+  until G-085. `_ASSETS/memos/HOST-CELL-SERIES.md` records the claim matrix,
+  distinct editorial questions, word counts, source hashes, review receipt,
+  and prepared Website handoff. No Website mutation, public claim, CTA markup,
+  publication, or external write was performed.
+
 - `relay-host-cell-release-candidate-proof` (G-101) — packed Relay `0.44.3`
   from the identified source revision, installed it in the isolated staging
   customer environment, and accepted a 65-check Host/Cell receipt against the
