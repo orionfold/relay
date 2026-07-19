@@ -527,6 +527,13 @@ releases rather than one cloud-deploy launch:
 5. G-073/G-074 may deliver local-first connector value after G-079; cloud-Host
    support additionally conforms to G-081/G-082 without waiting for G-085.
 
+G-084 was accepted on 2026-07-18. Settings now exercises the licensed Local
+Device and deterministic Cloud Server Preview journey against the accepted
+Host domain and public Cell digest. The preview creates no provider resource or
+charge. R3 still requires Relay/Website fulfillment and pricing coordination,
+retention UX consistency, and a fresh customer-identical release-candidate
+staging pass before a paid Host release can be claimed.
+
 The authoritative dependency matrix, parallel work, customer-value increments,
 and recurring staging gates live in
 `features/licensed-self-service-cloud-deploy-plan.md`.

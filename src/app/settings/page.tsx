@@ -23,6 +23,7 @@ import { DashboardSection } from "@/components/settings/dashboard-section";
 import { PageShell } from "@/components/shared/page-shell";
 import { isDataOpsAllowed } from "@/lib/data/staging-gate";
 import { AccessSection } from "@/components/settings/access-section";
+import { HostDeploymentSection } from "@/components/settings/host-deployment-section";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +56,9 @@ export default function SettingsPage() {
         </SettingsAnchor>
         <SettingsAnchor id="settings-license">
           <LicenseSection />
+        </SettingsAnchor>
+        <SettingsAnchor id="settings-host-deployment">
+          <HostDeploymentSection />
         </SettingsAnchor>
         <SettingsAnchor id="settings-providers">
           <ProvidersAndRuntimesSection />

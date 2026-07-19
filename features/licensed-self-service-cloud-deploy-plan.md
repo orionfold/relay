@@ -422,6 +422,13 @@ Tasks:
 Checkpoint: local Host and fake VM provider complete every journey state in a
 real browser before any live provider is connected.
 
+**Accepted 2026-07-18.** G-084 now provides the licensed Settings journey for
+Local Device and deterministic Cloud Server Preview, using a separate dated
+provisional cloud-price snapshot, the accepted G-083 supervisor, the accepted
+public Cell digest, and the G-082 recovery handoff. Upgrade, rollback, transfer,
+Fleet control, live provider authorization, spend, and VM creation remain
+disabled and explicitly assigned to later domain/provider goals.
+
 ### G-085 — Prove the DigitalOcean single-server Relay Host
 
 Goal: provision one clean DigitalOcean VM, install the npm-delivered Relay Host
