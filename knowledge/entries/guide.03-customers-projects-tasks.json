@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "d15ed906ffa5c5b1c24a967aa270e38df69a5fd9eaf89368664f89871b3db4bf",
+  "contentHash": "a97a978f0346d13ef7d1644c932bab9adf26894e80d3499de252abbee600757e",
   "features": [
     "Card system",
     "Customer book",
@@ -148,7 +148,7 @@
       "id": "settings-host-deployment",
       "path": "dark/settings/settings-host-deployment__desktop.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "7b54e02c32d7d740a7ae3051f2fdc72fc45e8687317f97ca7be68a48fa9a38c8",
+      "sha256": "c026ecd01d2a99b5d99b67949038fcd627329ebc701da4a971d4682985ed5ac1",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -156,7 +156,7 @@
       "id": "settings-host-deployment",
       "path": "dark/settings/settings-host-deployment__mobile.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "158c9ab6e721410c6e27b88a8e7a1af4422f372c72a4d8ca9a0216a610937708",
+      "sha256": "f7224610c0f30bf44fac93dfde663fb1682efc5a5c82e5fe4ec97ffae1e0d27b",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -308,7 +308,7 @@
       "id": "settings-host-deployment",
       "path": "light/settings/settings-host-deployment__desktop.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "4c4374250183d53b2fa28c65c5b130b510ae359daff7ef34338b4723b3f4a323",
+      "sha256": "40c1c2d2145dd9cc3309d499f0118a0ce77e03e04b274fa252a30f4140ab95fd",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -316,7 +316,7 @@
       "id": "settings-host-deployment",
       "path": "light/settings/settings-host-deployment__mobile.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "c799e892c999f33db78a84c5f9651305a9b52a16739fa38933279cd9abccf79d",
+      "sha256": "bb81d837910f66dd63457236c1d207c4abb050ec09e8b80761559db19ce21f03",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -393,8 +393,8 @@
       "heading": "What To Do When The State Looks Wrong",
       "id": "what-to-do-when-the-state-looks-wrong",
       "level": 2,
-      "markdown": "If a project is missing, search from the current list before creating another one. Duplicate projects make later audits harder.\n\nIf a task looks stuck, open Monitor or the task detail before running it again. A stalled workflow, a waiting approval, and a failed provider call need different fixes.\n\nIf spend attribution looks empty, check whether the task or run is linked to the right customer or project. Empty attribution may be honest if the work had no owner. It is still a signal to improve how future work starts.\n\nIf a card action is unclear, use the detail view rather than guessing. Detail screens exist so important work does not depend on tiny card text.\n\nIf a customer record has no projects, decide if that is a real empty state or a setup gap. Relay should make both cases visible.\n\nIf an uploaded file does not appear as ready context, check its status in\nDocuments. **Uploaded** and **Processing** mean Relay is still preparing it.\n**Error** means processing failed and needs inspection. The workflow picker keeps\nthese rows visible but does not let you select them until they are **Ready**.\n\nIf two client records must not share data, files, credentials, agents, or\nruntimes, do not try to solve that with customer links or working directories.\nUse separate Relay cells with distinct processes/containers and data roots. If\nthe clients must not trust the same Relay Host administrator, use separate VMs\nor machines. The local `relay host` CLI and licensed **Settings → Relay Host\ndeployment** journey enforce local Cell roots, ports, networks, resource\nreservations, signed managed-Cell capacity, and content-free lifecycle receipts\non one Host. Cloud Server Preview is a deterministic simulation and creates no\nprovider resources. Upgrade, rollback, transfer, and Fleet control are outside\nthe current local Host lifecycle surface.",
-      "wordCount": 298
+      "markdown": "If a project is missing, search from the current list before creating another one. Duplicate projects make later audits harder.\n\nIf a task looks stuck, open Monitor or the task detail before running it again. A stalled workflow, a waiting approval, and a failed provider call need different fixes.\n\nIf spend attribution looks empty, check whether the task or run is linked to the right customer or project. Empty attribution may be honest if the work had no owner. It is still a signal to improve how future work starts.\n\nIf a card action is unclear, use the detail view rather than guessing. Detail screens exist so important work does not depend on tiny card text.\n\nIf a customer record has no projects, decide if that is a real empty state or a setup gap. Relay should make both cases visible.\n\nIf an uploaded file does not appear as ready context, check its status in\nDocuments. **Uploaded** and **Processing** mean Relay is still preparing it.\n**Error** means processing failed and needs inspection. The workflow picker keeps\nthese rows visible but does not let you select them until they are **Ready**.\n\nIf two client records must not share data, files, credentials, agents, or\nruntimes, do not try to solve that with customer links or working directories.\nUse separate Relay cells with distinct processes/containers and data roots. If\nthe clients must not trust the same Relay Host administrator, use separate VMs\nor machines. The local `relay host` CLI and licensed **Settings → Relay Host\ndeployment** journey enforce local Cell roots, ports, networks, resource\nreservations, signed managed-Cell capacity, and content-free lifecycle receipts\non one Host. Cloud Server Preview is a deterministic simulation and creates no\nprovider resources. The separate **DigitalOcean guided beta** explains how to\nrun that same local Host surface on a customer-owned Ubuntu Droplet. Relay does\nnot request a DigitalOcean token or create the server; the customer owns the\naccount, bill, DNS, keys, backups, and administration. Upgrade, rollback,\ntransfer, and Fleet control are outside the current Host lifecycle surface.",
+      "wordCount": 338
     },
     {
       "heading": "What This Changes In Daily Work",
@@ -411,9 +411,9 @@
       "wordCount": 18
     }
   ],
-  "sourceHash": "87f4bd89bbb2cc8112116dee4b08225c0bf3d4a32e59cc89dfcb48b00d6e89d4",
+  "sourceHash": "3c95c5cd1f3b903d4cec7d5cefe4546fe6b653e4a880c11ae6db328cb266a16d",
   "sourcePath": "docs/guides/03-organize-customers-projects-and-tasks.md",
-  "sourceStateHash": "f14b89ba6506e1be52dc87e70299ff404706fec37bb374fa6ab7d043494bb238",
+  "sourceStateHash": "624c35e43fd6a4cd040c81dbbc61e71b613012b576c0f8ee88e7952595338732",
   "summary": "Show how Relay groups work by customer, project, and task so a small business can see what is happening.",
   "title": "Organize Customers, Projects, And Tasks"
 }

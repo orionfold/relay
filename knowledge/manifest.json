@@ -1,11 +1,11 @@
 {
-  "bundleHash": "5538e664a8f49c6ebf689572540da70c0d3e9a0b43ba0e4eaaeda61b50dc661f",
+  "bundleHash": "9ec85b4941d724927167fc3419b905a65b2e9497de446fdf06e5f489e924278a",
   "corpus": {
     "apiDocsVersion": "2026-07-08.initial-plan",
-    "apiTrackerHash": "c3ca84eb810000af289c48e3b569644df4c6a81231b9855f3b97e120799d72d0",
-    "guideTrackerHash": "5dc201b2a4c7bb53bd509fdcbee20a642657c1c6046bca47ca16f45a5f5806c0",
+    "apiTrackerHash": "1d31b3ffd1895b0b2e4e996867235fe6274ad552d4ef35c33646f28e5e677e0b",
+    "guideTrackerHash": "ab37ec6231831e4877514b70ccb04886dc60a477d288c56a70a90b6bbfe2b0d9",
     "guideVersion": "2026-07-09.narrative-book-guide",
-    "screenshotManifestHash": "b46609c97e10c24cd4b89bce592c77a2947a187a186efc2120cf7d2f17ae249b"
+    "screenshotManifestHash": "9edc0914b86fa50ac64d5d75eb98dab49ae43f50915e412e5021e996bd399a86"
   },
   "entries": [
     {
@@ -89,33 +89,33 @@
       "title": "Channels And Webhooks API"
     },
     {
-      "contentHash": "6f98ddf9e5227dca9e89ca9cd6814c79401b9bebd44abdd2c666ab58495210ec",
+      "contentHash": "ee399499380207614eaa624c184a79aeff2b6eff6e860fc2059adaed8f294764",
       "id": "guide:01-get-started",
       "kind": "guide",
       "path": "entries/guide.01-get-started.json",
       "publicUrl": "https://orionfold.com/relay/docs/get-started-with-relay/",
       "sourceHash": "3bbd9362d6a2b486d9c5ac5a7e31a9796a46fe65bf2f3df97dc170137ca3bafb",
-      "sourceStateHash": "051114b8d6917ac58ac22fac7b43a8f649c9de0c718698e5007df74c2de26470",
+      "sourceStateHash": "e0e6b6135186b81affc759a11d6d8cf8eb5e4420ca2bf0bde0ce65dd89335a79",
       "title": "Get Started With Relay"
     },
     {
-      "contentHash": "a49daf283ff26162e6be7d031de18c79869772b48ed34b40c6a80b98ed427f39",
+      "contentHash": "84c9d14e779fbd0ed3df8480b8e7ab2c35dc431aef9710b7aee071b9d9544982",
       "id": "guide:02-packs-and-licenses",
       "kind": "guide",
       "path": "entries/guide.02-packs-and-licenses.json",
       "publicUrl": "https://orionfold.com/relay/docs/use-packs-and-licenses/",
       "sourceHash": "e73614e6a35cc4e360a712fc19c05489189ec7cce660468ced6b88786ec21aa1",
-      "sourceStateHash": "253df2d9a31a36a7a15d5d26c56eb1d3c1889fcbca4010e4b6f8b87001cfcbe1",
+      "sourceStateHash": "2d68c12278cefd2c1628cea8ed753d043ead42573a09a43471dcef868290204a",
       "title": "Use Packs And Licenses"
     },
     {
-      "contentHash": "d15ed906ffa5c5b1c24a967aa270e38df69a5fd9eaf89368664f89871b3db4bf",
+      "contentHash": "a97a978f0346d13ef7d1644c932bab9adf26894e80d3499de252abbee600757e",
       "id": "guide:03-customers-projects-tasks",
       "kind": "guide",
       "path": "entries/guide.03-customers-projects-tasks.json",
       "publicUrl": "https://orionfold.com/relay/docs/organize-customers-projects-and-tasks/",
-      "sourceHash": "87f4bd89bbb2cc8112116dee4b08225c0bf3d4a32e59cc89dfcb48b00d6e89d4",
-      "sourceStateHash": "f14b89ba6506e1be52dc87e70299ff404706fec37bb374fa6ab7d043494bb238",
+      "sourceHash": "3c95c5cd1f3b903d4cec7d5cefe4546fe6b653e4a880c11ae6db328cb266a16d",
+      "sourceStateHash": "624c35e43fd6a4cd040c81dbbc61e71b613012b576c0f8ee88e7952595338732",
       "title": "Organize Customers, Projects, And Tasks"
     },
     {
@@ -149,13 +149,13 @@
       "title": "Use Tables, Triggers, And Schedules"
     },
     {
-      "contentHash": "ff44c9dffa0ccfe547f11bc18943cbcfe25097f4907db9482f0dc017ad8d309c",
+      "contentHash": "33d199130b42a84900e5e4fb971ca7f7e5caf73f36b3321bd23757bea84875b7",
       "id": "guide:07-monitor-costs",
       "kind": "guide",
       "path": "entries/guide.07-monitor-costs.json",
       "publicUrl": "https://orionfold.com/relay/docs/watch-runs-costs-and-budget-signals/",
       "sourceHash": "59127a4919218e95ebc312704e1a2ed0a9b284dc65bf77c5b9a96024d55974d2",
-      "sourceStateHash": "7b77b33c407aa94e0b9a5c6f57c143bc845eecfb6e9b5b2400e14d278c9dcc1f",
+      "sourceStateHash": "c25685297c0e4065401c4ad596787465bf209e1f517bee0098a392178eb06d4a",
       "title": "Watch Runs, Costs, And Budget Signals"
     },
     {
@@ -169,20 +169,20 @@
       "title": "Build And Publish A Small Website"
     },
     {
-      "contentHash": "7b802d3983d753582c720d9a0d257406de522af5819ae497b5e8f1388d3aba15",
+      "contentHash": "9123cf24d13794710f920416ec4804fff0e0045810f3ebd454742a1167d430f6",
       "id": "guide:09-settings-trust",
       "kind": "guide",
       "path": "entries/guide.09-settings-trust.json",
       "publicUrl": "https://orionfold.com/relay/docs/set-trust-runtime-and-local-controls/",
-      "sourceHash": "5f82d24ae7fe3ccd9c4ed7e579a73e44313f243cf1b7fab163fe1edd331dca35",
-      "sourceStateHash": "dfef175a0ac5cb2c2ed8e145ecc3b9df8883d9e3860f520448e376d79a2f5be8",
+      "sourceHash": "256c5c514c57203e12261d250f343dcab33e0213a31fd4ddd82799768b54e8f6",
+      "sourceStateHash": "ebcd1c940498c6d58640ae85a58302156d4ea6b963089599f673589cf76ab0e8",
       "title": "Set Trust, Runtime, And Local Controls"
     }
   ],
   "entryCount": 17,
-  "indexHash": "815bd60f767c5923845066fcdcd3b2acd4d988c8ec63004a7ccfaac48af41ad1",
-  "releaseVersion": "0.44.5",
+  "indexHash": "b840e155a1f53de4cb5e304edd3ead47803adff3910150dd3115db510e428da7",
+  "releaseVersion": "0.44.6",
   "schemaVersion": 2,
   "sectionCount": 450,
-  "sourceBundleHash": "8a0b3dcda6c74f0dbb1f3934b006442b4a7816f0e33f3212c092cbb0a1d784ba"
+  "sourceBundleHash": "42cdb446ccd18dd71f04c1989d87dba04a495d211247349739d06f2c48d67cbc"
 }

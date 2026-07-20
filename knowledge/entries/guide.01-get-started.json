@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "6f98ddf9e5227dca9e89ca9cd6814c79401b9bebd44abdd2c666ab58495210ec",
+  "contentHash": "ee399499380207614eaa624c184a79aeff2b6eff6e860fc2059adaed8f294764",
   "features": [
     "Command palette and navigation",
     "Dashboard and settings drill-downs",
@@ -62,7 +62,7 @@
       "id": "settings-host-deployment",
       "path": "dark/settings/settings-host-deployment__desktop.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "7b54e02c32d7d740a7ae3051f2fdc72fc45e8687317f97ca7be68a48fa9a38c8",
+      "sha256": "c026ecd01d2a99b5d99b67949038fcd627329ebc701da4a971d4682985ed5ac1",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -70,7 +70,7 @@
       "id": "settings-host-deployment",
       "path": "dark/settings/settings-host-deployment__mobile.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "158c9ab6e721410c6e27b88a8e7a1af4422f372c72a4d8ca9a0216a610937708",
+      "sha256": "f7224610c0f30bf44fac93dfde663fb1682efc5a5c82e5fe4ec97ffae1e0d27b",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -158,7 +158,7 @@
       "id": "settings-host-deployment",
       "path": "light/settings/settings-host-deployment__desktop.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "4c4374250183d53b2fa28c65c5b130b510ae359daff7ef34338b4723b3f4a323",
+      "sha256": "40c1c2d2145dd9cc3309d499f0118a0ce77e03e04b274fa252a30f4140ab95fd",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -166,7 +166,7 @@
       "id": "settings-host-deployment",
       "path": "light/settings/settings-host-deployment__mobile.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "c799e892c999f33db78a84c5f9651305a9b52a16739fa38933279cd9abccf79d",
+      "sha256": "bb81d837910f66dd63457236c1d207c4abb050ec09e8b80761559db19ce21f03",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -279,7 +279,7 @@
   ],
   "sourceHash": "3bbd9362d6a2b486d9c5ac5a7e31a9796a46fe65bf2f3df97dc170137ca3bafb",
   "sourcePath": "docs/guides/01-get-started-with-relay.md",
-  "sourceStateHash": "051114b8d6917ac58ac22fac7b43a8f649c9de0c718698e5007df74c2de26470",
+  "sourceStateHash": "e0e6b6135186b81affc759a11d6d8cf8eb5e4420ca2bf0bde0ce65dd89335a79",
   "summary": "Help a new reader start Relay, understand the local app, and know where to look first.",
   "title": "Get Started With Relay"
 }

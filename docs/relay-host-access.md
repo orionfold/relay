@@ -62,10 +62,10 @@ route around that ingress.
   receipts contain named reason codes rather than secrets or customer content.
 - Relay's internal HTTP calls use a per-process token accepted only on loopback.
 
-One Cell still serves one customer organization. The current implementation
-supplies the Cell-side hostname/path assertion. The pre-release paid Host supervisor and
-actual multi-Cell router remain G-083 work; do not present G-081 alone as a
-Fleet Controller or completed managed-Host product.
+One Cell still serves one customer organization. The Host supervisor controls
+only Cells resident on its machine; it is not a Fleet Controller. For the
+validated customer-owned server topology, follow
+[Run a Relay Host on DigitalOcean](./digitalocean-relay-host.md).
 
 To return to laptop-only operation, restart on loopback with
 `--exposure-profile trusted-local`. Existing access data remains intact but is

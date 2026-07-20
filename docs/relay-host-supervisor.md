@@ -176,6 +176,8 @@ license changes admission without mutating existing Cells.
 - G-083 exposes no TCP or browser lifecycle API. G-084 must call this domain
   without bypassing its admission, state, and receipt contracts.
 
-See [Relay Host fulfillment](./relay-host-fulfillment.md), [Cell OCI acquisition
+For the validated customer-owned server topology, follow
+[Run a Relay Host on DigitalOcean](./digitalocean-relay-host.md). See
+[Relay Host fulfillment](./relay-host-fulfillment.md), [Cell OCI acquisition
 and verification](./relay-cell-oci-release.md), [Host ingress and administrator
 access](./relay-host-access.md), and [encrypted Cell recovery](./relay-cell-recovery.md).

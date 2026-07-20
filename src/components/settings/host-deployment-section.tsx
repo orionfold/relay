@@ -216,10 +216,25 @@ export function HostDeploymentSection() {
               title="Cloud server preview"
               icon={<Cloud className="h-5 w-5" aria-hidden="true" />}
               description="Exercise the cloud plan with a deterministic fake provider. It creates no VM, bill, DNS record or provider credential."
-              facts={["Simulation only in G-084", "Real DigitalOcean provisioning is G-085", "Use separate VMs for mutually hostile tenants"]}
+              facts={["Planning simulation only", "No cloud account changes", "Use separate VMs for mutually hostile tenants"]}
               disabled={Boolean(view.host)}
               onSelect={() => setDraft({ ...draft, placement: "cloud_preview", regionRef: "sfo3", exposure: "tailnet", backupProfile: "weekly_provider" })}
             />
+          </div>
+          <div className="surface-card-muted rounded-lg border p-4 text-sm">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="flex items-center gap-2 font-medium"><Cloud className="h-4 w-4" aria-hidden="true" />DigitalOcean guided beta</p>
+                <p className="mt-1 text-muted-foreground">Run one licensed Relay Host on your own Ubuntu Droplet using the validated manual guide. You own the cloud account, bill, DNS, backups, keys and administration.</p>
+              </div>
+              <Badge variant="success">Validated topology</Badge>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs text-muted-foreground">Proven baseline: 2 vCPU · 4 GiB RAM · 80 GiB disk · authenticated HTTPS. Relay does not request a provider token or create the Droplet.</p>
+              <a href="https://github.com/orionfold/relay/blob/main/docs/digitalocean-relay-host.md" target="_blank" rel="noreferrer" className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary underline underline-offset-2">
+                Open DigitalOcean guide <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" /><span className="sr-only">opens in new tab</span>
+              </a>
+            </div>
           </div>
           <div className="rounded-lg border border-status-warning/40 bg-status-warning/10 p-3 text-sm">
             <p className="flex items-center gap-2 font-medium"><ShieldCheck className="h-4 w-4" aria-hidden="true" />Host administrator trust</p>
@@ -300,7 +315,7 @@ export function HostDeploymentSection() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 id="host-deploy-actions-heading" className="text-base font-semibold">Preflight, authorize and install</h3>
-                <p className="text-sm text-muted-foreground">No provider token is requested or stored by this local/fake-provider release.</p>
+                <p className="text-sm text-muted-foreground">These actions configure this Relay installation or its planning simulation. They never create a cloud VM or request a provider token.</p>
               </div>
               <Badge variant={view.runtimeMode === "preview" ? "outline" : "secondary"}>{view.runtimeMode === "preview" ? "Preview runtime" : "Signed Docker runtime"}</Badge>
             </div>

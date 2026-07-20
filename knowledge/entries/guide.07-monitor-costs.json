@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "ff44c9dffa0ccfe547f11bc18943cbcfe25097f4907db9482f0dc017ad8d309c",
+  "contentHash": "33d199130b42a84900e5e4fb971ca7f7e5caf73f36b3321bd23757bea84875b7",
   "features": [
     "Cost and Usage",
     "Customers and spend attribution",
@@ -115,7 +115,7 @@
       "id": "settings-host-deployment",
       "path": "dark/settings/settings-host-deployment__desktop.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "7b54e02c32d7d740a7ae3051f2fdc72fc45e8687317f97ca7be68a48fa9a38c8",
+      "sha256": "c026ecd01d2a99b5d99b67949038fcd627329ebc701da4a971d4682985ed5ac1",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -123,7 +123,7 @@
       "id": "settings-host-deployment",
       "path": "dark/settings/settings-host-deployment__mobile.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "158c9ab6e721410c6e27b88a8e7a1af4422f372c72a4d8ca9a0216a610937708",
+      "sha256": "f7224610c0f30bf44fac93dfde663fb1682efc5a5c82e5fe4ec97ffae1e0d27b",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -275,7 +275,7 @@
       "id": "settings-host-deployment",
       "path": "light/settings/settings-host-deployment__desktop.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "4c4374250183d53b2fa28c65c5b130b510ae359daff7ef34338b4723b3f4a323",
+      "sha256": "40c1c2d2145dd9cc3309d499f0118a0ce77e03e04b274fa252a30f4140ab95fd",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -283,7 +283,7 @@
       "id": "settings-host-deployment",
       "path": "light/settings/settings-host-deployment__mobile.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "c799e892c999f33db78a84c5f9651305a9b52a16739fa38933279cd9abccf79d",
+      "sha256": "bb81d837910f66dd63457236c1d207c4abb050ec09e8b80761559db19ce21f03",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -412,7 +412,7 @@
   ],
   "sourceHash": "59127a4919218e95ebc312704e1a2ed0a9b284dc65bf77c5b9a96024d55974d2",
   "sourcePath": "docs/guides/07-watch-runs-costs-and-budget-signals.md",
-  "sourceStateHash": "7b77b33c407aa94e0b9a5c6f57c143bc845eecfb6e9b5b2400e14d278c9dcc1f",
+  "sourceStateHash": "c25685297c0e4065401c4ad596787465bf209e1f517bee0098a392178eb06d4a",
   "summary": "Teach the reader how to audit what ran, what it cost, and where to tune the setup.",
   "title": "Watch Runs, Costs, And Budget Signals"
 }

@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "a49daf283ff26162e6be7d031de18c79869772b48ed34b40c6a80b98ed427f39",
+  "contentHash": "84c9d14e779fbd0ed3df8480b8e7ab2c35dc431aef9710b7aee071b9d9544982",
   "features": [
     "Current bundled pack families",
     "Offline license lifecycle",
@@ -81,7 +81,7 @@
       "id": "settings-host-deployment",
       "path": "dark/settings/settings-host-deployment__desktop.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "7b54e02c32d7d740a7ae3051f2fdc72fc45e8687317f97ca7be68a48fa9a38c8",
+      "sha256": "c026ecd01d2a99b5d99b67949038fcd627329ebc701da4a971d4682985ed5ac1",
       "theme": "dark",
       "viewport": "desktop"
     },
@@ -89,7 +89,7 @@
       "id": "settings-host-deployment",
       "path": "dark/settings/settings-host-deployment__mobile.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "158c9ab6e721410c6e27b88a8e7a1af4422f372c72a4d8ca9a0216a610937708",
+      "sha256": "f7224610c0f30bf44fac93dfde663fb1682efc5a5c82e5fe4ec97ffae1e0d27b",
       "theme": "dark",
       "viewport": "mobile"
     },
@@ -177,7 +177,7 @@
       "id": "settings-host-deployment",
       "path": "light/settings/settings-host-deployment__desktop.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "4c4374250183d53b2fa28c65c5b130b510ae359daff7ef34338b4723b3f4a323",
+      "sha256": "40c1c2d2145dd9cc3309d499f0118a0ce77e03e04b274fa252a30f4140ab95fd",
       "theme": "light",
       "viewport": "desktop"
     },
@@ -185,7 +185,7 @@
       "id": "settings-host-deployment",
       "path": "light/settings/settings-host-deployment__mobile.png",
       "productRoute": "/settings#settings-host-deployment",
-      "sha256": "c799e892c999f33db78a84c5f9651305a9b52a16739fa38933279cd9abccf79d",
+      "sha256": "bb81d837910f66dd63457236c1d207c4abb050ec09e8b80761559db19ce21f03",
       "theme": "light",
       "viewport": "mobile"
     },
@@ -282,7 +282,7 @@
   ],
   "sourceHash": "e73614e6a35cc4e360a712fc19c05489189ec7cce660468ced6b88786ec21aa1",
   "sourcePath": "docs/guides/02-use-packs-and-licenses.md",
-  "sourceStateHash": "253df2d9a31a36a7a15d5d26c56eb1d3c1889fcbca4010e4b6f8b87001cfcbe1",
+  "sourceStateHash": "2d68c12278cefd2c1628cea8ed753d043ead42573a09a43471dcef868290204a",
   "summary": "Explain what packs are, how to install or update them, and how license state affects premium pack actions.",
   "title": "Use Packs And Licenses"
 }

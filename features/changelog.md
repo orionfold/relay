@@ -2,6 +2,16 @@
 
 ## 2026-07-20
 
+### Started
+
+- `guided-digitalocean-beta` (G-105) — selected the bounded guided beta rather
+  than docs-only closure or one-click expansion. The goal owns release of the
+  G-085 fixes, accurate Settings guidance, the G-104 production-login brand
+  repair, a customer DigitalOcean runbook, strict `_ASSETS` reconciliation and
+  a fresh public-artifact DigitalOcean receipt before Website G-047 launch.
+  Provider credentials/spend, push/tag/publish and Website launch remain
+  separately operator-gated.
+
 ### Completed
 
 - `digitalocean-relay-host-conformance` (G-085) — accepted a same-session paid

@@ -117,6 +117,11 @@ exchange, revocable browser sessions, recovery codes, exact-origin mutation
 checks, rate limits, and content-free access receipts. See
 [Relay Host ingress and administrator access](docs/relay-host-access.md).
 
+Licensed Host customers can also run the validated manual beta on their own
+DigitalOcean Droplet. Relay never requests a provider token or creates the VM;
+the customer owns the account, bill, DNS, keys, backups and administration. See
+[Run a Relay Host on DigitalOcean](docs/digitalocean-relay-host.md).
+
 Customer-owned encrypted recovery is separate from login recovery codes. Relay
 can create and verify an off-Host Cell bundle containing the database, access
 state, files, settings, license data, and local secret root without giving

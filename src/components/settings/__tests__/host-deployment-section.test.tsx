@@ -63,6 +63,14 @@ describe("HostDeploymentSection", () => {
     expect(screen.getByRole("heading", { name: "Relay Host deployment" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Local device/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Cloud server preview/ })).toBeInTheDocument();
+    expect(screen.getByText("DigitalOcean guided beta")).toBeInTheDocument();
+    expect(screen.getByText(/Proven baseline: 2 vCPU/)).toBeInTheDocument();
+    const guide = screen.getByRole("link", { name: /Open DigitalOcean guide.*opens in new tab/ });
+    expect(guide).toHaveAttribute("href", "https://github.com/orionfold/relay/blob/main/docs/digitalocean-relay-host.md");
+    expect(guide).toHaveAttribute("target", "_blank");
+    expect(guide).toHaveAttribute("rel", "noreferrer");
+    expect(screen.getByText(/Relay does not request a provider token or create the Droplet/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Cloud server preview/ })).toHaveTextContent("Planning simulation only");
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "16.666666666666664");
     expect(screen.getByText(/Host administrator can inspect every resident Cell/)).toBeInTheDocument();
     expect(screen.getByText(/Managed Host automation is paid-license gated/)).toBeInTheDocument();
