@@ -7,7 +7,7 @@ import { GET, POST } from "../route";
 
 // Exercise the last accepted release authority while a newer Cell candidate
 // is being built; npm publication separately fails closed on version parity.
-vi.mock("@/lib/config/version", () => ({ relayProductVersion: () => "0.44.3" }));
+vi.mock("@/lib/config/version", () => ({ relayProductVersion: () => "0.44.5" }));
 
 let root: string;
 
