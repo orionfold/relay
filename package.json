@@ -1,6 +1,6 @@
 {
   "name": "orionfold-relay",
-  "version": "0.44.4",
+  "version": "0.44.5",
   "description": "Orionfold Relay — a local-first, multi-agent orchestration runtime and builder scaffold for AI-native work.",
   "keywords": [
     "ai",
@@ -87,6 +87,7 @@
     "test:relay-host": "node --test scripts/relay-host-manifest.test.mjs scripts/relay-host-artifact-policy.test.mjs && vitest run src/lib/host/__tests__/cell-shutdown.test.ts src/lib/host/supervisor/__tests__ src/lib/licensing/__tests__/host-entitlement.test.ts src/lib/host-ingress/__tests__ src/lib/recovery/__tests__/recovery.test.ts src/app/api/health/__tests__/routes.test.ts src/lib/documents/processors/__tests__/pdf.test.ts",
     "test:relay-cell-publication": "node --test scripts/relay-cell-publication.test.mjs",
     "check:relay-cell-publication": "node scripts/check-relay-cell-publication.mjs",
+    "check:host-cell-release-authority": "node scripts/check-host-cell-release-authority.mjs",
     "relay-cell:publication:dry-run": "node scripts/relay-cell-publication-dry-run.mjs",
     "check:relay-npm-closure": "node scripts/measure-relay-npm-closure.mjs",
     "check:install-debt": "node scripts/check-install-dependency-debt.mjs",

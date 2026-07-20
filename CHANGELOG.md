@@ -8,6 +8,18 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.44.5] — 2026-07-19
+
+### Fixed
+
+- **Host and Cell releases now follow an explicit two-stage publication
+  sequence.** The OCI candidate can run release quality checks before its new
+  digest exists, while npm publication fails closed unless the package version
+  is bound to the matching signed Cell tag and immutable digest.
+- **The npm release smoke retries its secure-LAN cross-origin probe until the
+  production listener answers.** This carries forward the unpublished
+  corrective `0.44.4` fix without moving either immutable failed release tag.
+
 ## [0.44.4] — 2026-07-19
 
 ### Fixed

@@ -1,11 +1,15 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { writeHostLicense, ACTIVE_NOW } from "@/lib/host/supervisor/__tests__/helpers";
 import { signEnvelope } from "@/lib/licensing/__tests__/sign-helper";
 import { RelayHostError } from "@/lib/host/supervisor/errors";
 import { HostDeploymentService } from "../service";
+
+// See artifact.test.ts: candidate Cell publication necessarily precedes the
+// matching digest authority committed for the npm release.
+vi.mock("@/lib/config/version", () => ({ relayProductVersion: () => "0.44.3" }));
 
 const roots: string[] = [];
 function fixture(options: { licensed?: boolean; managedCells?: number } = {}) {

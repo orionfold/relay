@@ -1,5 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { currentRelayCellRelease } from "../artifact";
+
+// Cell images are published before their digest can be bound into the matching
+// npm release. Keep this unit fixture on the last accepted authority; the npm
+// workflow owns the fail-closed package-version parity guard.
+vi.mock("@/lib/config/version", () => ({ relayProductVersion: () => "0.44.3" }));
 
 describe("Relay Cell release authority", () => {
   it("binds the current Relay version to the accepted immutable public digest", () => {

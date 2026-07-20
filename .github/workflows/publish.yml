@@ -119,6 +119,9 @@ jobs:
           fi
           echo "Publishing orionfold-relay@$PKG"
 
+      - name: Guard — matching published Relay Cell authority is bundled
+        run: npm run check:host-cell-release-authority
+
       - name: Guard — public tracked tree and source archive
         run: |
           npm run test:public-boundary

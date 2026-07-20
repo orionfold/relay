@@ -32,9 +32,29 @@ Settings → **Publishing access** → *"Require two-factor authentication and d
 tokens"* — this makes OIDC the ONLY way to publish (kills the throwaway-token path
 for good). Do this only after verifying a release works end-to-end.
 
-## Every release (after setup)
+## Every Host/Cell release (after setup)
 
-From a clean, pushed `main`:
+Relay Cell must be published first because the immutable OCI digest does not
+exist until the registry accepts the audited image. The npm package is the Host
+release authority: it must bundle that exact digest before it can publish.
+Never move either tag to resolve this ordering.
+
+1. On clean, pushed `main`, bump `package.json`, `package-lock.json`, and the
+   knowledge manifest to the intended version. Keep
+   `relay-cell-release.json` on the last accepted release for this candidate
+   commit.
+2. Tag that commit `cell-vX.Y.Z` and push the tag. Wait for the signed,
+   multi-platform GHCR publication to pass, then record its immutable index
+   digest and publication receipt.
+3. Update `relay-cell-release.json` to `X.Y.Z`, the exact `cell-vX.Y.Z` source
+   tag, and the accepted digest. Update the authority tests, run the release
+   gates, and commit the binding.
+4. Tag that later commit `vX.Y.Z` and push it. The npm workflow verifies the
+   package/tag match and independently fails closed if the bundled Cell
+   authority does not match.
+
+For npm-only releases made before Host/Cell coupling, the historical shorthand
+was:
 
 ```bash
 npm version patch          # or: minor / major — bumps package.json + tags vX.Y.Z
