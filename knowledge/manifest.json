@@ -1,5 +1,5 @@
 {
-  "bundleHash": "fb6d2533eb8eda5cef3ed824b50f368528179ade4bd22d73537ff9c9de069d5d",
+  "bundleHash": "006167967c59dbd324d250140b2b5c27ce9590fb4d88582d514710953d2648d3",
   "corpus": {
     "apiDocsVersion": "2026-07-08.initial-plan",
     "apiTrackerHash": "1d31b3ffd1895b0b2e4e996867235fe6274ad552d4ef35c33646f28e5e677e0b",
@@ -181,7 +181,7 @@
   ],
   "entryCount": 17,
   "indexHash": "b840e155a1f53de4cb5e304edd3ead47803adff3910150dd3115db510e428da7",
-  "releaseVersion": "0.44.7",
+  "releaseVersion": "0.44.9",
   "schemaVersion": 2,
   "sectionCount": 450,
   "sourceBundleHash": "42cdb446ccd18dd71f04c1989d87dba04a495d211247349739d06f2c48d67cbc"
