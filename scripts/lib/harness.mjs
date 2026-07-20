@@ -62,6 +62,21 @@ export async function waitForHttpOk(url, timeoutMs) {
   throw new Error(`Timed out waiting for ${url} to return HTTP 200 (last: ${lastError})`);
 }
 
+/** Poll until a URL returns any HTTP response, preserving the caller's request. */
+export async function waitForHttpResponse(url, timeoutMs, init = {}) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError = "no response yet";
+  while (Date.now() < deadline) {
+    try {
+      return await fetch(url, { redirect: "follow", ...init });
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+    }
+    await sleep(500);
+  }
+  throw new Error(`Timed out waiting for ${url} to return an HTTP response (last: ${lastError})`);
+}
+
 /** Poll a getOutput() accumulator until `pattern` matches or the deadline. */
 export async function waitForOutput(getOutput, pattern, timeoutMs, label) {
   const deadline = Date.now() + timeoutMs;

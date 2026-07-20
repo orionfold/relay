@@ -50,6 +50,7 @@ import {
   runCliCommand,
   stopChild,
   waitForHttpOk,
+  waitForHttpResponse,
   waitForOutput,
 } from "./lib/harness.mjs";
 // Publish-gate price-drift check (relay-channel later-12): the pack's
@@ -161,12 +162,19 @@ async function main() {
       // request for a dev asset. In dev mode Next's origin gate blocks this
       // class (#13 et al.); `next start` must serve it. The TCP probe uses
       // loopback because 192.168.99.99 is a synthetic browser-visible origin.
-      const crossOrigin = await fetch(`http://127.0.0.1:${port}${productionAssetPath}`, {
-        headers: {
-          Origin: publicOrigin,
-          Referer: `${publicOrigin}/`,
+      // The CLI prints its production banner before spawning `next start`, so
+      // retry this exact authorized request until the listener answers. A real
+      // HTTP rejection is returned immediately for the assertion below.
+      const crossOrigin = await waitForHttpResponse(
+        `http://127.0.0.1:${port}${productionAssetPath}`,
+        PROD_START_TIMEOUT_MS,
+        {
+          headers: {
+            Origin: publicOrigin,
+            Referer: `${publicOrigin}/`,
+          },
         },
-      });
+      );
       assert(
         crossOrigin.status === 200,
         `cross-origin /_next/* must serve in production (got ${crossOrigin.status})`,

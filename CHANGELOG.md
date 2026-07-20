@@ -8,6 +8,17 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.44.4] — 2026-07-19
+
+### Fixed
+
+- **The npm release smoke now retries its secure-LAN cross-origin probe until
+  the production listener answers.** Relay prints its production banner before
+  spawning `next start`; the prior one-shot fetch could therefore race server
+  startup on a slower runner and abort an otherwise healthy release before npm
+  publication. A real HTTP response is still asserted immediately, preserving
+  the configured origin-security check.
+
 ## [0.44.3] — 2026-07-18
 
 ### Added
