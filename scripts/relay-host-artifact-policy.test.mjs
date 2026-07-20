@@ -313,8 +313,13 @@ test("compares exact runtime filesystem semantics independently of OCI metadata"
   };
   assert.equal(compareBuildSemantics(primary, { ...primary }).status, "pass");
   assert.throws(
-    () => compareBuildSemantics(primary, { ...primary, fileCount: 3 }),
-    (error) => error.code === "BUILD_SEMANTIC_MISMATCH",
+    () => compareBuildSemantics(
+      { ...primary, paths: ["app/cached.js", "app/shared.js"] },
+      { ...primary, fileCount: 3, paths: ["app/no-cache.js", "app/shared.js"] },
+    ),
+    (error) => error.code === "BUILD_SEMANTIC_MISMATCH"
+      && error.details.pathDiff.onlyCached[0] === "app/cached.js"
+      && error.details.pathDiff.onlyNoCache[0] === "app/no-cache.js",
   );
   assert.equal(
     compareBuildSemantics(primary, {

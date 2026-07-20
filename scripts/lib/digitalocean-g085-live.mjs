@@ -105,9 +105,9 @@ if ! cosign version 2>/dev/null | grep -q "GitVersion:[[:space:]]*v${cosignVersi
   sudo install -m 0755 cosign-linux-amd64 /usr/local/bin/cosign
 fi
 
-# Relay 0.44.5 invokes GitHub CLI's API-backed verifier, which requires a
-# GitHub login even for a public image. Keep this immutable release customer-
-# identical while mapping only that call to anonymous Cosign SLSA verification.
+# Relay invokes GitHub CLI's API-backed verifier, which requires a GitHub login
+# even for a public image. Keep the immutable release customer-identical while
+# mapping only that call to anonymous Cosign SLSA verification.
 if [ ! -x /usr/local/bin/gh-real ]; then sudo mv /usr/local/bin/gh /usr/local/bin/gh-real; fi
 sudo tee /usr/local/bin/gh >/dev/null <<'GHCOMPAT'
 #!/bin/sh
@@ -122,9 +122,9 @@ exec /usr/local/bin/gh-real "$@"
 GHCOMPAT
 sudo chmod 0755 /usr/local/bin/gh
 
-# Relay 0.44.5's ownership normalizer keeps the Cell root mode 0700 but grants
-# CHOWN alone. Add only the read/search capability to that one networkless,
-# read-only helper invocation; normal Cell containers remain cap-drop ALL.
+# Relay's ownership normalizer keeps the Cell root mode 0700 but grants CHOWN
+# alone. Add only the read/search capability to that one networkless, read-only
+# helper invocation; normal Cell containers remain cap-drop ALL.
 sudo tee /usr/local/bin/docker >/dev/null <<'DOCKERCOMPAT'
 #!/bin/sh
 if [ "$1" = "run" ]; then
@@ -249,6 +249,16 @@ export function rollbackCellManifest(state, cellId, port) {
     imageDigest: digest,
   };
   return manifest;
+}
+
+export function g085LiveReleaseVersions(state) {
+  if (!SEMVER.test(state?.plan?.relayVersion ?? "")) {
+    fail("G085_LIVE_STATE_INVALID", "G-085 live work requires an exact Relay release version.");
+  }
+  return {
+    replacementVersion: state.plan.relayVersion,
+    rollbackVersion: G085_LIVE_PROFILE.priorRelayVersion,
+  };
 }
 
 export function redactLiveReceipt(value) {

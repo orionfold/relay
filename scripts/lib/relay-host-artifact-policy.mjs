@@ -476,10 +476,18 @@ export function compareBuildSemantics(primary, control) {
     .filter((field) => primary[field] !== control[field])
     .map((field) => ({ field, primary: primary[field], control: control[field] }));
   if (mismatches.length > 0) {
+    const primaryPaths = new Set(primary.paths ?? []);
+    const controlPaths = new Set(control.paths ?? []);
     throw new RelayHostArtifactPolicyError(
       "BUILD_SEMANTIC_MISMATCH",
       "cached and clean no-cache builds produced different runtime filesystems",
-      { mismatches },
+      {
+        mismatches,
+        pathDiff: {
+          onlyCached: [...primaryPaths].filter((path) => !controlPaths.has(path)).slice(0, 50),
+          onlyNoCache: [...controlPaths].filter((path) => !primaryPaths.has(path)).slice(0, 50),
+        },
+      },
     );
   }
   return {

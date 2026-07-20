@@ -18,6 +18,7 @@ import {
   currentCellManifest,
   DigitalOceanG085LiveError,
   G085_LIVE_PROFILE,
+  g085LiveReleaseVersions,
   g085Hostname,
   loadG085ProviderState,
   redactLiveReceipt,
@@ -376,7 +377,8 @@ async function runTaskProof(context) {
   };
 }
 
-function recoveryScript() {
+function recoveryScript(context) {
+  const versions = g085LiveReleaseVersions(context.state);
   return `#!/usr/bin/env bash
 set -euo pipefail
 export RELAY_DATA_DIR=/srv/relay-host/data
@@ -418,7 +420,7 @@ ${hostCommand("stop")} --cell-id g085-rollback --operation-id g085-stop-rollback
 sudo chown -R relay:relay /srv/relay-host/supervisor/cells/g085-rollback/data
 ${hostCommand("purge")} --cell-id g085-rollback --confirm g085-rollback --operation-id g085-purge-rollback >/dev/null
 
-printf '{"status":"pass","bundleDigest":"sha256:%s","restoredMarker":"%s","replacementVersion":"${"0.44.5"}","rollbackVersion":"${G085_LIVE_PROFILE.priorRelayVersion}","rollbackImage":"%s"}\\n' \
+printf '{"status":"pass","bundleDigest":"sha256:%s","restoredMarker":"%s","replacementVersion":"${versions.replacementVersion}","rollbackVersion":"${versions.rollbackVersion}","rollbackImage":"%s"}\\n' \
   "$digest" "$restored_marker" ${JSON.stringify(G085_LIVE_PROFILE.priorCellImage)}
 `;
 }
@@ -436,7 +438,7 @@ async function conformance(context) {
     appendReceipt(context, "host-cell", { reasonCode: "G085_HOST_CELL_PASSED", ...lifecycle });
     const task = await runTaskProof(context);
     appendReceipt(context, "runtime-task", { reasonCode: "G085_RUNTIME_TASK_PASSED", ...task });
-    const recovery = jsonLine(sshRun(context, recoveryScript(), {
+    const recovery = jsonLine(sshRun(context, recoveryScript(context), {
       timeout: 1_800_000,
       code: "G085_RECOVERY_FAILED",
     }));

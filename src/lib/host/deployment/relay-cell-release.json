@@ -1,8 +1,8 @@
 {
   "schema": "orionfold.relay-cell-release/v1",
-  "relayVersion": "0.44.5",
+  "relayVersion": "0.44.7",
   "imageRepository": "ghcr.io/orionfold/relay-cell",
-  "imageDigest": "sha256:caaa02dbb8c719b1274a5bff9084e69ffe40b17aef35323ac9666eada8dd1bd6",
-  "publishedAt": "2026-07-20T04:29:09Z",
-  "sourceTag": "cell-v0.44.5"
+  "imageDigest": "sha256:1dd381ce3a7a9a62ff2d94a7826c37a5fee5a78af33bb18d9a2c209b2b8efd8f",
+  "publishedAt": "2026-07-20T08:26:15Z",
+  "sourceTag": "cell-v0.44.7"
 }

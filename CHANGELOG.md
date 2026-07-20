@@ -8,6 +8,29 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.44.7] — 2026-07-20
+
+### Added
+
+- **Relay Host now has a guided DigitalOcean beta path.** Settings separates
+  the validated customer-owned Droplet topology from the planning-only cloud
+  simulation, and the versioned guide covers account guardrails, authenticated
+  HTTPS, first-admin setup, licensing, managed Cells, private runtimes,
+  recovery, rollback, updates, troubleshooting, and exact teardown.
+
+### Fixed
+
+- **Remote Host installation and cleanup now pass the customer-owned provider
+  contract.** Anonymous public provenance verification, mode-0700 managed-Cell
+  ownership normalization, and non-root purge behavior fail visibly and retain
+  digest authority.
+- **The Orionfold mark is bundled into production output.** Remote login and
+  authenticated shell branding no longer depend on the process working
+  directory exposing checkout-local public paths.
+- **Clean release checkouts understand imported static assets.** The tracked
+  Next image type declaration prevents a release-only TypeScript failure while
+  preserving the generated `next-env.d.ts` boundary.
+
 ## [0.44.5] — 2026-07-19
 
 ### Fixed

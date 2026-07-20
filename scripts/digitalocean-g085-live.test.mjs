@@ -6,6 +6,7 @@ import test from "node:test";
 import {
   buildG085BootstrapScript,
   currentCellManifest,
+  g085LiveReleaseVersions,
   g085Hostname,
   loadG085ProviderState,
   redactLiveReceipt,
@@ -66,6 +67,16 @@ test("current and rollback manifests retain exact digest authority", () => {
   assert.equal(rollback.artifact.version, "0.44.3");
   assert.match(rollback.artifact.imageReference, /@sha256:[a-f0-9]{64}$/);
   assert.equal(rollback.origin, "restore_new");
+});
+
+test("live recovery evidence follows the release requested by provider state", () => {
+  assert.deepEqual(g085LiveReleaseVersions(state()), {
+    replacementVersion: "0.44.5",
+    rollbackVersion: "0.44.3",
+  });
+  const invalid = state();
+  invalid.plan.relayVersion = "latest";
+  assert.throws(() => g085LiveReleaseVersions(invalid), { code: "G085_LIVE_STATE_INVALID" });
 });
 
 test("live receipts recursively redact every credential class", () => {
