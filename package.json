@@ -85,6 +85,7 @@
     "test:harness-safety": "node scripts/test-harness-safety.mjs",
     "test:runtime-graph": "node scripts/runtime-module-graph-smoke.mjs",
     "test:relay-host": "node --test scripts/relay-host-manifest.test.mjs scripts/relay-host-artifact-policy.test.mjs && vitest run src/lib/host/__tests__/cell-shutdown.test.ts src/lib/host/supervisor/__tests__ src/lib/licensing/__tests__/host-entitlement.test.ts src/lib/host-ingress/__tests__ src/lib/recovery/__tests__/recovery.test.ts src/app/api/health/__tests__/routes.test.ts src/lib/documents/processors/__tests__/pdf.test.ts",
+    "test:digitalocean-g085": "node --test scripts/digitalocean-g085.test.mjs scripts/digitalocean-g085-live.test.mjs",
     "test:relay-cell-publication": "node --test scripts/relay-cell-publication.test.mjs",
     "check:relay-cell-publication": "node scripts/check-relay-cell-publication.mjs",
     "check:host-cell-release-authority": "node scripts/check-host-cell-release-authority.mjs",

@@ -54,14 +54,20 @@ cosign verify "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST" \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
   --certificate-identity-regexp '^https://github\.com/orionfold/relay/\.github/workflows/publish-relay-cell\.yml@refs/tags/cell-v[0-9]+\.[0-9]+\.[0-9]+$'
 
-gh attestation verify \
-  "oci://ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST" \
-  --repo orionfold/relay
+cosign verify-attestation \
+  "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST" \
+  --type 'https://slsa.dev/provenance/v1' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+  --certificate-identity-regexp '^https://github\.com/orionfold/relay/\.github/workflows/publish-relay-cell\.yml@refs/tags/cell-v[0-9]+\.[0-9]+\.[0-9]+$'
 ```
 
-Cosign verifies that the digest was signed by Relay's exact protected release
-workflow under GitHub's OIDC issuer. GitHub attestation verification checks the
-stored provenance/SBOM subjects. Each platform has a CycloneDX SBOM attestation;
+Cosign verifies anonymously that the digest was signed by Relay's exact
+protected release workflow under GitHub's OIDC issuer and that its SLSA
+provenance attestation has the same authority. A managed Host therefore does not
+need a GitHub login merely to verify a public Cell. GitHub CLI's
+`gh attestation verify --bundle-from-oci` remains a valid optional operator
+inspection when an authenticated GitHub CLI session is already available; it
+is not a Host runtime dependency. Each platform has a CycloneDX SBOM attestation;
 the multi-platform index also has provenance and Relay compatibility evidence.
 If a signature, subject digest, issuer, identity, platform, or attestation is
 missing or different, stop instead of broadening the verification expression.

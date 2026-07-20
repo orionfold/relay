@@ -405,6 +405,7 @@ export class RelayHostSupervisor {
             { desiredState: "absent", health: "unknown" },
           );
           this.removeRuntimeGracefully(removing, host.hostId);
+          this.options.runtime.purgeData(removing);
           this.removeCellRoot(removing);
           this.options.registry.updateCellState(current.cellId, "removing", "purged", {
             desiredState: "absent",
@@ -413,6 +414,7 @@ export class RelayHostSupervisor {
           return;
         }
         this.removeRuntimeGracefully(removing, host.hostId);
+        this.options.runtime.purgeData(removing);
         this.removeCellRoot(removing);
         this.options.registry.updateCellState(
           current.cellId,
@@ -616,7 +618,10 @@ export class RelayHostSupervisor {
           );
         }
         this.removeRuntimeGracefully(cell, host.hostId);
-        if (operation.action === "purge") this.removeCellRoot(cell);
+        if (operation.action === "purge") {
+          this.options.runtime.purgeData(cell);
+          this.removeCellRoot(cell);
+        }
         this.options.registry.updateCellState(cell.cellId, expected, terminal, {
           desiredState: "absent",
           ...(operation.action === "purge" ? { checkpointRef: null } : {}),

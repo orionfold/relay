@@ -168,6 +168,9 @@ license changes admission without mutating existing Cells.
   the signed `product:relay-host` limit.
 - Commercial license, OCI authenticity, and registry access are independent
   checks. A license file is never a registry password.
+- Managed Cell creation requires Docker and Cosign on the Host. Cosign verifies
+  the public image signature and SLSA provenance anonymously against Relay's
+  exact protected release workflow; a GitHub login is not required.
 - Same-Host Cells trust the Host administrator. Customers that do not accept
   that trust require separate machines or VMs.
 - G-083 exposes no TCP or browser lifecycle API. G-084 must call this domain

@@ -1,5 +1,28 @@
 # Feature Changelog
 
+## 2026-07-20
+
+### Completed
+
+- `digitalocean-relay-host-conformance` (G-085) — accepted a same-session paid
+  SFO3 proof against public Relay `0.44.5` and the signed Cell index at
+  `sha256:caaa02dbb8c719b1274a5bff9084e69ffe40b17aef35323ac9666eada8dd1bd6`.
+  Authenticated HTTPS, ten-Cell admission and eleventh refusal, same-Host
+  isolation, retained/purge capacity, a private Ollama task, encrypted backup,
+  empty-root recovery, restart, rollback and export passed in a real browser and
+  runtime journey.
+- Fixed anonymous managed-Cell provenance verification, mode-0700 ownership
+  normalization and non-root Cell-data purge. Added a repeatable, resumable,
+  redacting DigitalOcean harness with deterministic provider tests and named
+  cleanup/cost receipts.
+- Removed the Droplet, volume, reserved IP, firewall, disposable SSH key, API
+  token and local key/environment credential. API and DigitalOcean browser
+  inventories were empty. Usage was under one hour and conservatively below
+  `$0.05`; the provider's daily bill remained `G085_COST_PENDING` at `$0.00`.
+  The accepted claim is a bounded single-DigitalOcean-Host beta after these
+  fixes ship—not Fleet control, provider portability, production model sizing,
+  or built-in one-click provisioning.
+
 ## 2026-07-19
 
 ### Completed

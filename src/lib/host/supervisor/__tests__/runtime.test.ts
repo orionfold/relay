@@ -72,15 +72,18 @@ describe("Host runtime adapters", () => {
     const runner = new RecordingRunner();
     const verifier = new KeylessRelayArtifactVerifier(runner);
     verifier.verify(record().artifact.imageReference);
-    expect(runner.calls.map((call) => call.command)).toEqual(["cosign", "gh"]);
+    expect(runner.calls.map((call) => call.command)).toEqual(["cosign", "cosign"]);
     expect(runner.calls[0].args).toContain("--certificate-oidc-issuer");
     expect(runner.calls[0].args.join(" ")).toContain("publish-relay-cell");
     expect(runner.calls[1].args).toEqual([
-      "attestation",
-      "verify",
-      `oci://${record().artifact.imageReference}`,
-      "--repo",
-      "orionfold/relay",
+      "verify-attestation",
+      record().artifact.imageReference,
+      "--type",
+      "https://slsa.dev/provenance/v1",
+      "--certificate-oidc-issuer",
+      "https://token.actions.githubusercontent.com",
+      "--certificate-identity-regexp",
+      "^https://github\\.com/orionfold/relay/\\.github/workflows/publish-relay-cell\\.yml@refs/tags/cell-v[0-9]+\\.[0-9]+\\.[0-9]+$",
     ]);
   });
 
@@ -105,6 +108,8 @@ describe("Host runtime adapters", () => {
       "ALL",
       "--cap-add",
       "CHOWN",
+      "--cap-add",
+      "DAC_READ_SEARCH",
       "--security-opt",
       "no-new-privileges",
       "--entrypoint",
@@ -128,6 +133,20 @@ describe("Host runtime adapters", () => {
     expect(create.args).toContain("256");
     expect(create.args).toContain(`type=bind,src=${cell.allocation.dataRoot},dst=/var/lib/relay`);
     expect(create.args).not.toContain("0.0.0.0:4101:3000");
+  });
+
+  it("purges Cell data through a networkless least-privilege helper", () => {
+    const runner = new RecordingRunner();
+    const runtime = new DockerHostRuntimeAdapter(runner, { verify: () => undefined });
+    const cell = record();
+    runtime.purgeData(cell);
+    expect(runner.calls).toHaveLength(1);
+    expect(runner.calls[0].command).toBe("docker");
+    expect(runner.calls[0].args).toContain("none");
+    expect(runner.calls[0].args).toContain("DAC_OVERRIDE");
+    expect(runner.calls[0].args).toContain("DAC_READ_SEARCH");
+    expect(runner.calls[0].args).toContain("no-new-privileges");
+    expect(runner.calls[0].args.at(-1)).toContain("fs.rmSync");
   });
 
   it("does not misreport a Docker command failure as a missing Cell", () => {

@@ -74,6 +74,7 @@ class PreviewHostRuntimeAdapter implements HostRuntimeAdapter {
   remove(cell: CellRecord): void {
     this.cells.delete(cell.cellId);
   }
+  purgeData(): void {}
   inspect(cell: CellRecord): RuntimeCellObservation {
     return this.cells.get(cell.cellId) ?? {
       ...this.observation(cell, false),

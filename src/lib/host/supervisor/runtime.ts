@@ -17,6 +17,7 @@ export interface HostRuntimeAdapter {
   start(cell: CellRecord): void;
   stop(cell: CellRecord): void;
   remove(cell: CellRecord, hostId: string): void;
+  purgeData(cell: CellRecord): void;
   inspect(cell: CellRecord, hostId: string): RuntimeCellObservation;
   inventory(hostId: string): RuntimeCellObservation[];
 }
@@ -104,6 +105,8 @@ export class FakeHostRuntimeAdapter implements HostRuntimeAdapter {
     this.cells.delete(cell.cellId);
   }
 
+  purgeData(): void {}
+
   inspect(cell: CellRecord, _hostId: string): RuntimeCellObservation {
     this.effect("inspect");
     return (
@@ -178,12 +181,15 @@ export class KeylessRelayArtifactVerifier implements RelayArtifactVerifier {
       "--certificate-identity-regexp",
       "^https://github\\.com/orionfold/relay/\\.github/workflows/publish-relay-cell\\.yml@refs/tags/cell-v[0-9]+\\.[0-9]+\\.[0-9]+$",
     ]);
-    this.runner.run("gh", [
-      "attestation",
-      "verify",
-      `oci://${imageReference}`,
-      "--repo",
-      "orionfold/relay",
+    this.runner.run("cosign", [
+      "verify-attestation",
+      imageReference,
+      "--type",
+      "https://slsa.dev/provenance/v1",
+      "--certificate-oidc-issuer",
+      "https://token.actions.githubusercontent.com",
+      "--certificate-identity-regexp",
+      "^https://github\\.com/orionfold/relay/\\.github/workflows/publish-relay-cell\\.yml@refs/tags/cell-v[0-9]+\\.[0-9]+\\.[0-9]+$",
     ]);
   }
 }
@@ -214,6 +220,8 @@ export class DockerHostRuntimeAdapter implements HostRuntimeAdapter {
       "ALL",
       "--cap-add",
       "CHOWN",
+      "--cap-add",
+      "DAC_READ_SEARCH",
       "--security-opt",
       "no-new-privileges",
       "--entrypoint",
@@ -298,6 +306,34 @@ export class DockerHostRuntimeAdapter implements HostRuntimeAdapter {
     if (this.networkExists(cell, hostId)) {
       this.runner.run("docker", ["network", "rm", cell.allocation.networkName]);
     }
+  }
+
+  purgeData(cell: CellRecord): void {
+    this.assertMountSource(cell.allocation.dataRoot);
+    this.runner.run("docker", [
+      "run",
+      "--rm",
+      "--user",
+      "0:0",
+      "--network",
+      "none",
+      "--read-only",
+      "--cap-drop",
+      "ALL",
+      "--cap-add",
+      "DAC_OVERRIDE",
+      "--cap-add",
+      "DAC_READ_SEARCH",
+      "--security-opt",
+      "no-new-privileges",
+      "--entrypoint",
+      DISTROLESS_NODE,
+      "--mount",
+      `type=bind,src=${cell.allocation.dataRoot},dst=/var/lib/relay`,
+      cell.artifact.imageReference,
+      "-e",
+      "const fs=require('node:fs');const path=require('node:path');for(const name of fs.readdirSync('/var/lib/relay'))fs.rmSync(path.join('/var/lib/relay',name),{recursive:true,force:true});",
+    ]);
   }
 
   inspect(cell: CellRecord, hostId: string): RuntimeCellObservation {

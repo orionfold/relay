@@ -121,7 +121,7 @@ mere architectural alignment:
 | G-030 | — | G-083/G-084 reuse retain-by-default versus separately confirmed purge semantics | immediate removal clarity and consistent destructive-language policy |
 | G-083 (accepted 2026-07-18) | G-079, G-080, G-081 and G-082 accepted | G-030 retention semantics; G-094 publication now accepted | npm-delivered paid local Host supervisor domain and stable Host/Cell lifecycle API |
 | G-084 | G-083 | G-020 freshness semantics; G-030 retention language | customer-visible local-device/cloud-Host lifecycle journey |
-| G-085 | G-084 | provider account, credentials, spend, hostname, security review and release approval | first DigitalOcean customer beta |
+| G-085 (accepted 2026-07-20) | G-084 | live SFO3 receipt used released `0.44.5`, a scoped disposable credential and same-session teardown; the three conformance fixes must ship before customer beta | first DigitalOcean single-Host conformance accepted; Website claim/launch response is next |
 | G-086 | G-085 plus demand trigger | second provider/hardware authorization; does not block a demand-validated G-085 beta | portability evidence required before GA portability claims |
 | G-073 | G-079 accepted; E0 research/spec and tranche approval remain | cloud-Host support conforms to G-081/G-082; connector workers, secrets and state remain inside one cell under G-083 | structured connector kernel and local-first connector value |
 | G-074 | G-073 shared kernel; G-079 accepted; research may overlap | cloud-Host support conforms to G-081/G-082; document content never enters Host registry | document connector value without a second connector platform |
@@ -161,7 +161,7 @@ improvements.
 | **R1 — Local Host alpha** | G-034 conditional preflight; G-038 parallel quick win; G-080 → G-025 | reproducible local-device installation, isolated Cell data roots and a signed Cell image; first-run prompts no longer recur per Cell | local one-Host/two-cell smoke, package/native checks, rollback/export and customer-identical staging |
 | **R2 — Secure and recoverable Host alpha** | G-081, G-082 and G-100 accepted 2026-07-17 | authenticated remote use plus encrypted off-Host recovery and portable export, useful even before automated cloud provisioning | clean packaged first-admin, ingress, destruction, empty-root restore and restarted-work evidence accepted |
 | **R3 — Licensed local Host beta** | G-094; G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 → G-025 | npm-delivered Host supervisor, registry-delivered Cell image and paid self-service Host/Cell lifecycle on a local device and fake VM | signed registry Cell image, entitlement/lifecycle acceptance, real-browser journey and staging release candidate |
-| **R4 — DigitalOcean beta** | G-085 → G-025 | an end customer can provision and operate one customer-owned DigitalOcean Relay Host with verified bill, cleanup and recovery | operator-approved external conformance, spend reconciliation and beta release |
+| **R4 — DigitalOcean beta** | G-085 accepted 2026-07-20; next Relay release/staging plus Website response | an end customer can operate one customer-owned DigitalOcean Relay Host with verified cleanup and recovery | conformance fixes released, customer-identical staging rerun, Website claims reconciled, and separately approved beta launch |
 | **R5 — Portable Host GA** | G-086 | the same npm Host control surface, Host/Cell manifest and signed Cell-image digest work on a second VM provider or representative customer hardware | second-target conformance and approved portability/GA claim |
 
 Parallel value stream after R0:
@@ -431,6 +431,23 @@ disabled and explicitly assigned to later domain/provider goals.
 
 ### G-085 — Prove the DigitalOcean single-server Relay Host
 
+**Accepted 2026-07-20.** Run `20260720a` installed public npm Relay `0.44.5`
+and the signed Cell index at
+`sha256:caaa02dbb8c719b1274a5bff9084e69ffe40b17aef35323ac9666eada8dd1bd6`
+on a clean SFO3 Droplet. Authenticated ingress, one/ten/eleventh-Cell admission,
+same-Host isolation, retained/purged capacity, private Ollama task, encrypted
+backup, empty-root recovery, restart, rollback and export all passed. The
+Droplet, recovery volume, reserved IP, firewall, SSH key, provider token and
+local disposable credentials were removed; API and browser inventories were
+empty. Measured infrastructure exposure was under one hour and conservatively
+below `$0.05`; the provider's daily billing display remained
+`G085_COST_PENDING` at `$0.00` after teardown.
+
+The accepted recommendation is a bounded single-DigitalOcean-Host beta after
+the anonymous artifact verification, data-root ownership and privileged purge
+fixes from this goal ship. Built-in DigitalOcean authorization/provisioning,
+provider portability, Fleet control and performance claims remain out of scope.
+
 Goal: provision one clean DigitalOcean VM, install the npm-delivered Relay Host
 supervisor, pull the signed Relay Cell image by digest, and prove local/cloud
 appliance parity plus one-cell and same-host multi-cell use.
@@ -453,6 +470,15 @@ Tasks:
 
 Checkpoint: operator accepts or rejects the DigitalOcean Host beta based on
 recorded isolation, recovery, operations and actual spend.
+
+The execution specification and staged plan are
+`features/digitalocean-relay-host-conformance.md` and
+`features/digitalocean-relay-host-conformance-plan.md`. The live run is
+automation-first and operator-visible: Codex Chrome shows the authenticated
+DigitalOcean control-panel state before and after each bounded resource stage,
+while a repeatable provider harness performs the mutation and records redacted
+receipts. A missing browser binding pauses at the current safe stage rather than
+silently replacing the walkthrough with an invisible manual flow.
 
 ### G-086 — Prove Relay Host portability before GA
 
