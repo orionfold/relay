@@ -10,7 +10,10 @@
   repair, a customer DigitalOcean runbook, strict `_ASSETS` reconciliation and
   a fresh public-artifact DigitalOcean receipt before Website G-047 launch.
   Provider credentials/spend, push/tag/publish and Website launch remain
-  separately operator-gated.
+  separately operator-gated. The immutable `cell-v0.44.6` attempt stopped
+  before publication when the clean CI checkout exposed an untracked Next
+  image-type dependency; `0.44.7` adds a tracked static-asset declaration and
+  passed the complete local release quality profile without `next-env.d.ts`.
 
 ### Completed
 
