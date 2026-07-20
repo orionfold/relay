@@ -9,7 +9,7 @@ import { HostDeploymentService } from "../service";
 
 // See artifact.test.ts: candidate Cell publication necessarily precedes the
 // matching digest authority committed for the npm release.
-vi.mock("@/lib/config/version", () => ({ relayProductVersion: () => "0.44.5" }));
+vi.mock("@/lib/config/version", () => ({ relayProductVersion: () => "0.44.7" }));
 
 const roots: string[] = [];
 function fixture(options: { licensed?: boolean; managedCells?: number } = {}) {
