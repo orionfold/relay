@@ -145,7 +145,7 @@ maintained content or managed lifecycle authority; they do not repossess Core.
 | Product | What is free | What a license adds |
 |---|---|---|
 | Relay Core | npm CLI/app and direct unmanaged single Cell | Nothing; Core remains free |
-| Relay Cell OCI image | Public, signed Cell-runtime bytes at the verified `v0.44.7` digest | Nothing; image possession is not an entitlement |
+| Relay Cell OCI image | Public, signed Cell-runtime bytes at the verified `v0.44.9` digest | Nothing; image possession is not an entitlement |
 | Relay Packs | Free Packs and every installed Pack keep working | `product:orionfold-relay` permits premium Pack installation and forward updates |
 | Relay Host | Host/Cell contract and free direct Cell remain available | `product:relay-host` permits the npm-delivered supervisor to manage one Host and up to ten managed Cells under the launch contract |
 | Operator bundle | Same free Core and image | Both independent entitlements in one signed envelope; Pack seats never become Host/Cell capacity |
