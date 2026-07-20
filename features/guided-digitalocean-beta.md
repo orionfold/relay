@@ -1,6 +1,6 @@
 ---
 title: Guided DigitalOcean Relay Host beta
-status: in-progress
+status: complete
 priority: P0
 milestone: post-mvp
 source: features/digitalocean-relay-host-conformance.md
@@ -108,6 +108,33 @@ journey or imply that Install Host mutates a cloud account.
 - Fleet control, multi-Host authority or multi-provider portability.
 - Uptime/SLA, managed Orionfold infrastructure or production LLM performance.
 - Provider-native paid licensing or a new hosted entitlement service.
+
+## Completion receipt — 2026-07-20
+
+- Published matching Relay Host/npm and GitHub Release `0.44.9`, plus the
+  signed multi-architecture Cell image at
+  `sha256:42bea7a0a65bf799ddbbc4a078667f256400c5cca0fe682c07ab68f2bf5c3cd5`.
+- Passed the full local release-quality profile (515 test files; 3,795 tests
+  passed and one skipped), production build, npm closure, public-boundary,
+  knowledge, release-authority, and Cell-publication checks.
+- Verified the production login and authenticated shell in Chrome at desktop
+  and 390 px widths. The canonical Orionfold mark loaded at its release asset
+  path with no missing image or horizontal overflow, closing G-104.
+- Run `g105-20260720a` installed only public `0.44.9` artifacts on a disposable
+  SFO3 Droplet. Authenticated first-admin, ten-Cell capacity and eleventh
+  refusal, isolation, retain/purge, a private Ollama task, encrypted recovery,
+  restart, rollback, export, and exact cleanup passed.
+- The Droplet, 10 GiB volume, reserved IP, firewall, SSH key, provider token,
+  and local credentials were removed. The provider API and browser inventory
+  were empty after teardown. The approximately 18-minute run remains bounded
+  below `$0.05`; posted billing may lag.
+- `_ASSETS` is reconciled to `0.44.9`: 40 live features, 207 API routes, 310
+  methods, nine guide chapters, and a strict nine-validator behavioral flow
+  with no failures, warnings, or skipped stages.
+- Redacted evidence is retained under
+  `output/g105-guided-do-20260720/`. Website G-047 is the next owner for final
+  public claims, checkout, deploy, live CTA, and launch, each under its own
+  operator gate.
 
 ## References
 

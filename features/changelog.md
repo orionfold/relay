@@ -17,6 +17,25 @@
 
 ### Completed
 
+- `guided-digitalocean-beta` (G-105) — released matching npm/GitHub Relay
+  `0.44.9` and the signed multi-architecture Cell image at
+  `sha256:42bea7a0a65bf799ddbbc4a078667f256400c5cca0fe682c07ab68f2bf5c3cd5`.
+  The release passed the complete local quality profile, production build,
+  npm/public-boundary/knowledge/authority gates, public acquisition, signature,
+  provenance, and customer-identical staging.
+- A fresh approximately 18-minute SFO3 run installed only those public
+  artifacts and passed authenticated first-admin, ten-Cell capacity plus
+  eleventh refusal, isolation, retain/purge, a private Ollama task, encrypted
+  recovery, restart, rollback, export, and zero-orphan cleanup. The Droplet,
+  volume, reserved IP, firewall, SSH key, API token, and local credentials were
+  removed; API and browser inventories were empty. Cost remains conservatively
+  below `$0.05` while provider billing may lag.
+- `released-login-brand` (G-104) — the prebuilt unauthenticated login now loads
+  the canonical Orionfold mark through a tracked static asset declaration.
+  Chrome verified both the login and authenticated shell at desktop and 390 px
+  widths with complete 72 px images, no broken request, and no horizontal
+  overflow. Website G-047 now owns the separately gated public beta launch.
+
 - `digitalocean-relay-host-conformance` (G-085) — accepted a same-session paid
   SFO3 proof against public Relay `0.44.5` and the signed Cell index at
   `sha256:caaa02dbb8c719b1274a5bff9084e69ffe40b17aef35323ac9666eada8dd1bd6`.

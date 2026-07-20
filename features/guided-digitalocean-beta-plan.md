@@ -121,8 +121,8 @@ Authoritative specification: `features/guided-digitalocean-beta.md`
 
 ## Rescue and rollback
 
-- The last public `0.44.5` Host/Cell pair remains the rollback authority until
-  the new pair passes public staging.
+- The published `0.44.9` Host/Cell pair is the accepted guided-beta authority.
+  `0.44.5` remains the last pre-beta rollback reference exercised by G-085.
 - Never move tags. A failed candidate receives a new patch version.
 - Keep Website launch dark on any mismatch; the accepted local/manual Host path
   remains available and existing Cells continue running.
