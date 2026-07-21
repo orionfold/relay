@@ -114,7 +114,7 @@ confirmation, then uses the provider console to remove every billable resource.
 
 ## Completion receipt
 
-Accepted locally on 2026-07-21 for the next Relay release.
+Accepted for Relay `v0.45.1` on 2026-07-21.
 
 | Acceptance | Evidence | Result |
 |---|---|---|
@@ -128,7 +128,8 @@ Accepted locally on 2026-07-21 for the next Relay release.
 | UI/browser disposition | no application UI changed | not applicable; deterministic docs/package/runtime evidence used |
 | fresh architecture/security review | two critical findings fixed: deliberate failure receipts and SSH/runtime identity separation | APPROVE; no open findings |
 
-The implementation is complete but not yet public: npm/GitHub publication,
+Relay Cell `v0.45.1` is public and verified at
+`sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149`.
+The provider-neutral playbook is included in the matching npm/GitHub release;
 Website adaptation/publication and any named-provider proof remain separately
-operator-gated. Until a release includes these files, public Website copy must
-not link to `relay-host-playbook` as an available command.
+operator-gated.

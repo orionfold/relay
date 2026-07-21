@@ -19,15 +19,13 @@ cannot reach into Cells on other Hosts.
 ## Current release state
 
 The local G-083 control plane is implemented on mainline. The current public,
-signed multi-architecture Cell image is Relay `0.44.9` at immutable index
-digest `sha256:42bea7a0a65bf799ddbbc4a078667f256400c5cca0fe682c07ab68f2bf5c3cd5`.
+signed multi-architecture Cell image is Relay `0.45.1` at immutable index
+digest `sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149`.
 G-084 has accepted the browser lifecycle UX, and G-101 has accepted the fresh
 customer-identical npm-to-Host-to-managed-Cell release-candidate journey.
-Production managed-Cell fulfillment is still not released: Website G-041 must
-complete the separately authorized staged purchase, signed-grant delivery, and
-cross-surface conformance packet before an R3 release is authorized. The
-supervisor therefore must not be presented as currently purchasable merely
-because its free runtime image and Relay-side release evidence are available.
+Website G-041/G-047 and Relay G-104/G-105 accepted the commercial fulfillment
+and guided DigitalOcean public beta. Relay `0.45.1` adds the portable Linux VM
+playbook; it does not imply that every cloud provider is verified or supported.
 
 ## What it stores
 
@@ -76,9 +74,9 @@ execution authority is the immutable image reference, never a mutable tag:
   "ownerRef": "owner_customer_a",
   "origin": "create",
   "artifact": {
-    "version": "0.44.9",
-    "imageReference": "ghcr.io/orionfold/relay-cell@sha256:42bea7a0a65bf799ddbbc4a078667f256400c5cca0fe682c07ab68f2bf5c3cd5",
-    "imageDigest": "sha256:42bea7a0a65bf799ddbbc4a078667f256400c5cca0fe682c07ab68f2bf5c3cd5",
+    "version": "0.45.1",
+    "imageReference": "ghcr.io/orionfold/relay-cell@sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149",
+    "imageDigest": "sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149",
     "schemaMin": 1,
     "schemaMax": 1
   },
