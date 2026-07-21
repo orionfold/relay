@@ -8,6 +8,32 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.45.2] — 2026-07-21
+
+### Added
+
+- **Relay Host now ships a provider-neutral portable Linux VM playbook.** The
+  npm package includes `relay-host-playbook`, a strict release manifest,
+  secret-free cloud-init template, checksum-pinned bootstrap, and customer
+  guide for a compatible Ubuntu 24.04 x86_64 VM. Preflight checks machine and
+  network prerequisites, while named mode-0600 receipts distinguish failure,
+  dry-run preparation, and successful setup without retaining cloud-provider
+  credentials.
+- **The matching Relay Cell runtime is public for amd64 and arm64.** Relay Host
+  pins the signed `0.45.2` multi-platform image index by immutable digest;
+  tags remain discovery aids rather than deployment authority.
+
+### Fixed
+
+- **Release validation now follows the canonical accepted Cell manifest.** The
+  Host deployment API regression no longer duplicates an older release string,
+  preventing a stale test fixture from rejecting an otherwise valid bound
+  release after Cell publication.
+- **Release packaging keeps the intended runtime guide and current Workshop
+  compatibility window.** The npm boundary rejects directory-level docs
+  leakage while allowing the explicitly shipped Host VM guide, and the
+  built-in Workshop accepts the complete `0.45.x` line.
+
 ## [0.44.9] — 2026-07-20
 
 ### Added
