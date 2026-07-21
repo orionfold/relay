@@ -1,5 +1,21 @@
 # Feature Changelog
 
+## 2026-07-21
+
+### Completed
+
+- `cross-cloud-relay-host-portability` (G-107) — returned **GO** for a
+  provider-neutral compatible-Linux-VM playbook first, followed by independently
+  verified AWS Lightsail, Azure VM, GCP and EC2 profiles. Accepted a secret-free
+  cloud-init plus checked-installer contract, optional customer-owned OpenTofu,
+  exact portable/verified/Marketplace support labels, and a weighted provider
+  matrix grounded in official sources.
+- Groomed G-108–G-113 as bounded implementation/provider increments. Amended
+  TDR-044 and G-086 so Portable Host GA requires G-108 plus accepted
+  DigitalOcean, AWS Lightsail and Azure receipts and never implies “any cloud.”
+  No cloud account, credential, spend, provider mutation or external write was
+  used for the research decision.
+
 ## 2026-07-20
 
 ### Started

@@ -3,9 +3,9 @@ id: TDR-044
 title: Customer-owned Relay Host with isolated cells
 status: accepted
 date: 2026-07-15
-amended: 2026-07-16 (G-060 local Host supervisor contract); 2026-07-17 (Host/Cell distribution, Supervisor/Fleet boundaries, and G-095 fulfillment contract); 2026-07-18 (G-094 OCI publication authority)
+amended: 2026-07-16 (G-060 local Host supervisor contract); 2026-07-17 (Host/Cell distribution, Supervisor/Fleet boundaries, and G-095 fulfillment contract); 2026-07-18 (G-094 OCI publication authority); 2026-07-21 (G-107 cross-cloud portability contract and GA evidence threshold)
 accepted: 2026-07-16 (G-079 authority and isolation contract)
-goal: G-078, G-060, G-079, G-094
+goal: G-078, G-060, G-079, G-094, G-107
 ---
 
 # TDR-044: Customer-owned Relay Host with isolated cells
@@ -232,6 +232,33 @@ or cloud VM.
     automatically deleted. Launch adds no paid registry, mirror, runner, KMS or
     long-lived registry/signing secret. These decisions prepare a mechanism;
     they do not authorize its first external run or public visibility change.
+25. Make the first cross-cloud release a provider-neutral compatible-Linux-VM
+    playbook. It publishes one versioned secret-free cloud-init/bootstrap
+    template, a checked installer, substrate preflight and redacted conformance
+    receipt. A customer creates and owns the VM; Relay v1 neither creates the
+    provider resource nor retains provider credentials or infrastructure state.
+26. Treat cloud user-data and instance metadata as observable. They may contain
+    public SSH keys, exact release/checksum/digest inputs and non-secret labels,
+    but never a Relay license, admin/ingress secret, model/API key, recovery key,
+    provider token or customer data. Protected activation happens only after a
+    queryable completion marker proves the bootstrap finished successfully.
+27. Infrastructure-as-code is optional, not a prerequisite for the first
+    playbook. Any later OpenTofu modules keep credentials and state under the
+    customer's control, pin provider versions, and map only VM, address,
+    firewall, disk, bootstrap, identity, backup, inventory and cleanup
+    primitives. Provider branches do not enter Relay Core.
+28. Use three distinct evidence labels: a **portable playbook** proves the
+    common compatible-VM contract but leaves unverified provider mapping with
+    the customer; a **verified provider** adds an accepted customer-identical
+    live provider, recovery and zero-orphan receipt; a **Marketplace/one-click**
+    channel adds provider review/listing/fulfillment evidence without changing
+    runtime support by itself.
+29. Portable Host GA requires the accepted provider-neutral playbook plus
+    accepted DigitalOcean, AWS Lightsail and Azure VM receipts. GCP, AWS EC2 and
+    demand-triggered lower-cost providers expand named coverage independently.
+    This threshold authorizes only an exact listed-provider claim, never “any
+    cloud,” and every provider account, spend, public promise and release stays
+    separately operator-gated.
 
 ### Architecture posture by layer
 

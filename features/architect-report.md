@@ -1,101 +1,112 @@
 ---
-generated: 2026-07-18
-mode: impact
+generated: 2026-07-21
+mode: integration
 ---
 
 # Architect Report
 
-## Change Impact Analysis — G-083 Relay Host supervisor
+## Integration analysis — G-107 cross-cloud Relay Host portability
 
-### Proposed change
+### Accepted change
 
-Add an npm-delivered, Host-local privileged supervisor that manages only OCI
-Cells resident on one machine. It consumes the accepted G-095 offline Host
-grant, G-094 digest authority, G-081 Cell ingress boundary, and G-082 recovery
-receipt vocabulary without entering a Cell's application graph or data store.
+Research and plan a provider-neutral Relay Host deployment playbook, followed
+by independently verified AWS, Azure, GCP, and later lower-cost provider
+increments. DigitalOcean remains the accepted reference implementation;
+Marketplace-specific G-103 is deferred.
+
+### Architectural finding
+
+The DigitalOcean implementation already separates into a large portable core
+and a small provider adapter surface.
+
+```text
+portable Relay contract
+  → Ubuntu/OCI/npm bootstrap
+  → Host/Cell lifecycle + entitlement
+  → authenticated ingress + first admin
+  → recovery/update/rollback + redacted receipts
+  → provider capability mapping
+       → VM/address/firewall/disk/bootstrap/inventory/cleanup
+```
+
+TDR-044's customer-owned single-Host appliance remains the right architecture.
+Cross-cloud work changes placement and provisioning, not the Host, Cell, Fleet,
+data, licensing, or distribution boundaries.
+
+### Existing surfaces to reuse
+
+| Concern | Existing authority/surface | Portability disposition |
+|---|---|---|
+| Host/Cell topology | TDR-044; Host supervisor | unchanged |
+| Artifact authority | npm Host + signed digest-pinned Cell OCI | unchanged |
+| Entitlement | `product:relay-host` offline signed grant | unchanged |
+| Customer journey | G-084 Settings + G-105 DigitalOcean guide | generalize common steps |
+| Conformance | G-085/G-105 scripts and receipt vocabulary | extract provider-neutral core |
+| Recovery | G-082 encrypted export/restore | unchanged; map provider disks/snapshots separately |
+| Provider effects | `scripts/lib/digitalocean-g085-*` | define a narrow provider capability interface |
+| Cost model | `scripts/cloud-deploy-cost-model.mjs` | extend with dated provider inputs, not product logic |
+
+### New or amended surfaces
+
+- A versioned compatible-Linux-VM contract and customer-facing playbook.
+- A secret-free, idempotent bootstrap asset plus completion evidence.
+- A provider capability/mapping worksheet and support-claim taxonomy.
+- A portable preflight/conformance receipt separated from paid provider
+  provisioning.
+- Bounded provider adapters/guides and real-provider proof goals after G-107
+  selects their order.
+- G-086 amended from a vague second-target trigger into the final portability/
+  GA evidence gate over the approved increments.
+
+### Security and lifecycle findings
+
+- User-data must be treated as retrievable metadata, not a secret channel.
+- VM creation success does not prove cloud-init/startup completion; Relay needs
+  a named completion check and failure receipt.
+- Static IPs, disks, snapshots, firewalls, keys, and temporary credentials all
+  belong in cleanup inventory because resources can survive VM deletion.
+- The customer retains provider credentials in provider tooling. Relay v1 does
+  not become a credential-holding orchestration service.
+- Backup claims must distinguish crash-consistent provider snapshots from the
+  accepted application-level encrypted recovery path.
+
+### Provider ordering decision
+
+The weighted, dated matrix selects provider-neutral G-108 first, then AWS
+Lightsail G-109, Azure VM G-110, GCP G-111 and AWS EC2 G-112. Lightsail is the
+simple bundled AWS journey; its evidence does not cover EC2. Azure precedes EC2
+to establish provider-company diversity. Hetzner/Akamai remain a trigger-gated
+G-113 economics/geography tranche.
 
 ### Blast radius
 
-| Layer | Surfaces | Impact |
+| Layer | Expected impact | Risk |
 |---|---|---|
-| Host domain | new strict contracts, lifecycle reducer, errors and content scanner | one authority for Host/Cell state and refusal semantics |
-| Persistence | dedicated Host-root SQLite/WAL registry | new database, explicitly separate from every Cell DB and application migrations |
-| Licensing | existing `host-entitlement.ts` and file license store | signed limits checked before allocation; continuity survives lapse/removal |
-| OCI runtime | injected adapter plus Docker argv implementation | digest-pinned, non-root, loopback-only Cell lifecycle with no shell command strings |
-| Distribution/CLI | npm CLI subcommand and separate `relay-host` executable | privileged flow remains out of Next.js instrumentation and normal Cell startup |
-| Documentation/tests | Host guide, contracts, fake/Docker conformance | executable evidence replaces architecture-only claims |
-
-**Classification:** High — privileged, licensing-sensitive, persistent and
-runtime-effecting across five layers. It remains local-only and does not add a
-browser API, provider credential, Fleet Controller or cloud resource.
-
-### Dependency trace
-
-```text
-signed license files
-  → G-095 inspection/admission oracle
-      → Host supervisor preflight
-          → dedicated Host registry reservation + receipt
-              → injected OCI runtime adapter
-                  → one digest-pinned Cell on this Host
-
-G-094 release identity/digest ────────────────┘
-G-081 Cell ingress contract → Cell launch environment only
-G-082 checkpoint receipt → export-and-release eligibility only
-```
-
-### What is reused
-
-- `src/lib/licensing/host-entitlement.ts` remains the only commercial admission
-  oracle; limits never become container-runtime policy or Website amounts.
-- The canonical file license store supplies exact signed envelopes. The Host
-  registry stores only license and licensee references, never license bytes.
-- TDR-010's SQLite/WAL discipline applies to a new dedicated connection, not
-  the application DB singleton.
-- G-060/G-079 contracts supply states, collision/refusal behavior, trusted Host
-  administrator semantics and the content-free registry boundary.
-- G-094 supplies the production repository/signing/digest contract. Local fake
-  and verified-image fixtures may prove mechanics but cannot satisfy its
-  external publication gate.
-
-### Migration and compatibility
-
-- Application schema/bootstrap/migrations: unchanged.
-- Host registry: independent schema version 1, idempotent bootstrap, fail-closed
-  on newer/unknown versions, WAL and foreign keys enabled.
-- Existing direct `relay` startup and one unmanaged Cell remain unchanged.
-- Existing Pack licenses remain valid and cannot authorize Host effects.
-- CLI surface is additive. No supervisor starts unless an administrator invokes
-  a Host command.
-
-### Primary risks and controls
-
-| Risk | Control |
-|---|---|
-| allocation before entitlement | pure admission runs before registry/resource mutation |
-| stale capacity/collision race | one immediate transaction reserves all resources; adapter call follows a recheck |
-| customer content in control plane | strict schemas, derived allocations, opaque refs and a content scanner; raw adapter errors are not persisted |
-| Cell/application graph coupling | separate package boundary and dynamic CLI import; no instrumentation/API import |
-| mutable/forged image authority | production manifests require `ghcr.io/orionfold/relay-cell@sha256:...`; artifact verification is independent from licensing |
-| lapse strands customer work | receipt-bound start/stop/export/recovery/rollback/purge continuity remains available |
-| partial OCI mutation | non-terminal registry state plus exact resource refs, reconcile and scoped rollback |
-| trusted-admin ambiguity | same-Host admin trust remains explicit; hostile tenants require separate Hosts |
+| Product/claims | new portable versus verified-provider vocabulary | high if evidence boundaries blur |
+| Deployment docs/assets | common playbook plus provider appendices | medium |
+| Bootstrap | idempotent cloud-init/installer and completion signal | high; privileged first boot |
+| Provider tooling | capability adapters, inventory and cleanup | high; paid external effects |
+| Core runtime | none expected | introducing provider branches is a stop condition |
+| Licensing/fulfillment | no change expected | any change requires a new decision and Website contract |
+| Verification | fake adapters plus disposable live provider runs | high but bounded per increment |
 
 ### TDR implication
 
-TDR-044 already decides this topology, authority, storage and distribution
-boundary. G-083 implements it; no new TDR is needed unless implementation would
-introduce remote multi-Host authority, online activation, a shared customer DB,
-or a browser lifecycle API.
+TDR-044 is narrowly amended by G-107 to freeze the compatible-VM playbook,
+secret-free bootstrap, optional-IaC/customer-owned-state boundary, three support
+labels and the G-086 evidence threshold. A hosted Relay control plane,
+multi-Host Fleet authority, shared tenant data plane, or online entitlement
+service remains a different architecture and must not enter these goals
+implicitly.
 
-### Recommended approach
+### Recommendation
 
-Proceed in dependency-neutral vertical slices: strict contracts and state
-grammar; dedicated registry; licensed/physical admission; fake runtime; Docker
-adapter and local CLI; then deterministic conformance and packaging. G-094's
-external GHCR proof was subsequently accepted; keep G-084 UX, Website G-030
-prices and live provider authorization outside this implementation.
+Proceed with G-108. Make the playbook useful without mandatory IaC, then add
+optional OpenTofu modules only where they reduce repeatability/support cost.
+Treat each provider profile as independently verified and preserve Marketplace
+as a later distribution channel. G-086 may claim only the exact supported list
+after G-108 plus DigitalOcean, AWS Lightsail and Azure receipts are accepted.
 
 ---
 
-*Generated by `/architect` — Change Impact Analysis mode*
+*Generated by `/architect` — Integration Analysis mode*

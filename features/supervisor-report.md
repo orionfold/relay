@@ -1,63 +1,53 @@
 ---
-generated: 2026-07-19
+generated: 2026-07-21
 mode: next-steps
 ---
 
 # Supervisor Report
 
-> Non-authoritative snapshot generated from `_IDEAS/backlog.md` and
-> `_IDEAS/host-cell-fulfill.md`. Relay's live portfolio and goal state remain
-> canonical only in the backlog.
+> Non-authoritative snapshot. `_IDEAS/backlog.md` remains Relay's canonical
+> live portfolio and goal queue.
 
-## Next Steps — 2026-07-19
+## Next Steps — 2026-07-21
 
 ### Recommendation
 
-**Do this next:** Authorize the exact **push `main` + push tag `v0.44.3`** gate
-that triggers Relay's OIDC npm/GitHub R3 release, then advance to **G-085 —
-Prove the DigitalOcean single-server Relay Host**.
+**Do this next:** After the bounded G-106 producer repair is accepted, complete
+**G-108 — Ship the provider-neutral Relay Host Linux VM playbook**.
 
-**Why:** Website has returned the accepted G-041 customer-identical staging
-packet and implemented the launch-dark production path. Relay's final local R3
-release profile, npm 12 recovery, exact npm closure, packaged production smoke,
-full 96-image asset refresh, and screenshot-grounded knowledge bundle are now
-green. npm still exposes 0.43.0 and GitHub has no v0.44.3 release, so the only
-remaining R3 step is the separately authorized external publication trigger.
+**Why:** G-107 accepted the portable contract and a bounded provider sequence.
+G-108 now gives customers value on compatible customer-owned Ubuntu VMs without
+another cloud API, persistent Relay credential custody, or an unsupported named
+provider claim. AWS Lightsail, Azure, GCP and EC2 follow as independent goals;
+G-086 aggregates only the accepted threshold.
 
-**Invoke:** Commit the verified Relay-owned release repairs locally, then ask
-for one explicit authorization to push `main` and `v0.44.3`. Monitor the
-protected workflow through npm/GitHub acceptance. After the receipt is
-accepted, execute G-085 with separately approved DigitalOcean credentials,
-region, Host size, hostname, and spend cap.
+**Invoke:** Follow `features/cross-cloud-relay-host-portability-plan.md` through
+the manifest/preflight, secret-free bootstrap, local compatible-VM conformance,
+packaging/docs and release-evidence slices. Keep support wording, publish and
+release separately gated.
 
-**Priority category:** phase advancement for R3 — Licensed local Host beta.
+**Priority category:** phase advancement — Customer-owned Relay Host R4P1.
 
 ### Context
 
-- Active workstream: **Customer-owned Relay Host**.
-- Relay R3 implementation: accepted through **G-101**.
-- Website handoff: G-041 staging packet accepted and dark production path
-  implemented; final Website publication remains G-047.
-- Public npm state: `orionfold-relay@0.43.0`; local accepted candidate: 0.44.3.
-- GitHub state: no `v0.44.3` release or npm-release tag.
-- Local release profile: 19/19 lanes green; 514 files, 3,793 tests passed and
-  one skipped; all seven required mutants killed.
-- Customer distribution proof: npm 12 first-run repair green; final npm closure
-  `sha256:b670405ac1a8162377a66293022489c6877012b4876f1c76f072f707e098294d`,
-  2,918,641 compressed bytes, 10,622,312 unpacked bytes, 1,376 files; packaged
-  production smoke green.
-- Product documentation proof: 96/96 screenshots verified; nine/nine guides
-  verified; current knowledge bundle 17 entries / 450 sections and hash
-  `3ee3e8086b90ea1619e7c2cbd3a26b4e8715b5fb1e5eb0cb0fa891dc3ad51eb6`.
-- R4 goal: **G-085**, gated by the R3 release plus provider credentials and
-  spend authorization.
+- Active workstream: Customer-owned Relay Host.
+- Relay R4 guided beta: accepted through G-104/G-105.
+- Website response: G-047 released 2026-07-20.
+- G-107: accepted 2026-07-21 with a **GO** decision.
+- Next ready Relay goal after G-106: G-108.
+- G-103 Marketplace research: deferred by operator.
+- G-109–G-112: ordered, provider/account/spend-gated verified profiles.
+- Later dependency-gated goal: amended G-086 portability/GA proof.
+- Newly specified product gap: customer Cell access is manual; automated
+  hostname/routing/bootstrap handoff, invitations, and multi-user identity are
+  not shipped. It remains a separate customer-access follow-on and is not
+  hidden inside G-108 or any provider adapter.
 
 ### If You Have More Time
 
-1. Prepare G-085's exact DigitalOcean approval packet while the release
-   workflow runs.
-2. Keep G-086 portability gated until G-085 is accepted and demand justifies a
-   second provider or representative customer-hardware proof.
+1. Groom customer Cell access provisioning from the canonical Website FAQ when
+   the operator selects that experience; it is not a playbook prerequisite.
+2. Keep G-086 dormant until G-108, G-109 and G-110 are accepted.
 
 ---
 

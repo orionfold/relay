@@ -121,8 +121,13 @@ mere architectural alignment:
 | G-030 | — | G-083/G-084 reuse retain-by-default versus separately confirmed purge semantics | immediate removal clarity and consistent destructive-language policy |
 | G-083 (accepted 2026-07-18) | G-079, G-080, G-081 and G-082 accepted | G-030 retention semantics; G-094 publication now accepted | npm-delivered paid local Host supervisor domain and stable Host/Cell lifecycle API |
 | G-084 | G-083 | G-020 freshness semantics; G-030 retention language | customer-visible local-device/cloud-Host lifecycle journey |
-| G-085/G-105 (accepted 2026-07-20) | G-084 | G-085 proved the topology on `0.44.5`; G-105 released the fixes in `0.44.9` and reran a fresh public-artifact SFO3 receipt with a scoped disposable credential and same-session teardown | guided DigitalOcean single-Host beta accepted; Website G-047 claim/launch response is next |
-| G-086 | G-085 plus demand trigger | second provider/hardware authorization; does not block a demand-validated G-085 beta | portability evidence required before GA portability claims |
+| G-085/G-105 (accepted 2026-07-20) | G-084 | G-085 proved the topology on `0.44.5`; G-105 released the fixes in `0.44.9` and reran a fresh public-artifact SFO3 receipt with a scoped disposable credential and same-session teardown | guided DigitalOcean single-Host beta and Website G-047 public response accepted |
+| G-107 (accepted 2026-07-21) | accepted G-085/G-105 baseline; no provider account required for research | selected provider-neutral G-108 first, optional customer-owned IaC, then G-109 Lightsail, G-110 Azure, G-111 GCP, G-112 EC2 and trigger-gated G-113 | implementation-ready cross-cloud sequence without an unsupported portability claim |
+| G-108 | G-107 accepted | versioned secret-free bootstrap, compatible-VM preflight/conformance, package/docs parity and local disposable proof | portable Linux VM playbook claim; no named unverified provider support |
+| G-109/G-110 | G-108 accepted plus separate provider/account/spend authorization | AWS Lightsail then Azure live conformance, recovery/rollback, browser and cleanup | required named-provider receipts for G-086 |
+| G-111/G-112 | G-108 accepted plus separate provider/account/spend authorization | GCP then EC2 as independent coverage increments | expand named support after/beside GA; Lightsail never implies EC2 |
+| G-113 | measured demand/geography/cost trigger | select Hetzner or Akamai/Linode and apply the provider template | optional lower-cost coverage |
+| G-086 | G-108, G-109 and G-110 accepted; DigitalOcean receipt already accepted | aggregate only those required receipts and separately approve exact GA wording | bounded listed-provider Portable Host GA claim |
 | G-073 | G-079 accepted; E0 research/spec and tranche approval remain | cloud-Host support conforms to G-081/G-082; connector workers, secrets and state remain inside one cell under G-083 | structured connector kernel and local-first connector value |
 | G-074 | G-073 shared kernel; G-079 accepted; research may overlap | cloud-Host support conforms to G-081/G-082; document content never enters Host registry | document connector value without a second connector platform |
 | G-059 | G-080 local Host fixture or an equivalent disposable Linux multi-user environment | use the Host/cell process boundary to distinguish task cwd from executable/PATH/credential scope | closes the customer runtime report without inventing per-customer config inside one process |
@@ -135,7 +140,12 @@ mere architectural alignment:
 ```text
 G-058 → G-060 → G-079
                     ├─→ G-080 ─→ G-082 ─┐
-                    └─→ G-081 ──────────┼─→ G-083 → G-084 → G-085 → G-086
+                    └─→ G-081 ──────────┼─→ G-083 → G-084 → G-085/G-105
+                                                                   └─→ G-107 accepted
+                                                                        └─→ G-108
+                                                                             ├─→ G-109 → G-110 → G-086
+                                                                             ├─→ G-111 → G-112
+                                                                             └─→ G-113 (trigger only)
 
 G-034 ── conditional artifact preflight ─→ G-080
 G-038 ── independent R1 first-run quick win
@@ -161,8 +171,11 @@ improvements.
 | **R1 — Local Host alpha** | G-034 conditional preflight; G-038 parallel quick win; G-080 → G-025 | reproducible local-device installation, isolated Cell data roots and a signed Cell image; first-run prompts no longer recur per Cell | local one-Host/two-cell smoke, package/native checks, rollback/export and customer-identical staging |
 | **R2 — Secure and recoverable Host alpha** | G-081, G-082 and G-100 accepted 2026-07-17 | authenticated remote use plus encrypted off-Host recovery and portable export, useful even before automated cloud provisioning | clean packaged first-admin, ingress, destruction, empty-root restore and restarted-work evidence accepted |
 | **R3 — Licensed local Host beta** | G-094; G-030 before G-083 retention contract; G-020 before G-084 estimates; G-083 → G-084 → G-025 | npm-delivered Host supervisor, registry-delivered Cell image and paid self-service Host/Cell lifecycle on a local device and fake VM | signed registry Cell image, entitlement/lifecycle acceptance, real-browser journey and staging release candidate |
-| **R4 — DigitalOcean beta** | G-085 accepted 2026-07-20; next Relay release/staging plus Website response | an end customer can operate one customer-owned DigitalOcean Relay Host with verified cleanup and recovery | conformance fixes released, customer-identical staging rerun, Website claims reconciled, and separately approved beta launch |
-| **R5 — Portable Host GA** | G-086 | the same npm Host control surface, Host/Cell manifest and signed Cell-image digest work on a second VM provider or representative customer hardware | second-target conformance and approved portability/GA claim |
+| **R4 — DigitalOcean beta** | G-085/G-105 and Website G-047 accepted 2026-07-20 | an end customer can operate one customer-owned DigitalOcean Relay Host with verified cleanup and recovery | accepted public `0.44.9`, fresh provider receipt, Website claims/checkout/deploy/CTA and public smoke |
+| **R4P0 — Cross-cloud decision** | G-107 accepted 2026-07-21 | Relay can invest in a useful provider-neutral playbook first and expand providers in an evidence-ranked order | accepted compatible-VM/support contract, weighted matrix, plan and G-086 amendment |
+| **R4P1 — Portable Linux VM playbook** | G-108 | a customer can apply Relay Host to a compatible VM without persistent Relay custody of cloud credentials | secret-free bootstrap, preflight/conformance, recovery/cleanup guide and approved portable-playbook claim |
+| **R4P2/R4P3 — Verified providers** | G-109 Lightsail → G-110 Azure → G-111 GCP → G-112 EC2; G-113 trigger only | named providers become independently supported only when each evidence gate passes | provider mapping, authorized live proof, browser/recovery/rollback evidence, zero-orphan cleanup and Website handoff per provider |
+| **R5 — Portable Host GA** | amended G-086 after G-108/G-109/G-110 | the same npm Host control surface, Host/Cell manifest and signed Cell-image digest have exact cross-provider evidence | DigitalOcean + Lightsail + Azure receipts aggregated and bounded claim approved |
 
 Parallel value stream after R0:
 
@@ -482,28 +495,29 @@ silently replacing the walkthrough with an invisible manual flow.
 
 ### G-086 — Prove Relay Host portability before GA
 
-Goal: after DigitalOcean/customer demand, install the identical npm-delivered
-Host supervisor and Host/Cell manifest on a second VM provider or representative
-local server, pull the same Cell-image digest, and prove the appliance is
-portable. PaaS single-cell proof is separate and trigger-gated.
+Goal: after G-108, G-109 and G-110 are accepted, aggregate the accepted
+portable-playbook, DigitalOcean, AWS Lightsail and Azure VM receipts
+for the identical npm-delivered Host supervisor, Host/Cell manifest and Cell
+digest. PaaS single-cell proof remains separate and trigger-gated.
 
-Operator gates before live work: choose the second Host target (recommended
-Hetzner or customer hardware), authorize machine/account/spending and approve
-the portability claim.
+Operator gates before live work: separately authorize each provider
+machine/account/spend and approve the exact listed-provider portability/GA wording.
 
 Tasks:
 
 1. Apply the same Host/cell manifest, signed artifacts, isolation profile,
-   lifecycle and recovery format without provider-specific Core changes.
-2. Run the same one/two-cell, capacity, ingress, runtime, backup, Host-loss,
-   upgrade/export/delete conformance as G-085.
-3. Compare bootstrap, firewall, storage, backup, recovery, cost and support
-   semantics; document differences at the adapter/Host boundary.
-4. Retain TDR-044 unless portability evidence requires an operator-approved
-   amendment or superseding decision.
+   lifecycle and recovery format without provider-specific Core changes across
+   DigitalOcean, AWS Lightsail and Azure VM.
+2. Reuse the same one/two-cell, capacity, ingress, runtime, backup, Host-loss,
+   upgrade/export/delete conformance as G-085 for every target counted toward
+   the claim.
+3. Normalize bootstrap, firewall, storage, backup, recovery, cost and support
+   differences at the adapter/Host boundary and preserve per-provider receipts.
+4. Aggregate only accepted evidence and retain TDR-044 unless the live
+   results require an operator-approved amendment or superseding decision.
 
-Checkpoint: Relay may claim portable local/cloud Host deployment; a PaaS adapter
-remains optional rather than a condition of GA.
+Checkpoint: Relay may claim only the listed accepted providers; a PaaS
+adapter and Marketplace channel remain optional rather than conditions of GA.
 
 ## Regression test budget
 
@@ -612,8 +626,9 @@ security/architecture review in that order.
 
 - TDR-044, same-Host trust, minimum hardening, transfer/revocation and
   provisional admission were accepted by G-079 on 2026-07-16.
-- Approve DigitalOcean scopes/account/region/spending for G-085 and choose the
-  second Host target/portability claim for G-086.
+- G-085/G-105 DigitalOcean scopes and spend are closed. Approve G-107's provider
+  order/claim boundary, then separately authorize every real provider target
+  counted by amended G-086.
 - Approve remote identity model/public trust copy and any compliance claims.
 - G-095 accepted `product:relay-host`, the annual launch grant, and
   customer-protective lapse/security-update behavior. Website G-030 still owns
