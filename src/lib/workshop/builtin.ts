@@ -78,7 +78,7 @@ const payload: WorkshopEditionPayload = {
   editionVersion: "2026.07",
   title: "Relay Operator Workshop",
   promise: "Turn one operating memo into a governed Relay workflow.",
-  relayRange: ">=0.42.2 <0.45.0",
+  relayRange: ">=0.42.2 <0.46.0",
   fixture: {
     family: "marketing-line",
     starterId: WORKSHOP_STARTER_ID,

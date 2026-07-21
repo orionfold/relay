@@ -51,14 +51,15 @@ describe("npm publish contract", () => {
     expect(filesSet.has("scripts/verify-knowledge-bundle.mjs")).toBe(true);
   });
 
-  it("does NOT publish docs/ — User Guide UI removed; docs are authoring-only", () => {
+  it("does NOT publish the docs tree — only explicit runtime guides may ship", () => {
     // The in-app User Guide UI and the generated docs corpus were removed in
-    // 2026-06; doc generation now lives outside this package. docs/ must not
-    // ship in the tarball.
-    const shipsDocs = pkg.files.some((f) => f === "docs/" || f.startsWith("docs/"));
+    // 2026-06; doc generation now lives outside this package. A directory-level
+    // docs entry would restore that whole corpus. Explicit runtime guides such
+    // as the portable Host playbook remain allowed and independently tested.
+    const shipsDocsTree = pkg.files.some((f) => f === "docs" || f === "docs/");
     expect(
-      shipsDocs,
-      `package.json files must NOT include docs/ — User Guide removed, docs generation extracted. Current files: ${JSON.stringify(pkg.files)}`
+      shipsDocsTree,
+      `package.json files must NOT include the docs tree — User Guide removed, docs generation extracted. Current files: ${JSON.stringify(pkg.files)}`
     ).toBe(false);
   });
 
