@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orionfold.com/contracts/relay-host-portable-manifest-v1.schema.json",
+  "title": "Relay Host portable Linux VM manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "release", "cell", "substrate", "tools", "bootstrap", "paths"],
+  "properties": {
+    "schema": { "const": "orionfold.relay-host-portable/v1" },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["npmPackage", "relayVersion"],
+      "properties": {
+        "npmPackage": { "const": "orionfold-relay" },
+        "relayVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" }
+      }
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["imageRepository", "imageDigest"],
+      "properties": {
+        "imageRepository": { "const": "ghcr.io/orionfold/relay-cell" },
+        "imageDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "substrate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["osId", "osVersionId", "architecture", "cpuCount", "memoryBytes", "diskBytes"],
+      "properties": {
+        "osId": { "const": "ubuntu" },
+        "osVersionId": { "const": "24.04" },
+        "architecture": { "const": "x64" },
+        "cpuCount": { "type": "integer", "minimum": 2 },
+        "memoryBytes": { "type": "integer", "minimum": 4294967296 },
+        "diskBytes": { "type": "integer", "minimum": 85899345920 }
+      }
+    },
+    "tools": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodeVersion", "nodeArchiveSha256", "cosignVersion", "cosignSha256"],
+      "properties": {
+        "nodeVersion": { "const": "22.23.1" },
+        "nodeArchiveSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "cosignVersion": { "const": "3.1.2" },
+        "cosignSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "bootstrap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "completionReceipt"],
+      "properties": {
+        "path": { "const": "deploy/relay-host/bootstrap.sh" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "completionReceipt": { "const": "/var/lib/relay-host-portable/bootstrap.json" }
+      }
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["app", "data", "supervisor"],
+      "properties": {
+        "app": { "const": "/srv/relay-host/app" },
+        "data": { "const": "/srv/relay-host/data" },
+        "supervisor": { "const": "/srv/relay-host/supervisor" }
+      }
+    }
+  }
+}

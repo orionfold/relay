@@ -122,6 +122,13 @@ DigitalOcean Droplet. Relay never requests a provider token or creates the VM;
 the customer owns the account, bill, DNS, keys, backups and administration. See
 [Run a Relay Host on DigitalOcean](docs/digitalocean-relay-host.md).
 
+For an ordinary compatible Ubuntu 24.04 x86_64 VM, Relay also carries a
+same-version, secret-free portable playbook. It checks the minimum substrate,
+pins the Relay and Cell artifacts, and produces a completion receipt without
+retaining cloud credentials. This is a portable playbook—not an “any cloud” or
+unverified provider support claim. See
+[Run Relay Host on a compatible Linux VM](docs/relay-host-linux-vm.md).
+
 Customer-owned encrypted recovery is separate from login recovery codes. Relay
 can create and verify an off-Host Cell bundle containing the database, access
 state, files, settings, license data, and local secret root without giving

@@ -4,6 +4,17 @@
 
 ### Completed
 
+- `provider-neutral-relay-host-playbook` (G-108) — added a same-version npm
+  `relay-host-playbook` CLI, strict portable manifest, secret-free cloud-init,
+  checksum-pinned idempotent bootstrap, named preflight/completion receipts and
+  a packaged customer guide for customer-created Ubuntu 24.04 x86_64 VMs. The
+  bootstrap separates the SSH administrator from the locked runtime identity,
+  retains no provider credential and exposes no service or secret during first
+  boot. Fifty-one contract tests, the existing 156 Host checks, a disposable
+  Ubuntu failure/retry smoke, npm tarball parity, public/docs gates and the
+  production build passed. Website received customer-friendly handoff copy;
+  package/Website publication and named-provider support remain separately
+  gated.
 - `cross-cloud-relay-host-portability` (G-107) — returned **GO** for a
   provider-neutral compatible-Linux-VM playbook first, followed by independently
   verified AWS Lightsail, Azure VM, GCP and EC2 profiles. Accepted a secret-free

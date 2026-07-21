@@ -1,0 +1,35 @@
+{
+  "schema": "orionfold.relay-host-portable/v1",
+  "release": {
+    "npmPackage": "orionfold-relay",
+    "relayVersion": "0.44.9"
+  },
+  "cell": {
+    "imageRepository": "ghcr.io/orionfold/relay-cell",
+    "imageDigest": "sha256:42bea7a0a65bf799ddbbc4a078667f256400c5cca0fe682c07ab68f2bf5c3cd5"
+  },
+  "substrate": {
+    "osId": "ubuntu",
+    "osVersionId": "24.04",
+    "architecture": "x64",
+    "cpuCount": 2,
+    "memoryBytes": 4294967296,
+    "diskBytes": 85899345920
+  },
+  "tools": {
+    "nodeVersion": "22.23.1",
+    "nodeArchiveSha256": "9749e988f437343b7fa832c69ded82a312e41a03116d766797ac14f6f9eee578",
+    "cosignVersion": "3.1.2",
+    "cosignSha256": "f7622ed3cf22e55e1ae6377c080979ff77a22da9981c11df222a2e444991e7cf"
+  },
+  "bootstrap": {
+    "path": "deploy/relay-host/bootstrap.sh",
+    "sha256": "7273c7791519ca8387fc9b121aaf709cfa7c9a9b3c4bc236a2ddf180788675e6",
+    "completionReceipt": "/var/lib/relay-host-portable/bootstrap.json"
+  },
+  "paths": {
+    "app": "/srv/relay-host/app",
+    "data": "/srv/relay-host/data",
+    "supervisor": "/srv/relay-host/supervisor"
+  }
+}

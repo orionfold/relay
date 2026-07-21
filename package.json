@@ -26,7 +26,8 @@
   "bin": {
     "relay": "./dist/cli.js",
     "orionfold-relay": "./dist/cli.js",
-    "relay-host": "./dist/relay-host.js"
+    "relay-host": "./dist/relay-host.js",
+    "relay-host-playbook": "./scripts/relay-host-linux-vm.mjs"
   },
   "files": [
     "dist/",
@@ -48,6 +49,10 @@
     "public/icon-512.png",
     "public/icon-512-maskable.png",
     "public/brand/",
+    "deploy/relay-host/",
+    "docs/relay-host-linux-vm.md",
+    "scripts/relay-host-linux-vm.mjs",
+    "scripts/lib/cloud-host/portable-contract.mjs",
     "scripts/lib/knowledge-bundle.mjs",
     "scripts/verify-knowledge-bundle.mjs",
     "next.config.mjs",
@@ -85,6 +90,9 @@
     "test:harness-safety": "node scripts/test-harness-safety.mjs",
     "test:runtime-graph": "node scripts/runtime-module-graph-smoke.mjs",
     "test:relay-host": "node --test scripts/relay-host-manifest.test.mjs scripts/relay-host-artifact-policy.test.mjs && vitest run src/lib/host/__tests__/cell-shutdown.test.ts src/lib/host/supervisor/__tests__ src/lib/licensing/__tests__/host-entitlement.test.ts src/lib/host-ingress/__tests__ src/lib/recovery/__tests__/recovery.test.ts src/app/api/health/__tests__/routes.test.ts src/lib/documents/processors/__tests__/pdf.test.ts",
+    "test:portable-host": "node --test scripts/relay-host-linux-vm.test.mjs",
+    "check:portable-host": "node scripts/relay-host-linux-vm.mjs manifest",
+    "smoke:portable-host": "node scripts/portable-host-local-smoke.mjs",
     "test:digitalocean-g085": "node --test scripts/digitalocean-g085.test.mjs scripts/digitalocean-g085-live.test.mjs",
     "test:relay-cell-publication": "node --test scripts/relay-cell-publication.test.mjs",
     "check:relay-cell-publication": "node scripts/check-relay-cell-publication.mjs",
@@ -118,7 +126,7 @@
     "demo:refresh": "node scripts/refresh-relay-demo.mjs",
     "sync-worktree": "bash bin/sync-worktree.sh",
     "prepack": "npm run knowledge:verify",
-    "prepublishOnly": "npm run test:public-boundary && npm run check:public-boundary && npm run check:host-fulfillment && npm run knowledge:verify && npm run build:cli"
+    "prepublishOnly": "npm run test:public-boundary && npm run check:public-boundary && npm run check:host-fulfillment && npm run check:portable-host && npm run knowledge:verify && npm run build:cli"
   },
   "engines": {
     "node": ">=20.0.0"
