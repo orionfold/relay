@@ -1,6 +1,6 @@
 {
   "apiPaths": [],
-  "contentHash": "a97a978f0346d13ef7d1644c932bab9adf26894e80d3499de252abbee600757e",
+  "contentHash": "1cf15605506ae7177c31800e3b0e798d69c44c80668ed5e71aafdf243f1e5132",
   "features": [
     "Card system",
     "Customer book",
@@ -413,7 +413,7 @@
   ],
   "sourceHash": "3c95c5cd1f3b903d4cec7d5cefe4546fe6b653e4a880c11ae6db328cb266a16d",
   "sourcePath": "docs/guides/03-organize-customers-projects-and-tasks.md",
-  "sourceStateHash": "624c35e43fd6a4cd040c81dbbc61e71b613012b576c0f8ee88e7952595338732",
+  "sourceStateHash": "943e6d39c2a135e5efaa36fbd9b89e701cbb15e9e38276edbc52ab4fff757b5b",
   "summary": "Show how Relay groups work by customer, project, and task so a small business can see what is happening.",
   "title": "Organize Customers, Projects, And Tasks"
 }

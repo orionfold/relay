@@ -1,6 +1,6 @@
 id: finance-pack
 version: 0.1.0
-apiVersion: "0.44"
+apiVersion: "0.45"
 kind: primitives-bundle
 name: Finance Pack
 description: |

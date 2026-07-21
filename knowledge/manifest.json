@@ -1,9 +1,9 @@
 {
-  "bundleHash": "006167967c59dbd324d250140b2b5c27ce9590fb4d88582d514710953d2648d3",
+  "bundleHash": "ae62c84e7ad7a111a9a202b924290870cf063572d4ff542ecef5fa8b8d1cd36f",
   "corpus": {
     "apiDocsVersion": "2026-07-08.initial-plan",
-    "apiTrackerHash": "1d31b3ffd1895b0b2e4e996867235fe6274ad552d4ef35c33646f28e5e677e0b",
-    "guideTrackerHash": "ab37ec6231831e4877514b70ccb04886dc60a477d288c56a70a90b6bbfe2b0d9",
+    "apiTrackerHash": "d2591ec997d43de7f2a0808ffe301c4459d229e5f81dca67d0c4067b81044174",
+    "guideTrackerHash": "847e01d11915d2f2575cf7d86075b7907306b4f32e2f0750d7e92758bb158fa0",
     "guideVersion": "2026-07-09.narrative-book-guide",
     "screenshotManifestHash": "9edc0914b86fa50ac64d5d75eb98dab49ae43f50915e412e5021e996bd399a86"
   },
@@ -109,13 +109,13 @@
       "title": "Use Packs And Licenses"
     },
     {
-      "contentHash": "a97a978f0346d13ef7d1644c932bab9adf26894e80d3499de252abbee600757e",
+      "contentHash": "1cf15605506ae7177c31800e3b0e798d69c44c80668ed5e71aafdf243f1e5132",
       "id": "guide:03-customers-projects-tasks",
       "kind": "guide",
       "path": "entries/guide.03-customers-projects-tasks.json",
       "publicUrl": "https://orionfold.com/relay/docs/organize-customers-projects-and-tasks/",
       "sourceHash": "3c95c5cd1f3b903d4cec7d5cefe4546fe6b653e4a880c11ae6db328cb266a16d",
-      "sourceStateHash": "624c35e43fd6a4cd040c81dbbc61e71b613012b576c0f8ee88e7952595338732",
+      "sourceStateHash": "943e6d39c2a135e5efaa36fbd9b89e701cbb15e9e38276edbc52ab4fff757b5b",
       "title": "Organize Customers, Projects, And Tasks"
     },
     {
@@ -169,20 +169,20 @@
       "title": "Build And Publish A Small Website"
     },
     {
-      "contentHash": "9123cf24d13794710f920416ec4804fff0e0045810f3ebd454742a1167d430f6",
+      "contentHash": "d1f6be75e47e186c11cfc765f420dc8e34ff2b8c19cbdfe679f97003d8754a94",
       "id": "guide:09-settings-trust",
       "kind": "guide",
       "path": "entries/guide.09-settings-trust.json",
       "publicUrl": "https://orionfold.com/relay/docs/set-trust-runtime-and-local-controls/",
-      "sourceHash": "256c5c514c57203e12261d250f343dcab33e0213a31fd4ddd82799768b54e8f6",
-      "sourceStateHash": "ebcd1c940498c6d58640ae85a58302156d4ea6b963089599f673589cf76ab0e8",
+      "sourceHash": "e81a240b5667a2e78d16cfcf9734f2d46cc3720672626f9b7a7f77e0f9aef379",
+      "sourceStateHash": "6029df3654bce28c4b776df52aab453d63f354886f1a59618aa8a236ab803dac",
       "title": "Set Trust, Runtime, And Local Controls"
     }
   ],
   "entryCount": 17,
-  "indexHash": "b840e155a1f53de4cb5e304edd3ead47803adff3910150dd3115db510e428da7",
-  "releaseVersion": "0.44.9",
+  "indexHash": "b3081070078eacfc3b5fcc8a44a8fa45b9b782389a371fa7deb49c6e96ea4e5b",
+  "releaseVersion": "0.45.0",
   "schemaVersion": 2,
   "sectionCount": 450,
-  "sourceBundleHash": "42cdb446ccd18dd71f04c1989d87dba04a495d211247349739d06f2c48d67cbc"
+  "sourceBundleHash": "c10a9b6ef9bda72221a284517c575483fd22f424f34fdc84f78320126c048f36"
 }
