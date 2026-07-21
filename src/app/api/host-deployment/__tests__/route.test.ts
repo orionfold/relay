@@ -7,7 +7,12 @@ import { GET, POST } from "../route";
 
 // Exercise the last accepted release authority while a newer Cell candidate
 // is being built; npm publication separately fails closed on version parity.
-vi.mock("@/lib/config/version", () => ({ relayProductVersion: () => "0.44.9" }));
+// Resolve the authority from the manifest so binding a newly published Cell
+// cannot leave this release-gate fixture pinned to an older version.
+vi.mock("@/lib/config/version", async () => {
+  const { default: release } = await import("@/lib/host/deployment/relay-cell-release.json");
+  return { relayProductVersion: () => release.relayVersion };
+});
 
 let root: string;
 
