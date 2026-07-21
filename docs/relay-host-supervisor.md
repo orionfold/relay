@@ -19,12 +19,12 @@ cannot reach into Cells on other Hosts.
 ## Current release state
 
 The local G-083 control plane is implemented on mainline. The current public,
-signed multi-architecture Cell image is Relay `0.45.1` at immutable index
-digest `sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149`.
+signed multi-architecture Cell image is Relay `0.45.2` at immutable index
+digest `sha256:ea3098207a390498a92cb23e73b27cdcf25b6ab3679415b3b976461e1baad624`.
 G-084 has accepted the browser lifecycle UX, and G-101 has accepted the fresh
 customer-identical npm-to-Host-to-managed-Cell release-candidate journey.
 Website G-041/G-047 and Relay G-104/G-105 accepted the commercial fulfillment
-and guided DigitalOcean public beta. Relay `0.45.1` adds the portable Linux VM
+and guided DigitalOcean public beta. Relay `0.45.2` adds the portable Linux VM
 playbook; it does not imply that every cloud provider is verified or supported.
 
 ## What it stores
@@ -74,9 +74,9 @@ execution authority is the immutable image reference, never a mutable tag:
   "ownerRef": "owner_customer_a",
   "origin": "create",
   "artifact": {
-    "version": "0.45.1",
-    "imageReference": "ghcr.io/orionfold/relay-cell@sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149",
-    "imageDigest": "sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149",
+    "version": "0.45.2",
+    "imageReference": "ghcr.io/orionfold/relay-cell@sha256:ea3098207a390498a92cb23e73b27cdcf25b6ab3679415b3b976461e1baad624",
+    "imageDigest": "sha256:ea3098207a390498a92cb23e73b27cdcf25b6ab3679415b3b976461e1baad624",
     "schemaMin": 1,
     "schemaMax": 1
   },

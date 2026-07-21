@@ -1,8 +1,8 @@
 # Relay Cell OCI acquisition and verification
 
 > Publication status (2026-07-21): the protected workflow published and verified Relay Cell
-> `v0.45.1` for `linux/amd64` and `linux/arm64`. The immutable accepted index is
-> `sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149`.
+> `v0.45.2` for `linux/amd64` and `linux/arm64`. The immutable accepted index is
+> `sha256:ea3098207a390498a92cb23e73b27cdcf25b6ab3679415b3b976461e1baad624`.
 > This makes the free Cell runtime available; it does not make the separately
 > licensed Relay Host journey customer-ready.
 
@@ -23,7 +23,7 @@ Host, not by making the Cell image private.
 Release notes and the Host manifest provide a value such as:
 
 ```text
-ghcr.io/orionfold/relay-cell@sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149
+ghcr.io/orionfold/relay-cell@sha256:ea3098207a390498a92cb23e73b27cdcf25b6ab3679415b3b976461e1baad624
 ```
 
 Use that complete reference for deployment. `vX.Y.Z`, `vX.Y`, and `stable`
@@ -33,7 +33,7 @@ is the authority. The tag `latest` is not part of Relay's publication policy.
 Pull and inspect the accepted digest:
 
 ```bash
-export RELAY_CELL_DIGEST='sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149'
+export RELAY_CELL_DIGEST='sha256:ea3098207a390498a92cb23e73b27cdcf25b6ab3679415b3b976461e1baad624'
 docker pull "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST"
 docker buildx imagetools inspect "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST"
 ```

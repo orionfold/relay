@@ -114,7 +114,7 @@ confirmation, then uses the provider console to remove every billable resource.
 
 ## Completion receipt
 
-Accepted for Relay `v0.45.1` on 2026-07-21.
+Accepted for Relay `v0.45.2` on 2026-07-21.
 
 | Acceptance | Evidence | Result |
 |---|---|---|
@@ -128,8 +128,8 @@ Accepted for Relay `v0.45.1` on 2026-07-21.
 | UI/browser disposition | no application UI changed | not applicable; deterministic docs/package/runtime evidence used |
 | fresh architecture/security review | two critical findings fixed: deliberate failure receipts and SSH/runtime identity separation | APPROVE; no open findings |
 
-Relay Cell `v0.45.1` is public and verified at
-`sha256:4dd8a80652a6b83ae7c413646db48eb4e532dd06aa04a2a7c8bc393a8fac1149`.
+Relay Cell `v0.45.2` is public and verified at
+`sha256:ea3098207a390498a92cb23e73b27cdcf25b6ab3679415b3b976461e1baad624`.
 The provider-neutral playbook is included in the matching npm/GitHub release;
 Website adaptation/publication and any named-provider proof remain separately
 operator-gated.
