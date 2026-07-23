@@ -173,7 +173,7 @@ harness, mutation, Pack, fresh-clone, or packaged boundary. A required lane that
 exits zero without its semantic receipt is a gate failure.
 
 The shared workflow uses Node 22 and npm 11, matching the trusted-publish job;
-the separate fresh-clone workflow retains Node 20/22 and npm 10/11 portability.
+the separate fresh-clone workflow covers Node 22/24 and npm 11/12 portability.
 Quality execution is sequential and unsharded. Its local release budget is a
 measured 12 minutes; it is checked after each lane completes and is not a claim
 of local process-tree termination. The hosted job's 15-minute timeout is the

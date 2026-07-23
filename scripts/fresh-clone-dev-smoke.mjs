@@ -103,7 +103,9 @@ try {
 
   const baseUrl = `http://127.0.0.1:${port}`;
   const home = await waitForReady(`${baseUrl}/`);
-  assert.match(await home.text(), /Welcome/);
+  const homeHtml = await home.text();
+  assert.match(homeHtml, /Orionfold Relay/);
+  assert.match(homeHtml, /Community Edition/);
 
   const providersResponse = await fetch(`${baseUrl}/api/settings/providers`);
   assert.equal(providersResponse.status, 200);

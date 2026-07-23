@@ -224,7 +224,7 @@ npm distribution name: `orionfold-relay` (CLI commands `relay` / `orionfold-rela
 
 ## Development
 
-Relay requires Node.js 20 or newer. A source checkout must enter Relay development
+Relay requires Node.js 22 or newer. A source checkout must enter Relay development
 mode **before the first app boot** so customer-instance bootstrap cannot create local
 branches, install git hooks, or register instance automation in the contributor clone.
 

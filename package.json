@@ -1,6 +1,6 @@
 {
   "name": "orionfold-relay",
-  "version": "0.46.0",
+  "version": "0.46.1",
   "description": "Orionfold Relay — a local-first, multi-agent orchestration runtime and builder scaffold for AI-native work.",
   "keywords": [
     "ai",
@@ -129,7 +129,7 @@
     "prepublishOnly": "npm run test:public-boundary && npm run check:public-boundary && npm run check:host-fulfillment && npm run check:portable-host && npm run knowledge:verify && npm run build:cli"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.141",
@@ -154,7 +154,7 @@
     "jszip": "^3.10.1",
     "lucide-react": "^0.474.0",
     "mammoth": "^1.11.0",
-    "next": "16.2.10",
+    "next": "16.2.11",
     "next-themes": "^0.4.6",
     "open": "^10",
     "openai": "^6.33.0",
@@ -169,7 +169,7 @@
     "recharts": "^3.8.1",
     "remark-gfm": "^4.0.1",
     "semver": "^7.7.4",
-    "sharp": "^0.34.5",
+    "sharp": "0.35.3",
     "smol-toml": "^1.6.1",
     "sonner": "^2.0.7",
     "sugar-high": "^1.0.0",
@@ -204,5 +204,10 @@
   },
   "allowScripts": {
     "better-sqlite3": true
+  },
+  "overrides": {
+    "fast-uri": "3.1.4",
+    "postcss": "8.5.22",
+    "sharp": "$sharp"
   }
 }

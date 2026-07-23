@@ -57,7 +57,7 @@ Sign out and back in so the Docker group change takes effect. Membership in the
 Docker group is effectively root authority; grant it only to trusted Host
 administrators.
 
-Install a supported Node.js release (Node 20 or newer; the validated run uses
+Install a supported Node.js release (Node 22 or newer; the validated run uses
 Node 22) and Cosign using their official installation instructions. Then check:
 
 ```bash

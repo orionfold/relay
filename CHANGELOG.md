@@ -8,7 +8,7 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
-## [0.46.0] — 2026-07-23
+## [0.46.1] — 2026-07-23
 
 ### Added
 
@@ -32,8 +32,18 @@ them; the current package and repository identity is Orionfold Relay.
   workflow, and transient later-step runtime failures can recheck and resume
   the exact blocked suffix without replaying completed work.
 
+### Changed
+
+- **The supported Node.js floor is now Node 22.** Fresh-clone checks cover the
+  current Node 22 and Node 24 lines on macOS and Windows with npm 11 and npm 12,
+  matching the native SQLite binaries and package-manager recovery paths Relay
+  actually ships.
+
 ### Fixed
 
+- **The release image passes the current high-severity vulnerability gate.**
+  Relay now uses Next.js 16.2.11 and Sharp 0.35.3, and constrains the affected
+  PostCSS and Fast URI transitive paths to fixed compatible releases.
 - **Fresh provider setup and Agency sample removal now tell the truth
   immediately.** Relay uses Claude's documented CLI status instead of assuming
   macOS Keychain state from a credential file, skips broken Codex PATH shims in

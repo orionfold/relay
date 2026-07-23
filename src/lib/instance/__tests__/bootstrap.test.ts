@@ -86,8 +86,10 @@ beforeEach(() => {
   vi.stubEnv("RELAY_DATA_DIR", dataDir);
 });
 
-afterEach(() => {
+afterEach(async () => {
   vi.unstubAllEnvs();
+  const { sqlite } = await import("@/lib/db");
+  if (sqlite.open) sqlite.close();
   rmSync(tempDir, { recursive: true, force: true });
   rmSync(dataDir, { recursive: true, force: true });
 });
