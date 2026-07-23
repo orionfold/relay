@@ -104,6 +104,15 @@ jobs:
           node -e "const fs=require('fs'); const version=process.env.VERSION.replaceAll('.','\\\\.'); if(!(new RegExp('^## \\\\['+version+'\\\\]','m')).test(fs.readFileSync('CHANGELOG.md','utf8'))) process.exit(1)"
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
           test -z "$(git status --porcelain --untracked-files=all)"
+          if [ "$SCOPE" = "cell" ]; then
+            TAG="cell-v${VERSION}"
+          else
+            TAG="v${VERSION}"
+          fi
+          if git rev-parse --verify --quiet "refs/tags/${TAG}"; then
+            echo "::error::RELEASE_PREFLIGHT_TAG_EXISTS tag=$TAG"
+            exit 1
+          fi
 
       - name: Guard current production dependency policy before tagging
         run: |

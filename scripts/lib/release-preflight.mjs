@@ -122,6 +122,25 @@ export function inspectSource(root) {
   };
 }
 
+export function releaseTag(scope, version) {
+  assert(RELEASE_PREFLIGHT_SCOPES.includes(scope), "RELEASE_PREFLIGHT_SCOPE_INVALID", `unknown release scope: ${scope}`);
+  assert(VERSION_PATTERN.test(version ?? ""), "RELEASE_PREFLIGHT_VERSION_INVALID", "release version must be semantic X.Y.Z");
+  return scope === "cell" ? `cell-v${version}` : `v${version}`;
+}
+
+export function assertTagAvailable(root, scope, version) {
+  const tag = releaseTag(scope, version);
+  try {
+    execFileSync("git", ["rev-parse", "--verify", "--quiet", `refs/tags/${tag}`], {
+      cwd: root,
+      stdio: "ignore",
+    });
+  } catch {
+    return tag;
+  }
+  fail("RELEASE_PREFLIGHT_TAG_EXISTS", `immutable tag ${tag} already exists`);
+}
+
 export function createLaneReceipt({ id, status }) {
   const expected = RELEASE_PREFLIGHT_LANES.find((lane) => lane.id === id);
   assert(expected, "RELEASE_PREFLIGHT_LANE_UNKNOWN", `unknown supported lane: ${id}`);

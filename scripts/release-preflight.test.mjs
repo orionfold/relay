@@ -6,6 +6,7 @@ import {
   RELEASE_PREFLIGHT_LANES,
   RELEASE_PREFLIGHT_POLICY_PATHS,
   ReleasePreflightError,
+  assertTagAvailable,
   computeReceiptDigest,
   createChecks,
   createLaneReceipt,
@@ -158,6 +159,7 @@ test("candidate and publication workflows retain exact-SHA and pre-write guards"
 
   assert.match(candidate, /github\.event\.inputs\.source_sha.*github\.sha|SOURCE_SHA.*GITHUB_SHA/su);
   assert.match(candidate, /npm audit --omit=dev --audit-level=high/u);
+  assert.match(candidate, /RELEASE_PREFLIGHT_TAG_EXISTS/u);
   assert.match(candidate, /uses: \.\/\.github\/workflows\/quality-gate\.yml/u);
   assert.match(candidate, /uses: \.\/\.github\/workflows\/fresh-clone-dev\.yml/u);
   for (const command of [
@@ -180,4 +182,8 @@ test("candidate and publication workflows retain exact-SHA and pre-write guards"
   const npmWrite = npm.indexOf("run: npm publish");
   assert.ok(npmPreflight > 0 && npmWrite > npmPreflight);
   assert.doesNotMatch(npm, /uses: [^\n]+@v[0-9]/u);
+});
+
+test("the local driver refuses an already-created immutable tag", () => {
+  expectCode(() => assertTagAvailable(new URL("..", import.meta.url), "cell", "0.46.2"), "RELEASE_PREFLIGHT_TAG_EXISTS");
 });

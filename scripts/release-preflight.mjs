@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import {
   RELEASE_PREFLIGHT_LANES,
   ReleasePreflightError,
+  assertTagAvailable,
   computeReleasePolicyDigest,
   computeSourceTreeDigest,
   createChecks,
@@ -249,6 +250,7 @@ async function main() {
     if (branch !== "main") throw new ReleasePreflightError("RELEASE_PREFLIGHT_SOURCE_NOT_MAIN", `release candidate must be prepared from main, not ${branch || "detached HEAD"}`);
     const originMain = execFileSync("git", ["rev-parse", "origin/main"], { cwd: root, encoding: "utf8" }).trim();
     if (originMain !== source.revision) throw new ReleasePreflightError("RELEASE_PREFLIGHT_SOURCE_NOT_PUSHED", `HEAD ${source.revision} differs from local origin/main ${originMain}`);
+    const tag = assertTagAvailable(root, scope, version);
 
     let runId = options["run-id"];
     if (options.dispatch === "true") {
@@ -279,7 +281,6 @@ async function main() {
       policyDigest: computeReleasePolicyDigest(root),
       workflowRunId: runId,
     });
-    const tag = scope === "cell" ? `cell-v${version}` : `v${version}`;
     process.stdout.write(`${JSON.stringify({
       status: "tag-eligible",
       externalWritesPerformed: options.dispatch === "true" ? ["candidate-workflow-dispatch"] : [],
