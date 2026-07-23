@@ -81,7 +81,9 @@ OAuth, local provider, model inventory/load, routing, workflow preflight and
 shell state. It was accepted 2026-07-23 after the complete state matrix,
 3,870-test suite, production build, deterministic real-task runtime smoke, and
 responsive dark-browser proof passed. G-120 now reorganizes Settings around
-that contract. G-123 removes filesystem-skill warning floods without hiding
+that contract and was accepted 2026-07-23 after compact provider-first
+desktop/mobile proof, live routing reconciliation and the complete 3,874-test
+suite passed. G-123 now removes filesystem-skill warning floods without hiding
 real scanner failure.
 
 ### O4 — First successful and recoverable run

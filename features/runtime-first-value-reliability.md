@@ -170,3 +170,25 @@ TypeScript, the production build, the deterministic real-task runtime-graph
 smoke under `npm run dev` across Ollama/LiteLLM/LM Studio, and desktop plus
 390 px dark-browser inspection with no console errors. Existing Turbopack
 dynamic file-tracing warnings remain unrelated.
+
+## Implementation receipt — G-120
+
+Accepted 2026-07-23. Settings now reads in customer action order: compact
+Ollama, LiteLLM and LM Studio summaries first; compact Anthropic/OpenAI setup
+next; task routing last. Each local-provider summary exposes the exact
+G-119 readiness state, endpoint and model selection, then expands
+keyboard-accessibly without hiding provider-specific authentication, transport,
+model acquisition, discovery or capability controls. Existing provider anchors
+remain valid.
+
+The layout uses the goal's ordered-section rescue path because it preserved
+scan speed better than nesting all provider forms inside the routing card.
+Provider save/test/discovery events force-refresh the shared routing snapshot,
+so newly verified runtimes appear without a manual second refresh. Initial
+verified state now says **Verified** until inventory has actually been
+discovered rather than falsely displaying zero models.
+
+Verification passed: 3,874 tests across 528 files (one intentional skip),
+TypeScript, production build, focused save-before-test/discovery/order/event
+tests, and desktop plus 390 px light/dark browser inspection with zero console
+errors. Existing Turbopack dynamic file-tracing warnings remain unrelated.

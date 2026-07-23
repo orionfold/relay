@@ -2,6 +2,6 @@
 
 import { ProviderSetupCard } from "@/components/settings/provider-setup-card";
 
-export function OllamaSection() {
-  return <ProviderSetupCard runtimeId="ollama" />;
+export function OllamaSection({ compact = false }: { compact?: boolean }) {
+  return <ProviderSetupCard runtimeId="ollama" compact={compact} />;
 }

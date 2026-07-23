@@ -63,13 +63,33 @@ export default function SettingsPage() {
           <HostDeploymentSection orientation={orientation} />
         </SettingsAnchor>
         <SettingsAnchor id="settings-providers">
-          <ProvidersAndRuntimesSection />
-        </SettingsAnchor>
-        <SettingsAnchor id="settings-ollama-section">
-          <OllamaSection />
+          <section
+            className="space-y-4"
+            aria-labelledby="provider-setup-heading"
+          >
+            <div>
+              <h2 id="provider-setup-heading" className="text-base font-medium">
+                Connect AI providers
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Save and verify at least one provider, then choose how Relay
+                routes work across the runtimes that are actually ready.
+              </p>
+            </div>
+            <div
+              id="settings-ollama-section"
+              tabIndex={-1}
+              className="scroll-mt-[calc(var(--chrome-glance-top)+2rem)] rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <OllamaSection compact />
+            </div>
+          </section>
         </SettingsAnchor>
         <SettingsAnchor id="settings-openai-compatible">
-          <OpenAICompatibleSection />
+          <OpenAICompatibleSection compact />
+        </SettingsAnchor>
+        <SettingsAnchor id="settings-provider-routing">
+          <ProvidersAndRuntimesSection />
         </SettingsAnchor>
         <SettingsAnchor id="settings-chat-section">
           <ChatSettingsSection />

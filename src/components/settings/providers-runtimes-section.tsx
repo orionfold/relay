@@ -455,7 +455,7 @@ export function ProvidersAndRuntimesSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Network className="h-5 w-5" />
-            Providers &amp; Runtimes
+            Cloud providers &amp; task routing
           </CardTitle>
           <CardDescription>Loading provider configuration...</CardDescription>
         </CardHeader>
@@ -472,7 +472,7 @@ export function ProvidersAndRuntimesSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-destructive" />
-            Providers &amp; Runtimes
+            Cloud providers &amp; task routing
           </CardTitle>
           <CardDescription>
             {error ?? "Failed to load provider configuration."}
@@ -521,7 +521,7 @@ export function ProvidersAndRuntimesSection() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Network className="h-5 w-5" />
-          Providers &amp; Runtimes
+          Cloud providers &amp; task routing
         </CardTitle>
         <CardDescription>
           {noneReady
@@ -537,30 +537,6 @@ export function ProvidersAndRuntimesSection() {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <RuntimeRoutingControl
-          routing={data.routing}
-          statuses={data.runtimeRoutingStatuses}
-          onSaved={(routing) => {
-            setData((current) =>
-              current
-                ? {
-                    ...current,
-                    routing,
-                    routingPreference: routing.preference,
-                  }
-                : current,
-            );
-          }}
-          onRefreshHealth={async () => {
-            const refreshed = await fetchData(true);
-            if (!refreshed) {
-              throw new Error("Runtime health refresh failed");
-            }
-          }}
-        />
-
-        <Separator />
-
         {/* Anthropic provider — controlled open state */}
         <ProviderRow
           name="Anthropic"
@@ -685,6 +661,38 @@ export function ProvidersAndRuntimesSection() {
             />
           </div>
         </ProviderRow>
+
+        <Separator />
+
+        <div>
+          <p className="text-sm font-semibold">Route work across ready runtimes</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Provider changes above update this eligible runtime list
+            automatically.
+          </p>
+        </div>
+
+        <RuntimeRoutingControl
+          routing={data.routing}
+          statuses={data.runtimeRoutingStatuses}
+          onSaved={(routing) => {
+            setData((current) =>
+              current
+                ? {
+                    ...current,
+                    routing,
+                    routingPreference: routing.preference,
+                  }
+                : current,
+            );
+          }}
+          onRefreshHealth={async () => {
+            const refreshed = await fetchData(true);
+            if (!refreshed) {
+              throw new Error("Runtime health refresh failed");
+            }
+          }}
+        />
       </CardContent>
     </Card>
   );

@@ -4,6 +4,15 @@
 
 ### Completed
 
+- `runtime-first-value-reliability` (G-120) — reordered Settings around the
+  customer journey: compact, expandable local-provider summaries and compact
+  cloud-provider rows now precede task routing. Provider-specific auth,
+  transport, model acquisition/discovery and capability controls remain
+  available; provider changes refresh routing readiness automatically. A
+  verified provider no longer displays a misleading zero-model count before
+  inventory discovery. All 3,874 regressions passed (one intentional skip),
+  plus TypeScript, production build, and desktop/390 px light/dark browser
+  proof with zero console errors.
 - `runtime-first-value-reliability` (G-119) — introduced one persisted,
   provider-neutral readiness observation without flattening provider-specific
   evidence. Saved credentials/endpoints are no longer Connected until a

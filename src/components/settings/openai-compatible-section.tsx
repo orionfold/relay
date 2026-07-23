@@ -2,7 +2,11 @@
 
 import { ProviderSetupCard } from "@/components/settings/provider-setup-card";
 
-export function OpenAICompatibleSection() {
+export function OpenAICompatibleSection({
+  compact = false,
+}: {
+  compact?: boolean;
+}) {
   return (
     <section className="space-y-4" aria-labelledby="openai-compatible-heading">
       <div>
@@ -15,8 +19,8 @@ export function OpenAICompatibleSection() {
         </p>
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
-        <ProviderSetupCard runtimeId="litellm" />
-        <ProviderSetupCard runtimeId="lmstudio" />
+        <ProviderSetupCard runtimeId="litellm" compact={compact} />
+        <ProviderSetupCard runtimeId="lmstudio" compact={compact} />
       </div>
     </section>
   );

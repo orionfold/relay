@@ -41,6 +41,40 @@ describe("OllamaSection", () => {
     expect(screen.getByRole("button", { name: "Pull" })).toBeDisabled();
   });
 
+  it("keeps provider-specific controls behind an accessible compact summary", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => response(true, savedSettings)));
+
+    render(<OllamaSection compact />);
+
+    const summary = await screen.findByRole("button", {
+      name: /Ollama/,
+    });
+    expect(summary).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByLabelText("Server base URL")).not.toBeInTheDocument();
+
+    fireEvent.click(summary);
+
+    expect(summary).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByLabelText("Server base URL")).toHaveValue(
+      "http://localhost:11434",
+    );
+  });
+
+  it("opens a compact card when setup loading fails so the error is visible", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => response(false, { error: "Settings unavailable" })),
+    );
+
+    render(<OllamaSection compact />);
+
+    expect(await screen.findByText("Loading settings")).toBeInTheDocument();
+    expect(screen.getByText("Settings unavailable")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Ollama/ }),
+    ).toHaveAttribute("aria-expanded", "true");
+  });
+
   it("auto-saves edits before testing and renders discovered model details", async () => {
     const calls: string[] = [];
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {

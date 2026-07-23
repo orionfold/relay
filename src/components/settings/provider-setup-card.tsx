@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  ChevronDown,
+  ChevronRight,
   Download,
   Loader2,
   Network,
@@ -25,6 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import type {
   RuntimeReadinessObservation,
 } from "@/lib/settings/runtime-readiness";
+import { AuthStatusBadge } from "./auth-status-badge";
 
 export type SetupRuntimeId = "ollama" | "litellm" | "lmstudio";
 
@@ -197,7 +200,13 @@ function messageFrom(payload: Record<string, unknown>, fallback: string): string
     : fallback;
 }
 
-export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) {
+export function ProviderSetupCard({
+  runtimeId,
+  compact = false,
+}: {
+  runtimeId: SetupRuntimeId;
+  compact?: boolean;
+}) {
   const definition = PROVIDER_DEFINITIONS[runtimeId];
   const Icon = definition.icon;
   const mounted = useRef(true);
@@ -210,12 +219,14 @@ export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) 
   const [hasApiKey, setHasApiKey] = useState(false);
   const [apiKeySource, setApiKeySource] = useState<RuntimeSettings["apiKeySource"]>("unknown");
   const [models, setModels] = useState<ProviderModel[]>([]);
+  const [modelsDiscovered, setModelsDiscovered] = useState(false);
   const [metadataWarning, setMetadataWarning] = useState<string | null>(null);
   const [operation, setOperation] = useState<Operation>("loading");
   const [connection, setConnection] = useState<ConnectionState>("idle");
   const [error, setError] = useState<{ phase: string; message: string } | null>(null);
   const [acquisitionModel, setAcquisitionModel] = useState("");
   const [downloadStatus, setDownloadStatus] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(!compact);
 
   useEffect(() => () => {
     mounted.current = false;
@@ -251,6 +262,7 @@ export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) 
         if (active) applySettings(payload as unknown as RuntimeSettings);
       } catch (loadError) {
         if (active) {
+          setExpanded(true);
           setError({
             phase: "Loading settings",
             message: loadError instanceof Error ? loadError.message : String(loadError),
@@ -324,6 +336,7 @@ export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) 
       }
       const discovered = payload as unknown as ProviderModelsResponse;
       setModels(Array.isArray(discovered.models) ? discovered.models : []);
+      setModelsDiscovered(true);
       setMetadataWarning(
         discovered.metadataWarning ??
           (discovered.excludedModelCount
@@ -534,14 +547,66 @@ export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) 
 
   return (
     <Card id={`settings-${runtimeId}`} className="surface-card scroll-mt-4">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2" role="heading" aria-level={3}>
-          <Icon className="h-5 w-5" />
-          {definition.label}
-        </CardTitle>
-        <CardDescription>{definition.description}</CardDescription>
+      <CardHeader className={compact ? "p-0" : undefined}>
+        {compact ? (
+          <button
+            type="button"
+            onClick={() => setExpanded((current) => !current)}
+            data-interactive-surface=""
+            data-interactive-outline="preserve"
+            aria-expanded={expanded}
+            aria-controls={`${runtimeId}-provider-setup-controls`}
+            className="interactive-list-item flex w-full items-center gap-3 rounded-xl p-4 text-left"
+          >
+            <Icon className="h-5 w-5 shrink-0" />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <CardTitle role="heading" aria-level={3}>
+                  {definition.label}
+                </CardTitle>
+                {snapshot ? (
+                  <AuthStatusBadge
+                    connected={snapshot.readiness.ready}
+                    readiness={snapshot.readiness.phase}
+                    apiKeySource={snapshot.apiKeySource}
+                  />
+                ) : (
+                  <Badge variant="outline">Loading</Badge>
+                )}
+              </div>
+              <CardDescription className="mt-1 truncate">
+                {snapshot
+                  ? `${snapshot.baseUrl} · ${
+                      snapshot.defaultModel || "Model auto-select"
+                    }`
+                  : definition.description}
+              </CardDescription>
+            </div>
+            {expanded ? (
+              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+            )}
+          </button>
+        ) : (
+          <>
+            <CardTitle className="flex items-center gap-2" role="heading" aria-level={3}>
+              <Icon className="h-5 w-5" />
+              {definition.label}
+            </CardTitle>
+            <CardDescription>{definition.description}</CardDescription>
+          </>
+        )}
       </CardHeader>
-      <CardContent className="space-y-5">
+      {expanded ? (
+        <CardContent
+          id={`${runtimeId}-provider-setup-controls`}
+          className={
+            compact
+              ? "space-y-5 border-t border-border/60 pt-5"
+              : "space-y-5"
+          }
+        >
         {operation === "loading" ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading settings...
@@ -646,7 +711,10 @@ export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) 
                 Test and discover models
               </Button>
               <span className="text-xs text-muted-foreground" aria-live="polite">
-                {connection === "connected" && `Connected · ${models.length} model${models.length === 1 ? "" : "s"}`}
+                {connection === "connected" &&
+                  (modelsDiscovered
+                    ? `Connected · ${models.length} model${models.length === 1 ? "" : "s"}`
+                    : "Verified")}
                 {connection === "failed" && "Connection failed"}
                 {connection === "idle" &&
                   (dirty
@@ -755,7 +823,8 @@ export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) 
             ) : null}
           </>
         )}
-      </CardContent>
+        </CardContent>
+      ) : null}
     </Card>
   );
 }

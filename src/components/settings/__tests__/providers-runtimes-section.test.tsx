@@ -164,7 +164,11 @@ describe("providers and runtimes section", () => {
         const body = init?.body ? JSON.parse(String(init.body)) : undefined;
         calls.push({ url, method, body });
 
-        if (url === "/api/settings/providers" && method === "GET") {
+        if (
+          (url === "/api/settings/providers" ||
+            url === "/api/settings/providers?refreshRuntimeHealth=1") &&
+          method === "GET"
+        ) {
           return { ok: true, json: async () => providersPayload() };
         }
         if (url === "/api/settings/openai/login" && method === "POST") {
@@ -299,5 +303,42 @@ describe("providers and runtimes section", () => {
           ].includes(call.url) && call.method !== "GET",
       ),
     ).toBe(false);
+  });
+
+  it("puts provider setup before task routing in keyboard and reading order", async () => {
+    render(<ProvidersAndRuntimesSection />);
+
+    const openAI = (await screen.findByText("OpenAI")).closest("button");
+    const routing = screen.getByText("Task routing");
+
+    expect(openAI).not.toBeNull();
+    expect(
+      openAI!.compareDocumentPosition(routing) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Provider changes above update this eligible runtime list automatically.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("refreshes routing readiness when a local provider changes", async () => {
+    render(<ProvidersAndRuntimesSection />);
+    await screen.findByText("Cloud providers & task routing");
+
+    window.dispatchEvent(
+      new CustomEvent("relay:runtime-readiness-changed"),
+    );
+
+    await waitFor(() => {
+      expect(
+        calls.filter(
+          (call) =>
+            call.url ===
+            "/api/settings/providers?refreshRuntimeHealth=1",
+        ),
+      ).toHaveLength(1);
+    });
   });
 });
