@@ -2,6 +2,17 @@
 
 ## 2026-07-23
 
+### Started
+
+- `release-train-hardening` (G-131; initially entered under the already-used
+  G-114 ID) — implemented the exact-SHA `cell|host` candidate workflow,
+  versioned 24-hour content-addressed receipts, fail-closed tag consumers,
+  reusable macOS/Windows Node/npm evidence, explicit production-audit counts,
+  a local driver that never creates tags, and one OCI production approval
+  fan-out/fan-in. Twenty-one release-quality lanes are green locally. Completion
+  remains gated on the separately authorized workflow push, exact-SHA candidate
+  run, and next real Cell/npm release proof.
+
 ### Completed
 
 - `provider-auth-bootstrap-truth` (G-129 corrective follow-up) — replaced

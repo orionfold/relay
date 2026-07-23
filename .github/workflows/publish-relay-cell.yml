@@ -6,6 +6,7 @@ on:
       - "cell-v*"
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -13,8 +14,78 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  preflight:
+    name: Verify exact-SHA Cell candidate receipt
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      run-id: ${{ steps.candidate.outputs.run-id }}
+      artifact: ${{ steps.candidate.outputs.artifact }}
+    steps:
+      - name: Check out the exact release tag
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up receipt Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: "22.23.1"
+          cache: npm
+
+      - name: Install receipt dependencies
+        run: npm ci
+
+      - name: Locate a successful exact-SHA Cell candidate
+        id: candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#cell-v}"
+          ARTIFACT="release-preflight-cell-${VERSION}"
+          RUN_ID=""
+          for CANDIDATE in $(gh api \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/release-candidate.yml/runs?head_sha=${GITHUB_SHA}&status=success&event=workflow_dispatch&per_page=100" \
+            --jq '.workflow_runs[].id'); do
+            FOUND="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${CANDIDATE}/artifacts" \
+              --jq ".artifacts[] | select(.name == \"${ARTIFACT}\" and .expired == false) | .id" | head -1)"
+            if [ -n "$FOUND" ]; then
+              RUN_ID="$CANDIDATE"
+              break
+            fi
+          done
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::RELEASE_PREFLIGHT_RECEIPT_MISSING scope=cell sha=$GITHUB_SHA version=$VERSION"
+            exit 1
+          fi
+          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "artifact=$ARTIFACT" >> "$GITHUB_OUTPUT"
+
+      - name: Download the exact candidate receipt
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: ${{ steps.candidate.outputs.artifact }}
+          path: output/release-preflight
+          run-id: ${{ steps.candidate.outputs.run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Validate receipt against the tagged source and current policy
+        run: |
+          VERSION="${GITHUB_REF_NAME#cell-v}"
+          node scripts/release-preflight.mjs validate \
+            --scope cell \
+            --version "$VERSION" \
+            --source-sha "$GITHUB_SHA" \
+            --run-id "${{ steps.candidate.outputs.run-id }}" \
+            --receipt "output/release-preflight/release-preflight-cell-${VERSION}.json"
+
   quality:
     name: Relay release quality gate
+    needs: preflight
     uses: ./.github/workflows/quality-gate.yml
     with:
       profile: release
@@ -124,10 +195,21 @@ jobs:
           overwrite: true
           retention-days: 90
 
-  publish:
-    name: Publish signed ${{ matrix.platform }} digest
+  production-gate:
+    name: Approve exact platform fan-out and index fan-in
     needs: platform
     environment: oci-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Record the single production promotion decision
+        run: echo "Approved exact-SHA Relay Cell production graph for $GITHUB_REF_NAME"
+
+  publish:
+    name: Publish signed ${{ matrix.platform }} digest
+    needs: production-gate
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     permissions:
@@ -285,7 +367,6 @@ jobs:
   index:
     name: Publish and verify the multi-platform index
     needs: publish
-    environment: oci-production
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:

@@ -107,6 +107,15 @@ the operation swaps the two pointers, and never rebuilds, overwrites, or deletes
 an exact release. The launch support window is therefore the current and prior
 stable digest, enforced as well as documented.
 
+Before an immutable `cell-vX.Y.Z` source tag exists, Relay's exact-SHA candidate
+workflow must produce a still-valid `cell` receipt for that commit, git tree,
+version, supported macOS/Windows Node/npm matrix, dependency policy, and
+release-policy digest. The tag-triggered workflow revalidates that receipt
+before private staging. After both audited native candidates are staged, one
+protected `oci-production` decision gates the complete platform fan-out and
+multi-platform index fan-in. Registry-native build, signature, SBOM,
+attestation, and digest checks remain mandatory after the tag.
+
 Relay's evidence supports claims about origin, integrity, provenance and the
 declared compatibility contract. It is not a **vulnerability-free** claim, an
 uptime SLA, a durability guarantee, an RPO/RTO promise, or a substitute for the
@@ -140,7 +149,8 @@ at 131,643,268 image bytes and arm64 digest
 `sha256:8d47aed9e9869fceb77872a5b9fca99caa44a608b4278e0bb591e37b0144ba07`
 at 130,805,081 image bytes. The public index is an acquisition artifact, not a
 paid entitlement or a Host release. `stable` remains a separately gated
-promotion pointer; exact `v0.46.2` and the accepted index digest are the current
+promotion pointer; when no separately authorized promotion is performed,
+`stable` remains unmoved. Exact `v0.46.2` and the accepted index digest are the current
 discovery and authority surfaces.
 
 Primary references: [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry),

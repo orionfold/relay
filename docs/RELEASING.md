@@ -43,15 +43,69 @@ Never move either tag to resolve this ordering.
    knowledge manifest to the intended version. Keep
    `relay-cell-release.json` on the last accepted release for this candidate
    commit.
-2. Tag that commit `cell-vX.Y.Z` and push the tag. Wait for the signed,
-   multi-platform GHCR publication to pass, then record its immutable index
-   digest and publication receipt.
-3. Update `relay-cell-release.json` to `X.Y.Z`, the exact `cell-vX.Y.Z` source
+2. Dispatch and wait for the exact-SHA Cell receipt:
+
+   ```bash
+   npm run release:preflight -- \
+     --scope cell \
+     --version X.Y.Z \
+     --dispatch true
+   ```
+
+   The driver refuses a dirty/unpushed source, waits for the complete release
+   quality contract and macOS/Windows Node 22/npm 11 plus Node 24/npm 12
+   fresh-clone matrix, validates current production dependency policy and
+   release surfaces, then prints the one eligible tag command. It never creates
+   or pushes the tag itself.
+3. Under the separately authorized release gate, create and push the printed
+   `cell-vX.Y.Z` tag. The Cell workflow refuses to write even to private staging
+   unless the 24-hour receipt matches the tag commit, git tree, version, scope,
+   and current workflow/policy digest. Wait for the signed multi-platform GHCR
+   publication and record its immutable index digest.
+4. Update `relay-cell-release.json` to `X.Y.Z`, the exact `cell-vX.Y.Z` source
    tag, and the accepted digest. Update the authority tests, run the release
    gates, and commit the binding.
-4. Tag that later commit `vX.Y.Z` and push it. The npm workflow verifies the
-   package/tag match and independently fails closed if the bundled Cell
-   authority does not match.
+5. Dispatch and wait for the exact-SHA Host receipt:
+
+   ```bash
+   npm run release:preflight -- \
+     --scope host \
+     --version X.Y.Z \
+     --dispatch true
+   ```
+
+   This second scope additionally proves the immutable Cell digest is correctly
+   bound into the npm Host package.
+6. Under the separately authorized release gate, create and push the printed
+   `vX.Y.Z` tag. The npm workflow independently revalidates the Host receipt
+   before publishing npm or creating/uploading the GitHub Release.
+
+For a no-network schema/fault-path check, run:
+
+```bash
+npm run release:preflight:dry-run -- \
+  --scope cell \
+  --version X.Y.Z \
+  --out /tmp/relay-release-preflight.json
+```
+
+A dry-run receipt is deliberately marked `publicationEligible: false`; neither
+publication workflow accepts it.
+
+### What remains publication-time
+
+The pre-tag receipt covers every deterministic local/CI release condition. The
+Cell workflow still builds both native OCI archives, runs image vulnerability,
+reproducibility and Cell-lifecycle conformance checks, copies the exact audited
+digests, signs them keylessly, creates SBOM/provenance attestations, assembles
+the exact multi-platform index, and verifies registry evidence. Those checks
+depend on the final immutable tag or registry subject and therefore remain
+fail-closed after tagging.
+
+Private staging remains protected. After both audited platform candidates are
+ready, exactly one `oci-production` approval gates the platform publication
+fan-out and index fan-in. The two platform jobs and index job do not ask for
+separate approvals.
 
 For npm-only releases made before Host/Cell coupling, the historical shorthand
 was:

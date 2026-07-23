@@ -1,0 +1,237 @@
+name: Exact-SHA release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: Release surface to prove before its immutable tag
+        required: true
+        type: choice
+        options:
+          - cell
+          - host
+      version:
+        description: Exact Relay semantic version (X.Y.Z)
+        required: true
+        type: string
+      source_sha:
+        description: Exact 40-character main SHA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-candidate-${{ github.event.inputs.scope }}-${{ github.event.inputs.source_sha }}
+  cancel-in-progress: false
+
+jobs:
+  identity:
+    name: Bind candidate to exact main SHA and version
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Refuse an indirect or mismatched candidate
+        env:
+          SOURCE_SHA: ${{ github.event.inputs.source_sha }}
+          VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::RELEASE_PREFLIGHT_SOURCE_NOT_MAIN ref=$GITHUB_REF"
+            exit 1
+          fi
+          if [ "$SOURCE_SHA" != "$GITHUB_SHA" ]; then
+            echo "::error::RELEASE_PREFLIGHT_SOURCE_MISMATCH requested=$SOURCE_SHA workflow=$GITHUB_SHA"
+            exit 1
+          fi
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::RELEASE_PREFLIGHT_VERSION_INVALID version=$VERSION"
+            exit 1
+          fi
+
+  quality:
+    name: Reuse complete release quality contract
+    needs: identity
+    uses: ./.github/workflows/quality-gate.yml
+    with:
+      profile: release
+    permissions:
+      contents: read
+
+  fresh-clone:
+    name: Reuse supported fresh-clone matrix
+    needs: identity
+    uses: ./.github/workflows/fresh-clone-dev.yml
+    with:
+      receipt_scope: ${{ github.event.inputs.scope }}
+      source_sha: ${{ github.event.inputs.source_sha }}
+      version: ${{ github.event.inputs.version }}
+    permissions:
+      contents: read
+
+  release-checks:
+    name: Prove release surfaces and production dependency policy
+    needs: [identity, quality, fresh-clone]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    env:
+      SCOPE: ${{ github.event.inputs.scope }}
+      VERSION: ${{ github.event.inputs.version }}
+      SOURCE_SHA: ${{ github.event.inputs.source_sha }}
+    steps:
+      - name: Check out the exact candidate source
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          ref: ${{ github.event.inputs.source_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up release Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: "22.23.1"
+          cache: npm
+
+      - name: Install release dependencies
+        run: npm ci
+
+      - name: Guard package, lockfile, changelog, and exact source
+        run: |
+          node -e "const p=require('./package.json'),l=require('./package-lock.json'); if(p.version!==process.env.VERSION||l.version!==process.env.VERSION||l.packages[''].version!==process.env.VERSION) process.exit(1)"
+          node -e "const fs=require('fs'); const version=process.env.VERSION.replaceAll('.','\\\\.'); if(!(new RegExp('^## \\\\['+version+'\\\\]','m')).test(fs.readFileSync('CHANGELOG.md','utf8'))) process.exit(1)"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+      - name: Guard current production dependency policy before tagging
+        run: |
+          mkdir -p output/release-preflight
+          npm audit --omit=dev --audit-level=high --json > output/release-preflight/npm-audit.json
+
+      - name: Retain dependency evidence on pass or failure
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-preflight-audit-${{ github.event.inputs.scope }}
+          path: output/release-preflight/npm-audit.json
+          if-no-files-found: warn
+          overwrite: true
+          retention-days: 7
+
+      - name: Reuse knowledge, public-boundary, Pack, and Cell policy checks
+        run: |
+          npm run knowledge:verify
+          npm run test:public-boundary
+          npm run check:public-boundary
+          npm run check:pack-taxonomy
+          npm run check:pack-tarball
+          npm run check:relay-cell-publication
+
+      - name: Guard a real bounded npm package
+        run: |
+          mkdir -p output/release-preflight/pack
+          npm pack --pack-destination output/release-preflight/pack
+          TARBALL="$(find output/release-preflight/pack -name '*.tgz' -type f -print -quit)"
+          test -n "$TARBALL"
+          node scripts/check-public-boundary.mjs npm "$TARBALL"
+          test "$(wc -c < "$TARBALL")" -le 10485760
+
+      - name: Guard scope-specific Cell or Host authority
+        run: |
+          if [ "$SCOPE" = "host" ]; then
+            npm run check:host-cell-release-authority
+          else
+            node -e "const semver=require('semver'); const p=require('./package.json'); const r=require('./src/lib/host/deployment/relay-cell-release.json'); if(!semver.valid(r.relayVersion)||!semver.lte(r.relayVersion,p.version)||!/^sha256:[a-f0-9]{64}$/.test(r.imageDigest)) process.exit(1)"
+          fi
+
+      - name: Record terminal release checks
+        run: |
+          node scripts/release-preflight.mjs checks \
+            --scope "$SCOPE" \
+            --audit output/release-preflight/npm-audit.json \
+            --out output/release-preflight/checks.json
+
+      - name: Retain exact release checks
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-preflight-checks-${{ github.event.inputs.scope }}
+          path: output/release-preflight/checks.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 7
+
+  receipt:
+    name: Aggregate content-addressed exact-SHA receipt
+    if: ${{ always() }}
+    needs: [identity, quality, fresh-clone, release-checks]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      SCOPE: ${{ github.event.inputs.scope }}
+      VERSION: ${{ github.event.inputs.version }}
+      SOURCE_SHA: ${{ github.event.inputs.source_sha }}
+    steps:
+      - name: Check out the exact receipt policy
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          ref: ${{ github.event.inputs.source_sha }}
+          persist-credentials: false
+
+      - name: Set up receipt Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: "22.23.1"
+          cache: npm
+
+      - name: Install receipt dependencies
+        run: npm ci
+
+      - name: Download terminal lane evidence
+        continue-on-error: true
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          pattern: release-preflight-lane-${{ github.event.inputs.scope }}-*
+          path: output/release-preflight/lanes
+          merge-multiple: true
+
+      - name: Download terminal release checks
+        continue-on-error: true
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: release-preflight-checks-${{ github.event.inputs.scope }}
+          path: output/release-preflight
+
+      - name: Aggregate receipt even when evidence is red or interrupted
+        run: |
+          node scripts/release-preflight.mjs aggregate \
+            --scope "$SCOPE" \
+            --version "$VERSION" \
+            --source-sha "$SOURCE_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --lanes-dir output/release-preflight/lanes \
+            --checks output/release-preflight/checks.json \
+            --out "output/release-preflight/release-preflight-${SCOPE}-${VERSION}.json"
+
+      - name: Retain successful or failed candidate evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-preflight-${{ github.event.inputs.scope }}-${{ github.event.inputs.version }}
+          path: output/release-preflight/release-preflight-${{ github.event.inputs.scope }}-${{ github.event.inputs.version }}.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 7
+
+      - name: Fail closed unless every exact-SHA check is terminal green
+        run: |
+          node scripts/release-preflight.mjs validate \
+            --scope "$SCOPE" \
+            --version "$VERSION" \
+            --source-sha "$SOURCE_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --receipt "output/release-preflight/release-preflight-${SCOPE}-${VERSION}.json"

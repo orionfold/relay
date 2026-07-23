@@ -213,14 +213,17 @@ export function validatePublicationWorkflow(source, policy) {
   const workflow = parseWorkflowLiteral(source);
   const trigger = workflow?.on;
   assert(trigger && Object.keys(trigger).length === 1 && Array.isArray(trigger?.push?.tags) && sameMembers(trigger.push.tags, ["cell-v*"]), "CELL_PUBLICATION_WORKFLOW_INVALID", "Cell publication must be triggered only by OCI-specific cell-v* tag pushes");
-  assert(exactObject(workflow?.permissions, { contents: "read" }), "CELL_PUBLICATION_PERMISSION_EXCESSIVE", "workflow default permissions must be contents: read only");
-  assert(workflow?.jobs?.platform && workflow?.jobs?.publish && workflow?.jobs?.index, "CELL_PUBLICATION_WORKFLOW_INVALID", "staging platform, production publish, and index jobs are required");
-  assert(workflow.jobs.platform.needs === "quality" && workflow.jobs.publish.needs === "platform" && workflow.jobs.index.needs === "publish", "CELL_PUBLICATION_WORKFLOW_INVALID", "publication jobs must preserve quality → staging → production → index ordering");
+  assert(exactObject(workflow?.permissions, { actions: "read", contents: "read" }), "CELL_PUBLICATION_PERMISSION_EXCESSIVE", "workflow default permissions must be actions/contents read only");
+  assert(workflow?.jobs?.preflight && workflow?.jobs?.quality && workflow?.jobs?.platform && workflow?.jobs?.["production-gate"] && workflow?.jobs?.publish && workflow?.jobs?.index, "CELL_PUBLICATION_WORKFLOW_INVALID", "preflight, quality, staging, one production gate, platform publish, and index jobs are required");
+  assert(workflow.jobs.quality.needs === "preflight" && workflow.jobs.platform.needs === "quality" && workflow.jobs["production-gate"].needs === "platform" && workflow.jobs.publish.needs === "production-gate" && workflow.jobs.index.needs === "publish", "CELL_PUBLICATION_WORKFLOW_INVALID", "publication jobs must preserve preflight → quality → staging → one production decision → platform → index ordering");
+  validateJobPermissions(workflow.jobs.preflight, { actions: "read", contents: "read" }, "pre-tag receipt job");
   validateJobPermissions(workflow.jobs.platform, { contents: "read", packages: "write" }, "staging platform job");
+  validateJobPermissions(workflow.jobs["production-gate"], { contents: "read" }, "production approval job");
   validateJobPermissions(workflow.jobs.publish, policy.permissions, "production publish job");
   validateJobPermissions(workflow.jobs.index, policy.permissions, "index job");
   assert(workflow.jobs.platform.environment === policy.release.stagingEnvironment, "CELL_PUBLICATION_WORKFLOW_INVALID", "audited native artifacts must pass through the protected staging environment");
-  assert(workflow.jobs.publish.environment === policy.release.productionEnvironment && workflow.jobs.index.environment === policy.release.productionEnvironment, "CELL_PUBLICATION_WORKFLOW_INVALID", "production publication jobs must use the protected production environment");
+  assert(workflow.jobs["production-gate"].environment === policy.release.productionEnvironment, "CELL_PUBLICATION_WORKFLOW_INVALID", "the exact publication graph must use the protected production environment once");
+  assert(workflow.jobs.publish.environment === undefined && workflow.jobs.index.environment === undefined, "CELL_PUBLICATION_WORKFLOW_INVALID", "platform and index jobs must share the one upstream production decision");
   for (const [label, matrix] of [["staging", workflow.jobs.platform?.strategy?.matrix?.include], ["production", workflow.jobs.publish?.strategy?.matrix?.include]]) {
     assert(Array.isArray(matrix) && sameMembers(matrix.map((item) => item.platform), policy.platforms), "CELL_PUBLICATION_PLATFORM_SET_INVALID", `${label} workflow matrix must use both approved native platforms`);
     assert(matrix.every((item) => item.runner === (item.platform === "linux/amd64" ? "ubuntu-24.04" : "ubuntu-24.04-arm")), "CELL_PUBLICATION_WORKFLOW_INVALID", `${label} workflow must use the approved native GitHub runners`);
@@ -239,11 +242,13 @@ export function validatePublicationWorkflow(source, policy) {
     "sbom-path:",
     "docker buildx imagetools create",
     "relay-cell-publication-receipt.mjs",
+    "release-preflight.mjs validate",
     "gh attestation verify",
     policy.images.staging,
   ];
   for (const phrase of required) assert(text.includes(phrase), "CELL_PUBLICATION_WORKFLOW_INVALID", `production workflow is missing required operation: ${phrase}`);
   assert(text.includes(policy.images.production), "CELL_PUBLICATION_WORKFLOW_INVALID", "production workflow uses the wrong image namespace");
+  assert((source.match(/environment: oci-production/gu) ?? []).length === 1, "CELL_PUBLICATION_WORKFLOW_INVALID", "exactly one production environment decision is required");
   assert(!/\blatest\b/u.test(text), "CELL_PUBLICATION_TAG_REFUSED", "latest is forbidden in the production workflow");
   assert(!/npm publish|gh release create|docker build\b/u.test(text), "CELL_PUBLICATION_WORKFLOW_INVALID", "Cell publication must not publish npm, create a GitHub Release, or rebuild the audited image");
   return workflow;

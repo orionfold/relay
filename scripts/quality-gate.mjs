@@ -55,6 +55,16 @@ export const LANE_DEFINITIONS = {
     "test:quality-gate",
     "node-tests"
   ),
+  "release-preflight-tests": npmLane(
+    "release-preflight-tests",
+    "test:release-preflight",
+    "node-tests"
+  ),
+  "relay-cell-publication-tests": npmLane(
+    "relay-cell-publication-tests",
+    "test:relay-cell-publication",
+    "node-tests"
+  ),
   "hook-tests": npmLane("hook-tests", "test:hooks", "node-tests"),
   "public-boundary-tests": npmLane(
     "public-boundary-tests",

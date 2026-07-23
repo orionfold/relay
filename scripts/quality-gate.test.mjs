@@ -127,6 +127,10 @@ test("release plans run every conditional and release-only lane", () => {
     ...CONDITIONAL_LANES,
     ...RELEASE_ONLY_LANES,
   ]);
+  assert.deepEqual(RELEASE_ONLY_LANES, [
+    "release-preflight-tests",
+    "relay-cell-publication-tests",
+  ]);
 });
 
 test("unsafe, empty, and unknown PR planning inputs fail closed", () => {
@@ -321,10 +325,10 @@ test("workflow contract is always-on, reusable, read-only, and release-blocking"
   assert.match(qualitySource, /persist-credentials: false/);
 
   const qualitySetupNode = quality.jobs.quality.steps.find(
-    (step) => step.uses === "actions/setup-node@v5"
+    (step) => step.uses?.startsWith("actions/setup-node@")
   );
   const publishSetupNode = publish.jobs.publish.steps.find(
-    (step) => step.uses === "actions/setup-node@v5"
+    (step) => step.uses?.startsWith("actions/setup-node@")
   );
   assert.equal(qualitySetupNode?.with?.["node-version"], COVERAGE_RATCHET_BASELINE.node);
   assert.equal(publishSetupNode?.with?.["node-version"], COVERAGE_RATCHET_BASELINE.node);
@@ -349,7 +353,7 @@ test("workflow contract is always-on, reusable, read-only, and release-blocking"
   assert.equal(publish.jobs["npm12-first-run"].permissions.contents, "read");
   assert.equal(publish.jobs["npm12-first-run"]["timeout-minutes"], 15);
   const npm12SetupNode = publish.jobs["npm12-first-run"].steps.find(
-    (step) => step.uses === "actions/setup-node@v5"
+    (step) => step.uses?.startsWith("actions/setup-node@")
   );
   assert.equal(npm12SetupNode?.with?.["node-version"], "24.15.0");
   assert.match(publishSource, /npm install --global npm@12\.0\.1/);

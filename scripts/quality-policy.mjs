@@ -25,7 +25,10 @@ export const CONDITIONAL_LANES = [
   "pack-compat",
 ];
 
-export const RELEASE_ONLY_LANES = [];
+export const RELEASE_ONLY_LANES = [
+  "release-preflight-tests",
+  "relay-cell-publication-tests",
+];
 
 export const COVERAGE_RATCHET_BASELINE = {
   commit: "2852e89c",
@@ -39,8 +42,14 @@ export const COVERAGE_RATCHET_BASELINE = {
 const qualityControlPaths = [
   ".github/workflows/quality-gate.yml",
   ".github/workflows/publish.yml",
+  ".github/workflows/publish-relay-cell.yml",
+  ".github/workflows/release-candidate.yml",
+  ".github/workflows/fresh-clone-dev.yml",
   "package.json",
   "package-lock.json",
+  "scripts/release-preflight.mjs",
+  "scripts/lib/release-preflight.mjs",
+  "scripts/release-preflight.test.mjs",
   "scripts/quality-policy.mjs",
   "scripts/quality-gate.mjs",
   "scripts/check-quality-coverage.mjs",

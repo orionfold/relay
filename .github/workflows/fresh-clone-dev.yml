@@ -1,6 +1,23 @@
 name: Fresh-clone development setup
 
 on:
+  workflow_call:
+    inputs:
+      receipt_scope:
+        description: Optional release-candidate scope that enables lane receipts
+        required: false
+        default: ""
+        type: string
+      source_sha:
+        description: Exact source SHA for release-candidate evidence
+        required: false
+        default: ""
+        type: string
+      version:
+        description: Candidate Relay version
+        required: false
+        default: ""
+        type: string
   pull_request:
     paths:
       - ".codex/hooks/**"
@@ -10,6 +27,8 @@ on:
       - "package.json"
       - "package-lock.json"
       - "scripts/fresh-clone-dev-smoke.mjs"
+      - "scripts/release-preflight.mjs"
+      - "scripts/lib/release-preflight.mjs"
       - "src/components/settings/ollama-section.tsx"
       - "src/components/settings/__tests__/ollama-section.test.tsx"
       - "src/lib/instance/**"
@@ -23,6 +42,8 @@ on:
       - "package.json"
       - "package-lock.json"
       - "scripts/fresh-clone-dev-smoke.mjs"
+      - "scripts/release-preflight.mjs"
+      - "scripts/lib/release-preflight.mjs"
       - "src/components/settings/ollama-section.tsx"
       - "src/components/settings/__tests__/ollama-section.test.tsx"
       - "src/lib/instance/**"
@@ -38,20 +59,27 @@ jobs:
           - os: macos-latest
             node: "22.23.1"
             npm: "11.6.0"
+            lane: macos-node22-npm11
           - os: macos-latest
             node: "24.15.0"
             npm: "12.0.1"
+            lane: macos-node24-npm12
           - os: windows-latest
             node: "22.23.1"
             npm: "11.6.0"
+            lane: windows-node22-npm11
           - os: windows-latest
             node: "24.15.0"
             npm: "12.0.1"
+            lane: windows-node24-npm12
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
+          persist-credentials: false
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: ${{ matrix.node }}
           cache: npm
@@ -89,3 +117,23 @@ jobs:
 
       - name: Boot literal fresh clone
         run: node scripts/fresh-clone-dev-smoke.mjs
+
+      - name: Record terminal release-candidate lane evidence
+        if: ${{ always() && inputs.receipt_scope != '' }}
+        shell: bash
+        run: |
+          STATUS="${{ job.status }}"
+          node scripts/release-preflight.mjs lane \
+            --id "${{ matrix.lane }}" \
+            --status "$STATUS" \
+            --out "output/release-preflight/lanes/${{ matrix.lane }}.json"
+
+      - name: Retain release-candidate lane evidence
+        if: ${{ always() && inputs.receipt_scope != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-preflight-lane-${{ inputs.receipt_scope }}-${{ matrix.lane }}
+          path: output/release-preflight/lanes/${{ matrix.lane }}.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 7

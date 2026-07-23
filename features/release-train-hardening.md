@@ -1,6 +1,6 @@
 ---
 title: Make Relay releases preflight-complete before immutable tags
-status: planned
+status: in-progress
 priority: P0
 milestone: post-mvp
 source: release runs 29866340576, 29869529544, 30041426874, 30041441117, 30043285620, and 30043289388
@@ -75,21 +75,21 @@ must not silently proceed with a red exact-SHA lane.
 
 ## Acceptance criteria
 
-- [ ] A documented command runs or locates every pre-tag check for an exact
+- [x] A documented command runs or locates every pre-tag check for an exact
       commit and writes a versioned, content-addressed receipt.
-- [ ] The receipt includes macOS and Windows on Node 22/npm 11 and Node 24/npm
+- [x] The receipt includes macOS and Windows on Node 22/npm 11 and Node 24/npm
       12; a failed or missing lane blocks Cell tag eligibility.
-- [ ] High-severity production dependency findings block before a Cell tag;
+- [x] High-severity production dependency findings block before a Cell tag;
       accepted lower-severity findings are explicit and policy-versioned.
-- [ ] Package, lockfile, changelog, knowledge bundle, npm pack, public-boundary,
+- [x] Package, lockfile, changelog, knowledge bundle, npm pack, public-boundary,
       and Cell/Host version authority mismatches fail before tagging.
-- [ ] Publication refuses a receipt from another commit, tree, version,
+- [x] Publication refuses a receipt from another commit, tree, version,
       workflow/policy revision, or expired candidate.
-- [ ] Exactly one explicit production promotion decision gates the platform
+- [x] Exactly one explicit production promotion decision gates the platform
       publication and final multi-platform index graph.
-- [ ] Failed attempts remain auditable, but the normal happy path creates only
+- [x] Failed attempts remain auditable, but the normal happy path creates only
       one Cell candidate tag and one npm/GitHub release tag.
-- [ ] Fault-injection tests cover dirty trees, stale/missing receipts, a red
+- [x] Fault-injection tests cover dirty trees, stale/missing receipts, a red
       Windows lane, vulnerability-policy failure, digest substitution, skipped
       jobs, and interrupted/resumed publication.
 - [ ] A dry run plus the next real release prove the end-to-end mechanism, and
@@ -118,3 +118,20 @@ to the exact source commit and policy revision, preserve the smallest failing
 receipt and keep the current tag-only production workflows fail-closed. Do not
 solve orchestration friction by moving tags, skipping a supported OS lane,
 broadening signing identity, or reducing vulnerability/reproducibility checks.
+
+## Implementation receipt — 2026-07-23
+
+- G-131 is the durable ID; the initial backlog entry temporarily reused the
+  already-completed npm install-integrity ID G-114.
+- Local implementation and fresh security review are green. The release quality
+  profile passed 21/21 lanes in 73.3 seconds: 3,974 application tests plus one
+  intentional skip, coverage ratchets, runtime graph smoke, harness safety,
+  7/7 mutation kills, Pack compatibility, and the two new release contract
+  suites.
+- The production dependency audit passed the high/critical policy while
+  preserving three moderate findings in the Anthropic SDK → MCP SDK → Hono
+  chain for the candidate receipt.
+- YAML parsing, TypeScript, workflow/policy validation, and diff hygiene pass.
+- The final acceptance criterion remains open until a separately authorized
+  workflow push, exact-SHA candidate run, and next real Cell/npm release prove
+  the GitHub artifact boundary and one-production-decision topology.

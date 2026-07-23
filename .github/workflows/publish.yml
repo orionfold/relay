@@ -15,9 +15,81 @@ on:
     tags:
       - "v*"
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
+  preflight:
+    name: Verify exact-SHA Host candidate receipt
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      run-id: ${{ steps.candidate.outputs.run-id }}
+      artifact: ${{ steps.candidate.outputs.artifact }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: "22.18.0"
+          cache: npm
+
+      - name: Install receipt dependencies
+        run: npm ci
+
+      - name: Locate a successful exact-SHA Host candidate
+        id: candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          ARTIFACT="release-preflight-host-${VERSION}"
+          RUN_ID=""
+          for CANDIDATE in $(gh api \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/release-candidate.yml/runs?head_sha=${GITHUB_SHA}&status=success&event=workflow_dispatch&per_page=100" \
+            --jq '.workflow_runs[].id'); do
+            FOUND="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${CANDIDATE}/artifacts" \
+              --jq ".artifacts[] | select(.name == \"${ARTIFACT}\" and .expired == false) | .id" | head -1)"
+            if [ -n "$FOUND" ]; then
+              RUN_ID="$CANDIDATE"
+              break
+            fi
+          done
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::RELEASE_PREFLIGHT_RECEIPT_MISSING scope=host sha=$GITHUB_SHA version=$VERSION"
+            exit 1
+          fi
+          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "artifact=$ARTIFACT" >> "$GITHUB_OUTPUT"
+
+      - name: Download the exact candidate receipt
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: ${{ steps.candidate.outputs.artifact }}
+          path: output/release-preflight
+          run-id: ${{ steps.candidate.outputs.run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Validate receipt against the tagged source and current policy
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          node scripts/release-preflight.mjs validate \
+            --scope host \
+            --version "$VERSION" \
+            --source-sha "$GITHUB_SHA" \
+            --run-id "${{ steps.candidate.outputs.run-id }}" \
+            --receipt "output/release-preflight/release-preflight-host-${VERSION}.json"
+
   quality:
     name: Relay quality gate
+    needs: preflight
     uses: ./.github/workflows/quality-gate.yml
     with:
       profile: release
@@ -32,11 +104,11 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           # npm 12 requires ^22.22.2, ^24.15.0, or >=26. Use an exact current
           # compatible line so this gate cannot drift with the runner image.
@@ -61,11 +133,11 @@ jobs:
       id-token: write # REQUIRED: lets the runner mint the OIDC token npm verifies
       contents: write # lets the final step create a GitHub Release from CHANGELOG
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           # Match the quality ratchet environment. Trusted publishing needs
           # Node >= 22.14.0; 22.18.0 satisfies that requirement.
