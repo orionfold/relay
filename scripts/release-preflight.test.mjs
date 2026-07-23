@@ -11,6 +11,7 @@ import {
   createChecks,
   createLaneReceipt,
   createReleaseReceipt,
+  releaseTagCommands,
   validateReleaseReceipt,
 } from "./lib/release-preflight.mjs";
 
@@ -58,6 +59,18 @@ test("candidate receipt is content-addressed and exact-source eligible", () => {
   assert.equal(validateReleaseReceipt(candidate, expected(), { now }), candidate);
   assert.equal(candidate.receiptDigest, computeReceiptDigest(candidate));
   assert.equal(new Date(candidate.expiresAt).valueOf() - new Date(candidate.createdAt).valueOf(), RELEASE_PREFLIGHT_EXPIRY_HOURS * 60 * 60 * 1000);
+});
+
+test("eligible Cell and Host commands preserve annotated immutable tags", () => {
+  assert.deepEqual(releaseTagCommands("cell", "1.2.3", revision), [
+    `git tag -a cell-v1.2.3 ${revision} -m "Orionfold Relay Cell v1.2.3"`,
+    "git push origin cell-v1.2.3",
+  ]);
+  assert.deepEqual(releaseTagCommands("host", "1.2.3", revision), [
+    `git tag -a v1.2.3 ${revision} -m "Orionfold Relay v1.2.3"`,
+    "git push origin v1.2.3",
+  ]);
+  expectCode(() => releaseTagCommands("host", "1.2.3", "not-a-sha"), "RELEASE_PREFLIGHT_SOURCE_MISMATCH");
 });
 
 test("publication refuses missing, stale, mismatched, and dry-run evidence", () => {

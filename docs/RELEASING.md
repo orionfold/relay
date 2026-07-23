@@ -58,10 +58,10 @@ Never move either tag to resolve this ordering.
    release surfaces, then prints the one eligible tag command. It never creates
    or pushes the tag itself.
 3. Under the separately authorized release gate, create and push the printed
-   `cell-vX.Y.Z` tag. The Cell workflow refuses to write even to private staging
-   unless the 24-hour receipt matches the tag commit, git tree, version, scope,
-   and current workflow/policy digest. Wait for the signed multi-platform GHCR
-   publication and record its immutable index digest.
+   annotated `cell-vX.Y.Z` tag. The Cell workflow refuses to write even to
+   private staging unless the 24-hour receipt matches the tag commit, git tree,
+   version, scope, and current workflow/policy digest. Wait for the signed
+   multi-platform GHCR publication and record its immutable index digest.
 4. Update `relay-cell-release.json` to `X.Y.Z`, the exact `cell-vX.Y.Z` source
    tag, and the accepted digest. Update the authority tests, run the release
    gates, and commit the binding.
@@ -77,8 +77,8 @@ Never move either tag to resolve this ordering.
    This second scope additionally proves the immutable Cell digest is correctly
    bound into the npm Host package.
 6. Under the separately authorized release gate, create and push the printed
-   `vX.Y.Z` tag. The npm workflow independently revalidates the Host receipt
-   before publishing npm or creating/uploading the GitHub Release.
+   annotated `vX.Y.Z` tag. The npm workflow independently revalidates the Host
+   receipt before publishing npm or creating/uploading the GitHub Release.
 
 For a no-network schema/fault-path check, run:
 

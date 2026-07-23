@@ -1,6 +1,6 @@
 ---
 title: Implementation plan for exact-SHA release authority
-status: implemented-awaiting-live-proof
+status: completed
 specification: features/release-train-hardening.md
 goal: G-131
 ---

@@ -128,6 +128,18 @@ export function releaseTag(scope, version) {
   return scope === "cell" ? `cell-v${version}` : `v${version}`;
 }
 
+export function releaseTagCommands(scope, version, revision) {
+  const tag = releaseTag(scope, version);
+  assert(SHA_PATTERN.test(revision ?? ""), "RELEASE_PREFLIGHT_SOURCE_MISMATCH", "source revision must be a full git SHA");
+  const message = scope === "cell"
+    ? `Orionfold Relay Cell v${version}`
+    : `Orionfold Relay v${version}`;
+  return [
+    `git tag -a ${tag} ${revision} -m "${message}"`,
+    `git push origin ${tag}`,
+  ];
+}
+
 export function assertTagAvailable(root, scope, version) {
   const tag = releaseTag(scope, version);
   try {

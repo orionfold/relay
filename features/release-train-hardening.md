@@ -1,6 +1,6 @@
 ---
 title: Make Relay releases preflight-complete before immutable tags
-status: in-progress
+status: completed
 priority: P0
 milestone: post-mvp
 source: release runs 29866340576, 29869529544, 30041426874, 30041441117, 30043285620, and 30043289388
@@ -92,7 +92,7 @@ must not silently proceed with a red exact-SHA lane.
 - [x] Fault-injection tests cover dirty trees, stale/missing receipts, a red
       Windows lane, vulnerability-policy failure, digest substitution, skipped
       jobs, and interrupted/resumed publication.
-- [ ] A dry run plus the next real release prove the end-to-end mechanism, and
+- [x] A dry run plus the next real release prove the end-to-end mechanism, and
       no exact-SHA release-support workflow is left red at completion.
 
 ## Scope boundaries
@@ -136,6 +136,29 @@ broadening signing identity, or reducing vulnerability/reproducibility checks.
   produced the expected non-publication dry-run receipt
   `sha256:b1841fbffc440ad47a1068a3674e32c551437d0c7bab021ad043fe5cf055d84b`;
   the driver correctly reported `publicationEligible: false`.
-- The final acceptance criterion remains open until a separately authorized
-  workflow push, exact-SHA candidate run, and next real Cell/npm release prove
-  the GitHub artifact boundary and one-production-decision topology.
+- Live Cell candidate
+  [30049563943](https://github.com/orionfold/relay/actions/runs/30049563943)
+  produced exact-SHA receipt
+  `sha256:0194b926f977913f2b3a1334178e849ca3156a749fb59c617175563dba74fc9e`.
+  Cell publication
+  [30050073420](https://github.com/orionfold/relay/actions/runs/30050073420)
+  accepted it, requested one production approval, and published signed
+  `linux/amd64` plus `linux/arm64` index
+  `sha256:98aba662fc4c7bc9b79e5e384178bef2bdaac7977d1be5b490726740c4223ac1`.
+- Live Host candidate
+  [30051719531](https://github.com/orionfold/relay/actions/runs/30051719531)
+  proved the bound Cell authority and produced exact-SHA receipt
+  `sha256:1b4cbe4047a625b6a4933ee905eb32f1e503368271e0a278c895f7ff53492482`.
+  npm/GitHub publication
+  [30052170680](https://github.com/orionfold/relay/actions/runs/30052170680)
+  accepted it, passed the customer-identical npx smoke, published
+  `orionfold-relay@0.46.3`, and attached the production build, checksum, and
+  CycloneDX SBOM to the public GitHub Release.
+- Independent public verification resolved npm integrity
+  `sha512-cdCANW4qf87UrRUhnQ/raN49XydTnovFXpUzRWmIkmYjlscl9+eiz4gXfPZ8r3paU8NVs45yvTXus6SNn8e2Ug==`,
+  all three GitHub Release assets, and the exact two-platform GHCR index.
+- Live proof exposed that the first driver printed a lightweight Cell tag
+  command even though Relay policy requires annotated release tags. The
+  published `cell-v0.46.3` ref remains immutable audit evidence; the Host tag
+  was annotated, and the driver now emits only annotated Cell and Host
+  commands with a protecting regression.

@@ -2,7 +2,7 @@
 
 ## 2026-07-23
 
-### Started
+### Completed
 
 - `release-train-hardening` (G-131; initially entered under the already-used
   G-114 ID) — implemented the exact-SHA `cell|host` candidate workflow,
@@ -10,13 +10,12 @@
   reusable macOS/Windows Node/npm evidence, explicit production-audit counts,
   a local driver that never creates tags, and one OCI production approval
   fan-out/fan-in. The driver and CI also refuse any already-created immutable
-  tag instead of suggesting a duplicate candidate. Twenty-one release-quality
-  lanes are green locally. Completion
-  remains gated on the separately authorized workflow push, exact-SHA candidate
-  run, and next real Cell/npm release proof; clean detached commit `b62f7c18`
-  also produced the intentionally non-eligible local dry-run receipt.
-
-### Completed
+  tag instead of suggesting a duplicate candidate. Twenty-one local
+  release-quality lanes and both live exact-SHA candidates are green. Relay
+  `0.46.3` is verified on npm, GitHub Releases, and the signed two-platform
+  GHCR index after one production approval. The live proof also corrected the
+  driver to print annotated Cell and Host tag commands; the already-published
+  lightweight `cell-v0.46.3` ref remains immutable audit evidence.
 
 - `provider-auth-bootstrap-truth` (G-129 corrective follow-up) — replaced
   credential-file inference with the documented `claude auth status --json`

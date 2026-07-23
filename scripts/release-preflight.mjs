@@ -16,6 +16,7 @@ import {
   createProductionDependencyEvidence,
   createReleaseReceipt,
   inspectSource,
+  releaseTagCommands,
   validateReleaseReceipt,
 } from "./lib/release-preflight.mjs";
 
@@ -289,7 +290,7 @@ async function main() {
       receiptDigest: receiptValue.receiptDigest,
       expiresAt: receiptValue.expiresAt,
       eligibleTag: tag,
-      nextCommands: [`git tag ${tag} ${source.revision}`, `git push origin ${tag}`],
+      nextCommands: releaseTagCommands(scope, version, source.revision),
       note: "Commands are printed for the separately authorized release step; this driver never creates or pushes a tag.",
     }, null, 2)}\n`);
     return;
