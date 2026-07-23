@@ -167,7 +167,12 @@ vi.mock("@/lib/plugins/mcp-loader", () => ({
 
 // Static imports (works because vi.mock is hoisted)
 import { query } from "@anthropic-ai/claude-agent-sdk";
-import { executeClaudeTask, resumeClaudeTask, withAinativeMcpServer } from "../claude-agent";
+import {
+  buildTaskQueryContext,
+  executeClaudeTask,
+  resumeClaudeTask,
+  withAinativeMcpServer,
+} from "../claude-agent";
 import { createToolServer } from "@/lib/chat/ainative-tools";
 import { loadPluginMcpServers } from "@/lib/plugins/mcp-loader";
 import { recordUsageLedgerEntry } from "@/lib/usage/ledger";
@@ -176,6 +181,54 @@ import { extractClaudeSdkUsageReceipt } from "@/lib/usage/claude-sdk-receipt";
 const mockQuery = vi.mocked(query);
 
 // ─── Helpers ─────────────────────────────────────────────────────────
+
+describe("buildTaskQueryContext runtime parity", () => {
+  it("resolves an Ollama-only profile against the executing runtime", async () => {
+    mockGetProfile.mockReturnValueOnce({
+      id: "local-only",
+      name: "Local only",
+      skillMd: "Use the local runtime.",
+      allowedTools: [],
+      supportedRuntimes: ["ollama"],
+    });
+
+    const context = await buildTaskQueryContext(
+      {
+        id: "task-local",
+        title: "Summarize locally",
+        description: "Use no tools",
+      },
+      "local-only",
+      "ollama",
+    );
+
+    expect(context.payload).toMatchObject({
+      runtimeId: "ollama",
+      supported: true,
+      instructions: "Use the local runtime.",
+    });
+  });
+
+  it("still rejects an Ollama-only profile on the default Claude runtime", async () => {
+    mockGetProfile.mockReturnValueOnce({
+      id: "local-only",
+      name: "Local only",
+      skillMd: "Use the local runtime.",
+      allowedTools: [],
+      supportedRuntimes: ["ollama"],
+    });
+
+    await expect(
+      buildTaskQueryContext(
+        {
+          id: "task-claude",
+          title: "Run on Claude",
+        },
+        "local-only",
+      ),
+    ).rejects.toThrow("does not support claude-code");
+  });
+});
 
 /** Create an async iterable from an array of message objects */
 function createMockStream(

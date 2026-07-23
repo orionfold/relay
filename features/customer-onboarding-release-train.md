@@ -97,16 +97,23 @@ passed 3,894 regressions, production build and deterministic real-runtime graph
 proof. G-122 was accepted 2026-07-23 after adding durable transient-runtime
 pause state, exact-step preflight and atomic recovery, bounded fail-closed retry,
 completed-prefix and receipt preservation, 3,908 regressions, production build,
-runtime-graph smoke and isolated customer-visible browser proof. O4 is complete.
+runtime-graph smoke and isolated customer-visible browser proof. The final G-025
+local-runtime run then exposed TRIAGE-055: shared task context still resolved
+non-Claude profiles as Claude Code, and non-Claude adapters omitted the
+machine-readable failure reason required by G-122. O4 is temporarily reopened
+for the bounded G-124 parity repair. G-124 was accepted 2026-07-23 after the
+Ollama-only profile, controlled 503, `blocked_runtime`, exact-step retry and
+no-duplicate-prefix proof passed; O4 is complete again.
 
 ### O5 — Release acceptance and CLI polish
 
 G-115 was accepted 2026-07-23 after the real packed-install warning count fell
 from seven to one, stale ExcelJS was replaced with maintained Node 20-compatible
 XLSX components, and the remaining native-installer path received an exact
-Node 22 adoption trigger. G-025 is now current: it runs the customer-identical
-clean-cache and same-cache acceptance journeys and owns the final evidence
-bundle.
+Node 22 adoption trigger. G-124 repaired the cross-runtime recovery parity
+finding from G-025's first pass. G-025 is current again: it runs the final
+customer-identical clean-cache and same-cache acceptance journeys and owns the
+release evidence bundle.
 
 ## Cross-goal invariants
 
@@ -138,10 +145,11 @@ bundle.
 - [x] A customer can start a compatible Pack workflow with no orphan or inert
       success action.
 - [x] A transient later-step runtime timeout can recover without recreating
-      prior documents or schedules.
+      prior documents or schedules on the runtime readiness selected, including
+      an Ollama-only profile (G-124).
 - [ ] The final Mode B staging bundle proves clean install, shared-cache upgrade,
       activation, workflow completion/recovery and isolation.
-- [x] Every originating TRIAGE-036–TRIAGE-054 finding is mapped to exactly one
+- [x] Every originating TRIAGE-036–TRIAGE-055 finding is mapped to exactly one
       owning Goal Contract or a named shared dependency.
 
 ## Scope boundaries
@@ -164,7 +172,7 @@ bundle.
 
 ## References
 
-- `_IDEAS/triage.md` — TRIAGE-036 through TRIAGE-054 grooming map
+- `_IDEAS/triage.md` — TRIAGE-036 through TRIAGE-055 grooming map
 - `output/staging/2026-07-22-operator-host-cell-pack/FINDINGS-live.md`
 - `features/npm-customer-install-integrity.md`
 - `features/entitlement-aware-customer-onboarding.md`

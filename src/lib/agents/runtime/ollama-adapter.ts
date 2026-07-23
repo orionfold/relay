@@ -26,6 +26,7 @@ import {
   getOllamaRuntimeConfig,
   type OllamaRuntimeConfig,
 } from "./ollama-config";
+import { classifyTaskFailureReason } from "./launch-failure";
 
 // ── Settings helpers ────────────────────────────────────────────────
 
@@ -183,7 +184,7 @@ async function executeOllamaTask(taskId: string): Promise<void> {
       .set({ status: "running", updatedAt: new Date() })
       .where(eq(tasks.id, taskId));
 
-    const ctx = await buildTaskQueryContext(task, agentProfileId);
+    const ctx = await buildTaskQueryContext(task, agentProfileId, "ollama");
     const config = await getOllamaRuntimeConfig();
     const modelId = await getOllamaModel(config, task.effectiveModelId);
 
@@ -285,7 +286,12 @@ async function executeOllamaTask(taskId: string): Promise<void> {
       const errorMsg = err instanceof Error ? err.message : String(err);
       await db
         .update(tasks)
-        .set({ status: "failed", result: errorMsg, updatedAt: new Date() })
+        .set({
+          status: "failed",
+          result: errorMsg,
+          failureReason: classifyTaskFailureReason(err),
+          updatedAt: new Date(),
+        })
         .where(eq(tasks.id, taskId));
 
       await db.insert(notifications).values({

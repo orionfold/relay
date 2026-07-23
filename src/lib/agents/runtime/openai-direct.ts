@@ -43,6 +43,7 @@ import {
   prepareTaskOutputDirectory,
   buildTaskOutputInstructions,
 } from "@/lib/documents/output-scanner";
+import { classifyTaskFailureReason } from "./launch-failure";
 
 // ── Five-source MCP merge (TDR-035 §1) ──────────────────────────────
 
@@ -286,7 +287,11 @@ async function executeOpenAIDirectTask(taskId: string, isResume = false): Promis
       .set({ status: "running", updatedAt: new Date() })
       .where(eq(tasks.id, taskId));
 
-    const ctx = await buildTaskQueryContext(task, agentProfileId);
+    const ctx = await buildTaskQueryContext(
+      task,
+      agentProfileId,
+      "openai-direct",
+    );
 
     // Prepare output directory so the agent can write output files
     if (!isResume) {
@@ -510,7 +515,12 @@ async function executeOpenAIDirectTask(taskId: string, isResume = false): Promis
       const errorMsg = err instanceof Error ? err.message : String(err);
       await db
         .update(tasks)
-        .set({ status: "failed", result: errorMsg, updatedAt: new Date() })
+        .set({
+          status: "failed",
+          result: errorMsg,
+          failureReason: classifyTaskFailureReason(err),
+          updatedAt: new Date(),
+        })
         .where(eq(tasks.id, taskId));
 
       await db.insert(notifications).values({

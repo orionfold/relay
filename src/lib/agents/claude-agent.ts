@@ -47,6 +47,7 @@ import {
   toRetryableRuntimeLaunchError,
   type RuntimeLaunchProgress,
 } from "@/lib/agents/runtime/launch-failure";
+import type { AgentRuntimeId } from "@/lib/agents/runtime/catalog";
 
 // ─── ainative MCP injection helpers ──────────────────────────────────────
 //
@@ -560,14 +561,18 @@ export async function buildTaskQueryContext(
     projectId?: string | null;
     effectiveModelId?: string | null;
   },
-  profileId: string
+  profileId: string,
+  runtimeId: AgentRuntimeId = "claude-code",
 ): Promise<TaskQueryContext> {
   const profile = getProfile(profileId);
   const payload = profile
-    ? resolveProfileRuntimePayload(profile, "claude-code")
+    ? resolveProfileRuntimePayload(profile, runtimeId)
     : null;
   if (payload && !payload.supported) {
-    throw new Error(payload.reason ?? `Profile "${profile?.name}" is not supported on Claude Code`);
+    throw new Error(
+      payload.reason ??
+        `Profile "${profile?.name}" is not supported on ${runtimeId}`,
+    );
   }
 
   const profileInstructions = payload?.instructions ?? "";
@@ -606,10 +611,10 @@ export async function buildTaskQueryContext(
   // F9: Use profile maxTurns or fall back to default
   const maxTurns = profile?.maxTurns ?? DEFAULT_MAX_TURNS;
 
-  const { modelId } = await resolvePreferredModel("claude-code", {
+  const { modelId } = await resolvePreferredModel(runtimeId, {
     pinnedModelId:
       task.effectiveModelId ??
-      profile?.capabilityOverrides?.["claude-code"]?.modelId,
+      profile?.capabilityOverrides?.[runtimeId]?.modelId,
   });
 
   return {

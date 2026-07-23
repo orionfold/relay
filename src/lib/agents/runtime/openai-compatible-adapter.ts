@@ -13,6 +13,7 @@ import {
   resolveOpenAICompatibleModel,
   type OpenAICompatibleRuntimeId,
 } from "./openai-compatible";
+import { classifyTaskFailureReason } from "./launch-failure";
 
 function usageCompleteness(inputTokens: number | null, outputTokens: number | null) {
   if (inputTokens != null && outputTokens != null) return "complete" as const;
@@ -92,7 +93,7 @@ async function executeCompatibleTask(
       .where(eq(tasks.id, taskId));
 
     const [ctx, config] = await Promise.all([
-      buildTaskQueryContext(task, agentProfileId),
+      buildTaskQueryContext(task, agentProfileId, runtimeId),
       getOpenAICompatibleRuntimeConfig(runtimeId),
     ]);
     modelId = await resolveOpenAICompatibleModel(runtimeId, modelId);
@@ -182,6 +183,7 @@ async function executeCompatibleTask(
       .set({
         status: cancelled ? "cancelled" : "failed",
         result: message,
+        failureReason: cancelled ? "aborted" : classifyTaskFailureReason(error),
         effectiveModelId: modelId,
         updatedAt: new Date(),
       })

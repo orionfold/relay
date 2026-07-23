@@ -101,6 +101,17 @@ forced into cloud API-key semantics.
 - Competing retry requests have one atomic winner. Cancelled, completed and
   otherwise stale targets reject recovery without dispatch.
 
+### Cross-runtime parity clarification
+
+Workflow readiness, profile-context construction, execution, and failure
+classification must use the same effective runtime. This applies to Claude
+Code, OpenAI Codex App Server, Anthropic Direct, OpenAI Direct, Ollama,
+LiteLLM, and LM Studio. A runtime-specific profile cannot pass readiness on one
+runtime and then be validated against Claude Code inside a shared prompt
+builder. Every adapter must persist the accepted machine-readable transient
+reason so this recovery contract is reachable; plain error text alone is
+diagnostic evidence, not a state-transition contract.
+
 ## Filesystem skill discovery
 
 - Use filesystem inspection that safely distinguishes valid symlinks, dangling
@@ -271,3 +282,22 @@ and an isolated real-browser workflow proof with no console warnings or errors.
 The browser proof also caught and closed the stale “Waiting for your approval”
 header interpretation. Evidence:
 `output/playwright/g122/runtime-recovery.png`.
+
+## Implementation receipt — G-124
+
+Accepted 2026-07-23 after G-025 exposed a cross-runtime gap in the final
+customer-identical run. Shared task context now resolves profile instructions,
+runtime overrides, capability pins, and model preference against the adapter's
+actual effective runtime instead of always validating them as Claude Code.
+Ollama, Anthropic Direct, OpenAI Direct, LiteLLM, and LM Studio task failures
+now persist the common machine-readable reason consumed by G-122. HTTP
+502/503/504 service failures are recognized as transiently unavailable while
+authentication, cancellation, capability, budget, and turn-limit failures
+remain terminal.
+
+Verification passed: an Ollama-only profile completed a real task under
+`npm run dev`; a real-SQLite three-step sequence preserved its completed prefix,
+entered `blocked_runtime` on one controlled Ollama 503, and completed only the
+blocked suffix after explicit retry, with the prefix task count remaining one.
+The runtime graph smoke, TypeScript, production build, 122 focused checks, and
+all 3,918 regressions across 536 files passed (one intentional skip).

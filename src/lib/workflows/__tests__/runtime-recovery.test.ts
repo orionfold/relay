@@ -7,6 +7,11 @@ describe("classifyRecoverableRuntimeFailure", () => {
     ["rate_limited", "429", "rate_limited"],
     ["sdk_error", "Provider unavailable", "runtime_unavailable"],
     ["sdk_error", "ECONNREFUSED 127.0.0.1", "runtime_unavailable"],
+    [
+      "sdk_error",
+      "Ollama API error (503): synthetic transient staging failure",
+      "runtime_unavailable",
+    ],
   ])("classifies %s / %s as recoverable", (failureReason, message, expected) => {
     expect(
       classifyRecoverableRuntimeFailure({ failureReason, message }),

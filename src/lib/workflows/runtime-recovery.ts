@@ -1,7 +1,7 @@
 import type { StepRuntimeRecovery } from "./types";
 
 const UNAVAILABLE_MESSAGE =
-  /\b(unavailable|connection|connect|econn\w*|socket|network|host|process exited|failed to start|service)\b/i;
+  /\b(unavailable|connection|connect|econn\w*|socket|network|host|process exited|failed to start|service|50[234])\b/i;
 
 export function classifyRecoverableRuntimeFailure(input: {
   failureReason?: string | null;

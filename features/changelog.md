@@ -4,6 +4,15 @@
 
 ### Completed
 
+- `runtime-first-value-reliability` (G-124) — closed a final staging-only
+  cross-runtime contradiction: shared workflow task context now resolves
+  profiles against the runtime selected by readiness instead of hardcoding
+  Claude Code, and every local/direct/OpenAI-compatible adapter persists the
+  machine-readable failure class required by step recovery. A real Ollama-only
+  task and real-SQLite sequence under `npm run dev` passed; one controlled 503
+  paused only the exact later step, explicit retry completed the suffix, and
+  the completed prefix task remained singular. TypeScript, production build,
+  runtime-graph smoke, 122 focused checks, and all 3,918 regressions passed.
 - `runtime-first-value-reliability` (G-120) — reordered Settings around the
   customer journey: compact, expandable local-provider summaries and compact
   cloud-provider rows now precede task routing. Provider-specific auth,
