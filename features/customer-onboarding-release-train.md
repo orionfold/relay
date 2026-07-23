@@ -83,8 +83,11 @@ shell state. It was accepted 2026-07-23 after the complete state matrix,
 responsive dark-browser proof passed. G-120 now reorganizes Settings around
 that contract and was accepted 2026-07-23 after compact provider-first
 desktop/mobile proof, live routing reconciliation and the complete 3,874-test
-suite passed. G-123 now removes filesystem-skill warning floods without hiding
-real scanner failure.
+suite passed. G-123 was accepted 2026-07-23 after dangling and valid symlink,
+unreadable, malformed, absent-root, redaction and named-scanner-failure
+regressions passed; the real customer skill tree now returns 91 valid profiles
+with one path-free CLI diagnostic instead of 31 entry warnings. O3 is complete.
+G-121 is the current O4 goal.
 
 ### O4 — First successful and recoverable run
 

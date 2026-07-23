@@ -115,7 +115,7 @@ forced into cloud API-key semantics.
 - [ ] Transient later-step timeout pauses/retries/resumes without replaying
       completed side effects.
 - [ ] Authentication rejection and true outage remain distinct.
-- [ ] Dangling filesystem skills do not flood CLI output or hide a total failure.
+- [x] Dangling filesystem skills do not flood CLI output or hide a total failure.
 - [ ] Real `npm run dev` task smoke covers runtime-registry import and execution
       paths in addition to unit/component tests.
 
@@ -192,3 +192,22 @@ Verification passed: 3,874 tests across 528 files (one intentional skip),
 TypeScript, production build, focused save-before-test/discovery/order/event
 tests, and desktop plus 390 px light/dark browser inspection with zero console
 errors. Existing Turbopack dynamic file-tracing warnings remain unrelated.
+
+## Implementation receipt — G-123
+
+Accepted 2026-07-23. Filesystem skill discovery now classifies dangling,
+unreadable and malformed entries without interrupting valid registry, user or
+project profiles. Valid directory symlinks still load, registry/user/project
+precedence is unchanged, and a failure to scan an entire existing root throws
+the named `FilesystemSkillDiscoveryError` instead of disappearing.
+
+Routine CLI output aggregates and rate-limits entry failures into one
+privacy-safe line. A bounded process-local diagnostics surface returns only
+counts by default; local paths and reasons require the explicit
+`includePaths=1` request.
+
+Verification passed: 3,881 tests across 529 files (one intentional skip),
+TypeScript, production build, dangling/valid symlink and failure-matrix
+fixtures, diagnostics redaction checks, and the real customer skill tree
+through the `list_profiles` chat tool. That customer-state proof returned 91
+valid profiles with one path-free summary for 31 unavailable/malformed entries.

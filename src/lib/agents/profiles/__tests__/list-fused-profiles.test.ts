@@ -1,14 +1,28 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from "fs";
+import {
+  mkdtempSync,
+  writeFileSync,
+  mkdirSync,
+  rmSync,
+  symlinkSync,
+} from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { listFusedProfiles } from "@/lib/agents/profiles/list-fused-profiles";
+import {
+  FilesystemSkillDiscoveryError,
+  listFusedProfiles,
+} from "@/lib/agents/profiles/list-fused-profiles";
+import {
+  readFilesystemSkillDiagnostics,
+  resetFilesystemSkillDiagnosticsForTests,
+} from "@/lib/agents/profiles/filesystem-skill-diagnostics";
 
 describe("listFusedProfiles", () => {
   let projectDir: string;
   let userSkillsDir: string;
 
   beforeEach(() => {
+    resetFilesystemSkillDiagnosticsForTests();
     projectDir = mkdtempSync(join(tmpdir(), "ainative-skills-"));
     userSkillsDir = mkdtempSync(join(tmpdir(), "ainative-user-skills-"));
     mkdirSync(join(projectDir, ".claude", "skills"), { recursive: true });
@@ -98,8 +112,104 @@ describe("listFusedProfiles", () => {
     );
     const result = await listFusedProfiles(projectDir, userSkillsDir);
     expect(result.some((p) => p.id === "broken-skill")).toBe(false);
-    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(String(warnSpy.mock.calls[0][0])).toContain("1 malformed");
+    expect(String(warnSpy.mock.calls[0][0])).not.toContain(projectDir);
     warnSpy.mockRestore();
+  });
+
+  it("loads a valid directory symlink and skips a dangling symlink", async () => {
+    const target = join(projectDir, "valid-skill-target");
+    writeSkill(
+      projectDir,
+      "valid-skill-target",
+      "name: linked-skill\ndescription: Linked",
+    );
+    symlinkSync(
+      target,
+      join(userSkillsDir, "linked-skill"),
+      "dir",
+    );
+    symlinkSync(
+      join(projectDir, "missing-target"),
+      join(userSkillsDir, "dangling-skill"),
+      "dir",
+    );
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const result = await listFusedProfiles(projectDir, userSkillsDir);
+
+    expect(result.some((profile) => profile.id === "linked-skill")).toBe(true);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    const reports = readFilesystemSkillDiagnostics();
+    expect(
+      reports.flatMap((report) => report.issues),
+    ).toEqual([
+      expect.objectContaining({
+        kind: "unavailable-entry",
+        path: join(userSkillsDir, "dangling-skill"),
+      }),
+    ]);
+    warnSpy.mockRestore();
+  });
+
+  it("skips unreadable and unrelated entries while preserving valid skills", async () => {
+    writeSkill(
+      userSkillsDir,
+      "valid-skill",
+      "name: valid-skill\ndescription: Valid",
+    );
+    mkdirSync(join(userSkillsDir, "unreadable-skill", "SKILL.md"), {
+      recursive: true,
+    });
+    writeFileSync(join(userSkillsDir, "ordinary-file"), "not a skill");
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const result = await listFusedProfiles(projectDir, userSkillsDir);
+
+    expect(result.some((profile) => profile.id === "valid-skill")).toBe(true);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(String(warnSpy.mock.calls[0][0])).toContain("1 unreadable");
+    warnSpy.mockRestore();
+  });
+
+  it("deduplicates the same privacy-safe warning within one minute", async () => {
+    writeSkill(
+      userSkillsDir,
+      "broken-skill",
+      "description: Missing name",
+    );
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    await listFusedProfiles(projectDir, userSkillsDir);
+    await listFusedProfiles(projectDir, userSkillsDir);
+
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(String(warnSpy.mock.calls[0][0])).not.toContain(userSkillsDir);
+    warnSpy.mockRestore();
+  });
+
+  it("throws a named error when an existing skills root cannot be scanned", async () => {
+    const notDirectory = join(projectDir, "not-a-directory");
+    writeFileSync(notDirectory, "file");
+
+    await expect(
+      listFusedProfiles(projectDir, notDirectory),
+    ).rejects.toMatchObject({
+      name: "FilesystemSkillDiscoveryError",
+      code: "FILESYSTEM_SKILL_SCANNER_FAILED",
+      skillsDir: notDirectory,
+      scope: "filesystem-user",
+    } satisfies Partial<FilesystemSkillDiscoveryError>);
+    expect(readFilesystemSkillDiagnostics()).toEqual([
+      expect.objectContaining({
+        root: notDirectory,
+        loadedCount: 0,
+        issues: [
+          expect.objectContaining({ kind: "scanner-failure" }),
+        ],
+      }),
+    ]);
   });
 
   it("returns an empty-safe result when projectDir does not exist", async () => {

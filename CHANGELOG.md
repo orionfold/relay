@@ -8,6 +8,13 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Filesystem skill discovery is quiet and fault-tolerant.** Dangling,
+  unreadable, or malformed entries no longer flood the CLI or hide valid
+  profiles; one path-free summary points to bounded diagnostics, while a total
+  root-scan failure remains a named error.
+
 ## [0.45.2] — 2026-07-21
 
 ### Added

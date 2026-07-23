@@ -3,6 +3,28 @@ import { join } from "path";
 import { homedir } from "os";
 import { listProfiles } from "./registry";
 import type { AgentProfile } from "./types";
+import {
+  recordFilesystemSkillDiagnostics,
+  warnFilesystemSkillIssues,
+  type FilesystemSkillDiagnosticReport,
+  type FilesystemSkillIssue,
+} from "./filesystem-skill-diagnostics";
+
+export class FilesystemSkillDiscoveryError extends Error {
+  readonly code = "FILESYSTEM_SKILL_SCANNER_FAILED" as const;
+
+  constructor(
+    readonly skillsDir: string,
+    readonly scope: "filesystem-project" | "filesystem-user",
+    cause: unknown,
+  ) {
+    super(
+      `Filesystem skill discovery could not read the ${scope === "filesystem-user" ? "user" : "project"} skills directory.`,
+      { cause },
+    );
+    this.name = "FilesystemSkillDiscoveryError";
+  }
+}
 
 /**
  * Minimal YAML frontmatter parser — handles the `---\nkey: value\n---\n...`
@@ -26,21 +48,56 @@ function loadFilesystemSkills(
   skillsDir: string,
   origin: "filesystem-project" | "filesystem-user",
   projectRootDir: string | undefined
-): AgentProfile[] {
-  if (!existsSync(skillsDir)) return [];
+): { profiles: AgentProfile[]; issues: FilesystemSkillIssue[] } {
+  if (!existsSync(skillsDir)) return { profiles: [], issues: [] };
   const profiles: AgentProfile[] = [];
-  for (const entry of readdirSync(skillsDir)) {
+  const issues: FilesystemSkillIssue[] = [];
+  let entries: string[];
+  try {
+    entries = readdirSync(skillsDir);
+  } catch (error) {
+    const issue: FilesystemSkillIssue = {
+      kind: "scanner-failure",
+      scope: origin,
+      path: skillsDir,
+      reason: error instanceof Error ? error.message : String(error),
+    };
+    recordFilesystemSkillDiagnostics({
+      scannedAt: new Date().toISOString(),
+      root: skillsDir,
+      scope: origin,
+      loadedCount: 0,
+      issues: [issue],
+    });
+    throw new FilesystemSkillDiscoveryError(skillsDir, origin, error);
+  }
+
+  for (const entry of entries) {
     const skillPath = join(skillsDir, entry);
     try {
       if (!statSync(skillPath).isDirectory()) continue;
       const skillMdPath = join(skillPath, "SKILL.md");
       if (!existsSync(skillMdPath)) continue;
-      const content = readFileSync(skillMdPath, "utf8");
+      let content: string;
+      try {
+        content = readFileSync(skillMdPath, "utf8");
+      } catch (error) {
+        issues.push({
+          kind: "unreadable-skill",
+          scope: origin,
+          path: skillMdPath,
+          reason: error instanceof Error ? error.message : String(error),
+        });
+        continue;
+      }
       const fm = parseFrontmatter(content);
       if (!fm || !fm.name) {
-        console.warn(
-          `[listFusedProfiles] skipping ${skillMdPath}: missing name in frontmatter`
-        );
+        issues.push({
+          kind: "malformed-skill",
+          scope: origin,
+          path: skillMdPath,
+          reason: "Missing name in SKILL.md frontmatter",
+        });
         continue;
       }
       profiles.push({
@@ -59,14 +116,24 @@ function loadFilesystemSkills(
         readOnly: true,
         projectDir: origin === "filesystem-project" ? projectRootDir : undefined,
       } as AgentProfile);
-    } catch (err) {
-      console.warn(
-        `[listFusedProfiles] failed to load skill at ${skillPath}:`,
-        (err as Error).message
-      );
+    } catch (error) {
+      issues.push({
+        kind: "unavailable-entry",
+        scope: origin,
+        path: skillPath,
+        reason: error instanceof Error ? error.message : String(error),
+      });
     }
   }
-  return profiles;
+  const report: FilesystemSkillDiagnosticReport = {
+    scannedAt: new Date().toISOString(),
+    root: skillsDir,
+    scope: origin,
+    loadedCount: profiles.length,
+    issues,
+  };
+  recordFilesystemSkillDiagnostics(report);
+  return { profiles, issues };
 }
 
 /**
@@ -88,17 +155,25 @@ export async function listFusedProfiles(
   const registry = listProfiles();
   const registryIds = new Set(registry.map((p) => p.id));
 
-  const userSkills = loadFilesystemSkills(userSkillsDir, "filesystem-user", undefined).filter(
-    (p) => !registryIds.has(p.id)
+  const userResult = loadFilesystemSkills(
+    userSkillsDir,
+    "filesystem-user",
+    undefined,
   );
+  const userSkills = userResult.profiles.filter((p) => !registryIds.has(p.id));
 
-  const projectSkills = projectDir
+  const projectResult = projectDir
     ? loadFilesystemSkills(
         join(projectDir, ".claude", "skills"),
         "filesystem-project",
         projectDir
-      ).filter((p) => !registryIds.has(p.id) && !userSkills.some((u) => u.id === p.id))
-    : [];
+      )
+    : { profiles: [], issues: [] };
+  const projectSkills = projectResult.profiles.filter(
+    (p) => !registryIds.has(p.id) && !userSkills.some((u) => u.id === p.id),
+  );
+
+  warnFilesystemSkillIssues([...userResult.issues, ...projectResult.issues]);
 
   return [...registry, ...userSkills, ...projectSkills];
 }
