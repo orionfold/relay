@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { SettingsGlanceResponse } from "@/app/api/settings/glance/route";
+import { INSTANCE_IDENTITY_CHANGED_EVENT } from "@/lib/onboarding/events";
 
 const POLL_MS = 60_000;
 
@@ -27,8 +28,10 @@ export function useSettingsGlance(): SettingsGlanceState {
     data: null,
   });
   const lastRef = useRef<SettingsGlanceResponse | null>(null);
+  const requestSequenceRef = useRef(0);
 
   const fetchGlance = useCallback(async (signal?: AbortSignal) => {
+    const requestSequence = ++requestSequenceRef.current;
     try {
       const res = await fetch("/api/settings/glance", {
         signal,
@@ -41,10 +44,16 @@ export function useSettingsGlance(): SettingsGlanceState {
         throw new Error(body?.error ?? `settings glance HTTP ${res.status}`);
       }
       const data = (await res.json()) as SettingsGlanceResponse;
+      if (requestSequence !== requestSequenceRef.current) return;
       lastRef.current = data;
       setState({ status: "ready", data });
     } catch (err) {
-      if (signal?.aborted) return;
+      if (
+        signal?.aborted ||
+        requestSequence !== requestSequenceRef.current
+      ) {
+        return;
+      }
       const message =
         err instanceof Error ? err.message : "settings glance fetch failed";
       setState({ status: "error", data: lastRef.current, error: message });
@@ -70,11 +79,13 @@ export function useSettingsGlance(): SettingsGlanceState {
 
     startPolling();
     document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, onVisibility);
 
     return () => {
       controller.abort();
       if (interval) clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, onVisibility);
     };
   }, [fetchGlance]);
 

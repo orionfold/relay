@@ -130,8 +130,11 @@ continuity after lapse; and never infers that bundled Agency is installed.
 Fresh Community customers now receive the approved guided one-click Agency
 install, while Pack-only, Host-only and combined customers receive the shortest
 action for what they actually unlocked. License activation/removal refreshes
-the shared identity immediately. Host progress remains visible as an explicitly
-optional capability preview when Host is not entitled.
+the shared identity immediately across the app bar, Current Access,
+Settings-at-a-glance, Packs, and Host guidance. All client readers ignore a
+pre-mutation response that arrives after the newer refresh, so a slow request
+cannot restore Community after successful activation. Host progress remains
+visible as an explicitly optional capability preview when Host is not entitled.
 
 Verification passed 50 focused component/API/state regressions, 210 broader
 licensing/Host/Pack checks, TypeScript, production build, and disposable

@@ -1,6 +1,6 @@
 ---
 title: Customer Onboarding and First Value Release Train
-status: in-progress
+status: accepted
 priority: P0
 milestone: post-mvp
 source: _IDEAS/triage.md
@@ -116,7 +116,10 @@ customer-identical clean-cache journey and G-114's accepted same-cache upgrade
 proof. Its evidence bundle exposed two bounded truth inconsistencies. G-125 was
 accepted 2026-07-23 after terminal run authority reconciled the retained failed
 attempt into the same truthful receipt and real browser evidence passed. G-126
-is the remaining O5 fix for the last stale license summary.
+was accepted 2026-07-23 after the shared mutation event refreshed identity and
+Settings-at-a-glance readers, out-of-order responses were rejected, and real
+remove/reactivate browser proof reconciled every visible entitlement consumer
+without a manual reload. O5 and the release train are complete.
 
 ## Cross-goal invariants
 
@@ -153,6 +156,9 @@ is the remaining O5 fix for the last stale license summary.
 - [x] A recovered run's singular Operations Receipt reconciles to the final
       terminal outcome while retaining its failed and completed attempts
       (G-125).
+- [x] Successful license add/remove reconciles the app bar, Current Access,
+      data boundary, Settings-at-a-glance, Packs, and Host guidance without a
+      manual reload or stale-response rollback (G-126).
 - [x] The final Mode B staging bundle proves clean install, shared-cache upgrade,
       activation, workflow completion/recovery and isolation.
 - [x] Every originating TRIAGE-036–TRIAGE-057 finding is mapped to exactly one

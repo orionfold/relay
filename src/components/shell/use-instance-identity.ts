@@ -50,8 +50,10 @@ export function useInstanceIdentity(): InstanceIdentityState {
     licenseTag: null,
   });
   const lastRef = useRef<InstanceIdentityResponse | null>(null);
+  const requestSequenceRef = useRef(0);
 
   const fetchIdentity = useCallback(async (signal?: AbortSignal) => {
+    const requestSequence = ++requestSequenceRef.current;
     try {
       const res = await fetch("/api/instance/identity", {
         signal,
@@ -64,6 +66,7 @@ export function useInstanceIdentity(): InstanceIdentityState {
         throw new Error(body?.error ?? `instance identity HTTP ${res.status}`);
       }
       const data = (await res.json()) as InstanceIdentityResponse;
+      if (requestSequence !== requestSequenceRef.current) return;
       lastRef.current = data;
       setState({
         status: "ready",
@@ -73,7 +76,12 @@ export function useInstanceIdentity(): InstanceIdentityState {
         orientation: data.orientation,
       });
     } catch (err) {
-      if (signal?.aborted) return;
+      if (
+        signal?.aborted ||
+        requestSequence !== requestSequenceRef.current
+      ) {
+        return;
+      }
       const message =
         err instanceof Error ? err.message : "instance identity fetch failed";
       const last = lastRef.current;

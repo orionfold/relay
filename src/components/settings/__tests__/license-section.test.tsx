@@ -110,4 +110,64 @@ describe("LicenseSection", () => {
     expect(screen.getByText(/Unlocked: All premium Packs/)).toBeInTheDocument();
     window.removeEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, identityChanged);
   });
+
+  it("refreshes shared entitlement state after confirmed license removal", async () => {
+    const identityChanged = vi.fn();
+    window.addEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, identityChanged);
+    let removed = false;
+    const fetch = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "DELETE") {
+        removed = true;
+        return json({ removed: true });
+      }
+      return json({ licenses: removed ? [] : [activeLicense] });
+    });
+    vi.stubGlobal("fetch", fetch);
+    render(<LicenseSection orientation={orientation([activeLicense])} />);
+    await screen.findByText("Licensed to Northstar Agency");
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: `Remove license ${activeLicense.licenseId}`,
+      }),
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Remove license" }),
+    );
+
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith(
+        `/api/license/${encodeURIComponent(activeLicense.licenseId)}`,
+        { method: "DELETE" },
+      ),
+    );
+    await waitFor(() => expect(refresh).toHaveBeenCalled());
+    expect(identityChanged).toHaveBeenCalledTimes(1);
+    window.removeEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, identityChanged);
+  });
+
+  it("does not announce an entitlement change when activation fails", async () => {
+    const identityChanged = vi.fn();
+    window.addEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, identityChanged);
+    const fetch = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>
+      init?.method === "POST"
+        ? json({ error: "Signature verification failed." }, 400)
+        : json({ licenses: [] }),
+    );
+    vi.stubGlobal("fetch", fetch);
+    render(<LicenseSection orientation={orientation([])} />);
+    await screen.findByText(/Community Edition is active/);
+
+    fireEvent.change(screen.getByLabelText("License file contents"), {
+      target: { value: JSON.stringify({ payload: {}, signature: "bad" }) },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Activate" }));
+
+    expect(
+      await screen.findByText("Signature verification failed."),
+    ).toBeInTheDocument();
+    expect(refresh).not.toHaveBeenCalled();
+    expect(identityChanged).not.toHaveBeenCalled();
+    window.removeEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, identityChanged);
+  });
 });

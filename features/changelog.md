@@ -4,6 +4,14 @@
 
 ### Completed
 
+- `entitlement-aware-customer-onboarding` (G-126) — subscribed
+  Settings-at-a-glance to the same successful license-mutation event as the app
+  identity and added monotonic request sequencing to both readers. A slower
+  pre-mutation response can no longer restore stale Community state. Thirty-two
+  focused activation/removal/failure/API checks, all 3,923 regressions (one
+  intentional skip), TypeScript, production build, and real browser
+  remove/reactivate proof passed with no console errors. This closes O5 and the
+  Customer onboarding and first value release train.
 - `operations-receipts` (G-125) — made the terminal workflow/run marker
   authoritative over retained attempt rows. Exact-step recovery can now keep
   its failed task attempt, create the successful retry, and update the same
