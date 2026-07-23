@@ -3,6 +3,7 @@ import {
   getSampleDataSummary,
   removeUntouchedSampleData,
 } from "@/lib/packs/sample-data";
+import { revalidateAppRuntime } from "@/lib/apps/app-runtime-cache";
 
 export async function GET(
   _request: NextRequest,
@@ -17,8 +18,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  let result: Awaited<ReturnType<typeof removeUntouchedSampleData>>;
   try {
-    return NextResponse.json(await removeUntouchedSampleData(id));
+    result = await removeUntouchedSampleData(id);
   } catch (error) {
     console.error("[sample-data] removal failed", error);
     return NextResponse.json(
@@ -29,4 +31,19 @@ export async function DELETE(
       { status: 500 }
     );
   }
+
+  try {
+    await revalidateAppRuntime(id, { throwOnError: true });
+  } catch (error) {
+    console.error("[sample-data] dashboard refresh failed", error);
+    return NextResponse.json(
+      {
+        error:
+          "Sample data was removed, but Relay could not refresh the dashboard. Reload this page to see the current data.",
+      },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json(result);
 }

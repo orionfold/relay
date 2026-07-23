@@ -43,6 +43,7 @@ interface ProviderState {
   hasKey: boolean;
   apiKeySource: ApiKeySource;
   oauthConnected?: boolean;
+  existingSessionAvailable?: boolean;
   account?: OpenAIAccountInfo | null;
   rateLimits?: OpenAIRateLimitInfo | null;
   login?: OpenAILoginState;
@@ -151,7 +152,9 @@ function ProviderRow({
   if (readiness === "not-configured") {
     statusLine =
       provider.authMethod === "oauth"
-        ? "Sign in with ChatGPT to enable Codex App Server"
+        ? name === "OpenAI"
+          ? "Sign in with ChatGPT to enable Codex App Server"
+          : `Verify ${oauthLabel ?? "OAuth"} access to enable Claude Code`
         : "Add an API key to enable runtimes";
   } else if (readiness === "auth-rejected") {
     statusLine = "Saved authentication was rejected. Update it, then test again.";
@@ -615,6 +618,9 @@ export function ProvidersAndRuntimesSection() {
           {(openAIProvider.authMethod ?? "api_key") === "oauth" ? (
             <OpenAIChatGPTAuthControl
               connected={openAIProvider.oauthConnected ?? false}
+              existingSessionAvailable={
+                openAIProvider.existingSessionAvailable ?? false
+              }
               account={openAIProvider.account ?? null}
               rateLimits={openAIProvider.rateLimits ?? null}
               initialLoginState={

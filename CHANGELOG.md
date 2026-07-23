@@ -10,6 +10,13 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Fixed
 
+- **Fresh provider setup and Agency sample removal now tell the truth
+  immediately.** Relay distinguishes detected, selected, and verified Claude
+  and Codex authentication; API-key mode cannot fall through to cached OAuth;
+  an existing Codex sign-in can be explicitly copied into Relay's isolated
+  owner-only store without mutating the source. Leaving Agency sample data now
+  expires the cached app model before refresh, so billed, cost, margin, and
+  client KPIs clear immediately.
 - **Filesystem skill discovery is quiet and fault-tolerant.** Dangling,
   unreadable, or malformed entries no longer flood the CLI or hide valid
   profiles; one path-free summary points to bounded diagnostics, while a total

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FlaskConical, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ export function SampleDataPanel({
 }: {
   initialSummary: SampleDataSummary;
 }) {
+  const router = useRouter();
   const [summary, setSummary] = useState(initialSummary);
   const [confirming, setConfirming] = useState(false);
   const [removing, setRemoving] = useState(false);
@@ -50,6 +52,7 @@ export function SampleDataPanel({
       toast.success(
         `Removed ${body.removedRows} untouched sample rows. Your own and edited data was kept.`
       );
+      router.refresh();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Sample removal failed."

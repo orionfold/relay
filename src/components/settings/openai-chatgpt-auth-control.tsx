@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   CircleSlash,
   ExternalLink,
+  Import,
   Loader2,
   LogOut,
   RefreshCw,
@@ -20,6 +21,7 @@ import type { RuntimeConnectionResult } from "@/lib/agents/runtime/types";
 
 interface OpenAIChatGPTAuthControlProps {
   connected: boolean;
+  existingSessionAvailable: boolean;
   account: OpenAIAccountInfo | null;
   rateLimits: OpenAIRateLimitInfo | null;
   initialLoginState: OpenAILoginState;
@@ -109,6 +111,7 @@ async function readLoginResponse(
 
 export function OpenAIChatGPTAuthControl({
   connected,
+  existingSessionAvailable,
   account,
   rateLimits,
   initialLoginState,
@@ -119,6 +122,8 @@ export function OpenAIChatGPTAuthControl({
   const [testResult, setTestResult] = useState<RuntimeConnectionResult | null>(null);
   const [testing, setTesting] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [adopting, setAdopting] = useState(false);
+  const [adoptionError, setAdoptionError] = useState<string | null>(null);
 
   function updateLoginState(next: OpenAILoginState) {
     setLoginState(next);
@@ -173,6 +178,35 @@ export function OpenAIChatGPTAuthControl({
             : "ChatGPT sign-in could not start.",
         ),
       );
+    }
+  }
+
+  async function handleAdoptExistingSession() {
+    setAdopting(true);
+    setAdoptionError(null);
+    setTestResult(null);
+    try {
+      const response = await fetch("/api/settings/openai/adopt", {
+        method: "POST",
+      });
+      const payload = (await response.json()) as {
+        connected?: boolean;
+        error?: string;
+      };
+      if (!response.ok || payload.connected !== true) {
+        throw new Error(
+          payload.error ?? "Relay could not use the existing Codex sign-in.",
+        );
+      }
+      await onChanged();
+    } catch (error) {
+      setAdoptionError(
+        error instanceof Error
+          ? error.message
+          : "Relay could not use the existing Codex sign-in.",
+      );
+    } finally {
+      setAdopting(false);
     }
   }
 
@@ -242,6 +276,47 @@ export function OpenAIChatGPTAuthControl({
         ChatGPT mode uses Codex App Server&apos;s browser sign-in flow and keeps the session
         in Orionfold Relay&apos;s isolated Codex home so it does not touch your normal `~/.codex` login.
       </p>
+
+      {!connected && existingSessionAvailable && (
+        <div className="surface-card-muted rounded-lg border p-3">
+          <div className="flex items-start gap-2">
+            <Import
+              className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
+              aria-hidden
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-medium">
+                Existing Codex sign-in found
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Copy it once into Relay&apos;s isolated Codex store. Relay will
+                not change or sign out your normal Codex session.
+              </p>
+              <Button
+                className="mt-3"
+                size="sm"
+                variant="outline"
+                disabled={adopting}
+                onClick={handleAdoptExistingSession}
+              >
+                {adopting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    Verifying…
+                  </>
+                ) : (
+                  "Use existing Codex sign-in"
+                )}
+              </Button>
+              {adoptionError && (
+                <p role="alert" className="mt-2 text-xs text-destructive">
+                  {adoptionError}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {visibleAccount?.email && (
         <div className="rounded-xl border border-border/60 bg-background/40 px-3 py-2">

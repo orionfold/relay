@@ -26,6 +26,9 @@ As a ainative user, I want ainative's Codex sign-in state isolated from my norma
 - Start every ainative-managed Codex App Server process with that isolated `CODEX_HOME`.
 - Strip ambient `OPENAI_API_KEY` from app-server environment when ChatGPT auth is selected so OAuth mode cannot silently fall back to the host's API-key environment.
 - Ensure logout clears only the isolated auth cache and persisted ainative session metadata.
+- Detect a usable normal Codex session only as an adoption opportunity. After
+  explicit customer consent, validate and copy it once into the isolated store
+  with owner-only permissions, verify the copy, and roll it back on failure.
 
 ## Acceptance Criteria
 
@@ -34,6 +37,8 @@ As a ainative user, I want ainative's Codex sign-in state isolated from my norma
 - [x] ainative logout clears only the isolated Codex auth cache
 - [x] Ambient `OPENAI_API_KEY` does not leak into ChatGPT-authenticated Codex startup
 - [x] Connection tests, chat, and tasks all reuse the isolated cached session consistently
+- [x] A normal Codex session is never treated as connected until the customer
+      explicitly adopts and Relay verifies an isolated copy
 
 ## Scope Boundaries
 
@@ -41,10 +46,11 @@ As a ainative user, I want ainative's Codex sign-in state isolated from my norma
 - ainative-owned Codex auth home
 - File-based credential storage enforcement
 - Logout/session cleanup for the isolated store
+- Explicit, validated one-time adoption into the isolated store
 
 **Excluded:**
-- Importing credentials from an existing global `~/.codex`
 - Sharing a live auth cache between ainative and the normal Codex CLI
+- Silent or automatic credential import
 - CI/CD credential-copy workflows
 
 ## References

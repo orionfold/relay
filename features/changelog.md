@@ -4,6 +4,20 @@
 
 ### Completed
 
+- `provider-auth-bootstrap-truth` (G-129) — reconciled selected auth,
+  credential evidence, provider headers, runtime readiness, and task routing.
+  Anthropic API-key mode now fails named instead of falling through to cached
+  OAuth; fresh installs prefer usable evidence without false connection; and a
+  normal Codex session is offered only for explicit, verified, owner-only
+  adoption into Relay's isolated store. Focused security/auth/UI checks,
+  all 3,954 regressions (one intentional skip), TypeScript, runtime-graph task
+  `d4cf9abc-0e4c-4ceb-b142-eed329588c68`, production build, and rebuilt npm
+  browser proof passed without copying a real credential.
+- `sample-data-dashboard-reconciliation` (G-130) — made Agency's
+  **Use my own data** transition expire the 30-second app-runtime cache before
+  one App Router refresh. A rebuilt npm browser run removed 35 untouched rows
+  and immediately changed billed/costs to `$0.00`, margin to `—`, and active
+  clients to `0`; failure remains retryable and does not refresh.
 - `packed-knowledge-runtime-root` (G-127) — a rebuilt customer-identical
   npm/Chrome walkthrough now resolves the verified bundle from an explicit
   installed runtime-input root and Relay's compiled version instead of the

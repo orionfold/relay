@@ -673,7 +673,9 @@ async function testClaudeConnection(): Promise<RuntimeConnectionResult> {
 
     const result = await readClaudeConnectionProbe(
       response as AsyncIterable<Record<string, unknown>>,
-      authSettings.apiKeySource,
+      authSettings.method === "api_key"
+        ? authSettings.apiKeySource
+        : "unknown",
     );
     await updateAuthStatus(result.connected ? (result.apiKeySource ?? "unknown") : "unknown");
     return result;

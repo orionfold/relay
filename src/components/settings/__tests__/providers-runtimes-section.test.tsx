@@ -87,6 +87,7 @@ function providersPayload() {
         hasKey: true,
         apiKeySource: "env",
         oauthConnected: false,
+        existingSessionAvailable: true,
         account: null,
         rateLimits: null,
         login: {
@@ -186,6 +187,20 @@ describe("providers and runtimes section", () => {
             }),
           };
         }
+        if (url === "/api/settings/openai/adopt" && method === "POST") {
+          return {
+            ok: true,
+            json: async () => ({
+              connected: true,
+              account: {
+                type: "chatgpt",
+                email: "customer@example.com",
+                planType: "pro",
+              },
+              rateLimits: null,
+            }),
+          };
+        }
         if (url === "/api/settings/routing" && method === "PUT") {
           return {
             ok: true,
@@ -220,6 +235,32 @@ describe("providers and runtimes section", () => {
     expect(screen.getAllByText("Sign in with ChatGPT")).toHaveLength(2);
   });
 
+  it("uses provider-specific guidance when Anthropic OAuth is not verified", async () => {
+    const baseFetch = globalThis.fetch;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        if (
+          String(input).startsWith("/api/settings/providers") &&
+          (init?.method ?? "GET") === "GET"
+        ) {
+          const payload = providersPayload();
+          payload.providers.anthropic.authMethod = "oauth";
+          return { ok: true, json: async () => payload };
+        }
+        return baseFetch(input, init);
+      }),
+    );
+
+    render(<ProvidersAndRuntimesSection />);
+
+    expect(
+      await screen.findByText(
+        "Verify Claude Max/Pro access to enable Claude Code",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("updates the provider row immediately when ChatGPT sign-in starts", async () => {
     render(<ProvidersAndRuntimesSection />);
     const signInButton = await screen.findByRole("button", {
@@ -232,6 +273,35 @@ describe("providers and runtimes section", () => {
           "Waiting for ChatGPT sign-in. OpenAI Direct API remains active.",
         ),
       ).toBeInTheDocument();
+    });
+  });
+
+  it("offers explicit isolated adoption for an existing Codex sign-in", async () => {
+    const user = userEvent.setup();
+    render(<ProvidersAndRuntimesSection />);
+
+    expect(
+      await screen.findByText("Existing Codex sign-in found"),
+    ).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Use existing Codex sign-in" }),
+    );
+
+    await waitFor(() => {
+      expect(
+        calls.some(
+          (call) =>
+            call.url === "/api/settings/openai/adopt" &&
+            call.method === "POST",
+        ),
+      ).toBe(true);
+      expect(
+        calls.filter(
+          (call) =>
+            call.url === "/api/settings/providers" &&
+            call.method === "GET",
+        ).length,
+      ).toBeGreaterThan(1);
     });
   });
 

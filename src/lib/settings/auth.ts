@@ -55,13 +55,34 @@ export interface AuthSettings {
   method: AuthMethod;
   hasKey: boolean;
   apiKeySource: ApiKeySource;
+  oauthConnected: boolean;
+}
+
+export class ClaudeApiKeyNotConfiguredError extends Error {
+  override name = "ClaudeApiKeyNotConfiguredError";
+
+  constructor() {
+    super(
+      "Anthropic API key mode is selected, but no API key is configured. Add a key or switch to Claude Max/Pro.",
+    );
+  }
+}
+
+export class ClaudeApiKeyDecryptError extends Error {
+  override name = "ClaudeApiKeyDecryptError";
+
+  constructor() {
+    super(
+      "Relay could not read the saved Anthropic API key. Save the key again or switch authentication methods.",
+    );
+  }
 }
 
 /**
  * Get current auth settings. Never returns the raw API key.
  */
 export async function getAuthSettings(): Promise<AuthSettings> {
-  const method = ((await getSetting(SETTINGS_KEYS.AUTH_METHOD)) as AuthMethod) ?? "oauth";
+  const storedMethod = (await getSetting(SETTINGS_KEYS.AUTH_METHOD)) as AuthMethod | null;
   const encryptedKey = await getSetting(SETTINGS_KEYS.AUTH_API_KEY);
   const storedSource = (await getSetting(SETTINGS_KEYS.AUTH_API_KEY_SOURCE)) as ApiKeySource | null;
   const oauthVerifiedAt = await getSetting(SETTINGS_KEYS.AUTH_OAUTH_VERIFIED_AT);
@@ -70,6 +91,11 @@ export async function getAuthSettings(): Promise<AuthSettings> {
   const hasEnvKey = isNonEmptyString(process.env.ANTHROPIC_API_KEY);
   const hasVerifiedSdkOAuth =
     storedSource === "oauth" && isNonEmptyString(oauthVerifiedAt);
+  const oauthConnected =
+    hasClaudeOAuthCredential() || hasVerifiedSdkOAuth;
+  const method =
+    storedMethod ??
+    (oauthConnected ? "oauth" : hasDbKey || hasEnvKey ? "api_key" : "oauth");
 
   let apiKeySource: ApiKeySource;
   if (hasDbKey) {
@@ -78,7 +104,7 @@ export async function getAuthSettings(): Promise<AuthSettings> {
     apiKeySource = "env";
   } else if (
     method === "oauth" &&
-    (hasClaudeOAuthCredential() || hasVerifiedSdkOAuth)
+    oauthConnected
   ) {
     apiKeySource = "oauth";
   } else {
@@ -89,6 +115,7 @@ export async function getAuthSettings(): Promise<AuthSettings> {
     method,
     hasKey: hasDbKey || hasEnvKey,
     apiKeySource,
+    oauthConnected,
   };
 }
 
@@ -133,10 +160,10 @@ export async function setAuthSettings(input: UpdateAuthSettingsInput): Promise<v
  * Priority: DB-stored key > process.env > undefined (SDK falls back to OAuth).
  */
 export async function getAuthEnv(): Promise<Record<string, string> | undefined> {
-  const method = ((await getSetting(SETTINGS_KEYS.AUTH_METHOD)) as AuthMethod) ?? "oauth";
+  const auth = await getAuthSettings();
 
   // If OAuth is selected, don't inject any key — let SDK handle it
-  if (method === "oauth") {
+  if (auth.method === "oauth") {
     return undefined;
   }
 
@@ -147,12 +174,21 @@ export async function getAuthEnv(): Promise<Record<string, string> | undefined> 
       const key = decrypt(encryptedKey);
       return { ANTHROPIC_API_KEY: key };
     } catch {
-      // If decryption fails, fall through to env
+      if (isNonEmptyString(process.env.ANTHROPIC_API_KEY)) {
+        return { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY };
+      }
+      throw new ClaudeApiKeyDecryptError();
     }
   }
 
-  // Fall back to env var (already in process.env, no need to inject)
-  return undefined;
+  // buildClaudeSdkEnv deliberately strips ambient ANTHROPIC_API_KEY. Inject
+  // the selected environment key explicitly so API-key mode cannot
+  // accidentally fall through to a cached Claude OAuth session.
+  if (isNonEmptyString(process.env.ANTHROPIC_API_KEY)) {
+    return { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY };
+  }
+
+  throw new ClaudeApiKeyNotConfiguredError();
 }
 
 /**

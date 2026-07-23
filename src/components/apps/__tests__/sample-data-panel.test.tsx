@@ -5,7 +5,13 @@ import { SampleDataPanel } from "../sample-data-panel";
 const { toast } = vi.hoisted(() => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
+const { refresh } = vi.hoisted(() => ({
+  refresh: vi.fn(),
+}));
 vi.mock("sonner", () => ({ toast }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh }),
+}));
 
 const summary = {
   appId: "relay-agency",
@@ -32,6 +38,7 @@ const summary = {
 describe("SampleDataPanel", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    refresh.mockReset();
   });
 
   it("previews and cancels without issuing a destructive request", () => {
@@ -85,6 +92,7 @@ describe("SampleDataPanel", () => {
     expect(
       screen.queryByRole("button", { name: "Use my own data" })
     ).not.toBeInTheDocument();
+    expect(refresh).toHaveBeenCalledTimes(1);
   });
 
   it("keeps the retry path visible when removal fails", async () => {
@@ -107,5 +115,6 @@ describe("SampleDataPanel", () => {
     expect(
       screen.getByRole("button", { name: "Remove untouched samples" })
     ).toBeEnabled();
+    expect(refresh).not.toHaveBeenCalled();
   });
 });

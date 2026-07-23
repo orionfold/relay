@@ -1,7 +1,10 @@
-import { existsSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { SETTINGS_KEYS, type ApiKeySource, type AuthMethod } from "@/lib/constants/settings";
 import { decrypt, encrypt } from "@/lib/utils/crypto";
-import { getAinativeCodexAuthPath } from "@/lib/utils/ainative-paths";
+import {
+  getAinativeCodexAuthPath,
+  getGlobalCodexAuthPath,
+} from "@/lib/utils/ainative-paths";
 import { getSetting, setSetting } from "./helpers";
 import { clearRuntimeReadiness } from "./runtime-readiness";
 
@@ -32,6 +35,7 @@ export interface OpenAIAuthSettings {
   hasKey: boolean;
   apiKeySource: Exclude<ApiKeySource, "oauth">;
   oauthConnected: boolean;
+  existingSessionAvailable: boolean;
   account: OpenAIAccountInfo | null;
   rateLimits: OpenAIRateLimitInfo | null;
 }
@@ -56,8 +60,46 @@ function parseJson<T>(raw: string | null): T | null {
   }
 }
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+export function isUsableCodexChatGPTAuthPayload(raw: string): boolean {
+  try {
+    const parsed = JSON.parse(raw) as {
+      auth_mode?: unknown;
+      tokens?: {
+        access_token?: unknown;
+        refresh_token?: unknown;
+        id_token?: unknown;
+      } | null;
+    };
+    const tokens = parsed.tokens;
+    if (!tokens) return false;
+    const identifiesChatGPT =
+      parsed.auth_mode === "chatgpt" ||
+      isNonEmptyString(tokens.id_token);
+    const canAuthenticate =
+      isNonEmptyString(tokens.refresh_token) ||
+      isNonEmptyString(tokens.access_token);
+    return identifiesChatGPT && canAuthenticate;
+  } catch {
+    return false;
+  }
+}
+
+export function isUsableCodexChatGPTAuthFile(path: string): boolean {
+  try {
+    return isUsableCodexChatGPTAuthPayload(readFileSync(path, "utf8"));
+  } catch {
+    return false;
+  }
+}
+
 export async function getOpenAIAuthSettings(): Promise<OpenAIAuthSettings> {
-  const method = ((await getSetting(SETTINGS_KEYS.OPENAI_AUTH_METHOD)) as AuthMethod) ?? "api_key";
+  const storedMethod = (await getSetting(
+    SETTINGS_KEYS.OPENAI_AUTH_METHOD,
+  )) as AuthMethod | null;
   const encryptedKey = await getSetting(SETTINGS_KEYS.OPENAI_AUTH_API_KEY);
   const storedSource = (await getSetting(
     SETTINGS_KEYS.OPENAI_AUTH_API_KEY_SOURCE
@@ -86,13 +128,25 @@ export async function getOpenAIAuthSettings(): Promise<OpenAIAuthSettings> {
 
   const oauthConnected =
     storedOauthConnected === "true" ||
-    (storedOauthConnected == null && existsSync(getAinativeCodexAuthPath()));
+    (storedOauthConnected == null &&
+      isUsableCodexChatGPTAuthFile(getAinativeCodexAuthPath()));
+  const existingSessionAvailable =
+    !oauthConnected &&
+    isUsableCodexChatGPTAuthFile(getGlobalCodexAuthPath());
+  const method =
+    storedMethod ??
+    (oauthConnected || existingSessionAvailable
+      ? "oauth"
+      : hasDbKey || hasEnvKey
+        ? "api_key"
+        : "oauth");
 
   return {
     method,
     hasKey: hasDbKey || hasEnvKey,
     apiKeySource,
     oauthConnected,
+    existingSessionAvailable,
     account: storedAccount?.account ?? null,
     rateLimits: storedRateLimits,
   };

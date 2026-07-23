@@ -91,6 +91,7 @@ describe("auth settings", () => {
       const result = await getAuthSettings();
       expect(result.method).toBe("oauth");
       expect(result.hasKey).toBe(false);
+      expect(result.oauthConnected).toBe(false);
     });
 
     it("detects env key and sets source to env", async () => {
@@ -99,6 +100,7 @@ describe("auth settings", () => {
       const result = await getAuthSettings();
       expect(result.hasKey).toBe(true);
       expect(result.apiKeySource).toBe("env");
+      expect(result.method).toBe("api_key");
     });
 
     it("ignores a stale stored OAuth source when no credential exists", async () => {
@@ -136,6 +138,7 @@ describe("auth settings", () => {
       const { getAuthSettings } = await import("../auth");
       const result = await getAuthSettings();
       expect(result.apiKeySource).toBe("oauth");
+      expect(result.oauthConnected).toBe(true);
     });
 
     it("returns apiKeySource=oauth when a Claude OAuth credentials file contains a refresh token", async () => {
@@ -240,28 +243,36 @@ describe("auth settings", () => {
     });
 
     it("returns decrypted key from DB for api_key method", async () => {
-      let callIndex = 0;
-      mockWhere.mockImplementation(() => {
-        callIndex++;
-        if (callIndex === 1) return [{ value: "api_key" }]; // method
-        if (callIndex === 2) return [{ value: "encrypted:sk-ant-real-key" }]; // apiKey
-        return [];
-      });
+      mockGetSettingSequence([
+        "api_key",
+        "encrypted:sk-ant-real-key",
+        "db",
+        null,
+        "encrypted:sk-ant-real-key",
+      ]);
       const { getAuthEnv } = await import("../auth");
       const result = await getAuthEnv();
       expect(result).toEqual({ ANTHROPIC_API_KEY: "sk-ant-real-key" });
     });
 
-    it("returns undefined when api_key method but no stored key", async () => {
-      let callIndex = 0;
-      mockWhere.mockImplementation(() => {
-        callIndex++;
-        if (callIndex === 1) return [{ value: "api_key" }]; // method
-        return []; // no stored key
-      });
+    it("injects the environment key explicitly in api_key mode", async () => {
+      vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant-env");
+      mockGetSettingSequence(["api_key", null, null, null, null]);
       const { getAuthEnv } = await import("../auth");
-      const result = await getAuthEnv();
-      expect(result).toBeUndefined();
+      await expect(getAuthEnv()).resolves.toEqual({
+        ANTHROPIC_API_KEY: "sk-ant-env",
+      });
+    });
+
+    it("refuses api_key mode without a key instead of falling through to OAuth", async () => {
+      mockGetSettingSequence(["api_key", null, null, null, null]);
+      const {
+        ClaudeApiKeyNotConfiguredError,
+        getAuthEnv,
+      } = await import("../auth");
+      await expect(getAuthEnv()).rejects.toBeInstanceOf(
+        ClaudeApiKeyNotConfiguredError,
+      );
     });
 
     it("returns undefined when decryption fails", async () => {
@@ -270,16 +281,17 @@ describe("auth settings", () => {
         throw new Error("decryption failed");
       });
 
-      let callIndex = 0;
-      mockWhere.mockImplementation(() => {
-        callIndex++;
-        if (callIndex === 1) return [{ value: "api_key" }]; // method
-        if (callIndex === 2) return [{ value: "corrupted-data" }]; // apiKey
-        return [];
-      });
-      const { getAuthEnv } = await import("../auth");
-      const result = await getAuthEnv();
-      expect(result).toBeUndefined();
+      mockGetSettingSequence([
+        "api_key",
+        "corrupted-data",
+        "db",
+        null,
+        "corrupted-data",
+      ]);
+      const { ClaudeApiKeyDecryptError, getAuthEnv } = await import("../auth");
+      await expect(getAuthEnv()).rejects.toBeInstanceOf(
+        ClaudeApiKeyDecryptError,
+      );
     });
   });
 

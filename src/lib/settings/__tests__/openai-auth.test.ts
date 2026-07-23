@@ -1,4 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockFrom = vi.fn();
 const mockWhere = vi.fn();
@@ -23,8 +26,12 @@ vi.mock("@/lib/utils/crypto", () => ({
   decrypt: vi.fn((v: string) => v.replace("encrypted:", "")),
 }));
 
+const isolatedAuthPath = join(tmpdir(), "relay-openai-isolated-auth.json");
+const globalAuthPath = join(tmpdir(), "relay-openai-global-auth.json");
+
 vi.mock("@/lib/utils/ainative-paths", () => ({
-  getAinativeCodexAuthPath: () => "/tmp/ainative-codex/auth.json",
+  getAinativeCodexAuthPath: () => isolatedAuthPath,
+  getGlobalCodexAuthPath: () => globalAuthPath,
 }));
 
 mockFrom.mockReturnValue({ where: mockWhere });
@@ -47,14 +54,22 @@ describe("openai auth settings", () => {
     vi.unstubAllEnvs();
     vi.stubEnv("OPENAI_API_KEY", "");
     mockWhere.mockReturnValue([]);
+    rmSync(isolatedAuthPath, { force: true });
+    rmSync(globalAuthPath, { force: true });
   });
 
-  it("defaults to api_key mode with no key", async () => {
+  afterEach(() => {
+    rmSync(isolatedAuthPath, { force: true });
+    rmSync(globalAuthPath, { force: true });
+  });
+
+  it("defaults to ChatGPT mode without claiming a connection", async () => {
     const { getOpenAIAuthSettings } = await import("../openai-auth");
     const result = await getOpenAIAuthSettings();
-    expect(result.method).toBe("api_key");
+    expect(result.method).toBe("oauth");
     expect(result.hasKey).toBe(false);
     expect(result.oauthConnected).toBe(false);
+    expect(result.existingSessionAvailable).toBe(false);
   });
 
   it("detects env-backed API key", async () => {
@@ -64,6 +79,7 @@ describe("openai auth settings", () => {
     const result = await getOpenAIAuthSettings();
     expect(result.hasKey).toBe(true);
     expect(result.apiKeySource).toBe("env");
+    expect(result.method).toBe("api_key");
   });
 
   it("returns oauth connection metadata when stored", async () => {
@@ -91,6 +107,32 @@ describe("openai auth settings", () => {
     expect(result.oauthConnected).toBe(true);
     expect(result.account?.email).toBe("dev@example.com");
     expect(result.rateLimits?.primary?.usedPercent).toBe(25);
+  });
+
+  it("selects ChatGPT for a usable global session without calling it connected", async () => {
+    writeFileSync(
+      globalAuthPath,
+      JSON.stringify({
+        auth_mode: "chatgpt",
+        tokens: { access_token: "access", refresh_token: "refresh" },
+      }),
+      { mode: 0o600 },
+    );
+
+    const { getOpenAIAuthSettings } = await import("../openai-auth");
+    const result = await getOpenAIAuthSettings();
+
+    expect(result.method).toBe("oauth");
+    expect(result.oauthConnected).toBe(false);
+    expect(result.existingSessionAvailable).toBe(true);
+  });
+
+  it("ignores malformed global auth instead of painting an adoption opportunity", async () => {
+    writeFileSync(globalAuthPath, "{\"tokens\":{}}", { mode: 0o600 });
+    const { getOpenAIAuthSettings } = await import("../openai-auth");
+    const result = await getOpenAIAuthSettings();
+    expect(result.oauthConnected).toBe(false);
+    expect(result.existingSessionAvailable).toBe(false);
   });
 
   it("stores method changes without clearing existing key data", async () => {

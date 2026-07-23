@@ -1,22 +1,29 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("../auth", () => ({
-  getAuthSettings: vi.fn(async () => ({
-    method: "oauth",
+const { mockGetAuthSettings, mockGetOpenAIAuthSettings } = vi.hoisted(() => ({
+  mockGetAuthSettings: vi.fn(async () => ({
+    method: "oauth" as const,
     hasKey: false,
-    apiKeySource: "oauth",
+    apiKeySource: "oauth" as const,
+    oauthConnected: true,
+  })),
+  mockGetOpenAIAuthSettings: vi.fn(async () => ({
+    method: "oauth" as const,
+    hasKey: true,
+    apiKeySource: "db" as const,
+    oauthConnected: true,
+    existingSessionAvailable: false,
+    account: { type: "chatgpt" as const, email: "dev@example.com", planType: "pro" },
+    rateLimits: null,
   })),
 }));
 
+vi.mock("../auth", () => ({
+  getAuthSettings: mockGetAuthSettings,
+}));
+
 vi.mock("../openai-auth", () => ({
-  getOpenAIAuthSettings: vi.fn(async () => ({
-    method: "oauth",
-    hasKey: true,
-    apiKeySource: "db",
-    oauthConnected: true,
-    account: { type: "chatgpt", email: "dev@example.com", planType: "pro" },
-    rateLimits: null,
-  })),
+  getOpenAIAuthSettings: mockGetOpenAIAuthSettings,
 }));
 
 vi.mock("@/lib/agents/runtime/ollama-config", () => ({
@@ -38,6 +45,44 @@ describe("runtime setup states", () => {
     expect(states["openai-direct"].billingMode).toBe("usage");
     expect(states.ollama.authMethod).toBe("api_key");
     expect(states.ollama.apiKeySource).toBe("db");
+  });
+
+  it("does not mark Claude Code configured from an API key when OAuth is selected but unavailable", async () => {
+    mockGetAuthSettings.mockResolvedValueOnce({
+      method: "oauth",
+      hasKey: true,
+      apiKeySource: "env",
+      oauthConnected: false,
+    });
+    const { getRuntimeSetupStates } = await import("../runtime-setup");
+    const states = await getRuntimeSetupStates();
+
+    expect(states["claude-code"]).toMatchObject({
+      configured: false,
+      authMethod: "oauth",
+      apiKeySource: "unknown",
+    });
+    expect(states["anthropic-direct"]).toMatchObject({
+      configured: true,
+      authMethod: "api_key",
+      apiKeySource: "env",
+    });
+  });
+
+  it("keeps detected but unadopted global Codex auth out of configured runtimes", async () => {
+    mockGetOpenAIAuthSettings.mockResolvedValueOnce({
+      method: "oauth",
+      hasKey: false,
+      apiKeySource: "unknown",
+      oauthConnected: false,
+      existingSessionAvailable: true,
+      account: null,
+      rateLimits: null,
+    });
+    const { getRuntimeSetupStates } = await import("../runtime-setup");
+    const states = await getRuntimeSetupStates();
+    expect(states["openai-codex-app-server"].configured).toBe(false);
+    expect(states["openai-codex-app-server"].authMethod).toBe("oauth");
   });
 });
 

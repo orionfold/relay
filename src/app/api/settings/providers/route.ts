@@ -137,6 +137,7 @@ export async function GET(request: Request) {
         hasKey: openaiAuth.hasKey,
         apiKeySource: openaiAuth.apiKeySource,
         oauthConnected: openaiAuth.oauthConnected,
+        existingSessionAvailable: openaiAuth.existingSessionAvailable,
         account: openaiAuth.account,
         rateLimits: openaiAuth.rateLimits,
         login: getOpenAILoginState(),

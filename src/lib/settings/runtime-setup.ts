@@ -38,13 +38,15 @@ export async function getRuntimeSetupStates(): Promise<
   const openAIRuntime = getRuntimeCatalogEntry("openai-codex-app-server");
 
   const claudeAuthMethod: RuntimeSetupMethod =
-    claudeAuth.method === "oauth" || claudeAuth.apiKeySource === "oauth"
+    claudeAuth.method === "oauth"
       ? "oauth"
       : claudeAuth.hasKey
         ? "api_key"
         : "none";
   const claudeConfigured =
-    claudeAuth.hasKey || claudeAuth.apiKeySource === "oauth";
+    claudeAuth.method === "oauth"
+      ? claudeAuth.oauthConnected
+      : claudeAuth.hasKey;
 
   const states = {
     "claude-code": {
@@ -53,7 +55,12 @@ export async function getRuntimeSetupStates(): Promise<
       providerId: claudeRuntime.providerId,
       configured: claudeConfigured,
       authMethod: claudeAuthMethod,
-      apiKeySource: claudeAuth.apiKeySource,
+      apiKeySource:
+        claudeAuth.method === "oauth"
+          ? claudeAuth.oauthConnected
+            ? "oauth"
+            : "unknown"
+          : claudeAuth.apiKeySource,
       billingMode: claudeAuthMethod === "oauth" ? "subscription" : "usage",
     },
     "openai-codex-app-server": {
@@ -81,7 +88,10 @@ export async function getRuntimeSetupStates(): Promise<
       providerId: "anthropic",
       configured: claudeAuth.hasKey, // Requires actual API key (OAuth alone is not enough)
       authMethod: claudeAuth.hasKey ? "api_key" : "none",
-      apiKeySource: claudeAuth.hasKey ? claudeAuth.apiKeySource : "unknown",
+      apiKeySource:
+        claudeAuth.hasKey && claudeAuth.apiKeySource !== "oauth"
+          ? claudeAuth.apiKeySource
+          : "unknown",
       billingMode: "usage",
     },
     "openai-direct": {

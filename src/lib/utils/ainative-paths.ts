@@ -70,6 +70,11 @@ export function getAinativeCodexAuthPath(): string {
   return join(getAinativeCodexDir(), "auth.json");
 }
 
+/** The normal Codex CLI credential cache, never owned or mutated by Relay. */
+export function getGlobalCodexAuthPath(): string {
+  return join(homedir(), ".codex", "auth.json");
+}
+
 export function getAinativeProfilesDir(): string {
   return join(getAinativeDataDir(), "profiles");
 }
