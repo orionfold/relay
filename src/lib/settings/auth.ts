@@ -4,6 +4,10 @@ import { settings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { encrypt, decrypt } from "@/lib/utils/crypto";
 import { getClaudeOAuthCredentialsPath } from "@/lib/utils/ainative-paths";
+import {
+  probeClaudeCliAuth,
+  type CliProbeStatus,
+} from "@/lib/utils/provider-cli-discovery";
 import { SETTINGS_KEYS, type AuthMethod, type ApiKeySource } from "@/lib/constants/settings";
 import type { UpdateAuthSettingsInput } from "@/lib/validators/settings";
 import { getSetting, setSetting } from "./helpers";
@@ -14,7 +18,7 @@ function isNonEmptyString(value: unknown): value is string {
 }
 
 /** True when the Claude credential file contains a token the SDK can use. */
-function hasClaudeOAuthCredentialFile(): boolean {
+export function hasClaudeOAuthCredentialFile(): boolean {
   try {
     const parsed = JSON.parse(readFileSync(getClaudeOAuthCredentialsPath(), "utf8")) as {
       claudeAiOauth?: {
@@ -38,24 +42,14 @@ function hasClaudeOAuthCredentialFile(): boolean {
   }
 }
 
-/**
- * True when a Claude OAuth credential is actually present — either injected via
- * CLAUDE_CODE_OAUTH_TOKEN or cached on disk by `claude login`. Selecting "oauth"
- * as the auth method, persisting a prior source, or leaving an empty credential
- * file behind is NOT proof of authentication.
- */
-function hasClaudeOAuthCredential(): boolean {
-  return (
-    isNonEmptyString(process.env.CLAUDE_CODE_OAUTH_TOKEN) ||
-    hasClaudeOAuthCredentialFile()
-  );
-}
-
 export interface AuthSettings {
   method: AuthMethod;
   hasKey: boolean;
   apiKeySource: ApiKeySource;
   oauthConnected: boolean;
+  oauthDiscoveryStatus: CliProbeStatus | "different-auth";
+  oauthDiscoverySource: "cli" | "environment" | "file" | "verified" | "none";
+  oauthSubscriptionType: string | null;
 }
 
 export class ClaudeApiKeyNotConfiguredError extends Error {
@@ -82,17 +76,38 @@ export class ClaudeApiKeyDecryptError extends Error {
  * Get current auth settings. Never returns the raw API key.
  */
 export async function getAuthSettings(): Promise<AuthSettings> {
-  const storedMethod = (await getSetting(SETTINGS_KEYS.AUTH_METHOD)) as AuthMethod | null;
-  const encryptedKey = await getSetting(SETTINGS_KEYS.AUTH_API_KEY);
-  const storedSource = (await getSetting(SETTINGS_KEYS.AUTH_API_KEY_SOURCE)) as ApiKeySource | null;
-  const oauthVerifiedAt = await getSetting(SETTINGS_KEYS.AUTH_OAUTH_VERIFIED_AT);
+  const [
+    storedMethod,
+    encryptedKey,
+    storedSource,
+    oauthVerifiedAt,
+    cliAuth,
+  ] = await Promise.all([
+    getSetting(SETTINGS_KEYS.AUTH_METHOD) as Promise<AuthMethod | null>,
+    getSetting(SETTINGS_KEYS.AUTH_API_KEY),
+    getSetting(SETTINGS_KEYS.AUTH_API_KEY_SOURCE) as Promise<ApiKeySource | null>,
+    getSetting(SETTINGS_KEYS.AUTH_OAUTH_VERIFIED_AT),
+    probeClaudeCliAuth(),
+  ]);
 
   const hasDbKey = encryptedKey !== null;
   const hasEnvKey = isNonEmptyString(process.env.ANTHROPIC_API_KEY);
+  const hasInjectedOAuth = isNonEmptyString(process.env.CLAUDE_CODE_OAUTH_TOKEN);
+  // Claude Code uses macOS Keychain, so a leftover dotfile there is not
+  // authoritative. The file remains a compatibility path on Linux/Windows.
+  const hasCompatibilityFile =
+    process.platform !== "darwin" &&
+    hasClaudeOAuthCredentialFile();
   const hasVerifiedSdkOAuth =
     storedSource === "oauth" && isNonEmptyString(oauthVerifiedAt);
+  const hasCliSubscriptionOAuth =
+    cliAuth.status === "connected" &&
+    cliAuth.authMethod?.toLowerCase() === "claude.ai";
   const oauthConnected =
-    hasClaudeOAuthCredential() || hasVerifiedSdkOAuth;
+    hasCliSubscriptionOAuth ||
+    hasInjectedOAuth ||
+    hasCompatibilityFile ||
+    hasVerifiedSdkOAuth;
   const method =
     storedMethod ??
     (oauthConnected ? "oauth" : hasDbKey || hasEnvKey ? "api_key" : "oauth");
@@ -111,11 +126,33 @@ export async function getAuthSettings(): Promise<AuthSettings> {
     apiKeySource = "unknown";
   }
 
+  let oauthDiscoverySource: AuthSettings["oauthDiscoverySource"] = "none";
+  if (hasCliSubscriptionOAuth) {
+    oauthDiscoverySource = "cli";
+  } else if (hasInjectedOAuth) {
+    oauthDiscoverySource = "environment";
+  } else if (hasCompatibilityFile) {
+    oauthDiscoverySource = "file";
+  } else if (hasVerifiedSdkOAuth) {
+    oauthDiscoverySource = "verified";
+  }
+
+  const oauthDiscoveryStatus: AuthSettings["oauthDiscoveryStatus"] =
+    oauthConnected
+      ? "connected"
+      : cliAuth.status === "connected"
+        ? "different-auth"
+        : cliAuth.status;
+
   return {
     method,
     hasKey: hasDbKey || hasEnvKey,
     apiKeySource,
     oauthConnected,
+    oauthDiscoveryStatus,
+    oauthDiscoverySource,
+    oauthSubscriptionType:
+      hasCliSubscriptionOAuth ? cliAuth.subscriptionType : null,
   };
 }
 

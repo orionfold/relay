@@ -1,6 +1,7 @@
 import { spawn, type ChildProcessByStdio } from "node:child_process";
 import type { Readable } from "node:stream";
 import net from "node:net";
+import { resolveCodexExecutable } from "@/lib/utils/provider-cli-discovery";
 
 type JsonRpcId = number;
 
@@ -26,6 +27,16 @@ type JsonRpcMessage = JsonRpcRequest | JsonRpcResponse | JsonRpcNotification;
 export interface CodexAppServerClientOptions {
   env?: Record<string, string | undefined>;
   cwd?: string;
+}
+
+export class CodexExecutableNotFoundError extends Error {
+  override name = "CodexExecutableNotFoundError";
+
+  constructor() {
+    super(
+      "Relay could not find a working Codex executable. Repair or install the Codex CLI/app, then try again.",
+    );
+  }
 }
 
 export class CodexAppServerClient {
@@ -83,6 +94,8 @@ export class CodexAppServerClient {
 
     const port = await reservePort();
     const listenUrl = `ws://127.0.0.1:${port}`;
+    const executable = await resolveCodexExecutable();
+    if (!executable) throw new CodexExecutableNotFoundError();
     const env: NodeJS.ProcessEnv = { ...process.env };
     for (const [key, value] of Object.entries(options.env ?? {})) {
       if (value === undefined) {
@@ -93,7 +106,7 @@ export class CodexAppServerClient {
     }
 
     const child = spawn(
-      "codex",
+      executable,
       ["app-server", "--listen", listenUrl],
       {
         cwd: options.cwd,

@@ -124,6 +124,9 @@ export async function GET(request: Request) {
         hasKey: anthropicAuth.hasKey,
         apiKeySource: anthropicAuth.apiKeySource,
         dualBilling: anthropicDualBilling,
+        oauthDiscoveryStatus: anthropicAuth.oauthDiscoveryStatus,
+        oauthDiscoverySource: anthropicAuth.oauthDiscoverySource,
+        oauthSubscriptionType: anthropicAuth.oauthSubscriptionType,
         directModel: anthropicDirectModelRaw ?? null,
         runtimes: [
           runtimeStates["claude-code"],
@@ -138,6 +141,8 @@ export async function GET(request: Request) {
         apiKeySource: openaiAuth.apiKeySource,
         oauthConnected: openaiAuth.oauthConnected,
         existingSessionAvailable: openaiAuth.existingSessionAvailable,
+        existingSessionAdoptable: openaiAuth.existingSessionAdoptable,
+        existingSessionStatus: openaiAuth.existingSessionStatus,
         account: openaiAuth.account,
         rateLimits: openaiAuth.rateLimits,
         login: getOpenAILoginState(),

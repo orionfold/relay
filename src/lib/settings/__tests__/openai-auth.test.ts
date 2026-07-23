@@ -8,6 +8,7 @@ const mockWhere = vi.fn();
 const mockValues = vi.fn();
 const mockSet = vi.fn();
 const mockRun = vi.fn();
+const mockProbeCodexGlobalAuth = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -24,6 +25,9 @@ vi.mock("@/lib/db/schema", () => ({
 vi.mock("@/lib/utils/crypto", () => ({
   encrypt: vi.fn((v: string) => `encrypted:${v}`),
   decrypt: vi.fn((v: string) => v.replace("encrypted:", "")),
+}));
+vi.mock("@/lib/utils/provider-cli-discovery", () => ({
+  probeCodexGlobalAuth: mockProbeCodexGlobalAuth,
 }));
 
 const isolatedAuthPath = join(tmpdir(), "relay-openai-isolated-auth.json");
@@ -53,6 +57,7 @@ describe("openai auth settings", () => {
     vi.resetModules();
     vi.unstubAllEnvs();
     vi.stubEnv("OPENAI_API_KEY", "");
+    mockProbeCodexGlobalAuth.mockResolvedValue({ status: "signed-out" });
     mockWhere.mockReturnValue([]);
     rmSync(isolatedAuthPath, { force: true });
     rmSync(globalAuthPath, { force: true });
@@ -70,6 +75,7 @@ describe("openai auth settings", () => {
     expect(result.hasKey).toBe(false);
     expect(result.oauthConnected).toBe(false);
     expect(result.existingSessionAvailable).toBe(false);
+    expect(result.existingSessionAdoptable).toBe(false);
   });
 
   it("detects env-backed API key", async () => {
@@ -125,6 +131,18 @@ describe("openai auth settings", () => {
     expect(result.method).toBe("oauth");
     expect(result.oauthConnected).toBe(false);
     expect(result.existingSessionAvailable).toBe(true);
+    expect(result.existingSessionAdoptable).toBe(true);
+  });
+
+  it("detects a keyring-backed global Codex login without offering unsafe adoption", async () => {
+    mockProbeCodexGlobalAuth.mockResolvedValue({ status: "connected" });
+    const { getOpenAIAuthSettings } = await import("../openai-auth");
+    const result = await getOpenAIAuthSettings();
+    expect(result.method).toBe("oauth");
+    expect(result.oauthConnected).toBe(false);
+    expect(result.existingSessionAvailable).toBe(true);
+    expect(result.existingSessionAdoptable).toBe(false);
+    expect(result.existingSessionStatus).toBe("connected");
   });
 
   it("ignores malformed global auth instead of painting an adoption opportunity", async () => {

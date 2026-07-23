@@ -8,8 +8,12 @@ import { tmpdir } from "node:os";
 // delete per test. Mocking our own narrow path-helper avoids mocking node:fs
 // wholesale (which would break app-root's readFileSync).
 const oauthCredPath = join(tmpdir(), "relay-auth-test-credentials.json");
+const mockProbeClaudeCliAuth = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/utils/ainative-paths", () => ({
   getClaudeOAuthCredentialsPath: () => oauthCredPath,
+}));
+vi.mock("@/lib/utils/provider-cli-discovery", () => ({
+  probeClaudeCliAuth: mockProbeClaudeCliAuth,
 }));
 
 // Mock the DB and crypto modules
@@ -78,6 +82,12 @@ describe("auth settings", () => {
     mockWhere.mockReturnValue([]);
     vi.unstubAllEnvs();
     delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
+    mockProbeClaudeCliAuth.mockResolvedValue({
+      status: "signed-out",
+      authMethod: null,
+      apiProvider: null,
+      subscriptionType: null,
+    });
     rmSync(oauthCredPath, { force: true });
   });
 
@@ -141,7 +151,43 @@ describe("auth settings", () => {
       expect(result.oauthConnected).toBe(true);
     });
 
+    it("detects a macOS Keychain-backed Claude subscription through the CLI", async () => {
+      mockProbeClaudeCliAuth.mockResolvedValue({
+        status: "connected",
+        authMethod: "claude.ai",
+        apiProvider: "firstParty",
+        subscriptionType: "max",
+      });
+      mockGetSettingSequence([null, null, null, null]);
+      const { getAuthSettings } = await import("../auth");
+      const result = await getAuthSettings();
+      expect(result).toMatchObject({
+        method: "oauth",
+        oauthConnected: true,
+        apiKeySource: "oauth",
+        oauthDiscoveryStatus: "connected",
+        oauthDiscoverySource: "cli",
+        oauthSubscriptionType: "max",
+      });
+    });
+
+    it("does not mislabel a non-subscription Claude CLI auth method as OAuth", async () => {
+      mockProbeClaudeCliAuth.mockResolvedValue({
+        status: "connected",
+        authMethod: "apiKey",
+        apiProvider: "firstParty",
+        subscriptionType: null,
+      });
+      mockGetSettingSequence([null, null, null, null]);
+      const { getAuthSettings } = await import("../auth");
+      const result = await getAuthSettings();
+      expect(result.oauthConnected).toBe(false);
+      expect(result.oauthDiscoveryStatus).toBe("different-auth");
+      expect(result.apiKeySource).toBe("unknown");
+    });
+
     it("returns apiKeySource=oauth when a Claude OAuth credentials file contains a refresh token", async () => {
+      const platform = vi.spyOn(process, "platform", "get").mockReturnValue("linux");
       writeFileSync(oauthCredPath, JSON.stringify({
         claudeAiOauth: { refreshToken: "refresh-token-abc" },
       }));
@@ -149,6 +195,20 @@ describe("auth settings", () => {
       const { getAuthSettings } = await import("../auth");
       const result = await getAuthSettings();
       expect(result.apiKeySource).toBe("oauth");
+      platform.mockRestore();
+    });
+
+    it("ignores a leftover Claude credential file on macOS in favor of Keychain/CLI status", async () => {
+      const platform = vi.spyOn(process, "platform", "get").mockReturnValue("darwin");
+      writeFileSync(oauthCredPath, JSON.stringify({
+        claudeAiOauth: { refreshToken: "stale-refresh-token" },
+      }));
+      mockGetSettingSequence(["oauth", null, null, null]);
+      const { getAuthSettings } = await import("../auth");
+      const result = await getAuthSettings();
+      expect(result.oauthConnected).toBe(false);
+      expect(result.apiKeySource).toBe("unknown");
+      platform.mockRestore();
     });
 
     it.each([
@@ -168,6 +228,7 @@ describe("auth settings", () => {
     });
 
     it("accepts an unexpired access-token-only credential file", async () => {
+      const platform = vi.spyOn(process, "platform", "get").mockReturnValue("linux");
       writeFileSync(oauthCredPath, JSON.stringify({
         claudeAiOauth: { accessToken: "access-token-abc", expiresAt: Date.now() + 60_000 },
       }));
@@ -175,6 +236,7 @@ describe("auth settings", () => {
       const { getAuthSettings } = await import("../auth");
       const result = await getAuthSettings();
       expect(result.apiKeySource).toBe("oauth");
+      platform.mockRestore();
     });
 
     it("accepts OAuth previously verified by a successful SDK result (keychain path)", async () => {

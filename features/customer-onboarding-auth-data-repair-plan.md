@@ -15,6 +15,11 @@ separate one-line behavior change with an independent regression test.
 Chosen path: **REDUCE** to two vertical slices. No provider framework rewrite,
 routing-policy redesign, or client-side KPI mirror.
 
+Corrective follow-up: reduce again to provider discovery truth only. G-130's
+sample-data repair remains accepted. G-129 is reopened for supported CLI/App
+Server probing, executable resolution, inaccessible-state handling, and a
+customer-identical macOS verification outside the Codex sandbox.
+
 ## NOT in scope
 
 - Provider pricing/model-discovery changes: unrelated to credential truth.
@@ -57,6 +62,15 @@ routing-policy redesign, or client-side KPI mirror.
    provider/routing state after completion.
 5. Expire the tagged app-runtime snapshot, then refresh the Agency route only
    after a successful sample deletion.
+6. Replace macOS Claude file inference with the documented CLI status probe and
+   privacy-safe parsing.
+7. Resolve and health-check Codex executable candidates so a broken PATH shim
+   cannot mask a healthy official app binary.
+8. Discover global Codex login through the supported CLI while keeping Relay's
+   isolated App Server account authoritative; distinguish importable files from
+   keyring-only sessions.
+9. Rebuild and launch staging outside the Codex sandbox, then verify Settings
+   against the operator's real Claude and Codex login state.
 
 ## Regression test budget
 
@@ -77,6 +91,11 @@ routing-policy redesign, or client-side KPI mirror.
   no module-load-cycle error.
 - Browser: current isolated staging at port 3199 after rebuild, provider
   Settings truth and Agency sample transition.
+- New CLI discovery regressions: Claude authenticated/signed-out/unavailable/
+  malformed JSON; Codex broken first candidate/healthy fallback and global
+  keyring-only discovery.
+- Corrective browser: macOS customer-identical staging launched outside the
+  Codex seatbelt so Keychain results are representative.
 
 ## Error & Rescue Registry
 
@@ -95,13 +114,21 @@ routing-policy redesign, or client-side KPI mirror.
 
 ## Completion receipt
 
-Both slices were accepted against a rebuilt customer-identical npm install on
-2026-07-23. Provider Settings preserved isolation and truthful readiness
-without copying a real credential. Agency sample removal expired the tagged
-server snapshot and immediately rebuilt all four KPIs from empty tables.
-Focused regressions, TypeScript, the runtime graph, production build, packed
-artifact, browser evidence, all 3,954 regressions (one intentional skip), and a
-fresh two-pass review passed.
+G-130 remains accepted: Agency sample removal expired the tagged server
+snapshot and immediately rebuilt all four KPIs from empty tables. G-129's first
+receipt is superseded because its macOS staging process ran inside the Codex
+sandbox and could not see Keychain-backed Claude auth. The corrective slice is
+complete only after supported probes, focused regressions, TypeScript, runtime
+smoke, rebuilt external-context staging, browser evidence, and fresh two-pass
+review pass.
+
+Corrective receipt: all gates passed on 2026-07-23. Fifty-six focused checks,
+TypeScript, all 3,963 runnable regressions (one intentional skip), real
+runtime-graph task `fbee41c2-e019-47b7-8e64-6909c4b8a0fc`, production build,
+packed install, privacy-safe API inspection, and in-app browser evidence passed.
+The final staging server ran outside the Codex sandbox and detected the
+operator's Claude Max and global Codex logins without copying or exposing
+credentials.
 
 If two materially different Codex adoption approaches fail verification, retain
 normal browser sign-in, remove the adoption UI/endpoint from the slice, and keep

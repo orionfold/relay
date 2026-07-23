@@ -4,15 +4,19 @@
 
 ### Completed
 
-- `provider-auth-bootstrap-truth` (G-129) — reconciled selected auth,
-  credential evidence, provider headers, runtime readiness, and task routing.
-  Anthropic API-key mode now fails named instead of falling through to cached
-  OAuth; fresh installs prefer usable evidence without false connection; and a
-  normal Codex session is offered only for explicit, verified, owner-only
-  adoption into Relay's isolated store. Focused security/auth/UI checks,
-  all 3,954 regressions (one intentional skip), TypeScript, runtime-graph task
-  `d4cf9abc-0e4c-4ceb-b142-eed329588c68`, production build, and rebuilt npm
-  browser proof passed without copying a real credential.
+- `provider-auth-bootstrap-truth` (G-129 corrective follow-up) — replaced
+  credential-file inference with the documented `claude auth status --json`
+  boundary, ignores stale macOS Claude dotfiles, and falls back to the Claude
+  Agent SDK's bundled executable when the standalone CLI is absent. Codex now
+  health-checks candidates, skips this machine's broken npm shim, and uses the
+  healthy official app binary. A global file/keyring login is detected without
+  becoming Relay-connected; only an importable file gets the explicit adoption
+  action, while keyring-only state stays non-exportable. Fifty-six focused
+  checks, TypeScript, all 3,963 runnable regressions (one intentional skip),
+  runtime-graph task `fbee41c2-e019-47b7-8e64-6909c4b8a0fc`, production build,
+  and rebuilt npm staging launched outside the Codex sandbox passed. The fresh
+  UI showed **Connected via Claude Max/Pro**, selected Claude Code, and offered
+  the detected Codex login without copying or mutating credentials.
 - `sample-data-dashboard-reconciliation` (G-130) — made Agency's
   **Use my own data** transition expire the 30-second app-runtime cache before
   one App Router refresh. A rebuilt npm browser run removed 35 untouched rows

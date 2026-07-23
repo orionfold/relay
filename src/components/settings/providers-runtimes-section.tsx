@@ -44,6 +44,7 @@ interface ProviderState {
   apiKeySource: ApiKeySource;
   oauthConnected?: boolean;
   existingSessionAvailable?: boolean;
+  existingSessionAdoptable?: boolean;
   account?: OpenAIAccountInfo | null;
   rateLimits?: OpenAIRateLimitInfo | null;
   login?: OpenAILoginState;
@@ -620,6 +621,9 @@ export function ProvidersAndRuntimesSection() {
               connected={openAIProvider.oauthConnected ?? false}
               existingSessionAvailable={
                 openAIProvider.existingSessionAvailable ?? false
+              }
+              existingSessionAdoptable={
+                openAIProvider.existingSessionAdoptable ?? false
               }
               account={openAIProvider.account ?? null}
               rateLimits={openAIProvider.rateLimits ?? null}

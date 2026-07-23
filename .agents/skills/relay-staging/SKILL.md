@@ -93,6 +93,15 @@ node scripts/staging.mjs launch
   artifact — generous timeout), asserts the fresh-customer fidelity checklist,
   then **detaches** so the server outlives the launch command.
 - Server log tails at `~/relay-staging/server.log`.
+- **Host-credential fidelity on macOS:** when the acceptance claim involves an
+  existing Claude Code or Codex login, run this launch command outside the
+  Codex filesystem/process sandbox (request the normal command escalation).
+  Claude Code subscription credentials can live in Keychain, and a server
+  inherited from the sandbox may report signed out even while the operator's
+  normal CLI is authenticated. A sandboxed launch remains valid for ordinary
+  UI checks, but is invalid evidence for host credential discovery. Never read,
+  copy, or export Keychain entries; verify only through the providers'
+  documented status/App Server interfaces.
 - **Cross-origin arm (customer LAN topology):** to reproduce the Alpine-VM →
   Windows-over-LAN class (memory `customer-triage-field-reports-2026-07`), the
   operator can add `--hostname 0.0.0.0` — but this S1 driver defaults to
@@ -170,6 +179,9 @@ scenario verb is `staging-cli-run`'s job — S2.)
 Scratch data dir · no `.env.local` · no `RELAY_DEV_MODE`/`RELAY_INSTANCE_MODE`
 (zeroed by `harness.launchCli`) · empty non-git cwd · correct banner mode label.
 A dev-mode marker in the server log is a fidelity breach and fails the launch.
+For host-auth acceptance on macOS, also record that the detached server was
+launched outside the Codex sandbox and compare only privacy-safe provider
+classification/status fields.
 
 ## Decision Tree: Bug Found While Staging
 

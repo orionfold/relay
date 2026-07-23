@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ProvidersAndRuntimesSection } from "@/components/settings/providers-runtimes-section";
+import { OpenAIChatGPTAuthControl } from "@/components/settings/openai-chatgpt-auth-control";
 
 const runtimeIds = [
   "claude-code",
@@ -88,6 +89,7 @@ function providersPayload() {
         apiKeySource: "env",
         oauthConnected: false,
         existingSessionAvailable: true,
+        existingSessionAdoptable: true,
         account: null,
         rateLimits: null,
         login: {
@@ -303,6 +305,40 @@ describe("providers and runtimes section", () => {
         ).length,
       ).toBeGreaterThan(1);
     });
+  });
+
+  it("explains a keyring-only Codex session without offering credential copying", () => {
+    render(
+      <OpenAIChatGPTAuthControl
+        connected={false}
+        existingSessionAvailable
+        existingSessionAdoptable={false}
+        account={null}
+        rateLimits={null}
+        initialLoginState={{
+          phase: "idle",
+          loginId: null,
+          authUrl: null,
+          account: null,
+          rateLimits: null,
+          error: null,
+          startedAt: null,
+          updatedAt: "2026-07-23T12:00:00.000Z",
+        }}
+        onChanged={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Existing Codex sign-in found")).toBeInTheDocument();
+    expect(
+      screen.getByText(/stored by the operating system and cannot be copied safely/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Use existing Codex sign-in" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Sign in with ChatGPT" }),
+    ).toBeInTheDocument();
   });
 
   it("shows a named failure when ChatGPT sign-in returns an empty response", async () => {

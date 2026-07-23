@@ -22,6 +22,7 @@ import type { RuntimeConnectionResult } from "@/lib/agents/runtime/types";
 interface OpenAIChatGPTAuthControlProps {
   connected: boolean;
   existingSessionAvailable: boolean;
+  existingSessionAdoptable: boolean;
   account: OpenAIAccountInfo | null;
   rateLimits: OpenAIRateLimitInfo | null;
   initialLoginState: OpenAILoginState;
@@ -112,6 +113,7 @@ async function readLoginResponse(
 export function OpenAIChatGPTAuthControl({
   connected,
   existingSessionAvailable,
+  existingSessionAdoptable,
   account,
   rateLimits,
   initialLoginState,
@@ -289,25 +291,28 @@ export function OpenAIChatGPTAuthControl({
                 Existing Codex sign-in found
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Copy it once into Relay&apos;s isolated Codex store. Relay will
-                not change or sign out your normal Codex session.
+                {existingSessionAdoptable
+                  ? "Copy it once into Relay's isolated Codex store. Relay will not change or sign out your normal Codex session."
+                  : "Your normal Codex login is stored by the operating system and cannot be copied safely. Sign in below to create Relay's separate session; your normal Codex session remains unchanged."}
               </p>
-              <Button
-                className="mt-3"
-                size="sm"
-                variant="outline"
-                disabled={adopting}
-                onClick={handleAdoptExistingSession}
-              >
-                {adopting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                    Verifying…
-                  </>
-                ) : (
-                  "Use existing Codex sign-in"
-                )}
-              </Button>
+              {existingSessionAdoptable && (
+                <Button
+                  className="mt-3"
+                  size="sm"
+                  variant="outline"
+                  disabled={adopting}
+                  onClick={handleAdoptExistingSession}
+                >
+                  {adopting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                      Verifying…
+                    </>
+                  ) : (
+                    "Use existing Codex sign-in"
+                  )}
+                </Button>
+              )}
               {adoptionError && (
                 <p role="alert" className="mt-2 text-xs text-destructive">
                   {adoptionError}

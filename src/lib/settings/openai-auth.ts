@@ -5,6 +5,10 @@ import {
   getAinativeCodexAuthPath,
   getGlobalCodexAuthPath,
 } from "@/lib/utils/ainative-paths";
+import {
+  probeCodexGlobalAuth,
+  type CliProbeStatus,
+} from "@/lib/utils/provider-cli-discovery";
 import { getSetting, setSetting } from "./helpers";
 import { clearRuntimeReadiness } from "./runtime-readiness";
 
@@ -36,6 +40,8 @@ export interface OpenAIAuthSettings {
   apiKeySource: Exclude<ApiKeySource, "oauth">;
   oauthConnected: boolean;
   existingSessionAvailable: boolean;
+  existingSessionAdoptable: boolean;
+  existingSessionStatus: CliProbeStatus;
   account: OpenAIAccountInfo | null;
   rateLimits: OpenAIRateLimitInfo | null;
 }
@@ -97,20 +103,27 @@ export function isUsableCodexChatGPTAuthFile(path: string): boolean {
 }
 
 export async function getOpenAIAuthSettings(): Promise<OpenAIAuthSettings> {
-  const storedMethod = (await getSetting(
-    SETTINGS_KEYS.OPENAI_AUTH_METHOD,
-  )) as AuthMethod | null;
-  const encryptedKey = await getSetting(SETTINGS_KEYS.OPENAI_AUTH_API_KEY);
-  const storedSource = (await getSetting(
-    SETTINGS_KEYS.OPENAI_AUTH_API_KEY_SOURCE
-  )) as Exclude<ApiKeySource, "oauth"> | null;
-  const storedOauthConnected = await getSetting(SETTINGS_KEYS.OPENAI_AUTH_OAUTH_CONNECTED);
-  const storedAccount = parseJson<PersistedOpenAIAccountPayload>(
-    await getSetting(SETTINGS_KEYS.OPENAI_AUTH_ACCOUNT)
-  );
-  const storedRateLimits = parseJson<OpenAIRateLimitInfo>(
-    await getSetting(SETTINGS_KEYS.OPENAI_AUTH_RATE_LIMITS)
-  );
+  const [
+    storedMethod,
+    encryptedKey,
+    storedSource,
+    storedOauthConnected,
+    storedAccountRaw,
+    storedRateLimitsRaw,
+    globalCliAuth,
+  ] = await Promise.all([
+    getSetting(SETTINGS_KEYS.OPENAI_AUTH_METHOD) as Promise<AuthMethod | null>,
+    getSetting(SETTINGS_KEYS.OPENAI_AUTH_API_KEY),
+    getSetting(SETTINGS_KEYS.OPENAI_AUTH_API_KEY_SOURCE) as Promise<
+      Exclude<ApiKeySource, "oauth"> | null
+    >,
+    getSetting(SETTINGS_KEYS.OPENAI_AUTH_OAUTH_CONNECTED),
+    getSetting(SETTINGS_KEYS.OPENAI_AUTH_ACCOUNT),
+    getSetting(SETTINGS_KEYS.OPENAI_AUTH_RATE_LIMITS),
+    probeCodexGlobalAuth(),
+  ]);
+  const storedAccount = parseJson<PersistedOpenAIAccountPayload>(storedAccountRaw);
+  const storedRateLimits = parseJson<OpenAIRateLimitInfo>(storedRateLimitsRaw);
 
   const hasDbKey = encryptedKey !== null;
   const hasEnvKey = !!process.env.OPENAI_API_KEY;
@@ -130,9 +143,12 @@ export async function getOpenAIAuthSettings(): Promise<OpenAIAuthSettings> {
     storedOauthConnected === "true" ||
     (storedOauthConnected == null &&
       isUsableCodexChatGPTAuthFile(getAinativeCodexAuthPath()));
-  const existingSessionAvailable =
+  const existingSessionAdoptable =
     !oauthConnected &&
     isUsableCodexChatGPTAuthFile(getGlobalCodexAuthPath());
+  const existingSessionAvailable =
+    !oauthConnected &&
+    (existingSessionAdoptable || globalCliAuth.status === "connected");
   const method =
     storedMethod ??
     (oauthConnected || existingSessionAvailable
@@ -147,6 +163,8 @@ export async function getOpenAIAuthSettings(): Promise<OpenAIAuthSettings> {
     apiKeySource,
     oauthConnected,
     existingSessionAvailable,
+    existingSessionAdoptable,
+    existingSessionStatus: globalCliAuth.status,
     account: storedAccount?.account ?? null,
     rateLimits: storedRateLimits,
   };
