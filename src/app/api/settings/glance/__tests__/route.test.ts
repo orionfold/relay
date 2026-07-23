@@ -40,19 +40,20 @@ function mockAll(
   } = {}
 ) {
   const c = { ...OK, ...o };
-  vi.doMock("@/lib/settings/runtime-setup", () => ({
-    getRuntimeSetupStates: async () => {
+  vi.doMock("@/lib/settings/runtime-routing-status", () => ({
+    getRuntimeRoutingStatuses: async () => {
       if (o.throwRuntime) throw new Error("no runtime");
-      return c.runtimeStates;
+      return Object.entries(c.runtimeStates).map(([runtimeId, state]) => ({
+        runtimeId,
+        label: runtimeId === "claude-code" ? "Claude Code" : runtimeId,
+        modelId:
+          runtimeId === c.runtime.runtimeId ? c.model.modelId : null,
+        configured: state.configured,
+        ready: state.configured,
+      }));
     },
-    pickActiveRuntime: () => ({
-      runtimeId: c.runtime.runtimeId,
-      runtimeLabel: c.runtime.runtimeLabel,
-      providerId: "anthropic",
-    }),
-  }));
-  vi.doMock("@/lib/agents/runtime/model-preference", () => ({
-    resolvePreferredModel: async () => c.model,
+    pickReadyRuntime: (statuses: Array<{ ready: boolean }>) =>
+      statuses.find((status) => status.ready) ?? null,
   }));
   vi.doMock("@/lib/licensing/store", () => ({
     getLicensedIdentity: () => c.license,
@@ -92,8 +93,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  vi.doUnmock("@/lib/settings/runtime-setup");
-  vi.doUnmock("@/lib/agents/runtime/model-preference");
+  vi.doUnmock("@/lib/settings/runtime-routing-status");
   vi.doUnmock("@/lib/licensing/store");
   vi.doUnmock("@/lib/settings/budget-guardrails");
   vi.doUnmock("@/lib/settings/routing");
@@ -115,6 +115,7 @@ describe("GET /api/settings/glance — happy path", () => {
       activeModel: "claude-opus-4-8",
       routingPreference: "quality",
       configuredRuntimeCount: 2,
+      readyRuntimeCount: 2,
       sdkTimeoutSeconds: 90,
       maxTurns: 12,
       licenseTag: { kind: "licensed", label: "Acme Corp" },

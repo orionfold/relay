@@ -105,6 +105,25 @@ describe("provider model detail discovery", () => {
     expect(result.metadataWarning).toContain("model details unavailable");
   });
 
+  it("filters obvious embedding models when optional metadata is unavailable", async () => {
+    state.settings.set(SETTINGS_KEYS.LMSTUDIO_BASE_URL, "http://localhost:1234/v1");
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          json({ data: [{ id: "google/gemma" }, { id: "nomic-embed-text" }] }),
+        )
+        .mockResolvedValueOnce(json({ error: "not enabled" }, 404)),
+    );
+
+    const result = await discoverOpenAICompatibleProviderModels("lmstudio");
+
+    expect(result.models.map((model) => model.id)).toEqual(["google/gemma"]);
+    expect(result.excludedModelCount).toBe(1);
+    expect(result.metadataWarning).toContain("model details unavailable");
+  });
+
   it("normalizes LM Studio native model detail including false and zero", async () => {
     state.settings.set(SETTINGS_KEYS.LMSTUDIO_BASE_URL, "http://localhost:1234/v1");
     vi.stubGlobal(
@@ -145,6 +164,44 @@ describe("provider model detail discovery", () => {
         trainedForToolUse: true,
       }),
     ]);
+  });
+
+  it("excludes embedding inventory from LM Studio generation totals", async () => {
+    state.settings.set(SETTINGS_KEYS.LMSTUDIO_BASE_URL, "http://localhost:1234/v1");
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          json({ data: [{ id: "loaded-llm" }, { id: "text-embed" }] }),
+        )
+        .mockResolvedValueOnce(
+          json({
+            models: [
+              {
+                key: "loaded-llm",
+                display_name: "Loaded LLM",
+                type: "llm",
+                loaded_instances: [{ config: { context_length: 4096 } }],
+              },
+              {
+                key: "text-embed",
+                display_name: "Text Embed",
+                type: "embedding",
+                loaded_instances: [],
+              },
+            ],
+          }),
+        ),
+    );
+
+    const result = await discoverOpenAICompatibleProviderModels("lmstudio");
+    expect(result.models.map((model) => model.id)).toEqual(["loaded-llm"]);
+    expect(result.excludedModelCount).toBe(1);
+    expect(result.models[0]).toMatchObject({
+      loaded: true,
+      loadedInstanceCount: 1,
+    });
   });
 });
 

@@ -61,4 +61,26 @@ describe("openai login manager", () => {
     expect(fakeClient.close).toHaveBeenCalledTimes(1);
     expect(getOpenAILoginState().phase).toBe("cancelled");
   });
+
+  it("turns an abandoned pending login into a named timeout", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-23T00:00:00.000Z"));
+    try {
+      const {
+        startOpenAIChatGPTLogin,
+        getOpenAILoginState,
+      } = await import("@/lib/settings/openai-login-manager");
+
+      await startOpenAIChatGPTLogin();
+      vi.setSystemTime(new Date("2026-07-23T00:05:01.000Z"));
+
+      expect(getOpenAILoginState()).toMatchObject({
+        phase: "failed",
+        error: expect.stringContaining("timed out"),
+      });
+      expect(fakeClient.close).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

@@ -24,8 +24,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.doUnmock("@/lib/packs/install");
-  vi.doUnmock("@/lib/settings/runtime-setup");
-  vi.doUnmock("@/lib/agents/runtime/model-preference");
+  vi.doUnmock("@/lib/settings/runtime-routing-status");
   fs.rmSync(dataDir, { recursive: true, force: true });
 });
 
@@ -36,19 +35,16 @@ function mockVersion(version: string) {
 }
 
 function mockActiveModel(modelId: string | null, throwInResolve = false) {
-  vi.doMock("@/lib/settings/runtime-setup", () => ({
-    getRuntimeSetupStates: async () => ({}),
-    pickActiveRuntime: () => ({
-      runtimeId: "claude-code",
-      runtimeLabel: "Claude Code",
-      providerId: "anthropic",
-    }),
-  }));
-  vi.doMock("@/lib/agents/runtime/model-preference", () => ({
-    resolvePreferredModel: async () => {
+  vi.doMock("@/lib/settings/runtime-routing-status", () => ({
+    getRuntimeRoutingStatuses: async () => {
       if (throwInResolve) throw new Error("no model configured");
-      return { modelId, source: "default" };
+      return modelId
+        ? [{ runtimeId: "claude-code", ready: true, modelId }]
+        : [];
     },
+    pickReadyRuntime: (
+      statuses: Array<{ ready: boolean; modelId: string | null }>,
+    ) => statuses.find((status) => status.ready) ?? null,
   }));
 }
 

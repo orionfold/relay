@@ -1,4 +1,5 @@
 import {
+  DEFAULT_AGENT_RUNTIME,
   SUPPORTED_AGENT_RUNTIMES,
   getRuntimeCatalogEntry,
   getRuntimeFeatures,
@@ -7,7 +8,10 @@ import {
 import { testRuntimeConnection } from "@/lib/agents/runtime";
 import { resolvePreferredModel } from "@/lib/agents/runtime/model-preference";
 import { getOllamaRuntimeConfig } from "@/lib/agents/runtime/ollama-config";
-import { getOpenAICompatibleRuntimeConfig } from "@/lib/agents/runtime/openai-compatible";
+import { resolveOllamaModel } from "@/lib/agents/runtime/ollama-model-resolver";
+import {
+  resolveOpenAICompatibleModel,
+} from "@/lib/agents/runtime/openai-compatible";
 import { SETTINGS_KEYS } from "@/lib/constants/settings";
 import { getSetting } from "./helpers";
 import {
@@ -16,6 +20,11 @@ import {
 } from "./runtime-setup";
 import { getComparableRuntimeCost } from "./runtime-routing-evidence";
 import { sanitizeProviderError } from "@/lib/agents/runtime/provider-endpoint";
+import {
+  classifyRuntimeReadiness,
+  recordRuntimeReadiness,
+  type RuntimeReadinessPhase,
+} from "./runtime-readiness";
 
 const STATUS_TTL_MS = 15_000;
 const PROBE_TIMEOUT_MS = 8_000;
@@ -32,6 +41,10 @@ export interface RuntimeRoutingStatus {
   health: RuntimeHealthState;
   healthReason: string | null;
   checkedAt: string | null;
+  readiness: RuntimeReadinessPhase;
+  ready: boolean;
+  credentialSource: RuntimeSetupState["apiKeySource"];
+  endpointReachable: boolean | null;
   modelId: string | null;
   comparableCostPerMillionMicros: number | null;
   capabilitySummary: string[];
@@ -41,9 +54,36 @@ export interface RuntimeRoutingStatus {
 let cache:
   | { expiresAt: number; statuses: RuntimeRoutingStatus[] }
   | null = null;
+let cacheGeneration = 0;
+let inFlight:
+  | {
+      generation: number;
+      promise: Promise<RuntimeRoutingStatus[]>;
+    }
+  | null = null;
 
 export function clearRuntimeRoutingStatusCache(): void {
+  cacheGeneration += 1;
   cache = null;
+  inFlight = null;
+}
+
+export function pickReadyRuntime(
+  statuses: RuntimeRoutingStatus[],
+): RuntimeRoutingStatus | null {
+  const ordered = [
+    DEFAULT_AGENT_RUNTIME,
+    ...SUPPORTED_AGENT_RUNTIMES.filter(
+      (runtimeId) => runtimeId !== DEFAULT_AGENT_RUNTIME,
+    ),
+  ];
+  return (
+    ordered
+      .map((runtimeId) =>
+        statuses.find((status) => status.runtimeId === runtimeId),
+      )
+      .find((status) => status?.ready) ?? null
+  );
 }
 
 function describeCapabilities(runtimeId: AgentRuntimeId): {
@@ -71,12 +111,15 @@ function describeCapabilities(runtimeId: AgentRuntimeId): {
 
 async function modelForRuntime(runtimeId: AgentRuntimeId): Promise<string | null> {
   if (runtimeId === "ollama") {
-    return (await getOllamaRuntimeConfig().catch(() => null))?.defaultModel || null;
+    const config = await getOllamaRuntimeConfig();
+    return resolveOllamaModel(
+      { baseUrl: config.baseUrl, apiKey: config.apiKey },
+      null,
+      config.defaultModel,
+    );
   }
   if (runtimeId === "litellm" || runtimeId === "lmstudio") {
-    return (
-      await getOpenAICompatibleRuntimeConfig(runtimeId).catch(() => null)
-    )?.defaultModel || null;
+    return resolveOpenAICompatibleModel(runtimeId);
   }
   if (runtimeId === "anthropic-direct") {
     return (
@@ -137,11 +180,6 @@ async function statusForRuntime(
   setup: RuntimeSetupState,
 ): Promise<RuntimeRoutingStatus> {
   const capabilities = describeCapabilities(runtimeId);
-  const modelId = await modelForRuntime(runtimeId).catch(() => null);
-  const comparableCostPerMillionMicros = await getComparableRuntimeCost({
-    runtimeId,
-    modelId,
-  }).catch(() => null);
   if (!setup.configured) {
     return {
       runtimeId,
@@ -150,21 +188,60 @@ async function statusForRuntime(
       health: "unconfigured",
       healthReason: "Not configured",
       checkedAt: null,
-      modelId,
-      comparableCostPerMillionMicros,
+      readiness: "not-configured",
+      ready: false,
+      credentialSource: setup.apiKeySource ?? "unknown",
+      endpointReachable: null,
+      modelId: null,
+      comparableCostPerMillionMicros: null,
       ...capabilities,
     };
   }
 
   const checkedAt = new Date().toISOString();
-  const probe = await probeRuntime(runtimeId);
+  const [probe, modelResult] = await Promise.all([
+    probeRuntime(runtimeId),
+    modelForRuntime(runtimeId)
+      .then((modelId) => ({ modelId, error: null }))
+      .catch((error) => ({
+        modelId: null,
+        error: sanitizeProviderError(
+          error instanceof Error ? error.message : String(error),
+        ),
+      })),
+  ]);
+  const modelFailure =
+    probe.connected && !modelResult.modelId
+      ? modelResult.error ?? "No generation model is available"
+      : null;
+  const effectiveProbe = modelFailure
+    ? { connected: false, reason: modelFailure }
+    : probe;
+  const readiness = classifyRuntimeReadiness({
+    connected: effectiveProbe.connected,
+    error: effectiveProbe.reason,
+    checkedAt,
+    credentialSource: setup.apiKeySource ?? "unknown",
+  });
+  await recordRuntimeReadiness(runtimeId, readiness).catch(() => undefined);
+  const modelId = modelResult.modelId;
+  const comparableCostPerMillionMicros = await getComparableRuntimeCost({
+    runtimeId,
+    modelId,
+  }).catch(() => null);
   return {
     runtimeId,
     label: getRuntimeCatalogEntry(runtimeId).label,
     configured: true,
-    health: probe.connected ? "healthy" : "unhealthy",
-    healthReason: probe.connected ? null : probe.reason ?? "Health check failed",
+    health: effectiveProbe.connected ? "healthy" : "unhealthy",
+    healthReason: effectiveProbe.connected
+      ? null
+      : effectiveProbe.reason ?? "Health check failed",
     checkedAt,
+    readiness: readiness.phase,
+    ready: readiness.ready,
+    credentialSource: readiness.credentialSource,
+    endpointReachable: readiness.endpointReachable,
     modelId,
     comparableCostPerMillionMicros,
     ...capabilities,
@@ -178,31 +255,58 @@ export async function getRuntimeRoutingStatuses(options?: {
   if (!options?.force && cache && cache.expiresAt > now) {
     return cache.statuses;
   }
+  if (
+    !options?.force &&
+    inFlight &&
+    inFlight.generation === cacheGeneration
+  ) {
+    return inFlight.promise;
+  }
 
-  const setup = await getRuntimeSetupStates();
-  const settled = await Promise.allSettled(
-    SUPPORTED_AGENT_RUNTIMES.map((runtimeId) =>
-      statusForRuntime(runtimeId, setup[runtimeId]),
-    ),
-  );
-  const statuses = settled.map((result, index): RuntimeRoutingStatus => {
-    if (result.status === "fulfilled") return result.value;
-    const runtimeId = SUPPORTED_AGENT_RUNTIMES[index];
-    return {
-      runtimeId,
-      label: getRuntimeCatalogEntry(runtimeId).label,
-      configured: setup[runtimeId].configured,
-      health: setup[runtimeId].configured ? "unhealthy" : "unconfigured",
-      healthReason:
-        result.reason instanceof Error
-          ? sanitizeProviderError(result.reason.message)
-          : sanitizeProviderError(String(result.reason)),
-      checkedAt: setup[runtimeId].configured ? new Date().toISOString() : null,
-      modelId: null,
-      comparableCostPerMillionMicros: null,
-      ...describeCapabilities(runtimeId),
-    };
-  });
-  cache = { expiresAt: now + STATUS_TTL_MS, statuses };
-  return statuses;
+  const generation = cacheGeneration;
+  const promise = (async () => {
+    const setup = await getRuntimeSetupStates();
+    const settled = await Promise.allSettled(
+      SUPPORTED_AGENT_RUNTIMES.map((runtimeId) =>
+        statusForRuntime(runtimeId, setup[runtimeId]),
+      ),
+    );
+    const statuses = settled.map((result, index): RuntimeRoutingStatus => {
+      if (result.status === "fulfilled") return result.value;
+      const runtimeId = SUPPORTED_AGENT_RUNTIMES[index];
+      return {
+        runtimeId,
+        label: getRuntimeCatalogEntry(runtimeId).label,
+        configured: setup[runtimeId].configured,
+        health: setup[runtimeId].configured ? "unhealthy" : "unconfigured",
+        healthReason:
+          result.reason instanceof Error
+            ? sanitizeProviderError(result.reason.message)
+            : sanitizeProviderError(String(result.reason)),
+        checkedAt: setup[runtimeId].configured ? new Date().toISOString() : null,
+        readiness: setup[runtimeId].configured
+          ? "unreachable"
+          : "not-configured",
+        ready: false,
+        credentialSource: setup[runtimeId].apiKeySource ?? "unknown",
+        endpointReachable: setup[runtimeId].configured ? false : null,
+        modelId: null,
+        comparableCostPerMillionMicros: null,
+        ...describeCapabilities(runtimeId),
+      };
+    });
+    if (generation === cacheGeneration) {
+      cache = { expiresAt: Date.now() + STATUS_TTL_MS, statuses };
+    }
+    return statuses;
+  })();
+
+  if (!options?.force) {
+    inFlight = { generation, promise };
+  }
+  try {
+    return await promise;
+  } finally {
+    if (inFlight?.promise === promise) inFlight = null;
+  }
 }

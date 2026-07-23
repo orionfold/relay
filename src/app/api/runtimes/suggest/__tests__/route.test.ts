@@ -5,20 +5,17 @@ import { NextRequest } from "next/server";
 
 const {
   getRoutingSettings,
-  getRuntimeSetupStates,
-  listConfiguredRuntimeIds,
+  getRuntimeRoutingStatuses,
   getComparableRuntimeCost,
 } = vi.hoisted(() => ({
   getRoutingSettings: vi.fn(),
-  getRuntimeSetupStates: vi.fn(),
-  listConfiguredRuntimeIds: vi.fn(),
+  getRuntimeRoutingStatuses: vi.fn(),
   getComparableRuntimeCost: vi.fn(),
 }));
 
 vi.mock("@/lib/settings/routing", () => ({ getRoutingSettings }));
-vi.mock("@/lib/settings/runtime-setup", () => ({
-  getRuntimeSetupStates,
-  listConfiguredRuntimeIds,
+vi.mock("@/lib/settings/runtime-routing-status", () => ({
+  getRuntimeRoutingStatuses,
 }));
 vi.mock("@/lib/settings/runtime-routing-evidence", () => ({
   getComparableRuntimeCost,
@@ -57,11 +54,11 @@ function policy(overrides?: Record<string, unknown>) {
 beforeEach(() => {
   vi.clearAllMocks();
   getRoutingSettings.mockResolvedValue(policy());
-  getRuntimeSetupStates.mockResolvedValue({});
-  listConfiguredRuntimeIds.mockReturnValue([
-    "ollama",
-    "openai-direct",
-    "anthropic-direct",
+  getRuntimeRoutingStatuses.mockResolvedValue([
+    { runtimeId: "ollama", ready: true },
+    { runtimeId: "openai-direct", ready: true },
+    { runtimeId: "anthropic-direct", ready: true },
+    { runtimeId: "lmstudio", ready: false },
   ]);
   getComparableRuntimeCost.mockImplementation(
     async ({ runtimeId }: { runtimeId: string }) =>
@@ -100,15 +97,17 @@ describe("POST /api/runtimes/suggest", () => {
       orderedRuntimeIds: ["lmstudio"],
       advisory: true,
     });
-    expect(getRuntimeSetupStates).not.toHaveBeenCalled();
+    expect(getRuntimeRoutingStatuses).not.toHaveBeenCalled();
   });
 
   it("fails visibly when no configured runtime is eligible", async () => {
-    listConfiguredRuntimeIds.mockReturnValue(["anthropic-direct"]);
+    getRuntimeRoutingStatuses.mockResolvedValue([
+      { runtimeId: "anthropic-direct", ready: true },
+    ]);
     const response = await POST(request({ title: "No candidate" }));
     expect(response.status).toBe(409);
     expect(await response.json()).toEqual({
-      error: "No configured runtime is currently eligible for automatic routing",
+      error: "No verified runtime is currently eligible for automatic routing",
     });
   });
 

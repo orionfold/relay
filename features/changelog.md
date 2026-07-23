@@ -4,6 +4,19 @@
 
 ### Completed
 
+- `runtime-first-value-reliability` (G-119) — introduced one persisted,
+  provider-neutral readiness observation without flattening provider-specific
+  evidence. Saved credentials/endpoints are no longer Connected until a
+  verified probe; rejected authentication, unreachable providers, missing
+  generation models and invalid responses are distinct, and replacing setup
+  clears prior evidence. Provider
+  cards, routing preview/suggestion, workflow preflight, Settings glance,
+  instance identity and telemetry now agree. ChatGPT sign-in exposes process,
+  empty/non-JSON, cancellation and timeout failures; LM Studio/LiteLLM
+  generation inventory excludes embeddings while preserving loaded/type
+  detail. All 3,870 regressions passed (one intentional skip), plus TypeScript,
+  production build, deterministic real tasks under `npm run dev`, and
+  responsive dark-browser proof with no console errors.
 - `entitlement-aware-customer-onboarding` (G-118) — made Relay Agency's
   default exploration dataset unmistakably synthetic and safely replaceable.
   Pack-installed table rows and customers now carry durable untouched/edited

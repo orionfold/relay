@@ -24,6 +24,10 @@ import {
 } from "./openai-compatible";
 import { getChatRuntimeContract } from "@/lib/chat/runtime-contract";
 import { sanitizeProviderError } from "./provider-endpoint";
+import {
+  classifyRuntimeReadiness,
+  recordRuntimeReadiness,
+} from "@/lib/settings/runtime-readiness";
 
 const FILESYSTEM_TOOL_NAMES = new Set([
   "Read",
@@ -336,21 +340,41 @@ async function checkRuntimeAvailability(
 
   try {
     const connection = await testRuntimeConnection(runtimeId);
+    const reason = connection.error
+      ? sanitizeProviderError(connection.error)
+      : null;
+    await recordRuntimeReadiness(
+      runtimeId,
+      classifyRuntimeReadiness({
+        connected: connection.connected,
+        error: reason,
+        credentialSource: states[runtimeId].apiKeySource ?? "unknown",
+      }),
+    ).catch(() => undefined);
     if (connection.connected) {
       return { available: true, reason: null };
     }
     return {
       available: false,
       reason:
-        (connection.error ? sanitizeProviderError(connection.error) : null) ??
+        reason ??
         `${getRuntimeLabel(runtimeId)} is unavailable`,
     };
   } catch (error) {
+    const reason = sanitizeProviderError(
+      error instanceof Error ? error.message : String(error),
+    );
+    await recordRuntimeReadiness(
+      runtimeId,
+      classifyRuntimeReadiness({
+        connected: false,
+        error: reason,
+        credentialSource: states[runtimeId].apiKeySource ?? "unknown",
+      }),
+    ).catch(() => undefined);
     return {
       available: false,
-      reason: sanitizeProviderError(
-        error instanceof Error ? error.message : String(error),
-      ),
+      reason,
     };
   }
 }

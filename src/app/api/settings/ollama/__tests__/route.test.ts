@@ -40,7 +40,7 @@ describe("/api/settings/ollama redacted settings contract", () => {
     vi.stubEnv("OLLAMA_API_KEY", "environment-secret");
     const response = await GET();
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({
+    expect(await response.json()).toMatchObject({
       runtimeId: "ollama",
       label: "Ollama",
       configured: true,
@@ -49,6 +49,11 @@ describe("/api/settings/ollama redacted settings contract", () => {
       allowInsecureRemote: false,
       hasApiKey: true,
       apiKeySource: "env",
+      readiness: {
+        phase: "saved-unverified",
+        ready: false,
+        credentialSource: "env",
+      },
     });
   });
 

@@ -145,3 +145,28 @@ Claude/Codex configuration repair.
 - TRIAGE-039, TRIAGE-046, TRIAGE-047, TRIAGE-048, TRIAGE-050–TRIAGE-054
 - G-119, G-120, G-121, G-122, G-123
 - TDR-032 runtime-registry smoke requirement
+
+## Implementation receipt — G-119
+
+Accepted 2026-07-23. Relay now persists a provider-neutral readiness
+observation while retaining provider-specific evidence. The normalized phases
+are not configured, saved/unverified, verified, authentication rejected,
+unreachable, model required, and invalid response; only verified is
+routing-ready. Credential
+or endpoint replacement invalidates prior evidence, explicit tests and
+execution preflight refresh it, and concurrent shell/Settings reads share one
+bounded probe set.
+
+Provider cards, routing preview/suggestion, workflow execution preflight,
+Settings-at-a-glance, instance identity, and telemetry now consume that truth.
+ChatGPT sign-in names empty, non-JSON, invalid, cancelled, process-exit and
+five-minute timeout failures while preserving Relay's isolated Codex home.
+LM Studio/LiteLLM discovery excludes embedding and other non-generation
+inventory from generation totals/defaults while retaining model type and loaded
+instance evidence.
+
+Verification passed: 3,870 tests across 528 files (one intentional skip),
+TypeScript, the production build, the deterministic real-task runtime-graph
+smoke under `npm run dev` across Ollama/LiteLLM/LM Studio, and desktop plus
+390 px dark-browser inspection with no console errors. Existing Turbopack
+dynamic file-tracing warnings remain unrelated.

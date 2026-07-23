@@ -9,6 +9,33 @@ import { getSetting } from "@/lib/settings/helpers";
 import { SETTINGS_KEYS } from "@/lib/constants/settings";
 import { getOllamaRuntimeConfig } from "@/lib/agents/runtime/ollama-config";
 import { getRuntimeRoutingStatuses } from "@/lib/settings/runtime-routing-status";
+import type { RuntimeReadinessPhase } from "@/lib/settings/runtime-readiness";
+
+function providerReadiness(
+  runtimeIds: string[],
+  statuses: Awaited<ReturnType<typeof getRuntimeRoutingStatuses>>,
+): { readiness: RuntimeReadinessPhase; readyRuntimeCount: number } {
+  const relevant = statuses.filter((status) =>
+    runtimeIds.includes(status.runtimeId),
+  );
+  const readyRuntimeCount = relevant.filter((status) => status.ready).length;
+  if (readyRuntimeCount > 0) return { readiness: "verified", readyRuntimeCount };
+  const priority: RuntimeReadinessPhase[] = [
+    "auth-rejected",
+    "model-required",
+    "invalid-response",
+    "unreachable",
+    "saved-unverified",
+    "not-configured",
+  ];
+  return {
+    readiness:
+      priority.find((phase) =>
+        relevant.some((status) => status.readiness === phase),
+      ) ?? "not-configured",
+    readyRuntimeCount,
+  };
+}
 
 export async function GET(request: Request) {
   const forceHealth = new URL(request.url).searchParams.get("refreshRuntimeHealth") === "1";
@@ -73,11 +100,26 @@ export async function GET(request: Request) {
     runtimeRoutingStatuses.find((status) => status.runtimeId === "ollama")
       ?.health === "healthy";
   const ollamaConfigured = runtimeStates["ollama"].configured;
+  const anthropicReadiness = providerReadiness(
+    ["claude-code", "anthropic-direct"],
+    runtimeRoutingStatuses,
+  );
+  const openaiReadiness = providerReadiness(
+    ["openai-codex-app-server", "openai-direct"],
+    runtimeRoutingStatuses,
+  );
+  const readyProviderCount =
+    Number(anthropicReadiness.readyRuntimeCount > 0) +
+    Number(openaiReadiness.readyRuntimeCount > 0) +
+    Number(runtimeRoutingStatuses.some((status) => status.runtimeId === "litellm" && status.ready)) +
+    Number(runtimeRoutingStatuses.some((status) => status.runtimeId === "lmstudio" && status.ready)) +
+    Number(runtimeRoutingStatuses.some((status) => status.runtimeId === "ollama" && status.ready));
 
   return NextResponse.json({
     providers: {
       anthropic: {
         configured: anthropicConfigured,
+        ...anthropicReadiness,
         authMethod: anthropicAuth.method,
         hasKey: anthropicAuth.hasKey,
         apiKeySource: anthropicAuth.apiKeySource,
@@ -90,6 +132,7 @@ export async function GET(request: Request) {
       },
       openai: {
         configured: openaiConfigured,
+        ...openaiReadiness,
         authMethod: openaiAuth.method,
         hasKey: openaiAuth.hasKey,
         apiKeySource: openaiAuth.apiKeySource,
@@ -124,5 +167,6 @@ export async function GET(request: Request) {
       Number(openaiConfigured) +
       Number(runtimeStates.litellm.configured) +
       Number(runtimeStates.lmstudio.configured),
+    readyProviderCount,
   });
 }

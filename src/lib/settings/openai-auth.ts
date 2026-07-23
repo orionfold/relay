@@ -3,6 +3,7 @@ import { SETTINGS_KEYS, type ApiKeySource, type AuthMethod } from "@/lib/constan
 import { decrypt, encrypt } from "@/lib/utils/crypto";
 import { getAinativeCodexAuthPath } from "@/lib/utils/ainative-paths";
 import { getSetting, setSetting } from "./helpers";
+import { clearRuntimeReadiness } from "./runtime-readiness";
 
 export type OpenAIAccountType = "apiKey" | "chatgpt" | "chatgptAuthTokens";
 export type OpenAIAuthMode = "apikey" | "chatgpt" | "chatgptAuthTokens" | null;
@@ -100,6 +101,7 @@ export async function getOpenAIAuthSettings(): Promise<OpenAIAuthSettings> {
 export async function setOpenAIAuthSettings(
   input: OpenAIAuthConfigInput
 ): Promise<void> {
+  const changesConnection = input.method !== undefined || Boolean(input.apiKey);
   if (input.method !== undefined) {
     await setSetting(SETTINGS_KEYS.OPENAI_AUTH_METHOD, input.method);
   }
@@ -114,6 +116,12 @@ export async function setOpenAIAuthSettings(
 
   if (input.model !== undefined) {
     await setSetting(SETTINGS_KEYS.OPENAI_DIRECT_MODEL, input.model);
+  }
+  if (changesConnection) {
+    await clearRuntimeReadiness(
+      "openai-codex-app-server",
+      "openai-direct",
+    );
   }
 }
 

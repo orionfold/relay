@@ -22,6 +22,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import type {
+  RuntimeReadinessObservation,
+} from "@/lib/settings/runtime-readiness";
 
 export type SetupRuntimeId = "ollama" | "litellm" | "lmstudio";
 
@@ -43,6 +46,7 @@ interface RuntimeSettings {
   allowInsecureRemote: boolean;
   hasApiKey: boolean;
   apiKeySource: "db" | "env" | "unknown";
+  readiness: RuntimeReadinessObservation;
 }
 
 interface ProviderModel {
@@ -75,6 +79,7 @@ interface ProviderModel {
 interface ProviderModelsResponse {
   runtimeId: SetupRuntimeId;
   models: ProviderModel[];
+  excludedModelCount?: number;
   metadataWarning?: string;
 }
 
@@ -217,13 +222,22 @@ export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) 
   }, []);
 
   const applySettings = useCallback((settings: RuntimeSettings) => {
-    setSnapshot(settings);
+    const readiness = settings.readiness ?? {
+      phase: "saved-unverified",
+      ready: false,
+      checkedAt: null,
+      credentialSource: settings.apiKeySource,
+      endpointReachable: null,
+      reason: "Saved, not verified",
+    };
+    setSnapshot({ ...settings, readiness });
     setBaseUrl(settings.baseUrl);
     setDefaultModel(settings.defaultModel);
     setAllowInsecureRemote(settings.allowInsecureRemote);
     setHasApiKey(settings.hasApiKey);
     setApiKeySource(settings.apiKeySource);
     setApiKey("");
+    setConnection(readiness.ready ? "connected" : "idle");
   }, []);
 
   useEffect(() => {
@@ -310,12 +324,25 @@ export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) 
       }
       const discovered = payload as unknown as ProviderModelsResponse;
       setModels(Array.isArray(discovered.models) ? discovered.models : []);
-      setMetadataWarning(discovered.metadataWarning ?? null);
+      setMetadataWarning(
+        discovered.metadataWarning ??
+          (discovered.excludedModelCount
+            ? `${discovered.excludedModelCount} non-generation model${
+                discovered.excludedModelCount === 1 ? " was" : "s were"
+              } excluded from routing.`
+            : null),
+      );
       setConnection("connected");
+      window.dispatchEvent(
+        new CustomEvent("relay:runtime-readiness-changed"),
+      );
       return true;
     } catch (discoverError) {
       setModels([]);
       setConnection("failed");
+      window.dispatchEvent(
+        new CustomEvent("relay:runtime-readiness-changed"),
+      );
       setError({
         phase: "Discovering models",
         message: discoverError instanceof Error ? discoverError.message : String(discoverError),
@@ -345,7 +372,29 @@ export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) 
       });
       const payload = await readPayload(response);
       if (!response.ok || payload.connected !== true) {
+        if (payload.readiness && typeof payload.readiness === "object") {
+          setSnapshot((current) =>
+            current
+              ? {
+                  ...current,
+                  readiness:
+                    payload.readiness as unknown as RuntimeReadinessObservation,
+                }
+              : current,
+          );
+        }
         throw new Error(messageFrom(payload, "Connection failed"));
+      }
+      if (payload.readiness && typeof payload.readiness === "object") {
+        setSnapshot((current) =>
+          current
+            ? {
+                ...current,
+                readiness:
+                  payload.readiness as unknown as RuntimeReadinessObservation,
+              }
+            : current,
+        );
       }
       await discoverModels();
     } catch (testError) {
@@ -599,7 +648,22 @@ export function ProviderSetupCard({ runtimeId }: { runtimeId: SetupRuntimeId }) 
               <span className="text-xs text-muted-foreground" aria-live="polite">
                 {connection === "connected" && `Connected · ${models.length} model${models.length === 1 ? "" : "s"}`}
                 {connection === "failed" && "Connection failed"}
-                {connection === "idle" && (dirty ? "Unsaved changes" : hasApiKey ? "API key configured" : "Not tested")}
+                {connection === "idle" &&
+                  (dirty
+                    ? "Unsaved changes"
+                    : snapshot?.readiness.phase === "auth-rejected"
+                      ? "Authentication rejected"
+                      : snapshot?.readiness.phase === "unreachable"
+                        ? "Server unreachable"
+                        : snapshot?.readiness.phase === "model-required"
+                          ? "Load or select a generation model"
+                        : snapshot?.readiness.phase === "invalid-response"
+                          ? "Invalid provider response"
+                          : snapshot?.readiness.phase === "saved-unverified"
+                            ? "Saved · not verified"
+                            : hasApiKey
+                              ? "API key saved · not verified"
+                              : "Not verified")}
               </span>
             </div>
 

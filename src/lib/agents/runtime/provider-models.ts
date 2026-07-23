@@ -45,6 +45,7 @@ export interface ProviderModelDetails {
 export interface ProviderModelsResult {
   runtimeId: SetupRuntimeId;
   models: ProviderModelDetails[];
+  excludedModelCount?: number;
   metadataWarning?: string;
 }
 
@@ -77,6 +78,36 @@ function finiteNumberOrNull(value: unknown): number | null {
 
 function booleanOrUndefined(value: unknown): boolean | undefined {
   return typeof value === "boolean" ? value : undefined;
+}
+
+export function isGenerationCapableProviderModel(
+  model: {
+    id: string;
+    name?: string | null;
+    type?: string | null;
+    mode?: string | null;
+  },
+): boolean {
+  const kind = `${model.type ?? ""} ${model.mode ?? ""}`.trim().toLowerCase();
+  const unsupportedKinds = [
+    "embedding",
+    "embed",
+    "rerank",
+    "reranker",
+    "classifier",
+    "classification",
+    "tts",
+    "speech",
+    "audio",
+    "image",
+  ];
+  if (kind) {
+    return !unsupportedKinds.some((unsupported) => kind.includes(unsupported));
+  }
+  const identifier = `${model.id} ${model.name ?? ""}`.toLowerCase();
+  return !/(^|[\/_. -])(embed(ding)?|rerank(er)?)([\/_. -]|$)/.test(
+    identifier,
+  );
 }
 
 function compatibleManagementRoot(baseUrl: string): string {
@@ -211,11 +242,25 @@ export async function discoverOpenAICompatibleProviderModels(
       runtimeId === "litellm"
         ? await discoverLiteLLMDetails(config, basic)
         : await discoverLMStudioDetails(config);
-    return { runtimeId, models: models.length > 0 ? models : basic };
-  } catch (error) {
+    const normalized = models.length > 0 ? models : basic;
+    const generationModels = normalized.filter(
+      isGenerationCapableProviderModel,
+    );
     return {
       runtimeId,
-      models: basic,
+      models: generationModels,
+      ...(normalized.length > generationModels.length
+        ? { excludedModelCount: normalized.length - generationModels.length }
+        : {}),
+    };
+  } catch (error) {
+    const generationModels = basic.filter(isGenerationCapableProviderModel);
+    return {
+      runtimeId,
+      models: generationModels,
+      ...(basic.length > generationModels.length
+        ? { excludedModelCount: basic.length - generationModels.length }
+        : {}),
       metadataWarning:
         error instanceof Error
           ? `${config.label} model details unavailable: ${error.message}`

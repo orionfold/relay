@@ -231,6 +231,32 @@ describe("providers and runtimes section", () => {
     });
   });
 
+  it("shows a named failure when ChatGPT sign-in returns an empty response", async () => {
+    const baseFetch = globalThis.fetch;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        if (
+          String(input) === "/api/settings/openai/login" &&
+          init?.method === "POST"
+        ) {
+          return new Response("", { status: 502 });
+        }
+        return baseFetch(input, init);
+      }),
+    );
+
+    render(<ProvidersAndRuntimesSection />);
+    const signInButton = await screen.findByRole("button", {
+      name: "Sign in with ChatGPT",
+    });
+    signInButton.click();
+
+    expect(
+      await screen.findByText("ChatGPT sign-in returned an empty response."),
+    ).toBeInTheDocument();
+  });
+
   it("shows an actionable error instead of an endless spinner", async () => {
     vi.stubGlobal(
       "fetch",

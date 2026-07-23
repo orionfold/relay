@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { valid as semverValid } from "semver";
 import { relayCoreVersion } from "@/lib/packs/install";
 import { getLicensedIdentity } from "@/lib/licensing/store";
-import { getRuntimeSetupStates, pickActiveRuntime } from "@/lib/settings/runtime-setup";
-import { resolvePreferredModel } from "@/lib/agents/runtime/model-preference";
+import {
+  getRuntimeRoutingStatuses,
+  pickReadyRuntime,
+} from "@/lib/settings/runtime-routing-status";
 import { loadCustomerOrientation } from "@/lib/onboarding/load-orientation";
 import type { CustomerOrientation } from "@/lib/onboarding/orientation";
 
@@ -62,9 +64,8 @@ export async function GET() {
     // Active model: the concrete model the active runtime would run.
     let activeModel: string | null = null;
     try {
-      const states = await getRuntimeSetupStates();
-      const { runtimeId } = pickActiveRuntime(states);
-      activeModel = (await resolvePreferredModel(runtimeId)).modelId;
+      const active = pickReadyRuntime(await getRuntimeRoutingStatuses());
+      activeModel = active?.modelId ?? null;
     } catch {
       // No runtime configured / preference read failed — leave null; the rail
       // falls back to the runtimeLabel so the cell is never blank.

@@ -2,10 +2,9 @@ import { NextResponse } from "next/server";
 import { count } from "drizzle-orm";
 import { getLicensedIdentity } from "@/lib/licensing/store";
 import {
-  getRuntimeSetupStates,
-  pickActiveRuntime,
-} from "@/lib/settings/runtime-setup";
-import { resolvePreferredModel } from "@/lib/agents/runtime/model-preference";
+  getRuntimeRoutingStatuses,
+  pickReadyRuntime,
+} from "@/lib/settings/runtime-routing-status";
 import { getBudgetGuardrailSnapshot } from "@/lib/settings/budget-guardrails";
 import { getRoutingPreference } from "@/lib/settings/routing";
 import { getActivePresets } from "@/lib/settings/permission-presets";
@@ -45,6 +44,7 @@ export interface SettingsGlanceResponse {
   activeModel: string | null;
   routingPreference: RoutingPreference | null;
   configuredRuntimeCount: number | null;
+  readyRuntimeCount: number | null;
   sdkTimeoutSeconds: number | null;
   maxTurns: number | null;
   // Budget cluster
@@ -73,20 +73,17 @@ async function resolveRuntime(): Promise<{
   label: string | null;
   model: string | null;
   configuredCount: number | null;
+  readyCount: number | null;
 }> {
-  const states = await getRuntimeSetupStates();
-  const { runtimeId, runtimeLabel } = pickActiveRuntime(states);
-  // Count runtimes the user has actually set up (any state marked configured).
-  const configuredCount = Object.values(states).filter(
-    (s) => (s as { configured?: boolean }).configured,
-  ).length;
-  let model: string | null = null;
-  try {
-    model = (await resolvePreferredModel(runtimeId)).modelId;
-  } catch {
-    model = null;
-  }
-  return { label: runtimeLabel, model, configuredCount };
+  const statuses = await getRuntimeRoutingStatuses();
+  const active = pickReadyRuntime(statuses);
+  const configuredCount = statuses.filter((status) => status.configured).length;
+  return {
+    label: active?.label ?? null,
+    model: active?.modelId ?? null,
+    configuredCount,
+    readyCount: statuses.filter((status) => status.ready).length,
+  };
 }
 
 // Parse a numeric setting stored as a string; null/NaN → null (shadow path).
@@ -122,6 +119,7 @@ export async function GET() {
         label: null,
         model: null,
         configuredCount: null,
+        readyCount: null,
       })),
       Promise.resolve(getLicensedIdentity()).catch(() => null),
       getBudgetGuardrailSnapshot().catch(() => null),
@@ -144,6 +142,7 @@ export async function GET() {
       activeModel: runtime.model,
       routingPreference: routing,
       configuredRuntimeCount: runtime.configuredCount,
+      readyRuntimeCount: runtime.readyCount,
       sdkTimeoutSeconds: numSetting(sdkTimeout),
       maxTurns: numSetting(maxTurns),
       licenseTag,

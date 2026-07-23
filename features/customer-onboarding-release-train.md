@@ -78,8 +78,11 @@ regressions plus fresh desktop/mobile browser proof. O2 is complete.
 
 G-119 creates one evidence-backed readiness presentation across credential,
 OAuth, local provider, model inventory/load, routing, workflow preflight and
-shell state. G-120 reorganizes Settings around that contract. G-123 removes
-filesystem-skill warning floods without hiding real scanner failure.
+shell state. It was accepted 2026-07-23 after the complete state matrix,
+3,870-test suite, production build, deterministic real-task runtime smoke, and
+responsive dark-browser proof passed. G-120 now reorganizes Settings around
+that contract. G-123 removes filesystem-skill warning floods without hiding
+real scanner failure.
 
 ### O4 — First successful and recoverable run
 
@@ -119,7 +122,7 @@ the final evidence bundle.
       shell and Settings guidance.
 - [x] Premium Packs present one entitlement and one resumable activation path.
 - [x] Agency sample data is visibly synthetic and safely replaceable.
-- [ ] Provider/model/routing/shell states reconcile without manual extra refresh.
+- [x] Provider/model/routing/shell states reconcile without manual extra refresh.
 - [ ] A customer can start a compatible Pack workflow with no orphan or inert
       success action.
 - [ ] A transient later-step runtime timeout can recover without recreating

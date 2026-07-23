@@ -5,15 +5,17 @@ const {
   mockTestRuntimeConnection,
   mockGetRuntimeSetupStates,
   mockResolvePreferredModel,
+  mockResolveOllamaModel,
+  mockResolveCompatibleModel,
   mockGetOllamaRuntimeConfig,
-  mockGetCompatibleConfig,
   mockGetSetting,
 } = vi.hoisted(() => ({
   mockTestRuntimeConnection: vi.fn(),
   mockGetRuntimeSetupStates: vi.fn(),
   mockResolvePreferredModel: vi.fn(),
+  mockResolveOllamaModel: vi.fn(),
+  mockResolveCompatibleModel: vi.fn(),
   mockGetOllamaRuntimeConfig: vi.fn(),
-  mockGetCompatibleConfig: vi.fn(),
   mockGetSetting: vi.fn(),
 }));
 
@@ -29,8 +31,11 @@ vi.mock("@/lib/agents/runtime/model-preference", () => ({
 vi.mock("@/lib/agents/runtime/ollama-config", () => ({
   getOllamaRuntimeConfig: mockGetOllamaRuntimeConfig,
 }));
+vi.mock("@/lib/agents/runtime/ollama-model-resolver", () => ({
+  resolveOllamaModel: mockResolveOllamaModel,
+}));
 vi.mock("@/lib/agents/runtime/openai-compatible", () => ({
-  getOpenAICompatibleRuntimeConfig: mockGetCompatibleConfig,
+  resolveOpenAICompatibleModel: mockResolveCompatibleModel,
 }));
 vi.mock("../helpers", () => ({ getSetting: mockGetSetting }));
 
@@ -70,9 +75,10 @@ describe("runtime routing status snapshot", () => {
     }));
     mockGetSetting.mockResolvedValue(null);
     mockGetOllamaRuntimeConfig.mockResolvedValue({ defaultModel: "qwen3:8b" });
-    mockGetCompatibleConfig.mockImplementation(async (runtimeId) => ({
-      defaultModel: runtimeId === "litellm" ? "support-alias" : "loaded-model",
-    }));
+    mockResolveOllamaModel.mockResolvedValue("qwen3:8b");
+    mockResolveCompatibleModel.mockImplementation(async (runtimeId) =>
+      runtimeId === "litellm" ? "support-alias" : "loaded-model",
+    );
     mockTestRuntimeConnection.mockImplementation(async (runtimeId) =>
       runtimeId === "litellm"
         ? { connected: false, error: "Gateway refused the connection" }
@@ -85,16 +91,23 @@ describe("runtime routing status snapshot", () => {
     expect(statuses.map((status) => status.runtimeId)).toEqual(runtimeIds);
     expect(statuses.find((status) => status.runtimeId === "ollama")).toMatchObject({
       health: "healthy",
+      readiness: "verified",
+      ready: true,
+      endpointReachable: true,
       modelId: "qwen3:8b",
       capabilityLimits: expect.arrayContaining(["No filesystem tools", "No Bash"]),
     });
     expect(statuses.find((status) => status.runtimeId === "litellm")).toMatchObject({
       health: "unhealthy",
+      readiness: "unreachable",
+      ready: false,
       healthReason: "Gateway refused the connection",
       modelId: "support-alias",
     });
     expect(statuses.find((status) => status.runtimeId === "lmstudio")).toMatchObject({
       health: "unconfigured",
+      readiness: "not-configured",
+      ready: false,
       healthReason: "Not configured",
       checkedAt: null,
     });
@@ -112,6 +125,17 @@ describe("runtime routing status snapshot", () => {
     );
   });
 
+  it("shares one in-flight probe set across concurrent shell and Settings reads", async () => {
+    const [first, second, third] = await Promise.all([
+      getRuntimeRoutingStatuses(),
+      getRuntimeRoutingStatuses(),
+      getRuntimeRoutingStatuses(),
+    ]);
+    expect(first).toEqual(second);
+    expect(second).toEqual(third);
+    expect(mockTestRuntimeConnection).toHaveBeenCalledTimes(6);
+  });
+
   it("contains one probe failure instead of rejecting the complete snapshot", async () => {
     mockTestRuntimeConnection.mockImplementation(async (runtimeId) => {
       if (runtimeId === "ollama") throw new Error("Ollama probe crashed");
@@ -122,6 +146,37 @@ describe("runtime routing status snapshot", () => {
     expect(statuses.find((status) => status.runtimeId === "ollama")).toMatchObject({
       health: "unhealthy",
       healthReason: "Ollama probe crashed",
+    });
+  });
+
+  it("does not mark a reachable local runtime ready without a generation model", async () => {
+    mockResolveCompatibleModel.mockImplementation(async (runtimeId) => {
+      if (runtimeId === "lmstudio") {
+        throw new Error(
+          "LM Studio reported no models. Load or configure a model before running.",
+        );
+      }
+      return "support-alias";
+    });
+    mockGetRuntimeSetupStates.mockResolvedValue(
+      Object.fromEntries(
+        runtimeIds.map((runtimeId) => [
+          runtimeId,
+          { runtimeId, configured: true },
+        ]),
+      ),
+    );
+
+    const statuses = await getRuntimeRoutingStatuses();
+
+    expect(statuses.find((status) => status.runtimeId === "lmstudio")).toMatchObject({
+      health: "unhealthy",
+      readiness: "model-required",
+      ready: false,
+      endpointReachable: true,
+      healthReason:
+        "LM Studio reported no models. Load or configure a model before running.",
+      modelId: null,
     });
   });
 

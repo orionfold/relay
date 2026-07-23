@@ -17,7 +17,10 @@ import {
   getCompletionsByDay,
   getFailuresByDay,
 } from "@/lib/queries/chart-data";
-import { pickActiveRuntime } from "@/lib/settings/runtime-setup";
+import {
+  getRuntimeRoutingStatuses,
+  pickReadyRuntime,
+} from "@/lib/settings/runtime-routing-status";
 import type { TelemetrySnapshot } from "@/components/shell/telemetry-types";
 
 // Telemetry is a live read of mutable server state; never let a route or the
@@ -158,7 +161,11 @@ export async function GET() {
       (s) => s.scopeId === "overall" && s.window === "monthly",
     );
 
-    const { runtimeLabel, providerId } = pickActiveRuntime(budget.runtimeStates);
+    const readyRuntime = pickReadyRuntime(await getRuntimeRoutingStatuses());
+    const runtimeLabel = readyRuntime?.label ?? null;
+    const providerId = readyRuntime
+      ? budget.runtimeStates[readyRuntime.runtimeId]?.providerId ?? null
+      : null;
     const sdkPackage = providerId ? SDK_PACKAGE_BY_PROVIDER[providerId] : null;
     const runtimeSdkVersion = sdkPackage ? resolveSdkVersion(sdkPackage) : null;
 

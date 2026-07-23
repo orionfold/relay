@@ -25,6 +25,13 @@ const updateSchema = z
 
 async function responsePayload() {
   const config = await getOllamaRuntimeConfig();
+  const { readRuntimeReadiness } = await import(
+    "@/lib/settings/runtime-readiness"
+  );
+  const readiness = await readRuntimeReadiness(
+    "ollama",
+    config.apiKeySource,
+  );
   return {
     runtimeId: config.runtimeId,
     label: config.label,
@@ -34,6 +41,7 @@ async function responsePayload() {
     allowInsecureRemote: config.allowInsecureRemote,
     hasApiKey: Boolean(config.apiKey),
     apiKeySource: config.apiKeySource,
+    readiness,
   };
 }
 
@@ -99,6 +107,10 @@ export async function PUT(req: NextRequest) {
       );
     }
     await applySettingsPatch(patch);
+    const { clearRuntimeReadiness } = await import(
+      "@/lib/settings/runtime-readiness"
+    );
+    await clearRuntimeReadiness("ollama");
     const { invalidateModelDiscoveryCache } = await import(
       "@/lib/chat/model-discovery"
     );

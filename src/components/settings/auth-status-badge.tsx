@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import type { ApiKeySource, AuthMethod } from "@/lib/constants/settings";
+import type { RuntimeReadinessPhase } from "@/lib/settings/runtime-readiness";
 
 interface AuthStatusBadgeProps {
   connected: boolean;
@@ -9,6 +10,7 @@ interface AuthStatusBadgeProps {
   authMethod?: AuthMethod | "none";
   oauthLabel?: string;
   oauthConnected?: boolean;
+  readiness?: RuntimeReadinessPhase;
 }
 
 const sourceLabels: Record<ApiKeySource, string> = {
@@ -24,8 +26,47 @@ export function AuthStatusBadge({
   authMethod,
   oauthLabel = "OAuth",
   oauthConnected,
+  readiness,
 }: AuthStatusBadgeProps) {
-  if (!connected && apiKeySource === "unknown") {
+  if (readiness === "saved-unverified") {
+    return (
+      <Badge variant="outline" className="border-status-warning/50 text-status-warning">
+        Saved · not verified
+      </Badge>
+    );
+  }
+  if (readiness === "auth-rejected") {
+    return (
+      <Badge variant="outline" className="border-status-failed/50 text-status-failed">
+        Authentication rejected
+      </Badge>
+    );
+  }
+  if (readiness === "unreachable") {
+    return (
+      <Badge variant="outline" className="border-status-failed/50 text-status-failed">
+        Unreachable
+      </Badge>
+    );
+  }
+  if (readiness === "model-required") {
+    return (
+      <Badge variant="outline" className="border-status-warning/50 text-status-warning">
+        Model required
+      </Badge>
+    );
+  }
+  if (readiness === "invalid-response") {
+    return (
+      <Badge variant="outline" className="border-status-failed/50 text-status-failed">
+        Invalid response
+      </Badge>
+    );
+  }
+  if (
+    readiness === "not-configured" ||
+    (!connected && apiKeySource === "unknown")
+  ) {
     return (
       <Badge variant="outline" className="border-warning/50 text-warning">
         Not configured

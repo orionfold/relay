@@ -27,6 +27,7 @@ import type { RuntimeSetupState } from "@/lib/settings/runtime-setup";
 import type { OpenAIAccountInfo, OpenAIRateLimitInfo } from "@/lib/settings/openai-auth";
 import type { OpenAILoginState } from "@/lib/settings/openai-login-manager";
 import type { RuntimeRoutingStatus } from "@/lib/settings/runtime-routing-status";
+import type { RuntimeReadinessPhase } from "@/lib/settings/runtime-readiness";
 import {
   RuntimeRoutingControl,
   type RoutingSettingsView,
@@ -36,6 +37,8 @@ import {
 
 interface ProviderState {
   configured: boolean;
+  readiness: RuntimeReadinessPhase;
+  readyRuntimeCount: number;
   authMethod?: AuthMethod;
   hasKey: boolean;
   apiKeySource: ApiKeySource;
@@ -69,6 +72,7 @@ interface ProvidersPayload {
   routing: RoutingSettingsView;
   runtimeRoutingStatuses: RuntimeRoutingStatus[];
   configuredProviderCount: number;
+  readyProviderCount: number;
 }
 
 // ── Provider row ─────────────────────────────────────────────────────
@@ -86,10 +90,15 @@ const BILLING_LABELS: Record<string, string> = {
   usage: "Pay-as-you-go",
 };
 
+function statusIsReady(status: RuntimeRoutingStatus | undefined): boolean {
+  return status?.ready ?? status?.health === "healthy";
+}
+
 function ProviderRow({
   name,
   oauthLabel,
   provider,
+  statuses,
   defaultOpen,
   open: controlledOpen,
   onOpenChange,
@@ -98,6 +107,7 @@ function ProviderRow({
   name: string;
   oauthLabel?: string;
   provider: ProviderState;
+  statuses: RuntimeRoutingStatus[];
   defaultOpen: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -113,18 +123,46 @@ function ProviderRow({
     onOpenChange?.(next);
   };
 
-  const activeRuntimes = provider.runtimes.filter((r) => r.configured);
+  const runtimeStatus = new Map(
+    statuses.map((status) => [status.runtimeId, status]),
+  );
+  const readiness =
+    provider.readiness ??
+    (provider.runtimes.some(
+      (runtime) =>
+        runtime.configured &&
+        statusIsReady(runtimeStatus.get(runtime.runtimeId)),
+    )
+      ? "verified"
+      : provider.configured
+        ? "saved-unverified"
+        : "not-configured");
+  const activeRuntimes = provider.runtimes.filter(
+    (runtime) =>
+      runtime.configured &&
+      statusIsReady(runtimeStatus.get(runtime.runtimeId)),
+  );
   const activeCount = activeRuntimes.length;
   const activeLabels = activeRuntimes.map((r) => r.label).join(", ");
   const openAIOAuthPending = provider.authMethod === "oauth" && provider.oauthConnected === false;
   const openAILoginPending = provider.login?.phase === "pending";
 
   let statusLine: string;
-  if (!provider.configured) {
+  if (readiness === "not-configured") {
     statusLine =
       provider.authMethod === "oauth"
         ? "Sign in with ChatGPT to enable Codex App Server"
         : "Add an API key to enable runtimes";
+  } else if (readiness === "auth-rejected") {
+    statusLine = "Saved authentication was rejected. Update it, then test again.";
+  } else if (readiness === "unreachable") {
+    statusLine = "Setup is saved, but the provider is currently unreachable.";
+  } else if (readiness === "model-required") {
+    statusLine = "The provider is reachable. Load or select a generation model.";
+  } else if (readiness === "invalid-response") {
+    statusLine = "The provider responded, but Relay could not use its response.";
+  } else if (readiness === "saved-unverified") {
+    statusLine = "Setup is saved. Test the connection to make it eligible for work.";
   } else if (openAIOAuthPending && activeCount > 0) {
     statusLine = openAILoginPending
       ? `Waiting for ${oauthLabel ?? "OAuth"} sign-in. ${activeLabels} remains active.`
@@ -148,7 +186,7 @@ function ProviderRow({
       >
         <div
           className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-            provider.configured
+            readiness === "verified"
               ? "bg-success"
               : "border-2 border-muted-foreground/40"
           }`}
@@ -157,7 +195,8 @@ function ProviderRow({
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold">{name}</span>
             <AuthStatusBadge
-              connected={provider.configured}
+              connected={readiness === "verified"}
+              readiness={readiness}
               apiKeySource={provider.apiKeySource}
               authMethod={provider.authMethod}
               oauthLabel={oauthLabel}
@@ -198,7 +237,8 @@ function ProviderRow({
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
               {provider.runtimes.map((runtime) => {
-                const isActive = runtime.configured;
+                const status = runtimeStatus.get(runtime.runtimeId);
+                const isActive = runtime.configured && statusIsReady(status);
                 const inactiveDescription = runtime.runtimeId.includes("direct")
                   ? "Requires API key"
                   : runtime.runtimeId === "openai-codex-app-server" &&
@@ -227,7 +267,7 @@ function ProviderRow({
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {isActive
                         ? (RUNTIME_DESCRIPTIONS[runtime.runtimeId] ?? "Active")
-                        : inactiveDescription}
+                        : status?.healthReason ?? inactiveDescription}
                     </p>
                   </div>
                 );
@@ -286,17 +326,35 @@ export function ProvidersAndRuntimesSection() {
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    const refresh = () => {
+      void fetchData(true);
+    };
+    window.addEventListener("relay:runtime-readiness-changed", refresh);
+    return () =>
+      window.removeEventListener("relay:runtime-readiness-changed", refresh);
+  }, [fetchData]);
+
   // Sync initial open state when data loads
   useEffect(() => {
     if (data) {
-      const none = data.configuredProviderCount === 0;
-      if (none || !data.providers.anthropic.configured) {
+      const readyProviderCount =
+        data.readyProviderCount ??
+        Number(
+          data.runtimeRoutingStatuses.some((status) => statusIsReady(status)),
+        );
+      const none = readyProviderCount === 0;
+      if (
+        none ||
+        (data.providers.anthropic.readiness != null &&
+          data.providers.anthropic.readiness !== "verified")
+      ) {
         setAnthropicOpen(true);
       }
       const openai = data.providers.openai;
       const openaiNeedsAttention =
         none ||
-        !openai.configured ||
+        (openai.readiness != null && openai.readiness !== "verified") ||
         ((openai.authMethod ?? "api_key") === "oauth" &&
           !(openai.oauthConnected ?? false));
       if (openaiNeedsAttention) {
@@ -305,7 +363,7 @@ export function ProvidersAndRuntimesSection() {
       setOpenAILoginState(openai.login ?? null);
     }
   }, [
-    data?.configuredProviderCount,
+    data?.readyProviderCount,
     data?.providers.anthropic.configured,
     data?.providers.openai.configured,
     data?.providers.openai.authMethod,
@@ -438,11 +496,25 @@ export function ProvidersAndRuntimesSection() {
   }
 
   const { providers, configuredProviderCount } = data;
+  const readyProviderCount =
+    data.readyProviderCount ??
+    [
+      ["claude-code", "anthropic-direct"],
+      ["openai-codex-app-server", "openai-direct"],
+      ["ollama"],
+      ["litellm"],
+      ["lmstudio"],
+    ].filter((runtimeIds) =>
+      data.runtimeRoutingStatuses.some(
+        (status) =>
+          runtimeIds.includes(status.runtimeId) && statusIsReady(status),
+      ),
+    ).length;
   const openAIProvider: ProviderState = {
     ...providers.openai,
     login: openAILoginState ?? providers.openai.login,
   };
-  const noneConfigured = configuredProviderCount === 0;
+  const noneReady = readyProviderCount === 0;
 
   return (
     <Card className="surface-card">
@@ -452,13 +524,15 @@ export function ProvidersAndRuntimesSection() {
           Providers &amp; Runtimes
         </CardTitle>
         <CardDescription>
-          {noneConfigured
-            ? "Get started by connecting at least one AI provider."
-            : `${configuredProviderCount} provider${configuredProviderCount > 1 ? "s" : ""} connected. ${
-                Object.values(providers)
-                  .flatMap((p) => p.runtimes)
-                  .filter((r) => r.configured).length
-              } runtimes available`}
+          {noneReady
+            ? configuredProviderCount > 0
+              ? "Provider setup is saved, but no runtime has been verified yet."
+              : "Get started by connecting at least one AI provider."
+            : `${readyProviderCount} provider${readyProviderCount > 1 ? "s" : ""} ready. ${
+                data.runtimeRoutingStatuses.filter((status) =>
+                  statusIsReady(status),
+                ).length
+              } verified runtimes available`}
         </CardDescription>
       </CardHeader>
 
@@ -492,6 +566,7 @@ export function ProvidersAndRuntimesSection() {
           name="Anthropic"
           oauthLabel="Claude Max/Pro"
           provider={providers.anthropic}
+          statuses={data.runtimeRoutingStatuses}
           defaultOpen={false}
           open={anthropicOpen}
           onOpenChange={setAnthropicOpen}
@@ -531,9 +606,10 @@ export function ProvidersAndRuntimesSection() {
           name="OpenAI"
           oauthLabel="ChatGPT"
           provider={openAIProvider}
+          statuses={data.runtimeRoutingStatuses}
           defaultOpen={
-            noneConfigured ||
-            !openAIProvider.configured ||
+            noneReady ||
+            openAIProvider.readiness !== "verified" ||
             ((openAIProvider.authMethod ?? "api_key") === "oauth" &&
               !(openAIProvider.oauthConnected ?? false))
           }

@@ -17,6 +17,8 @@ type LoginPhase =
   | "cancelled"
   | "failed";
 
+const LOGIN_TIMEOUT_MS = 5 * 60_000;
+
 export interface OpenAILoginState {
   phase: LoginPhase;
   loginId: string | null;
@@ -71,6 +73,25 @@ async function closeAttempt() {
 }
 
 export function getOpenAILoginState(): OpenAILoginState {
+  if (
+    activeAttempt?.state.phase === "pending" &&
+    activeAttempt.state.startedAt &&
+    Date.now() - Date.parse(activeAttempt.state.startedAt) >= LOGIN_TIMEOUT_MS
+  ) {
+    const attempt = activeAttempt;
+    activeAttempt = null;
+    void attempt.client.close();
+    return updateState({
+      phase: "failed",
+      loginId: attempt.state.loginId,
+      authUrl: attempt.state.authUrl,
+      account: null,
+      rateLimits: null,
+      error:
+        "ChatGPT sign-in timed out. Confirm Codex App Server is installed, then try again.",
+      startedAt: attempt.state.startedAt,
+    });
+  }
   return activeAttempt?.state ?? lastKnownState;
 }
 

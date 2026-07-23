@@ -44,6 +44,9 @@ export async function GET(_req: NextRequest, context: RouteContext) {
   if (!runtimeId) return invalidRuntime();
   try {
     const config = await getOpenAICompatibleRuntimeConfig(runtimeId);
+    const { readRuntimeReadiness } = await import(
+      "@/lib/settings/runtime-readiness"
+    );
     return NextResponse.json({
       runtimeId,
       label: config.label,
@@ -53,6 +56,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
       allowInsecureRemote: config.allowInsecureRemote,
       hasApiKey: Boolean(config.apiKey),
       apiKeySource: config.apiKeySource,
+      readiness: await readRuntimeReadiness(runtimeId, config.apiKeySource),
     });
   } catch (error) {
     return NextResponse.json(
@@ -113,6 +117,10 @@ export async function PUT(req: NextRequest, context: RouteContext) {
       );
     }
     await applySettingsPatch(patch);
+    const { clearRuntimeReadiness } = await import(
+      "@/lib/settings/runtime-readiness"
+    );
+    await clearRuntimeReadiness(runtimeId);
     const { invalidateModelDiscoveryCache } = await import(
       "@/lib/chat/model-discovery"
     );
@@ -129,6 +137,9 @@ export async function PUT(req: NextRequest, context: RouteContext) {
   }
 
   const config = await getOpenAICompatibleRuntimeConfig(runtimeId);
+  const { readRuntimeReadiness } = await import(
+    "@/lib/settings/runtime-readiness"
+  );
   return NextResponse.json({
     ok: true,
     runtimeId,
@@ -138,6 +149,7 @@ export async function PUT(req: NextRequest, context: RouteContext) {
     allowInsecureRemote: config.allowInsecureRemote,
     hasApiKey: Boolean(config.apiKey),
     apiKeySource: config.apiKeySource,
+    readiness: await readRuntimeReadiness(runtimeId, config.apiKeySource),
   });
 }
 
@@ -151,6 +163,10 @@ export async function DELETE(_req: NextRequest, context: RouteContext) {
     deleteSetting(definition.defaultModelSetting),
     deleteSetting(definition.allowInsecureRemoteSetting),
   ]);
+  const { clearRuntimeReadiness } = await import(
+    "@/lib/settings/runtime-readiness"
+  );
+  await clearRuntimeReadiness(runtimeId);
   const { invalidateModelDiscoveryCache } = await import(
     "@/lib/chat/model-discovery"
   );

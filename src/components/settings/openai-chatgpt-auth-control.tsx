@@ -56,6 +56,57 @@ function formatPlanType(value: string | null | undefined) {
   }
 }
 
+function failedLoginState(message: string): OpenAILoginState {
+  return {
+    phase: "failed",
+    loginId: null,
+    authUrl: null,
+    account: null,
+    rateLimits: null,
+    error: message,
+    startedAt: null,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+async function readLoginResponse(
+  response: Response,
+  action: string,
+): Promise<OpenAILoginState> {
+  const text =
+    typeof response.text === "function"
+      ? await response.text()
+      : JSON.stringify(await response.json());
+  if (!text.trim()) {
+    throw new Error(`${action} returned an empty response.`);
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error(`${action} returned a non-JSON response.`);
+  }
+  if (!response.ok) {
+    const message =
+      parsed &&
+      typeof parsed === "object" &&
+      "error" in parsed &&
+      typeof parsed.error === "string"
+        ? parsed.error
+        : `${action} failed (HTTP ${response.status}).`;
+    throw new Error(message);
+  }
+  if (
+    !parsed ||
+    typeof parsed !== "object" ||
+    !("phase" in parsed) ||
+    typeof parsed.phase !== "string"
+  ) {
+    throw new Error(`${action} returned an invalid response.`);
+  }
+  return parsed as OpenAILoginState;
+}
+
 export function OpenAIChatGPTAuthControl({
   connected,
   account,
@@ -82,13 +133,23 @@ export function OpenAIChatGPTAuthControl({
     if (loginState.phase !== "pending") return;
 
     const interval = window.setInterval(async () => {
-      const res = await fetch("/api/settings/openai/login");
-      if (!res.ok) return;
-      const next = (await res.json()) as OpenAILoginState;
-      updateLoginState(next);
-      if (next.phase !== "pending") {
+      try {
+        const res = await fetch("/api/settings/openai/login");
+        const next = await readLoginResponse(res, "ChatGPT sign-in status");
+        updateLoginState(next);
+        if (next.phase !== "pending") {
+          window.clearInterval(interval);
+          await onChanged();
+        }
+      } catch (error) {
         window.clearInterval(interval);
-        await onChanged();
+        updateLoginState(
+          failedLoginState(
+            error instanceof Error
+              ? error.message
+              : "ChatGPT sign-in status could not be read.",
+          ),
+        );
       }
     }, 1500);
 
@@ -97,20 +158,39 @@ export function OpenAIChatGPTAuthControl({
 
   async function handleStartLogin() {
     setTestResult(null);
-    const res = await fetch("/api/settings/openai/login", { method: "POST" });
-    const next = (await res.json()) as OpenAILoginState;
-    updateLoginState(next);
-
-    if (next.authUrl) {
-      window.open(next.authUrl, "_blank", "noopener,noreferrer");
+    try {
+      const res = await fetch("/api/settings/openai/login", { method: "POST" });
+      const next = await readLoginResponse(res, "ChatGPT sign-in");
+      updateLoginState(next);
+      if (next.authUrl) {
+        window.open(next.authUrl, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      updateLoginState(
+        failedLoginState(
+          error instanceof Error
+            ? error.message
+            : "ChatGPT sign-in could not start.",
+        ),
+      );
     }
   }
 
   async function handleCancelLogin() {
-    const res = await fetch("/api/settings/openai/login", { method: "DELETE" });
-    const next = (await res.json()) as OpenAILoginState;
-    updateLoginState(next);
-    await onChanged();
+    try {
+      const res = await fetch("/api/settings/openai/login", { method: "DELETE" });
+      const next = await readLoginResponse(res, "Cancel ChatGPT sign-in");
+      updateLoginState(next);
+      await onChanged();
+    } catch (error) {
+      updateLoginState(
+        failedLoginState(
+          error instanceof Error
+            ? error.message
+            : "ChatGPT sign-in could not be cancelled.",
+        ),
+      );
+    }
   }
 
   async function handleLogout() {

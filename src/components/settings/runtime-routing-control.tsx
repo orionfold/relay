@@ -98,6 +98,10 @@ function formatCostEvidence(value: number): string {
   return `$${(value / 1_000_000).toFixed(2)} combined input + output / 1M`;
 }
 
+function runtimeIsReady(status: RuntimeRoutingStatus): boolean {
+  return status.ready ?? (status.configured && status.health === "healthy");
+}
+
 export function RuntimeRoutingControl({
   routing,
   statuses,
@@ -130,7 +134,7 @@ export function RuntimeRoutingControl({
     return status ? [status] : [];
   });
   const launchable = selectedStatuses.filter(
-    (status) => status.configured && status.health === "healthy",
+    runtimeIsReady,
   );
   const previewOrder = [...launchable].sort((left, right) => {
     if (preference !== "cost") return 0;

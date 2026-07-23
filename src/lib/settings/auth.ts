@@ -7,6 +7,7 @@ import { getClaudeOAuthCredentialsPath } from "@/lib/utils/ainative-paths";
 import { SETTINGS_KEYS, type AuthMethod, type ApiKeySource } from "@/lib/constants/settings";
 import type { UpdateAuthSettingsInput } from "@/lib/validators/settings";
 import { getSetting, setSetting } from "./helpers";
+import { clearRuntimeReadiness } from "./runtime-readiness";
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
@@ -98,6 +99,7 @@ export async function getAuthSettings(): Promise<AuthSettings> {
  * { method, apiKey, model } and only the provided fields are written.
  */
 export async function setAuthSettings(input: UpdateAuthSettingsInput): Promise<void> {
+  const changesConnection = input.method !== undefined || Boolean(input.apiKey);
   if (input.method !== undefined) {
     await setSetting(SETTINGS_KEYS.AUTH_METHOD, input.method);
   }
@@ -120,6 +122,9 @@ export async function setAuthSettings(input: UpdateAuthSettingsInput): Promise<v
 
   if (input.model !== undefined) {
     await setSetting(SETTINGS_KEYS.ANTHROPIC_DIRECT_MODEL, input.model);
+  }
+  if (changesConnection) {
+    await clearRuntimeReadiness("claude-code", "anthropic-direct");
   }
 }
 

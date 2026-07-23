@@ -37,11 +37,16 @@ describe("POST /api/settings/test boundary contract", () => {
     const response = await POST(request({ runtime: "ollama" }));
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({
+    expect(await response.json()).toMatchObject({
       connected: true,
       detail: "ready",
       runtime: "ollama",
       capabilities: { authHealthCheck: true },
+      readiness: {
+        phase: "verified",
+        ready: true,
+        endpointReachable: true,
+      },
     });
     expect(mocks.testConnection).toHaveBeenCalledWith("ollama");
     expect(mocks.getSummary).toHaveBeenCalledWith("ollama");
@@ -93,9 +98,14 @@ describe("POST /api/settings/test boundary contract", () => {
     const response = await POST(request({ runtime: "ollama" }));
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({
+    expect(await response.json()).toMatchObject({
       connected: false,
       error: "Ollama connection refused",
+      readiness: {
+        phase: "unreachable",
+        ready: false,
+        endpointReachable: false,
+      },
     });
   });
 });

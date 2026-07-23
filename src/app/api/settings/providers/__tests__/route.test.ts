@@ -61,6 +61,8 @@ vi.mock("@/lib/settings/runtime-routing-status", () => ({
       label: "Claude Code",
       configured: true,
       health: "healthy",
+      readiness: "verified",
+      ready: true,
       healthReason: null,
       checkedAt: "2026-07-15T00:00:00.000Z",
       modelId: "sonnet",
@@ -72,6 +74,8 @@ vi.mock("@/lib/settings/runtime-routing-status", () => ({
       label: "Ollama",
       configured: true,
       health: "healthy",
+      readiness: "verified",
+      ready: true,
       healthReason: null,
       checkedAt: "2026-07-15T00:00:00.000Z",
       modelId: null,
@@ -98,6 +102,8 @@ describe("GET /api/settings/providers", () => {
     const body = await response.json();
 
     expect(body.ollama.connected).toBe(true);
+    expect(body.providers.anthropic.readiness).toBe("verified");
+    expect(body.readyProviderCount).toBe(2);
     expect(body.ollama.defaultModel).toBe("");
     expect(body.ollama.baseUrl).toBe("https://ollama.example");
     expect(body.ollama.hasApiKey).toBe(true);

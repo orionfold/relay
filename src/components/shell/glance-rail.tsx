@@ -120,10 +120,10 @@ export function GlanceRail() {
           href: "/settings#settings-providers",
         },
         {
-          label: "Configured",
+          label: "Ready",
           value:
-            data.configuredRuntimeCount != null
-              ? `${data.configuredRuntimeCount} runtimes`
+            data.readyRuntimeCount != null
+              ? `${data.readyRuntimeCount} runtimes`
               : null,
           href: "/settings#settings-providers",
         },
