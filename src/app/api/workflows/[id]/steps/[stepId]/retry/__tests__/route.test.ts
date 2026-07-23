@@ -19,11 +19,20 @@ const dispatch = vi.hoisted(() => ({
   handler: null as null | ((taskId: string) => Promise<void>),
   calls: [] as string[],
 }));
+const targets = vi.hoisted(() => ({
+  error: null as Error | null,
+}));
 vi.mock("@/lib/agents/task-dispatch", () => ({
   startTaskExecution: vi.fn(async (taskId: string) => {
     dispatch.calls.push(taskId);
     if (!dispatch.handler) throw new Error("Missing retry dispatch handler");
     await dispatch.handler(taskId);
+  }),
+}));
+vi.mock("@/lib/workflows/execution-targets", () => ({
+  resolveWorkflowExecutionTargets: vi.fn(async () => {
+    if (targets.error) throw targets.error;
+    return [];
   }),
 }));
 
@@ -73,6 +82,46 @@ function seedFailedWorkflow(includeSuffix = true) {
   return id;
 }
 
+function seedRuntimeBlockedWorkflow() {
+  const id = seedFailedWorkflow();
+  const workflow = db
+    .select()
+    .from(workflows)
+    .where(eq(workflows.id, id))
+    .get()!;
+  const parsed = JSON.parse(workflow.definition) as {
+    _state: WorkflowState;
+    [key: string]: unknown;
+  };
+  parsed._state.status = "paused";
+  parsed._state.stepStates[1] = {
+    stepId: "target",
+    status: "blocked_runtime",
+    error: "The runtime timed out. Your completed steps are safe.",
+    recovery: {
+      kind: "runtime_transient",
+      reason: "timeout",
+      attempts: 0,
+      maxAttempts: 2,
+      blockedAt: new Date().toISOString(),
+      lastHealthCheck: "unavailable",
+    },
+  };
+  db.update(workflows)
+    .set({
+      status: "paused",
+      definition: JSON.stringify(parsed),
+      updatedAt: new Date(),
+    })
+    .where(eq(workflows.id, id))
+    .run();
+  db.update(workflowReceiptRuns)
+    .set({ terminalStatus: null, finishedAt: null })
+    .where(eq(workflowReceiptRuns.workflowId, id))
+    .run();
+  return id;
+}
+
 function invoke(id: string, stepId = "target") {
   return POST(
     new NextRequest(`http://relay.test/api/workflows/${id}/steps/${stepId}/retry`),
@@ -96,6 +145,7 @@ beforeEach(() => {
   db.delete(workflows).run();
   dispatch.calls = [];
   dispatch.handler = async (taskId) => complete(taskId);
+  targets.error = null;
   vi.clearAllMocks();
 });
 
@@ -179,6 +229,94 @@ describe("POST workflow step retry recovery boundary", () => {
     expect(await prefix.json()).toMatchObject({
       code: "WORKFLOW_TRANSITION_CONFLICT",
     });
+    expect(dispatch.calls).toEqual([]);
+  });
+
+  it("preflights and resumes only a runtime-blocked suffix", async () => {
+    const id = seedRuntimeBlockedWorkflow();
+    db.insert(operationsReceipts)
+      .values({
+        id: randomUUID(),
+        sourceKey: `workflow:${id}:prefix`,
+        ownerType: "workflow",
+        workflowId: id,
+        workflowRunNumber: 1,
+        verdict: "passed",
+        criteriaSnapshot: "[]",
+        evidence: "{}",
+        summary: "Prefix effect",
+        nextAction: "none",
+        finishedAt: new Date(),
+        createdAt: new Date(),
+      })
+      .run();
+
+    const response = await invoke(id);
+    expect(response.status).toBe(202);
+    await vi.waitFor(() =>
+      expect(
+        db.select().from(workflows).where(eq(workflows.id, id)).get()?.status,
+      ).toBe("completed"),
+    );
+
+    const resumedTasks = db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.workflowId, id))
+      .all();
+    expect(resumedTasks.map((task) => task.title)).toEqual([
+      "[Workflow] Target",
+      "[Workflow] Suffix",
+    ]);
+    expect(resumedTasks[0].description).toContain(
+      "Previous step output:\nprefix result",
+    );
+    expect(
+      db
+        .select()
+        .from(operationsReceipts)
+        .where(eq(operationsReceipts.sourceKey, `workflow:${id}:prefix`))
+        .all(),
+    ).toHaveLength(1);
+  });
+
+  it("keeps work paused on the first unavailable preflight and fails closed at the limit", async () => {
+    const id = seedRuntimeBlockedWorkflow();
+    targets.error = new Error("LM Studio is unavailable");
+
+    const first = await invoke(id);
+    expect(first.status).toBe(409);
+    let workflow = db
+      .select()
+      .from(workflows)
+      .where(eq(workflows.id, id))
+      .get()!;
+    expect(workflow.status).toBe("paused");
+    expect(
+      (JSON.parse(workflow.definition) as { _state: WorkflowState })._state
+        .stepStates[1].recovery?.attempts,
+    ).toBe(1);
+
+    const second = await invoke(id);
+    expect(second.status).toBe(409);
+    workflow = db
+      .select()
+      .from(workflows)
+      .where(eq(workflows.id, id))
+      .get()!;
+    expect(workflow.status).toBe("failed");
+    const exhaustedStep = (
+      JSON.parse(workflow.definition) as { _state: WorkflowState }
+    )._state.stepStates[1];
+    expect(exhaustedStep.status).toBe("failed");
+    expect(exhaustedStep).not.toHaveProperty("recovery");
+    expect(
+      db
+        .select()
+        .from(workflowReceiptRuns)
+        .where(eq(workflowReceiptRuns.workflowId, id))
+        .get()?.terminalStatus,
+    ).toBe("failed");
     expect(dispatch.calls).toEqual([]);
   });
 });

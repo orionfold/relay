@@ -87,15 +87,17 @@ suite passed. G-123 was accepted 2026-07-23 after dangling and valid symlink,
 unreadable, malformed, absent-root, redaction and named-scanner-failure
 regressions passed; the real customer skill tree now returns 91 valid profiles
 with one path-free CLI diagnostic instead of 31 entry warnings. O3 is complete.
-G-121 is the current O4 goal.
+O4 is complete.
 
 ### O4 — First successful and recoverable run
 
 G-121 was accepted 2026-07-23 after evidence-only responsive readiness,
 zero-orphan refusal, idempotent atomic start and exact semantic workflow links
 passed 3,894 regressions, production build and deterministic real-runtime graph
-proof. G-122 now introduces step-scoped recovery for transient runtime loss and
-prevents completed side effects from replaying.
+proof. G-122 was accepted 2026-07-23 after adding durable transient-runtime
+pause state, exact-step preflight and atomic recovery, bounded fail-closed retry,
+completed-prefix and receipt preservation, 3,908 regressions, production build,
+runtime-graph smoke and isolated customer-visible browser proof. O4 is complete.
 
 ### O5 — Release acceptance and CLI polish
 
@@ -130,13 +132,13 @@ the final evidence bundle.
 - [x] Premium Packs present one entitlement and one resumable activation path.
 - [x] Agency sample data is visibly synthetic and safely replaceable.
 - [x] Provider/model/routing/shell states reconcile without manual extra refresh.
-- [ ] A customer can start a compatible Pack workflow with no orphan or inert
+- [x] A customer can start a compatible Pack workflow with no orphan or inert
       success action.
-- [ ] A transient later-step runtime timeout can recover without recreating
+- [x] A transient later-step runtime timeout can recover without recreating
       prior documents or schedules.
 - [ ] The final Mode B staging bundle proves clean install, shared-cache upgrade,
       activation, workflow completion/recovery and isolation.
-- [ ] Every originating TRIAGE-036–TRIAGE-054 finding is mapped to exactly one
+- [x] Every originating TRIAGE-036–TRIAGE-054 finding is mapped to exactly one
       owning Goal Contract or a named shared dependency.
 
 ## Scope boundaries

@@ -33,8 +33,9 @@ import { WorkflowProjectBadge } from "./workflow-project-badge";
  * statuses point there. A paused HITL run must read as "waiting for you", not
  * "stuck".
  *
- * Distinguishing the two kinds of `paused`: a delay pause carries `resumeAt`
- * (it resumes on its own); a HITL pause (BUG-3) sets a step to
+ * Distinguishing the three kinds of `paused`: a delay pause carries `resumeAt`
+ * (it resumes on its own); a runtime pause carries a `blocked_runtime` step
+ * (it uses step-scoped recovery); a HITL pause (BUG-3) sets a step to
  * `waiting_approval` and has no resumeAt (it waits for your answer → Inbox).
  */
 export type Signpost = {
@@ -89,6 +90,19 @@ export function computeSignpost(data: WorkflowStatusResponse): Signpost {
         text: "Paused for a scheduled step. It resumes on its own.",
       };
     }
+    if (
+      data.pattern !== "loop" &&
+      data.steps.some((step) => step.state.status === "blocked_runtime")
+    ) {
+      const blockedStep = data.steps.find(
+        (step) => step.state.status === "blocked_runtime",
+      );
+      return {
+        tone: "wait",
+        icon: "arrow",
+        text: `Runtime paused at ${blockedStep?.name ?? "this step"}. Recheck and resume below; completed steps are safe.`,
+      };
+    }
     // Otherwise it is waiting for your answer (HITL checkpoint → Inbox).
     return {
       tone: "wait",
@@ -132,6 +146,9 @@ export function WorkflowHeader({
   const [targetReady, setTargetReady] = useState<boolean | null>(null);
   const hasDefinition = !!data.definition;
   const execution = getWorkflowExecutionInfoFromStatusResponse(data);
+  const hasRuntimeBlockedStep =
+    data.pattern !== "loop" &&
+    data.steps.some((step) => step.state.status === "blocked_runtime");
   const primaryRunLabel =
     data.status === "active"
       ? "Re-run workflow"
@@ -168,7 +185,10 @@ export function WorkflowHeader({
         <div className="flex flex-wrap items-center gap-2">
           <StatusChip status={execution.status} family="lifecycle" />
 
-          {canExecute && execution.canRun && !["completed", "failed"].includes(data.status) && (
+          {canExecute &&
+            execution.canRun &&
+            !hasRuntimeBlockedStep &&
+            !["completed", "failed"].includes(data.status) && (
             <Button
               size="sm"
               onClick={onExecute}

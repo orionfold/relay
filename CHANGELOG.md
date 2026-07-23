@@ -18,6 +18,11 @@ them; the current package and repository identity is Orionfold Relay.
   backed by verified provider evidence, failed preflight creates no hidden
   draft, duplicate submissions converge on one run, and toast actions use real
   App Router links instead of inert history mutation.
+- **Transient runtime loss pauses a workflow without replaying completed
+  work.** Sequence runs distinguish recoverable timeouts, rate limits and
+  unreachable runtimes from terminal failures; a bounded **Recheck and resume**
+  action preflights and atomically resumes the exact blocked step while
+  preserving completed outputs and receipts.
 
 ## [0.45.2] — 2026-07-21
 

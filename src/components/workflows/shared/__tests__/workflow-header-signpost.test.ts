@@ -67,6 +67,30 @@ describe("computeSignpost", () => {
     expect(s?.text).toMatch(/resumes/i);
   });
 
+  it("points a runtime-paused sequence to step-scoped recovery, not Inbox", () => {
+    const data = makeNonLoop("paused", null) as Extract<
+      WorkflowStatusResponse,
+      { pattern: Exclude<WorkflowStatusResponse["pattern"], "loop"> }
+    >;
+    data.steps = [
+      {
+        id: "blocked",
+        name: "Draft proposal",
+        prompt: "draft",
+        state: {
+          stepId: "blocked",
+          status: "blocked_runtime",
+        },
+      },
+    ];
+
+    const signpost = computeSignpost(data);
+    expect(signpost?.icon).toBe("arrow");
+    expect(signpost?.href).toBeUndefined();
+    expect(signpost?.text).toMatch(/draft proposal|recheck|completed steps/i);
+    expect(signpost?.text).not.toMatch(/inbox|approval/i);
+  });
+
   it("shows no signpost for terminal statuses", () => {
     expect(computeSignpost(makeNonLoop("completed"))).toBeNull();
     expect(computeSignpost(makeNonLoop("failed"))).toBeNull();

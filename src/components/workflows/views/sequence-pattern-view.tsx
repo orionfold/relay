@@ -18,6 +18,7 @@ import {
   FileText,
   Paperclip,
   ArrowRight,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SwarmDashboard } from "../swarm-dashboard";
@@ -39,6 +40,7 @@ const stepStatusIcons: Record<string, React.ReactNode> = {
   waiting_approval: <ShieldQuestion className="h-4 w-4 text-status-warning" />,
   waiting_dependencies: <Clock3 className="h-4 w-4 text-status-warning" />,
   delayed: <Clock3 className="h-4 w-4 text-status-warning" />,
+  blocked_runtime: <Clock3 className="h-4 w-4 text-status-warning" />,
 };
 
 /**
@@ -69,6 +71,7 @@ export function SequencePatternView({
   onRequestDelete: () => void;
 }) {
   const [executing, setExecuting] = useState(false);
+  const [recoveringStepId, setRecoveringStepId] = useState<string | null>(null);
 
   const handleExecute = useCallback(async () => {
     setExecuting(true);
@@ -161,6 +164,28 @@ export function SequencePatternView({
       setExecuting(false);
     }
   }, [data.id, onRefresh]);
+
+  const handleRetryStep = useCallback(
+    async (stepId: string) => {
+      setRecoveringStepId(stepId);
+      try {
+        const response = await fetch(
+          `/api/workflows/${data.id}/steps/${stepId}/retry`,
+          { method: "POST" },
+        );
+        const body = await response.json().catch(() => null);
+        if (response.ok) {
+          toast.success("Runtime is ready. Resuming from this step.");
+        } else {
+          toast.error(body?.error ?? "Runtime recovery could not start");
+        }
+        await onRefresh();
+      } finally {
+        setRecoveringStepId(null);
+      }
+    },
+    [data.id, onRefresh],
+  );
 
   // At this point on the non-loop arm, `state` is guaranteed present — no
   // optional chaining needed. This is the AC that PR #6's optional chaining
@@ -334,6 +359,11 @@ export function SequencePatternView({
                                 checkpoint
                               </Badge>
                             )}
+                            {step.state.status === "blocked_runtime" && (
+                              <Badge variant="outline" className="text-status-warning">
+                                Runtime paused
+                              </Badge>
+                            )}
                           </div>
                           {isDelayStep ? (
                             <DelayStepBody
@@ -366,9 +396,41 @@ export function SequencePatternView({
                             </div>
                           )}
                           {step.state.error && (
-                            <p className="text-xs text-destructive mt-1">
-                              {step.state.error}
-                            </p>
+                            <div className="mt-2 space-y-2">
+                              <p
+                                className={
+                                  step.state.status === "blocked_runtime"
+                                    ? "text-xs text-status-warning"
+                                    : "text-xs text-destructive"
+                                }
+                              >
+                                {step.state.error}
+                              </p>
+                              {step.state.status === "blocked_runtime" &&
+                                step.state.recovery && (
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-7 gap-1.5 text-xs"
+                                      disabled={recoveringStepId === step.id}
+                                      onClick={() => handleRetryStep(step.id)}
+                                    >
+                                      {recoveringStepId === step.id ? (
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                      ) : (
+                                        <RotateCcw className="h-3.5 w-3.5" />
+                                      )}
+                                      Recheck and resume
+                                    </Button>
+                                    <span className="text-[11px] text-muted-foreground">
+                                      Attempt {step.state.recovery.attempts + 1} of{" "}
+                                      {step.state.recovery.maxAttempts}; completed
+                                      steps will not run again.
+                                    </span>
+                                  </div>
+                                )}
+                            </div>
                           )}
                           {step.state.result && step.state.status === "completed" && !isDelayStep && (
                             <ExpandableResult result={step.state.result} />

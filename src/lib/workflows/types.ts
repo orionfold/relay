@@ -179,8 +179,20 @@ export type WorkflowStepStatus =
   | "failed"
   | "waiting_approval"
   | "waiting_dependencies"
+  /** Runtime became transiently unavailable; explicit step-scoped resume is required. */
+  | "blocked_runtime"
   /** Step is a time delay and the workflow is paused waiting for resume_at. */
   | "delayed";
+
+export interface StepRuntimeRecovery {
+  kind: "runtime_transient";
+  reason: "timeout" | "rate_limited" | "runtime_unavailable";
+  attempts: number;
+  maxAttempts: number;
+  blockedAt: string;
+  lastHealthCheck: "available" | "unavailable";
+  lastHealthMessage?: string;
+}
 
 export interface StepState {
   stepId: string;
@@ -190,6 +202,7 @@ export interface StepState {
   error?: string;
   startedAt?: string;
   completedAt?: string;
+  recovery?: StepRuntimeRecovery;
 }
 
 export interface WorkflowState {

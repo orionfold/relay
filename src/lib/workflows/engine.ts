@@ -29,6 +29,10 @@ import { resolveStepBudget, estimateWorkflowCost } from "./cost-estimator";
 import { isAgentRuntimeId } from "@/lib/agents/runtime/catalog";
 import { updateExecutionStats } from "./execution-stats";
 import { WorkflowTransitionError } from "./transition-errors";
+import {
+  classifyRecoverableRuntimeFailure,
+  runtimeRecoveryMessage,
+} from "./runtime-recovery";
 
 /**
  * Execute a workflow by advancing through its steps according to the pattern.
@@ -174,17 +178,23 @@ export async function executeWorkflow(workflowId: string): Promise<void> {
     // without marking the workflow completed.
     if (state.status === "paused") {
       const waitingForInput = state.pendingInteraction?.kind === "input";
+      const blockedRuntime = state.stepStates.some(
+        (step) => step.status === "blocked_runtime",
+      );
       await db.insert(agentLogs).values({
         id: crypto.randomUUID(),
         taskId: null,
         agentType: "workflow-engine",
         event: waitingForInput
           ? "workflow_paused_for_input"
-          : "workflow_paused_for_delay",
+          : blockedRuntime
+            ? "workflow_paused_for_runtime"
+            : "workflow_paused_for_delay",
         payload: JSON.stringify({
           workflowId,
           stepIndex: state.currentStepIndex,
           notificationId: state.pendingInteraction?.notificationId,
+          blockedRuntime,
         }),
         timestamp: new Date(),
       });
@@ -298,8 +308,13 @@ async function executeSequence(
       parentTaskId,
       step.budgetUsd,
       step.runtimeId,
-      workflowRuntimeId
+      workflowRuntimeId,
+      true,
     );
+
+    if (result.status === "blocked_runtime") {
+      return;
+    }
 
     if (result.status === "failed") {
       throw new Error(`Step "${step.name}" failed: ${result.error}`);
@@ -1002,7 +1017,13 @@ export async function executeChildTask(
   stepId?: string,
   maxBudgetUsd?: number,
   runtimeId?: string
-): Promise<{ taskId: string; status: string; result?: string; error?: string }> {
+): Promise<{
+  taskId: string;
+  status: string;
+  result?: string;
+  error?: string;
+  failureReason?: string | null;
+}> {
   const [workflow] = await db
     .select()
     .from(workflows)
@@ -1121,6 +1142,7 @@ export async function executeChildTask(
     taskId,
     status: "failed",
     error: completedTask?.result ?? "Task did not complete successfully",
+    failureReason: completedTask?.failureReason,
   };
 }
 
@@ -1143,7 +1165,8 @@ async function executeStep(
   parentTaskId?: string,
   stepBudgetUsd?: number,
   stepRuntimeId?: string,
-  workflowRuntimeId?: string
+  workflowRuntimeId?: string,
+  allowTransientPause: boolean = false,
 ): Promise<StepState> {
   const stepState = state.stepStates.find((s) => s.stepId === stepId);
   if (!stepState) throw new Error(`Step ${stepId} not found in state`);
@@ -1189,6 +1212,7 @@ async function executeStep(
       stepState.status = "completed";
       stepState.result = result.result ?? "";
       stepState.completedAt = new Date().toISOString();
+      stepState.recovery = undefined;
 
       // Log step_completed event for live execution dashboard
       await db.insert(agentLogs).values({
@@ -1200,28 +1224,95 @@ async function executeStep(
         timestamp: new Date(),
       });
     } else {
-      stepState.status = "failed";
-      stepState.error = result.error ?? "Task did not complete successfully";
+      const recoveryReason = allowTransientPause
+        ? classifyRecoverableRuntimeFailure({
+            failureReason: result.failureReason,
+            message: result.error,
+          })
+        : null;
+      const priorAttempts = stepState.recovery?.attempts ?? 0;
+      const maxAttempts = stepState.recovery?.maxAttempts ?? 2;
+      if (recoveryReason && priorAttempts < maxAttempts) {
+        let lastHealthCheck: "available" | "unavailable" = "unavailable";
+        let lastHealthMessage: string | undefined;
+        try {
+          const { resolveWorkflowExecutionTargets } = await import(
+            "@/lib/workflows/execution-targets"
+          );
+          await resolveWorkflowExecutionTargets({
+            definition: {
+              pattern: "sequence",
+              steps: [
+                {
+                  id: stepId,
+                  name: stepName,
+                  prompt,
+                  assignedAgent,
+                  agentProfile,
+                  runtimeId: stepRuntimeId,
+                },
+              ],
+            },
+            workflowRuntimeId,
+          });
+          lastHealthCheck = "available";
+        } catch (healthError) {
+          lastHealthMessage =
+            healthError instanceof Error
+              ? healthError.message
+              : String(healthError);
+        }
+        stepState.status = "blocked_runtime";
+        stepState.error = runtimeRecoveryMessage(recoveryReason);
+        stepState.recovery = {
+          kind: "runtime_transient",
+          reason: recoveryReason,
+          attempts: priorAttempts,
+          maxAttempts,
+          blockedAt: new Date().toISOString(),
+          lastHealthCheck,
+          lastHealthMessage,
+        };
+        state.status = "paused";
+      } else {
+        stepState.status = "failed";
+        stepState.error =
+          recoveryReason && priorAttempts >= maxAttempts
+            ? `Runtime recovery stopped after ${maxAttempts} attempts. ${
+                result.error ?? "The task did not complete successfully."
+              }`
+            : result.error ?? "Task did not complete successfully";
+        stepState.recovery = undefined;
+      }
 
       // Log step_failed event for live execution dashboard
       await db.insert(agentLogs).values({
         id: crypto.randomUUID(),
         taskId: result.taskId,
         agentType: "workflow-engine",
-        event: "step_failed",
+        event:
+          stepState.status === "blocked_runtime"
+            ? "step_runtime_blocked"
+            : "step_failed",
         payload: JSON.stringify({
           workflowId,
           stepId,
           stepName,
           stepIndex: state.currentStepIndex,
-          error: result.error ?? "Task did not complete successfully",
+          error: stepState.error,
+          failureReason: result.failureReason,
+          recovery: stepState.recovery,
         }),
         timestamp: new Date(),
       });
     }
 
     // Now safe to persist — task exists and has a final status
-    await updateWorkflowState(workflowId, state, "active");
+    await updateWorkflowState(
+      workflowId,
+      state,
+      state.status === "paused" ? "paused" : "active",
+    );
   } catch (err) {
     // Explicit rollback on failure — step state reflects the error
     stepState.status = "failed";
@@ -1348,6 +1439,27 @@ async function createWorkflowInputNotification(
 /**
  * Update workflow state in the database.
  */
+async function ensureTerminalWorkflowReceipt(
+  workflowId: string,
+  runNumber: number,
+): Promise<void> {
+  try {
+    const { ensureWorkflowReceipt } = await import(
+      "@/lib/operations/receipts"
+    );
+    await ensureWorkflowReceipt(workflowId, runNumber);
+  } catch (error) {
+    const { reportOperationsReceiptFailure } = await import(
+      "@/lib/operations/receipts"
+    );
+    await reportOperationsReceiptFailure({
+      ownerType: "workflow",
+      ownerId: workflowId,
+      error,
+    });
+  }
+}
+
 export async function updateWorkflowState(
   workflowId: string,
   state: WorkflowState,
@@ -1387,21 +1499,7 @@ export async function updateWorkflowState(
     .where(eq(workflows.id, workflowId));
 
   if (status === "completed" || status === "failed") {
-    try {
-      const { ensureWorkflowReceipt } = await import(
-        "@/lib/operations/receipts"
-      );
-      await ensureWorkflowReceipt(workflowId, workflow.runNumber);
-    } catch (error) {
-      const { reportOperationsReceiptFailure } = await import(
-        "@/lib/operations/receipts"
-      );
-      await reportOperationsReceiptFailure({
-        ownerType: "workflow",
-        ownerId: workflowId,
-        error,
-      });
-    }
+    await ensureTerminalWorkflowReceipt(workflowId, workflow.runNumber);
   }
 }
 
@@ -1814,14 +1912,16 @@ export async function retryWorkflowStep(
   }
 
   const stepState = state.stepStates[stepIndex];
-  if (stepState.status !== "failed") {
+  const isRuntimeRecovery = stepState.status === "blocked_runtime";
+  if (stepState.status !== "failed" && !isRuntimeRecovery) {
     throw new WorkflowTransitionError(
       "WORKFLOW_TRANSITION_CONFLICT",
-      `Step ${stepId} is not in failed state`
+      `Step ${stepId} is not failed or blocked by a runtime`
     );
   }
 
-  if (workflow.status !== "failed") {
+  const expectedWorkflowStatus = isRuntimeRecovery ? "paused" : "failed";
+  if (workflow.status !== expectedWorkflowStatus) {
     throw new WorkflowTransitionError(
       "WORKFLOW_TRANSITION_CONFLICT",
       `Cannot retry a step while workflow status is ${workflow.status}`
@@ -1835,7 +1935,101 @@ export async function retryWorkflowStep(
     );
   }
 
-  if (definition.pattern === "sequence") resetStepState(stepState);
+  let claimedRecovery = stepState.recovery;
+  if (isRuntimeRecovery) {
+    if (definition.pattern !== "sequence" || !claimedRecovery) {
+      throw new WorkflowTransitionError(
+        "WORKFLOW_STATE_INVALID",
+        "Runtime recovery metadata is missing or unsupported for this workflow",
+      );
+    }
+    if (claimedRecovery.attempts >= claimedRecovery.maxAttempts) {
+      throw new WorkflowTransitionError(
+        "WORKFLOW_TRANSITION_CONFLICT",
+        `Runtime recovery has reached its ${claimedRecovery.maxAttempts}-attempt limit`,
+      );
+    }
+
+    const targetStep = definition.steps[stepIndex];
+    try {
+      const { resolveWorkflowExecutionTargets } = await import(
+        "@/lib/workflows/execution-targets"
+      );
+      await resolveWorkflowExecutionTargets({
+        definition: { pattern: "sequence", steps: [targetStep] },
+        workflowRuntimeId: workflow.runtimeId,
+      });
+    } catch (error) {
+      const attempts = claimedRecovery.attempts + 1;
+      const exhausted = attempts >= claimedRecovery.maxAttempts;
+      const nextStepState: StepState = {
+        ...stepState,
+        status: exhausted ? "failed" : "blocked_runtime",
+        error: exhausted
+          ? `Runtime recovery stopped after ${claimedRecovery.maxAttempts} attempts.`
+          : runtimeRecoveryMessage(claimedRecovery.reason),
+        recovery: exhausted
+          ? undefined
+          : {
+              ...claimedRecovery,
+              attempts,
+              lastHealthCheck: "unavailable",
+              lastHealthMessage:
+                error instanceof Error ? error.message : String(error),
+            },
+      };
+      const nextState: WorkflowState = {
+        ...state,
+        status: exhausted ? "failed" : "paused",
+        stepStates: state.stepStates.map((item, index) =>
+          index === stepIndex ? nextStepState : item
+        ),
+      };
+      const persisted = await db
+        .update(workflows)
+        .set({
+          definition: JSON.stringify({ ...definition, _state: nextState }),
+          status: exhausted ? "failed" : "paused",
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(workflows.id, workflowId),
+            eq(workflows.status, "paused"),
+            eq(workflows.definition, workflow.definition)
+          )
+        )
+        .returning();
+      if (persisted.length === 0) {
+        throw new WorkflowTransitionError(
+          "WORKFLOW_TRANSITION_CONFLICT",
+          "Workflow recovery state changed before the health check completed",
+        );
+      }
+      if (exhausted) {
+        await ensureTerminalWorkflowReceipt(workflowId, workflow.runNumber);
+      }
+      throw new WorkflowTransitionError(
+        "WORKFLOW_TRANSITION_CONFLICT",
+        exhausted
+          ? `Runtime is still unavailable; recovery stopped after ${attempts} attempts`
+          : `Runtime is still unavailable. Completed steps remain safe; ${claimedRecovery.maxAttempts - attempts} recovery attempt remains.`,
+        409,
+        { cause: error },
+      );
+    }
+    claimedRecovery = {
+      ...claimedRecovery,
+      attempts: claimedRecovery.attempts + 1,
+      lastHealthCheck: "available",
+      lastHealthMessage: undefined,
+    };
+  }
+
+  if (definition.pattern === "sequence") {
+    resetStepState(stepState);
+    stepState.recovery = claimedRecovery;
+  }
   state.status = "running";
   state.currentStepIndex = stepIndex;
   state.completedAt = undefined;
@@ -1850,7 +2044,7 @@ export async function retryWorkflowStep(
     .where(
       and(
         eq(workflows.id, workflowId),
-        eq(workflows.status, "failed"),
+        eq(workflows.status, expectedWorkflowStatus),
         eq(workflows.definition, workflow.definition)
       )
     )
@@ -1901,18 +2095,27 @@ async function runClaimedWorkflowStepRetry(
 
   // Re-execute from this step
   const step = definition.steps[stepIndex];
+  const completedPrefixOutput =
+    stepIndex > 0 &&
+    state.stepStates[stepIndex - 1]?.status === "completed"
+      ? state.stepStates[stepIndex - 1].result ?? ""
+      : "";
+  const resumedPrompt = completedPrefixOutput
+    ? `Previous step output:\n${completedPrefixOutput}\n\n---\n\n${step.prompt}`
+    : step.prompt;
   const result = await executeStep(
     workflowId,
     step.id,
     step.name,
-    step.prompt,
+    resumedPrompt,
     state,
     step.assignedAgent,
     step.agentProfile,
-    undefined,
+    definition.sourceTaskId,
     step.budgetUsd,
     step.runtimeId,
-    workflowRtId
+    workflowRtId,
+    true,
   );
 
   if (result.status === "completed") {
@@ -1932,20 +2135,33 @@ async function runClaimedWorkflowStepRetry(
         undefined,
         nextStep.budgetUsd,
         nextStep.runtimeId,
-        workflowRtId
+        workflowRtId,
+        true,
       );
-      if (nextResult.status === "failed") break;
+      if (
+        nextResult.status === "failed" ||
+        nextResult.status === "blocked_runtime"
+      ) {
+        break;
+      }
       previousOutput = nextResult.result ?? "";
     }
   }
 
   const allCompleted = state.stepStates.every((s) => s.status === "completed");
-  state.status = allCompleted ? "completed" : "failed";
+  const blockedRuntime = state.stepStates.some(
+    (item) => item.status === "blocked_runtime",
+  );
+  state.status = allCompleted
+    ? "completed"
+    : blockedRuntime
+      ? "paused"
+      : "failed";
   state.completedAt = allCompleted ? new Date().toISOString() : undefined;
   await updateWorkflowState(
     workflowId,
     state,
-    allCompleted ? "completed" : "failed"
+    allCompleted ? "completed" : blockedRuntime ? "paused" : "failed",
   );
 }
 
@@ -1956,6 +2172,7 @@ function resetStepState(stepState: StepState): void {
   stepState.taskId = undefined;
   stepState.startedAt = undefined;
   stepState.completedAt = undefined;
+  stepState.recovery = undefined;
 }
 
 async function retrySwarmStep(

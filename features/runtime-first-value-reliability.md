@@ -1,6 +1,6 @@
 ---
 title: Runtime First-Value Reliability
-status: planned
+status: accepted
 priority: P0
 milestone: post-mvp
 source: _IDEAS/triage.md
@@ -84,13 +84,22 @@ forced into cloud API-key semantics.
 
 - Recent successful execution/verified-health evidence has an explicit bounded
   freshness policy.
-- Transient probe timeouts receive bounded retry/recheck before terminal state.
+- Transient probe timeouts receive one immediate, non-generating live health
+  recheck before the workflow pauses. Relay never automatically replays a model
+  generation because the provider may have accepted work before disconnecting.
 - A still-unavailable runtime pauses the step with an actionable status.
-- Authentication rejection and capability mismatch remain named failures.
-- Retry resumes only the blocked step.
+- Timeout, rate-limit and clearly unreachable-runtime failures are recoverable.
+  Authentication rejection, capability mismatch, cancellation, budget
+  exhaustion and turn-limit exhaustion remain named terminal failures.
+- Retry performs a fresh target preflight and resumes only the blocked step and
+  its not-yet-started suffix. A completed prefix is immutable.
 - Operation receipts/idempotency keys prevent completed document, schedule,
   message and other effects from replaying.
 - Unsupported unreceipted side effects fail closed rather than replaying.
+- Recovery permits two operator-requested resume attempts. Exhaustion turns the
+  blocked step into a named terminal failure without altering completed work.
+- Competing retry requests have one atomic winner. Cancelled, completed and
+  otherwise stale targets reject recovery without dispatch.
 
 ## Filesystem skill discovery
 
@@ -238,3 +247,27 @@ covering real task, workflow, chat, Ollama, LiteLLM, LM Studio and receipt
 paths. A live external-provider workflow was deliberately not used because
 agent profiles may read project context; the loopback smoke provides the
 required execution proof without transmitting it.
+
+## Implementation receipt — G-122
+
+Accepted 2026-07-23. Sequence workflows now distinguish transient runtime loss
+from terminal authentication, capability, budget, cancellation and turn-limit
+failures. A timeout, rate limit or clearly unreachable runtime receives one
+non-generating health recheck, then pauses the exact step instead of failing the
+whole run. The workflow header and step card name the runtime pause, preserve
+completed output, expose a two-attempt **Recheck and resume** action, and never
+send this state to the approval Inbox.
+
+Recovery live-preflights the exact target before one atomic claim. It restores
+the prior completed step's context, resumes only the blocked step and its
+not-yet-started suffix, preserves existing documents and operation receipts,
+rejects competing/stale requests, and fails closed when the bounded attempt
+budget is exhausted. The state is stored in the workflow definition and
+therefore survives process restarts without a migration.
+
+Verification passed: 3,908 tests across 534 files (one intentional skip),
+TypeScript, production build, the deterministic loopback runtime-graph smoke,
+and an isolated real-browser workflow proof with no console warnings or errors.
+The browser proof also caught and closed the stale “Waiting for your approval”
+header interpretation. Evidence:
+`output/playwright/g122/runtime-recovery.png`.

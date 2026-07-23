@@ -28,6 +28,9 @@ vi.mock("@/lib/agents/task-dispatch", () => ({
     await dispatch.handler(taskId);
   }),
 }));
+vi.mock("@/lib/workflows/execution-targets", () => ({
+  resolveWorkflowExecutionTargets: vi.fn(async () => []),
+}));
 
 import {
   executeWorkflow,
@@ -144,6 +147,65 @@ describe("workflow recovery contract with real SQLite state", () => {
     ]);
     expect(db.select().from(tasks).all()).toHaveLength(2);
     expectFailedReceipt(workflowId);
+  });
+
+  it("pauses a machine-classified transient failure without replaying its completed prefix", async () => {
+    const workflowId = seedWorkflow({
+      definition: {
+        pattern: "sequence",
+        steps: [
+          { id: "one", name: "One", prompt: "first" },
+          { id: "two", name: "Two", prompt: "second" },
+          { id: "three", name: "Three", prompt: "third" },
+        ],
+      },
+    });
+    dispatch.handler = async (taskId) => {
+      const task = db.select().from(tasks).where(eq(tasks.id, taskId)).get()!;
+      const failed = task.title.endsWith("Two");
+      db.update(tasks)
+        .set({
+          status: failed ? "failed" : "completed",
+          result: failed ? "Provider timed out" : "first result",
+          failureReason: failed ? "timeout" : null,
+          updatedAt: new Date(),
+        })
+        .where(eq(tasks.id, taskId))
+        .run();
+    };
+
+    await executeWorkflow(workflowId);
+
+    expect(readWorkflow(workflowId).status).toBe("paused");
+    expect(readState(workflowId).stepStates).toMatchObject([
+      { stepId: "one", status: "completed", result: "first result" },
+      {
+        stepId: "two",
+        status: "blocked_runtime",
+        recovery: {
+          reason: "timeout",
+          attempts: 0,
+          maxAttempts: 2,
+          lastHealthCheck: "available",
+        },
+      },
+      { stepId: "three", status: "pending" },
+    ]);
+    expect(db.select().from(tasks).all()).toHaveLength(2);
+    expect(
+      db
+        .select()
+        .from(workflowReceiptRuns)
+        .where(eq(workflowReceiptRuns.workflowId, workflowId))
+        .get()?.terminalStatus,
+    ).toBeNull();
+    expect(
+      db
+        .select()
+        .from(operationsReceipts)
+        .where(eq(operationsReceipts.workflowId, workflowId))
+        .all(),
+    ).toHaveLength(0);
   });
 
   it.each([
