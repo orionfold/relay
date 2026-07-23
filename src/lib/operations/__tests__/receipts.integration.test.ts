@@ -320,10 +320,19 @@ describe("Operations Receipt persistence", () => {
     });
 
     const failed = await ensureWorkflowReceipt(workflowId, 1);
-    await db
-      .update(tasks)
-      .set({ status: "completed", result: "recovered", updatedAt: new Date(now.getTime() + 1000) })
-      .where(eq(tasks.id, taskId));
+    const recoveredTaskId = crypto.randomUUID();
+    await db.insert(tasks).values({
+      id: recoveredTaskId,
+      workflowId,
+      workflowRunNumber: 1,
+      successCriteriaSnapshot: snapshot,
+      title: "Retry task",
+      status: "completed",
+      result: "recovered",
+      sourceType: "workflow",
+      createdAt: new Date(now.getTime() + 1000),
+      updatedAt: new Date(now.getTime() + 1000),
+    });
     await db
       .update(workflows)
       .set({ status: "completed", updatedAt: new Date(now.getTime() + 1000) })
@@ -335,5 +344,16 @@ describe("Operations Receipt persistence", () => {
     expect(recovered.verdict).toBe("passed");
     expect(recovered.id).toBe(failed.id);
     expect(rows).toHaveLength(1);
+    expect(
+      await db
+        .select()
+        .from(tasks)
+        .where(eq(tasks.workflowId, workflowId))
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: taskId, status: "failed" }),
+        expect.objectContaining({ id: recoveredTaskId, status: "completed" }),
+      ])
+    );
   });
 });

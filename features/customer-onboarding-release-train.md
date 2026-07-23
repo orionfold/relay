@@ -113,9 +113,10 @@ XLSX components, and the remaining native-installer path received an exact
 Node 22 adoption trigger. G-124 repaired the cross-runtime recovery parity
 finding from G-025's first pass. G-025 was accepted 2026-07-23 with the final
 customer-identical clean-cache journey and G-114's accepted same-cache upgrade
-proof. Its evidence bundle exposed two bounded truth inconsistencies: G-125
-reconciles the recovered workflow receipt, then G-126 reconciles the last stale
-license summary. These are the remaining O5 acceptance fixes.
+proof. Its evidence bundle exposed two bounded truth inconsistencies. G-125 was
+accepted 2026-07-23 after terminal run authority reconciled the retained failed
+attempt into the same truthful receipt and real browser evidence passed. G-126
+is the remaining O5 fix for the last stale license summary.
 
 ## Cross-goal invariants
 
@@ -149,6 +150,9 @@ license summary. These are the remaining O5 acceptance fixes.
 - [x] A transient later-step runtime timeout can recover without recreating
       prior documents or schedules on the runtime readiness selected, including
       an Ollama-only profile (G-124).
+- [x] A recovered run's singular Operations Receipt reconciles to the final
+      terminal outcome while retaining its failed and completed attempts
+      (G-125).
 - [x] The final Mode B staging bundle proves clean install, shared-cache upgrade,
       activation, workflow completion/recovery and isolation.
 - [x] Every originating TRIAGE-036–TRIAGE-057 finding is mapped to exactly one

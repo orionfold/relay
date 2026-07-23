@@ -234,6 +234,20 @@ describe("POST workflow step retry recovery boundary", () => {
 
   it("preflights and resumes only a runtime-blocked suffix", async () => {
     const id = seedRuntimeBlockedWorkflow();
+    const failedAttemptId = randomUUID();
+    db.insert(tasks)
+      .values({
+        id: failedAttemptId,
+        workflowId: id,
+        workflowRunNumber: 1,
+        title: "[Workflow] Target",
+        status: "failed",
+        result: "temporary provider outage",
+        sourceType: "workflow",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .run();
     db.insert(operationsReceipts)
       .values({
         id: randomUUID(),
@@ -266,11 +280,16 @@ describe("POST workflow step retry recovery boundary", () => {
       .all();
     expect(resumedTasks.map((task) => task.title)).toEqual([
       "[Workflow] Target",
+      "[Workflow] Target",
       "[Workflow] Suffix",
     ]);
-    expect(resumedTasks[0].description).toContain(
+    expect(resumedTasks[1].description).toContain(
       "Previous step output:\nprefix result",
     );
+    expect(resumedTasks[0]).toMatchObject({
+      id: failedAttemptId,
+      status: "failed",
+    });
     expect(
       db
         .select()
@@ -278,6 +297,21 @@ describe("POST workflow step retry recovery boundary", () => {
         .where(eq(operationsReceipts.sourceKey, `workflow:${id}:prefix`))
         .all(),
     ).toHaveLength(1);
+    expect(
+      db
+        .select()
+        .from(operationsReceipts)
+        .where(
+          eq(
+            operationsReceipts.sourceKey,
+            `workflow:${id}:run:1`,
+          ),
+        )
+        .get(),
+    ).toMatchObject({
+      verdict: "at_risk",
+      summary: "Run completed, but no success criteria were configured.",
+    });
   });
 
   it("keeps work paused on the first unavailable preflight and fails closed at the limit", async () => {

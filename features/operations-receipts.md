@@ -123,6 +123,14 @@ For schedules, the source run is the child task identified by `scheduleId`.
 For workflows, the source run is the workflow's current `runNumber` plus the
 tasks and persisted workflow state carrying that run number.
 
+The persisted terminal workflow/run state is authoritative over individual
+attempt rows. Exact-step recovery deliberately retains a failed task attempt
+and creates a new completed attempt in the same run; when that run ultimately
+completes, receipt reconciliation must update the existing run receipt to the
+completed verdict without deleting either attempt. For a historical run, the
+receipt-run marker is the authority because the workflow row may already point
+at a newer run.
+
 The terminal result fact is the schedule task result or the workflow's terminal
 result: final sequence/checkpoint/planner step, synthesis/refinery step for
 parallel/swarm, or final loop iteration. If a pattern has no unambiguous terminal
@@ -173,6 +181,7 @@ real `npm run dev` workflow smoke because that module is runtime-registry-adjace
 | Receipt insert repeatedly fails | DB lock/disk error | history remains incomplete | named Inbox failure notice; retry on next detail read |
 | Criteria edited during a run | operator changes future bar before completion | historical meaning could drift | snapshot criteria when the run starts or from source-run metadata |
 | Duplicate terminal callbacks | scheduler drain/retry or workflow retry | duplicate receipt risk | unique `source_key` plus insert-once reconciliation |
+| Failed attempt later recovers | exact-step retry creates a completed attempt in the same run | stale Failed receipt contradicts Completed workflow | terminal workflow/run marker wins; upsert the same source key while retaining attempt history |
 | Owner deleted | schedule/workflow removed after receipt | receipt loses navigation target | retain bounded receipt facts; show Source removed instead of broken link |
 
 ## Acceptance Criteria
@@ -187,6 +196,9 @@ real `npm run dev` workflow smoke because that module is runtime-registry-adjace
 - [x] Every new terminal workflow run creates exactly one durable receipt keyed
   by workflow ID and run number across sequence, loop, parallel, and swarm
   terminal-result shapes.
+- [x] A failed task attempt followed by a successful exact-step retry updates
+  that run's existing receipt to the final terminal verdict without erasing
+  either attempt or changing the receipt identity.
 - [x] Passed, At risk, and Failed fixtures cover true/false advisory and required
   criteria, no criteria, missing result/output/duration evidence, runtime failure,
   evaluator failure, duplicate callbacks, and interrupted-write reconciliation.

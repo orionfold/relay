@@ -307,10 +307,16 @@ export async function ensureWorkflowReceipt(
     (workflow.status === "completed" || workflow.status === "failed")
       ? workflow.status
       : runMarker.terminalStatus;
-  const status = hasFailedTask
-    ? "failed"
-    : markerStatus ??
-      (runTasks.length > 0 && runTasks.every((task) => task.status === "completed")
+  // The terminal workflow/run marker describes the outcome after all retry
+  // attempts. Exact-step recovery intentionally retains the failed attempt and
+  // creates a new task in the same run, so an old failed task must not override
+  // a later authoritative Completed transition.
+  const status =
+    markerStatus ??
+    (hasFailedTask
+      ? "failed"
+      : runTasks.length > 0 &&
+          runTasks.every((task) => task.status === "completed")
         ? "completed"
         : "active");
   if (status !== "completed" && status !== "failed") {

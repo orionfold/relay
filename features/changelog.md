@@ -4,6 +4,13 @@
 
 ### Completed
 
+- `operations-receipts` (G-125) — made the terminal workflow/run marker
+  authoritative over retained attempt rows. Exact-step recovery can now keep
+  its failed task attempt, create the successful retry, and update the same
+  run-receipt identity from Failed to the truthful final verdict. Thirty-five
+  focused checks, TypeScript, runtime-graph smoke, production build, and the
+  real recovered staging workflow passed; its no-criteria receipt now reads
+  **At risk** instead of contradicting the Completed workflow.
 - `customer-onboarding-release-train` (G-025) — accepted the final isolated
   packed-npm journey through Community orientation, free and premium Pack
   install, disposable license activation, real local Ollama work, approval,
