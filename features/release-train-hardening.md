@@ -132,6 +132,10 @@ broadening signing identity, or reducing vulnerability/reproducibility checks.
   preserving three moderate findings in the Anthropic SDK → MCP SDK → Hono
   chain for the candidate receipt.
 - YAML parsing, TypeScript, workflow/policy validation, and diff hygiene pass.
+- A clean detached worktree at `3ca0ea234f78c05e3d3cf33fa453a76ad4a26859`
+  produced the expected non-publication dry-run receipt
+  `sha256:7b87af72646c198fbf06b03fdcd25acf24f17cf0f345c8ada5625db609658f44`;
+  the driver correctly reported `publicationEligible: false`.
 - The final acceptance criterion remains open until a separately authorized
   workflow push, exact-SHA candidate run, and next real Cell/npm release prove
   the GitHub artifact boundary and one-production-decision topology.

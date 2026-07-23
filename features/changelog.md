@@ -11,7 +11,8 @@
   a local driver that never creates tags, and one OCI production approval
   fan-out/fan-in. Twenty-one release-quality lanes are green locally. Completion
   remains gated on the separately authorized workflow push, exact-SHA candidate
-  run, and next real Cell/npm release proof.
+  run, and next real Cell/npm release proof; clean detached commit `3ca0ea23`
+  also produced the intentionally non-eligible local dry-run receipt.
 
 ### Completed
 
