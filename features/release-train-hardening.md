@@ -124,7 +124,7 @@ broadening signing identity, or reducing vulnerability/reproducibility checks.
 - G-131 is the durable ID; the initial backlog entry temporarily reused the
   already-completed npm install-integrity ID G-114.
 - Local implementation and fresh security review are green. The release quality
-  profile passed 21/21 lanes in 73.3 seconds: 3,974 application tests plus one
+  profile passed 21/21 lanes in 76.0 seconds: 3,974 application tests plus one
   intentional skip, coverage ratchets, runtime graph smoke, harness safety,
   7/7 mutation kills, Pack compatibility, and the two new release contract
   suites.
@@ -132,9 +132,9 @@ broadening signing identity, or reducing vulnerability/reproducibility checks.
   preserving three moderate findings in the Anthropic SDK → MCP SDK → Hono
   chain for the candidate receipt.
 - YAML parsing, TypeScript, workflow/policy validation, and diff hygiene pass.
-- A clean detached worktree at `3ca0ea234f78c05e3d3cf33fa453a76ad4a26859`
+- A clean detached worktree at `b62f7c184107030f6a41f1233a3d0144f5557fb0`
   produced the expected non-publication dry-run receipt
-  `sha256:7b87af72646c198fbf06b03fdcd25acf24f17cf0f345c8ada5625db609658f44`;
+  `sha256:b1841fbffc440ad47a1068a3674e32c551437d0c7bab021ad043fe5cf055d84b`;
   the driver correctly reported `publicationEligible: false`.
 - The final acceptance criterion remains open until a separately authorized
   workflow push, exact-SHA candidate run, and next real Cell/npm release prove

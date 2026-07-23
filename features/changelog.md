@@ -9,9 +9,11 @@
   versioned 24-hour content-addressed receipts, fail-closed tag consumers,
   reusable macOS/Windows Node/npm evidence, explicit production-audit counts,
   a local driver that never creates tags, and one OCI production approval
-  fan-out/fan-in. Twenty-one release-quality lanes are green locally. Completion
+  fan-out/fan-in. The driver and CI also refuse any already-created immutable
+  tag instead of suggesting a duplicate candidate. Twenty-one release-quality
+  lanes are green locally. Completion
   remains gated on the separately authorized workflow push, exact-SHA candidate
-  run, and next real Cell/npm release proof; clean detached commit `3ca0ea23`
+  run, and next real Cell/npm release proof; clean detached commit `b62f7c18`
   also produced the intentionally non-eligible local dry-run receipt.
 
 ### Completed
