@@ -108,6 +108,13 @@ describe("sha256OfFile", () => {
 });
 
 describe("downloadToFile", () => {
+  it("rejects an invalid artifact URL before writing", async () => {
+    const dir = tempDir("relay-dl-");
+    await expect(
+      downloadToFile("not a url", join(dir, "dest.tgz")),
+    ).rejects.toThrow(/Invalid artifact URL/);
+  });
+
   it("copies file:// URLs", async () => {
     const dir = tempDir("relay-dl-");
     const src = join(dir, "src.tgz");
@@ -149,9 +156,35 @@ describe("downloadToFile", () => {
     ).rejects.toThrow(PrebuiltDownloadError);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it.each([
+    [new Error("offline"), "offline"],
+    ["offline-string", "offline-string"],
+  ])("names network failures without assuming an Error object", async (cause, detail) => {
+    const dir = tempDir("relay-http-");
+    vi.stubGlobal("fetch", vi.fn(async () => {
+      throw cause;
+    }));
+
+    await expect(
+      downloadToFile("https://artifacts.example/fail.tgz", join(dir, "dest.tgz")),
+    ).rejects.toThrow(detail);
+  });
 });
 
 describe("extractPrebuilt", () => {
+  it("wraps invalid tar archives in a named extraction error", async () => {
+    const dir = tempDir("relay-extract-");
+    const tgzPath = join(dir, "invalid.tgz");
+    const dest = join(dir, "app");
+    writeFileSync(tgzPath, "not a tar archive");
+    mkdirSync(dest, { recursive: true });
+
+    await expect(extractPrebuilt(tgzPath, dest)).rejects.toThrow(
+      /Failed extracting invalid\.tgz/,
+    );
+  });
+
   it("extracts .next and finds BUILD_ID", async () => {
     const dir = tempDir("relay-extract-");
     const { tgzPath } = await makeArtifact(dir);
@@ -214,9 +247,48 @@ describe("extractPrebuilt", () => {
     mkdirSync(dest, { recursive: true });
     await expect(extractPrebuilt(tgzPath, dest)).rejects.toThrow(PrebuiltDownloadError);
   });
+
+  it("rejects malformed external-package manifests", async () => {
+    const dir = tempDir("relay-links-");
+    const stage = join(dir, "stage");
+    mkdirSync(join(stage, ".next"), { recursive: true });
+    writeFileSync(join(stage, ".next", "BUILD_ID"), "test-build-id");
+    writeFileSync(join(stage, ".next", "relay-external-packages.json"), "{");
+    const tgzPath = join(dir, "artifact.tgz");
+    await tar.create({ gzip: true, file: tgzPath, cwd: stage }, [".next"]);
+    const dest = join(dir, "app");
+    mkdirSync(dest, { recursive: true });
+
+    await expect(extractPrebuilt(tgzPath, dest)).rejects.toThrow(
+      /is not valid JSON/,
+    );
+  });
+
+  it("accepts an external-package manifest with no links", async () => {
+    const dir = tempDir("relay-links-");
+    const stage = join(dir, "stage");
+    mkdirSync(join(stage, ".next"), { recursive: true });
+    writeFileSync(join(stage, ".next", "BUILD_ID"), "test-build-id");
+    writeFileSync(
+      join(stage, ".next", "relay-external-packages.json"),
+      JSON.stringify({ version: 1 }),
+    );
+    const tgzPath = join(dir, "artifact.tgz");
+    await tar.create({ gzip: true, file: tgzPath, cwd: stage }, [".next"]);
+    const dest = join(dir, "app");
+    mkdirSync(dest, { recursive: true });
+
+    await expect(extractPrebuilt(tgzPath, dest)).resolves.toBeUndefined();
+  });
 });
 
 describe("pruneBuildCache", () => {
+  it("is a no-op when the cache directory does not exist", () => {
+    expect(() =>
+      pruneBuildCache(join(tempDir("relay-prune-"), "missing"), "0.16.0", 2),
+    ).not.toThrow();
+  });
+
   it("keeps the current version and the newest other artifact", () => {
     const dir = tempDir("relay-prune-");
     const mk = (v: string, ageMinutes: number) => {
@@ -235,6 +307,21 @@ describe("pruneBuildCache", () => {
     expect(left).toEqual(["relay-next-build-0.15.5.tgz", "relay-next-build-0.16.0.tgz"]);
     // sha sidecars of pruned versions go too
     expect(existsSync(join(dir, "relay-next-build-0.14.0.tgz.sha256"))).toBe(false);
+  });
+
+  it("keeps the requested number of newest artifacts when current is absent", () => {
+    const dir = tempDir("relay-prune-");
+    for (const [version, ageMinutes] of [["0.14.0", 20], ["0.15.0", 10]] as const) {
+      const artifact = join(dir, `relay-next-build-${version}.tgz`);
+      writeFileSync(artifact, version);
+      const timestamp = new Date(Date.now() - ageMinutes * 60_000);
+      utimesSync(artifact, timestamp, timestamp);
+    }
+
+    pruneBuildCache(dir, "0.16.0", 1);
+    expect(
+      readdirSync(dir).filter((name) => name.endsWith(".tgz")),
+    ).toEqual(["relay-next-build-0.15.0.tgz"]);
   });
 });
 

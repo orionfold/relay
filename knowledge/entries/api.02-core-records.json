@@ -27,7 +27,7 @@
     "/api/tasks/{id}/target",
     "/api/tasks/assist"
   ],
-  "contentHash": "5790d332ac432f61badd982765561d296f2ecd69b5133ec516f2a81bff818f1b",
+  "contentHash": "2a1e808e8a9d2059fe902794eea33461c4526d8ae3e3f9713db1e2815972a680",
   "features": [],
   "id": "api:02-core-records",
   "journeys": [],
@@ -111,8 +111,8 @@
       "heading": "PATCH /api/customers/{id}",
       "id": "patch-api-customers-id",
       "level": 3,
-      "markdown": "Updates a customer's mutable fields and returns the updated row. The `slug` is immutable and is ignored if sent.\n\n- **Request** body (JSON), all fields optional; only fields you send are changed:\n\n| Field | Type | Notes |\n|---|---|---|\n| `name` | `string` | 1 to 120 characters. |\n| `industry` | `string \\| null` | Up to 80 characters. `null` clears it. |\n| `notes` | `string \\| null` | Up to 1000 characters. `null` clears it. |\n| `status` | `\"active\" \\| \"archived\"` | |\n\n- **Response** `200`: the updated customer row. `updatedAt` is always advanced.\n- **Errors**:\n  - `400` on validation failure: `{ \"error\": <zod flatten object> }`.\n  - `404` when not found: `{ \"error\": \"Customer not found\" }`.\n- **Side effects**: updates the customer row. No write on the `400` or `404` path.",
-      "wordCount": 104
+      "markdown": "Updates a customer's mutable fields and returns the updated row. The `slug` is immutable and is ignored if sent.\n\n- **Request** body (JSON), all fields optional; only fields you send are changed:\n\n| Field | Type | Notes |\n|---|---|---|\n| `name` | `string` | 1 to 120 characters. |\n| `industry` | `string \\| null` | Up to 80 characters. `null` clears it. |\n| `notes` | `string \\| null` | Up to 1000 characters. `null` clears it. |\n| `status` | `\"active\" \\| \"archived\"` | |\n\n- **Response** `200`: the updated customer row. `updatedAt` is always advanced.\n- **Errors**:\n  - `400` on validation failure: `{ \"error\": <zod flatten object> }`.\n  - `404` when not found: `{ \"error\": \"Customer not found\" }`.\n- **Side effects**: updates the customer row. When the customer came from a\n  Pack's synthetic sample data, any successful edit also marks it\n  `sample-edited` so **Use my own data** preserves it. No write occurs on the\n  `400` or `404` path.",
+      "wordCount": 129
     },
     {
       "heading": "POST /api/customers/{id}/link-project",
@@ -402,9 +402,9 @@
       "wordCount": 232
     }
   ],
-  "sourceHash": "e8ddf524a8336387587fc33bd48e09e2cc1ff4b3e0686563bc161f1a33cb3a5b",
+  "sourceHash": "6db57f304fb051b7f09490cbb8e471a6f18fb30c7a8740465de1b772c784d3ef",
   "sourcePath": "api/reference/02-core-records.md",
-  "sourceStateHash": "d4662908b29698e518c2c100d50dfe728525893dffbd6f463147e362fa5abd84",
+  "sourceStateHash": "85348226c0640bb7582b3b14e7301465ef5f2fb05343b0929145d31008b9d7a5",
   "stability": "app-internal",
   "summary": "Document records that organize work: customers, projects, tasks, documents, handoffs, and memory.",
   "title": "Core Records API"

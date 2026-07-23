@@ -8,6 +8,30 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.46.0] — 2026-07-23
+
+### Added
+
+- **Community onboarding now follows the customer’s actual entitlement and
+  first-value journey.** Home and Settings explain what Community, premium
+  Packs, and managed Host access enable; Relay Agency offers clearly labeled
+  synthetic exploration data that can be removed without touching edited or
+  customer-created records.
+- **One Relay license now unlocks one selectable premium Pack catalog.** Packs
+  use compact decision cards, preserve a customer’s selection through the
+  license handoff, normalize overlapping bundles, and report partial install
+  failures with a failed-only retry path instead of implying a separate
+  purchase for every Pack.
+- **Provider readiness and task routing now share one verified source of
+  truth.** Settings puts compact provider setup before routing, the shell shows
+  the number of actually ready runtimes, authenticated Claude Code is selected
+  automatically, and an existing Codex login can be explicitly adopted into
+  Relay’s isolated credential store.
+- **Workflow first value is recoverable.** Blueprint starts preflight verified
+  capabilities before creating a run, duplicate submissions converge on one
+  workflow, and transient later-step runtime failures can recheck and resume
+  the exact blocked suffix without replaying completed work.
+
 ### Fixed
 
 - **Fresh provider setup and Agency sample removal now tell the truth

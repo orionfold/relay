@@ -1,8 +1,8 @@
 {
-  "bundleHash": "6a32b16a01ec02dc7965c3314e55fcd714e2c8e821b1a6df0d1b912d97e1f63c",
+  "bundleHash": "360020c21fcdc5f652eab358fe83badbd87e988a46c56a6142f83a0a156f92e8",
   "corpus": {
     "apiDocsVersion": "2026-07-08.initial-plan",
-    "apiTrackerHash": "d2591ec997d43de7f2a0808ffe301c4459d229e5f81dca67d0c4067b81044174",
+    "apiTrackerHash": "e8a42dfe42f95315b2327b4e63208e1ec165dd371488c0d4888a2a805bda2d38",
     "guideTrackerHash": "847e01d11915d2f2575cf7d86075b7907306b4f32e2f0750d7e92758bb158fa0",
     "guideVersion": "2026-07-09.narrative-book-guide",
     "screenshotManifestHash": "9edc0914b86fa50ac64d5d75eb98dab49ae43f50915e412e5021e996bd399a86"
@@ -19,63 +19,63 @@
       "title": "Relay Local API Overview"
     },
     {
-      "contentHash": "5790d332ac432f61badd982765561d296f2ecd69b5133ec516f2a81bff818f1b",
+      "contentHash": "2a1e808e8a9d2059fe902794eea33461c4526d8ae3e3f9713db1e2815972a680",
       "id": "api:02-core-records",
       "kind": "api",
       "path": "entries/api.02-core-records.json",
       "publicUrl": "https://orionfold.com/relay/api/02-core-records/",
-      "sourceHash": "e8ddf524a8336387587fc33bd48e09e2cc1ff4b3e0686563bc161f1a33cb3a5b",
-      "sourceStateHash": "d4662908b29698e518c2c100d50dfe728525893dffbd6f463147e362fa5abd84",
+      "sourceHash": "6db57f304fb051b7f09490cbb8e471a6f18fb30c7a8740465de1b772c784d3ef",
+      "sourceStateHash": "85348226c0640bb7582b3b14e7301465ef5f2fb05343b0929145d31008b9d7a5",
       "title": "Core Records API"
     },
     {
-      "contentHash": "593f98aa515036b78289d5ce0b9ddbfecb0421a6dd05325685d5303a57db9606",
+      "contentHash": "081fc954e9e823dbf0c830e748f8b8da5014fef42c954bb0123e9efac6475c6c",
       "id": "api:03-agents-chat-runtimes",
       "kind": "api",
       "path": "entries/api.03-agents-chat-runtimes.json",
       "publicUrl": "https://orionfold.com/relay/api/03-agents-chat-runtimes/",
-      "sourceHash": "caa7c242b971c4aa2496c7284f3e17299d2f2c68e0f44960fc1abdfa99de3479",
-      "sourceStateHash": "050a51faa7fb21831efae859a9ff1823439a1a5b6f314e4baabac6ecdcca18b5",
+      "sourceHash": "88db084f63d7555161281c032196dcb252a86531ffac8eaf0593fddecd85b1f1",
+      "sourceStateHash": "2e0b7691e3c3f8c70c6f6e0f6c4b1027e0d48b102ee8db34a0b00690b05d4599",
       "title": "Agents, Chat, And Runtimes API"
     },
     {
-      "contentHash": "f8957112a62c5fb6f35567c346043c7494f0d1b2c0d4c74b0917de130d3965e3",
+      "contentHash": "b3fb1d4eb549d8a4c46216dc441621b1078c03343d112de34aa84df1c4c46f16",
       "id": "api:04-workflows-automation",
       "kind": "api",
       "path": "entries/api.04-workflows-automation.json",
       "publicUrl": "https://orionfold.com/relay/api/04-workflows-automation/",
-      "sourceHash": "d2dedb5058a4e7dc3a29381eed37b06f7e6411fc2722e10f6530e4aadbc08e9f",
-      "sourceStateHash": "f1fc958cca3789e38130e00c202d6cc5486c1eb63bd844e07a973798ab391fab",
+      "sourceHash": "807fd39026ad4d92a7392efe02a3bae9f552c63d95e03a352bc0ac38af7193a2",
+      "sourceStateHash": "761d29c90e7936f4af19450367de7eebafa4fc8f66751183c8ff2e08ae625869",
       "title": "Workflows And Automation API"
     },
     {
-      "contentHash": "800198424780ef5a4a4522f3b21279824d366fee1e2bf64c79025b263c55d6dd",
+      "contentHash": "51c69fa00a7dc63f91aecb8356e719c4edc04274e8fe2a675355bcaa98b10db4",
       "id": "api:05-packs-apps-tables-publishing",
       "kind": "api",
       "path": "entries/api.05-packs-apps-tables-publishing.json",
       "publicUrl": "https://orionfold.com/relay/api/05-packs-apps-tables-publishing/",
-      "sourceHash": "c274404f65bb535b2f1f9451fbd228b4e10d1d8804c13929586056ed27bba98b",
-      "sourceStateHash": "7ad3a7eeee7e0c50e375d64f42c83c797aa74f5b5e8f365fed508c033440af5c",
+      "sourceHash": "34565a199d8868c18a04ce514159b0a84a83e49ef0d25cb87cac2e72df161498",
+      "sourceStateHash": "25c819ddc5d34fc6b940474f70a439d1ff5b84aa87d56e7375ac476abb31f247",
       "title": "Packs, Apps, Tables, And Publishing API"
     },
     {
-      "contentHash": "b9613f3b120da5cc370a85910edfa996760526efb05c53469d43ab27a2d5f1fb",
+      "contentHash": "269e2a94aaa69fa1ea6f9d664fdd5cd546ac37b693c3c7afb75170849f6c7123",
       "id": "api:06-settings-license-instance",
       "kind": "api",
       "path": "entries/api.06-settings-license-instance.json",
       "publicUrl": "https://orionfold.com/relay/api/06-settings-license-instance/",
-      "sourceHash": "2a29ee3f158ccab79a9008fe493e20ff4d07be69d5a83364cb0754791991d20b",
-      "sourceStateHash": "12c97faa37fbbd6d40e103dd33139f2b82218adb7218ff182f264b3fbbd4cc5b",
+      "sourceHash": "f25ff68dba85a150b450d8d8efe48458c3928d8b753fa214f5f7249b73bd59c0",
+      "sourceStateHash": "bce2d9102be474db3ef7a42257d945aab5fb120ff89c4db69939867ce38466b5",
       "title": "Settings, License, And Instance API"
     },
     {
-      "contentHash": "bbb25f8663394a626ca9a6bc81aef63c342f9e18e798e7f7d4305a7f55f8a7be",
+      "contentHash": "8f78189beaccaa49964697d45a2aed3ef123eaa61ae8824335442113602dd6f0",
       "id": "api:07-files-observability-maintenance",
       "kind": "api",
       "path": "entries/api.07-files-observability-maintenance.json",
       "publicUrl": "https://orionfold.com/relay/api/07-files-observability-maintenance/",
-      "sourceHash": "27b79bdcc46e86f1c358f7cbf06b41f7073caa7bd668a2203b7e07e4187946b4",
-      "sourceStateHash": "86e4da5a4e718d27449fdecf62e2e92d9642e5efeeb11f00e2dfee78d99297c2",
+      "sourceHash": "2c909c249128eba78e45f5b0c46a2c1d93eda0e3b89ccf808805aa85417f7170",
+      "sourceStateHash": "4f633f2148f92d423314a1e3e9b3d5a63dce8c6b263b5ee3968131b9cb0767b9",
       "title": "Files, Observability, And Maintenance API"
     },
     {
@@ -180,9 +180,9 @@
     }
   ],
   "entryCount": 17,
-  "indexHash": "b3081070078eacfc3b5fcc8a44a8fa45b9b782389a371fa7deb49c6e96ea4e5b",
-  "releaseVersion": "0.45.2",
+  "indexHash": "41f7b28407e676c3489e7f256ce171e83490d4ae147cad0c60aa79cee5f254a5",
+  "releaseVersion": "0.46.0",
   "schemaVersion": 2,
-  "sectionCount": 450,
-  "sourceBundleHash": "c10a9b6ef9bda72221a284517c575483fd22f424f34fdc84f78320126c048f36"
+  "sectionCount": 457,
+  "sourceBundleHash": "c7582ced9be9a09add4e48bfb6f81daa2c0f3f0e5fdbff8980b0a16142829871"
 }

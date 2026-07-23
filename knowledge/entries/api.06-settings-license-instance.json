@@ -18,6 +18,7 @@
     "/api/instance/upgrade/status",
     "/api/license",
     "/api/license/{id}",
+    "/api/onboarding/orientation",
     "/api/onboarding/progress",
     "/api/settings",
     "/api/settings/apps",
@@ -37,6 +38,7 @@
     "/api/settings/ollama",
     "/api/settings/openai",
     "/api/settings/openai-compatible/{runtimeId}",
+    "/api/settings/openai/adopt",
     "/api/settings/openai/login",
     "/api/settings/openai/logout",
     "/api/settings/pricing",
@@ -46,7 +48,7 @@
     "/api/settings/test",
     "/api/settings/web-search"
   ],
-  "contentHash": "b9613f3b120da5cc370a85910edfa996760526efb05c53469d43ab27a2d5f1fb",
+  "contentHash": "269e2a94aaa69fa1ea6f9d664fdd5cd546ac37b693c3c7afb75170849f6c7123",
   "features": [],
   "id": "api:06-settings-license-instance",
   "journeys": [],
@@ -95,8 +97,8 @@
       "heading": "Endpoints",
       "id": "endpoints",
       "level": 2,
-      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/auth/bootstrap` | `app-internal` | `src/app/api/auth/bootstrap/route.ts` |\n| `GET` | `/api/auth/events` | `app-internal` | `src/app/api/auth/events/route.ts` |\n| `POST` | `/api/auth/login` | `app-internal` | `src/app/api/auth/login/route.ts` |\n| `POST` | `/api/auth/logout` | `app-internal` | `src/app/api/auth/logout/route.ts` |\n| `POST` | `/api/auth/recovery` | `app-internal` | `src/app/api/auth/recovery/route.ts` |\n| `DELETE`, `GET` | `/api/auth/sessions` | `app-internal` | `src/app/api/auth/sessions/route.ts` |\n| `GET` | `/api/auth/status` | `app-internal` | `src/app/api/auth/status/route.ts` |\n| `POST` | `/api/environment/rescan-if-stale` | `app-internal` | `src/app/api/environment/rescan-if-stale/route.ts` |\n| `GET` | `/api/environment/skills` | `app-internal` | `src/app/api/environment/skills/route.ts` |\n| `GET`, `POST` | `/api/host-deployment` | `admin-local` | `src/app/api/host-deployment/route.ts` |\n| `GET` | `/api/instance/config` | `app-internal` | `src/app/api/instance/config/route.ts` |\n| `GET` | `/api/instance/identity` | `app-internal` | `src/app/api/instance/identity/route.ts` |\n| `POST` | `/api/instance/init` | `app-internal` | `src/app/api/instance/init/route.ts` |\n| `POST` | `/api/instance/upgrade` | `app-internal` | `src/app/api/instance/upgrade/route.ts` |\n| `POST` | `/api/instance/upgrade/check` | `app-internal` | `src/app/api/instance/upgrade/check/route.ts` |\n| `GET` | `/api/instance/upgrade/status` | `app-internal` | `src/app/api/instance/upgrade/status/route.ts` |\n| `GET`, `POST` | `/api/license` | `app-internal` | `src/app/api/license/route.ts` |\n| `DELETE` | `/api/license/{id}` | `app-internal` | `src/app/api/license/[id]/route.ts` |\n| `GET` | `/api/onboarding/progress` | `app-internal` | `src/app/api/onboarding/progress/route.ts` |\n| `GET`, `POST` | `/api/settings` | `app-internal` | `src/app/api/settings/route.ts` |\n| `GET`, `POST` | `/api/settings/apps` | `app-internal` | `src/app/api/settings/apps/route.ts` |\n| `GET` | `/api/settings/author-default` | `app-internal` | `src/app/api/settings/author-default/route.ts` |\n| `GET`, `POST` | `/api/settings/browser-tools` | `app-internal` | `src/app/api/settings/browser-tools/route.ts` |\n| `GET`, `POST` | `/api/settings/budgets` | `app-internal` | `src/app/api/settings/budgets/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat` | `app-internal` | `src/app/api/settings/chat/route.ts` |\n| `POST` | `/api/settings/chat/model-prompt-impression` | `app-internal` | `src/app/api/settings/chat/model-prompt-impression/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/pins` | `app-internal` | `src/app/api/settings/chat/pins/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/saved-searches` | `app-internal` | `src/app/api/settings/chat/saved-searches/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/dashboard` | `app-internal` | `src/app/api/settings/dashboard/route.ts` |\n| `GET`, `POST` | `/api/settings/environment` | `app-internal` | `src/app/api/settings/environment/route.ts` |\n| `GET` | `/api/settings/glance` | `app-internal` | `src/app/api/settings/glance/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/github` | `app-internal` | `src/app/api/settings/github/route.ts` |\n| `GET` | `/api/settings/github/repositories` | `app-internal` | `src/app/api/settings/github/repositories/route.ts` |\n| `GET`, `POST` | `/api/settings/learning` | `app-internal` | `src/app/api/settings/learning/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/ollama` | `app-internal` | `src/app/api/settings/ollama/route.ts` |\n| `GET`, `POST` | `/api/settings/openai` | `app-internal` | `src/app/api/settings/openai/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/openai/login` | `app-internal` | `src/app/api/settings/openai/login/route.ts` |\n| `POST` | `/api/settings/openai/logout` | `app-internal` | `src/app/api/settings/openai/logout/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/settings/openai-compatible/{runtimeId}` | `app-internal` | `src/app/api/settings/openai-compatible/[runtimeId]/route.ts` |\n| `GET`, `POST` | `/api/settings/pricing` | `app-internal` | `src/app/api/settings/pricing/route.ts` |\n| `GET` | `/api/settings/providers` | `app-internal` | `src/app/api/settings/providers/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/routing` | `app-internal` | `src/app/api/settings/routing/route.ts` |\n| `GET`, `POST` | `/api/settings/runtime` | `app-internal` | `src/app/api/settings/runtime/route.ts` |\n| `POST` | `/api/settings/test` | `app-internal` | `src/app/api/settings/test/route.ts` |\n| `GET`, `POST` | `/api/settings/web-search` | `app-internal` | `src/app/api/settings/web-search/route.ts` |",
-      "wordCount": 585
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/auth/bootstrap` | `app-internal` | `src/app/api/auth/bootstrap/route.ts` |\n| `GET` | `/api/auth/events` | `app-internal` | `src/app/api/auth/events/route.ts` |\n| `POST` | `/api/auth/login` | `app-internal` | `src/app/api/auth/login/route.ts` |\n| `POST` | `/api/auth/logout` | `app-internal` | `src/app/api/auth/logout/route.ts` |\n| `POST` | `/api/auth/recovery` | `app-internal` | `src/app/api/auth/recovery/route.ts` |\n| `DELETE`, `GET` | `/api/auth/sessions` | `app-internal` | `src/app/api/auth/sessions/route.ts` |\n| `GET` | `/api/auth/status` | `app-internal` | `src/app/api/auth/status/route.ts` |\n| `POST` | `/api/environment/rescan-if-stale` | `app-internal` | `src/app/api/environment/rescan-if-stale/route.ts` |\n| `GET` | `/api/environment/skills` | `app-internal` | `src/app/api/environment/skills/route.ts` |\n| `GET`, `POST` | `/api/host-deployment` | `admin-local` | `src/app/api/host-deployment/route.ts` |\n| `GET` | `/api/instance/config` | `app-internal` | `src/app/api/instance/config/route.ts` |\n| `GET` | `/api/instance/identity` | `app-internal` | `src/app/api/instance/identity/route.ts` |\n| `POST` | `/api/instance/init` | `app-internal` | `src/app/api/instance/init/route.ts` |\n| `POST` | `/api/instance/upgrade` | `app-internal` | `src/app/api/instance/upgrade/route.ts` |\n| `POST` | `/api/instance/upgrade/check` | `app-internal` | `src/app/api/instance/upgrade/check/route.ts` |\n| `GET` | `/api/instance/upgrade/status` | `app-internal` | `src/app/api/instance/upgrade/status/route.ts` |\n| `GET`, `POST` | `/api/license` | `app-internal` | `src/app/api/license/route.ts` |\n| `DELETE` | `/api/license/{id}` | `app-internal` | `src/app/api/license/[id]/route.ts` |\n| `GET` | `/api/onboarding/progress` | `app-internal` | `src/app/api/onboarding/progress/route.ts` |\n| `GET` | `/api/onboarding/orientation` | `app-internal` | `src/app/api/onboarding/orientation/route.ts` |\n| `GET`, `POST` | `/api/settings` | `app-internal` | `src/app/api/settings/route.ts` |\n| `GET`, `POST` | `/api/settings/apps` | `app-internal` | `src/app/api/settings/apps/route.ts` |\n| `GET` | `/api/settings/author-default` | `app-internal` | `src/app/api/settings/author-default/route.ts` |\n| `GET`, `POST` | `/api/settings/browser-tools` | `app-internal` | `src/app/api/settings/browser-tools/route.ts` |\n| `GET`, `POST` | `/api/settings/budgets` | `app-internal` | `src/app/api/settings/budgets/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat` | `app-internal` | `src/app/api/settings/chat/route.ts` |\n| `POST` | `/api/settings/chat/model-prompt-impression` | `app-internal` | `src/app/api/settings/chat/model-prompt-impression/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/pins` | `app-internal` | `src/app/api/settings/chat/pins/route.ts` |\n| `GET`, `PUT` | `/api/settings/chat/saved-searches` | `app-internal` | `src/app/api/settings/chat/saved-searches/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/dashboard` | `app-internal` | `src/app/api/settings/dashboard/route.ts` |\n| `GET`, `POST` | `/api/settings/environment` | `app-internal` | `src/app/api/settings/environment/route.ts` |\n| `GET` | `/api/settings/glance` | `app-internal` | `src/app/api/settings/glance/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/github` | `app-internal` | `src/app/api/settings/github/route.ts` |\n| `GET` | `/api/settings/github/repositories` | `app-internal` | `src/app/api/settings/github/repositories/route.ts` |\n| `GET`, `POST` | `/api/settings/learning` | `app-internal` | `src/app/api/settings/learning/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/ollama` | `app-internal` | `src/app/api/settings/ollama/route.ts` |\n| `GET`, `POST` | `/api/settings/openai` | `app-internal` | `src/app/api/settings/openai/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/settings/openai/login` | `app-internal` | `src/app/api/settings/openai/login/route.ts` |\n| `POST` | `/api/settings/openai/logout` | `app-internal` | `src/app/api/settings/openai/logout/route.ts` |\n| `POST` | `/api/settings/openai/adopt` | `app-internal` | `src/app/api/settings/openai/adopt/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/settings/openai-compatible/{runtimeId}` | `app-internal` | `src/app/api/settings/openai-compatible/[runtimeId]/route.ts` |\n| `GET`, `POST` | `/api/settings/pricing` | `app-internal` | `src/app/api/settings/pricing/route.ts` |\n| `GET` | `/api/settings/providers` | `app-internal` | `src/app/api/settings/providers/route.ts` |\n| `GET`, `POST`, `PUT` | `/api/settings/routing` | `app-internal` | `src/app/api/settings/routing/route.ts` |\n| `GET`, `POST` | `/api/settings/runtime` | `app-internal` | `src/app/api/settings/runtime/route.ts` |\n| `POST` | `/api/settings/test` | `app-internal` | `src/app/api/settings/test/route.ts` |\n| `GET`, `POST` | `/api/settings/web-search` | `app-internal` | `src/app/api/settings/web-search/route.ts` |",
+      "wordCount": 611
     },
     {
       "heading": "Endpoint Reference",
@@ -326,8 +328,8 @@
       "heading": "GET /api/settings/glance",
       "id": "get-api-settings-glance",
       "level": 3,
-      "markdown": "Returns a consolidated settings-at-a-glance summary. Every field is independently nullable; a failure in one source nulls only that field.\n\n- **Request**: none.\n- **Response** `200`: fields including `activeRuntimeLabel`, `activeModel`, `routingPreference`, `configuredRuntimeCount`, `sdkTimeoutSeconds`, `maxTurns`, a `licenseTag` (a display label or community marker, no secret), `budgetMonthlyCapUsd`, `activePreset`, `allowedPermissionCount`, `webSearchEnabled`, `channelCount`, and `autoPromoteSkills`. Any field may be null when its source is unavailable.\n- **Errors**: `500` on total failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only. No secret values are included.",
-      "wordCount": 74
+      "markdown": "Returns a consolidated settings-at-a-glance summary. Every field is independently nullable; a failure in one source nulls only that field.\n\n- **Request**: none.\n- **Response** `200`: fields including `activeRuntimeLabel`, `activeModel`,\n  `routingPreference`, `configuredRuntimeCount`, `readyRuntimeCount`,\n  `runtimeReadiness`, `sdkTimeoutSeconds`, `maxTurns`, a `licenseTag` (a\n  display label or community marker, no secret), `budgetMonthlyCapUsd`,\n  `activePreset`, `allowedPermissionCount`, `webSearchEnabled`, `channelCount`,\n  and `autoPromoteSkills`. Any field may be null when its source is unavailable.\n- **Errors**: `500` on total failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only. No secret values are included.",
+      "wordCount": 76
     },
     {
       "heading": "GET /api/settings/github",
@@ -375,8 +377,8 @@
       "heading": "GET /api/settings/ollama",
       "id": "get-api-settings-ollama",
       "level": 3,
-      "markdown": "Returns the redacted Ollama runtime configuration.\n\n- **Request**: none.\n- **Response** `200`: `{ \"runtimeId\": \"ollama\", \"label\": \"Ollama\", \"configured\": true, \"baseUrl\": \"http://localhost:11434\", \"defaultModel\": \"string\", \"allowInsecureRemote\": false, \"hasApiKey\": false, \"apiKeySource\": \"unknown\" }`. The raw key is never returned.\n- **Errors**: `400` when the effective stored or environment configuration is invalid.\n- **Side effects**: reads only.",
-      "wordCount": 49
+      "markdown": "Returns the redacted Ollama runtime configuration.\n\n- **Request**: none.\n- **Response** `200`: `{ \"runtimeId\": \"ollama\", \"label\": \"Ollama\",\n  \"configured\": true, \"baseUrl\": \"http://localhost:11434\", \"defaultModel\":\n  \"string\", \"allowInsecureRemote\": false, \"hasApiKey\": false,\n  \"apiKeySource\": \"unknown\", \"readiness\": { ... } }`. The raw key is never\n  returned; `readiness` is the last verified observation rather than an\n  inference from saved settings.\n- **Errors**: `400` when the effective stored or environment configuration is invalid.\n- **Side effects**: reads only.",
+      "wordCount": 63
     },
     {
       "heading": "POST /api/settings/ollama",
@@ -389,8 +391,8 @@
       "heading": "PUT /api/settings/ollama",
       "id": "put-api-settings-ollama",
       "level": 3,
-      "markdown": "Atomically validates and updates Ollama connection and model defaults.\n\n- **Request** body (JSON), all optional: `baseUrl` (non-empty URL), `apiKey` (non-empty), `clearApiKey` (boolean), `defaultModel` (blank clears), and `allowInsecureRemote` (boolean). `apiKey` and `clearApiKey` are mutually exclusive. A non-loopback `http://` URL requires `allowInsecureRemote: true`; HTTPS is otherwise required.\n- **Response** `200`: `{ \"ok\": true, ...redactedConfiguration }`, using the same redacted fields as `GET`.\n- **Errors**:\n  - `400` for malformed or invalid strict input, unsafe or invalid base URLs, or an invalid effective configuration.\n  - `500` when persistence fails: `{ \"error\": \"Failed to save Ollama settings: <message>\" }`.\n- **Side effects**: applies the settings patch atomically, invalidates model discovery, and invalidates cached runtime health.",
-      "wordCount": 100
+      "markdown": "Atomically validates and updates Ollama connection and model defaults.\n\n- **Request** body (JSON), all optional: `baseUrl` (non-empty URL), `apiKey` (non-empty), `clearApiKey` (boolean), `defaultModel` (blank clears), and `allowInsecureRemote` (boolean). `apiKey` and `clearApiKey` are mutually exclusive. A non-loopback `http://` URL requires `allowInsecureRemote: true`; HTTPS is otherwise required.\n- **Response** `200`: `{ \"ok\": true, ...redactedConfiguration }`, using the same redacted fields as `GET`.\n- **Errors**:\n  - `400` for malformed or invalid strict input, unsafe or invalid base URLs, or an invalid effective configuration.\n  - `500` when persistence fails: `{ \"error\": \"Failed to save Ollama settings: <message>\" }`.\n- **Side effects**: applies the settings patch atomically, clears prior\n  readiness evidence, invalidates model discovery, and invalidates cached\n  runtime health.",
+      "wordCount": 104
     },
     {
       "heading": "GET /api/settings/openai",
@@ -435,25 +437,32 @@
       "wordCount": 31
     },
     {
+      "heading": "POST /api/settings/openai/adopt",
+      "id": "post-api-settings-openai-adopt",
+      "level": 3,
+      "markdown": "Copies an explicitly adoptable existing Codex file-backed login into Relay's\nisolated Codex home without modifying or signing out the source session.\n\n- **Request**: none.\n- **Response** `200`: `{ \"connected\": true, \"account\": <redacted account or\n  null>, \"rateLimits\": <summary or null> }`.\n- **Errors**: a named adoption failure returns its mapped `4xx` status with\n  `{ \"connected\": false, \"error\": \"<safe recovery message>\" }`; an unexpected\n  failure returns `500`. Keyring-only credentials are not exportable and are\n  never copied.\n- **Side effects**: writes an owner-only credential file inside Relay's\n  isolated Codex store and clears cached runtime-routing health. It never\n  mutates the user's normal Codex home.",
+      "wordCount": 92
+    },
+    {
       "heading": "GET /api/settings/openai-compatible/{runtimeId}",
       "id": "get-api-settings-openai-compatible-runtimeid",
       "level": 3,
-      "markdown": "Returns the LiteLLM or LM Studio configuration summary, including `runtimeId`, `label`, `configured`, `baseUrl`, `defaultModel`, `allowInsecureRemote`, `hasApiKey`, and `apiKeySource`. It never returns the API key. Unknown runtime ids return `404`; invalid effective configuration returns `400`.",
-      "wordCount": 34
+      "markdown": "Returns the LiteLLM or LM Studio configuration summary, including `runtimeId`,\n`label`, `configured`, `baseUrl`, `defaultModel`, `allowInsecureRemote`,\n`hasApiKey`, `apiKeySource`, and the last verified `readiness` observation. It\nnever returns the API key. Unknown runtime ids return `404`; invalid effective\nconfiguration returns `400`.",
+      "wordCount": 39
     },
     {
       "heading": "PUT /api/settings/openai-compatible/{runtimeId}",
       "id": "put-api-settings-openai-compatible-runtimeid",
       "level": 3,
-      "markdown": "Updates `baseUrl`, `apiKey`, `clearApiKey`, `defaultModel`, or `allowInsecureRemote` for `litellm` or `lmstudio`. Relay validates the effective URL before writing any field, applies the patch atomically, and returns the redacted effective configuration. Invalid or unsafe configuration returns `400`. A successful write invalidates model discovery and cached runtime health.",
-      "wordCount": 46
+      "markdown": "Updates `baseUrl`, `apiKey`, `clearApiKey`, `defaultModel`, or\n`allowInsecureRemote` for `litellm` or `lmstudio`. Relay validates the effective\nURL before writing any field, applies the patch atomically, clears prior\nreadiness evidence, and returns the redacted effective configuration. Invalid\nor unsafe configuration returns `400`. A successful write invalidates model\ndiscovery and cached runtime health.",
+      "wordCount": 50
     },
     {
       "heading": "DELETE /api/settings/openai-compatible/{runtimeId}",
       "id": "delete-api-settings-openai-compatible-runtimeid",
       "level": 3,
-      "markdown": "Removes stored compatible-runtime settings and invalidates model discovery plus cached runtime health. All three methods return `404` for runtime ids other than `litellm` and `lmstudio`.",
-      "wordCount": 25
+      "markdown": "Removes stored compatible-runtime settings, clears prior readiness evidence,\nand invalidates model discovery plus cached runtime health. All three methods\nreturn `404` for runtime ids other than `litellm` and `lmstudio`.",
+      "wordCount": 29
     },
     {
       "heading": "GET /api/settings/pricing",
@@ -473,8 +482,8 @@
       "heading": "GET /api/settings/providers",
       "id": "get-api-settings-providers",
       "level": 3,
-      "markdown": "Returns a consolidated provider, runtime, routing-policy, and health overview. It never returns raw API keys or provider credentials.\n\n- **Request** optional query: `refreshRuntimeHealth=1` bypasses the 15-second runtime-health cache for this request.\n- **Response** `200`: a `providers` object (each with auth and per-runtime state plus provider-specific OAuth fields), a redacted `ollama` block, `compatibleRuntimes` for LiteLLM and LM Studio, `chatDefaultModel`, the legacy `routingPreference`, the complete versioned `routing` snapshot, `runtimeRoutingStatuses` for all registered runtimes, and `configuredProviderCount`. Each status names configuration, health, selected model, comparable cost when known, capability summary, capability limits, and a bounded reason.\n- **Errors**: none returned explicitly.\n- **Side effects**: may refresh live OpenAI OAuth state and probes every configured runtime through a bounded, all-settled health snapshot. Probe failures remain per-runtime states instead of failing the aggregate response.",
-      "wordCount": 125
+      "markdown": "Returns a consolidated provider, runtime, routing-policy, and\nverified-readiness overview. It never returns raw API keys or provider\ncredentials.\n\n- **Request** optional query: `refreshRuntimeHealth=1` bypasses the 15-second runtime-health cache for this request.\n- **Response** `200`: a `providers` object (each with auth, readiness,\n  `readyRuntimeCount`, and per-runtime state plus provider-specific OAuth\n  fields), a redacted `ollama` block, `compatibleRuntimes` for LiteLLM and LM\n  Studio, `chatDefaultModel`, the legacy `routingPreference`, the complete\n  versioned `routing` snapshot, `runtimeRoutingStatuses` for all registered\n  runtimes, `configuredProviderCount`, and `readyProviderCount`. OpenAI also\n  distinguishes a Relay-connected isolated session from\n  `existingSessionAvailable` and `existingSessionAdoptable`. Each runtime\n  status names configuration, readiness phase, health, selected model,\n  comparable cost when known, capabilities, limits, and a bounded reason.\n- **Errors**: none returned explicitly.\n- **Side effects**: may refresh live OpenAI OAuth state and probes every configured runtime through a bounded, all-settled health snapshot. Probe failures remain per-runtime states instead of failing the aggregate response.",
+      "wordCount": 140
     },
     {
       "heading": "GET /api/settings/routing",
@@ -515,8 +524,8 @@
       "heading": "POST /api/settings/test",
       "id": "post-api-settings-test",
       "level": 3,
-      "markdown": "Tests a runtime connection.\n\n- **Request** body (JSON), optional: `{ \"runtime\": \"string\" }`. Defaults to the default runtime.\n- **Response** `200`: the connection result spread with `runtime` and `capabilities`. On failure it still returns `200` with `{ \"connected\": false, \"error\": \"<message>\" }`.\n- **Errors**: none at the HTTP layer.\n- **Side effects**: runs the runtime's live health check, which may spawn a subprocess or call the provider.",
-      "wordCount": 59
+      "markdown": "Tests a runtime connection.\n\n- **Request** body (JSON), optional: `{ \"runtime\": \"string\" }`. Defaults to the default runtime.\n- **Response** `200`: the connection result spread with `runtime`,\n  `capabilities`, and the classified `readiness` observation. Provider\n  failures still return `200` with `{ \"connected\": false, \"error\": \"<safe\n  message>\", \"readiness\": { ... } }`.\n- **Errors**: `400` for malformed JSON or an unknown runtime id.\n- **Side effects**: runs the runtime's live health check, which may spawn a\n  subprocess or call the provider; records the resulting readiness evidence\n  and invalidates cached routing status.",
+      "wordCount": 78
     },
     {
       "heading": "GET /api/settings/web-search",
@@ -561,18 +570,25 @@
       "wordCount": 32
     },
     {
+      "heading": "GET /api/onboarding/orientation",
+      "id": "get-api-onboarding-orientation",
+      "level": 3,
+      "markdown": "Returns the entitlement-aware customer orientation shared by Home, Settings,\nand the app-bar identity.\n\n- **Request**: none.\n- **Response** `200`: a typed orientation containing the active edition and\n  licensee summary, Pack access and installed-Pack guidance, managed Host\n  availability, Cell/data-boundary wording, and the next customer-relevant\n  actions. It does not return a signed license envelope, credential, or Cell\n  content.\n- **Errors**: `500` with\n  `{ \"code\": \"CUSTOMER_ORIENTATION_READ_FAILED\", \"error\": \"<recovery message>\" }`\n  when Relay cannot assemble the current state.\n- **Side effects**: reads entitlement, installed-Pack, and content-free Host\n  summary state only. The route is not cached.",
+      "wordCount": 85
+    },
+    {
       "heading": "GET /api/instance/config",
       "id": "get-api-instance-config",
       "level": 3,
-      "markdown": "Returns the active Relay cell boundary plus the instance bootstrap, guardrail,\nand upgrade state in one payload. Timestamps here are numeric epoch values.\n\n- **Request**: none.\n- **Response** `200`: every successful shape includes `boundary`: `{ \"vocabularyVersion\": \"relay-host-cell-v1\", \"instanceId\": \"string | null\", \"dataDirectory\": \"string\", \"databasePath\": \"string\", \"launchWorkingDirectory\": \"string\", \"dataDirectorySource\": \"default | override\" }`. Dev mode returns `{ \"devMode\": true, \"boundary\": { ... }, \"config\": null, \"guardrails\": null, \"upgrade\": null }`. With no git directory, the same boundary facts accompany `skippedReason: \"no_git\"`. A validated managed `RELAY_CELL_ID` is authoritative and appears in the compatible `boundary.instanceId` field even in a no-git OCI Cell. Otherwise `config` carries `instanceId`, `branchName`, `isPrivateInstance`, and a numeric `createdAt`; `guardrails` carries the pre-push hook state and `consentStatus`; and `upgrade` carries the poll and upgrade-availability state. Direct dev and no-git npx modes without a managed identity report `boundary.instanceId: null` rather than surfacing stale or invented bootstrap identity.\n- **Errors**: `503` with `{ \"error\": \"<message>\", \"code\": \"CELL_ID_INVALID\" }` when a configured managed Cell id is invalid. Other failures return `500` with `{ \"error\": \"<message>\", \"code\": \"INSTANCE_CONFIG_FAILED\" }`.\n- **Side effects**: reads only. The boundary object contains local administrative paths but no credentials, customer content, raw logs, Host name, port, network, container id, or inferred isolation-strength claim.",
-      "wordCount": 185
+      "markdown": "Returns the active Relay cell boundary plus the instance bootstrap, guardrail,\nand upgrade state in one payload. Timestamps here are numeric epoch values.\n\n- **Request**: none.\n- **Response** `200`: every successful shape includes `boundary`: `{ \"vocabularyVersion\": \"relay-host-cell-v1\", \"instanceId\": \"string | null\", \"dataDirectory\": \"string\", \"databasePath\": \"string\", \"launchWorkingDirectory\": \"string\", \"dataDirectorySource\": \"default | override\" }`. Dev mode returns `{ \"devMode\": true, \"boundary\": { ... }, \"config\": null, \"guardrails\": null, \"upgrade\": null }`. With no git directory, the same boundary facts accompany `skippedReason: \"no_git\"`. When the CLI supplied a validated launch context, `maintenance` also includes that redacted context and an exact restart or upgrade command that preserves the current data directory, Host root, port, hostname, exposure profile, and route prefix. A validated managed `RELAY_CELL_ID` is authoritative and appears in the compatible `boundary.instanceId` field even in a no-git OCI Cell. Otherwise `config` carries `instanceId`, `branchName`, `isPrivateInstance`, and a numeric `createdAt`; `guardrails` carries the pre-push hook state and `consentStatus`; and `upgrade` carries the poll and upgrade-availability state. Direct dev and no-git npx modes without a managed identity report `boundary.instanceId: null` rather than surfacing stale or invented bootstrap identity.\n- **Errors**: `503` with `{ \"error\": \"<message>\", \"code\": \"CELL_ID_INVALID\" }` when a configured managed Cell id is invalid. Other failures return `500` with `{ \"error\": \"<message>\", \"code\": \"INSTANCE_CONFIG_FAILED\" }`.\n- **Side effects**: reads only. The boundary object contains local administrative paths but no credentials, customer content, raw logs, Host name, port, network, container id, or inferred isolation-strength claim.",
+      "wordCount": 221
     },
     {
       "heading": "GET /api/instance/identity",
       "id": "get-api-instance-identity",
       "level": 3,
-      "markdown": "Returns the instance identity: version, active model, and license tag. It never returns license key material.\n\n- **Request**: none.\n- **Response** `200`: `{ \"version\": \"string\", \"activeModel\": \"string\", \"licenseTag\": { \"kind\": \"licensed\", \"label\": \"string\" } }`. `version` is null when the build has no valid version. `activeModel` is null when no runtime resolves. `licenseTag` is either `{ \"kind\": \"licensed\", \"label\": \"string\" }` or `{ \"kind\": \"community\" }`.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only.",
-      "wordCount": 66
+      "markdown": "Returns the instance identity: version, active model, license tag, and the same\nentitlement-aware orientation used by onboarding. It never returns license key\nmaterial.\n\n- **Request**: none.\n- **Response** `200`: `{ \"version\": \"string\", \"activeModel\": \"string\",\n  \"licenseTag\": { ... }, \"orientation\": { ... } }`. `version` is null when the\n  build has no valid version. `activeModel` is null when no verified runtime\n  resolves. `licenseTag` is either `{ \"kind\": \"licensed\", \"label\": \"string\" }`\n  or `{ \"kind\": \"community\" }`; `orientation` carries the matching\n  entitlement and boundary guidance.\n- **Errors**: `500` on failure: `{ \"error\": \"<message>\" }`.\n- **Side effects**: reads only.",
+      "wordCount": 79
     },
     {
       "heading": "POST /api/instance/init",
@@ -624,9 +640,9 @@
       "wordCount": 129
     }
   ],
-  "sourceHash": "2a29ee3f158ccab79a9008fe493e20ff4d07be69d5a83364cb0754791991d20b",
+  "sourceHash": "f25ff68dba85a150b450d8d8efe48458c3928d8b753fa214f5f7249b73bd59c0",
   "sourcePath": "api/reference/06-settings-license-instance.md",
-  "sourceStateHash": "12c97faa37fbbd6d40e103dd33139f2b82218adb7218ff182f264b3fbbd4cc5b",
+  "sourceStateHash": "bce2d9102be474db3ef7a42257d945aab5fb120ff89c4db69939867ce38466b5",
   "stability": "admin-local",
   "summary": "Document local settings, license lifecycle, instance identity, upgrade, environment, and onboarding routes.",
   "title": "Settings, License, And Instance API"

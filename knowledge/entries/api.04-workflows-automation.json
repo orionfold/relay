@@ -3,6 +3,8 @@
     "/api/blueprints",
     "/api/blueprints/{id}",
     "/api/blueprints/{id}/instantiate",
+    "/api/blueprints/{id}/readiness",
+    "/api/blueprints/{id}/start",
     "/api/blueprints/import",
     "/api/notifications",
     "/api/notifications/{id}",
@@ -36,7 +38,7 @@
     "/api/workshop/preflight",
     "/api/workshop/start"
   ],
-  "contentHash": "f8957112a62c5fb6f35567c346043c7494f0d1b2c0d4c74b0917de130d3965e3",
+  "contentHash": "b3fb1d4eb549d8a4c46216dc441621b1078c03343d112de34aa84df1c4c46f16",
   "features": [],
   "id": "api:04-workflows-automation",
   "journeys": [],
@@ -85,8 +87,8 @@
       "heading": "Endpoints",
       "id": "endpoints",
       "level": 2,
-      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `GET`, `POST` | `/api/blueprints` | `app-internal` | `src/app/api/blueprints/route.ts` |\n| `DELETE`, `GET` | `/api/blueprints/{id}` | `app-internal` | `src/app/api/blueprints/[id]/route.ts` |\n| `POST` | `/api/blueprints/{id}/instantiate` | `app-internal` | `src/app/api/blueprints/[id]/instantiate/route.ts` |\n| `POST` | `/api/blueprints/import` | `app-internal` | `src/app/api/blueprints/import/route.ts` |\n| `GET`, `POST` | `/api/workflows` | `app-internal` | `src/app/api/workflows/route.ts` |\n| `DELETE`, `PATCH` | `/api/workflows/{id}` | `app-internal` | `src/app/api/workflows/[id]/route.ts` |\n| `GET` | `/api/workflows/{id}/debug` | `app-internal` | `src/app/api/workflows/[id]/debug/route.ts` |\n| `DELETE`, `GET`, `POST`, `PUT` | `/api/workflows/{id}/documents` | `app-internal` | `src/app/api/workflows/[id]/documents/route.ts` |\n| `POST` | `/api/workflows/{id}/execute` | `app-internal` | `src/app/api/workflows/[id]/execute/route.ts` |\n| `POST` | `/api/workflows/{id}/resume` | `app-internal` | `src/app/api/workflows/[id]/resume/route.ts` |\n| `GET` | `/api/workflows/{id}/status` | `app-internal` | `src/app/api/workflows/[id]/status/route.ts` |\n| `GET` | `/api/workflows/{id}/target` | `app-internal` | `src/app/api/workflows/[id]/target/route.ts` |\n| `POST` | `/api/workflows/{id}/steps/{stepId}/retry` | `app-internal` | `src/app/api/workflows/[id]/steps/[stepId]/retry/route.ts` |\n| `POST` | `/api/workflows/{id}/stop` | `app-internal` | `src/app/api/workflows/[id]/stop/route.ts` |\n| `POST` | `/api/workflows/from-assist` | `app-internal` | `src/app/api/workflows/from-assist/route.ts` |\n| `POST` | `/api/workflows/optimize` | `app-internal` | `src/app/api/workflows/optimize/route.ts` |\n| `GET` | `/api/notifications` | `app-internal` | `src/app/api/notifications/route.ts` |\n| `DELETE`, `PATCH` | `/api/notifications/{id}` | `app-internal` | `src/app/api/notifications/[id]/route.ts` |\n| `PATCH` | `/api/notifications/mark-all-read` | `app-internal` | `src/app/api/notifications/mark-all-read/route.ts` |\n| `GET` | `/api/notifications/pending-approvals` | `app-internal` | `src/app/api/notifications/pending-approvals/route.ts` |\n| `GET` | `/api/notifications/pending-approvals/stream` | `app-internal` | `src/app/api/notifications/pending-approvals/stream/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/permissions` | `app-internal` | `src/app/api/permissions/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/permissions/presets` | `app-internal` | `src/app/api/permissions/presets/route.ts` |\n| `GET`, `POST` | `/api/schedules` | `app-internal` | `src/app/api/schedules/route.ts` |\n| `DELETE`, `GET`, `PATCH` | `/api/schedules/{id}` | `app-internal` | `src/app/api/schedules/[id]/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/schedules/{id}/budget` | `app-internal` | `src/app/api/schedules/[id]/budget/route.ts` |\n| `POST` | `/api/schedules/{id}/execute` | `app-internal` | `src/app/api/schedules/[id]/execute/route.ts` |\n| `GET` | `/api/schedules/{id}/heartbeat-history` | `app-internal` | `src/app/api/schedules/[id]/heartbeat-history/route.ts` |\n| `POST` | `/api/schedules/parse` | `app-internal` | `src/app/api/schedules/parse/route.ts` |\n| `GET`, `POST` | `/api/workshop/{id}` | `app-internal` | `src/app/api/workshop/[id]/route.ts` |\n| `GET` | `/api/workshop/{id}/export` | `app-internal` | `src/app/api/workshop/[id]/export/route.ts` |\n| `POST` | `/api/workshop/{id}/fallback` | `app-internal` | `src/app/api/workshop/[id]/fallback/route.ts` |\n| `GET` | `/api/workshop/handoff` | `app-internal` | `src/app/api/workshop/handoff/route.ts` |\n| `GET` | `/api/workshop/preflight` | `app-internal` | `src/app/api/workshop/preflight/route.ts` |\n| `POST` | `/api/workshop/start` | `app-internal` | `src/app/api/workshop/start/route.ts` |",
-      "wordCount": 467
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `GET`, `POST` | `/api/blueprints` | `app-internal` | `src/app/api/blueprints/route.ts` |\n| `DELETE`, `GET` | `/api/blueprints/{id}` | `app-internal` | `src/app/api/blueprints/[id]/route.ts` |\n| `GET` | `/api/blueprints/{id}/readiness` | `app-internal` | `src/app/api/blueprints/[id]/readiness/route.ts` |\n| `POST` | `/api/blueprints/{id}/start` | `app-internal` | `src/app/api/blueprints/[id]/start/route.ts` |\n| `POST` | `/api/blueprints/{id}/instantiate` | `app-internal` | `src/app/api/blueprints/[id]/instantiate/route.ts` |\n| `POST` | `/api/blueprints/import` | `app-internal` | `src/app/api/blueprints/import/route.ts` |\n| `GET`, `POST` | `/api/workflows` | `app-internal` | `src/app/api/workflows/route.ts` |\n| `DELETE`, `PATCH` | `/api/workflows/{id}` | `app-internal` | `src/app/api/workflows/[id]/route.ts` |\n| `GET` | `/api/workflows/{id}/debug` | `app-internal` | `src/app/api/workflows/[id]/debug/route.ts` |\n| `DELETE`, `GET`, `POST`, `PUT` | `/api/workflows/{id}/documents` | `app-internal` | `src/app/api/workflows/[id]/documents/route.ts` |\n| `POST` | `/api/workflows/{id}/execute` | `app-internal` | `src/app/api/workflows/[id]/execute/route.ts` |\n| `POST` | `/api/workflows/{id}/resume` | `app-internal` | `src/app/api/workflows/[id]/resume/route.ts` |\n| `GET` | `/api/workflows/{id}/status` | `app-internal` | `src/app/api/workflows/[id]/status/route.ts` |\n| `GET` | `/api/workflows/{id}/target` | `app-internal` | `src/app/api/workflows/[id]/target/route.ts` |\n| `POST` | `/api/workflows/{id}/steps/{stepId}/retry` | `app-internal` | `src/app/api/workflows/[id]/steps/[stepId]/retry/route.ts` |\n| `POST` | `/api/workflows/{id}/stop` | `app-internal` | `src/app/api/workflows/[id]/stop/route.ts` |\n| `POST` | `/api/workflows/from-assist` | `app-internal` | `src/app/api/workflows/from-assist/route.ts` |\n| `POST` | `/api/workflows/optimize` | `app-internal` | `src/app/api/workflows/optimize/route.ts` |\n| `GET` | `/api/notifications` | `app-internal` | `src/app/api/notifications/route.ts` |\n| `DELETE`, `PATCH` | `/api/notifications/{id}` | `app-internal` | `src/app/api/notifications/[id]/route.ts` |\n| `PATCH` | `/api/notifications/mark-all-read` | `app-internal` | `src/app/api/notifications/mark-all-read/route.ts` |\n| `GET` | `/api/notifications/pending-approvals` | `app-internal` | `src/app/api/notifications/pending-approvals/route.ts` |\n| `GET` | `/api/notifications/pending-approvals/stream` | `app-internal` | `src/app/api/notifications/pending-approvals/stream/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/permissions` | `app-internal` | `src/app/api/permissions/route.ts` |\n| `DELETE`, `GET`, `POST` | `/api/permissions/presets` | `app-internal` | `src/app/api/permissions/presets/route.ts` |\n| `GET`, `POST` | `/api/schedules` | `app-internal` | `src/app/api/schedules/route.ts` |\n| `DELETE`, `GET`, `PATCH` | `/api/schedules/{id}` | `app-internal` | `src/app/api/schedules/[id]/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/schedules/{id}/budget` | `app-internal` | `src/app/api/schedules/[id]/budget/route.ts` |\n| `POST` | `/api/schedules/{id}/execute` | `app-internal` | `src/app/api/schedules/[id]/execute/route.ts` |\n| `GET` | `/api/schedules/{id}/heartbeat-history` | `app-internal` | `src/app/api/schedules/[id]/heartbeat-history/route.ts` |\n| `POST` | `/api/schedules/parse` | `app-internal` | `src/app/api/schedules/parse/route.ts` |\n| `GET`, `POST` | `/api/workshop/{id}` | `app-internal` | `src/app/api/workshop/[id]/route.ts` |\n| `GET` | `/api/workshop/{id}/export` | `app-internal` | `src/app/api/workshop/[id]/export/route.ts` |\n| `POST` | `/api/workshop/{id}/fallback` | `app-internal` | `src/app/api/workshop/[id]/fallback/route.ts` |\n| `GET` | `/api/workshop/handoff` | `app-internal` | `src/app/api/workshop/handoff/route.ts` |\n| `GET` | `/api/workshop/preflight` | `app-internal` | `src/app/api/workshop/preflight/route.ts` |\n| `POST` | `/api/workshop/start` | `app-internal` | `src/app/api/workshop/start/route.ts` |",
+      "wordCount": 495
     },
     {
       "heading": "Endpoint Reference",
@@ -122,6 +124,20 @@
       "level": 3,
       "markdown": "Deletes a user blueprint file by id. Built-in blueprints cannot be deleted.\n\n- **Request**: none.\n- **Response** `200`: `{ \"ok\": true }`.\n- **Errors**:\n  - `403` when the blueprint is built-in: `{ \"error\": \"Cannot delete built-in blueprints\" }`.\n  - `400` when the user blueprint is not found: `{ \"error\": \"Blueprint \\\"<id>\\\" not found\" }`, or `{ \"error\": \"Failed to delete blueprint\" }`.\n- **Side effects**: removes the blueprint file and refreshes the cache.",
       "wordCount": 59
+    },
+    {
+      "heading": "GET /api/blueprints/{id}/readiness",
+      "id": "get-api-blueprints-id-readiness",
+      "level": 3,
+      "markdown": "Preflights whether a blueprint can start on a currently verified runtime\nwithout creating a workflow or task.\n\n- **Request**: none.\n- **Response** `200`: a readiness object with `ready`, a stable `code`, a\n  customer-facing `message`, and the resolved execution-target evidence when\n  available. Capability limits such as missing filesystem tools are reported\n  before a run is created.\n- **Errors**: `404` when the blueprint does not exist; the response remains the\n  same structured readiness object with `ready: false` and\n  `code: \"blueprint_not_found\"`.\n- **Side effects**: may refresh bounded runtime-health evidence. It creates no\n  workflow, task, or receipt.",
+      "wordCount": 88
+    },
+    {
+      "heading": "POST /api/blueprints/{id}/start",
+      "id": "post-api-blueprints-id-start",
+      "level": 3,
+      "markdown": "Atomically preflights, instantiates, claims, and starts one blueprint workflow.\nRepeated submissions with the same request identity converge on the same run.\n\n- **Request** strict JSON body:\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `variables` | object | yes | Blueprint variable values. |\n| `projectId` | `string` | no | Optional project link. |\n| `idempotencyKey` | UUID string | yes | Stable identity for this start attempt. |\n\n- **Response**: `202` with `{ \"status\": \"started\", \"workflowId\": \"string\" }`\n  for the winning atomic claim; `200` with\n  `{ \"status\": \"already_started\", \"workflowId\": \"string\" }` for an exact\n  duplicate.\n- **Errors**:\n  - `400` with `code: \"invalid_start_request\"` for malformed or non-strict\n    input.\n  - `409` with a stable capability, runtime-readiness, or start-conflict code\n    when the preflight cannot safely start.\n  - `400` with `code: \"blueprint_start_failed\"` for other blueprint input or\n    instantiation failures.\n- **Side effects**: the winning request creates one workflow and starts its\n  asynchronous execution. A failed preflight and an exact duplicate create no\n  second draft or task.",
+      "wordCount": 132
     },
     {
       "heading": "POST /api/blueprints/{id}/instantiate",
@@ -481,9 +497,9 @@
       "wordCount": 247
     }
   ],
-  "sourceHash": "d2dedb5058a4e7dc3a29381eed37b06f7e6411fc2722e10f6530e4aadbc08e9f",
+  "sourceHash": "807fd39026ad4d92a7392efe02a3bae9f552c63d95e03a352bc0ac38af7193a2",
   "sourcePath": "api/reference/04-workflows-automation.md",
-  "sourceStateHash": "f1fc958cca3789e38130e00c202d6cc5486c1eb63bd844e07a973798ab391fab",
+  "sourceStateHash": "761d29c90e7936f4af19450367de7eebafa4fc8f66751183c8ff2e08ae625869",
   "stability": "app-internal",
   "summary": "Document workflow execution, blueprints, schedules, human approvals, and permission controls.",
   "title": "Workflows And Automation API"

@@ -15,6 +15,7 @@
     "/api/apps/{id}/publish-targets",
     "/api/apps/{id}/publish-targets/{targetId}",
     "/api/apps/{id}/publish-targets/{targetId}/test",
+    "/api/apps/{id}/sample-data",
     "/api/apps/{id}/site-settings",
     "/api/packs/install",
     "/api/packs/update",
@@ -38,7 +39,7 @@
     "/api/views",
     "/api/views/{id}"
   ],
-  "contentHash": "800198424780ef5a4a4522f3b21279824d366fee1e2bf64c79025b263c55d6dd",
+  "contentHash": "51c69fa00a7dc63f91aecb8356e719c4edc04274e8fe2a675355bcaa98b10db4",
   "features": [],
   "id": "api:05-packs-apps-tables-publishing",
   "journeys": [],
@@ -87,8 +88,8 @@
       "heading": "Endpoints",
       "id": "endpoints",
       "level": 2,
-      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/packs/install` | `app-internal` | `src/app/api/packs/install/route.ts` |\n| `POST` | `/api/packs/update` | `app-internal` | `src/app/api/packs/update/route.ts` |\n| `GET` | `/api/apps` | `app-internal` | `src/app/api/apps/route.ts` |\n| `DELETE`, `GET` | `/api/apps/{id}` | `app-internal` | `src/app/api/apps/[id]/route.ts` |\n| `GET` | `/api/apps/{id}/deployments` | `app-internal` | `src/app/api/apps/[id]/deployments/route.ts` |\n| `GET` | `/api/apps/{id}/deployments/{deploymentId}` | `app-internal` | `src/app/api/apps/[id]/deployments/[deploymentId]/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/apps/{id}/budgets` | `app-internal` | `src/app/api/apps/[id]/budgets/route.ts` |\n| `POST` | `/api/apps/{id}/pack/community-submission` | `app-internal` | `src/app/api/apps/[id]/pack/community-submission/route.ts` |\n| `POST` | `/api/apps/{id}/pack/export` | `app-internal` | `src/app/api/apps/[id]/pack/export/route.ts` |\n| `POST` | `/api/apps/{id}/pack/inspect` | `app-internal` | `src/app/api/apps/[id]/pack/inspect/route.ts` |\n| `POST` | `/api/apps/{id}/pack/publish` | `app-internal` | `src/app/api/apps/[id]/pack/publish/route.ts` |\n| `GET`, `POST` | `/api/apps/{id}/preview` | `app-internal` | `src/app/api/apps/[id]/preview/route.ts` |\n| `GET` | `/api/apps/{id}/previews/{artifactId}/{path*}` | `app-internal` | `src/app/api/apps/[id]/previews/[artifactId]/[[...path]]/route.ts` |\n| `POST` | `/api/apps/{id}/publish` | `app-internal` | `src/app/api/apps/[id]/publish/route.ts` |\n| `GET`, `POST` | `/api/apps/{id}/publish-targets` | `app-internal` | `src/app/api/apps/[id]/publish-targets/route.ts` |\n| `DELETE` | `/api/apps/{id}/publish-targets/{targetId}` | `app-internal` | `src/app/api/apps/[id]/publish-targets/[targetId]/route.ts` |\n| `POST` | `/api/apps/{id}/publish-targets/{targetId}/test` | `app-internal` | `src/app/api/apps/[id]/publish-targets/[targetId]/test/route.ts` |\n| `GET`, `PUT` | `/api/apps/{id}/site-settings` | `app-internal` | `src/app/api/apps/[id]/site-settings/route.ts` |\n| `GET`, `POST` | `/api/tables` | `app-internal` | `src/app/api/tables/route.ts` |\n| `DELETE`, `GET`, `PATCH` | `/api/tables/{id}` | `app-internal` | `src/app/api/tables/[id]/route.ts` |\n| `GET`, `POST` | `/api/tables/{id}/charts` | `app-internal` | `src/app/api/tables/[id]/charts/route.ts` |\n| `DELETE`, `PATCH` | `/api/tables/{id}/charts/{chartId}` | `app-internal` | `src/app/api/tables/[id]/charts/[chartId]/route.ts` |\n| `PATCH`, `POST` | `/api/tables/{id}/columns` | `app-internal` | `src/app/api/tables/[id]/columns/route.ts` |\n| `POST` | `/api/tables/{id}/enrich` | `app-internal` | `src/app/api/tables/[id]/enrich/route.ts` |\n| `POST` | `/api/tables/{id}/enrich/plan` | `app-internal` | `src/app/api/tables/[id]/enrich/plan/route.ts` |\n| `GET` | `/api/tables/{id}/enrich/runs` | `app-internal` | `src/app/api/tables/[id]/enrich/runs/route.ts` |\n| `GET` | `/api/tables/{id}/export` | `app-internal` | `src/app/api/tables/[id]/export/route.ts` |\n| `GET` | `/api/tables/{id}/history` | `app-internal` | `src/app/api/tables/[id]/history/route.ts` |\n| `POST` | `/api/tables/{id}/import` | `app-internal` | `src/app/api/tables/[id]/import/route.ts` |\n| `GET`, `POST` | `/api/tables/{id}/rows` | `app-internal` | `src/app/api/tables/[id]/rows/route.ts` |\n| `DELETE`, `PATCH` | `/api/tables/{id}/rows/{rowId}` | `app-internal` | `src/app/api/tables/[id]/rows/[rowId]/route.ts` |\n| `GET`, `POST` | `/api/tables/{id}/rows/{rowId}/history` | `app-internal` | `src/app/api/tables/[id]/rows/[rowId]/history/route.ts` |\n| `GET`, `PATCH`, `POST` | `/api/tables/{id}/triggers` | `app-internal` | `src/app/api/tables/[id]/triggers/route.ts` |\n| `DELETE`, `PATCH` | `/api/tables/{id}/triggers/{triggerId}` | `app-internal` | `src/app/api/tables/[id]/triggers/[triggerId]/route.ts` |\n| `GET`, `POST` | `/api/tables/templates` | `app-internal` | `src/app/api/tables/templates/route.ts` |\n| `GET`, `POST` | `/api/views` | `app-internal` | `src/app/api/views/route.ts` |\n| `DELETE`, `PATCH` | `/api/views/{id}` | `app-internal` | `src/app/api/views/[id]/route.ts` |",
-      "wordCount": 554
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/packs/install` | `app-internal` | `src/app/api/packs/install/route.ts` |\n| `POST` | `/api/packs/update` | `app-internal` | `src/app/api/packs/update/route.ts` |\n| `GET` | `/api/apps` | `app-internal` | `src/app/api/apps/route.ts` |\n| `DELETE`, `GET` | `/api/apps/{id}` | `app-internal` | `src/app/api/apps/[id]/route.ts` |\n| `DELETE`, `GET` | `/api/apps/{id}/sample-data` | `app-internal` | `src/app/api/apps/[id]/sample-data/route.ts` |\n| `GET` | `/api/apps/{id}/deployments` | `app-internal` | `src/app/api/apps/[id]/deployments/route.ts` |\n| `GET` | `/api/apps/{id}/deployments/{deploymentId}` | `app-internal` | `src/app/api/apps/[id]/deployments/[deploymentId]/route.ts` |\n| `DELETE`, `GET`, `PUT` | `/api/apps/{id}/budgets` | `app-internal` | `src/app/api/apps/[id]/budgets/route.ts` |\n| `POST` | `/api/apps/{id}/pack/community-submission` | `app-internal` | `src/app/api/apps/[id]/pack/community-submission/route.ts` |\n| `POST` | `/api/apps/{id}/pack/export` | `app-internal` | `src/app/api/apps/[id]/pack/export/route.ts` |\n| `POST` | `/api/apps/{id}/pack/inspect` | `app-internal` | `src/app/api/apps/[id]/pack/inspect/route.ts` |\n| `POST` | `/api/apps/{id}/pack/publish` | `app-internal` | `src/app/api/apps/[id]/pack/publish/route.ts` |\n| `GET`, `POST` | `/api/apps/{id}/preview` | `app-internal` | `src/app/api/apps/[id]/preview/route.ts` |\n| `GET` | `/api/apps/{id}/previews/{artifactId}/{path*}` | `app-internal` | `src/app/api/apps/[id]/previews/[artifactId]/[[...path]]/route.ts` |\n| `POST` | `/api/apps/{id}/publish` | `app-internal` | `src/app/api/apps/[id]/publish/route.ts` |\n| `GET`, `POST` | `/api/apps/{id}/publish-targets` | `app-internal` | `src/app/api/apps/[id]/publish-targets/route.ts` |\n| `DELETE` | `/api/apps/{id}/publish-targets/{targetId}` | `app-internal` | `src/app/api/apps/[id]/publish-targets/[targetId]/route.ts` |\n| `POST` | `/api/apps/{id}/publish-targets/{targetId}/test` | `app-internal` | `src/app/api/apps/[id]/publish-targets/[targetId]/test/route.ts` |\n| `GET`, `PUT` | `/api/apps/{id}/site-settings` | `app-internal` | `src/app/api/apps/[id]/site-settings/route.ts` |\n| `GET`, `POST` | `/api/tables` | `app-internal` | `src/app/api/tables/route.ts` |\n| `DELETE`, `GET`, `PATCH` | `/api/tables/{id}` | `app-internal` | `src/app/api/tables/[id]/route.ts` |\n| `GET`, `POST` | `/api/tables/{id}/charts` | `app-internal` | `src/app/api/tables/[id]/charts/route.ts` |\n| `DELETE`, `PATCH` | `/api/tables/{id}/charts/{chartId}` | `app-internal` | `src/app/api/tables/[id]/charts/[chartId]/route.ts` |\n| `PATCH`, `POST` | `/api/tables/{id}/columns` | `app-internal` | `src/app/api/tables/[id]/columns/route.ts` |\n| `POST` | `/api/tables/{id}/enrich` | `app-internal` | `src/app/api/tables/[id]/enrich/route.ts` |\n| `POST` | `/api/tables/{id}/enrich/plan` | `app-internal` | `src/app/api/tables/[id]/enrich/plan/route.ts` |\n| `GET` | `/api/tables/{id}/enrich/runs` | `app-internal` | `src/app/api/tables/[id]/enrich/runs/route.ts` |\n| `GET` | `/api/tables/{id}/export` | `app-internal` | `src/app/api/tables/[id]/export/route.ts` |\n| `GET` | `/api/tables/{id}/history` | `app-internal` | `src/app/api/tables/[id]/history/route.ts` |\n| `POST` | `/api/tables/{id}/import` | `app-internal` | `src/app/api/tables/[id]/import/route.ts` |\n| `GET`, `POST` | `/api/tables/{id}/rows` | `app-internal` | `src/app/api/tables/[id]/rows/route.ts` |\n| `DELETE`, `PATCH` | `/api/tables/{id}/rows/{rowId}` | `app-internal` | `src/app/api/tables/[id]/rows/[rowId]/route.ts` |\n| `GET`, `POST` | `/api/tables/{id}/rows/{rowId}/history` | `app-internal` | `src/app/api/tables/[id]/rows/[rowId]/history/route.ts` |\n| `GET`, `PATCH`, `POST` | `/api/tables/{id}/triggers` | `app-internal` | `src/app/api/tables/[id]/triggers/route.ts` |\n| `DELETE`, `PATCH` | `/api/tables/{id}/triggers/{triggerId}` | `app-internal` | `src/app/api/tables/[id]/triggers/[triggerId]/route.ts` |\n| `GET`, `POST` | `/api/tables/templates` | `app-internal` | `src/app/api/tables/templates/route.ts` |\n| `GET`, `POST` | `/api/views` | `app-internal` | `src/app/api/views/route.ts` |\n| `DELETE`, `PATCH` | `/api/views/{id}` | `app-internal` | `src/app/api/views/[id]/route.ts` |",
+      "wordCount": 569
     },
     {
       "heading": "Endpoint Reference",
@@ -96,6 +97,20 @@
       "level": 2,
       "markdown": "",
       "wordCount": 0
+    },
+    {
+      "heading": "GET /api/apps/{id}/sample-data",
+      "id": "get-api-apps-id-sample-data",
+      "level": 3,
+      "markdown": "Returns the installed app's synthetic-data removal summary.\n\n- **Request**: none.\n- **Response** `200`: counts and availability facts describing untouched\n  sample rows, edited samples, and unreferenced sample customers eligible for\n  removal. The summary contains no customer-created row content.\n- **Errors**: domain read failures propagate as a server error.\n- **Side effects**: reads only.",
+      "wordCount": 48
+    },
+    {
+      "heading": "DELETE /api/apps/{id}/sample-data",
+      "id": "delete-api-apps-id-sample-data",
+      "level": 3,
+      "markdown": "Removes only untouched Pack samples, then expires the app-runtime cache so the\nsame rendered dashboard immediately reflects customer-owned data.\n\n- **Request**: none.\n- **Response** `200`: the exact removal result, including removed row and\n  customer counts. Edited samples, customer-created rows, and referenced\n  customers remain.\n- **Errors**:\n  - `500` when removal fails; the message states that edited and\n    customer-created records were not removed.\n  - `500` when removal succeeds but dashboard cache refresh fails; the message\n    tells the caller to reload to see current data.\n- **Side effects**: deletes eligible untouched sample rows and unreferenced\n  sample customers, then invalidates the installed app's runtime cache. The\n  operation is repeatable.",
+      "wordCount": 99
     },
     {
       "heading": "POST /api/packs/install",
@@ -113,21 +128,21 @@
     },
     {
       "heading": "GET /api/apps",
-      "id": "get-api-apps",
+      "id": "get-api-apps-2",
       "level": 3,
       "markdown": "Lists all installed apps from the file-based app registry.\n\n- **Request**: none.\n- **Response** `200`: a JSON array of app summaries, newest first. Each:\n  ```json\n  {\n    \"id\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"rootDir\": \"string\",\n    \"primitivesSummary\": \"string\",\n    \"profileCount\": 0,\n    \"blueprintCount\": 0,\n    \"tableCount\": 0,\n    \"scheduleCount\": 0,\n    \"scheduleHuman\": \"string\",\n    \"createdAt\": 0,\n    \"files\": [\"string\"],\n    \"entitlement\": \"string\"\n  }\n  ```\n  `createdAt` here is a filesystem modification time in milliseconds, not an ISO string. `description`, `scheduleHuman`, and `entitlement` may be null.\n- **Errors**: `500` on failure: `{ \"error\": \"Failed to list apps\" }`.\n- **Side effects**: reads only.",
       "wordCount": 82
     },
     {
       "heading": "GET /api/apps/{id}",
-      "id": "get-api-apps-id",
+      "id": "get-api-apps-id-2",
       "level": 3,
       "markdown": "Returns one app's full detail: the summary plus its parsed manifest.\n\n- **Request**: none.\n- **Response** `200`: the app summary fields plus `manifest`, the full parsed `manifest.yaml` object (`id`, `version`, `name`, `profiles`, `blueprints`, `tables`, `schedules`, `view`, and more).\n- **Errors**: `404` when not found: `{ \"error\": \"Pack not found\" }`.\n- **Side effects**: reads only.",
       "wordCount": 50
     },
     {
       "heading": "DELETE /api/apps/{id}",
-      "id": "delete-api-apps-id",
+      "id": "delete-api-apps-id-2",
       "level": 3,
       "markdown": "Removes an installed Pack while retaining the durable business data and reusable primitives it introduced. This is Pack removal, not Relay Cell removal or purge.\n\n- **Request**: none.\n- **Response** `200`: `{ \"success\": true, \"manifestRemoved\": true, \"schedulesRemoved\": 2, \"retained\": { \"tables\": 2, \"profiles\": 2, \"blueprints\": 2, \"customersAndAttribution\": true } }`.\n- **Errors**:\n  - `400` when the id is empty: `{ \"error\": \"Pack id is required\" }`.\n  - `404` when the Pack is not installed: `{ \"error\": \"Pack not found\" }`.\n  - `500` on failure: `{ \"error\": \"Failed to remove pack\" }`.\n- **Side effects**: deletes the installed-Pack directory and Pack-owned schedule rows, then invalidates the Apps cache. It retains the project, tables and rows, reusable agents/profiles and blueprints, customers, and customer cost attribution; operators delete retained data separately from its owning surface.",
       "wordCount": 116
@@ -511,9 +526,9 @@
       "wordCount": 136
     }
   ],
-  "sourceHash": "c274404f65bb535b2f1f9451fbd228b4e10d1d8804c13929586056ed27bba98b",
+  "sourceHash": "34565a199d8868c18a04ce514159b0a84a83e49ef0d25cb87cac2e72df161498",
   "sourcePath": "api/reference/05-packs-apps-tables-publishing.md",
-  "sourceStateHash": "7ad3a7eeee7e0c50e375d64f42c83c797aa74f5b5e8f365fed508c033440af5c",
+  "sourceStateHash": "25c819ddc5d34fc6b940474f70a439d1ff5b84aa87d56e7375ac476abb31f247",
   "stability": "app-internal",
   "summary": "Document pack lifecycle, installed app surfaces, user tables, views, Web Designer preview, and publishing routes.",
   "title": "Packs, Apps, Tables, And Publishing API"

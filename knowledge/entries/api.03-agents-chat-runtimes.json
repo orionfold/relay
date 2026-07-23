@@ -33,7 +33,7 @@
     "/api/runtimes/openai-compatible/{runtimeId}",
     "/api/runtimes/suggest"
   ],
-  "contentHash": "593f98aa515036b78289d5ce0b9ddbfecb0421a6dd05325685d5303a57db9606",
+  "contentHash": "081fc954e9e823dbf0c830e748f8b8da5014fef42c954bb0123e9efac6475c6c",
   "features": [],
   "id": "api:03-agents-chat-runtimes",
   "journeys": [],
@@ -376,8 +376,8 @@
       "heading": "POST /api/runtimes/suggest",
       "id": "post-api-runtimes-suggest",
       "level": 3,
-      "markdown": "Returns an advisory runtime order for a task under the saved routing policy and eligible-runtime pool.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `title` | `string` | yes | Non-empty task title. Exact runtime-name signals can affect affinity. |\n| `description` | `string \\| null` | no | Combined with the title for affinity signals. |\n| `profileId` | `string \\| null` | no | An eligible profile-preferred runtime wins when present. |\n\n- **Response** `200`:\n  ```json\n  { \"runtimeId\": \"claude-code\", \"orderedRuntimeIds\": [\"claude-code\"], \"reason\": \"string\", \"evidence\": \"pool-order\", \"advisory\": true }\n  ```\n  Manual policy returns its strict default as the only ordered runtime. Automatic policies consider only configured members of the saved eligible pool; comparable configured-model cost is used only when known, while unknown cost, latency, and quality retain saved pool order.\n- **Errors**:\n  - `400` when the strict request body is invalid: `{ \"error\": \"A non-empty title and valid suggestion payload are required\" }`.\n  - `409` when no configured runtime is eligible for automatic routing.\n- **Side effects**: reads routing, runtime setup, profile, and pricing metadata only. It does not probe health or persist a selection.",
-      "wordCount": 159
+      "markdown": "Returns an advisory runtime order for a task under the saved routing policy and eligible-runtime pool.\n\n- **Request** body (JSON):\n\n| Field | Type | Required | Notes |\n|---|---|---|---|\n| `title` | `string` | yes | Non-empty task title. Exact runtime-name signals can affect affinity. |\n| `description` | `string \\| null` | no | Combined with the title for affinity signals. |\n| `profileId` | `string \\| null` | no | An eligible profile-preferred runtime wins when present. |\n\n- **Response** `200`:\n  ```json\n  { \"runtimeId\": \"claude-code\", \"orderedRuntimeIds\": [\"claude-code\"], \"reason\": \"string\", \"evidence\": \"pool-order\", \"advisory\": true }\n  ```\n  Manual policy returns its strict default as the only ordered runtime.\n  Automatic policies consider only verified-ready members of the saved\n  eligible pool; comparable configured-model cost is used only when known,\n  while unknown cost, latency, and quality retain saved pool order.\n- **Errors**:\n  - `400` when the strict request body is invalid: `{ \"error\": \"A non-empty title and valid suggestion payload are required\" }`.\n  - `409` when no configured runtime is eligible for automatic routing.\n- **Side effects**: reads routing, verified runtime health, profile, and pricing\n  metadata only. It may refresh an expired bounded runtime-health observation,\n  but it does not persist a routing selection.",
+      "wordCount": 167
     },
     {
       "heading": "GET /api/runtimes/openai-compatible/{runtimeId}",
@@ -408,9 +408,9 @@
       "wordCount": 227
     }
   ],
-  "sourceHash": "caa7c242b971c4aa2496c7284f3e17299d2f2c68e0f44960fc1abdfa99de3479",
+  "sourceHash": "88db084f63d7555161281c032196dcb252a86531ffac8eaf0593fddecd85b1f1",
   "sourcePath": "api/reference/03-agents-chat-runtimes.md",
-  "sourceStateHash": "050a51faa7fb21831efae859a9ff1823439a1a5b6f314e4baabac6ecdcca18b5",
+  "sourceStateHash": "2e0b7691e3c3f8c70c6f6e0f6c4b1027e0d48b102ee8db34a0b00690b05d4599",
   "stability": "app-internal",
   "summary": "Document agent profiles, chat conversations, model lists, runtime suggestions, and related context endpoints.",
   "title": "Agents, Chat, And Runtimes API"

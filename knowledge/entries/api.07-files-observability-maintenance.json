@@ -3,6 +3,7 @@
     "/api/data/clear",
     "/api/data/seed",
     "/api/diagnostics/chat-streams",
+    "/api/diagnostics/filesystem-skills",
     "/api/health/live",
     "/api/health/ready",
     "/api/logs/stream",
@@ -21,7 +22,7 @@
     "/api/uploads/{id}",
     "/api/uploads/cleanup"
   ],
-  "contentHash": "bbb25f8663394a626ca9a6bc81aef63c342f9e18e798e7f7d4305a7f55f8a7be",
+  "contentHash": "8f78189beaccaa49964697d45a2aed3ef123eaa61ae8824335442113602dd6f0",
   "features": [],
   "id": "api:07-files-observability-maintenance",
   "journeys": [],
@@ -70,8 +71,8 @@
       "heading": "Endpoints",
       "id": "endpoints",
       "level": 2,
-      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/data/clear` | `app-internal` | `src/app/api/data/clear/route.ts` |\n| `POST` | `/api/data/seed` | `app-internal` | `src/app/api/data/seed/route.ts` |\n| `GET` | `/api/diagnostics/chat-streams` | `app-internal` | `src/app/api/diagnostics/chat-streams/route.ts` |\n| `GET` | `/api/health/live` | `app-internal` | `src/app/api/health/live/route.ts` |\n| `GET` | `/api/health/ready` | `app-internal` | `src/app/api/health/ready/route.ts` |\n| `GET` | `/api/logs/stream` | `app-internal` | `src/app/api/logs/stream/route.ts` |\n| `GET` | `/api/plugins` | `app-internal` | `src/app/api/plugins/route.ts` |\n| `POST` | `/api/plugins/reload` | `app-internal` | `src/app/api/plugins/reload/route.ts` |\n| `POST` | `/api/plugins/scaffold` | `app-internal` | `src/app/api/plugins/scaffold/route.ts` |\n| `GET`, `POST` | `/api/recovery` | `app-internal` | `src/app/api/recovery/route.ts` |\n| `POST` | `/api/recovery/drill` | `app-internal` | `src/app/api/recovery/drill/route.ts` |\n| `POST` | `/api/recovery/verify` | `app-internal` | `src/app/api/recovery/verify/route.ts` |\n| `GET`, `POST` | `/api/snapshots` | `app-internal` | `src/app/api/snapshots/route.ts` |\n| `DELETE`, `GET` | `/api/snapshots/{id}` | `app-internal` | `src/app/api/snapshots/[id]/route.ts` |\n| `POST` | `/api/snapshots/{id}/restore` | `app-internal` | `src/app/api/snapshots/[id]/restore/route.ts` |\n| `GET`, `PUT` | `/api/snapshots/settings` | `app-internal` | `src/app/api/snapshots/settings/route.ts` |\n| `GET` | `/api/telemetry` | `app-internal` | `src/app/api/telemetry/route.ts` |\n| `POST` | `/api/uploads` | `app-internal` | `src/app/api/uploads/route.ts` |\n| `DELETE`, `GET` | `/api/uploads/{id}` | `app-internal` | `src/app/api/uploads/[id]/route.ts` |\n| `POST` | `/api/uploads/cleanup` | `app-internal` | `src/app/api/uploads/cleanup/route.ts` |",
-      "wordCount": 242
+      "markdown": "| Method(s) | Path | Stability | Source |\n|---|---|---|---|\n| `POST` | `/api/data/clear` | `app-internal` | `src/app/api/data/clear/route.ts` |\n| `POST` | `/api/data/seed` | `app-internal` | `src/app/api/data/seed/route.ts` |\n| `GET` | `/api/diagnostics/chat-streams` | `app-internal` | `src/app/api/diagnostics/chat-streams/route.ts` |\n| `GET` | `/api/diagnostics/filesystem-skills` | `app-internal` | `src/app/api/diagnostics/filesystem-skills/route.ts` |\n| `GET` | `/api/health/live` | `app-internal` | `src/app/api/health/live/route.ts` |\n| `GET` | `/api/health/ready` | `app-internal` | `src/app/api/health/ready/route.ts` |\n| `GET` | `/api/logs/stream` | `app-internal` | `src/app/api/logs/stream/route.ts` |\n| `GET` | `/api/plugins` | `app-internal` | `src/app/api/plugins/route.ts` |\n| `POST` | `/api/plugins/reload` | `app-internal` | `src/app/api/plugins/reload/route.ts` |\n| `POST` | `/api/plugins/scaffold` | `app-internal` | `src/app/api/plugins/scaffold/route.ts` |\n| `GET`, `POST` | `/api/recovery` | `app-internal` | `src/app/api/recovery/route.ts` |\n| `POST` | `/api/recovery/drill` | `app-internal` | `src/app/api/recovery/drill/route.ts` |\n| `POST` | `/api/recovery/verify` | `app-internal` | `src/app/api/recovery/verify/route.ts` |\n| `GET`, `POST` | `/api/snapshots` | `app-internal` | `src/app/api/snapshots/route.ts` |\n| `DELETE`, `GET` | `/api/snapshots/{id}` | `app-internal` | `src/app/api/snapshots/[id]/route.ts` |\n| `POST` | `/api/snapshots/{id}/restore` | `app-internal` | `src/app/api/snapshots/[id]/restore/route.ts` |\n| `GET`, `PUT` | `/api/snapshots/settings` | `app-internal` | `src/app/api/snapshots/settings/route.ts` |\n| `GET` | `/api/telemetry` | `app-internal` | `src/app/api/telemetry/route.ts` |\n| `POST` | `/api/uploads` | `app-internal` | `src/app/api/uploads/route.ts` |\n| `DELETE`, `GET` | `/api/uploads/{id}` | `app-internal` | `src/app/api/uploads/[id]/route.ts` |\n| `POST` | `/api/uploads/cleanup` | `app-internal` | `src/app/api/uploads/cleanup/route.ts` |",
+      "wordCount": 254
     },
     {
       "heading": "Endpoint Reference",
@@ -235,6 +236,13 @@
       "wordCount": 109
     },
     {
+      "heading": "GET /api/diagnostics/filesystem-skills",
+      "id": "get-api-diagnostics-filesystem-skills",
+      "level": 3,
+      "markdown": "Returns bounded diagnostics from filesystem skill discovery without flooding\nthe CLI or exposing paths by default.\n\n- **Request** optional query: `includePaths=0|1` (default `0`). Paths should be\n  requested only for local administrator diagnosis.\n- **Response** `200`: `{ \"includePaths\": false, \"reports\": [ ... ] }`. Each\n  report includes scan time, scope, loaded count, issue count, and counts by\n  named issue kind. With `includePaths=1`, it also includes the scanned root\n  and bounded per-entry issues.\n- **Errors**: `400` when `includePaths` is not `0` or `1`.\n- **Side effects**: reads process-local discovery diagnostics only.",
+      "wordCount": 83
+    },
+    {
       "heading": "GET /api/logs/stream",
       "id": "get-api-logs-stream",
       "level": 3,
@@ -263,9 +271,9 @@
       "wordCount": 105
     }
   ],
-  "sourceHash": "27b79bdcc46e86f1c358f7cbf06b41f7073caa7bd668a2203b7e07e4187946b4",
+  "sourceHash": "2c909c249128eba78e45f5b0c46a2c1d93eda0e3b89ccf808805aa85417f7170",
   "sourcePath": "api/reference/07-files-observability-maintenance.md",
-  "sourceStateHash": "86e4da5a4e718d27449fdecf62e2e92d9642e5efeeb11f00e2dfee78d99297c2",
+  "sourceStateHash": "4f633f2148f92d423314a1e3e9b3d5a63dce8c6b263b5ee3968131b9cb0767b9",
   "stability": "admin-local",
   "summary": "Document upload, snapshot, encrypted recovery, logs, telemetry, diagnostics, seed/clear, and plugin routes.",
   "title": "Files, Observability, And Maintenance API"

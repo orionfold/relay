@@ -5,11 +5,12 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   HOISTED_RUNTIME_INPUTS,
   HoistedWorkspaceSyncError,
@@ -26,6 +27,7 @@ function tempDir(): string {
 }
 
 afterEach(() => {
+  vi.restoreAllMocks();
   for (const dir of cleanups.splice(0)) {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -49,6 +51,43 @@ function writeInputs(appDir: string, version: string, marker: string): void {
 }
 
 describe("syncHoistedWorkspaceInputs", () => {
+  it("treats malformed and structurally invalid hoist manifests as stale", () => {
+    const dir = tempDir();
+    const hoistedRoot = join(dir, "npx-root");
+    mkdirSync(hoistedRoot, { recursive: true });
+    writeFileSync(join(hoistedRoot, ".relay-runtime-inputs.json"), "{");
+    expect(areHoistedWorkspaceInputsCurrent(hoistedRoot, "1.2.3")).toBe(false);
+
+    writeFileSync(
+      join(hoistedRoot, ".relay-runtime-inputs.json"),
+      JSON.stringify({
+        schemaVersion: 2,
+        packageVersion: "1.2.3",
+        inputs: [42],
+      }),
+    );
+    expect(areHoistedWorkspaceInputsCurrent(hoistedRoot, "1.2.3")).toBe(false);
+  });
+
+  it("rejects missing, malformed, and non-string package versions", () => {
+    const dir = tempDir();
+    const appDir = join(dir, "package");
+    const hoistedRoot = join(dir, "npx-root");
+    mkdirSync(appDir, { recursive: true });
+    mkdirSync(hoistedRoot, { recursive: true });
+
+    for (const packageJson of ["{", JSON.stringify({ version: 123 })]) {
+      writeFileSync(join(appDir, "package.json"), packageJson);
+      expect(() =>
+        syncHoistedWorkspaceInputs({
+          appDir,
+          hoistedRoot,
+          packageVersion: "1.2.3",
+        }),
+      ).toThrow(/version mismatch/i);
+    }
+  });
+
   it("copies the complete versioned runtime input set and writes the manifest last", () => {
     const dir = tempDir();
     const appDir = join(dir, "package");
@@ -172,6 +211,56 @@ describe("syncHoistedWorkspaceInputs", () => {
         "new",
       );
     }
+  });
+
+  it("rolls every input and the manifest back when promotion fails", () => {
+    const dir = tempDir();
+    const oldAppDir = join(dir, "package-old");
+    const newAppDir = join(dir, "package-new");
+    const hoistedRoot = join(dir, "npx-root");
+    mkdirSync(oldAppDir, { recursive: true });
+    mkdirSync(newAppDir, { recursive: true });
+    mkdirSync(hoistedRoot, { recursive: true });
+    writeInputs(oldAppDir, "1.0.0", "old");
+    writeInputs(newAppDir, "2.0.0", "new");
+    syncHoistedWorkspaceInputs({
+      appDir: oldAppDir,
+      hoistedRoot,
+      packageVersion: "1.0.0",
+    });
+    const oldManifest = readFileSync(
+      join(hoistedRoot, ".relay-runtime-inputs.json"),
+      "utf-8",
+    );
+
+    const now = 123_456_789;
+    vi.spyOn(Date, "now").mockReturnValue(now);
+    const blocker = join(dir, "manifest-write-blocker");
+    mkdirSync(blocker);
+    symlinkSync(
+      blocker,
+      join(
+        hoistedRoot,
+        `.relay-runtime-inputs.json.tmp-${process.pid}-${now}`,
+      ),
+    );
+
+    expect(() =>
+      syncHoistedWorkspaceInputs({
+        appDir: newAppDir,
+        hoistedRoot,
+        packageVersion: "2.0.0",
+      }),
+    ).toThrow(HoistedWorkspaceSyncError);
+
+    expect(readFileSync(join(hoistedRoot, "src", "marker.txt"), "utf-8")).toBe(
+      "old",
+    );
+    expect(
+      readFileSync(join(hoistedRoot, ".relay-runtime-inputs.json"), "utf-8"),
+    ).toBe(oldManifest);
+    expect(areHoistedWorkspaceInputsCurrent(hoistedRoot, "1.0.0")).toBe(true);
+    expect(areHoistedWorkspaceInputsCurrent(hoistedRoot, "2.0.0")).toBe(false);
   });
 
   it("fails before mutation when a required packaged input is missing", () => {
