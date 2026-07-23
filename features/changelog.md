@@ -4,6 +4,15 @@
 
 ### Completed
 
+- `entitlement-aware-customer-onboarding` (G-117) — replaced repeated per-Pack
+  pricing and purchase links with one validated product offer for the complete
+  premium catalog. Compact decision cards now select Packs without purchasing
+  or installing. Selection persists locally across filters and the external
+  license handoff; active customers can install the chosen set with overlap-safe
+  bundle normalization, partial-failure receipts and failed-only retry. Stale
+  entitlement refusal links directly to license recovery. Three hundred seven
+  Pack/onboarding/API/component checks, TypeScript, production build and
+  disposable desktop/390 px light/dark browser proof passed.
 - `entitlement-aware-customer-onboarding` (G-116) — added one typed,
   security-conscious customer-orientation contract shared by Home, app-bar
   identity and Settings. Community, Pack-only, Host-only and combined customers

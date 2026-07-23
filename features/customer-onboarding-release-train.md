@@ -66,7 +66,10 @@ proof, including the guided Agency install and returning dashboard.
 
 G-117 makes the product entitlement—not each Pack—the pricing object and
 provides a resumable select/activate/install journey. G-118 makes Agency sample
-data explicit and safely replaceable.
+data explicit and safely replaceable. G-117 was accepted 2026-07-23 after one
+offer replaced twelve repeated price rails, local selection survived filter and
+activation handoff, overlap-safe batch installation passed, and responsive
+browser evidence confirmed the new decision cards.
 
 ### O3 — Truthful runtime readiness
 
@@ -111,7 +114,7 @@ the final evidence bundle.
 - [x] G-114 independently proves a version-correct old→new shared-cache upgrade.
 - [x] Community, Pack, Host and combined customers receive coherent first-screen,
       shell and Settings guidance.
-- [ ] Premium Packs present one entitlement and one resumable activation path.
+- [x] Premium Packs present one entitlement and one resumable activation path.
 - [ ] Agency sample data is visibly synthetic and safely replaceable.
 - [ ] Provider/model/routing/shell states reconcile without manual extra refresh.
 - [ ] A customer can start a compatible Pack workflow with no orphan or inert

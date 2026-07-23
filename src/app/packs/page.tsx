@@ -17,22 +17,26 @@ import {
 import { cn } from "@/lib/utils";
 import { listApps } from "@/lib/apps/registry";
 import { listPackTemplates, type PackTemplate } from "@/lib/packs/catalog";
-import { packPrice, type PackPrice } from "@/lib/packs/format";
 import { packTierBadge } from "@/lib/packs/provenance";
 import { packUpdateAvailability } from "@/lib/packs/update";
 import { changelogWindow } from "@/lib/licensing/recap";
 import { PackInstallButton } from "@/components/packs/pack-install-button";
 import { PackUpdateButton } from "@/components/packs/pack-update-button";
 import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
+import { PremiumPackSelector } from "@/components/packs/premium-pack-selector";
+import {
+  resolvePremiumCatalogOffer,
+  summarizePackDecision,
+} from "@/lib/packs/catalog-offer";
+import { loadCustomerOrientation } from "@/lib/onboarding/load-orientation";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Local-first bundled-pack browser (NOT a marketplace — feature-cut fence).
  * Premium packs are visible-but-locked (D6): every user sees what exists,
- * what it materializes, and what it costs; only the content install is gated.
- * A locked premium pack renders as a full-width feature panel — the sales
- * copy and the two-phase offer are the conversion surface (#20/#21).
+ * what it materializes, while one product-level offer owns the price and
+ * acquisition path. Only content installation is entitlement-gated.
  */
 
 /** Bundled icon names (pack.yaml `icon:`) → lucide glyphs. Never remote. */
@@ -63,6 +67,11 @@ export default async function PacksPage({
   const filter = resolveFilter(params.filter);
   const templates = listPackTemplates();
   const installedIds = new Set(listApps().map((a) => a.id));
+  const orientation = loadCustomerOrientation({
+    hostDetail: "entitlement_only",
+    loadInstalledPackIds: () => [...installedIds],
+  });
+  const offerResult = resolvePremiumCatalogOffer(templates);
 
   const isPremium = (t: PackTemplate) => Boolean(t.meta?.entitlement);
   // Corrupt templates ignore the filter — a packaging bug must stay visible.
@@ -72,10 +81,21 @@ export default async function PacksPage({
       filter === "all" ||
       (filter === "premium" ? isPremium(t) : !isPremium(t))
   );
-  const featured = visible.filter(
-    (t) => !t.error && isPremium(t) && !installedIds.has(t.id)
+  const selectablePremium = templates.filter(
+    (template) =>
+      !template.error &&
+      isPremium(template) &&
+      !installedIds.has(template.id),
   );
-  const standard = visible.filter((t) => !featured.includes(t));
+  const visibleSelectableIds = visible
+    .filter((template) =>
+      selectablePremium.some((candidate) => candidate.id === template.id),
+    )
+    .map((template) => template.id);
+  const standard = visible.filter(
+    (template) =>
+      !selectablePremium.some((candidate) => candidate.id === template.id),
+  );
   const counts: Record<PackFilter, number> = {
     all: templates.length,
     free: templates.filter((t) => !t.error && !isPremium(t)).length,
@@ -85,7 +105,7 @@ export default async function PacksPage({
   return (
     <PageShell
       title="Packs"
-      description="Vertical content bundles. Each pack installs profiles, blueprints, tables, seed data, and a runnable pack instance in one step."
+      description="Choose ready-made operating systems for the work you want Relay to run. Free Packs install directly; one Relay license unlocks the complete premium catalog."
       filters={
         templates.length > 1 ? (
           <FilterChips active={filter} counts={counts} />
@@ -106,9 +126,19 @@ export default async function PacksPage({
         </p>
       ) : (
         <div className="space-y-4">
-          {featured.map((t) => (
-            <FeaturedPackCard key={t.id} template={t} />
-          ))}
+          <PremiumPackSelector
+            packs={selectablePremium.map((template) => ({
+              id: template.id,
+              name: template.meta!.name,
+              bundle: template.meta!.bundle ?? [],
+              decision: summarizePackDecision(template),
+            }))}
+            visiblePackIds={visibleSelectableIds}
+            offer={offerResult.offer}
+            offerError={offerResult.error}
+            packsEntitled={orientation.entitlements.packs}
+            licenseLifecycle={orientation.license.lifecycle}
+          />
           {standard.length > 0 && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {standard.map((t) => (
@@ -186,27 +216,6 @@ function PackTrustLine() {
   );
 }
 
-/** Two-phase offer: founding intro leads, list price stays as the anchor. */
-function OfferPrice({ price }: { price: PackPrice }) {
-  return (
-    <div>
-      <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-bold tracking-tight">
-          {price.intro ?? price.list}
-        </span>
-        {price.intro && (
-          <span className="text-sm text-muted-foreground line-through">
-            {price.list}
-          </span>
-        )}
-      </div>
-      {price.note && (
-        <p className="mt-1 text-xs text-muted-foreground">{price.note}</p>
-      )}
-    </div>
-  );
-}
-
 /**
  * Cross-pack relationship line (free↔paid). Additive framing only — the packs
  * coexist. A link (internal path or purchase URL) is rendered when `href` is
@@ -250,81 +259,6 @@ function RelatedNote({
   );
 }
 
-/**
- * Locked premium pack — the conversion hero. Full sales copy at a readable
- * measure (never clamped), offer rail with the two-phase price + CTAs.
- */
-function FeaturedPackCard({ template }: { template: PackTemplate }) {
-  const meta = template.meta!;
-  const Icon = packIcon(template);
-  const price = packPrice(meta);
-
-  return (
-    <Card
-      tone="pack"
-      emphasis="featured"
-      watermark={Icon}
-      className="relative transition-colors"
-    >
-      <CardContent className="relative p-4 sm:p-5">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
-          <div className="min-w-0 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="min-w-0">
-                <h2 className="truncate text-base font-semibold">
-                  {meta.name}
-                </h2>
-                <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                  <Badge variant="secondary" className="gap-1">
-                    <Package className="h-3 w-3" aria-hidden="true" />
-                    Pack
-                  </Badge>
-                  <Badge variant="outline" className="gap-1">
-                    <Lock className="h-3 w-3" aria-hidden="true" />
-                    Premium
-                  </Badge>
-                  {template.primitivesSummary && (
-                    <span className="text-[11px] text-muted-foreground/70">
-                      {template.primitivesSummary}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            {meta.description && (
-              <p className="max-w-[70ch] text-sm leading-relaxed text-muted-foreground">
-                {meta.description}
-              </p>
-            )}
-            {meta.related && <RelatedNote related={meta.related} />}
-          </div>
-
-          <div className="surface-card-muted flex flex-col gap-4 rounded-lg border p-4 lg:self-start">
-            {price && <OfferPrice price={price} />}
-            <div className="space-y-2">
-              <PackInstallButton
-                packId={template.id}
-                packName={meta.name}
-                premium
-              />
-              {meta.purchaseUrl && (
-                <a
-                  href={meta.purchaseUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-xs font-medium text-foreground underline underline-offset-2 hover:text-primary"
-                >
-                  Get license →
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 function PackCard({
   template,
   installed,
@@ -355,7 +289,6 @@ function PackCard({
   const meta = template.meta!;
   const premium = Boolean(meta.entitlement);
   const Icon = packIcon(template);
-  const price = packPrice(meta);
 
   return (
     <Card
@@ -379,8 +312,7 @@ function PackCard({
                 </Badge>
               ) : premium ? (
                 <Badge variant="outline" className="gap-1">
-                  <Lock className="h-3 w-3" aria-hidden="true" />
-                  {price?.intro ?? price?.list ?? "Premium"}
+                  Premium
                 </Badge>
               ) : null}
             </div>
@@ -415,16 +347,6 @@ function PackCard({
                 packName={meta.name}
                 premium={premium}
               />
-              {premium && meta.purchaseUrl && (
-                <a
-                  href={meta.purchaseUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="shrink-0 text-xs font-medium text-foreground underline underline-offset-2 hover:text-primary"
-                >
-                  Get license →
-                </a>
-              )}
             </span>
           }
         />

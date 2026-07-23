@@ -99,9 +99,9 @@ Agency installation and guided opt-in. "Bundled" must never be rendered as
 - [x] Top bar, License, instance boundary and Host section agree in every state.
 - [x] Lapse promises distinguish Pack installs/updates from managed-Cell
       expansion while preserving existing content/export/recovery truth.
-- [ ] The premium catalog shows one price/offer and no per-Pack purchase
+- [x] The premium catalog shows one price/offer and no per-Pack purchase
       implication.
-- [ ] Pack selection survives the activation handoff and handles cancel/failure.
+- [x] Pack selection survives the activation handoff and handles cancel/failure.
 - [ ] Sample Agency records/KPIs are labeled everywhere they surface.
 - [ ] Sample removal/replacement preserves edited and customer-created data.
 - [ ] Desktop/390 px, light/dark, keyboard, focus and screen-reader checks pass.
@@ -139,6 +139,26 @@ desktop/390 px light/dark browser checks. The browser proof exercised the real
 Agency installer, observed its success receipt, navigated to the installed Pack,
 and confirmed the returning dashboard path. G-117 and G-118 retain the unchecked
 premium-catalog and sample-provenance criteria.
+
+## G-117 acceptance receipt — 2026-07-23
+
+The premium catalog now resolves and validates one release-stamped product
+offer before rendering `$349/year` founding and `$499/year` list pricing once.
+Individual Pack cards contain no price or purchase CTA. Their compact decision
+fields—Job, Choose it when, Includes, and Works with—follow the Website Product
+Decision Matrix information pattern without copying its domain content.
+
+Community and lapsed customers save selected bundled Pack IDs in versioned
+browser storage before the existing external license handoff. Entitled
+customers install the same selection through the curated local endpoint.
+Bundle/component and bundle/bundle overlap is normalized and announced.
+Successful batch items are not replayed; failures remain selected with named
+retry and license-recovery paths.
+
+Verification passed 307 Pack/onboarding/API/component regressions, TypeScript,
+production build, and isolated desktop/390 px light/dark browser checks across
+All, Free and Premium filters. G-118 retains the remaining sample-data
+provenance and transition criteria.
 
 ## Scope boundaries
 
