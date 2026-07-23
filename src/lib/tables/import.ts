@@ -14,6 +14,7 @@ import {
 import { eq } from "drizzle-orm";
 import { addRows } from "@/lib/data/tables";
 import type { ColumnDataType } from "@/lib/constants/table-status";
+import { readXlsxWorkbook } from "@/lib/spreadsheets/xlsx";
 
 // ── Type inference patterns ──────────────────────────────────────────
 
@@ -77,34 +78,20 @@ export async function extractStructuredData(
 }
 
 async function extractFromExcel(buffer: Buffer): Promise<ExtractedData> {
-  const ExcelJS = await import("exceljs");
-  const workbook = new ExcelJS.Workbook();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await workbook.xlsx.load(buffer as any);
-
-  const worksheet = workbook.worksheets[0];
+  const [worksheet] = await readXlsxWorkbook(buffer);
   if (!worksheet) throw new Error("No worksheets found");
 
-  const headers: string[] = [];
-  const rows: Record<string, string>[] = [];
-
-  worksheet.eachRow((row, rowNumber) => {
-    const values = (row.values as (string | number | null | undefined)[]).slice(1);
-
-    if (rowNumber === 1) {
-      // First row = headers
-      for (const v of values) {
-        headers.push(String(v ?? `col_${headers.length}`).trim());
-      }
-    } else {
-      const rowData: Record<string, string> = {};
-      values.forEach((v, i) => {
-        if (i < headers.length) {
-          rowData[headers[i]] = v == null ? "" : String(v);
-        }
-      });
-      rows.push(rowData);
-    }
+  const [headerRow = [], ...dataRows] = worksheet.rows;
+  const headers = headerRow.map((value, index) =>
+    String(value ?? `col_${index}`).trim(),
+  );
+  const rows = dataRows.map((values) => {
+    const rowData: Record<string, string> = {};
+    headers.forEach((header, index) => {
+      const value = values[index];
+      rowData[header] = value == null ? "" : String(value);
+    });
+    return rowData;
   });
 
   return { headers, rows };

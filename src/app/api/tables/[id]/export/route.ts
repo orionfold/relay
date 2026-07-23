@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTable, listRows } from "@/lib/data/tables";
 import type { ColumnDef } from "@/lib/tables/types";
+import { writeXlsxWorkbook } from "@/lib/spreadsheets/xlsx";
 
 export async function GET(
   req: NextRequest,
@@ -38,21 +39,14 @@ export async function GET(
         });
 
       case "xlsx": {
-        const ExcelJS = await import("exceljs");
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet(table.name);
-
-        // Add header row
-        worksheet.addRow(columns.map((c) => c.displayName));
-
-        // Add data rows
-        for (const row of parsedRows) {
-          worksheet.addRow(columns.map((c) => row[c.name] ?? ""));
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const buffer = await workbook.xlsx.writeBuffer() as any;
-        return new NextResponse(buffer, {
+        const data = [
+          columns.map((column) => column.displayName),
+          ...parsedRows.map((row) =>
+            columns.map((column) => row[column.name] ?? ""),
+          ),
+        ];
+        const buffer = await writeXlsxWorkbook(data, table.name);
+        return new NextResponse(new Uint8Array(buffer), {
           headers: {
             "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "Content-Disposition": `attachment; filename="${table.name}.xlsx"`,

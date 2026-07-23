@@ -101,9 +101,12 @@ runtime-graph smoke and isolated customer-visible browser proof. O4 is complete.
 
 ### O5 — Release acceptance and CLI polish
 
-G-115 removes or truthfully dispositions npm dependency warnings. G-025 runs
-the customer-identical clean-cache and same-cache acceptance journeys and owns
-the final evidence bundle.
+G-115 was accepted 2026-07-23 after the real packed-install warning count fell
+from seven to one, stale ExcelJS was replaced with maintained Node 20-compatible
+XLSX components, and the remaining native-installer path received an exact
+Node 22 adoption trigger. G-025 is now current: it runs the customer-identical
+clean-cache and same-cache acceptance journeys and owns the final evidence
+bundle.
 
 ## Cross-goal invariants
 

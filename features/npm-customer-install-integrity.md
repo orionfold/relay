@@ -61,9 +61,14 @@ or resurrect fixed behavior.
 
 - Trace warnings from the packed install tree, not the development lockfile
   alone.
-- Evaluate current `exceljs`/archiver/fast-csv/unzipper and
-  `better-sqlite3`/native-installer paths.
-- Upgrade, replace or remove only with spreadsheet/SQLite behavior protected.
+- Evaluate the packed `exceljs` and `better-sqlite3` owner paths rather than
+  assuming root-only npm overrides reach npx customers.
+- Replace ExcelJS's stale dependency closure with maintained Node 20-compatible
+  XLSX reader/writer packages, with the three Relay consumers sharing one
+  typed adapter.
+- Retain `better-sqlite3` 12 while Relay supports Node 20; its sole packed
+  warning can leave only with the separately reviewed Node 22+
+  `better-sqlite3` 13 migration.
 - If upstream blocks removal, document reachability and a trigger; never
   suppress npm warnings.
 
@@ -82,7 +87,7 @@ or resurrect fixed behavior.
       data root, Host root, port and exposure.
 - [x] Default-root and missing-provenance cases remain truthful.
 - [x] A non-git launch emits no raw Git stderr.
-- [ ] G-115 records packed dependency provenance and removes or truthfully
+- [x] G-115 records packed dependency provenance and removes or truthfully
       dispositions every clean-install deprecation warning.
 - [x] Spreadsheet import/export, SQLite native loading, production build and npm
       public-boundary checks pass.
@@ -110,3 +115,23 @@ migration, Host/Cell OCI optimization, global npm cache deletion.
 - TRIAGE-040 — transitive dependency deprecation warnings
 - TRIAGE-042 — maintenance command loses instance context
 - G-114, G-115
+
+## G-115 acceptance receipt — 2026-07-23
+
+A clean packed install fell from seven production deprecation warnings to one.
+Relay removed ExcelJS and its stale Archiver, fast-csv, Unzipper and UUID
+closure, replacing the basic XLSX read/write surface with
+`read-excel-file@9.3.4` and `write-excel-file@4.1.1`. Recharts' `react-is` peer
+is now direct instead of accidentally supplied by another dependency.
+
+The remaining `prebuild-install@7.1.3` warning belongs exclusively to
+`better-sqlite3@12.11.1`. Its warning-free v13 line requires Node 22, so Relay
+retains it until a separate Node-minimum decision and native platform proof.
+The development tree additionally retains two Drizzle Kit loader warnings.
+`config/install-dependency-debt.json` and the CI guard fail on any unreviewed
+change.
+
+Verification passed: typed XLSX regressions, native SQLite and XLSX use from
+the packed artifact, the exact clean-install capture, 3,910 tests plus one
+skip, 136 Host regressions, TypeScript, CLI build, public-boundary checks, and
+the production build.

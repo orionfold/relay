@@ -23,6 +23,11 @@ them; the current package and repository identity is Orionfold Relay.
   unreachable runtimes from terminal failures; a bounded **Recheck and resume**
   action preflights and atomically resumes the exact blocked step while
   preserving completed outputs and receipts.
+- **Clean npm installs no longer inherit ExcelJS's six stale dependency
+  warnings.** Relay's basic XLSX import/export path now uses maintained
+  Node 20-compatible reader/writer packages, Recharts' runtime peer is explicit,
+  and an exact guard limits the packed install to the one native SQLite warning
+  that requires a separately reviewed Node 22 migration to remove.
 
 ## [0.45.2] — 2026-07-21
 

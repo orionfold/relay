@@ -9,6 +9,37 @@ const baseline = JSON.parse(
 );
 const nextConfig = readFileSync(new URL("../next.config.mjs", import.meta.url), "utf8");
 
+if (pkg.dependencies?.exceljs || lock.packages["node_modules/exceljs"]) {
+  console.error("STALE_SPREADSHEET_DEPENDENCY_REINTRODUCED exceljs");
+  process.exit(1);
+}
+for (const [name, expected] of Object.entries(
+  baseline.spreadsheetDependencies ?? {},
+)) {
+  const declared = pkg.dependencies?.[name];
+  const locked = lock.packages[`node_modules/${name}`]?.version;
+  if (declared !== expected.declared || locked !== expected.locked) {
+    console.error(`SPREADSHEET_DEPENDENCY_CONTRACT_CHANGED ${name}`);
+    console.error(
+      `expected=${JSON.stringify(expected)} actual=${JSON.stringify({ declared, locked })}`,
+    );
+    process.exit(1);
+  }
+}
+for (const [name, expected] of Object.entries(
+  baseline.explicitRuntimePeers ?? {},
+)) {
+  const declared = pkg.dependencies?.[name];
+  const locked = lock.packages[`node_modules/${name}`]?.version;
+  if (declared !== expected.declared || locked !== expected.locked) {
+    console.error(`EXPLICIT_RUNTIME_PEER_CONTRACT_CHANGED ${name}`);
+    console.error(
+      `expected=${JSON.stringify(expected)} actual=${JSON.stringify({ declared, locked })}`,
+    );
+    process.exit(1);
+  }
+}
+
 const expected = baseline.deprecatedPackages
   .map(({ name, version }) => ({ name, version }))
   .sort((a, b) => a.name.localeCompare(b.name));
@@ -63,5 +94,5 @@ for (const external of ["better-sqlite3", "pdf-parse", "pdfjs-dist"]) {
 }
 
 console.log(
-  `install dependency debt verified: ${actual.length} attributed deprecated transitives; pdfjs-dist is transitive and explicitly externalized`,
+  `install dependency debt verified: ${actual.length} attributed deprecated transitives; spreadsheet replacements, runtime peers, and pdfjs-dist externalization are exact`,
 );
