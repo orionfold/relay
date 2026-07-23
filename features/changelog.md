@@ -4,6 +4,14 @@
 
 ### Completed
 
+- `customer-onboarding-release-train` (G-025) — accepted the final isolated
+  packed-npm journey through Community orientation, free and premium Pack
+  install, disposable license activation, real local Ollama work, approval,
+  one controlled later-step 503, exact-step recovery without prefix replay,
+  restart persistence, D4 removal, and default-data isolation. G-114's
+  independently accepted fixture supplies the old→new shared-cache version
+  proof. The dated browser/CLI/server bundle is
+  `output/staging/2026-07-23/`; its only survivors became G-125 and G-126.
 - `runtime-first-value-reliability` (G-124) — closed a final staging-only
   cross-runtime contradiction: shared workflow task context now resolves
   profiles against the runtime selected by readiness instead of hardcoding
@@ -79,6 +87,10 @@
 
 ### Groomed
 
+- Groomed TRIAGE-057 as G-125 for final Operations Receipt truth after
+  exact-step retry, followed by TRIAGE-056 as G-126 for immediate
+  license-summary reconciliation. Both remain inside O5 rather than opening a
+  separate workstream.
 - `customer-onboarding-release-train` — promoted all verified findings from the
   published `orionfold-relay@0.45.2` operator walkthrough into a six-increment
   active workstream: trustworthy install, entitlement-aware orientation, safe

@@ -111,9 +111,11 @@ G-115 was accepted 2026-07-23 after the real packed-install warning count fell
 from seven to one, stale ExcelJS was replaced with maintained Node 20-compatible
 XLSX components, and the remaining native-installer path received an exact
 Node 22 adoption trigger. G-124 repaired the cross-runtime recovery parity
-finding from G-025's first pass. G-025 is current again: it runs the final
-customer-identical clean-cache and same-cache acceptance journeys and owns the
-release evidence bundle.
+finding from G-025's first pass. G-025 was accepted 2026-07-23 with the final
+customer-identical clean-cache journey and G-114's accepted same-cache upgrade
+proof. Its evidence bundle exposed two bounded truth inconsistencies: G-125
+reconciles the recovered workflow receipt, then G-126 reconciles the last stale
+license summary. These are the remaining O5 acceptance fixes.
 
 ## Cross-goal invariants
 
@@ -147,9 +149,9 @@ release evidence bundle.
 - [x] A transient later-step runtime timeout can recover without recreating
       prior documents or schedules on the runtime readiness selected, including
       an Ollama-only profile (G-124).
-- [ ] The final Mode B staging bundle proves clean install, shared-cache upgrade,
+- [x] The final Mode B staging bundle proves clean install, shared-cache upgrade,
       activation, workflow completion/recovery and isolation.
-- [x] Every originating TRIAGE-036–TRIAGE-055 finding is mapped to exactly one
+- [x] Every originating TRIAGE-036–TRIAGE-057 finding is mapped to exactly one
       owning Goal Contract or a named shared dependency.
 
 ## Scope boundaries
@@ -172,7 +174,8 @@ release evidence bundle.
 
 ## References
 
-- `_IDEAS/triage.md` — TRIAGE-036 through TRIAGE-055 grooming map
+- `_IDEAS/triage.md` — TRIAGE-036 through TRIAGE-057 grooming map
+- `output/staging/2026-07-23/` — G-025 O5 acceptance evidence
 - `output/staging/2026-07-22-operator-host-cell-pack/FINDINGS-live.md`
 - `features/npm-customer-install-integrity.md`
 - `features/entitlement-aware-customer-onboarding.md`
