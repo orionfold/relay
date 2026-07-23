@@ -91,8 +91,10 @@ G-121 is the current O4 goal.
 
 ### O4 — First successful and recoverable run
 
-G-121 makes Start run preflighted and atomic, then navigates to the exact
-workflow. G-122 introduces step-scoped recovery for transient runtime loss and
+G-121 was accepted 2026-07-23 after evidence-only responsive readiness,
+zero-orphan refusal, idempotent atomic start and exact semantic workflow links
+passed 3,894 regressions, production build and deterministic real-runtime graph
+proof. G-122 now introduces step-scoped recovery for transient runtime loss and
 prevents completed side effects from replaying.
 
 ### O5 — Release acceptance and CLI polish

@@ -14,6 +14,10 @@ them; the current package and repository identity is Orionfold Relay.
   unreadable, or malformed entries no longer flood the CLI or hide valid
   profiles; one path-free summary points to bounded diagnostics, while a total
   root-scan failure remains a named error.
+- **Blueprint Start run is atomic and opens the exact workflow.** Readiness is
+  backed by verified provider evidence, failed preflight creates no hidden
+  draft, duplicate submissions converge on one run, and toast actions use real
+  App Router links instead of inert history mutation.
 
 ## [0.45.2] — 2026-07-21
 

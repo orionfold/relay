@@ -225,7 +225,6 @@ export function BlueprintGallery() {
                 })()}
               </CardContent>
               <CardStatusToolbar
-                status="ready"
                 family="lifecycle"
                 tone="neutral"
                 contentClassName="gap-1.5"
@@ -250,6 +249,7 @@ export function BlueprintGallery() {
                       variables={bp.variables}
                       label="Run"
                       compact
+                      showReadiness
                     />
                   </div>
                 }

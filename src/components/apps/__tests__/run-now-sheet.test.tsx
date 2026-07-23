@@ -4,6 +4,10 @@ import { RunNowSheet } from "../run-now-sheet";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
 
 const fetchMock = vi.fn();
+const routerPush = vi.fn();
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: routerPush }),
+}));
 beforeEach(() => {
   fetchMock.mockReset();
   global.fetch = fetchMock as unknown as typeof fetch;
@@ -42,8 +46,8 @@ describe("RunNowSheet", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("submits to /api/blueprints/{id}/instantiate on valid input", async () => {
-    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ taskId: "t1" }) });
+  it("submits to the atomic blueprint start boundary on valid input", async () => {
+    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ workflowId: "wf-1" }) });
     render(<RunNowSheet blueprintId="bp1" variables={variables} />);
     fireEvent.click(screen.getByRole("button", { name: /^run$/i }));
     const assetInput = screen.getByRole("textbox");
@@ -51,7 +55,7 @@ describe("RunNowSheet", () => {
     fireEvent.click(screen.getByRole("button", { name: /start run/i }));
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(
-        "/api/blueprints/bp1/instantiate",
+        "/api/blueprints/bp1/start",
         expect.objectContaining({
           method: "POST",
           body: expect.stringContaining("NVDA"),

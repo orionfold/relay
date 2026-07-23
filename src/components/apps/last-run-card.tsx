@@ -77,7 +77,7 @@ function CompactVariant({ blueprintLabel, lastRun, runCount30d }: CompactProps) 
         </p>
       </CardContent>
       <CardStatusToolbar
-        status={lastRun?.status ?? "ready"}
+        status={lastRun?.status}
         family="lifecycle"
         meta={lastRun ? formatAgo(lastRun.createdAt) : "Never run"}
       />
@@ -189,6 +189,7 @@ export function RunnableBlueprintCard({
               blueprintId={card.id}
               variables={card.variables}
               label="Run"
+              showReadiness={!lastRun}
             />
           ) : null
         }

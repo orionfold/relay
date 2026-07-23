@@ -37,22 +37,24 @@ describe("RunNowButton — two verbs (FEAT-6)", () => {
   it("Run instantiates THEN executes and toasts that the run started", async () => {
     const mockFetch = vi
       .fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ workflowId: "wf-1" }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ready: true }) })
       .mockResolvedValueOnce({ ok: true, json: async () => ({ status: "started", workflowId: "wf-1" }) });
     global.fetch = mockFetch as unknown as typeof fetch;
 
     render(<RunNowButton blueprintId="bp-1" />);
-    fireEvent.click(screen.getByRole("button", { name: /^run$/i }));
+    const runButton = screen.getByRole("button", { name: /^run$/i });
+    await waitFor(() => expect(runButton).toBeEnabled());
+    fireEvent.click(runButton);
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenNthCalledWith(
         1,
-        "/api/blueprints/bp-1/instantiate",
-        expect.objectContaining({ method: "POST" })
+        "/api/blueprints/bp-1/readiness",
+        expect.objectContaining({ cache: "no-store" })
       );
       expect(mockFetch).toHaveBeenNthCalledWith(
         2,
-        "/api/workflows/wf-1/execute",
+        "/api/blueprints/bp-1/start",
         expect.objectContaining({ method: "POST" })
       );
     });
@@ -62,19 +64,28 @@ describe("RunNowButton — two verbs (FEAT-6)", () => {
         expect.anything()
       )
     );
+    const options = toastSuccess.mock.calls.at(-1)?.[1] as {
+      action?: { props?: { href?: string } };
+    };
+    expect(options.action?.props?.href).toBe("/workflows/wf-1");
   });
 
   it("Create workflow instantiates only (no execute) and toasts a draft", async () => {
     const mockFetch = vi
       .fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ready: true }) })
       .mockResolvedValueOnce({ ok: true, json: async () => ({ workflowId: "wf-2" }) });
     global.fetch = mockFetch as unknown as typeof fetch;
 
     render(<RunNowButton blueprintId="bp-1" />);
+    await waitFor(() => expect(mockFetch).toHaveBeenCalledWith(
+      "/api/blueprints/bp-1/readiness",
+      expect.anything(),
+    ));
     fireEvent.click(screen.getByRole("button", { name: /create workflow/i }));
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
       expect(mockFetch).toHaveBeenCalledWith(
         "/api/blueprints/bp-1/instantiate",
         expect.objectContaining({ method: "POST" })
@@ -91,27 +102,57 @@ describe("RunNowButton — two verbs (FEAT-6)", () => {
   it("Run that fails to execute toasts an error and never claims it started", async () => {
     const mockFetch = vi
       .fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ workflowId: "wf-3" }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ready: true }) })
       .mockResolvedValueOnce({ ok: false, status: 409, json: async () => ({ error: "Workflow is already running" }) });
     global.fetch = mockFetch as unknown as typeof fetch;
 
     render(<RunNowButton blueprintId="bp-1" />);
-    fireEvent.click(screen.getByRole("button", { name: /^run$/i }));
+    const runButton = screen.getByRole("button", { name: /^run$/i });
+    await waitFor(() => expect(runButton).toBeEnabled());
+    fireEvent.click(runButton);
 
     await waitFor(() => expect(toastError).toHaveBeenCalled());
     expect(toastSuccess).not.toHaveBeenCalled();
   });
 
   it("disables both buttons while a request is in flight", async () => {
-    const mockFetch = vi.fn(() => new Promise(() => {}));
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ready: true }) })
+      .mockImplementationOnce(() => new Promise(() => {}));
     global.fetch = mockFetch as unknown as typeof fetch;
     render(<RunNowButton blueprintId="bp-1" />);
     const runBtn = screen.getByRole("button", { name: /^run$/i });
+    await waitFor(() => expect(runBtn).toBeEnabled());
     fireEvent.click(runBtn);
     await waitFor(() => {
       expect(runBtn).toBeDisabled();
       expect(screen.getByRole("button", { name: /create workflow/i })).toBeDisabled();
     });
+  });
+
+  it("refreshes a blocked blueprint after provider configuration changes", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ready: false, message: "No eligible runtime" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ready: true }),
+      });
+    global.fetch = mockFetch as unknown as typeof fetch;
+
+    render(<RunNowButton blueprintId="bp-1" showReadiness />);
+    const runButton = screen.getByRole("button", { name: /^run$/i });
+    await waitFor(() => expect(screen.getByText("Setup needed")).toBeInTheDocument());
+    expect(runButton).toBeDisabled();
+
+    fireEvent(window, new Event("relay:runtime-readiness-changed"));
+
+    await waitFor(() => expect(screen.getByText("Ready")).toBeInTheDocument());
+    expect(runButton).toBeEnabled();
   });
 });
 

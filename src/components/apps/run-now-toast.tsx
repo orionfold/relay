@@ -1,10 +1,5 @@
 import { toast } from "sonner";
-
-function navigateWithinApp(href: string): void {
-  // Next App Router observes native history mutations. This keeps the current
-  // document mounted instead of forcing a full reload with location.assign().
-  window.history.pushState(null, "", href);
-}
+import Link from "next/link";
 
 /**
  * BUG-4: "Run now" POSTs the blueprint instantiate endpoint, which creates a
@@ -16,19 +11,16 @@ function navigateWithinApp(href: string): void {
  * Shared by `run-now-button.tsx` (direct POST) and `run-now-sheet.tsx`
  * (variable path) so the honest copy can't drift between the two.
  */
-export function toastDraftCreated(workflowId: string | undefined): void {
+export function toastDraftCreated(
+  workflowId: string | undefined,
+): void {
   if (!workflowId) {
     // No id to link to — still don't claim it started.
     toast.success("Draft created. Open it in Workflows to Execute.");
     return;
   }
   toast.success("Draft created. Open it in Workflows to Execute.", {
-    action: {
-      label: "Open workflow",
-      onClick: () => {
-        navigateWithinApp(`/workflows/${workflowId}`);
-      },
-    },
+    action: <Link href={`/workflows/${workflowId}`}>Open workflow</Link>,
   });
 }
 
@@ -41,17 +33,14 @@ export function toastDraftCreated(workflowId: string | undefined): void {
  * next-step signpost. Distinct from `toastDraftCreated` (the "Create
  * workflow" verb, which only drafts and links to Workflows).
  */
-export function toastRunStarted(workflowId: string | undefined): void {
+export function toastRunStarted(
+  workflowId: string | undefined,
+): void {
   if (!workflowId) {
     toast.success("Run started. Watch it live in Monitor.");
     return;
   }
   toast.success("Run started. Watch it live in Monitor.", {
-    action: {
-      label: "Open run",
-      onClick: () => {
-        navigateWithinApp(`/workflows/${workflowId}`);
-      },
-    },
+    action: <Link href={`/workflows/${workflowId}`}>Open run</Link>,
   });
 }

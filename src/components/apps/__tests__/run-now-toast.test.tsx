@@ -18,15 +18,12 @@ describe("toastDraftCreated (BUG-4 — honest copy, no 'Run started' lie)", () =
   });
 
   it("deep-links to the workflow's Execute page when an id is present", () => {
-    const pushState = vi.spyOn(window.history, "pushState");
     toastDraftCreated("wf-42");
     const opts = toastSuccess.mock.calls[0][1] as {
-      action?: { label: string; onClick: () => void };
+      action?: { props?: { href?: string; children?: string } };
     };
-    expect(opts.action?.label).toMatch(/open workflow/i);
-    opts.action?.onClick();
-    expect(pushState).toHaveBeenCalledWith(null, "", "/workflows/wf-42");
-    pushState.mockRestore();
+    expect(opts.action?.props?.children).toMatch(/open workflow/i);
+    expect(opts.action?.props?.href).toBe("/workflows/wf-42");
   });
 
   it("still avoids the lie when no workflowId is returned", () => {
@@ -46,15 +43,12 @@ describe("toastRunStarted (CF-FEAT-8 — signpost the live-watch surface)", () =
   });
 
   it("opens this run's detail page from the action button", () => {
-    const pushState = vi.spyOn(window.history, "pushState");
     toastRunStarted("wf-7");
     const opts = toastSuccess.mock.calls[0][1] as {
-      action?: { label: string; onClick: () => void };
+      action?: { props?: { href?: string; children?: string } };
     };
-    expect(opts.action?.label).toMatch(/open run/i);
-    opts.action?.onClick();
-    expect(pushState).toHaveBeenCalledWith(null, "", "/workflows/wf-7");
-    pushState.mockRestore();
+    expect(opts.action?.props?.children).toMatch(/open run/i);
+    expect(opts.action?.props?.href).toBe("/workflows/wf-7");
   });
 
   it("still signposts Monitor when no workflowId is returned", () => {

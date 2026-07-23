@@ -26,6 +26,7 @@ import { getChatRuntimeContract } from "@/lib/chat/runtime-contract";
 import { sanitizeProviderError } from "./provider-endpoint";
 import {
   classifyRuntimeReadiness,
+  readRuntimeReadiness,
   recordRuntimeReadiness,
 } from "@/lib/settings/runtime-readiness";
 
@@ -329,12 +330,28 @@ async function buildResolvedTaskTarget(input: {
 async function checkRuntimeAvailability(
   runtimeId: AgentRuntimeId,
   setupStates?: Awaited<ReturnType<typeof getRuntimeSetupStates>>,
+  mode: "live" | "observed" = "live",
 ): Promise<RuntimeAvailability> {
   const states = setupStates ?? (await getRuntimeSetupStates());
   if (!states[runtimeId]?.configured) {
     return {
       available: false,
       reason: `${getRuntimeLabel(runtimeId)} is not configured`,
+    };
+  }
+
+  if (mode === "observed") {
+    const observation = await readRuntimeReadiness(
+      runtimeId,
+      states[runtimeId].apiKeySource ?? "unknown",
+    );
+    return {
+      available: observation.ready,
+      reason:
+        observation.reason ??
+        (observation.ready
+          ? null
+          : `${getRuntimeLabel(runtimeId)} has not been verified`),
     };
   }
 
@@ -399,6 +416,7 @@ export async function resolveTaskExecutionTarget(input: {
   profileId?: string | null;
   unavailableRuntimeIds?: string[];
   unavailableReasons?: Record<string, string>;
+  availabilityMode?: "live" | "observed";
 }): Promise<ResolvedExecutionTarget> {
   const requestedRuntimeId = input.requestedRuntimeId
     ? resolveAgentRuntime(input.requestedRuntimeId)
@@ -445,7 +463,11 @@ export async function resolveTaskExecutionTarget(input: {
               : null) ??
             `${getRuntimeLabel(requestedRuntimeId)} is temporarily unavailable`,
         }
-      : await checkRuntimeAvailability(requestedRuntimeId, states);
+      : await checkRuntimeAvailability(
+          requestedRuntimeId,
+          states,
+          input.availabilityMode,
+        );
     if (!availability.available) {
       throw new RuntimeUnavailableError(
         `${availability.reason ?? `${getRuntimeLabel(requestedRuntimeId)} is unavailable`}. ` +
@@ -488,7 +510,11 @@ export async function resolveTaskExecutionTarget(input: {
         requirements,
       });
     }
-    const availability = await checkRuntimeAvailability(defaultRuntimeId, states);
+    const availability = await checkRuntimeAvailability(
+      defaultRuntimeId,
+      states,
+      input.availabilityMode,
+    );
     if (!availability.available) {
       throw new RuntimeUnavailableError(
         `${availability.reason ?? `${getRuntimeLabel(defaultRuntimeId)} is unavailable`}. ` +
@@ -584,7 +610,11 @@ export async function resolveTaskExecutionTarget(input: {
     : autoOrder.slice(0, 1);
 
   for (const candidate of probeOrder) {
-    const availability = await checkRuntimeAvailability(candidate, states);
+    const availability = await checkRuntimeAvailability(
+      candidate,
+      states,
+      input.availabilityMode,
+    );
     if (availability.available) {
       const fallbackReason =
         suggested === candidate

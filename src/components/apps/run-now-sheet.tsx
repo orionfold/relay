@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Play, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,11 @@ import { VariableInput } from "@/components/workflows/variable-input";
 import { validateVariables } from "@/lib/workflows/blueprints/validate-variables";
 import { cn } from "@/lib/utils";
 import { toastDraftCreated, toastRunStarted } from "./run-now-toast";
-import { instantiateAndMaybeExecute, type RunNowMode } from "./run-now-actions";
+import {
+  instantiateAndMaybeExecute,
+  needsRuntimeSetup,
+  type RunNowMode,
+} from "./run-now-actions";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
 
 interface RunNowSheetProps {
@@ -28,6 +33,8 @@ interface RunNowSheetProps {
   buttonVariant?: "default" | "outline";
   /** Compact trigger styling for card toolbars. */
   triggerClassName?: string;
+  disabled?: boolean;
+  disabledReason?: string;
 }
 
 /**
@@ -47,6 +54,8 @@ export function RunNowSheet({
   mode = "run",
   buttonVariant = "default",
   triggerClassName,
+  disabled = false,
+  disabledReason,
 }: RunNowSheetProps) {
   const [open, setOpen] = useState(false);
   const initialValues = Object.fromEntries(
@@ -73,7 +82,19 @@ export function RunNowSheet({
         // A field-level validation error surfaces inline next to the input;
         // everything else falls back to a toast.
         if (result.field) setErrors({ [result.field]: result.error });
-        else toast.error(result.error);
+        else {
+          toast.error(result.error, {
+            ...(needsRuntimeSetup(result)
+              ? {
+                    action: (
+                      <Link href="/settings#settings-providers-runtimes">
+                        Open runtime settings
+                      </Link>
+                    ),
+                }
+              : {}),
+          });
+        }
         return;
       }
       if (mode === "run") toastRunStarted(result.workflowId);
@@ -89,7 +110,13 @@ export function RunNowSheet({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button size="sm" variant={buttonVariant} className={cn("gap-1.5", triggerClassName)}>
+        <Button
+          size="sm"
+          variant={buttonVariant}
+          className={cn("gap-1.5", triggerClassName)}
+          disabled={disabled}
+          title={disabledReason}
+        >
           <TriggerIcon className="h-3.5 w-3.5" />
           {label}
         </Button>

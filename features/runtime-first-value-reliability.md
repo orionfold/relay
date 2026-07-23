@@ -110,8 +110,8 @@ forced into cloud API-key semantics.
 - [ ] Local model totals and defaults reflect supported generation models and
       honest loaded/readiness evidence.
 - [ ] Provider setup updates routing automatically without extra refresh.
-- [ ] No-ineligible-runtime Start run creates zero drafts.
-- [ ] Successful Open run renders `/workflows/{workflowId}`.
+- [x] No-ineligible-runtime Start run creates zero drafts.
+- [x] Successful Open run renders `/workflows/{workflowId}`.
 - [ ] Transient later-step timeout pauses/retries/resumes without replaying
       completed side effects.
 - [ ] Authentication rejection and true outage remain distinct.
@@ -211,3 +211,30 @@ TypeScript, production build, dangling/valid symlink and failure-matrix
 fixtures, diagnostics redaction checks, and the real customer skill tree
 through the `list_profiles` chat tool. That customer-state proof returned 91
 valid profiles with one path-free summary for 31 unavailable/malformed entries.
+
+## Implementation receipt — G-121
+
+Accepted 2026-07-23. Runnable blueprint surfaces now show **Ready** only when
+the first declared executable step has a profile-, capability-, model- and
+routing-compatible target backed by persisted verified provider evidence.
+Unready cards expose a semantic **Setup needed** link, and provider readiness
+events refresh the state without reloading. Gallery rendering does not perform
+live provider probes; the observed-readiness response was 55 ms warm in the
+real app.
+
+**Start run** now sends one idempotent request. The server resolves variables
+and conditions, live-preflights every executable step before mutation, then one
+SQLite transaction inserts the exact active workflow and its first run receipt.
+A refused preflight creates zero workflow rows. Concurrent/retried request
+identities converge on the same workflow and dispatch only once, while
+**Create workflow** remains draft-only. Success toasts use semantic App Router
+links to `/workflows/{workflowId}` instead of mutating native history.
+
+Verification passed: 3,894 tests across 532 files (one intentional skip),
+TypeScript, production build, 89 focused atomic/readiness/navigation and
+existing-card regressions, desktop and 390 px dark-browser inspection with no
+console warnings/errors, and the deterministic loopback runtime-graph smoke
+covering real task, workflow, chat, Ollama, LiteLLM, LM Studio and receipt
+paths. A live external-provider workflow was deliberately not used because
+agent profiles may read project context; the loopback smoke provides the
+required execution proof without transmitting it.

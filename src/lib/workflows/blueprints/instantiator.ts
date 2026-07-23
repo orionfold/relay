@@ -12,6 +12,12 @@ interface InstantiateResult {
   skippedSteps: string[];
 }
 
+export interface PreparedBlueprintInstantiation extends InstantiateResult {
+  projectId: string | null;
+  definition: string;
+  createdAt: Date;
+}
+
 /**
  * Instantiate a blueprint into a concrete draft workflow.
  *
@@ -31,6 +37,50 @@ export async function instantiateBlueprint(
     _scheduleBudgetPerRunUsd?: number;
   }
 ): Promise<InstantiateResult> {
+  const prepared = prepareBlueprintInstantiation(
+    blueprintId,
+    variables,
+    projectId,
+    metadata,
+  );
+
+  await db.insert(workflows).values({
+    id: prepared.workflowId,
+    projectId: prepared.projectId,
+    name: prepared.name.slice(0, 100),
+    definition: prepared.definition,
+    status: "draft",
+    createdAt: prepared.createdAt,
+    updatedAt: prepared.createdAt,
+  });
+
+  return {
+    workflowId: prepared.workflowId,
+    name: prepared.name,
+    stepsCount: prepared.stepsCount,
+    skippedSteps: prepared.skippedSteps,
+  };
+}
+
+/**
+ * Resolve and validate a blueprint without mutating the database.
+ *
+ * Readiness and atomic Start use this exact preparation path so their
+ * preflight inspects the same prompts, conditions and profiles that would be
+ * persisted. Draft-only creation calls it immediately before insertion.
+ */
+export function prepareBlueprintInstantiation(
+  blueprintId: string,
+  variables: Record<string, unknown>,
+  projectId?: string,
+  metadata?: {
+    _contextRowId?: string;
+    _scheduleId?: string;
+    _scheduleBudgetPerRunUsd?: number;
+  },
+  workflowId?: string,
+): PreparedBlueprintInstantiation {
+  const resolvedWorkflowId = workflowId ?? crypto.randomUUID();
   const blueprint = getBlueprint(blueprintId);
   if (!blueprint) {
     throw new Error(`Blueprint "${blueprintId}" not found`);
@@ -58,7 +108,9 @@ export async function instantiateBlueprint(
     // exclusive (XOR), so branching here is safe.
     if (step.delayDuration) {
       resolvedSteps.push({
-        id: crypto.randomUUID(),
+        id: workflowId
+          ? `${resolvedWorkflowId}:step:${resolvedSteps.length}`
+          : crypto.randomUUID(),
         name: step.name,
         prompt: "",
         requiresApproval: step.requiresApproval,
@@ -77,7 +129,9 @@ export async function instantiateBlueprint(
     const resolvedPrompt = resolveTemplate(step.promptTemplate, resolvedVars);
 
     resolvedSteps.push({
-      id: crypto.randomUUID(),
+      id: workflowId
+        ? `${resolvedWorkflowId}:step:${resolvedSteps.length}`
+        : crypto.randomUUID(),
       name: step.name,
       prompt: resolvedPrompt,
       requiresApproval: step.requiresApproval,
@@ -89,8 +143,6 @@ export async function instantiateBlueprint(
     throw new Error("All steps were skipped by conditions — at least one step must remain");
   }
 
-  // Create the workflow
-  const workflowId = crypto.randomUUID();
   const now = new Date();
   const workflowName = resolveTemplate(
     `${blueprint.name}: {{${blueprint.variables[0]?.id ?? "topic"}}}`,
@@ -112,21 +164,14 @@ export async function instantiateBlueprint(
     definition._scheduleBudgetPerRunUsd = metadata._scheduleBudgetPerRunUsd;
   }
 
-  await db.insert(workflows).values({
-    id: workflowId,
-    projectId: projectId ?? null,
-    name: workflowName.slice(0, 100),
-    definition: JSON.stringify(definition),
-    status: "draft",
-    createdAt: now,
-    updatedAt: now,
-  });
-
   return {
-    workflowId,
+    workflowId: resolvedWorkflowId,
     name: workflowName,
     stepsCount: resolvedSteps.length,
     skippedSteps,
+    projectId: projectId ?? null,
+    definition: JSON.stringify(definition),
+    createdAt: now,
   };
 }
 
