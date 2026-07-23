@@ -93,6 +93,8 @@ describe("instance section", () => {
   });
 
   it("shows an npx-install notice instead of the setup warning when skippedReason=no_git", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("navigator", { clipboard: { writeText } });
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -106,6 +108,16 @@ describe("instance section", () => {
               devMode: false,
               boundary: { ...boundary, instanceId: null },
               skippedReason: "no_git",
+              maintenance: {
+                launchContext: {
+                  packageVersion: "0.45.2",
+                  dataDir: "/tmp/relay-cell-a",
+                  hostRoot: "/tmp/relay-host",
+                  port: 3200,
+                },
+                upgradeCommand:
+                  "RELAY_HOST_ROOT='/tmp/relay-host' npx --yes orionfold-relay@latest --data-dir '/tmp/relay-cell-a' --port 3200",
+              },
               config: null,
               guardrails: null,
               upgrade: null,
@@ -119,13 +131,23 @@ describe("instance section", () => {
 
     render(<InstanceSection />);
 
-    expect(await screen.findByText("npx install")).toBeInTheDocument();
-    // The explanatory paragraph wraps .git + the upgrade command in <code>
-    // elements, so matchers must work around the split text nodes.
-    expect(screen.getByText(/This folder has no/i)).toBeInTheDocument();
+    expect(await screen.findByText("npm install")).toBeInTheDocument();
     expect(
-      screen.getByText("npx orionfold-relay@latest")
+      screen.getByRole("heading", { name: "Update this Relay" }),
     ).toBeInTheDocument();
+    expect(screen.getByText(/Updating replaces Relay's application files/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "RELAY_HOST_ROOT='/tmp/relay-host' npx --yes orionfold-relay@latest --data-dir '/tmp/relay-cell-a' --port 3200",
+      ),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Copy restart command" }));
+    await waitFor(() =>
+      expect(writeText).toHaveBeenCalledWith(
+        "RELAY_HOST_ROOT='/tmp/relay-host' npx --yes orionfold-relay@latest --data-dir '/tmp/relay-cell-a' --port 3200",
+      ),
+    );
+    expect(screen.getByText("Restart command copied.")).toBeInTheDocument();
     // Critical: the scary "setup incomplete" warning must NOT appear here.
     expect(
       screen.queryByText("Instance setup incomplete. Run setup to initialize this workspace.")
@@ -161,7 +183,10 @@ describe("instance section", () => {
 
     render(<InstanceSection />);
 
-    expect(await screen.findByText("npx install")).toBeInTheDocument();
+    expect(await screen.findByText("npm install")).toBeInTheDocument();
+    expect(
+      screen.getByText(/could not reconstruct the command used to start/i),
+    ).toBeInTheDocument();
     expect(screen.getByText("g096-cel…")).toBeInTheDocument();
     expect(screen.queryByText("Not initialized")).not.toBeInTheDocument();
   });

@@ -1,5 +1,56 @@
 # Feature Changelog
 
+## 2026-07-22
+
+### Completed
+
+- `npm-customer-install-integrity` (G-114) — bound downloaded production builds
+  and hoisted Relay runtime inputs to the exact npm package version, artifact
+  checksum and build identity; staged promotion prevents mixed runnable bytes
+  and evicts poisoned cache entries. The containing npm project is preserved,
+  including its `package.json`. Non-git Settings now explains app-versus-data
+  updates and provides a copyable, shell-safe restart command preserving the
+  active data root, Host root, port, exposure and non-secret flags. Forty-six
+  targeted tests, TypeScript, CLI/production builds, the 46.3 MB artifact, the
+  full packed-npm smoke and a disposable packed-install browser proof passed.
+  G-115 retains the separate install-warning cleanup.
+
+### Groomed
+
+- `customer-onboarding-release-train` — promoted all verified findings from the
+  published `orionfold-relay@0.45.2` operator walkthrough into a six-increment
+  active workstream: trustworthy install, entitlement-aware orientation, safe
+  Pack activation, truthful runtime readiness, first successful/recoverable
+  workflow, and customer-identical release acceptance.
+- Groomed G-114–G-123 with exact outcomes, dependencies, regression budgets,
+  operator gates and rescue conditions. G-114 is the current independently
+  releasable P0 integrity patch; G-025 is reused as the final O5 staging gate.
+- `npm-customer-install-integrity` — combined the stale shared-cache build and
+  unsafe maintenance-command findings under G-114 while keeping npm dependency
+  hygiene as independent G-115. The narrow G-035 stderr revalidation contract
+  is superseded, not duplicated.
+- `entitlement-aware-customer-onboarding` — grouped first-screen/identity/
+  License/Host continuity as G-116, premium Pack acquisition as G-117, and
+  Agency sample-data trust as G-118.
+- `runtime-first-value-reliability` — made G-119 the shared runtime truth
+  prerequisite, followed by provider-first Settings (G-120), atomic exact-run
+  activation (G-121), step-scoped transient recovery (G-122), and quiet
+  fault-tolerant skill discovery (G-123).
+
+### Re-prioritized
+
+- **Customer onboarding and first value** is now the active Relay workstream.
+  The customer-owned Host verified-provider train is preserved but paused at
+  G-109; Enterprise connectors remain paused. No Host/Cell or connector goal
+  was deleted.
+
+### Verification
+
+- Completed the published-npm Mode B teardown: removed the isolated
+  `~/.relay-npx-test`, `~/relay-npx-test` cache/workspace and temporary license;
+  ports 3199/3200/3000 were free; the default Relay database SHA-256 remained
+  `acd4abc37ac97cf2a49a957ceb606812d40e827811696cef7013c09f9eb0f35e`.
+
 ## 2026-07-21
 
 ### Completed
@@ -26,6 +77,31 @@
   DigitalOcean, AWS Lightsail and Azure receipts and never implies “any cloud.”
   No cloud account, credential, spend, provider mutation or external write was
   used for the research decision.
+
+### Groomed
+
+- `cross-cloud-relay-host-portability` (G-107) — made a provider-neutral
+  compatible-Linux-VM playbook the first post-DigitalOcean cloud increment,
+  followed by independently verified providers. The research goal compares
+  secret-free bootstrap and optional OpenTofu, explicitly separates AWS
+  Lightsail from EC2, ranks AWS/Azure/GCP and lower-cost providers, defines
+  portable-versus-verified claim thresholds, and must groom bounded
+  implementation goals plus amend G-086 before any provider spend or support
+  claim.
+- `memo-inline-svg-commonmark-safety` (G-106) — specified Relay's canonical
+  producer repair for five Packs memos whose inline SVG figures contain blank
+  lines that terminate CommonMark raw HTML. The goal adds a source-boundary
+  regression before SVG extraction, tag/id/reference integrity checks, exact
+  five-article repair, complete memo-gate evidence, and a Website handoff
+  receipt while preserving Website's byte-equal, fail-closed ownership boundary.
+
+### Deferred
+
+- `digitalocean-marketplace-relay-host` (G-103) — deferred by operator
+  direction without deleting its research contract. Cross-cloud customer
+  portability and verified-provider increments now precede investment in a
+  DigitalOcean-specific Marketplace acquisition channel; vendor enrollment,
+  image work, preview, listing, submission and publication remain gated.
 
 ## 2026-07-20
 
@@ -135,6 +211,16 @@
   builds. No Pack or Cell was removed during browser verification.
 
 ### Groomed
+
+- `digitalocean-marketplace-relay-host` (G-103) — added a research-ready
+  Marketplace channel increment after the DigitalOcean Host beta. The goal
+  compares a standard Droplet 1-Click that preserves Website-issued offline
+  licensing, a DigitalOcean Licensed Droplet that would require a new hosted
+  entitlement/lifecycle service, and a listing-led deploy handoff. It defines
+  vendor, image, first-boot, security, listing, preview, update and support
+  preparation; G-085 remains the conformance prerequisite and active priority.
+  No vendor enrollment, terms acceptance, paid resource, snapshot, preview,
+  listing, submission, publication or other external write was performed.
 
 - `relay-host-cell-memo-series` (G-102) — created a supporting Host/Cell
   customer-education workstream and one executable goal for six high-quality,

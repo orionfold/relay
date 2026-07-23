@@ -34,6 +34,15 @@ interface ConfigResponse {
   devMode: boolean;
   skippedReason?: "no_git" | string;
   boundary: RelayCellBoundary;
+  maintenance?: {
+    launchContext: {
+      packageVersion: string;
+      dataDir: string;
+      hostRoot: string | null;
+      port: number;
+    };
+    upgradeCommand: string;
+  } | null;
   config: InstanceConfig | null;
   guardrails: Guardrails | null;
   upgrade: UpgradeState | null;
@@ -225,23 +234,70 @@ export function InstanceSection() {
   // npx install: no git repo, so upgrade machinery doesn't apply.
   // Users upgrade via `npx orionfold-relay@latest`, not via git merge.
   if (state?.skippedReason === "no_git") {
+    const maintenance = state.maintenance ?? null;
+    const copyUpgradeCommand = async () => {
+      if (!maintenance?.upgradeCommand) return;
+      try {
+        await navigator.clipboard.writeText(maintenance.upgradeCommand);
+        setMessage("Restart command copied.");
+      } catch {
+        setMessage(
+          "Could not copy the restart command. Select the command and copy it manually.",
+        );
+      }
+    };
     return (
       <InstanceLayout boundary={state.boundary}>
-        <section className="rounded-xl border bg-card px-5 py-3 flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-base font-semibold">Instance maintenance</h2>
-            <Badge variant="outline" className="text-xs font-normal">
-              npx install
-            </Badge>
+        <section className="rounded-xl border bg-card px-5 py-4 space-y-3">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h2 className="text-base font-semibold">Update this Relay</h2>
+              <Badge variant="outline" className="text-xs font-normal">
+                npm install
+              </Badge>
+            </div>
+            {maintenance && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={copyUpgradeCommand}
+              >
+                Copy restart command
+              </Button>
+            )}
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed max-w-prose">
-            This folder has no <code className="font-mono text-[11px] px-1 py-0.5 rounded bg-muted">.git</code> directory.
-            To upgrade, run{" "}
+            Updating replaces Relay&apos;s application files, not the data stored
+            at{" "}
             <code className="font-mono text-[11px] px-1 py-0.5 rounded bg-muted">
-              npx orionfold-relay@latest
+              {state.boundary.dataDirectory}
             </code>
-            . Git-based upgrades (upstream merges, pre-push hooks) only apply to cloned repos.
+            . After restarting, confirm the version badge and data directory
+            shown on this page.
           </p>
+          {maintenance ? (
+            <>
+              <pre className="overflow-x-auto rounded-md border bg-muted/40 px-3 py-2 text-[11px] leading-relaxed">
+                <code>{maintenance.upgradeCommand}</code>
+              </pre>
+              <p className="text-xs text-muted-foreground">
+                This command preserves port {maintenance.launchContext.port}
+                {maintenance.launchContext.hostRoot
+                  ? ` and Host state at ${maintenance.launchContext.hostRoot}`
+                  : ""}
+                .
+              </p>
+            </>
+          ) : (
+            <div className="rounded-md border border-status-warning/40 bg-status-warning/10 px-3 py-2 text-xs">
+              Relay could not reconstruct the command used to start this
+              instance. Reuse your original command and keep the same data
+              directory shown above.
+            </div>
+          )}
+          {message && (
+            <div className="text-xs text-muted-foreground">{message}</div>
+          )}
         </section>
       </InstanceLayout>
     );

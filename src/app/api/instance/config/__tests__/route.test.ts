@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   isDevMode: vi.fn(),
@@ -36,10 +36,15 @@ const boundary = {
 describe("GET /api/instance/config", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    delete process.env.RELAY_LAUNCH_CONTEXT;
     mocks.getRelayCellBoundary.mockReturnValue(boundary);
     mocks.getInstanceConfig.mockReturnValue(null);
     mocks.getGuardrails.mockReturnValue(null);
     mocks.getUpgradeState.mockReturnValue(null);
+  });
+
+  afterEach(() => {
+    delete process.env.RELAY_LAUNCH_CONTEXT;
   });
 
   it("returns cell facts while suppressing stale bootstrap identity in dev mode", async () => {
@@ -61,6 +66,20 @@ describe("GET /api/instance/config", () => {
   it("returns the cell facts and truthful no-git maintenance state for npx", async () => {
     mocks.isDevMode.mockReturnValue(false);
     mocks.hasGitDir.mockReturnValue(false);
+    process.env.RELAY_LAUNCH_CONTEXT = JSON.stringify({
+      schemaVersion: 1,
+      packageVersion: "0.45.2",
+      dataDir: "/srv/relay/cell-a",
+      hostRoot: "/srv/relay/host",
+      npmCache: "/tmp/npm-cache",
+      port: 3200,
+      hostname: "127.0.0.1",
+      exposureProfile: "trusted-local",
+      publicOrigin: null,
+      routePrefix: "/",
+      safeMode: false,
+      noOpen: false,
+    });
 
     const response = await GET();
 
@@ -68,8 +87,28 @@ describe("GET /api/instance/config", () => {
       devMode: false,
       skippedReason: "no_git",
       boundary,
+      maintenance: {
+        launchContext: {
+          packageVersion: "0.45.2",
+          dataDir: "/srv/relay/cell-a",
+          hostRoot: "/srv/relay/host",
+        },
+        upgradeCommand:
+          "RELAY_HOST_ROOT='/srv/relay/host' NPM_CONFIG_CACHE='/tmp/npm-cache' npx --yes orionfold-relay@latest --data-dir '/srv/relay/cell-a' --port 3200 --hostname '127.0.0.1' --exposure-profile 'trusted-local' --route-prefix '/'",
+      },
       config: null,
     });
+  });
+
+  it("keeps non-git maintenance truthful when launch provenance is unavailable", async () => {
+    mocks.isDevMode.mockReturnValue(false);
+    mocks.hasGitDir.mockReturnValue(false);
+    process.env.RELAY_LAUNCH_CONTEXT = "{not-json";
+
+    const body = await (await GET()).json();
+
+    expect(body.maintenance).toBeNull();
+    expect(body.skippedReason).toBe("no_git");
   });
 
   it("returns the initialized instance and the same safe boundary contract", async () => {

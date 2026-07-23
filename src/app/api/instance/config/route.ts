@@ -7,6 +7,10 @@ import {
 } from "@/lib/instance/settings";
 import { hasGitDir, isDevMode } from "@/lib/instance/detect";
 import { getRelayCellBoundary } from "@/lib/instance/cell-boundary";
+import {
+  buildRelayUpgradeCommand,
+  parseRelayLaunchContext,
+} from "@/lib/instance/launch-context";
 
 /**
  * GET /api/instance/config
@@ -43,10 +47,19 @@ export async function GET() {
       });
     }
     if (!hasGitDir()) {
+      const launchContext = parseRelayLaunchContext(
+        process.env.RELAY_LAUNCH_CONTEXT,
+      );
       return NextResponse.json({
         devMode: false,
         skippedReason: "no_git",
         boundary,
+        maintenance: launchContext
+          ? {
+              launchContext,
+              upgradeCommand: buildRelayUpgradeCommand(launchContext),
+            }
+          : null,
         config: null,
         guardrails: null,
         upgrade: null,

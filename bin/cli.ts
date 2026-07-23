@@ -7,7 +7,6 @@ import {
   existsSync,
   readFileSync,
   writeFileSync,
-  cpSync,
   unlinkSync,
 } from "fs";
 import { spawn } from "child_process";
@@ -19,13 +18,21 @@ import {
   resolveNextEntrypoint,
   resolveSidecarPort,
 } from "../src/lib/desktop/sidecar-launch";
-import { ensurePrebuilt } from "../src/lib/desktop/prebuilt-download";
+import {
+  ensurePrebuilt,
+  isPrebuiltCurrent,
+} from "../src/lib/desktop/prebuilt-download";
+import { syncHoistedWorkspaceInputs } from "../src/lib/desktop/hoisted-workspace";
 import { getAinativeDataDir, getAinativeDbPath } from "../src/lib/utils/ainative-paths";
 import {
   BetterSqlite3NativeBindingUnavailableError,
   ensureBetterSqlite3NativeBinding,
 } from "../src/lib/cli/native-binding-preflight";
 import { isDevMode } from "../src/lib/instance/detect";
+import {
+  serializeRelayLaunchContext,
+  type RelayLaunchContext,
+} from "../src/lib/instance/launch-context";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const appDir = join(__dirname, "..");
@@ -448,27 +455,11 @@ async function main() {
       const candidate = join(searchDir, "node_modules", "next", "package.json");
       if (existsSync(candidate)) {
         const hoistedRoot = searchDir;
-        for (const name of ["src", "public"]) {
-          const dest = join(hoistedRoot, name);
-          const src = join(appDir, name);
-          if (!existsSync(dest) && existsSync(src)) {
-            cpSync(src, dest, { recursive: true });
-          }
-        }
-        for (const name of [
-          "next.config.mjs",
-          "tsconfig.json",
-          "postcss.config.mjs",
-          "package.json",
-          "components.json",
-          "drizzle.config.ts",
-        ]) {
-          const dest = join(hoistedRoot, name);
-          const src = join(appDir, name);
-          if (!existsSync(dest) && existsSync(src)) {
-            writeFileSync(dest, readFileSync(src));
-          }
-        }
+        syncHoistedWorkspaceInputs({
+          appDir,
+          hoistedRoot,
+          packageVersion: pkg.version,
+        });
         effectiveCwd = hoistedRoot;
         break;
       }
@@ -483,7 +474,7 @@ async function main() {
   // there is no release asset for unpublished versions, and extracting into
   // the working tree would clobber local builds). Any failure is loud and
   // falls back to today's dev-mode launch — never a blocked start.
-  if (!existsSync(join(effectiveCwd, ".next", "BUILD_ID")) && !isDevMode(launchCwd)) {
+  if (!isDevMode(launchCwd)) {
     try {
       await ensurePrebuilt({
         version: pkg.version,
@@ -506,9 +497,10 @@ async function main() {
 
   // 7. Spawn Next.js server (production if pre-built, dev otherwise)
   const nextEntrypoint = resolveNextEntrypoint(effectiveCwd);
-  const isPrebuilt = existsSync(join(effectiveCwd, ".next", "BUILD_ID"));
+  const isPrebuilt = isPrebuiltCurrent(effectiveCwd, pkg.version);
   const bindHost = (opts.hostname as string) || "127.0.0.1";
-  const exposureProfile = process.env.RELAY_EXPOSURE_PROFILE || "trusted-local";
+  const exposureProfile = (process.env.RELAY_EXPOSURE_PROFILE ||
+    "trusted-local") as RelayLaunchContext["exposureProfile"];
   if (isNonLoopbackHost(bindHost) && exposureProfile === "trusted-local") {
     program.error(
       "Non-loopback binding is refused in trusted-local mode. Select private-authenticated or remote-authenticated and provide --public-origin.",
@@ -530,6 +522,20 @@ async function main() {
     host: bindHost,
   });
   const sidecarUrl = buildSidecarUrl(actualPort, bindHost);
+  const launchContext = serializeRelayLaunchContext({
+    schemaVersion: 1,
+    packageVersion: pkg.version,
+    dataDir: DATA_DIR,
+    hostRoot: process.env.RELAY_HOST_ROOT || null,
+    npmCache: process.env.NPM_CONFIG_CACHE || null,
+    port: actualPort,
+    hostname: bindHost,
+    exposureProfile,
+    publicOrigin: process.env.RELAY_PUBLIC_ORIGIN || null,
+    routePrefix: process.env.RELAY_ROUTE_PREFIX || "/",
+    safeMode: opts.safeMode === true,
+    noOpen: opts.open === false,
+  });
 
   // D3 — the banner reads the license store: a paying customer is never
   // greeted as "Community Edition" again. Fail-OPEN: any store fault at all
@@ -559,6 +565,7 @@ async function main() {
       ...process.env,
       RELAY_DATA_DIR: DATA_DIR,
       RELAY_LAUNCH_CWD: launchCwd,
+      RELAY_LAUNCH_CONTEXT: launchContext,
       PORT: String(actualPort),
       // Origin for Relay's internal loopback self-calls (trigger dispatch,
       // compose table tools). The server always listens on loopback even when

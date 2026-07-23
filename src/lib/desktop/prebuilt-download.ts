@@ -7,6 +7,7 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  renameSync,
   rmSync,
   statSync,
   symlinkSync,
@@ -37,6 +38,14 @@ export class PrebuiltDownloadError extends Error {
 }
 
 const RELEASE_DOWNLOAD_BASE = "https://github.com/orionfold/relay/releases/download";
+const PREBUILT_VERSION_MANIFEST = "relay-prebuilt-version.json";
+
+interface PrebuiltVersionManifest {
+  schemaVersion: 1;
+  packageVersion: string;
+  artifactSha256: string;
+  buildId: string;
+}
 
 export function artifactFileName(version: string): string {
   return `relay-next-build-${version}.tgz`;
@@ -78,6 +87,54 @@ export async function sha256OfFile(filePath: string): Promise<string> {
   const hash = createHash("sha256");
   await pipeline(createReadStream(filePath), hash);
   return hash.digest("hex");
+}
+
+function readPrebuiltVersionManifest(
+  effectiveCwd: string,
+): PrebuiltVersionManifest | null {
+  const manifestPath = join(
+    effectiveCwd,
+    ".next",
+    PREBUILT_VERSION_MANIFEST,
+  );
+  try {
+    const parsed = JSON.parse(
+      readFileSync(manifestPath, "utf-8"),
+    ) as Partial<PrebuiltVersionManifest>;
+    if (
+      parsed.schemaVersion !== 1 ||
+      typeof parsed.packageVersion !== "string" ||
+      typeof parsed.artifactSha256 !== "string" ||
+      !/^[0-9a-f]{64}$/i.test(parsed.artifactSha256) ||
+      typeof parsed.buildId !== "string" ||
+      !parsed.buildId.trim()
+    ) {
+      return null;
+    }
+    return parsed as PrebuiltVersionManifest;
+  } catch {
+    return null;
+  }
+}
+
+export function isPrebuiltCurrent(
+  effectiveCwd: string,
+  version: string,
+): boolean {
+  try {
+    const buildId = readFileSync(
+      join(effectiveCwd, ".next", "BUILD_ID"),
+      "utf-8",
+    ).trim();
+    const manifest = readPrebuiltVersionManifest(effectiveCwd);
+    return (
+      Boolean(buildId) &&
+      manifest?.packageVersion === version &&
+      manifest.buildId === buildId
+    );
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -135,7 +192,11 @@ export async function downloadToFile(url: string, destPath: string): Promise<voi
  * `strict: true` so tar entry errors reject instead of degrading to warnings —
  * a partially-extracted build must never look like success.
  */
-export async function extractPrebuilt(tgzPath: string, destDir: string): Promise<void> {
+export async function extractPrebuilt(
+  tgzPath: string,
+  destDir: string,
+  { relink = true }: { relink?: boolean } = {},
+): Promise<void> {
   try {
     await tar.extract({ file: tgzPath, cwd: destDir, strict: true });
   } catch (cause) {
@@ -149,7 +210,9 @@ export async function extractPrebuilt(tgzPath: string, destDir: string): Promise
       `Artifact ${basename(tgzPath)} extracted but contains no .next/BUILD_ID — not a valid prebuilt bundle.`,
     );
   }
-  relinkExternalPackages(destDir);
+  if (relink) {
+    relinkExternalPackages(destDir);
+  }
 }
 
 /**
@@ -162,7 +225,13 @@ export async function extractPrebuilt(tgzPath: string, destDir: string): Promise
  * here against the install's own node_modules — junction on Windows (no
  * privileges required), relative symlink elsewhere.
  */
-function relinkExternalPackages(destDir: string): void {
+function relinkExternalPackages(
+  destDir: string,
+  {
+    packageRoot = destDir,
+    finalLinksDir = join(destDir, ".next", "node_modules"),
+  }: { packageRoot?: string; finalLinksDir?: string } = {},
+): void {
   const manifestPath = join(destDir, ".next", "relay-external-packages.json");
   if (!existsSync(manifestPath)) {
     return; // artifact predates the manifest — nothing to relink
@@ -182,7 +251,7 @@ function relinkExternalPackages(destDir: string): void {
   mkdirSync(linksDir, { recursive: true });
 
   for (const [hashedName, packagePath] of Object.entries(links)) {
-    const target = join(destDir, "node_modules", packagePath);
+    const target = join(packageRoot, "node_modules", packagePath);
     if (!existsSync(target)) {
       throw new PrebuiltDownloadError(
         `Prebuilt server expects package "${packagePath}" (as ${hashedName}) but it is ` +
@@ -196,13 +265,88 @@ function relinkExternalPackages(destDir: string): void {
         // Junctions take absolute targets and need no special privileges.
         symlinkSync(target, linkPath, "junction");
       } else {
-        symlinkSync(relative(linksDir, target), linkPath);
+        // A staged .next directory is promoted after links are created. Store
+        // the relative target for its final location, not its temporary one.
+        symlinkSync(relative(finalLinksDir, target), linkPath);
       }
     } catch (cause) {
       throw new PrebuiltDownloadError(
         `Could not link ${hashedName} → ${target}: ${cause instanceof Error ? cause.message : String(cause)}`,
         { cause },
       );
+    }
+  }
+}
+
+async function installPrebuiltVersion({
+  tgzPath,
+  effectiveCwd,
+  version,
+  artifactSha256,
+}: {
+  tgzPath: string;
+  effectiveCwd: string;
+  version: string;
+  artifactSha256: string;
+}): Promise<void> {
+  const suffix = `${process.pid}-${Date.now()}`;
+  const stageRoot = join(effectiveCwd, `.relay-prebuilt-stage-${suffix}`);
+  const stagedNext = join(stageRoot, ".next");
+  const finalNext = join(effectiveCwd, ".next");
+  const backupNext = join(effectiveCwd, `.relay-prebuilt-backup-${suffix}`);
+  let backedUp = false;
+
+  rmSync(stageRoot, { recursive: true, force: true });
+  rmSync(backupNext, { recursive: true, force: true });
+  mkdirSync(stageRoot, { recursive: true });
+
+  try {
+    await extractPrebuilt(tgzPath, stageRoot, { relink: false });
+    relinkExternalPackages(stageRoot, {
+      packageRoot: effectiveCwd,
+      finalLinksDir: join(effectiveCwd, ".next", "node_modules"),
+    });
+    const buildId = readFileSync(join(stagedNext, "BUILD_ID"), "utf-8").trim();
+    writeFileSync(
+      join(stagedNext, PREBUILT_VERSION_MANIFEST),
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          packageVersion: version,
+          artifactSha256,
+          buildId,
+        } satisfies PrebuiltVersionManifest,
+        null,
+        2,
+      )}\n`,
+      "utf-8",
+    );
+
+    if (existsSync(finalNext)) {
+      renameSync(finalNext, backupNext);
+      backedUp = true;
+    }
+    renameSync(stagedNext, finalNext);
+    rmSync(backupNext, { recursive: true, force: true });
+    backedUp = false;
+  } catch (cause) {
+    if (!existsSync(finalNext) && backedUp && existsSync(backupNext)) {
+      renameSync(backupNext, finalNext);
+      backedUp = false;
+    }
+    if (cause instanceof PrebuiltDownloadError) {
+      throw cause;
+    }
+    throw new PrebuiltDownloadError(
+      `Could not promote the verified Relay ${version} production build: ${
+        cause instanceof Error ? cause.message : String(cause)
+      }`,
+      { cause },
+    );
+  } finally {
+    rmSync(stageRoot, { recursive: true, force: true });
+    if (!backedUp) {
+      rmSync(backupNext, { recursive: true, force: true });
     }
   }
 }
@@ -246,10 +390,11 @@ export function pruneBuildCache(buildsDir: string, currentVersion: string, keep 
 export type EnsurePrebuiltOutcome = "already-present" | "from-cache" | "downloaded";
 
 /**
- * Make `effectiveCwd/.next/BUILD_ID` exist: no-op if already there, else
- * extract from the version-keyed cache, else download + verify + cache +
- * extract. Throws PrebuiltDownloadError on any failure; the caller owns the
- * loud dev-mode fallback.
+ * Make the effective `.next` build authoritative for `version`: no-op only
+ * when BUILD_ID and Relay's version/checksum manifest agree, otherwise stage
+ * and atomically promote a verified version-keyed artifact. Throws
+ * PrebuiltDownloadError on any failure; the caller owns the loud dev-mode
+ * fallback and must use `isPrebuiltCurrent()` before selecting production.
  */
 export async function ensurePrebuilt({
   version,
@@ -264,7 +409,7 @@ export async function ensurePrebuilt({
   artifactUrlOverride?: string;
   log: (message: string) => void;
 }): Promise<EnsurePrebuiltOutcome> {
-  if (existsSync(join(effectiveCwd, ".next", "BUILD_ID"))) {
+  if (isPrebuiltCurrent(effectiveCwd, version)) {
     return "already-present";
   }
 
@@ -273,8 +418,22 @@ export async function ensurePrebuilt({
 
   if (existsSync(cache.tgz) && existsSync(cache.sha)) {
     log(`Using cached production build for ${version} (${cache.tgz}).`);
-    await verifyChecksum(cache.tgz, readFileSync(cache.sha, "utf-8"));
-    await extractPrebuilt(cache.tgz, effectiveCwd);
+    try {
+      const shaText = readFileSync(cache.sha, "utf-8");
+      await verifyChecksum(cache.tgz, shaText);
+      await installPrebuiltVersion({
+        tgzPath: cache.tgz,
+        effectiveCwd,
+        version,
+        artifactSha256: parseSha256File(shaText),
+      });
+    } catch (error) {
+      // Do not make every later launch retry a cache entry that failed its
+      // integrity or install contract.
+      rmSync(cache.tgz, { force: true });
+      rmSync(cache.sha, { force: true });
+      throw error;
+    }
     return "from-cache";
   }
 
@@ -286,7 +445,12 @@ export async function ensurePrebuilt({
     const shaText = await fetchChecksumText(`${url}.sha256`, buildsDir);
     writeFileSync(cache.sha, shaText, "utf-8");
     await verifyChecksum(cache.tgz, shaText);
-    await extractPrebuilt(cache.tgz, effectiveCwd);
+    await installPrebuiltVersion({
+      tgzPath: cache.tgz,
+      effectiveCwd,
+      version,
+      artifactSha256: parseSha256File(shaText),
+    });
   } catch (error) {
     // A failed/corrupt download must not survive as a poisoned cache entry.
     rmSync(cache.tgz, { force: true });

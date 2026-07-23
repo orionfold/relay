@@ -13,6 +13,7 @@ import {
   downloadToFile,
   ensurePrebuilt,
   extractPrebuilt,
+  isPrebuiltCurrent,
   parseSha256File,
   pruneBuildCache,
   sha256OfFile,
@@ -34,10 +35,14 @@ afterEach(async () => {
 });
 
 /** Build a minimal valid artifact: a .tgz containing .next/BUILD_ID (+ sha file). */
-async function makeArtifact(dir: string, version = "9.9.9") {
-  const stage = join(dir, "stage");
+async function makeArtifact(
+  dir: string,
+  version = "9.9.9",
+  buildId = "test-build-id",
+) {
+  const stage = join(dir, `stage-${version}`);
   mkdirSync(join(stage, ".next", "server"), { recursive: true });
-  writeFileSync(join(stage, ".next", "BUILD_ID"), "test-build-id");
+  writeFileSync(join(stage, ".next", "BUILD_ID"), buildId);
   writeFileSync(join(stage, ".next", "server", "app.js"), "// server bits");
   const tgzPath = join(dir, `relay-next-build-${version}.tgz`);
   await tar.create({ gzip: true, file: tgzPath, cwd: stage }, [".next"]);
@@ -256,19 +261,141 @@ describe("ensurePrebuilt", () => {
     expect(logs.join("\n")).toMatch(/download/i);
   });
 
-  it("is a no-op when BUILD_ID already exists", async () => {
+  it("is a no-op only when the installed manifest matches the requested version", async () => {
     const dir = tempDir("relay-ensure-");
+    const { tgzPath } = await makeArtifact(dir);
     const appDir = join(dir, "app");
-    mkdirSync(join(appDir, ".next"), { recursive: true });
-    writeFileSync(join(appDir, ".next", "BUILD_ID"), "already-here");
+    const buildsDir = join(dir, "builds");
+    mkdirSync(appDir, { recursive: true });
+
+    await ensurePrebuilt({
+      version: "9.9.9",
+      effectiveCwd: appDir,
+      buildsDir,
+      artifactUrlOverride: pathToFileURL(tgzPath).href,
+      log: () => {},
+    });
 
     const outcome = await ensurePrebuilt({
       version: "9.9.9",
       effectiveCwd: appDir,
-      buildsDir: join(dir, "builds"),
+      buildsDir,
+      artifactUrlOverride: "http://127.0.0.1:1/unreachable.tgz",
       log: () => {},
     });
     expect(outcome).toBe("already-present");
+    expect(isPrebuiltCurrent(appDir, "9.9.9")).toBe(true);
+    expect(isPrebuiltCurrent(appDir, "9.9.8")).toBe(false);
+  });
+
+  it("rejects a manifest whose build identity no longer matches BUILD_ID", async () => {
+    const dir = tempDir("relay-ensure-");
+    const { tgzPath } = await makeArtifact(dir);
+    const appDir = join(dir, "app");
+    const buildsDir = join(dir, "builds");
+    mkdirSync(appDir, { recursive: true });
+    await ensurePrebuilt({
+      version: "9.9.9",
+      effectiveCwd: appDir,
+      buildsDir,
+      artifactUrlOverride: pathToFileURL(tgzPath).href,
+      log: () => {},
+    });
+
+    writeFileSync(join(appDir, ".next", "BUILD_ID"), "different-build");
+
+    expect(isPrebuiltCurrent(appDir, "9.9.9")).toBe(false);
+  });
+
+  it("replaces a legacy BUILD_ID-only build from the current version cache", async () => {
+    const dir = tempDir("relay-ensure-");
+    const { tgzPath, shaPath } = await makeArtifact(dir);
+    const appDir = join(dir, "app");
+    const buildsDir = join(dir, "builds");
+    mkdirSync(join(appDir, ".next"), { recursive: true });
+    writeFileSync(join(appDir, ".next", "BUILD_ID"), "stale-build");
+    mkdirSync(buildsDir, { recursive: true });
+    const cache = artifactCachePaths(buildsDir, "9.9.9");
+    writeFileSync(cache.tgz, readFileSync(tgzPath));
+    writeFileSync(cache.sha, readFileSync(shaPath));
+
+    expect(isPrebuiltCurrent(appDir, "9.9.9")).toBe(false);
+    const outcome = await ensurePrebuilt({
+      version: "9.9.9",
+      effectiveCwd: appDir,
+      buildsDir,
+      artifactUrlOverride: "http://127.0.0.1:1/unreachable.tgz",
+      log: () => {},
+    });
+
+    expect(outcome).toBe("from-cache");
+    expect(readFileSync(join(appDir, ".next", "BUILD_ID"), "utf-8")).toBe(
+      "test-build-id",
+    );
+    expect(isPrebuiltCurrent(appDir, "9.9.9")).toBe(true);
+  });
+
+  it("promotes N+1 over N in one effective npx root without trusting the old BUILD_ID", async () => {
+    const dir = tempDir("relay-ensure-");
+    const v1 = await makeArtifact(dir, "1.0.0", "build-v1");
+    const v2 = await makeArtifact(dir, "2.0.0", "build-v2");
+    const appDir = join(dir, "shared-npx-root");
+    const buildsDir = join(dir, "builds");
+    mkdirSync(appDir, { recursive: true });
+
+    await ensurePrebuilt({
+      version: "1.0.0",
+      effectiveCwd: appDir,
+      buildsDir,
+      artifactUrlOverride: pathToFileURL(v1.tgzPath).href,
+      log: () => {},
+    });
+    expect(isPrebuiltCurrent(appDir, "1.0.0")).toBe(true);
+
+    await ensurePrebuilt({
+      version: "2.0.0",
+      effectiveCwd: appDir,
+      buildsDir,
+      artifactUrlOverride: pathToFileURL(v2.tgzPath).href,
+      log: () => {},
+    });
+
+    expect(readFileSync(join(appDir, ".next", "BUILD_ID"), "utf-8")).toBe(
+      "build-v2",
+    );
+    expect(isPrebuiltCurrent(appDir, "1.0.0")).toBe(false);
+    expect(isPrebuiltCurrent(appDir, "2.0.0")).toBe(true);
+  });
+
+  it("retains N but refuses to call it current when the N+1 download fails", async () => {
+    const dir = tempDir("relay-ensure-");
+    const v1 = await makeArtifact(dir, "1.0.0", "build-v1");
+    const appDir = join(dir, "shared-npx-root");
+    const buildsDir = join(dir, "builds");
+    mkdirSync(appDir, { recursive: true });
+    await ensurePrebuilt({
+      version: "1.0.0",
+      effectiveCwd: appDir,
+      buildsDir,
+      artifactUrlOverride: pathToFileURL(v1.tgzPath).href,
+      log: () => {},
+    });
+
+    await expect(
+      ensurePrebuilt({
+        version: "2.0.0",
+        effectiveCwd: appDir,
+        buildsDir,
+        artifactUrlOverride: "http://127.0.0.1:1/unreachable.tgz",
+        log: () => {},
+      }),
+    ).rejects.toThrow(PrebuiltDownloadError);
+
+    expect(readFileSync(join(appDir, ".next", "BUILD_ID"), "utf-8")).toBe(
+      "build-v1",
+    );
+    expect(isPrebuiltCurrent(appDir, "1.0.0")).toBe(true);
+    expect(isPrebuiltCurrent(appDir, "2.0.0")).toBe(false);
   });
 
   it("extracts from the version-keyed cache without downloading", async () => {
@@ -315,6 +442,29 @@ describe("ensurePrebuilt", () => {
     // Bad bits must not survive as a poisoned cache.
     expect(existsSync(artifactCachePaths(buildsDir, "9.9.9").tgz)).toBe(false);
     expect(existsSync(join(appDir, ".next", "BUILD_ID"))).toBe(false);
+  });
+
+  it("evicts a corrupt pre-existing cache entry instead of retrying it forever", async () => {
+    const dir = tempDir("relay-ensure-");
+    const appDir = join(dir, "app");
+    const buildsDir = join(dir, "builds");
+    const cache = artifactCachePaths(buildsDir, "9.9.9");
+    mkdirSync(appDir, { recursive: true });
+    mkdirSync(buildsDir, { recursive: true });
+    writeFileSync(cache.tgz, "not-a-tarball");
+    writeFileSync(cache.sha, `${"0".repeat(64)}\n`);
+
+    await expect(
+      ensurePrebuilt({
+        version: "9.9.9",
+        effectiveCwd: appDir,
+        buildsDir,
+        log: () => {},
+      }),
+    ).rejects.toThrow(PrebuiltDownloadError);
+
+    expect(existsSync(cache.tgz)).toBe(false);
+    expect(existsSync(cache.sha)).toBe(false);
   });
 
   it("wraps a failed download in PrebuiltDownloadError", async () => {
