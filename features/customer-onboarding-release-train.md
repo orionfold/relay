@@ -69,7 +69,10 @@ provides a resumable select/activate/install journey. G-118 makes Agency sample
 data explicit and safely replaceable. G-117 was accepted 2026-07-23 after one
 offer replaced twelve repeated price rails, local selection survived filter and
 activation handoff, overlap-safe batch installation passed, and responsive
-browser evidence confirmed the new decision cards.
+browser evidence confirmed the new decision cards. G-118 was accepted
+2026-07-23 after durable row/customer provenance, current-month materialization,
+no-loss cleanup and retained-table reinstall behavior passed 476 broader
+regressions plus fresh desktop/mobile browser proof. O2 is complete.
 
 ### O3 — Truthful runtime readiness
 
@@ -109,13 +112,13 @@ the final evidence bundle.
 
 ## Acceptance criteria
 
-- [ ] `_IDEAS/backlog.md` exposes this as the active workstream and keeps its
+- [x] `_IDEAS/backlog.md` exposes this as the active workstream and keeps its
       current increment/current goal synchronized on every state change.
 - [x] G-114 independently proves a version-correct old→new shared-cache upgrade.
 - [x] Community, Pack, Host and combined customers receive coherent first-screen,
       shell and Settings guidance.
 - [x] Premium Packs present one entitlement and one resumable activation path.
-- [ ] Agency sample data is visibly synthetic and safely replaceable.
+- [x] Agency sample data is visibly synthetic and safely replaceable.
 - [ ] Provider/model/routing/shell states reconcile without manual extra refresh.
 - [ ] A customer can start a compatible Pack workflow with no orphan or inert
       success action.

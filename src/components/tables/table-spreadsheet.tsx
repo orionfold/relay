@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -42,6 +43,7 @@ interface ParsedRow {
   data: Record<string, unknown>;
   position: number;
   createdBy: string | null;
+  sampleState: "sample" | "sample-edited" | null;
 }
 
 function parseRows(rows: UserTableRowRow[]): ParsedRow[] {
@@ -50,6 +52,7 @@ function parseRows(rows: UserTableRowRow[]): ParsedRow[] {
     data: JSON.parse(r.data) as Record<string, unknown>,
     position: r.position,
     createdBy: r.createdBy,
+    sampleState: r.sampleState,
   }));
 }
 
@@ -369,7 +372,7 @@ export function TableSpreadsheet({
                         key={col.name}
                         className="min-w-[120px]"
                       >
-                        <div className="px-2 py-1 min-h-[32px] flex items-center">
+                        <div className="px-2 py-1 min-h-[32px] flex items-center gap-2">
                           <CellDisplay
                             column={col}
                             value={value}
@@ -381,6 +384,16 @@ export function TableSpreadsheet({
                                 : undefined
                             }
                           />
+                          {col === columns[0] && row.sampleState && (
+                            <Badge
+                              variant="outline"
+                              className="shrink-0 text-[10px]"
+                            >
+                              {row.sampleState === "sample-edited"
+                                ? "Edited sample"
+                                : "Sample"}
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                     );

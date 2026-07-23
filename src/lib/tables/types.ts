@@ -135,6 +135,8 @@ export interface UpdateColumnInput {
 export interface AddRowInput {
   data: Record<string, unknown>;
   createdBy?: string;
+  /** Internal pack-install provenance. Public row APIs do not accept this. */
+  sampleSource?: string;
 }
 
 export interface UpdateRowInput {

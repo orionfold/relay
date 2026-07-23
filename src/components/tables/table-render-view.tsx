@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ExternalLink, ImageOff } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
   categoryTone,
@@ -15,6 +16,7 @@ import type { ColumnDef } from "@/lib/tables/types";
 interface RenderRow {
   id: string;
   data: Record<string, unknown>;
+  sampleState?: "sample" | "sample-edited" | null;
 }
 
 interface TableRenderViewProps {
@@ -186,7 +188,16 @@ function RenderItem({
 
         <div className="min-w-0 flex-1 space-y-3">
           <div>
-            <h3 className="truncate text-base font-medium">{itemTitle}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="truncate text-base font-medium">{itemTitle}</h3>
+              {row.sampleState && (
+                <Badge variant="outline" className="shrink-0 text-[10px]">
+                  {row.sampleState === "sample-edited"
+                    ? "Edited sample"
+                    : "Sample"}
+                </Badge>
+              )}
+            </div>
             {description && (
               <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                 {text(row.data[description.column.name])}

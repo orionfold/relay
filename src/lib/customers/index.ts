@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { createHash } from "node:crypto";
 import { db } from "@/lib/db";
 import { customers, type CustomerRow } from "@/lib/db/schema";
 
@@ -24,6 +25,8 @@ export interface EnsureCustomerInput {
   industry?: string | null;
   notes?: string | null;
   status?: "active" | "archived";
+  /** Internal pack-install provenance. Public customer APIs do not accept this. */
+  sampleSource?: string;
 }
 
 export interface EnsureCustomerResult {
@@ -65,6 +68,17 @@ export async function ensureCustomer(
     status: input.status ?? "active",
     industry: input.industry ?? null,
     notes: input.notes ?? null,
+    sampleSource: input.sampleSource ?? null,
+    sampleState: input.sampleSource ? "sample" : null,
+    sampleSeedHash: input.sampleSource
+      ? hashCustomerSeed({
+          name: input.name,
+          slug,
+          status: input.status ?? "active",
+          industry: input.industry ?? null,
+          notes: input.notes ?? null,
+        })
+      : null,
     createdAt: now,
     updatedAt: now,
   };
@@ -78,4 +92,16 @@ export class CustomerSlugError extends Error {
     super(`Cannot derive a customer slug from name: ${JSON.stringify(name)}`);
     this.name = "CustomerSlugError";
   }
+}
+
+export function hashCustomerSeed(input: {
+  name: string;
+  slug: string;
+  status: "active" | "archived";
+  industry: string | null;
+  notes: string | null;
+}): string {
+  return createHash("sha256")
+    .update(JSON.stringify(input))
+    .digest("hex");
 }

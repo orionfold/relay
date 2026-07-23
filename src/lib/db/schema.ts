@@ -17,6 +17,14 @@ export const customers = sqliteTable(
       .notNull(),
     industry: text("industry"),
     notes: text("notes"),
+    /** Pack id when this customer was installed as synthetic exploration data. */
+    sampleSource: text("sample_source"),
+    /** `sample` until a customer-facing edit occurs; then `sample-edited`. */
+    sampleState: text("sample_state", {
+      enum: ["sample", "sample-edited"],
+    }),
+    /** Canonical seed hash retained for audit and legacy-safe classification. */
+    sampleSeedHash: text("sample_seed_hash"),
     createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
   },
@@ -1182,6 +1190,14 @@ export const userTableRows = sqliteTable(
     position: integer("position").notNull(),
     /** Who created this row: 'user' or agent profile ID */
     createdBy: text("created_by").default("user"),
+    /** Pack id when this row was installed as synthetic exploration data. */
+    sampleSource: text("sample_source"),
+    /** `sample` until a customer-facing edit occurs; then `sample-edited`. */
+    sampleState: text("sample_state", {
+      enum: ["sample", "sample-edited"],
+    }),
+    /** Canonical data hash at seed time, retained even after an edit. */
+    sampleSeedHash: text("sample_seed_hash"),
     createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
   },

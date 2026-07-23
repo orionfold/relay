@@ -211,6 +211,13 @@ describe("installPack", () => {
       "acme-co",
       "globex",
     ]);
+    expect(
+      custRows.every(
+        (customer: { sampleSource: string | null; sampleState: string | null }) =>
+          customer.sampleSource === "test-agency" &&
+          customer.sampleState === "sample"
+      )
+    ).toBe(true);
 
     // Manifest dropped + the logical table ref rewritten to a real id.
     const app = registry.getApp("test-agency", appsDir);
@@ -238,6 +245,14 @@ describe("installPack", () => {
     // The real table exists with seeded rows.
     const tableRows = await tables.listRows(realTableId);
     expect(tableRows).toHaveLength(2);
+    expect(
+      tableRows.every(
+        (row) =>
+          row.sampleSource === "test-agency" &&
+          row.sampleState === "sample" &&
+          row.sampleSeedHash === row.dataHash
+      )
+    ).toBe(true);
 
     // Namespaced artifacts dropped into the shared dirs.
     expect(

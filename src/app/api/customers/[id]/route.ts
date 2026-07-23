@@ -32,7 +32,7 @@ export async function PATCH(
   }
 
   const existing = await db
-    .select({ id: customers.id })
+    .select({ id: customers.id, sampleSource: customers.sampleSource })
     .from(customers)
     .where(eq(customers.id, id))
     .get();
@@ -48,6 +48,7 @@ export async function PATCH(
       ...(parsed.data.industry !== undefined ? { industry: parsed.data.industry } : {}),
       ...(parsed.data.notes !== undefined ? { notes: parsed.data.notes } : {}),
       ...(parsed.data.status !== undefined ? { status: parsed.data.status } : {}),
+      ...(existing.sampleSource ? { sampleState: "sample-edited" as const } : {}),
       updatedAt: new Date(),
     })
     .where(eq(customers.id, id));

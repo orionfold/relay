@@ -426,7 +426,11 @@ export async function installPack(
       if (rows.length > 0) {
         const { ids } = await addRows(
           created.id,
-          rows.map((data) => ({ data, createdBy: "user" as const }))
+          materializeSampleRows(rows).map((data) => ({
+            data,
+            createdBy: `pack:${pack.meta.id}`,
+            sampleSource: pack.meta.id,
+          }))
         );
         rowsSeeded += ids.length;
       }
@@ -464,6 +468,7 @@ export async function installPack(
         name: entry.name,
         industry: entry.industry ?? null,
         notes: entry.notes ?? null,
+        sampleSource: pack.meta.id,
       });
       customersSeeded += 1;
     }
@@ -833,6 +838,29 @@ function readTableSeed(
     return parsed as Array<Record<string, unknown>>;
   }
   return [];
+}
+
+/**
+ * Resolve the intentionally explicit current-month token used by shipped
+ * sample ledgers. Static calendar dates silently decay after a release; this
+ * keeps first-value KPIs meaningful in every install month without pretending
+ * that the synthetic entries are live customer activity.
+ */
+export function materializeSampleRows(
+  rows: Array<Record<string, unknown>>,
+  now = new Date()
+): Array<Record<string, unknown>> {
+  const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  return rows.map((row) =>
+    Object.fromEntries(
+      Object.entries(row).map(([key, value]) => [
+        key,
+        typeof value === "string"
+          ? value.replaceAll("{{current_month}}", month)
+          : value,
+      ])
+    )
+  );
 }
 
 // ── Manifest rewrite + write ─────────────────────────────────────────

@@ -63,6 +63,9 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
       status TEXT DEFAULT 'active' NOT NULL,
       industry TEXT,
       notes TEXT,
+      sample_source TEXT,
+      sample_state TEXT,
+      sample_seed_hash TEXT,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     );
@@ -924,6 +927,9 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
       data_hash TEXT,
       position INTEGER NOT NULL,
       created_by TEXT DEFAULT 'user',
+      sample_source TEXT,
+      sample_state TEXT,
+      sample_seed_hash TEXT,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL,
       FOREIGN KEY (table_id) REFERENCES user_tables(id) ON UPDATE NO ACTION ON DELETE NO ACTION
@@ -1117,6 +1123,12 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
     // F10: row-add idempotency — see src/lib/data/row-hash.ts and addRows().
     // The partial UNIQUE INDEX is created below on every boot.
     "ALTER TABLE user_table_rows ADD COLUMN data_hash TEXT",
+    "ALTER TABLE user_table_rows ADD COLUMN sample_source TEXT",
+    "ALTER TABLE user_table_rows ADD COLUMN sample_state TEXT",
+    "ALTER TABLE user_table_rows ADD COLUMN sample_seed_hash TEXT",
+    "ALTER TABLE customers ADD COLUMN sample_source TEXT",
+    "ALTER TABLE customers ADD COLUMN sample_state TEXT",
+    "ALTER TABLE customers ADD COLUMN sample_seed_hash TEXT",
   ]) {
     try { sqlite.exec(alter); } catch { /* column already exists — expected */ }
   }

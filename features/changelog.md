@@ -4,6 +4,17 @@
 
 ### Completed
 
+- `entitlement-aware-customer-onboarding` (G-118) — made Relay Agency's
+  default exploration dataset unmistakably synthetic and safely replaceable.
+  Pack-installed table rows and customers now carry durable untouched/edited
+  provenance; Row and Render views show Sample/Edited sample badges; affected
+  KPIs disclose their synthetic source. Current-month seed materialization
+  prevents calendar decay. The **Use my own data** transition previews exact
+  counts and removes only untouched sample records, preserving edits,
+  customer-created rows and referenced customers across retry and Pack
+  remove/reinstall. Four hundred seventy-six broader regressions, focused
+  bootstrap/transition checks, TypeScript, production build, and isolated
+  desktop/390 px light/dark browser proof passed.
 - `entitlement-aware-customer-onboarding` (G-117) — replaced repeated per-Pack
   pricing and purchase links with one validated product offer for the complete
   premium catalog. Compact decision cards now select Packs without purchasing

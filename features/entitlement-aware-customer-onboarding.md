@@ -102,9 +102,9 @@ Agency installation and guided opt-in. "Bundled" must never be rendered as
 - [x] The premium catalog shows one price/offer and no per-Pack purchase
       implication.
 - [x] Pack selection survives the activation handoff and handles cancel/failure.
-- [ ] Sample Agency records/KPIs are labeled everywhere they surface.
-- [ ] Sample removal/replacement preserves edited and customer-created data.
-- [ ] Desktop/390 px, light/dark, keyboard, focus and screen-reader checks pass.
+- [x] Sample Agency records/KPIs are labeled everywhere they surface.
+- [x] Sample removal/replacement preserves edited and customer-created data.
+- [x] Desktop/390 px, light/dark, keyboard, focus and screen-reader checks pass.
 
 ## Operator decisions
 
@@ -159,6 +159,27 @@ Verification passed 307 Pack/onboarding/API/component regressions, TypeScript,
 production build, and isolated desktop/390 px light/dark browser checks across
 All, Free and Premium filters. G-118 retains the remaining sample-data
 provenance and transition criteria.
+
+## G-118 acceptance receipt — 2026-07-23
+
+Relay Agency now installs fictional rows and customer records with additive,
+durable Pack provenance: untouched sample, edited sample and customer-created
+records remain distinct. Row and Render Table views label the first two states,
+the Agency exploration panel names every affected table, and only KPIs backed
+by a table that still contains samples disclose synthetic input.
+
+Static ledger dates were replaced by an explicit current-month token resolved
+at install, preserving first-value usefulness across month and year rollover.
+The **Use my own data** transition previews exact counts, supports cancel, and
+removes only untouched rows plus unreferenced untouched sample customers.
+Edits, customer-created data and referenced customers are preserved; retry is
+idempotent; Pack removal/reinstall does not reseed retained tables.
+
+Verification passed 476 broader Pack/Table/customer/app regressions, focused
+transition and bootstrap tests, TypeScript, production build, and a fresh
+isolated browser journey. Desktop light and 390 px dark proof covered initial
+Agency disclosure, current MTD values, Row/Render badges, edited-sample state,
+cancel, confirm, no-loss result and the completed cleanup state.
 
 ## Scope boundaries
 

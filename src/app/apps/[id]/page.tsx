@@ -11,6 +11,7 @@ import { PackRepositorySection } from "@/components/apps/pack-repository-section
 import { WebDesignerShell } from "@/components/apps/web-designer-shell";
 import { WebPublisherPagesPanel } from "@/components/apps/web-publisher-pages-panel";
 import { KitView } from "@/components/apps/kit-view/kit-view";
+import { SampleDataPanel } from "@/components/apps/sample-data-panel";
 import { getApp } from "@/lib/apps/registry";
 import { loadColumnSchemas, resolveKit, resolveKitSelection } from "@/lib/apps/view-kits";
 import { resolveBindings } from "@/lib/apps/view-kits/resolve";
@@ -18,6 +19,8 @@ import { loadRuntimeState } from "@/lib/apps/view-kits/data";
 import { SETTINGS_KEYS } from "@/lib/constants/settings";
 import { getSetting } from "@/lib/settings/helpers";
 import { getAppBudgetSnapshot } from "@/lib/schedules/budget-policies";
+import { getSampleDataSummary } from "@/lib/packs/sample-data";
+import { discloseAgencySampleKpis } from "@/lib/packs/sample-data-presentation";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +55,23 @@ export default async function AppDetailPage({
   const showViewDiagnostics =
     (await getSetting(SETTINGS_KEYS.APPS_SHOW_INFERENCE_DIAGNOSTICS)) === "true";
   const budgetSnapshot = await getAppBudgetSnapshot(app.id);
+  const sampleData =
+    app.id === "relay-agency"
+      ? await getSampleDataSummary(app.id)
+      : null;
+
+  if (
+    sampleData &&
+    sampleData.untouchedRows +
+      sampleData.editedRows +
+      sampleData.untouchedCustomers +
+      sampleData.editedCustomers >
+      0
+  ) {
+    model.kpis = model.kpis
+      ? discloseAgencySampleKpis(model.kpis, sampleData)
+      : model.kpis;
+  }
 
   model.header.viewKit = {
     id: resolution.kit,
@@ -83,6 +103,7 @@ export default async function AppDetailPage({
           </div>
         ) : (
           <>
+            {sampleData && <SampleDataPanel initialSummary={sampleData} />}
             <div id="pack-detail-heading" tabIndex={-1} className="scroll-mt-[calc(var(--chrome-header)+1rem)] focus:outline-none">
               <KitView model={model} />
             </div>

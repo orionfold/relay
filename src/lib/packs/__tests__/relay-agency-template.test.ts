@@ -50,6 +50,88 @@ describe("relay-agency free persona pack", () => {
     const heroTable = view.bindings!.hero!.table!;
     expect(app.manifest.tables.some((t) => t.id === heroTable)).toBe(true);
     expect(view.bindings!.kpis!.length).toBe(4);
+
+    const tables = await import("@/lib/data/tables");
+    const rows = await tables.listRows(heroTable);
+    expect(rows.every((row) => row.sampleState === "sample")).toBe(true);
+    const first = JSON.parse(rows[0].data) as { date: string };
+    const now = new Date();
+    expect(first.date).toMatch(
+      new RegExp(
+        `^${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-`
+      )
+    );
+  });
+
+  it("preserves edited and customer-created data when leaving exploration mode", async () => {
+    const { installPack } = await import("../install");
+    const registry = await import("@/lib/apps/registry");
+    const tables = await import("@/lib/data/tables");
+    const { db } = await import("@/lib/db");
+    const { customers, userTableRows } = await import("@/lib/db/schema");
+    const { eq } = await import("drizzle-orm");
+    const {
+      getSampleDataSummary,
+      removeUntouchedSampleData,
+    } = await import("../sample-data");
+
+    await installPack("relay-agency", installOpts());
+    const app = registry.getApp("relay-agency", appsDir)!;
+    const clientsTable = app.manifest.tables[0].id;
+    const sampleRows = await tables.listRows(clientsTable);
+    await tables.updateRow(sampleRows[0].id, { data: { health: "red" } });
+    await db
+      .update(userTableRows)
+      .set({
+        data: JSON.stringify({
+          ...(JSON.parse(sampleRows[1].data) as Record<string, unknown>),
+          health: "red",
+        }),
+      })
+      .where(eq(userTableRows.id, sampleRows[1].id));
+    const own = await tables.addRows(clientsTable, [
+      { data: { name: "My real client", status: "active" } },
+    ]);
+
+    const sampleCustomer = await db
+      .select()
+      .from(customers)
+      .where(eq(customers.sampleSource, "relay-agency"))
+      .get();
+    expect(sampleCustomer).toBeDefined();
+    await db
+      .update(customers)
+      .set({ name: "Edited sample client" })
+      .where(eq(customers.id, sampleCustomer!.id));
+
+    const preview = await getSampleDataSummary("relay-agency");
+    expect(preview.untouchedRows).toBe(33);
+    expect(preview.editedRows).toBe(2);
+    expect(preview.editedCustomers).toBe(1);
+
+    const result = await removeUntouchedSampleData("relay-agency");
+    expect(result.removedRows).toBe(33);
+    expect(result.removedCustomers).toBe(5);
+    expect(result.editedRows).toBe(2);
+    expect(result.editedCustomers).toBe(1);
+
+    const remaining = await tables.listRows(clientsTable);
+    expect(remaining.map((row) => row.id)).toEqual(
+      expect.arrayContaining([sampleRows[0].id, sampleRows[1].id, own.ids[0]])
+    );
+    expect(remaining).toHaveLength(3);
+
+    const retry = await removeUntouchedSampleData("relay-agency");
+    expect(retry.removedRows).toBe(0);
+    expect(retry.removedCustomers).toBe(0);
+
+    const { removeInstalledPack } = await import("@/lib/apps/registry");
+    await removeInstalledPack("relay-agency", { appsDir });
+    await installPack("relay-agency", installOpts());
+    const afterReinstall = await getSampleDataSummary("relay-agency");
+    expect(afterReinstall.untouchedRows).toBe(0);
+    expect(afterReinstall.editedRows).toBe(2);
+    expect(await tables.listRows(clientsTable)).toHaveLength(3);
   });
 
   it("ships only schema-valid blueprints, none CRE/nonprofit", async () => {

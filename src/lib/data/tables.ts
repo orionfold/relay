@@ -378,6 +378,9 @@ export async function addRows(tableId: string, rows: AddRowInput[]): Promise<Add
         dataHash,
         position: nextPosition,
         createdBy: row.createdBy ?? "user",
+        sampleSource: row.sampleSource ?? null,
+        sampleState: row.sampleSource ? "sample" : null,
+        sampleSeedHash: row.sampleSource ? dataHash : null,
         createdAt: now,
         updatedAt: now,
       })
@@ -459,6 +462,7 @@ export async function updateRow(rowId: string, input: UpdateRowInput) {
     .update(userTableRows)
     .set({
       data: JSON.stringify(mergedData),
+      ...(existing.sampleSource ? { sampleState: "sample-edited" as const } : {}),
       updatedAt: new Date(),
     })
     .where(eq(userTableRows.id, rowId));
