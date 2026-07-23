@@ -565,6 +565,11 @@ async function main() {
       ...process.env,
       RELAY_DATA_DIR: DATA_DIR,
       RELAY_LAUNCH_CWD: launchCwd,
+      // The Next server can run from a hoisted customer workspace whose
+      // package.json is deliberately not Relay's. Hand it the immutable npm
+      // package root so release-stamped inputs (knowledge, built-ins, etc.)
+      // never fall back to process.cwd().
+      RELAY_RUNTIME_INPUT_ROOT: appDir,
       RELAY_LAUNCH_CONTEXT: launchContext,
       PORT: String(actualPort),
       // Origin for Relay's internal loopback self-calls (trigger dispatch,

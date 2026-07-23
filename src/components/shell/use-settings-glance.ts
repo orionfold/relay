@@ -80,12 +80,14 @@ export function useSettingsGlance(): SettingsGlanceState {
     startPolling();
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, onVisibility);
+    window.addEventListener("relay:runtime-readiness-changed", onVisibility);
 
     return () => {
       controller.abort();
       if (interval) clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, onVisibility);
+      window.removeEventListener("relay:runtime-readiness-changed", onVisibility);
     };
   }, [fetchGlance]);
 

@@ -13,6 +13,14 @@ function glance(
     activeModel: null,
     routingPreference: null,
     configuredRuntimeCount: 0,
+    readyRuntimeCount: 0,
+    runtimeReadiness: {
+      state: "setup-needed",
+      label: "Setup needed",
+      detail: "Configure an eligible runtime to run Relay work.",
+      readyRuntimeLabels: [],
+      attentionRuntimeLabels: [],
+    },
     sdkTimeoutSeconds: null,
     maxTurns: null,
     licenseTag,
@@ -105,6 +113,42 @@ describe("useSettingsGlance", () => {
     });
 
     expect(result.current.data?.licenseTag).toEqual(licensed.licenseTag);
+    unmount();
+  });
+
+  it("refreshes immediately after runtime readiness changes", async () => {
+    const initial = glance({ kind: "community" });
+    const ready = {
+      ...initial,
+      readyRuntimeCount: 1,
+      runtimeReadiness: {
+        state: "ready" as const,
+        label: "Ollama ready",
+        detail: "Ollama is verified and eligible for routed work.",
+        readyRuntimeLabels: ["Ollama"],
+        attentionRuntimeLabels: [],
+      },
+    };
+    const fetch = vi
+      .fn<() => Promise<Response>>()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(initial), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(ready), { status: 200 }),
+      );
+    vi.stubGlobal("fetch", fetch);
+
+    const { result, unmount } = renderHook(() => useSettingsGlance());
+    await waitFor(() =>
+      expect(result.current.data?.runtimeReadiness?.state).toBe("setup-needed"),
+    );
+    act(() => {
+      window.dispatchEvent(new Event("relay:runtime-readiness-changed"));
+    });
+    await waitFor(() =>
+      expect(result.current.data?.runtimeReadiness?.label).toBe("Ollama ready"),
+    );
     unmount();
   });
 });

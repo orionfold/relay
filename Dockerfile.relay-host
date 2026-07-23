@@ -80,6 +80,7 @@ ENV NODE_ENV=production \
     HOME=/var/lib/relay/home \
     RELAY_DATA_DIR=/var/lib/relay \
     RELAY_LAUNCH_CWD=/var/lib/relay/workspace \
+    RELAY_RUNTIME_INPUT_ROOT=/app \
     RELAY_CELL_MODE=true \
     RELAY_REQUIRE_DATA_MOUNT=true \
     RELAY_ARTIFACT_VERSION=${RELAY_VERSION} \

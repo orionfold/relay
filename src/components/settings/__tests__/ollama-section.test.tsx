@@ -128,6 +128,46 @@ describe("OllamaSection", () => {
     expect(screen.getByText("2.0 GB")).toBeInTheDocument();
   });
 
+  it("broadcasts failed runtime evidence so the global shell degrades immediately", async () => {
+    const onReadinessChanged = vi.fn();
+    window.addEventListener(
+      "relay:runtime-readiness-changed",
+      onReadinessChanged,
+    );
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "/api/settings/ollama") return response(true, savedSettings);
+      if (url === "/api/settings/test") {
+        return response(true, {
+          connected: false,
+          error: "Cannot connect to Ollama",
+          readiness: {
+            phase: "unreachable",
+            ready: false,
+            checkedAt: "2026-07-23T12:00:00.000Z",
+            credentialSource: "db",
+            endpointReachable: false,
+            reason: "Cannot connect to Ollama",
+          },
+        });
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    }));
+
+    render(<OllamaSection />);
+    await screen.findByDisplayValue("http://localhost:11434");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Test and discover models" }),
+    );
+
+    expect(await screen.findByText("Cannot connect to Ollama")).toBeInTheDocument();
+    expect(onReadinessChanged).toHaveBeenCalledTimes(1);
+    window.removeEventListener(
+      "relay:runtime-readiness-changed",
+      onReadinessChanged,
+    );
+  });
+
   it("names the acquisition phase and remains retryable after a pull failure", async () => {
     vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);

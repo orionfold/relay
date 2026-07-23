@@ -1,11 +1,11 @@
 "use client";
 
-import { AuthStatusDot } from "@/components/settings/auth-status-dot";
 import { Badge } from "@/components/ui/badge";
 import { useInstanceIdentity } from "./use-instance-identity";
+import { RuntimeReadinessStatus } from "./runtime-readiness-status";
 
 // The static instance-identity signals for the app-bar right cluster, ordered
-// static→live: version pill · license tag · labeled auth dot. This is the
+// static→live: version pill · license tag · runtime readiness. This is the
 // bar-side half of the rail-vs-bar semantic split — the BAR carries static
 // instance identity; the RAIL carries live operations.
 //
@@ -15,8 +15,8 @@ import { useInstanceIdentity } from "./use-instance-identity";
 //   - license tag renders "Community Edition" on the community branch; it can
 //     never render a dangling "Licensed to " because licenseTag is a union.
 //   - on the hook's error/loading state, the version + license signals render
-//     nothing (no skeleton flash). The auth dot is INDEPENDENT (its own
-//     /api/settings poll) so connectivity still shows even if identity fails.
+//     nothing (no skeleton flash). Runtime readiness is INDEPENDENT (its own
+//     consolidated settings glance) so it survives an identity failure.
 export function BarIdentityCluster() {
   const identity = useInstanceIdentity();
 
@@ -56,7 +56,7 @@ export function BarIdentityCluster() {
         </span>
       ) : null}
       <span className="flex items-center gap-2 whitespace-nowrap text-xs text-muted-foreground">
-        <AuthStatusDot showLabel />
+        <RuntimeReadinessStatus />
       </span>
     </div>
   );

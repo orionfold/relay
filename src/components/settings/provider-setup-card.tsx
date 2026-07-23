@@ -384,6 +384,13 @@ export function ProviderSetupCard({
         body: JSON.stringify({ runtime: runtimeId }),
       });
       const payload = await readPayload(response);
+      // The server records the new evidence and clears its routing-status
+      // cache on both success and failure. Refresh every shell/settings
+      // consumer immediately; model discovery already emits again on success,
+      // which is harmless and keeps its standalone refresh path intact.
+      window.dispatchEvent(
+        new CustomEvent("relay:runtime-readiness-changed"),
+      );
       if (!response.ok || payload.connected !== true) {
         if (payload.readiness && typeof payload.readiness === "object") {
           setSnapshot((current) =>

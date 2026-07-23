@@ -5,8 +5,12 @@ import {
   getRuntimeRoutingStatuses,
   pickReadyRuntime,
 } from "@/lib/settings/runtime-routing-status";
+import {
+  summarizeRuntimeReadiness,
+  type RuntimeReadinessSummary,
+} from "@/lib/settings/runtime-readiness-summary";
 import { getBudgetGuardrailSnapshot } from "@/lib/settings/budget-guardrails";
-import { getRoutingPreference } from "@/lib/settings/routing";
+import { getRoutingSettings } from "@/lib/settings/routing";
 import { getActivePresets } from "@/lib/settings/permission-presets";
 import { getAllowedPermissions } from "@/lib/settings/permissions";
 import { getSetting } from "@/lib/settings/helpers";
@@ -45,6 +49,7 @@ export interface SettingsGlanceResponse {
   routingPreference: RoutingPreference | null;
   configuredRuntimeCount: number | null;
   readyRuntimeCount: number | null;
+  runtimeReadiness: RuntimeReadinessSummary | null;
   sdkTimeoutSeconds: number | null;
   maxTurns: number | null;
   // Budget cluster
@@ -74,15 +79,28 @@ async function resolveRuntime(): Promise<{
   model: string | null;
   configuredCount: number | null;
   readyCount: number | null;
+  readiness: RuntimeReadinessSummary | null;
+  routingPreference: RoutingPreference | null;
 }> {
-  const statuses = await getRuntimeRoutingStatuses();
-  const active = pickReadyRuntime(statuses);
-  const configuredCount = statuses.filter((status) => status.configured).length;
+  const [statuses, routing] = await Promise.all([
+    getRuntimeRoutingStatuses(),
+    getRoutingSettings(),
+  ]);
+  const eligibleStatuses = statuses.filter((status) =>
+    routing.policy.eligibleRuntimeIds.includes(status.runtimeId),
+  );
+  const active = pickReadyRuntime(eligibleStatuses);
+  const configuredCount = eligibleStatuses.filter((status) => status.configured).length;
   return {
     label: active?.label ?? null,
     model: active?.modelId ?? null,
     configuredCount,
-    readyCount: statuses.filter((status) => status.ready).length,
+    readyCount: eligibleStatuses.filter((status) => status.ready).length,
+    readiness: summarizeRuntimeReadiness(
+      statuses,
+      routing.policy.eligibleRuntimeIds,
+    ),
+    routingPreference: routing.preference,
   };
 }
 
@@ -106,7 +124,6 @@ export async function GET() {
       runtime,
       label,
       budget,
-      routing,
       presets,
       allowed,
       exa,
@@ -120,10 +137,11 @@ export async function GET() {
         model: null,
         configuredCount: null,
         readyCount: null,
+        readiness: null,
+        routingPreference: null,
       })),
       Promise.resolve(getLicensedIdentity()).catch(() => null),
       getBudgetGuardrailSnapshot().catch(() => null),
-      getRoutingPreference().catch(() => null),
       getActivePresets().catch(() => null),
       getAllowedPermissions().catch(() => null),
       getSetting(SETTINGS_KEYS.EXA_SEARCH_MCP_ENABLED).catch(() => null),
@@ -140,9 +158,10 @@ export async function GET() {
     const body: SettingsGlanceResponse = {
       activeRuntimeLabel: runtime.label,
       activeModel: runtime.model,
-      routingPreference: routing,
+      routingPreference: runtime.routingPreference,
       configuredRuntimeCount: runtime.configuredCount,
       readyRuntimeCount: runtime.readyCount,
+      runtimeReadiness: runtime.readiness,
       sdkTimeoutSeconds: numSetting(sdkTimeout),
       maxTurns: numSetting(maxTurns),
       licenseTag,

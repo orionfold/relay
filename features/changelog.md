@@ -1,5 +1,23 @@
 # Feature Changelog
 
+## 2026-07-23
+
+### Completed
+
+- `packed-knowledge-runtime-root` (G-127) — a rebuilt customer-identical
+  npm/Chrome walkthrough now resolves the verified bundle from an explicit
+  installed runtime-input root and Relay's compiled version instead of the
+  customer's unversioned launch package. Grounded Chat returned stamped
+  `0.45.2` guide sources and Settings/Workflows actions; corrupt, unsafe and
+  mismatched bundles remain fail-closed.
+- `shell-runtime-readiness-status` (G-128) — the same walkthrough reopened
+  TRIAGE-039 after healthy Ollama completed work while the legacy
+  Anthropic-only global indicator remained **API Disconnected**. The shell now
+  derives a provider-neutral state from eligible routing readiness, rendered
+  **Ollama ready**, and changed immediately to **Ollama unavailable** after a
+  controlled failed provider test. This closes O6 and the Customer onboarding
+  and first value release train.
+
 ## 2026-07-22
 
 ### Completed

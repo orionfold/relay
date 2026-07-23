@@ -4,7 +4,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:f
 import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import pkg from "../../../../package.json";
 import {
   KNOWLEDGE_MAX_SECTIONS,
@@ -46,6 +46,8 @@ function fixtureRoot(): string {
 }
 
 afterEach(() => {
+  process.chdir(ROOT);
+  vi.unstubAllEnvs();
   for (const root of tempRoots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
@@ -131,6 +133,31 @@ describe("Relay knowledge ranking and retrieval", () => {
   it("does not touch the bundle for non-help turns", () => {
     const turn = prepareRelayKnowledgeTurn("publish my Pack", { rootDir: "/definitely/missing" });
     expect(turn).toEqual({ status: "not-requested" });
+  });
+
+  it("uses the installed Relay runtime root when the launch workspace has no version", () => {
+    const runtimeRoot = fixtureRoot();
+    const launchRoot = mkdtempSync(join(tmpdir(), "relay-launch-workspace-"));
+    tempRoots.push(launchRoot);
+    writeFileSync(
+      join(launchRoot, "package.json"),
+      JSON.stringify({ name: "relay-customer-launch", private: true }),
+    );
+    process.chdir(launchRoot);
+    vi.stubEnv("RELAY_RUNTIME_INPUT_ROOT", runtimeRoot);
+
+    const turn = prepareRelayKnowledgeTurn("How do I run a workflow in Relay?");
+
+    expect(turn.status).toBe("ready");
+    if (turn.status === "ready") {
+      expect(turn.receipt.releaseVersion).toBe(pkg.version);
+      expect(turn.quickAccess).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ kind: "knowledge-source" }),
+          expect.objectContaining({ kind: "knowledge-action" }),
+        ]),
+      );
+    }
   });
 });
 

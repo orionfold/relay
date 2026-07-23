@@ -65,7 +65,18 @@ function mockAll(
     },
   }));
   vi.doMock("@/lib/settings/routing", () => ({
-    getRoutingPreference: async () => c.routing,
+    getRoutingSettings: async () => ({
+      preference: c.routing,
+      policy: {
+        version: 1,
+        eligibleRuntimeIds: Object.keys(c.runtimeStates),
+        manualDefaultRuntimeId: "claude-code",
+        automaticFallback: true,
+      },
+      source: "stored",
+      needsPersistence: false,
+      repairReason: null,
+    }),
   }));
   vi.doMock("@/lib/settings/permission-presets", () => ({
     getActivePresets: async () => c.presets,
@@ -116,6 +127,12 @@ describe("GET /api/settings/glance — happy path", () => {
       routingPreference: "quality",
       configuredRuntimeCount: 2,
       readyRuntimeCount: 2,
+      runtimeReadiness: {
+        state: "ready",
+        label: "2 runtimes ready",
+        readyRuntimeLabels: ["Claude Code", "openai-codex-app-server"],
+        attentionRuntimeLabels: [],
+      },
       sdkTimeoutSeconds: 90,
       maxTurns: 12,
       licenseTag: { kind: "licensed", label: "Acme Corp" },
@@ -156,6 +173,7 @@ describe("GET /api/settings/glance — shadow paths (one source down)", () => {
     // Runtime fields null...
     expect(body.activeRuntimeLabel).toBeNull();
     expect(body.activeModel).toBeNull();
+    expect(body.runtimeReadiness).toBeNull();
     // ...but every other source still resolved.
     expect(body.licenseTag).toEqual({ kind: "licensed", label: "Acme Corp" });
     expect(body.budgetMonthlyCapUsd).toBe(200);

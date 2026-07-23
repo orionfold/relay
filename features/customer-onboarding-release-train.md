@@ -1,6 +1,6 @@
 ---
 title: Customer Onboarding and First Value Release Train
-status: accepted
+status: completed
 priority: P0
 milestone: post-mvp
 source: _IDEAS/triage.md
@@ -119,7 +119,21 @@ attempt into the same truthful receipt and real browser evidence passed. G-126
 was accepted 2026-07-23 after the shared mutation event refreshed identity and
 Settings-at-a-glance readers, out-of-order responses were rejected, and real
 remove/reactivate browser proof reconciled every visible entitlement consumer
-without a manual reload. O5 and the release train are complete.
+without a manual reload. O5 is complete.
+
+### O6 — Post-acceptance release repair
+
+A fresh rebuild and clean packed-Chrome sweep on 2026-07-23 validated the O5
+license, Pack, Tables, Workshop, Task and receipt outcomes, but found two
+release-level gaps outside the earlier final path. TRIAGE-058 proves packaged
+Chat resolves the customer's unversioned launch workspace instead of the
+installed Relay knowledge root, making verified `0.45.2` help unavailable.
+TRIAGE-059 proves the global shell still renders the legacy Anthropic-only
+`AuthStatusDot`, reopening TRIAGE-039 even though healthy Ollama completes
+work. G-127 repaired packaged knowledge authority and G-128 replaced the
+auth-only global indicator with provider-neutral runtime readiness. A rebuilt
+packed npm/Chrome sweep accepted both states on 2026-07-23, so O6 and the
+release train are complete.
 
 ## Cross-goal invariants
 
@@ -163,6 +177,13 @@ without a manual reload. O5 and the release train are complete.
       activation, workflow completion/recovery and isolation.
 - [x] Every originating TRIAGE-036–TRIAGE-057 finding is mapped to exactly one
       owning Goal Contract or a named shared dependency.
+- [x] Packed npm Chat resolves the installed release's verified knowledge and
+      returns stamped sources/actions (G-127).
+- [x] A healthy eligible local or cloud runtime produces a provider-neutral
+      shell readiness state with no auth-only global Disconnected label
+      (G-128).
+- [x] One rebuilt packed-Chrome sweep closes TRIAGE-058/TRIAGE-059 and the O6
+      release gate without regressing the accepted O5 journey.
 
 ## Scope boundaries
 
@@ -184,8 +205,11 @@ without a manual reload. O5 and the release train are complete.
 
 ## References
 
-- `_IDEAS/triage.md` — TRIAGE-036 through TRIAGE-057 grooming map
+- `_IDEAS/triage.md` — TRIAGE-036 through TRIAGE-059 grooming map
 - `output/staging/2026-07-23/` — G-025 O5 acceptance evidence
+- `output/staging/2026-07-23/chrome-walkthrough/` — O6 discovery evidence
+- `output/staging/2026-07-23/o6-repair-proof/` — accepted G-127/G-128 packed
+  browser evidence
 - `output/staging/2026-07-22-operator-host-cell-pack/FINDINGS-live.md`
 - `features/npm-customer-install-integrity.md`
 - `features/entitlement-aware-customer-onboarding.md`

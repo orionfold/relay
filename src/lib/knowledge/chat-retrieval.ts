@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { relayProductVersion } from "@/lib/config/version";
 import { getAppRoot } from "@/lib/utils/app-root";
 import {
   RELAY_KNOWLEDGE_SCHEMA_VERSION,
@@ -17,6 +18,7 @@ export const KNOWLEDGE_MAX_TOKENS = 1_200;
 const MAX_MANIFEST_BYTES = 256 * 1024;
 const MAX_INDEX_BYTES = 2 * 1024 * 1024;
 const MAX_ENTRY_BYTES = 512 * 1024;
+const RELAY_PACKAGE_NAME = "orionfold-relay";
 
 export type KnowledgeFailureCode =
   | "KnowledgeBundleMissingError"
@@ -68,6 +70,48 @@ export type RelayKnowledgeTurn =
       receipt: RelayKnowledgeReceipt;
       quickAccess: [];
     };
+
+function resolveKnowledgeRuntime(
+  rootOverride?: string,
+): { root: string; releaseVersion: string } {
+  const explicitRuntimeRoot =
+    process.env.RELAY_RUNTIME_INPUT_ROOT?.trim() || null;
+  const root = resolve(
+    rootOverride ??
+      explicitRuntimeRoot ??
+      getAppRoot(import.meta.dirname, 3),
+  );
+  const packageValue = readJson(
+    join(root, "package.json"),
+    "Relay runtime package.json",
+    MAX_MANIFEST_BYTES,
+  );
+  assertObject(packageValue, "Relay runtime package.json");
+  if (
+    packageValue.name !== RELAY_PACKAGE_NAME ||
+    typeof packageValue.version !== "string" ||
+    !/^\d+\.\d+\.\d+/.test(packageValue.version)
+  ) {
+    throw new RelayKnowledgeError(
+      "KnowledgeBundleSchemaError",
+      "Relay runtime package identity is invalid",
+    );
+  }
+
+  // A test fixture's root is its explicit version authority. Production uses
+  // the version compiled into Relay and verifies that the installed package
+  // root agrees with it before reading any knowledge files.
+  const releaseVersion = rootOverride
+    ? packageValue.version
+    : relayProductVersion();
+  if (packageValue.version !== releaseVersion) {
+    throw new RelayKnowledgeError(
+      "KnowledgeBundleVersionError",
+      `Relay runtime inputs ${packageValue.version} do not match Relay ${releaseVersion}`,
+    );
+  }
+  return { root, releaseVersion };
+}
 
 interface LoadedSection extends RelayKnowledgeReceiptSection {
   markdown: string;
@@ -408,13 +452,9 @@ export function prepareRelayKnowledgeTurn(
   if (!isRelayKnowledgeHelpIntent(query)) return { status: "not-requested" };
   let packageVersion = "unknown";
   try {
-    const root = options.rootDir ?? getAppRoot(import.meta.dirname, 3);
-    const packageValue = readJson(join(root, "package.json"), "package.json", MAX_MANIFEST_BYTES);
-    assertObject(packageValue, "package.json");
-    if (typeof packageValue.version !== "string") {
-      throw new RelayKnowledgeError("KnowledgeBundleSchemaError", "package.json version is invalid");
-    }
-    packageVersion = packageValue.version;
+    const runtime = resolveKnowledgeRuntime(options.rootDir);
+    const root = runtime.root;
+    packageVersion = runtime.releaseVersion;
     const manifestValue = readJson(join(root, "knowledge/manifest.json"), "knowledge manifest", MAX_MANIFEST_BYTES);
     const indexValue = readJson(join(root, "knowledge/index.json"), "knowledge index", MAX_INDEX_BYTES);
     const { manifest, index } = validateManifestAndIndex(manifestValue, indexValue, packageVersion);

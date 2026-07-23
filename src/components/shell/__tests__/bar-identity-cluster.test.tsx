@@ -9,13 +9,28 @@ import type { CustomerOrientation } from "@/lib/onboarding/orientation";
 
 // The bar identity cluster is the bar-side half of the rail-vs-bar split. These
 // tests pin its shadow-path discipline: never a wrong version, never a dangling
-// "Licensed to ", and the auth dot survives an identity fetch error.
+// "Licensed to ", and runtime readiness survives an identity fetch error.
+
+vi.mock("../use-settings-glance", () => ({
+  useSettingsGlance: () => ({
+    status: "ready",
+    data: {
+      runtimeReadiness: {
+        state: "ready",
+        label: "Ollama ready",
+        detail: "Ollama is verified and eligible for routed work.",
+        readyRuntimeLabels: ["Ollama"],
+        attentionRuntimeLabels: [],
+      },
+    },
+  }),
+}));
 
 function stub(state: InstanceIdentityState) {
   vi.spyOn(useInstanceIdentityModule, "useInstanceIdentity").mockReturnValue(state);
 }
 
-// The nested AuthStatusDot uses a Radix Tooltip → needs a provider, which the
+// The nested runtime status uses a Radix Tooltip → needs a provider, which the
 // app root supplies (layout.tsx).
 function render(ui: ReactElement) {
   return rtlRender(<TooltipProvider>{ui}</TooltipProvider>);
@@ -101,7 +116,7 @@ describe("BarIdentityCluster", () => {
     expect(screen.queryByText("Community Edition")).not.toBeInTheDocument();
   });
 
-  it("still renders the auth dot when identity errored (independent poll)", () => {
+  it("still renders runtime readiness when identity errored (independent poll)", () => {
     stub({
       status: "error",
       version: null,
@@ -111,7 +126,7 @@ describe("BarIdentityCluster", () => {
     });
     const { container } = render(<BarIdentityCluster />);
 
-    // The AuthStatusDot renders a colored dot regardless of identity state.
+    expect(screen.getByText("Ollama ready")).toBeInTheDocument();
     expect(container.querySelector("span.rounded-full")).not.toBeNull();
   });
 });
