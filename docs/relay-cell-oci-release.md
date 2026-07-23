@@ -1,8 +1,8 @@
 # Relay Cell OCI acquisition and verification
 
-> Publication status (2026-07-21): the protected workflow published and verified Relay Cell
-> `v0.45.2` for `linux/amd64` and `linux/arm64`. The immutable accepted index is
-> `sha256:ea3098207a390498a92cb23e73b27cdcf25b6ab3679415b3b976461e1baad624`.
+> Publication status (2026-07-23): the protected workflow published and verified Relay Cell
+> `v0.46.2` for `linux/amd64` and `linux/arm64`. The immutable accepted index is
+> `sha256:9dda87b2d1c73955e41b5a72d640650e5043785668777fc8cba63406a4c46e48`.
 > This makes the free Cell runtime available; it does not make the separately
 > licensed Relay Host journey customer-ready.
 
@@ -23,7 +23,7 @@ Host, not by making the Cell image private.
 Release notes and the Host manifest provide a value such as:
 
 ```text
-ghcr.io/orionfold/relay-cell@sha256:ea3098207a390498a92cb23e73b27cdcf25b6ab3679415b3b976461e1baad624
+ghcr.io/orionfold/relay-cell@sha256:9dda87b2d1c73955e41b5a72d640650e5043785668777fc8cba63406a4c46e48
 ```
 
 Use that complete reference for deployment. `vX.Y.Z`, `vX.Y`, and `stable`
@@ -33,7 +33,7 @@ is the authority. The tag `latest` is not part of Relay's publication policy.
 Pull and inspect the accepted digest:
 
 ```bash
-export RELAY_CELL_DIGEST='sha256:ea3098207a390498a92cb23e73b27cdcf25b6ab3679415b3b976461e1baad624'
+export RELAY_CELL_DIGEST='sha256:9dda87b2d1c73955e41b5a72d640650e5043785668777fc8cba63406a4c46e48'
 docker pull "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST"
 docker buildx imagetools inspect "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST"
 ```
@@ -117,7 +117,7 @@ separate errors. A license lapse or registry outage must not stop existing
 Cells or prevent export/recovery; it only affects new managed-Cell operations
 according to the Host license contract.
 
-## First production proof and remaining release gate
+## Current production proof and promotion boundary
 
 The authorized G-094 run completed these one-time production checks:
 
@@ -130,18 +130,18 @@ The authorized G-094 run completed these one-time production checks:
    configuration pulled the accepted index successfully.
 4. The exact release receipt, platform receipts, SBOM, provenance, signatures,
    anonymous pull, startup, readiness, task checkpoint and restart recovery all
-   passed. The run is
-   [29663211815](https://github.com/orionfold/relay/actions/runs/29663211815).
+   passed for the current release. The run is
+   [30043872898](https://github.com/orionfold/relay/actions/runs/30043872898).
 5. No registry credential, signing key or paid/mirror dependency was added.
 
-The release receipt records amd64 digest
-`sha256:c269278e16218cbe92b0a48c336799cb2e267421bfb7e9160791f28aa5e49e4d`
-at 131,021,904 compressed-layer bytes and arm64 digest
-`sha256:61afeafcac77f78dcaa32313a1ec515fcfa983dba5f498ed1c77c6d651c1640b`
-at 130,138,470 bytes. The public index is an acquisition artifact, not a paid
-entitlement or a Host release. `stable` remains unmoved until the R3
-customer-identical staging gate passes; exact `v0.44.3` and digest references
-are the current discovery and authority surfaces.
+The current release receipt records amd64 digest
+`sha256:3ad2a94ac511d301d84ed80f14832951128b1eabd7818889dae06d14e5d8a4a4`
+at 131,643,268 image bytes and arm64 digest
+`sha256:8d47aed9e9869fceb77872a5b9fca99caa44a608b4278e0bb591e37b0144ba07`
+at 130,805,081 image bytes. The public index is an acquisition artifact, not a
+paid entitlement or a Host release. `stable` remains a separately gated
+promotion pointer; exact `v0.46.2` and the accepted index digest are the current
+discovery and authority surfaces.
 
 Primary references: [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry),
 [GitHub artifact attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations),
