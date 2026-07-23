@@ -308,8 +308,10 @@ describe("ensurePrePushHook (Phase B)", () => {
     const content = readFileSync(hookPath, "utf-8");
     expect(content).toContain("RELAY_HOOK_VERSION=");
     expect(content).toContain("ALLOW_PRIVATE_PUSH");
-    const mode = statSync(hookPath).mode & 0o777;
-    expect(mode & 0o100).toBeTruthy();
+    if (process.platform !== "win32") {
+      const mode = statSync(hookPath).mode & 0o777;
+      expect(mode & 0o100).toBeTruthy();
+    }
   });
 
   it("is a no-op when a hook with matching version already exists", async () => {

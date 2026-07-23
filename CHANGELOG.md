@@ -8,7 +8,7 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
-## [0.46.1] — 2026-07-23
+## [0.46.2] — 2026-07-23
 
 ### Added
 
@@ -41,6 +41,9 @@ them; the current package and repository identity is Orionfold Relay.
 
 ### Fixed
 
+- **Fresh-clone hook verification now respects platform semantics.** The
+  regression still verifies executable permissions on Unix while avoiding a
+  meaningless POSIX mode-bit assertion on Windows.
 - **The release image passes the current high-severity vulnerability gate.**
   Relay now uses Next.js 16.2.11 and Sharp 0.35.3, and constrains the affected
   PostCSS and Fast URI transitive paths to fixed compatible releases.
