@@ -58,7 +58,9 @@ own.
 
 G-116 defines one state/persona model for the first screen, shell identity,
 License, instance boundary, and optional Host journey. It resolves free Agency
-Pack discovery without falsely claiming it is installed.
+Pack discovery without falsely claiming it is installed. Accepted 2026-07-22
+after state/security regressions and real desktop/mobile light/dark browser
+proof, including the guided Agency install and returning dashboard.
 
 ### O2 — Safe Pack activation
 
@@ -106,8 +108,8 @@ the final evidence bundle.
 
 - [ ] `_IDEAS/backlog.md` exposes this as the active workstream and keeps its
       current increment/current goal synchronized on every state change.
-- [ ] G-114 independently proves a version-correct old→new shared-cache upgrade.
-- [ ] Community, Pack, Host and combined customers receive coherent first-screen,
+- [x] G-114 independently proves a version-correct old→new shared-cache upgrade.
+- [x] Community, Pack, Host and combined customers receive coherent first-screen,
       shell and Settings guidance.
 - [ ] Premium Packs present one entitlement and one resumable activation path.
 - [ ] Agency sample data is visibly synthetic and safely replaceable.

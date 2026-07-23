@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthStatusDot } from "@/components/settings/auth-status-dot";
+import { Badge } from "@/components/ui/badge";
 import { useInstanceIdentity } from "./use-instance-identity";
 
 // The static instance-identity signals for the app-bar right cluster, ordered
@@ -22,6 +23,8 @@ export function BarIdentityCluster() {
   const version = identity.status === "loading" ? null : identity.version;
   const licenseTag =
     identity.status === "loading" ? null : identity.licenseTag;
+  const orientation =
+    identity.status === "loading" ? null : identity.orientation;
 
   return (
     <div className="flex items-center gap-2 whitespace-nowrap">
@@ -33,13 +36,25 @@ export function BarIdentityCluster() {
           v{version}
         </span>
       )}
-      {licenseTag && (
+      {orientation ? (
+        <>
+          {orientation.license.licensee && (
+            <span className="hidden max-w-36 truncate text-xs text-muted-foreground lg:inline">
+              {orientation.license.licensee}
+            </span>
+          )}
+          <Badge
+            variant={orientation.edition === "licensed" ? "success" : "secondary"}
+            className="hidden text-[10px] font-normal md:inline-flex"
+          >
+            {orientation.entitlementLabel}
+          </Badge>
+        </>
+      ) : licenseTag ? (
         <span className="hidden text-xs text-muted-foreground md:inline">
-          {licenseTag.kind === "licensed"
-            ? licenseTag.label
-            : "Community Edition"}
+          {licenseTag.kind === "licensed" ? licenseTag.label : "Community Edition"}
         </span>
-      )}
+      ) : null}
       <span className="flex items-center gap-2 whitespace-nowrap text-xs text-muted-foreground">
         <AuthStatusDot showLabel />
       </span>

@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BarIdentityCluster } from "../bar-identity-cluster";
 import * as useInstanceIdentityModule from "../use-instance-identity";
 import type { InstanceIdentityState } from "../use-instance-identity";
+import type { CustomerOrientation } from "@/lib/onboarding/orientation";
 
 // The bar identity cluster is the bar-side half of the rail-vs-bar split. These
 // tests pin its shadow-path discipline: never a wrong version, never a dangling
@@ -20,18 +21,46 @@ function render(ui: ReactElement) {
   return rtlRender(<TooltipProvider>{ui}</TooltipProvider>);
 }
 
+const packsOrientation: CustomerOrientation = {
+  edition: "licensed",
+  license: {
+    lifecycle: "active",
+    licensee: "Acme Corp",
+    detail: "Active.",
+    expiresAt: "2027-07-01T00:00:00.000Z",
+  },
+  entitlements: { packs: true, host: false },
+  packs: { premium: "unlocked", agency: "available", readError: null },
+  host: {
+    state: "preview",
+    managedCellsLimit: null,
+    detail: "Optional.",
+  },
+  headline: "Premium Packs are unlocked",
+  description: "Choose Packs.",
+  entitlementLabel: "Premium Packs",
+  primaryAction: {
+    kind: "link",
+    label: "Choose Packs",
+    href: "/packs",
+  },
+  secondaryActions: [],
+};
+
 describe("BarIdentityCluster", () => {
-  it("renders the version pill and the licensed org label when ready", () => {
+  it("renders version, licensee identity, and entitlement as separate signals", () => {
     stub({
       status: "ready",
       version: "0.28.0",
       activeModel: "claude-opus-4-8",
       licenseTag: { kind: "licensed", label: "Acme Corp" },
+      orientation: packsOrientation,
     });
     render(<BarIdentityCluster />);
 
     expect(screen.getByText("v0.28.0")).toBeInTheDocument();
     expect(screen.getByText("Acme Corp")).toBeInTheDocument();
+    expect(screen.getByText("Premium Packs")).toBeInTheDocument();
   });
 
   it("omits the version pill entirely when version is null (absent > wrong)", () => {

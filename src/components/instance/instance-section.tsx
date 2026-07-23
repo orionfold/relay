@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { RelayCellBoundary } from "@/lib/instance/cell-boundary";
+import type { CustomerOrientation } from "@/lib/onboarding/orientation";
 
 interface InstanceConfig {
   instanceId: string;
@@ -55,7 +56,11 @@ interface ConfigResponse {
  */
 const STALE_THRESHOLD_MS = 5 * 60 * 1000;
 
-export function InstanceSection() {
+export function InstanceSection({
+  orientation,
+}: {
+  orientation?: CustomerOrientation;
+}) {
   const router = useRouter();
   const [state, setState] = useState<ConfigResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -210,7 +215,7 @@ export function InstanceSection() {
   // the real process/data-root boundary.
   if (state?.devMode) {
     return (
-      <InstanceLayout boundary={state.boundary}>
+      <InstanceLayout boundary={state.boundary} orientation={orientation}>
         <section className="rounded-xl border bg-card px-5 py-3 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             <h2 className="text-base font-semibold">Instance maintenance</h2>
@@ -247,7 +252,7 @@ export function InstanceSection() {
       }
     };
     return (
-      <InstanceLayout boundary={state.boundary}>
+      <InstanceLayout boundary={state.boundary} orientation={orientation}>
         <section className="rounded-xl border bg-card px-5 py-4 space-y-3">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3 flex-wrap">
@@ -311,7 +316,7 @@ export function InstanceSection() {
   // Not-initialized state
   if (!hasConfig) {
     return (
-      <InstanceLayout boundary={state.boundary}>
+      <InstanceLayout boundary={state.boundary} orientation={orientation}>
         <section className="rounded-xl border bg-card px-5 py-4 space-y-3">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <h2 className="text-base font-semibold">Instance maintenance</h2>
@@ -365,7 +370,7 @@ export function InstanceSection() {
     : "text-muted-foreground";
 
   return (
-    <InstanceLayout boundary={state.boundary}>
+    <InstanceLayout boundary={state.boundary} orientation={orientation}>
       <section className="rounded-xl border bg-card">
       <header className="flex items-start justify-between gap-4 px-5 py-3 border-b flex-wrap">
         <div className="min-w-0 space-y-2">
@@ -464,9 +469,11 @@ export function InstanceSection() {
 
 function InstanceLayout({
   boundary,
+  orientation,
   children,
 }: {
   boundary: RelayCellBoundary;
+  orientation?: CustomerOrientation;
   children: ReactNode;
 }) {
   const cellId = boundary.instanceId
@@ -482,19 +489,21 @@ function InstanceLayout({
         <header className="border-b px-5 py-3">
           <div className="flex flex-wrap items-center gap-2">
             <h2 id="relay-cell-boundary-heading" className="text-base font-semibold">
-              Relay cell boundary
+              This Relay&apos;s data boundary
             </h2>
             <Badge variant="outline" className="text-xs font-normal">
-              Host administrator trusted
+              {orientation?.entitlementLabel ?? "Community Edition"}
+            </Badge>
+            <Badge variant="outline" className="text-xs font-normal">
+              {orientation?.entitlements.host
+                ? "Host administrator trusted"
+                : "Device administrator trusted"}
             </Badge>
           </div>
           <p className="mt-1 max-w-4xl text-xs leading-relaxed text-muted-foreground">
-            This Relay process and data directory form one Relay cell. Customer
-            and project records organize work inside this cell; they do not
-            isolate data, files, credentials, agents, or runtimes. The Relay Host
-            administrator can access every cell on this Host. Use a separate cell
-            for client isolation, or a separate VM or machine when the Host
-            administrator must not have access.
+            {orientation?.entitlements.host
+              ? "This is one managed Relay Cell. Customers and projects organize work inside it, but they do not isolate files, credentials, agents, or runtimes from one another. The Host administrator can access every Cell on this Host. Use separate Cells for customer isolation, or separate VMs or machines when the same administrator must not have access."
+              : "This Relay keeps its data in the directory below. Customers and projects organize work, but they do not create separate security boundaries for files, credentials, agents, or runtimes. Use a separate Relay data directory, VM, or machine when people must not share administrator access."}
           </p>
         </header>
         <dl className="grid gap-x-6 gap-y-3 px-5 py-3 text-sm sm:grid-cols-2 xl:grid-cols-4">

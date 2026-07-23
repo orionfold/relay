@@ -1,9 +1,15 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Shield, Sparkles, Wallet, ArrowRight } from "lucide-react";
 import { AinativeWordmark } from "@/components/shared/ainative-wordmark";
 import { StarterTemplateCard } from "@/components/apps/starter-template-card";
+import { PackInstallButton } from "@/components/packs/pack-install-button";
 import type { StarterTemplate } from "@/lib/apps/starters";
+import type {
+  CustomerOrientation,
+  OrientationAction,
+} from "@/lib/onboarding/orientation";
 
 const pillars = [
   {
@@ -24,28 +30,64 @@ const pillars = [
 ];
 
 interface WelcomeLandingProps {
+  orientation: CustomerOrientation;
   starters?: StarterTemplate[];
 }
 
 /**
  * WelcomeLanding — shown on fresh instances with no tasks.
- * Hero + 3 pillars (packs-first) + 2-CTA cluster + starter cards row. The
- * starter row is the discovery surface for Relay's marquee feature; the
- * "Build your first pack" CTA routes to /chat where the chat-empty-state
- * surfaces the same starters and example prompts.
+ * Entitlement-aware hero + ranked action cluster + product pillars + starter
+ * cards. The first action comes from the shared orientation contract, so a
+ * Community customer can explicitly install Agency while Pack and Host
+ * customers continue the capability they already unlocked.
  */
-export function WelcomeLanding({ starters = [] }: WelcomeLandingProps) {
+export function WelcomeLanding({
+  orientation,
+  starters = [],
+}: WelcomeLandingProps) {
   const visibleStarters = starters.slice(0, 3);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] max-w-3xl mx-auto text-center px-4 py-8">
       <AinativeWordmark className="mb-4" />
+      <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
+        <Badge variant={orientation.edition === "licensed" ? "success" : "secondary"}>
+          {orientation.entitlementLabel}
+        </Badge>
+        {orientation.license.licensee && (
+          <Badge variant="outline">
+            Licensed to {orientation.license.licensee}
+          </Badge>
+        )}
+      </div>
       <h1 className="text-3xl font-bold tracking-tight mb-3">
-        Welcome
+        {orientation.headline}
       </h1>
       <p className="text-base text-muted-foreground mb-8 max-w-lg">
-        Relay is your AI business operating system. Describe a pack. Relay builds it and runs it on your rules, your budget, and your data.
+        {orientation.description}
       </p>
+      {orientation.packs.readError && (
+        <p
+          role="alert"
+          className="mb-4 max-w-lg rounded-md border border-status-warning/40 bg-status-warning/10 px-3 py-2 text-sm text-status-warning"
+        >
+          Relay could not check Pack availability: {orientation.packs.readError}
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+        <WelcomeAction action={orientation.primaryAction} primary />
+        {orientation.secondaryActions.map((action) => (
+          <WelcomeAction
+            key={
+              action.kind === "link"
+                ? `${action.kind}:${action.href}`
+                : `${action.kind}:${action.packId}`
+            }
+            action={action}
+          />
+        ))}
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mb-8">
         {pillars.map((pillar) => (
@@ -60,20 +102,6 @@ export function WelcomeLanding({ starters = [] }: WelcomeLandingProps) {
             </p>
           </div>
         ))}
-      </div>
-
-      <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
-        <Link href="/chat">
-          <Button size="lg" className="gap-1.5">
-            Build your first pack
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </Link>
-        <Link href="/tasks">
-          <Button size="lg" variant="outline">
-            Or browse the workspace
-          </Button>
-        </Link>
       </div>
 
       {visibleStarters.length > 0 && (
@@ -105,5 +133,36 @@ export function WelcomeLanding({ starters = [] }: WelcomeLandingProps) {
         </section>
       )}
     </div>
+  );
+}
+
+function WelcomeAction({
+  action,
+  primary = false,
+}: {
+  action: OrientationAction;
+  primary?: boolean;
+}) {
+  if (action.kind === "install_pack") {
+    return (
+      <PackInstallButton
+        packId={action.packId}
+        packName={action.packName}
+        premium={false}
+        size="lg"
+        variant={primary ? "default" : "outline"}
+        installLabel={action.label}
+        successHref={`/apps/${action.packId}`}
+      />
+    );
+  }
+
+  return (
+    <Button asChild size="lg" variant={primary ? "default" : "outline"}>
+      <Link href={action.href}>
+        {action.label}
+        {primary && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
+      </Link>
+    </Button>
   );
 }

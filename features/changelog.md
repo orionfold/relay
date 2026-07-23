@@ -4,6 +4,17 @@
 
 ### Completed
 
+- `entitlement-aware-customer-onboarding` (G-116) — added one typed,
+  security-conscious customer-orientation contract shared by Home, app-bar
+  identity and Settings. Community, Pack-only, Host-only and combined customers
+  now see distinct licensee, entitlement, Pack-install and Host-readiness truth
+  plus the shortest relevant action. Fresh Community uses the approved guided
+  one-click Relay Agency install; Host progress remains an optional preview
+  without entitlement; invalid signatures/read failures never become false
+  customer identity or Pack state. License mutations refresh the shared
+  presentation immediately. Fifty focused regressions, 210 broader
+  licensing/Host/Pack checks, TypeScript, production build and disposable
+  desktop/390 px light/dark browser proof passed.
 - `npm-customer-install-integrity` (G-114) — bound downloaded production builds
   and hoisted Relay runtime inputs to the exact npm package version, artifact
   checksum and build identity; staged promotion prevents mixed runnable bytes

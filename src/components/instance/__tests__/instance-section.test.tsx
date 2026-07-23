@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InstanceSection } from "@/components/instance/instance-section";
+import { resolveCustomerOrientation } from "@/lib/onboarding/orientation";
 
 const { push } = vi.hoisted(() => ({
   push: vi.fn(),
@@ -15,6 +16,36 @@ const boundary = {
   launchWorkingDirectory: "/tmp/customer-work",
   dataDirectorySource: "override",
 };
+
+const communityOrientation = resolveCustomerOrientation({
+  licenses: [],
+  installedPackIds: [],
+  agencyBundled: true,
+  host: { licenseStatus: "missing" },
+  now: new Date("2026-07-22T12:00:00.000Z"),
+});
+
+const hostOrientation = resolveCustomerOrientation({
+  licenses: [
+    {
+      licenseId: "OF-HOST-1",
+      filePath: "/tmp/OF-HOST-1.license.json",
+      valid: true,
+      issuedTo: { org: "Northstar Agency" },
+      issuedAt: "2026-07-01T00:00:00.000Z",
+      expiresAt: "2027-07-01T00:00:00.000Z",
+      entitlements: ["product:relay-host"],
+    },
+  ],
+  installedPackIds: [],
+  agencyBundled: true,
+  host: {
+    licenseStatus: "active",
+    journeyStage: "configure",
+    managedCellsLimit: 10,
+  },
+  now: new Date("2026-07-22T12:00:00.000Z"),
+});
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
@@ -78,7 +109,7 @@ describe("instance section", () => {
       })
     );
 
-    render(<InstanceSection />);
+    render(<InstanceSection orientation={communityOrientation} />);
 
     expect(await screen.findByRole("button", { name: "Check" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Upgrade (3)" })).toBeInTheDocument();
@@ -87,9 +118,15 @@ describe("instance section", () => {
     expect(screen.queryByText("Advanced: re-run instance setup")).not.toBeInTheDocument();
     expect(screen.queryByText("Blocked branches")).not.toBeInTheDocument();
     expect(screen.queryByText("Pre-push hook")).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Relay cell boundary" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "This Relay's data boundary" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Community Edition")).toBeInTheDocument();
+    expect(screen.getByText("Device administrator trusted")).toBeInTheDocument();
     expect(screen.getByText("/tmp/relay-cell-a")).toBeInTheDocument();
-    expect(screen.getByText(/Customer and project records organize work/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Customers and projects organize work, but they do not create separate security boundaries/),
+    ).toBeInTheDocument();
   });
 
   it("shows an npx-install notice instead of the setup warning when skippedReason=no_git", async () => {
@@ -154,6 +191,31 @@ describe("instance section", () => {
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Run setup" })).not.toBeInTheDocument();
     expect(screen.getByText("Not initialized")).toBeInTheDocument();
+  });
+
+  it("adapts the boundary explanation for a managed Host entitlement", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          devMode: false,
+          boundary,
+          skippedReason: "no_git",
+          config: null,
+          guardrails: null,
+          upgrade: null,
+        }),
+      })),
+    );
+
+    render(<InstanceSection orientation={hostOrientation} />);
+
+    expect(await screen.findByText("Managed Host")).toBeInTheDocument();
+    expect(screen.getByText("Host administrator trusted")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Use separate Cells for customer isolation/),
+    ).toBeInTheDocument();
   });
 
   it("shows the managed Cell ID in a no-git OCI install", async () => {

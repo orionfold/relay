@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
   KeyRound,
@@ -23,6 +24,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import type { CustomerOrientation } from "@/lib/onboarding/orientation";
+import { INSTANCE_IDENTITY_CHANGED_EVENT } from "@/lib/onboarding/events";
 
 /**
  * Settings → License — the web face of the ONE license store (D7): the same
@@ -66,7 +69,30 @@ function formatDate(iso: string): string {
   });
 }
 
-export function LicenseSection() {
+function entitlementName(entitlement: string): string {
+  if (entitlement === "product:orionfold-relay") return "All premium Packs";
+  if (entitlement === "product:relay-host") return "Managed Relay Host";
+  return entitlement;
+}
+
+function renewalContinuity(entitlements: string[]): string {
+  const packs = entitlements.includes("product:orionfold-relay");
+  const host = entitlements.includes("product:relay-host");
+  if (packs && host) {
+    return "Installed Packs and existing managed Cells stay available; renewing keeps premium installs, updates, and managed-Cell expansion open.";
+  }
+  if (host) {
+    return "Existing managed Cells stay available; renewing keeps managed-Cell expansion open.";
+  }
+  return "Installed Packs stay available; renewing keeps premium installs and updates open.";
+}
+
+export function LicenseSection({
+  orientation,
+}: {
+  orientation?: CustomerOrientation;
+}) {
+  const router = useRouter();
   const [licenses, setLicenses] = useState<StoredLicenseInfo[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [pasted, setPasted] = useState("");
@@ -122,6 +148,8 @@ export function LicenseSection() {
       setCeremony(body as StoredLicenseInfo);
       setPasted("");
       await fetchLicenses();
+      router.refresh();
+      window.dispatchEvent(new Event(INSTANCE_IDENTITY_CHANGED_EVENT));
     } catch (err) {
       setActivateError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -150,10 +178,12 @@ export function LicenseSection() {
         return;
       }
       toast.success(`Removed license ${license.licenseId}`, {
-        description: "Installed packs stay installed.",
+        description: "Installed Packs and existing managed Cells stay in place.",
       });
       setCeremony(null);
       await fetchLicenses();
+      router.refresh();
+      window.dispatchEvent(new Event(INSTANCE_IDENTITY_CHANGED_EVENT));
     } catch (err) {
       toast.error("Could not remove license", {
         description: err instanceof Error ? err.message : String(err),
@@ -169,33 +199,71 @@ export function LicenseSection() {
           License
         </CardTitle>
         <CardDescription>
-          Licenses are verified offline and stored on this machine — the CLI
-          banner, <code className="font-mono text-xs">relay license status</code>,
-          and this page all read the same store. Installed packs are yours
-          forever; a license only gates new premium installs.
+          See what this Relay can use now, who it is licensed to, and what
+          remains available if a term ends.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {orientation && (
+          <section
+            className="surface-card-muted rounded-lg border p-4"
+            aria-labelledby="current-relay-access-heading"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 id="current-relay-access-heading" className="text-sm font-semibold">
+                  Current access
+                </h3>
+                <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                  {orientation.license.detail}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  variant={
+                    orientation.license.lifecycle === "active" ||
+                    orientation.license.lifecycle === "expiring"
+                      ? "success"
+                      : orientation.license.lifecycle === "invalid" ||
+                          orientation.license.lifecycle === "read_error"
+                        ? "destructive"
+                        : "secondary"
+                  }
+                >
+                  {orientation.entitlementLabel}
+                </Badge>
+                {orientation.license.licensee && (
+                  <Badge variant="outline">
+                    Licensed to {orientation.license.licensee}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              <Badge variant={orientation.entitlements.packs ? "success" : "outline"}>
+                Premium Packs {orientation.entitlements.packs ? "unlocked" : "not unlocked"}
+              </Badge>
+              <Badge variant={orientation.entitlements.host ? "success" : "outline"}>
+                Managed Host {orientation.entitlements.host ? "unlocked" : "optional"}
+              </Badge>
+            </div>
+          </section>
+        )}
+
         {ceremony && (
           <div className="rounded-md border border-primary/40 bg-primary/5 p-4 space-y-2">
             <div className="flex items-center gap-2">
               <BadgeCheck className="h-5 w-5 text-primary" aria-hidden="true" />
               <span className="text-sm font-semibold">
-                You&apos;re licensed. Thank you, {identityLabel(ceremony.issuedTo)}.
+                License activated for {identityLabel(ceremony.issuedTo)}
               </span>
             </div>
             <ul className="text-xs text-muted-foreground space-y-1">
               <li>
                 Unlocked:{" "}
                 {ceremony.entitlements.length
-                  ? ceremony.entitlements.join(", ")
+                  ? ceremony.entitlements.map(entitlementName).join(", ")
                   : "(no entitlements listed)"}
-              </li>
-              <li>License ID: {ceremony.licenseId}</li>
-              <li>
-                Stored at{" "}
-                <code className="font-mono">{ceremony.filePath}</code> — keep
-                the original file from your email as a backup.
               </li>
             </ul>
           </div>
@@ -208,14 +276,16 @@ export function LicenseSection() {
         ) : licenses === null ? (
           <p className="text-sm text-muted-foreground">Reading license store…</p>
         ) : licenses.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No license on this machine — you&apos;re running the free engine
-            (Community Edition). Premium packs on the{" "}
-            <Link href="/packs" className="font-medium text-foreground hover:text-primary underline underline-offset-2">
-              Packs
-            </Link>{" "}
-            page show what a license unlocks.
-          </p>
+          orientation ? null : (
+            <p className="text-sm text-muted-foreground">
+              Community Edition is active. You can use core Relay and install
+              free Packs without a license. The{" "}
+              <Link href="/packs" className="font-medium text-foreground hover:text-primary underline underline-offset-2">
+                Packs
+              </Link>{" "}
+              page also shows what the one premium-Packs license unlocks.
+            </p>
+          )
         ) : (
           <ul className="space-y-3">
             {licenses.map((l) => (
@@ -251,8 +321,8 @@ export function LicenseSection() {
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {l.entitlements.map((e) => (
-                    <Badge key={e} variant="outline" className="font-mono text-[10px]">
-                      {e}
+                    <Badge key={e} variant="outline" className="text-[10px]">
+                      {entitlementName(e)}
                     </Badge>
                   ))}
                   {typeof l.seats === "number" && (
@@ -262,9 +332,8 @@ export function LicenseSection() {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {l.licenseId}
-                  {l.issuedAt ? ` · issued ${formatDate(l.issuedAt)}` : ""}
-                  {l.expiresAt ? ` · renews ${formatDate(l.expiresAt)}` : ""}
+                  {l.valid ? "Active" : "Needs attention"}
+                  {l.expiresAt ? ` · term ends ${formatDate(l.expiresAt)}` : ""}
                 </p>
                 {!l.valid && l.reason && (
                   <p className="text-xs text-destructive">{l.reason}</p>
@@ -275,9 +344,8 @@ export function LicenseSection() {
                   daysUntil(l.expiresAt) >= 0 && (
                     <p className="text-xs text-amber-600 dark:text-amber-500">
                       Renewal in {daysUntil(l.expiresAt)} day
-                      {daysUntil(l.expiresAt) === 1 ? "" : "s"} — installed
-                      packs stay yours either way; renewing keeps new premium
-                      installs and updates flowing.
+                      {daysUntil(l.expiresAt) === 1 ? "" : "s"} —{" "}
+                      {renewalContinuity(l.entitlements)}
                     </p>
                   )}
               </li>
@@ -330,6 +398,30 @@ export function LicenseSection() {
             />
           </div>
         </div>
+
+        <details className="rounded-md border px-3 py-2 text-xs text-muted-foreground">
+          <summary className="font-medium text-foreground">
+            Technical and trust details
+          </summary>
+          <div className="mt-3 space-y-2 leading-relaxed">
+            <p>
+              Relay verifies signed license files offline on this machine. The
+              CLI banner, <code className="font-mono">relay license status</code>,
+              and this page use the same local store.
+            </p>
+            <p>
+              Removing a license does not remove installed Packs or stop
+              existing managed Cells. It prevents new premium installs,
+              updates, and managed-Cell expansion until a current license is
+              activated.
+            </p>
+            {licenses?.map((license) => (
+              <p key={license.licenseId} className="break-all font-mono text-[11px]">
+                {license.licenseId} · {license.filePath}
+              </p>
+            ))}
+          </div>
+        </details>
       </CardContent>
 
       <ConfirmDialog
@@ -338,7 +430,7 @@ export function LicenseSection() {
           if (!open) setRemoving(null);
         }}
         title={`Remove license ${removing?.licenseId ?? ""}?`}
-        description="Installed packs stay installed — removing a license only affects future premium installs and updates. You can re-activate any time from your license file."
+        description="Installed Packs and existing managed Cells stay in place. Removing a current license prevents new premium installs, updates, and managed-Cell expansion until you activate a current license again."
         confirmLabel="Remove license"
         destructive
         onConfirm={() => {

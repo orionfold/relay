@@ -49,6 +49,7 @@ import { DashboardMasonry } from "@/components/dashboard/dashboard-masonry";
 import { AlertTriangle } from "lucide-react";
 import { RecentFeaturesModule } from "@/components/dashboard/recent-features-module";
 import { RECENT_FEATURES } from "@/lib/dashboard/recent-features";
+import { loadCustomerOrientation } from "@/lib/onboarding/load-orientation";
 
 export const dynamic = "force-dynamic";
 
@@ -303,10 +304,14 @@ export default async function HomePage() {
     // listStarters reads YAML files from disk synchronously — only loaded on
     // the welcome path so we don't pay the read on every dashboard hit.
     const starters = listStarters();
+    const orientation = loadCustomerOrientation({
+      loadInstalledPackIds: () => appsResult.data.map((app) => app.id),
+      installedPacksReadError: appsResult.error ?? undefined,
+    });
     return (
       <div className="bg-background min-h-screen">
         <div className="surface-page-shell min-h-screen p-5 sm:p-6 lg:p-7 space-y-6">
-          <WelcomeLanding starters={starters} />
+          <WelcomeLanding orientation={orientation} starters={starters} />
         </div>
       </div>
     );

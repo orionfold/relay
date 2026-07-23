@@ -33,6 +33,7 @@ import type {
   HostDeploymentMutation,
   HostDeploymentView,
 } from "@/lib/host/deployment/contracts";
+import type { CustomerOrientation } from "@/lib/onboarding/orientation";
 
 type DraftInput = Omit<HostDeploymentDraft, "updatedAt">;
 
@@ -68,7 +69,11 @@ async function readBody(response: Response): Promise<HostDeploymentView> {
   return body;
 }
 
-export function HostDeploymentSection() {
+export function HostDeploymentSection({
+  orientation,
+}: {
+  orientation?: CustomerOrientation;
+}) {
   const [view, setView] = useState<HostDeploymentView | null>(null);
   const [draft, setDraft] = useState<DraftInput | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,7 +102,13 @@ export function HostDeploymentSection() {
     }
   }, [apply]);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    void refresh();
+  }, [
+    refresh,
+    orientation?.license.lifecycle,
+    orientation?.entitlements.host,
+  ]);
 
   async function mutate(label: string, mutation: HostDeploymentMutation): Promise<boolean> {
     if (busy) return false;
@@ -168,15 +179,34 @@ export function HostDeploymentSection() {
               <Server className="h-5 w-5" aria-hidden="true" /> Relay Host deployment
             </h2>
             <CardDescription>
-              Run licensed Relay Cells on a device or server you control. Your account, bill, data, backups and keys remain yours.
+              {entitled
+                ? "Managed Host is unlocked. Run customer-isolated Relay Cells on a device or server you control; your account, bill, data, backups, and keys remain yours."
+                : "Optional when you need separate Relay workspaces for customers. Keep using this Relay directly, or preview how a managed Host and Cells would work."}
             </CardDescription>
           </div>
           <Badge variant={view.license.status === "active" ? "success" : view.license.status === "lapsed" ? "destructive" : "outline"}>
-            {view.license.status === "active" ? "Host license active" : view.license.status === "lapsed" ? "Automation lapsed" : "Host license required"}
+            {view.license.status === "active"
+              ? "Managed Host unlocked"
+              : view.license.status === "lapsed"
+                ? "Managed Host term lapsed"
+                : view.license.status === "invalid"
+                  ? "Host license needs attention"
+                  : "Managed Host not included"}
           </Badge>
         </div>
-        <div aria-label="Deployment progress" className="space-y-2">
-          <Progress value={(currentStage / (STAGES.length - 1)) * 100} aria-label={`Deployment step ${currentStage + 1} of ${STAGES.length}`} />
+        <div
+          aria-label={entitled ? "Deployment progress" : "Optional Host capability preview"}
+          className="space-y-2"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
+            <span>{entitled ? "Your Host setup" : "Optional Host capability preview"}</span>
+            {!entitled && (
+              <Badge variant="outline">
+                Current access: {orientation?.entitlementLabel ?? "Community Edition"}
+              </Badge>
+            )}
+          </div>
+          <Progress value={(currentStage / (STAGES.length - 1)) * 100} aria-label={`${entitled ? "Deployment" : "Preview"} step ${currentStage + 1} of ${STAGES.length}`} />
           <ol className="grid grid-cols-4 gap-1 text-[11px] text-muted-foreground sm:grid-cols-7">
             {STAGES.map((stage, index) => (
               <li key={stage} aria-current={index === currentStage ? "step" : undefined} className={index <= currentStage ? "font-medium text-foreground" : ""}>
@@ -244,9 +274,17 @@ export function HostDeploymentSection() {
 
         {!entitled && (
           <section className="rounded-lg border bg-muted/30 p-4" aria-labelledby="host-license-gate-heading">
-            <h3 id="host-license-gate-heading" className="flex items-center gap-2 text-sm font-semibold"><LockKeyhole className="h-4 w-4" aria-hidden="true" />Managed Host automation is paid-license gated</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{view.license.detail} Comparison, ownership and recovery guidance remain readable. A direct unmanaged Relay Cell remains free.</p>
-            <Button asChild variant="outline" size="sm" className="mt-3"><Link href="#settings-license">Open License settings</Link></Button>
+            <h3 id="host-license-gate-heading" className="flex items-center gap-2 text-sm font-semibold"><LockKeyhole className="h-4 w-4" aria-hidden="true" />Add managed customer Cells when you need them</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Your current access is {orientation?.entitlementLabel ?? "Community Edition"}.
+              You can keep running this Relay directly and use free Packs.
+              A Host license adds managed customer Cells; comparison, ownership,
+              and recovery guidance remain readable before you decide.
+            </p>
+            {view.license.status === "invalid" || view.license.status === "lapsed" ? (
+              <p className="mt-2 text-xs text-status-warning">{view.license.detail}</p>
+            ) : null}
+            <Button asChild variant="outline" size="sm" className="mt-3"><Link href="#settings-license">Review current access</Link></Button>
           </section>
         )}
 

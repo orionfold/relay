@@ -1,6 +1,6 @@
 ---
 title: Entitlement-Aware Customer Onboarding
-status: planned
+status: in-progress
 priority: P1
 milestone: post-mvp
 source: _IDEAS/triage.md
@@ -91,13 +91,13 @@ Agency installation and guided opt-in. "Bundled" must never be rendered as
 
 ## Acceptance criteria
 
-- [ ] One API/presentation contract returns edition, licensee, entitlement,
+- [x] One API/presentation contract returns edition, licensee, entitlement,
       Pack and Host state without conflating them.
-- [ ] Community, Pack, Host and combined first screens expose contextual primary
+- [x] Community, Pack, Host and combined first screens expose contextual primary
       and secondary actions.
-- [ ] Available Agency is never described as installed.
-- [ ] Top bar, License, instance boundary and Host section agree in every state.
-- [ ] Lapse promises distinguish Pack installs/updates from managed-Cell
+- [x] Available Agency is never described as installed.
+- [x] Top bar, License, instance boundary and Host section agree in every state.
+- [x] Lapse promises distinguish Pack installs/updates from managed-Cell
       expansion while preserving existing content/export/recovery truth.
 - [ ] The premium catalog shows one price/offer and no per-Pack purchase
       implication.
@@ -117,6 +117,28 @@ Before final implementation acceptance, the operator approves:
 
 Fixture-backed state modeling, data provenance and no-loss regressions can
 proceed before those copy/taste gates.
+
+## G-116 acceptance receipt — 2026-07-22
+
+G-116 introduced one typed customer-orientation resolver and read API shared by
+Home, the app-bar identity cluster, License, the Relay data boundary, and the
+Host deployment section. The resolver keeps signed licensee identity,
+entitlement classes, Pack installation and Host readiness separate; treats
+invalid signatures and read failures as named states; preserves Pack and Cell
+continuity after lapse; and never infers that bundled Agency is installed.
+
+Fresh Community customers now receive the approved guided one-click Agency
+install, while Pack-only, Host-only and combined customers receive the shortest
+action for what they actually unlocked. License activation/removal refreshes
+the shared identity immediately. Host progress remains visible as an explicitly
+optional capability preview when Host is not entitled.
+
+Verification passed 50 focused component/API/state regressions, 210 broader
+licensing/Host/Pack checks, TypeScript, production build, and disposable
+desktop/390 px light/dark browser checks. The browser proof exercised the real
+Agency installer, observed its success receipt, navigated to the installed Pack,
+and confirmed the returning dashboard path. G-117 and G-118 retain the unchecked
+premium-catalog and sample-provenance criteria.
 
 ## Scope boundaries
 

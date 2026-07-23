@@ -6,11 +6,17 @@ import { useRouter } from "next/navigation";
 import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import type { ComponentProps } from "react";
 
 interface PackInstallButtonProps {
   packId: string;
   packName: string;
   premium: boolean;
+  size?: ComponentProps<typeof Button>["size"];
+  variant?: ComponentProps<typeof Button>["variant"];
+  installLabel?: string;
+  successHref?: string;
+  className?: string;
 }
 
 interface InstallReport {
@@ -34,6 +40,11 @@ export function PackInstallButton({
   packId,
   packName,
   premium,
+  size = "sm",
+  variant,
+  installLabel,
+  successHref,
+  className,
 }: PackInstallButtonProps) {
   const router = useRouter();
   const [installing, setInstalling] = useState(false);
@@ -54,7 +65,11 @@ export function PackInstallButton({
         toast.success(`Installed ${packName}`, {
           description: reportSummary(body as InstallReport),
         });
-        router.refresh();
+        if (successHref) {
+          router.push(successHref);
+        } else {
+          router.refresh();
+        }
         return;
       }
       if (res.status === 402) {
@@ -79,24 +94,27 @@ export function PackInstallButton({
   return (
     <div className="space-y-1.5">
       <Button
-        size="sm"
-        variant={premium ? "outline" : "default"}
+        size={size}
+        variant={variant ?? (premium ? "outline" : "default")}
         onClick={install}
         disabled={installing}
-        aria-label={`Install ${packName}`}
+        aria-label={installLabel ?? `Install ${packName}`}
+        className={className}
       >
         {installing ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
         ) : (
           <Download className="h-4 w-4" aria-hidden="true" />
         )}
-        {installing ? "Installing…" : premium ? "Install with license" : "Install"}
+        {installing
+          ? "Installing…"
+          : installLabel ?? (premium ? "Install with license" : "Install")}
       </Button>
       {licenseNeeded && (
         <p className="text-xs text-muted-foreground">
           No license found for this pack.{" "}
           <Link
-            href="/settings#license"
+            href="/settings#settings-license"
             className="font-medium text-foreground underline underline-offset-2 hover:text-primary"
           >
             Activate one in Settings → License

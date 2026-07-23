@@ -24,6 +24,7 @@ import { PageShell } from "@/components/shared/page-shell";
 import { isDataOpsAllowed } from "@/lib/data/staging-gate";
 import { AccessSection } from "@/components/settings/access-section";
 import { HostDeploymentSection } from "@/components/settings/host-deployment-section";
+import { loadCustomerOrientation } from "@/lib/onboarding/load-orientation";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ function SettingsAnchor({ id, children }: { id: string; children: ReactNode }) {
 
 export default function SettingsPage() {
   const dataOpsAllowed = isDataOpsAllowed();
+  const orientation = loadCustomerOrientation();
   return (
     <PageShell
       title="Settings"
@@ -52,13 +54,13 @@ export default function SettingsPage() {
           <AccessSection />
         </SettingsAnchor>
         <SettingsAnchor id="settings-instance">
-          <InstanceSection />
+          <InstanceSection orientation={orientation} />
         </SettingsAnchor>
         <SettingsAnchor id="settings-license">
-          <LicenseSection />
+          <LicenseSection orientation={orientation} />
         </SettingsAnchor>
         <SettingsAnchor id="settings-host-deployment">
-          <HostDeploymentSection />
+          <HostDeploymentSection orientation={orientation} />
         </SettingsAnchor>
         <SettingsAnchor id="settings-providers">
           <ProvidersAndRuntimesSection />

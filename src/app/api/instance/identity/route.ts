@@ -4,6 +4,8 @@ import { relayCoreVersion } from "@/lib/packs/install";
 import { getLicensedIdentity } from "@/lib/licensing/store";
 import { getRuntimeSetupStates, pickActiveRuntime } from "@/lib/settings/runtime-setup";
 import { resolvePreferredModel } from "@/lib/agents/runtime/model-preference";
+import { loadCustomerOrientation } from "@/lib/onboarding/load-orientation";
+import type { CustomerOrientation } from "@/lib/onboarding/orientation";
 
 /**
  * GET /api/instance/identity
@@ -41,6 +43,7 @@ export interface InstanceIdentityResponse {
   version: string | null;
   activeModel: string | null;
   licenseTag: LicenseTag;
+  orientation: CustomerOrientation;
 }
 
 export async function GET() {
@@ -68,7 +71,17 @@ export async function GET() {
       activeModel = null;
     }
 
-    const body: InstanceIdentityResponse = { version, activeModel, licenseTag };
+    // The app bar needs entitlement identity, not Host inventory. Avoid opening
+    // or chmod-ing the Host root on a read-only chrome poll.
+    const orientation = loadCustomerOrientation({
+      hostDetail: "entitlement_only",
+    });
+    const body: InstanceIdentityResponse = {
+      version,
+      activeModel,
+      licenseTag,
+      orientation,
+    };
     return NextResponse.json(body);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

@@ -5,24 +5,34 @@ import type {
   InstanceIdentityResponse,
   LicenseTag,
 } from "@/app/api/instance/identity/route";
+import type { CustomerOrientation } from "@/lib/onboarding/orientation";
+import { INSTANCE_IDENTITY_CHANGED_EVENT } from "@/lib/onboarding/events";
 
 const POLL_MS = 60_000;
 
 export type { LicenseTag };
 
 export type InstanceIdentityState =
-  | { status: "loading"; version: null; activeModel: null; licenseTag: null }
+  | {
+      status: "loading";
+      version: null;
+      activeModel: null;
+      licenseTag: null;
+      orientation?: null;
+    }
   | {
       status: "ready";
       version: string | null;
       activeModel: string | null;
       licenseTag: LicenseTag;
+      orientation?: CustomerOrientation | null;
     }
   | {
       status: "error";
       version: string | null;
       activeModel: string | null;
       licenseTag: LicenseTag | null;
+      orientation?: CustomerOrientation | null;
       error: string;
     };
 
@@ -60,6 +70,7 @@ export function useInstanceIdentity(): InstanceIdentityState {
         version: data.version,
         activeModel: data.activeModel,
         licenseTag: data.licenseTag,
+        orientation: data.orientation,
       });
     } catch (err) {
       if (signal?.aborted) return;
@@ -71,6 +82,7 @@ export function useInstanceIdentity(): InstanceIdentityState {
         version: last?.version ?? null,
         activeModel: last?.activeModel ?? null,
         licenseTag: last?.licenseTag ?? null,
+        orientation: last?.orientation ?? null,
         error: message,
       });
     }
@@ -95,11 +107,13 @@ export function useInstanceIdentity(): InstanceIdentityState {
 
     startPolling();
     document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, onVisibility);
 
     return () => {
       controller.abort();
       if (interval) clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener(INSTANCE_IDENTITY_CHANGED_EVENT, onVisibility);
     };
   }, [fetchIdentity]);
 

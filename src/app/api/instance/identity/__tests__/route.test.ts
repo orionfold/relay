@@ -18,6 +18,7 @@ beforeEach(() => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "relay-identity-api-"));
   vi.resetModules();
   vi.stubEnv("RELAY_DATA_DIR", dataDir);
+  vi.stubEnv("RELAY_HOST_ROOT", path.join(dataDir, "host"));
 });
 
 afterEach(() => {
@@ -118,6 +119,12 @@ describe("GET /api/instance/identity — licenseTag union (rule 2)", () => {
     const { GET } = await import("../route");
     const body = await (await GET()).json();
     expect(body.licenseTag).toEqual({ kind: "community" });
+    expect(body.orientation).toMatchObject({
+      edition: "community",
+      license: { lifecycle: "none", licensee: null },
+      entitlements: { packs: false, host: false },
+      packs: { agency: "available" },
+    });
   });
 
   it("returns a licensed tag using org→name→email precedence", async () => {
@@ -131,6 +138,12 @@ describe("GET /api/instance/identity — licenseTag union (rule 2)", () => {
     const { GET } = await import("../route");
     const body = await (await GET()).json();
     expect(body.licenseTag).toEqual({ kind: "licensed", label: "Acme Corp" });
+    expect(body.orientation).toMatchObject({
+      edition: "licensed",
+      license: { licensee: "Acme Corp" },
+      entitlements: { packs: true, host: false },
+      entitlementLabel: "Premium Packs",
+    });
   });
 
   it("falls back to the name when no org, never a dangling label", async () => {

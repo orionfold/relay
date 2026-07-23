@@ -4,6 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HostDeploymentSection } from "../host-deployment-section";
 import type { HostDeploymentView } from "@/lib/host/deployment/contracts";
+import { resolveCustomerOrientation } from "@/lib/onboarding/orientation";
+import type { StoredLicenseInfo } from "@/lib/licensing/store";
 
 function view(overrides: Partial<HostDeploymentView> = {}): HostDeploymentView {
   return {
@@ -51,6 +53,36 @@ function json(value: unknown, status = 200) {
   return new Response(JSON.stringify(value), { status, headers: { "content-type": "application/json" } });
 }
 
+const packsLicense: StoredLicenseInfo = {
+  licenseId: "OF-PACKS-1",
+  filePath: "/tmp/OF-PACKS-1.license.json",
+  valid: true,
+  issuedTo: { org: "Northstar Agency" },
+  issuedAt: "2026-07-01T00:00:00.000Z",
+  expiresAt: "2027-07-01T00:00:00.000Z",
+  entitlements: ["product:orionfold-relay"],
+};
+
+const communityOrientation = resolveCustomerOrientation({
+  licenses: [],
+  installedPackIds: [],
+  agencyBundled: true,
+  host: { licenseStatus: "missing" },
+});
+
+const hostOrientation = resolveCustomerOrientation({
+  licenses: [
+    {
+      ...packsLicense,
+      licenseId: "OF-HOST-1",
+      entitlements: ["product:relay-host"],
+    },
+  ],
+  installedPackIds: [],
+  agencyBundled: true,
+  host: { licenseStatus: "active", managedCellsLimit: 10 },
+});
+
 beforeEach(() => {
   vi.restoreAllMocks();
 });
@@ -73,8 +105,10 @@ describe("HostDeploymentSection", () => {
     expect(screen.getByRole("button", { name: /Cloud server preview/ })).toHaveTextContent("Planning simulation only");
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "16.666666666666664");
     expect(screen.getByText(/Host administrator can inspect every resident Cell/)).toBeInTheDocument();
-    expect(screen.getByText(/Managed Host automation is paid-license gated/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open License settings" })).toHaveAttribute("href", "#settings-license");
+    expect(screen.getByText(/Add managed customer Cells when you need them/)).toBeInTheDocument();
+    expect(screen.getByText(/You can keep running this Relay directly and use free Packs/)).toBeInTheDocument();
+    expect(screen.getByText("Optional Host capability preview")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review current access" })).toHaveAttribute("href", "#settings-license");
   });
 
   it("invalidates edits visibly and sends a strict save-draft request", async () => {
@@ -97,6 +131,11 @@ describe("HostDeploymentSection", () => {
     const user = userEvent.setup();
     render(<HostDeploymentSection />);
     await screen.findByRole("button", { name: /Cloud server preview/ });
+    expect(screen.getByText(/Managed Host is unlocked/)).toBeInTheDocument();
+    expect(screen.getByText("Your Host setup")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Optional Host capability preview"),
+    ).not.toBeInTheDocument();
     screen.getByRole("button", { name: /Cloud server preview/ }).focus();
     await user.keyboard("{Enter}");
     expect(screen.getByText(/Unsaved edits invalidate/)).toBeInTheDocument();
@@ -108,6 +147,35 @@ describe("HostDeploymentSection", () => {
       draft: { placement: "cloud_preview", regionRef: "sfo3", exposure: "tailnet" },
     });
     expect(JSON.stringify(request)).not.toMatch(/token|credential|password/i);
+  });
+
+  it("refetches Host state when license activation changes shared orientation", async () => {
+    const licensed = view({
+      license: {
+        status: "active",
+        code: "HOST_LICENSE_ACTIVE",
+        detail: "Active",
+        licenseId: "host-1",
+        licenseeRef: "org-one",
+        managedCellsLimit: 10,
+        expiresAt: "2027-07-17T00:00:00.000Z",
+      },
+    });
+    const fetch = vi
+      .fn()
+      .mockImplementationOnce(async () => json(view()))
+      .mockImplementation(async () => json(licensed));
+    vi.stubGlobal("fetch", fetch);
+
+    const { rerender } = render(
+      <HostDeploymentSection orientation={communityOrientation} />,
+    );
+    await screen.findByText("Managed Host not included");
+
+    rerender(<HostDeploymentSection orientation={hostOrientation} />);
+
+    expect(await screen.findByText("Managed Host unlocked")).toBeInTheDocument();
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
   });
 
   it("identifies the dated estimate source as an external link", async () => {
