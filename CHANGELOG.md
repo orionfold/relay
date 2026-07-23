@@ -8,6 +8,27 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+## [0.46.3] — 2026-07-23
+
+### Changed
+
+- **Cell and Host releases now require a fresh, exact-source preflight
+  receipt.** The candidate gate runs the complete release-quality contract,
+  fresh-clone macOS and Windows coverage across the supported Node/npm matrix,
+  production dependency policy, package boundaries, public-product identity,
+  and Host/Cell authority checks before either immutable tag can publish.
+- **Relay Cell publication now asks for one production decision.** Audited
+  platform candidates fan out from one protected approval and converge into
+  the signed multi-platform image, while private staging remains independently
+  protected.
+
+### Fixed
+
+- **Release automation refuses stale evidence and immutable-tag reuse.** Both
+  npm and GHCR workflows validate a content-addressed, 24-hour receipt against
+  the exact commit, tree, version, scope, workflow policy, and current release
+  surfaces before any external write.
+
 ## [0.46.2] — 2026-07-23
 
 ### Added
