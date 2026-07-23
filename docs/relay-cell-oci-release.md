@@ -1,8 +1,8 @@
 # Relay Cell OCI acquisition and verification
 
 > Publication status (2026-07-23): the protected workflow published and verified Relay Cell
-> `v0.46.2` for `linux/amd64` and `linux/arm64`. The immutable accepted index is
-> `sha256:9dda87b2d1c73955e41b5a72d640650e5043785668777fc8cba63406a4c46e48`.
+> `v0.46.3` for `linux/amd64` and `linux/arm64`. The immutable accepted index is
+> `sha256:98aba662fc4c7bc9b79e5e384178bef2bdaac7977d1be5b490726740c4223ac1`.
 > This makes the free Cell runtime available; it does not make the separately
 > licensed Relay Host journey customer-ready.
 
@@ -23,7 +23,7 @@ Host, not by making the Cell image private.
 Release notes and the Host manifest provide a value such as:
 
 ```text
-ghcr.io/orionfold/relay-cell@sha256:9dda87b2d1c73955e41b5a72d640650e5043785668777fc8cba63406a4c46e48
+ghcr.io/orionfold/relay-cell@sha256:98aba662fc4c7bc9b79e5e384178bef2bdaac7977d1be5b490726740c4223ac1
 ```
 
 Use that complete reference for deployment. `vX.Y.Z`, `vX.Y`, and `stable`
@@ -33,7 +33,7 @@ is the authority. The tag `latest` is not part of Relay's publication policy.
 Pull and inspect the accepted digest:
 
 ```bash
-export RELAY_CELL_DIGEST='sha256:9dda87b2d1c73955e41b5a72d640650e5043785668777fc8cba63406a4c46e48'
+export RELAY_CELL_DIGEST='sha256:98aba662fc4c7bc9b79e5e384178bef2bdaac7977d1be5b490726740c4223ac1'
 docker pull "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST"
 docker buildx imagetools inspect "ghcr.io/orionfold/relay-cell@$RELAY_CELL_DIGEST"
 ```
@@ -140,17 +140,17 @@ The authorized G-094 run completed these one-time production checks:
 4. The exact release receipt, platform receipts, SBOM, provenance, signatures,
    anonymous pull, startup, readiness, task checkpoint and restart recovery all
    passed for the current release. The run is
-   [30043872898](https://github.com/orionfold/relay/actions/runs/30043872898).
+   [30050073420](https://github.com/orionfold/relay/actions/runs/30050073420).
 5. No registry credential, signing key or paid/mirror dependency was added.
 
 The current release receipt records amd64 digest
-`sha256:3ad2a94ac511d301d84ed80f14832951128b1eabd7818889dae06d14e5d8a4a4`
-at 131,643,268 image bytes and arm64 digest
-`sha256:8d47aed9e9869fceb77872a5b9fca99caa44a608b4278e0bb591e37b0144ba07`
-at 130,805,081 image bytes. The public index is an acquisition artifact, not a
+`sha256:d55470002b07a7a5ab8c46e42d7c68daaafd99fc1a226fa4e79c3b0760dd61af`
+at 131,643,048 image bytes and arm64 digest
+`sha256:ae278681df443cf55eb4c640951afede67a9b68ee2cb0c41908e2e3bff3f5218`
+at 130,804,954 image bytes. The public index is an acquisition artifact, not a
 paid entitlement or a Host release. `stable` remains a separately gated
 promotion pointer; when no separately authorized promotion is performed,
-`stable` remains unmoved. Exact `v0.46.2` and the accepted index digest are the current
+`stable` remains unmoved. Exact `v0.46.3` and the accepted index digest are the current
 discovery and authority surfaces.
 
 Primary references: [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry),
