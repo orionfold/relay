@@ -8,6 +8,14 @@ them; the current package and repository identity is Orionfold Relay.
 
 ## [Unreleased]
 
+### Fixed
+
+- **A plugin's agents no longer disappear while Relay is running.** Agents that
+  come from a plugin are held in memory, and any change to your skills folder
+  made Relay rebuild its agent list from disk alone. The plugin's agents dropped
+  out of every list and every lookup until the next plugin scan, even though
+  Relay still recorded the plugin as owning them. They now survive a rebuild.
+
 ## [0.46.5] — 2026-09-03
 
 ### Fixed

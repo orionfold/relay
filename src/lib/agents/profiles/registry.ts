@@ -350,6 +350,9 @@ function ensureLoaded(): Map<string, AgentProfile> {
   if (!profileCache || profileCacheSignature !== signature) {
     profileCache = scanProfiles();
     profileCacheSignature = signature;
+    // Re-apply in-memory plugin (Kind 5) profiles — scanProfiles() only reads
+    // disk, so a signature-triggered rebuild would otherwise drop them.
+    applyPluginProfiles(profileCache);
   }
   return profileCache;
 }
@@ -508,31 +511,52 @@ interface PluginProfileEntry {
   profile: AgentProfile;
 }
 
-const pluginProfileIndex: Map<string, Set<string>> = new Map(); // pluginId -> Set<profileId>
+// pluginId -> profileId -> profile.
+//
+// Kind 5 plugin profiles live ONLY in memory (sourced from plugin bundle dirs,
+// never from SKILLS_DIR or PROMOTED_PROFILES_DIR), so scanProfiles() does not
+// see them. We retain the full profile objects here — not just their ids — so
+// they can be re-applied after ANY cache rebuild, including the
+// signature-triggered one in ensureLoaded(). Retaining ids alone is what let a
+// skills-directory change silently drop every plugin-injected profile while
+// this index still claimed the plugin owned them.
+const pluginProfileIndex: Map<string, Map<string, AgentProfile>> = new Map();
+
+/** Re-apply retained plugin profiles onto a freshly-built disk cache. */
+function applyPluginProfiles(cache: Map<string, AgentProfile>): void {
+  for (const byId of pluginProfileIndex.values()) {
+    for (const [id, profile] of byId) cache.set(id, profile);
+  }
+}
 
 /**
  * Inject namespaced profiles from a Kind 5 plugin into the cache.
  * Caller is responsible for namespacing the profile.id (e.g. "finance-pack/personal-cfo").
  * Subsequent calls REPLACE entries for the same (pluginId, profileId) pair.
+ *
+ * Records first, then overlays through applyPluginProfiles(), so the retained
+ * store is the single source of every plugin entry the cache holds — whether it
+ * got there from here or from a rebuild in ensureLoaded().
  */
 export function mergePluginProfiles(entries: PluginProfileEntry[]): void {
-  const cache = ensureLoaded();
   for (const entry of entries) {
-    cache.set(entry.profile.id, entry.profile);
-    if (!pluginProfileIndex.has(entry.pluginId)) {
-      pluginProfileIndex.set(entry.pluginId, new Set());
+    let byId = pluginProfileIndex.get(entry.pluginId);
+    if (!byId) {
+      byId = new Map();
+      pluginProfileIndex.set(entry.pluginId, byId);
     }
-    pluginProfileIndex.get(entry.pluginId)!.add(entry.profile.id);
+    byId.set(entry.profile.id, entry.profile);
   }
+  applyPluginProfiles(ensureLoaded());
 }
 
 /** Remove all profiles registered by a single plugin (used during reload). */
 export function clearPluginProfiles(pluginId: string): void {
   const cache = profileCache; // do not trigger ensureLoaded() — if cache is null, nothing to clear
-  const ids = pluginProfileIndex.get(pluginId);
-  if (!ids) return;
+  const byId = pluginProfileIndex.get(pluginId);
+  if (!byId) return;
   if (cache) {
-    for (const id of ids) cache.delete(id);
+    for (const id of byId.keys()) cache.delete(id);
   }
   pluginProfileIndex.delete(pluginId);
 }
@@ -546,7 +570,7 @@ export function clearAllPluginProfiles(): void {
 
 /** Test introspection — pluginId → list of namespaced profile ids it owns. */
 export function listPluginProfileIds(pluginId: string): string[] {
-  return Array.from(pluginProfileIndex.get(pluginId) ?? []);
+  return Array.from(pluginProfileIndex.get(pluginId)?.keys() ?? []);
 }
 
 // ---------------------------------------------------------------------------
