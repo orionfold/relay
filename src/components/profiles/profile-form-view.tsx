@@ -34,6 +34,7 @@ import { listRuntimeCatalog } from "@/lib/agents/runtime/catalog";
 import { useTagSuggestions } from "@/hooks/use-tag-suggestions";
 import { KNOWN_TOOLS } from "@/lib/constants/known-tools";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
+import { agentApiPath, agentPath } from "@/lib/routing/primitive-paths";
 
 interface ProfileFormViewProps {
   profileId?: string;
@@ -90,7 +91,7 @@ export function ProfileFormView({
   useEffect(() => {
     if (!profileId) return;
 
-    fetch(`/api/agents/${profileId}`)
+    fetch(agentApiPath(profileId))
       .then((r) => r.json())
       .then((profile: AgentProfile) => {
         setName(duplicate ? `${profile.name} (Copy)` : profile.name);
@@ -250,7 +251,7 @@ export function ProfileFormView({
     };
 
     try {
-      const url = isEdit ? `/api/agents/${profileId}` : "/api/agents";
+      const url = isEdit ? agentApiPath(profileId) : "/api/agents";
       const method = isEdit ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
@@ -266,9 +267,9 @@ export function ProfileFormView({
       toast.success(isEdit ? "Agent updated" : "Agent created");
 
       if (isEdit) {
-        router.push(`/agents/${profileId}`);
+        router.push(agentPath(profileId));
       } else {
-        router.push(`/agents/${id}`);
+        router.push(agentPath(id));
       }
     } catch (err) {
       toast.error(

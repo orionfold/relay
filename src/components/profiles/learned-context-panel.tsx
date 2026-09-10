@@ -28,6 +28,7 @@ import {
   buildLearnedContextHistoryEntries,
   hasMeaningfulDerivedDiff,
 } from "@/lib/utils/learned-context-history";
+import { agentApiPath } from "@/lib/routing/primitive-paths";
 
 interface ContextHistoryResponse {
   history: LearnedContextRow[];
@@ -61,7 +62,7 @@ export function LearnedContextPanel({ profileId }: LearnedContextPanelProps) {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch(`/api/agents/${profileId}/context`);
+      const res = await fetch(agentApiPath(profileId, "context"));
       if (res.ok) {
         setData(await res.json());
       }
@@ -83,7 +84,7 @@ export function LearnedContextPanel({ profileId }: LearnedContextPanelProps) {
     if (!manualContent.trim()) return;
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/agents/${profileId}/context`, {
+      const res = await fetch(agentApiPath(profileId, "context"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ additions: manualContent.trim() }),
@@ -106,7 +107,7 @@ export function LearnedContextPanel({ profileId }: LearnedContextPanelProps) {
 
   async function handleRollback(version: number) {
     try {
-      const res = await fetch(`/api/agents/${profileId}/context`, {
+      const res = await fetch(agentApiPath(profileId, "context"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "rollback", targetVersion: version }),

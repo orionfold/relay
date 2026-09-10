@@ -8,6 +8,7 @@ import {
   parseNotificationToolInput,
   type PermissionToolInput,
 } from "@/lib/notifications/permissions";
+import { agentPath } from "@/lib/routing/primitive-paths";
 
 export const APPROVAL_ACTION_IDS = [
   "allow_once",
@@ -139,7 +140,9 @@ export async function listPendingApprovalPayloads(
       deepLink: isBatchProposal
         ? "/inbox"
         : isContextProposal
-          ? `/agents/${row.toolName}`
+          ? row.toolName
+            ? agentPath(row.toolName)
+            : "/agents"
           : buildDeepLink(row.taskId, effectiveWorkflowId),
       supportedActionIds: (isContextProposal || isBatchProposal)
         ? (["allow_once", "deny"] as ApprovalActionId[])

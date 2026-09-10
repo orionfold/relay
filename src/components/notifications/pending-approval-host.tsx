@@ -47,6 +47,7 @@ import { cn } from "@/lib/utils";
 import type { PendingApprovalPayload } from "@/lib/notifications/actionable";
 import { subscribeToResolvedApprovals } from "@/lib/notifications/approval-client";
 import { toast } from "sonner";
+import { resolveContextProposalProfileId } from "@/lib/notifications/context-proposals";
 
 const APPROVAL_SYNC_TOAST_ID = "pending-approval-sync";
 
@@ -213,7 +214,10 @@ function PendingApprovalDetail({
       ) : selected.notificationType === "context_proposal" ? (
         <ContextProposalReview
           notificationId={selected.notificationId}
-          profileId={selected.toolName ?? ""}
+          profileId={resolveContextProposalProfileId(
+            selected.toolInput,
+            selected.toolName
+          )}
           proposedAdditions={selected.body ?? ""}
           onResponded={onResponded}
         />
@@ -562,7 +566,10 @@ export function PendingApprovalHost() {
             <div className="mt-3">
               <ContextProposalReview
                 notificationId={primary.notificationId}
-                profileId={primary.toolName ?? ""}
+                profileId={resolveContextProposalProfileId(
+                  primary.toolInput,
+                  primary.toolName
+                )}
                 proposedAdditions={primary.body ?? ""}
                 onResponded={() => removeNotification(primary.notificationId)}
                 compact

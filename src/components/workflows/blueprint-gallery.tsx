@@ -17,6 +17,7 @@ import { packOf } from "@/lib/apps/pack-of";
 import { FlagshipBadge } from "@/components/shared/flagship-card";
 import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 import type { WorkflowBlueprint } from "@/lib/workflows/blueprints/types";
+import { blueprintPath } from "@/lib/routing/primitive-paths";
 
 /** {id, name} of an installed pack — fetched from /api/apps for provenance. */
 interface InstalledPack {
@@ -170,11 +171,11 @@ export function BlueprintGallery() {
               watermarkColor={wfIcon.colors.icon}
               interactive
               className="gap-0 overflow-hidden rounded-xl py-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              onClick={() => router.push(`/blueprints/${bp.id}`)}
+              onClick={() => router.push(blueprintPath(bp.id))}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  router.push(`/blueprints/${bp.id}`);
+                  router.push(blueprintPath(bp.id));
                 }
               }}
             >

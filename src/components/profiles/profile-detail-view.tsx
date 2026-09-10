@@ -47,6 +47,7 @@ import {
 } from "@/lib/agents/profiles/compatibility";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 import { IconCircle, getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
+import { agentApiPath, agentPath } from "@/lib/routing/primitive-paths";
 
 interface TestResult {
   task: string;
@@ -99,7 +100,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch(`/api/agents/${profileId}`);
+      const res = await fetch(agentApiPath(profileId));
       if (res.ok) {
         setProfile(await res.json());
       }
@@ -120,7 +121,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
     async function loadPersistedResults() {
       try {
         const res = await fetch(
-          `/api/agents/${profileId}/test-results?runtimeId=${selectedTestRuntime}`
+          `${agentApiPath(profileId, "test-results")}?runtimeId=${selectedTestRuntime}`
         );
         if (res.ok && !cancelled) {
           const report: TestReport = await res.json();
@@ -137,7 +138,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
   async function handleDelete() {
     setConfirmDelete(false);
     try {
-      const res = await fetch(`/api/agents/${profileId}`, {
+      const res = await fetch(agentApiPath(profileId), {
         method: "DELETE",
       });
       if (res.ok) {
@@ -172,7 +173,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
           results: [...collectedResults],
         });
 
-        const res = await fetch(`/api/agents/${profileId}/test-single`, {
+        const res = await fetch(agentApiPath(profileId, "test-single"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ runtimeId: selectedTestRuntime, testIndex: i }),
@@ -264,7 +265,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.push(`/agents/${profileId}/edit`)}
+              onClick={() => router.push(agentPath(profileId, "edit"))}
             >
               <Pencil className="h-3.5 w-3.5 mr-1" />
               Edit
@@ -273,7 +274,7 @@ export function ProfileDetailView({ profileId, isBuiltin, initialProfile }: Prof
           <Button
             variant="outline"
             size="sm"
-            onClick={() => router.push(`/agents/${profileId}/edit?duplicate=true`)}
+            onClick={() => router.push(`${agentPath(profileId, "edit")}?duplicate=true`)}
           >
             <Copy className="h-3.5 w-3.5 mr-1" />
             Duplicate

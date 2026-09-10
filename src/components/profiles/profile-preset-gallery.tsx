@@ -10,6 +10,7 @@ import { getProfileIcon, getDomainColors } from "@/lib/constants/card-icons";
 import { FlagshipBadge } from "@/components/shared/flagship-card";
 import { CardStatusToolbar } from "@/components/shared/card-status-toolbar";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
+import { agentPath } from "@/lib/routing/primitive-paths";
 
 interface ProfilePresetGalleryProps {
   /** Built-in agent profiles offered as starting points. */
@@ -75,7 +76,7 @@ export function ProfilePresetGallery({
               )}
               onClick={() => {
                 onClose?.();
-                router.push(`/agents/${p.id}/edit?duplicate=true`);
+                router.push(`${agentPath(p.id, "edit")}?duplicate=true`);
               }}
             >
               <Glyph

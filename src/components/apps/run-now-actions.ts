@@ -11,6 +11,8 @@
  * the caller toasts it — this helper never toasts, so it stays pure/testable.
  */
 
+import { blueprintApiPath } from "@/lib/routing/primitive-paths";
+
 export type RunNowMode = "run" | "create";
 
 export type RunNowResult =
@@ -41,8 +43,8 @@ export async function instantiateAndMaybeExecute(
 ): Promise<RunNowResult> {
   const endpoint =
     mode === "run"
-      ? `/api/blueprints/${blueprintId}/start`
-      : `/api/blueprints/${blueprintId}/instantiate`;
+      ? blueprintApiPath(blueprintId, "start")
+      : blueprintApiPath(blueprintId, "instantiate");
   let instRes: Response;
   try {
     instRes = await fetch(endpoint, {

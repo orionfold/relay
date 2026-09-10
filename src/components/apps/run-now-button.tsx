@@ -14,6 +14,7 @@ import {
 } from "./run-now-actions";
 import { cn } from "@/lib/utils";
 import type { BlueprintVariable } from "@/lib/workflows/blueprints/types";
+import { blueprintApiPath } from "@/lib/routing/primitive-paths";
 
 interface RunNowButtonProps {
   blueprintId: string | null | undefined;
@@ -64,7 +65,7 @@ export function RunNowButton({
       current.state === "ready" ? current : { state: "checking" },
     );
     try {
-      const response = await fetch(`/api/blueprints/${blueprintId}/readiness`, {
+      const response = await fetch(blueprintApiPath(blueprintId, "readiness"), {
         cache: "no-store",
       });
       const body = (await response.json().catch(() => ({}))) as {

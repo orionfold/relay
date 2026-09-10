@@ -19,6 +19,7 @@ import { patternLabels } from "@/lib/constants/status-colors";
 import { IconCircle, getWorkflowIconFromName } from "@/lib/constants/card-icons";
 import type { WorkflowBlueprint } from "@/lib/workflows/blueprints/types";
 import { VariableInput } from "./variable-input";
+import { blueprintApiPath } from "@/lib/routing/primitive-paths";
 
 interface BlueprintPreviewProps {
   blueprint: WorkflowBlueprint;
@@ -47,7 +48,7 @@ export function BlueprintPreview({
   async function handleCreate() {
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/blueprints/${blueprint.id}/instantiate`, {
+      const res = await fetch(blueprintApiPath(blueprint.id, "instantiate"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -21,6 +21,7 @@ import { EmbeddedMarkdown } from "@/components/shared/embedded-markdown";
 import { TaskAttachments } from "@/components/tasks/task-attachments";
 import type { NotificationOutputDocument } from "@/lib/notifications/completion-context";
 import { toast } from "sonner";
+import { resolveContextProposalProfileId } from "@/lib/notifications/context-proposals";
 
 interface Notification {
   id: string;
@@ -358,11 +359,10 @@ export function NotificationItem({
             <div className="mt-3" onClick={(e) => e.stopPropagation()}>
               <ContextProposalReview
                 notificationId={notification.id}
-                profileId={
-                  typeof parsedToolInput?.profileId === "string"
-                    ? parsedToolInput.profileId
-                    : (notification.toolName ?? "")
-                }
+                profileId={resolveContextProposalProfileId(
+                  parsedToolInput,
+                  notification.toolName
+                )}
                 proposedAdditions={
                   typeof parsedToolInput?.additions === "string"
                     ? parsedToolInput.additions

@@ -5,6 +5,7 @@ import {
 } from "@/lib/agents/runtime/execution-target-preview";
 import type { ExecutionTargetErrorCode } from "@/lib/agents/runtime/execution-target-contract";
 import { getBlueprint } from "./registry";
+import { blueprintPath } from "@/lib/routing/primitive-paths";
 
 export type BlueprintReadiness =
   | {
@@ -52,7 +53,7 @@ export async function getBlueprintReadiness(
       checkedAt,
       code: "no_executable_step",
       message: "This blueprint has no executable task step.",
-      settingsHref: `/blueprints/${blueprintId}`,
+      settingsHref: blueprintPath(blueprintId),
     };
   }
 

@@ -4,6 +4,7 @@ import { PageShell } from "@/components/shared/page-shell";
 import { BlueprintPreview } from "@/components/workflows/blueprint-preview";
 import { getBlueprint } from "@/lib/workflows/blueprints/registry";
 import { notFound } from "next/navigation";
+import { decodePathId } from "@/lib/routing/primitive-paths";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +13,9 @@ interface Props {
 }
 
 export default async function BlueprintDetailPage({ params }: Props) {
-  const { id } = await params;
-  const blueprint = getBlueprint(id);
+  const { id: rawId } = await params;
+  // A page's route params are not decoded, so a namespaced id arrives escaped.
+  const blueprint = getBlueprint(decodePathId(rawId));
 
   if (!blueprint) {
     notFound();

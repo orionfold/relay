@@ -19,6 +19,7 @@ import { ProfileImportDialog } from "@/components/profiles/profile-import-dialog
 import { RepoImportWizard } from "@/components/profiles/repo-import-wizard";
 import type { AgentProfile } from "@/lib/agents/profiles/types";
 import { packOf } from "@/lib/apps/pack-of";
+import { agentPath } from "@/lib/routing/primitive-paths";
 
 interface ProfileWithBuiltin extends AgentProfile {
   isBuiltin?: boolean;
@@ -241,7 +242,7 @@ export function ProfileBrowser({
               profile={profile}
               isBuiltin={profile.isBuiltin}
               packName={packNameFor(profile)}
-              onClick={() => router.push(`/agents/${profile.id}`)}
+              onClick={() => router.push(agentPath(profile.id))}
             />
           ))}
         </div>
