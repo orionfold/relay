@@ -469,7 +469,21 @@ async function scanPlugins(): Promise<LoadedPlugin[]> {
     }
     seenIds.add(manifest.id);
 
-    const loaded = await loadOneBundle(rootDir, manifest);
+    // Per-bundle error boundary: a bundle that throws while loading is
+    // reported as disabled and must not stop the bundles after it.
+    let loaded: LoadedPlugin;
+    try {
+      loaded = await loadOneBundle(rootDir, manifest);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      loaded = {
+        id: manifest.id, manifest, rootDir,
+        profiles: [], blueprints: [], tables: [], schedules: [],
+        status: "disabled", error: `load_failed: ${message}`,
+      };
+      logToFile(`disabled ${manifest.id}: load_failed (${message})`);
+      console.error(`[plugins] bundle ${manifest.id} failed to load:`, err);
+    }
     result.push(loaded);
     if (loaded.status === "loaded") loadedIds.add(manifest.id);
   }

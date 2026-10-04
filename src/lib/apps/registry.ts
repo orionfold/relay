@@ -843,13 +843,12 @@ async function removeAppSchedules(appId: string): Promise<number> {
     "@/lib/schedules/budget-policies"
   );
   await deleteAppUsageBudgetPolicies(appId);
-  const { db } = await import("@/lib/db");
+  const { deleteSchedulesPreservingHistory } = await import(
+    "@/lib/schedules/installer"
+  );
   const { schedules } = await import("@/lib/db/schema");
   const { like } = await import("drizzle-orm");
-  return db
-    .delete(schedules)
-    .where(like(schedules.id, `app:${appId}:%`))
-    .run().changes;
+  return deleteSchedulesPreservingHistory(like(schedules.id, `app:${appId}:%`));
 }
 
 /**

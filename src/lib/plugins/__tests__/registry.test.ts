@@ -1,6 +1,6 @@
 // src/lib/plugins/__tests__/registry.test.ts
 import { CURRENT_PLUGIN_API_VERSION } from "@/lib/plugins/sdk/types";
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
@@ -11,6 +11,21 @@ import {
   listPlugins,
   getPlugin,
 } from "../registry";
+
+// Pass-through mock: lets a test make one bundle's load throw.
+const installerMocks = vi.hoisted(() => ({ failFor: null as string | null }));
+vi.mock("@/lib/schedules/installer", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/schedules/installer")>();
+  return {
+    ...actual,
+    removeOrphanSchedules: (pluginId: string, keepIds: string[]) => {
+      if (pluginId === installerMocks.failFor) {
+        throw new Error("FOREIGN KEY constraint failed");
+      }
+      return actual.removeOrphanSchedules(pluginId, keepIds);
+    },
+  };
+});
 
 let tmpDir: string;
 
@@ -28,6 +43,7 @@ describe("plugin registry", () => {
   });
 
   afterEach(async () => {
+    installerMocks.failFor = null;
     delete process.env.RELAY_DATA_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
     await reloadPlugins();
@@ -75,6 +91,28 @@ describe("plugin registry", () => {
     expect(bad?.status).toBe("disabled");
     expect(bad?.error).toMatch(/version|semver/);
     expect(good?.status).toBe("loaded");
+  });
+
+  it("disables a bundle whose load throws and still loads the bundles after it", async () => {
+    writePluginManifest("a-broken", {
+      id: "a-broken", version: "0.1.0", apiVersion: CURRENT_PLUGIN_API_VERSION, kind: "primitives-bundle",
+    });
+    writePluginManifest("b-good", {
+      id: "b-good", version: "0.1.0", apiVersion: CURRENT_PLUGIN_API_VERSION, kind: "primitives-bundle",
+    });
+    installerMocks.failFor = "a-broken";
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const plugins = await reloadPlugins();
+      expect(plugins.map((p) => p.id)).toEqual(["a-broken", "b-good"]);
+      const broken = plugins.find((p) => p.id === "a-broken");
+      expect(broken?.status).toBe("disabled");
+      expect(broken?.error).toMatch(/load_failed: FOREIGN KEY constraint failed/);
+      expect(plugins.find((p) => p.id === "b-good")?.status).toBe("loaded");
+      expect(errorSpy).toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   it("disables a plugin with apiVersion outside compatibility window", async () => {

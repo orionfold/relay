@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { db } from "@/lib/db";
-import { schedules as schedulesTable } from "@/lib/db/schema";
+import { schedules as schedulesTable, tasks, usageLedger, scheduleFiringMetrics } from "@/lib/db/schema";
 import { eq, like, getTableColumns } from "drizzle-orm";
 import { installSchedulesFromSpecs, installPluginSchedules, removePluginSchedules, removeOrphanSchedules, listInstalledPluginScheduleIds } from "../installer";
 import type { ScheduleSpec } from "@/lib/validators/schedule-spec";
@@ -334,6 +334,70 @@ describe("removeOrphanSchedules", () => {
     // Plugin b rows must be untouched
     expect(listInstalledPluginScheduleIds("test-orphan-b")).toEqual(["plugin:test-orphan-b:s1"]);
     expect(listInstalledPluginScheduleIds("test-orphan-a")).toEqual([]);
+  });
+
+  it("prunes a schedule that has fired and keeps its history", () => {
+    installPluginSchedules("test-orphan-fired", [fakeScheduled("s1"), fakeScheduled("s2")]);
+    const sid = "plugin:test-orphan-fired:s1";
+    const tid = "test-orphan-fired-task";
+    const lid = "test-orphan-fired-ledger";
+    const now = new Date();
+    db.insert(tasks)
+      .values({
+        id: tid,
+        scheduleId: sid,
+        title: "firing",
+        status: "completed",
+        priority: 2,
+        sourceType: "scheduled",
+        resumeCount: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    db.insert(usageLedger)
+      .values({
+        id: lid,
+        taskId: tid,
+        scheduleId: sid,
+        activityType: "scheduled_firing",
+        runtimeId: "claude-code",
+        providerId: "anthropic",
+        status: "completed",
+        startedAt: now,
+        finishedAt: now,
+      })
+      .run();
+    db.insert(scheduleFiringMetrics)
+      .values({ id: "test-orphan-fired-metric", scheduleId: sid, taskId: tid, firedAt: now })
+      .run();
+
+    try {
+      expect(() =>
+        removeOrphanSchedules("test-orphan-fired", ["plugin:test-orphan-fired:s2"])
+      ).not.toThrow();
+
+      expect(listInstalledPluginScheduleIds("test-orphan-fired")).toEqual([
+        "plugin:test-orphan-fired:s2",
+      ]);
+      expect(db.select().from(tasks).where(eq(tasks.id, tid)).get()?.scheduleId).toBeNull();
+      expect(
+        db.select().from(usageLedger).where(eq(usageLedger.id, lid)).get()?.scheduleId
+      ).toBeNull();
+      expect(
+        db.select().from(scheduleFiringMetrics).where(eq(scheduleFiringMetrics.scheduleId, sid)).all()
+      ).toEqual([]);
+
+      // removePluginSchedules takes the same path.
+      db.update(tasks).set({ scheduleId: "plugin:test-orphan-fired:s2" }).where(eq(tasks.id, tid)).run();
+      expect(() => removePluginSchedules("test-orphan-fired")).not.toThrow();
+      expect(listInstalledPluginScheduleIds("test-orphan-fired")).toEqual([]);
+      expect(db.select().from(tasks).where(eq(tasks.id, tid)).get()?.scheduleId).toBeNull();
+    } finally {
+      db.delete(scheduleFiringMetrics).where(eq(scheduleFiringMetrics.taskId, tid)).run();
+      db.delete(usageLedger).where(eq(usageLedger.id, lid)).run();
+      db.delete(tasks).where(eq(tasks.id, tid)).run();
+    }
   });
 });
 

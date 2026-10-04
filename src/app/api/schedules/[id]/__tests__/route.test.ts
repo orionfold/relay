@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { schedules } from "@/lib/db/schema";
+import { scheduleFiringMetrics, schedules, tasks } from "@/lib/db/schema";
 
 const mocks = vi.hoisted(() => ({
   validateAssignment: vi.fn(),
@@ -19,9 +19,12 @@ vi.mock("@/lib/schedules/collision-check", () => ({
   checkCollision: mocks.checkCollision,
 }));
 
-import { PATCH } from "../route";
+import { DELETE, PATCH } from "../route";
 
-function seedSchedule(status: "active" | "paused" = "active") {
+function seedSchedule(
+  status: "active" | "paused" = "active",
+  agentProfile: string | null = null
+) {
   const id = randomUUID();
   const now = new Date();
   db.insert(schedules)
@@ -31,6 +34,7 @@ function seedSchedule(status: "active" | "paused" = "active") {
       prompt: "Check the queue",
       cronExpression: "0 9 * * *",
       status,
+      agentProfile,
       type: "scheduled",
       firingCount: 0,
       suppressionCount: 0,
@@ -125,8 +129,85 @@ describe("PATCH /api/schedules/[id] boundary contract", () => {
     });
   });
 
+  it("pauses a schedule whose stored profile no longer exists", async () => {
+    const id = seedSchedule("active", "removed-profile");
+    mocks.validateAssignment.mockImplementation(({ profileId }) =>
+      profileId === "removed-profile"
+        ? 'Schedule profile "removed-profile" was not found'
+        : null
+    );
+
+    const response = await request(id, { status: "paused" });
+
+    expect(response.status).toBe(200);
+    expect(mocks.validateAssignment).not.toHaveBeenCalled();
+    expect(db.select().from(schedules).where(eq(schedules.id, id)).get()).toMatchObject({
+      status: "paused",
+      agentProfile: "removed-profile",
+    });
+  });
+
+  it("still refuses a request that sets a profile that does not exist", async () => {
+    const id = seedSchedule();
+    mocks.validateAssignment.mockImplementation(({ profileId }) =>
+      profileId === "removed-profile"
+        ? 'Schedule profile "removed-profile" was not found'
+        : null
+    );
+
+    const response = await request(id, { agentProfile: "removed-profile" });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: 'Schedule profile "removed-profile" was not found',
+    });
+    expect(db.select().from(schedules).where(eq(schedules.id, id)).get()?.agentProfile).toBeNull();
+  });
+
   it("returns 404 for a missing schedule", async () => {
     const response = await request(randomUUID(), { status: "paused" });
     expect(response.status).toBe(404);
+  });
+});
+
+describe("DELETE /api/schedules/[id]", () => {
+  it("deletes a schedule that has fired and keeps its task", async () => {
+    const id = seedSchedule();
+    const taskId = randomUUID();
+    const metricId = randomUUID();
+    const now = new Date();
+    db.insert(tasks)
+      .values({
+        id: taskId,
+        scheduleId: id,
+        title: "firing",
+        status: "completed",
+        priority: 2,
+        sourceType: "scheduled",
+        resumeCount: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    db.insert(scheduleFiringMetrics)
+      .values({ id: metricId, scheduleId: id, taskId, firedAt: now })
+      .run();
+
+    try {
+      const response = await DELETE(
+        new NextRequest(`http://relay.test/api/schedules/${id}`, { method: "DELETE" }),
+        { params: Promise.resolve({ id }) }
+      );
+
+      expect(response.status).toBe(200);
+      expect(db.select().from(schedules).where(eq(schedules.id, id)).get()).toBeUndefined();
+      expect(db.select().from(tasks).where(eq(tasks.id, taskId)).get()?.scheduleId).toBeNull();
+      expect(
+        db.select().from(scheduleFiringMetrics).where(eq(scheduleFiringMetrics.id, metricId)).get()
+      ).toBeUndefined();
+    } finally {
+      db.delete(scheduleFiringMetrics).where(eq(scheduleFiringMetrics.id, metricId)).run();
+      db.delete(tasks).where(eq(tasks.id, taskId)).run();
+    }
   });
 });

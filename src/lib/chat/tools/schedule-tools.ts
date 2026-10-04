@@ -5,6 +5,7 @@ import { schedules } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { ok, err, resolveEntityId, type ToolContext } from "./helpers";
 import { analyzePromptEfficiency } from "@/lib/schedules/prompt-analyzer";
+import { deleteSchedulesPreservingHistory } from "@/lib/schedules/installer";
 import {
   SuccessCriteriaSchema,
   serializeSuccessCriteria,
@@ -390,7 +391,7 @@ When creating a schedule as part of an app composition, pass appId so the schedu
 
           if (!existing) return err(`Schedule not found: ${scheduleId}`);
 
-          await db.delete(schedules).where(eq(schedules.id, scheduleId));
+          deleteSchedulesPreservingHistory(eq(schedules.id, scheduleId));
           return ok({ message: "Schedule deleted", scheduleId, name: existing.name });
         } catch (e) {
           return err(e instanceof Error ? e.message : "Failed to delete schedule");

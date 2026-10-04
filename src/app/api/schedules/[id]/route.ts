@@ -19,6 +19,7 @@ import {
   listScheduleReceipts,
 } from "@/lib/operations/receipts";
 import { getScheduleBudgetSnapshot } from "@/lib/schedules/budget-policies";
+import { deleteSchedulesPreservingHistory } from "@/lib/schedules/installer";
 
 const schedulePatchSchema = z.object({
   status: z.string().optional(),
@@ -255,17 +256,22 @@ export async function PATCH(
     }
   }
 
-  const compatibilityError = validateRuntimeProfileAssignment({
-    profileId:
-      agentProfile !== undefined ? agentProfile || null : schedule.agentProfile,
-    runtimeId:
-      assignedAgent !== undefined
-        ? assignedAgent || null
-        : schedule.assignedAgent,
-    context: "Schedule profile",
-  });
-  if (compatibilityError) {
-    return NextResponse.json({ error: compatibilityError }, { status: 400 });
+  // Only a request that changes the profile or the runtime is checked for
+  // compatibility. Revalidating the stored pair on every PATCH would make a
+  // schedule whose profile has since been removed impossible to pause.
+  if (agentProfile !== undefined || assignedAgent !== undefined) {
+    const compatibilityError = validateRuntimeProfileAssignment({
+      profileId:
+        agentProfile !== undefined ? agentProfile || null : schedule.agentProfile,
+      runtimeId:
+        assignedAgent !== undefined
+          ? assignedAgent || null
+          : schedule.assignedAgent,
+      context: "Schedule profile",
+    });
+    if (compatibilityError) {
+      return NextResponse.json({ error: compatibilityError }, { status: 400 });
+    }
   }
 
   await db.update(schedules).set(updates).where(eq(schedules.id, id));
@@ -300,7 +306,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Schedule not found" }, { status: 404 });
   }
 
-  await db.delete(schedules).where(eq(schedules.id, id));
+  deleteSchedulesPreservingHistory(eq(schedules.id, id));
 
   return NextResponse.json({ deleted: true });
 }

@@ -24,8 +24,15 @@
  */
 
 import { db } from "@/lib/db";
-import { schedules as schedulesTable } from "@/lib/db/schema";
-import { and, like, notInArray } from "drizzle-orm";
+import {
+  schedules as schedulesTable,
+  tasks,
+  usageLedger,
+  scheduleFiringMetrics,
+  scheduleDocumentInputs,
+  scheduleTableInputs,
+} from "@/lib/db/schema";
+import { and, inArray, like, notInArray, type SQL } from "drizzle-orm";
 import { parseInterval, computeNextFireTime } from "./interval-parser";
 import type { ScheduleSpec } from "@/lib/validators/schedule-spec";
 
@@ -159,7 +166,42 @@ export function installPluginSchedules(pluginId: string, specs: ScheduleSpec[]):
  */
 export function removePluginSchedules(pluginId: string): void {
   const pattern = `${PLUGIN_SCHEDULE_PREFIX}${pluginId}:%`;
-  db.delete(schedulesTable).where(like(schedulesTable.id, pattern)).run();
+  deleteSchedulesPreservingHistory(like(schedulesTable.id, pattern));
+}
+
+/**
+ * Delete the schedules matching `where`, together with the rows that reference
+ * them, in one transaction. Returns the number of schedules deleted. Every
+ * schedule delete path goes through here.
+ *
+ * Foreign keys are enforced and most references to schedules(id) declare no
+ * ON DELETE action, so a bare DELETE fails as soon as a schedule has fired.
+ * History survives the schedule: tasks and usage_ledger rows keep everything
+ * but the back-reference, which is nulled. Firing metrics and document/table
+ * input bindings mean nothing without their schedule and are deleted.
+ * usage_budget_policies (cascade) and operations_receipts (set null) are
+ * handled by their own ON DELETE actions.
+ */
+export function deleteSchedulesPreservingHistory(where: SQL | undefined): number {
+  // drizzle's and() returns undefined when given no conditions, and an
+  // unfiltered select would match every schedule.
+  if (!where) return 0;
+  return db.transaction((tx) => {
+    const ids = tx
+      .select({ id: schedulesTable.id })
+      .from(schedulesTable)
+      .where(where)
+      .all()
+      .map((r) => r.id);
+    if (ids.length === 0) return 0;
+
+    tx.update(tasks).set({ scheduleId: null }).where(inArray(tasks.scheduleId, ids)).run();
+    tx.update(usageLedger).set({ scheduleId: null }).where(inArray(usageLedger.scheduleId, ids)).run();
+    tx.delete(scheduleFiringMetrics).where(inArray(scheduleFiringMetrics.scheduleId, ids)).run();
+    tx.delete(scheduleDocumentInputs).where(inArray(scheduleDocumentInputs.scheduleId, ids)).run();
+    tx.delete(scheduleTableInputs).where(inArray(scheduleTableInputs.scheduleId, ids)).run();
+    return tx.delete(schedulesTable).where(inArray(schedulesTable.id, ids)).run().changes;
+  });
 }
 
 /**
@@ -180,11 +222,11 @@ export function removeOrphanSchedules(pluginId: string, keepIds: string[]): void
   const pattern = `${PLUGIN_SCHEDULE_PREFIX}${pluginId}:%`;
   if (keepIds.length === 0) {
     // Nothing to keep — delete all rows for this plugin
-    db.delete(schedulesTable).where(like(schedulesTable.id, pattern)).run();
+    deleteSchedulesPreservingHistory(like(schedulesTable.id, pattern));
   } else {
-    db.delete(schedulesTable)
-      .where(and(like(schedulesTable.id, pattern), notInArray(schedulesTable.id, keepIds)))
-      .run();
+    deleteSchedulesPreservingHistory(
+      and(like(schedulesTable.id, pattern), notInArray(schedulesTable.id, keepIds))
+    );
   }
 }
 
