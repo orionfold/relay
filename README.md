@@ -266,6 +266,14 @@ clone independently. `RELAY_DATA_DIR` keeps development data inside an ignored,
 clone-local directory, so a literal fresh clone starts empty and does not reuse
 `~/.relay`. You can verify either gate independently by removing the other one.
 
+In a submodule or a linked worktree, `.git` is a file that points at the real git
+directory, so `touch .git/relay-dev-mode` fails. Create the sentinel where git keeps
+the directory instead:
+
+```bash
+touch "$(git rev-parse --git-path relay-dev-mode)"
+```
+
 Provider credentials are optional at boot. Open [Settings](http://localhost:3000/settings)
 to save or test Anthropic, OpenAI, Ollama, LiteLLM, or LM Studio configuration
 and receive a visible success or failure result. Keep real keys in `.env.local`

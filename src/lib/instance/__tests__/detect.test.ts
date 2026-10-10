@@ -56,6 +56,65 @@ describe("isDevMode", () => {
   });
 });
 
+describe("isDevMode with a .git file", () => {
+  let checkout: string;
+  let realGitDir: string;
+
+  beforeEach(() => {
+    checkout = mkdtempSync(join(tmpdir(), "ainative-detect-file-"));
+    realGitDir = join(tempDir, "modules", "checkout");
+    mkdirSync(realGitDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    rmSync(checkout, { recursive: true, force: true });
+  });
+
+  it("finds the sentinel through an absolute gitdir pointer", async () => {
+    writeFileSync(join(checkout, ".git"), `gitdir: ${realGitDir}\n`);
+    writeFileSync(join(realGitDir, "relay-dev-mode"), "");
+    const { isDevMode } = await loadDetect();
+    expect(isDevMode(checkout)).toBe(true);
+  });
+
+  it("finds the sentinel through a relative gitdir pointer", async () => {
+    const { relative } = await import("path");
+    writeFileSync(join(checkout, ".git"), `gitdir: ${relative(checkout, realGitDir)}\n`);
+    writeFileSync(join(realGitDir, "relay-dev-mode"), "");
+    const { isDevMode } = await loadDetect();
+    expect(isDevMode(checkout)).toBe(true);
+  });
+
+  it("returns false when the pointed-at git directory has no sentinel", async () => {
+    writeFileSync(join(checkout, ".git"), `gitdir: ${realGitDir}\n`);
+    const { isDevMode } = await loadDetect();
+    expect(isDevMode(checkout)).toBe(false);
+  });
+
+  it("returns false when the .git file is not a gitdir pointer", async () => {
+    writeFileSync(join(checkout, ".git"), "not a pointer\n");
+    const { isDevMode } = await loadDetect();
+    expect(isDevMode(checkout)).toBe(false);
+  });
+
+  it("returns false when the checkout has no .git at all", async () => {
+    const { isDevMode } = await loadDetect();
+    expect(isDevMode(checkout)).toBe(false);
+  });
+});
+
+describe("resolveGitDir", () => {
+  it("returns the .git directory in a normal clone", async () => {
+    const { resolveGitDir } = await loadDetect();
+    expect(resolveGitDir(tempDir)).toBe(gitDir);
+  });
+
+  it("returns null outside a git checkout", async () => {
+    const { resolveGitDir } = await loadDetect();
+    expect(resolveGitDir(join(tempDir, "nowhere"))).toBeNull();
+  });
+});
+
 describe("hasGitDir", () => {
   it("returns true when .git directory exists", async () => {
     const { hasGitDir } = await loadDetect();
