@@ -23,7 +23,10 @@ vi.mock("@/lib/agents/runtime", async () => {
 
 import { POST } from "../route";
 
-function seedTask(assignedAgent: string) {
+function seedTask(
+  assignedAgent: string,
+  overrides: Partial<typeof tasks.$inferInsert> = {},
+) {
   const id = randomUUID();
   const now = new Date();
   db.insert(tasks)
@@ -36,6 +39,7 @@ function seedTask(assignedAgent: string) {
       resumeCount: 0,
       createdAt: now,
       updatedAt: now,
+      ...overrides,
     })
     .run();
   return id;
@@ -86,5 +90,24 @@ describe("POST /api/tasks/[id]/cancel boundary contract", () => {
     expect(db.select().from(tasks).where(eq(tasks.id, id)).get()?.status).toBe(
       "running"
     );
+  });
+
+  it("takes a deferred run out of the on-demand waiting line", async () => {
+    const id = seedTask("claude-code", {
+      status: "queued",
+      sourceType: "manual",
+      runRequestedAt: new Date(1_000),
+      runRequestedMode: "start",
+    });
+
+    const response = await invoke(id);
+
+    expect(response.status).toBe(200);
+    const row = db.select().from(tasks).where(eq(tasks.id, id)).get();
+    expect(row?.status).toBe("cancelled");
+    // Left behind, the marker would make this row look like a submitted run
+    // again the moment anything put it back to `queued`.
+    expect(row?.runRequestedAt).toBeNull();
+    expect(row?.runRequestedMode).toBeNull();
   });
 });

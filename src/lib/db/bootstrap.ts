@@ -745,6 +745,12 @@ export function bootstrapAinativeDatabase(sqlite: Database.Database): void {
 
   // ── Schedule Orchestration columns ───────────────────────────────────────
   addColumnIfMissing(`ALTER TABLE tasks ADD COLUMN slot_claimed_at INTEGER;`);
+  // The persisted on-demand waiting line. `status = 'queued' AND
+  // run_requested_at IS NOT NULL` is a run the cap deferred; `queued` with a
+  // NULL marker is a task sitting at rest. Unix milliseconds, not seconds —
+  // the drain orders by this column. See task-slots.ts.
+  addColumnIfMissing(`ALTER TABLE tasks ADD COLUMN run_requested_at INTEGER;`);
+  addColumnIfMissing(`ALTER TABLE tasks ADD COLUMN run_requested_mode TEXT;`);
   addColumnIfMissing(`ALTER TABLE tasks ADD COLUMN lease_expires_at INTEGER;`);
   addColumnIfMissing(`ALTER TABLE tasks ADD COLUMN failure_reason TEXT;`);
   addColumnIfMissing(`ALTER TABLE tasks ADD COLUMN max_turns INTEGER;`);

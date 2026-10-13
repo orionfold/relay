@@ -31,6 +31,7 @@ import {
   enforceBudgetGuardrails,
   enforceTaskBudgetGuardrails,
 } from "@/lib/settings/budget-guardrails";
+import { clearRunRequest } from "@/lib/agents/task-slots";
 
 const runtimeRegistry: Record<AgentRuntimeId, AgentRuntimeAdapter> = {
   "claude-code": claudeRuntimeAdapter,
@@ -104,7 +105,13 @@ export async function cancelTaskWithRuntime(
   runtimeId?: string | null
 ): Promise<void> {
   const adapter = assertCapability(runtimeId, "cancel");
-  return adapter.cancelTask(taskId);
+  await adapter.cancelTask(taskId);
+  // A cancel can land on a run the on-demand cap had deferred. Every adapter
+  // writes `cancelled` and none of them knows about the waiting line, so the
+  // marker is dropped here — the one chokepoint every cancel passes through.
+  // Left behind it would make the row look like a submitted run again the
+  // moment anything put it back to `queued`.
+  clearRunRequest(taskId);
 }
 
 export async function runTaskAssistWithRuntime(

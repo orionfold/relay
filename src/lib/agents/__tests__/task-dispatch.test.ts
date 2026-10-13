@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { agentLogs, notifications, tasks } from "@/lib/db/schema";
@@ -28,6 +28,12 @@ vi.mock("@/lib/agents/runtime/execution-target", () => ({
 }));
 
 import { startTaskExecution } from "../task-dispatch";
+import {
+  __resetTaskSlotsForTests,
+  claimTaskSlot,
+  countRunningTaskSlots,
+  countWaitingTaskSlots,
+} from "../task-slots";
 
 function seedTask(assignedAgent: string | null = "claude-code") {
   const id = randomUUID();
@@ -270,5 +276,104 @@ describe("startTaskExecution", () => {
     }
     expect(mockResolveTaskExecutionTarget).toHaveBeenCalledTimes(2);
     expect(mockExecuteTaskWithRuntime).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("startTaskExecution concurrency gate", () => {
+  function seedWith(
+    overrides: Partial<typeof tasks.$inferInsert> = {},
+  ): string {
+    const id = randomUUID();
+    const now = new Date();
+    db.insert(tasks)
+      .values({
+        id,
+        title: "Gated run",
+        status: "queued",
+        priority: 2,
+        resumeCount: 0,
+        createdAt: now,
+        updatedAt: now,
+        ...overrides,
+      })
+      .run();
+    return id;
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    __resetTaskSlotsForTests();
+    db.delete(notifications).run();
+    db.delete(agentLogs).run();
+    db.delete(tasks).run();
+    mockResolveTaskExecutionTarget.mockResolvedValue({
+      requestedRuntimeId: null,
+      effectiveRuntimeId: "claude-code",
+      requestedModelId: null,
+      effectiveModelId: null,
+      fallbackApplied: false,
+      fallbackReason: null,
+      selectionMode: "automatic",
+      selectionReason: "test",
+      automaticFallbackEnabled: false,
+    });
+    mockExecuteTaskWithRuntime.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    __resetTaskSlotsForTests();
+    vi.unstubAllEnvs();
+  });
+
+  it("holds an on-demand run at the cap and starts it when a slot frees", async () => {
+    vi.stubEnv("TASK_MAX_CONCURRENT", "1");
+    const occupying = seedWith({ sourceType: "manual" });
+    expect(claimTaskSlot(occupying)).toBe(true);
+
+    const waiting = seedWith({ sourceType: "manual" });
+    const run = startTaskExecution(waiting);
+    await vi.waitFor(() => expect(countWaitingTaskSlots()).toBe(1));
+    expect(mockExecuteTaskWithRuntime).not.toHaveBeenCalled();
+    expect(
+      db.select().from(tasks).where(eq(tasks.id, waiting)).get()?.status,
+    ).toBe("queued");
+
+    db.update(tasks)
+      .set({ status: "completed" })
+      .where(eq(tasks.id, occupying))
+      .run();
+    // Releasing happens when a run settles through the dispatcher; the drain
+    // timer covers a row that settled another way, so nudge it directly here.
+    const { releaseTaskSlot } = await import("../task-slots");
+    releaseTaskSlot();
+
+    await run;
+    expect(mockExecuteTaskWithRuntime).toHaveBeenCalledWith(waiting, "claude-code");
+    // The stubbed runtime never writes a terminal status, so the row the gate
+    // released is still the one counted — exactly one, never two.
+    expect(countRunningTaskSlots()).toBe(1);
+    expect(countWaitingTaskSlots()).toBe(0);
+  });
+
+  it("does not gate a schedule firing on the on-demand cap", async () => {
+    vi.stubEnv("TASK_MAX_CONCURRENT", "1");
+    const occupying = seedWith({ sourceType: "manual" });
+    expect(claimTaskSlot(occupying)).toBe(true);
+
+    const scheduled = seedWith({ sourceType: "scheduled" });
+    await startTaskExecution(scheduled);
+
+    expect(mockExecuteTaskWithRuntime).toHaveBeenCalledWith(scheduled, "claude-code");
+    expect(countWaitingTaskSlots()).toBe(0);
+  });
+
+  it("releases the slot when the run throws", async () => {
+    const id = seedWith({ sourceType: "manual" });
+    mockExecuteTaskWithRuntime.mockRejectedValueOnce(new Error("boom"));
+
+    await expect(startTaskExecution(id)).rejects.toThrow("boom");
+    // The row is left running by the thrown runtime, but nothing is waiting on
+    // a stale in-memory counter — the cap is always counted from the table.
+    expect(countWaitingTaskSlots()).toBe(0);
   });
 });

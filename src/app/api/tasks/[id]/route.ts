@@ -101,9 +101,21 @@ export async function PATCH(
   const { documentIds, ...taskFields } = parsed.data;
   const now = new Date();
 
+  // A status written from here is not a run being submitted, so it cancels any
+  // place the row held in the on-demand waiting line — dragging a deferred run
+  // back to `planned` must not leave a marker that makes it look submitted
+  // again the next time something queues it. Cleared in the same statement so
+  // the two can never disagree. See @/lib/agents/task-slots.
+  const leavesTheLine =
+    taskFields.status !== undefined && taskFields.status !== existing.status;
+
   await db
     .update(tasks)
-    .set({ ...taskFields, updatedAt: now })
+    .set({
+      ...taskFields,
+      ...(leavesTheLine ? { runRequestedAt: null, runRequestedMode: null } : {}),
+      updatedAt: now,
+    })
     .where(eq(tasks.id, id));
 
   // Handle document linking/unlinking

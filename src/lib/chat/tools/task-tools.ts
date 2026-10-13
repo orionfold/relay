@@ -149,6 +149,8 @@ export function taskTools(ctx: ToolContext) {
             status: "planned",
             assignedAgent: args.assignedAgent ?? null,
             agentProfile: args.agentProfile ?? null,
+            // Explicit provenance for the on-demand concurrency cap.
+            sourceType: "manual",
             createdAt: now,
             updatedAt: now,
           });

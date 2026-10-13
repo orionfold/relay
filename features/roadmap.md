@@ -406,6 +406,7 @@ Durable fixes that replace symptom-level hotfixes with architectural contracts. 
 | [task-create-profile-validation](task-create-profile-validation.md) | P1 | completed | agent-integration, agent-profile-catalog |
 | [schedule-maxturns-api-control](schedule-maxturns-api-control.md) | P2 | completed | scheduled-prompt-loops |
 | [schedule-collision-prevention](schedule-collision-prevention.md) | P1 | completed | scheduled-prompt-loops, heartbeat-scheduler |
+| [on-demand-run-concurrency-cap](on-demand-run-concurrency-cap.md) | P1 | completed | schedule-collision-prevention, agent-integration, workflow-engine |
 | [task-turn-observability](task-turn-observability.md) | P2 | completed | agent-integration, scheduled-prompt-loops |
 | [profile-runtime-default-resolution](profile-runtime-default-resolution.md) | P1 | completed | row-trigger-blueprint-execution |
 | [workflow-editing](workflow-editing.md) | P1 | completed | workflow-engine |

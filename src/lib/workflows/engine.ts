@@ -1146,6 +1146,10 @@ export async function executeChildTask(
     title: `[Workflow] ${name}`,
     description: enrichedPrompt,
     status: "queued",
+    // Explicit provenance: the on-demand concurrency cap counts by source_type,
+    // and a NULL would make a workflow step indistinguishable from a row whose
+    // origin was never recorded.
+    sourceType: "workflow",
     priority: 1,
     assignedAgent: requestedRuntimeId,
     agentProfile: resolvedProfile ?? null,
@@ -1157,11 +1161,9 @@ export async function executeChildTask(
     updatedAt: new Date(),
   });
 
-  await db
-    .update(tasks)
-    .set({ status: "running", updatedAt: new Date() })
-    .where(eq(tasks.id, taskId));
-
+  // Left `queued` on purpose: `startTaskExecution` claims the concurrency slot
+  // and makes the queued→running transition itself. Setting it running here
+  // would make the step count against the cap before it had taken a slot.
   try {
     await startTaskExecution(taskId, {
       requestedRuntimeId,

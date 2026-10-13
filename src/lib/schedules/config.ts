@@ -5,7 +5,14 @@ const DEFAULT_MAX_CONCURRENT = 2;
 const DEFAULT_MAX_RUN_DURATION_SEC = 1200; // 20 minutes
 const DEFAULT_CHAT_PRESSURE_DELAY_SEC = 30;
 
-function readIntConfig(
+/**
+ * Read a positive-integer config value: environment variable first, then the
+ * settings table, then the default.
+ *
+ * Exported because the on-demand task cap in `@/lib/agents/task-slots` reads
+ * its own cap the same way, and one parser is better than two that drift.
+ */
+export function readIntConfig(
   envVar: string,
   settingKey: string,
   defaultValue: number,
@@ -15,7 +22,7 @@ function readIntConfig(
     const parsed = parseInt(envRaw, 10);
     if (Number.isFinite(parsed) && parsed > 0) return parsed;
     console.warn(
-      `[schedule-config] ${envVar}="${envRaw}" is not a positive integer; using default ${defaultValue}`,
+      `[config] ${envVar}="${envRaw}" is not a positive integer; using default ${defaultValue}`,
     );
   }
 

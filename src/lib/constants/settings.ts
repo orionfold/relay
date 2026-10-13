@@ -46,6 +46,8 @@ export const SETTINGS_KEYS = {
   SCHEDULE_MAX_CONCURRENT: "schedule.maxConcurrent",
   SCHEDULE_MAX_RUN_DURATION_SEC: "schedule.maxRunDurationSec",
   SCHEDULE_CHAT_PRESSURE_DELAY_SEC: "schedule.chatPressureDelaySec",
+  // On-demand task orchestration (everything that is not a schedule firing)
+  TASK_MAX_CONCURRENT: "task.maxConcurrent",
   // Environment / profile sync
   AUTO_PROMOTE_SKILLS: "environment.autoPromoteSkills",
   // App authoring diagnostics

@@ -2,7 +2,8 @@ import { randomUUID } from "crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { tasks } from "@/lib/db/schema";
+import { tasks, usageLedger } from "@/lib/db/schema";
+import { __resetTaskSlotsForTests } from "@/lib/agents/task-slots";
 
 const {
   mockResolveTarget,
@@ -67,10 +68,14 @@ describe("POST /api/tasks/[id]/execute target preflight", () => {
       })
       .run();
     mockStartTaskExecution.mockResolvedValue(undefined);
+    __resetTaskSlotsForTests();
   });
 
   afterEach(() => {
-    db.delete(tasks).where(eq(tasks.id, taskId)).run();
+    __resetTaskSlotsForTests();
+    vi.unstubAllEnvs();
+    db.delete(usageLedger).run();
+    db.delete(tasks).run();
   });
 
   it("leaves the task queued when its explicit target cannot run", async () => {
@@ -152,5 +157,103 @@ describe("POST /api/tasks/[id]/execute target preflight", () => {
     expect(db.select().from(tasks).where(eq(tasks.id, taskId)).get()?.status).toBe(
       "running"
     );
+  });
+});
+
+describe("POST /api/tasks/[id]/execute concurrency cap", () => {
+  let taskId: string;
+
+  function seedRunning(): string {
+    const id = randomUUID();
+    const now = new Date();
+    db.insert(tasks)
+      .values({
+        id,
+        title: "In flight",
+        status: "running",
+        sourceType: "manual",
+        priority: 2,
+        resumeCount: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    return id;
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    __resetTaskSlotsForTests();
+    db.delete(usageLedger).run();
+    db.delete(tasks).run();
+    taskId = randomUUID();
+    const now = new Date();
+    db.insert(tasks)
+      .values({
+        id: taskId,
+        title: "Draft report",
+        status: "queued",
+        assignedAgent: "ollama",
+        agentProfile: "general",
+        sourceType: "manual",
+        priority: 2,
+        resumeCount: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    mockResolveTarget.mockResolvedValue(target);
+    mockStartTaskExecution.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    __resetTaskSlotsForTests();
+    vi.unstubAllEnvs();
+    db.delete(usageLedger).run();
+    db.delete(tasks).run();
+  });
+
+  it("accepts an over-cap run as queued rather than failing it", async () => {
+    vi.stubEnv("TASK_MAX_CONCURRENT", "1");
+    seedRunning();
+
+    const response = await POST(new Request("http://relay.test") as never, {
+      params: Promise.resolve({ id: taskId }),
+    });
+
+    expect(response.status).toBe(202);
+    expect(await response.json()).toMatchObject({ state: "queued", taskId, cap: 1 });
+    expect(db.select().from(tasks).where(eq(tasks.id, taskId)).get()?.status).toBe(
+      "queued"
+    );
+    // Still dispatched — the dispatcher is what holds the place in the queue.
+    expect(mockStartTaskExecution).toHaveBeenCalledWith(taskId, {
+      requestedRuntimeId: "ollama",
+      preflightTarget: target,
+    });
+    expect(db.select().from(usageLedger).all()).toHaveLength(0);
+  });
+
+  it("force bypasses a full cap and audits the bypass before dispatch", async () => {
+    vi.stubEnv("TASK_MAX_CONCURRENT", "1");
+    seedRunning();
+
+    const response = await POST(
+      new Request("http://relay.test/?force=true") as never,
+      { params: Promise.resolve({ id: taskId }) }
+    );
+
+    expect(response.status).toBe(202);
+    expect(await response.json()).toMatchObject({ state: "running", forced: true });
+    expect(db.select().from(tasks).where(eq(tasks.id, taskId)).get()?.status).toBe(
+      "running"
+    );
+
+    const ledger = db.select().from(usageLedger).all();
+    expect(ledger).toHaveLength(1);
+    expect(ledger[0]).toMatchObject({
+      taskId,
+      activityType: "manual_force_bypass",
+    });
   });
 });

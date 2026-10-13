@@ -13,6 +13,11 @@ import {
 } from "@/lib/agents/runtime/launch-failure";
 import { getRuntimeCatalogEntry } from "@/lib/agents/runtime/catalog";
 import { sanitizeProviderError } from "@/lib/agents/runtime/provider-endpoint";
+import {
+  acquireTaskSlot,
+  isOnDemandSourceType,
+  releaseTaskSlot,
+} from "@/lib/agents/task-slots";
 
 function toSafeLaunchError(
   error: RetryableRuntimeLaunchError,
@@ -218,6 +223,8 @@ export async function startTaskExecution(
     throw new Error(`Task ${taskId} not found`);
   }
 
+  // Resolve the target before taking a slot — resolution can be slow and can
+  // fail, and neither should occupy capacity another run could use.
   const target =
     options?.preflightTarget ??
     (await resolveTaskExecutionTarget({
@@ -227,28 +234,37 @@ export async function startTaskExecution(
       profileId: task.agentProfile,
     }));
 
-  await db
-    .update(tasks)
-    .set({ status: "running", updatedAt: new Date() })
-    .where(eq(tasks.id, taskId));
-  await persistExecutionTarget(taskId, target);
+  // On-demand runs pass the concurrency gate here; schedule firings claimed
+  // their own slot before they got this far and are counted separately.
+  const capped = isOnDemandSourceType(task.sourceType);
+  if (capped && (await acquireTaskSlot(taskId, "start")) === "abandoned") return;
+
   try {
-    return await executeTaskWithRuntime(taskId, target.effectiveRuntimeId);
-  } catch (error) {
-    if (error instanceof RetryableRuntimeLaunchError) {
-      const safeError = toSafeLaunchError(error);
-      if (
-        target.requestedRuntimeId ||
-        target.selectionMode !== "automatic" ||
-        target.automaticFallbackEnabled !== true
-      ) {
-        await logRuntimeLaunchFailure(task.id, safeError);
-        await markTaskLaunchFailed(task.id, task.title, safeError);
-        throw safeError;
+    await db
+      .update(tasks)
+      .set({ status: "running", updatedAt: new Date() })
+      .where(eq(tasks.id, taskId));
+    await persistExecutionTarget(taskId, target);
+    try {
+      return await executeTaskWithRuntime(taskId, target.effectiveRuntimeId);
+    } catch (error) {
+      if (error instanceof RetryableRuntimeLaunchError) {
+        const safeError = toSafeLaunchError(error);
+        if (
+          target.requestedRuntimeId ||
+          target.selectionMode !== "automatic" ||
+          target.automaticFallbackEnabled !== true
+        ) {
+          await logRuntimeLaunchFailure(task.id, safeError);
+          await markTaskLaunchFailed(task.id, task.title, safeError);
+          throw safeError;
+        }
+        return retryTaskWithFallback(task, target, safeError);
       }
-      return retryTaskWithFallback(task, target, safeError);
+      throw error;
     }
-    throw error;
+  } finally {
+    if (capped) releaseTaskSlot();
   }
 }
 
@@ -269,10 +285,17 @@ export async function resumeTaskExecution(
     effectiveRuntimeId: options?.effectiveRuntimeId ?? task.effectiveRuntimeId,
   });
 
-  await db
-    .update(tasks)
-    .set({ status: "running", updatedAt: new Date() })
-    .where(eq(tasks.id, taskId));
-  await persistExecutionTarget(taskId, target);
-  return resumeTaskWithRuntime(taskId, target.effectiveRuntimeId);
+  const capped = isOnDemandSourceType(task.sourceType);
+  if (capped && (await acquireTaskSlot(taskId, "resume")) === "abandoned") return;
+
+  try {
+    await db
+      .update(tasks)
+      .set({ status: "running", updatedAt: new Date() })
+      .where(eq(tasks.id, taskId));
+    await persistExecutionTarget(taskId, target);
+    return await resumeTaskWithRuntime(taskId, target.effectiveRuntimeId);
+  } finally {
+    if (capped) releaseTaskSlot();
+  }
 }

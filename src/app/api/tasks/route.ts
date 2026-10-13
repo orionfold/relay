@@ -67,6 +67,9 @@ export async function POST(req: NextRequest) {
     assignedAgent: parsed.data.assignedAgent ?? null,
     agentProfile: parsed.data.agentProfile ?? null,
     status: "planned",
+    // A task created through the API is run on demand; record that rather than
+    // leaving the concurrency cap to infer it from a NULL.
+    sourceType: "manual",
     createdAt: now,
     updatedAt: now,
   });

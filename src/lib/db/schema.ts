@@ -84,6 +84,32 @@ export const tasks = sqliteTable(
     maxBudgetUsd: real("max_budget_usd"),
     /** When the slot for this task was atomically claimed */
     slotClaimedAt: integer("slot_claimed_at", { mode: "timestamp" }),
+    /**
+     * The persisted on-demand waiting line. Set when a run was submitted and
+     * the on-demand cap deferred it; cleared by the claim that starts it, by a
+     * cancel, and by any status change written from outside the dispatcher.
+     *
+     * `status = 'queued' AND run_requested_at IS NOT NULL` is the one thing
+     * that distinguishes a deferred run from a task sitting at rest in
+     * `queued` — the whole reason the column exists. NULL on every resting
+     * row, so a drain can never start a run nobody asked for.
+     *
+     * Millisecond resolution (`timestamp_ms`), like `chatMessages.rewoundAt`
+     * and unlike `slot_claimed_at`: a burst of submissions lands well inside
+     * one second and the drain orders by this column, so seconds would make
+     * FIFO a coin toss across a restart.
+     *
+     * See `.agents/skills/architect/references/tdr-on-demand-run-cap.md`.
+     */
+    runRequestedAt: integer("run_requested_at", { mode: "timestamp_ms" }),
+    /**
+     * Which dispatcher entry point the deferred run came through —
+     * `startTaskExecution` or `resumeTaskExecution`. Boot recovery cannot
+     * infer it from the row (a resumed task is `failed` only until it is
+     * parked), and resuming a run that was started fresh would replay the
+     * wrong session. NULL whenever `run_requested_at` is NULL.
+     */
+    runRequestedMode: text("run_requested_mode", { enum: ["start", "resume"] }),
     /** Wall-clock expiry; reaper aborts tasks whose lease has passed */
     leaseExpiresAt: integer("lease_expires_at", { mode: "timestamp" }),
     /**

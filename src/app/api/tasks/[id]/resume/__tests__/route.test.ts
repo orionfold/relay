@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { tasks } from "@/lib/db/schema";
 import { MAX_RESUME_COUNT } from "@/lib/constants/task-status";
+import { __resetTaskSlotsForTests } from "@/lib/agents/task-slots";
 
 const mocks = vi.hoisted(() => ({
   enforceBudget: vi.fn(),
@@ -54,6 +55,8 @@ function invoke(id: string) {
 }
 
 beforeEach(() => {
+  __resetTaskSlotsForTests();
+  vi.unstubAllEnvs();
   db.delete(tasks).run();
   vi.clearAllMocks();
   mocks.resolveTarget.mockResolvedValue({ effectiveRuntimeId: "claude-code" });
@@ -87,6 +90,23 @@ describe("POST /api/tasks/[id]/resume boundary contract", () => {
       result: "Runtime cannot resume this session",
     });
     expect(mocks.resumeExecution).not.toHaveBeenCalled();
+  });
+
+  it("accepts an over-cap resume as queued rather than failing it", async () => {
+    vi.stubEnv("TASK_MAX_CONCURRENT", "1");
+    seedTask({ status: "running", sessionId: null, sourceType: "manual" });
+    const id = seedTask({ sourceType: "manual" });
+
+    const response = await invoke(id);
+
+    expect(response.status).toBe(202);
+    expect(await response.json()).toMatchObject({ state: "queued", taskId: id, cap: 1 });
+    // Untouched by the route — the dispatcher parks it as queued when it waits.
+    expect(db.select().from(tasks).where(eq(tasks.id, id)).get()?.status).toBe("failed");
+    expect(mocks.resumeExecution).toHaveBeenCalledWith(id, {
+      requestedRuntimeId: "claude-code",
+      effectiveRuntimeId: "claude-code",
+    });
   });
 
   it.each([

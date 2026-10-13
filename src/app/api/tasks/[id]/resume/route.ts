@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { tasks } from "@/lib/db/schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { MAX_RESUME_COUNT } from "@/lib/constants/task-status";
 import {
   BudgetLimitExceededError,
@@ -9,7 +9,19 @@ import {
 } from "@/lib/settings/budget-guardrails";
 import { resolveResumeExecutionTarget } from "@/lib/agents/runtime/execution-target";
 import { resumeTaskExecution } from "@/lib/agents/task-dispatch";
+import {
+  claimTaskSlot,
+  countRunningTaskSlots,
+  getTaskMaxConcurrent,
+} from "@/lib/agents/task-slots";
 
+/**
+ * Resume a failed or cancelled task from its session.
+ *
+ * A resume is an on-demand run and honors the same cap as a manual execute.
+ * Over the cap the task is parked as `queued` and answers `202` with
+ * `state: "queued"`; the dispatcher resumes it when its turn comes.
+ */
 export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -45,26 +57,25 @@ export async function POST(
     throw error;
   }
 
-  // Atomic claim: failed/cancelled → running
-  const claimed = db
-    .update(tasks)
-    .set({ status: "running", updatedAt: new Date() })
-    .where(
-      and(
-        eq(tasks.id, id),
-        inArray(tasks.status, ["failed", "cancelled"])
-      )
-    )
-    .returning()
-    .all();
+  // Atomic claim: failed/cancelled → running, inside the on-demand cap.
+  const claimed = claimTaskSlot(id, { from: ["failed", "cancelled"] });
 
-  if (claimed.length === 0) {
-    return NextResponse.json(
-      {
-        error: `Task must be failed or cancelled to resume, current status: ${task.status}`,
-      },
-      { status: 400 }
-    );
+  if (!claimed) {
+    const current = db
+      .select({ status: tasks.status })
+      .from(tasks)
+      .where(eq(tasks.id, id))
+      .get();
+    if (current?.status !== "failed" && current?.status !== "cancelled") {
+      return NextResponse.json(
+        {
+          error: `Task must be failed or cancelled to resume, current status: ${task.status}`,
+        },
+        { status: 400 }
+      );
+    }
+    // Still resumable, so the refusal was the cap. The dispatcher parks the row
+    // as queued and resumes it when a slot frees.
   }
 
   try {
@@ -93,5 +104,21 @@ export async function POST(
     console.error(`Task ${id} resume error:`, err)
   );
 
-  return NextResponse.json({ message: "Resume started" }, { status: 202 });
+  if (!claimed) {
+    const cap = getTaskMaxConcurrent();
+    return NextResponse.json(
+      {
+        message: `Resume queued — ${countRunningTaskSlots()}/${cap} on-demand runs in flight. It resumes when a slot frees.`,
+        state: "queued",
+        taskId: id,
+        cap,
+      },
+      { status: 202 }
+    );
+  }
+
+  return NextResponse.json(
+    { message: "Resume started", state: "running", taskId: id },
+    { status: 202 }
+  );
 }

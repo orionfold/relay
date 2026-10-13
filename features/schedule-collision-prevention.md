@@ -20,6 +20,12 @@ Two systemic issues emerge when users deploy multiple recurring schedules in pro
 
 This spec addresses both problems at the scheduler engine level, eliminating the need for users to manually stagger cron expressions or hand-optimize prompt wording.
 
+> **Scope note.** The cap and the claim described here match
+> `source_type IN ('scheduled', 'heartbeat')` only. Runs started on demand —
+> manual execute, resume, chat `execute_task`, handoffs, workflow steps — have
+> their own independent cap; see
+> [on-demand-run-concurrency-cap](on-demand-run-concurrency-cap.md).
+
 ## Problem Evidence (Field Data)
 
 ### Schedule Collision
