@@ -28,6 +28,7 @@ describe("Host ingress proxy", () => {
       "RELAY_CELL_ID",
       "RELAY_INTERNAL_AUTH_TOKEN",
       "RELAY_INGRESS_TOKEN",
+      "RELAY_API_TOKEN",
     ]) delete process.env[key];
     rmSync(dir, { recursive: true, force: true });
   });
@@ -153,5 +154,146 @@ describe("Host ingress proxy", () => {
     }));
     expect(response.status).toBe(200);
     expect(response.headers.get("x-middleware-request-x-forwarded-host")).toBeNull();
+  });
+
+  describe("RELAY_API_TOKEN", () => {
+    const token = "a".repeat(40);
+    const bearer = { authorization: `Bearer ${token}` };
+
+    beforeEach(() => {
+      process.env.RELAY_API_TOKEN = token;
+    });
+
+    it("leaves trusted-local open when the token is unset", () => {
+      delete process.env.RELAY_API_TOKEN;
+      process.env.RELAY_EXPOSURE_PROFILE = "trusted-local";
+      expect(proxy(new NextRequest("http://127.0.0.1:3000/api/tasks")).status).toBe(200);
+    });
+
+    it("refuses an API call or a page without the bearer token in trusted-local", async () => {
+      process.env.RELAY_EXPOSURE_PROFILE = "trusted-local";
+      const api = proxy(new NextRequest("http://127.0.0.1:3000/api/tasks"));
+      expect(api.status).toBe(401);
+      expect(api.headers.get("www-authenticate")).toBe('Bearer realm="relay"');
+      await expect(api.json()).resolves.toMatchObject({ error: "API_TOKEN_REQUIRED" });
+
+      const page = proxy(new NextRequest("http://127.0.0.1:3000/projects"));
+      expect(page.status).toBe(401);
+    });
+
+    it("refuses a wrong token and accepts no other credential form", async () => {
+      process.env.RELAY_EXPOSURE_PROFILE = "trusted-local";
+      const wrong = proxy(new NextRequest("http://127.0.0.1:3000/api/tasks", {
+        headers: { authorization: `Bearer ${"b".repeat(40)}` },
+      }));
+      expect(wrong.status).toBe(401);
+      await expect(wrong.json()).resolves.toMatchObject({ error: "API_TOKEN_INVALID" });
+
+      for (const request of [
+        new NextRequest(`http://127.0.0.1:3000/api/tasks?token=${token}`),
+        new NextRequest("http://127.0.0.1:3000/api/tasks", { headers: { authorization: `Basic ${token}` } }),
+        new NextRequest("http://127.0.0.1:3000/api/tasks", { headers: { cookie: `relay_api_token=${token}` } }),
+      ]) {
+        expect(proxy(request).status).toBe(401);
+      }
+    });
+
+    it("accepts the token in trusted-local and strips it before the route", () => {
+      process.env.RELAY_EXPOSURE_PROFILE = "trusted-local";
+      const response = proxy(new NextRequest("http://127.0.0.1:3000/api/tasks", {
+        method: "POST",
+        headers: bearer,
+      }));
+      expect(response.status).toBe(200);
+      expect(response.headers.get("x-middleware-override-headers")).not.toContain("authorization");
+      expect(response.headers.get("x-middleware-request-authorization")).toBeNull();
+    });
+
+    it("keeps health probes and the signed Slack webhook open", () => {
+      process.env.RELAY_EXPOSURE_PROFILE = "trusted-local";
+      expect(proxy(new NextRequest("http://127.0.0.1:3000/api/health/ready")).status).toBe(200);
+      expect(proxy(new NextRequest("http://127.0.0.1:3000/api/health")).status).toBe(200);
+      expect(proxy(new NextRequest("http://127.0.0.1:3000/api/channels/inbound/slack", {
+        method: "POST",
+      })).status).toBe(200);
+      expect(proxy(new NextRequest("http://127.0.0.1:3000/api/healthz")).status).toBe(401);
+    });
+
+    it("lets a server caller past the session, Origin and Host checks", () => {
+      const response = proxy(new NextRequest("http://relay-internal:80/api/tasks", {
+        method: "POST",
+        headers: bearer,
+      }));
+      expect(response.status).toBe(200);
+      expect(response.headers.get("x-middleware-request-x-relay-cell-id")).toBe("cell-a");
+      expect(response.headers.get("x-middleware-request-x-relay-session-id")).toBeNull();
+      expect(response.headers.get("x-middleware-request-authorization")).toBeNull();
+    });
+
+    it("locks a browser session out when the token is set", async () => {
+      const now = Date.now();
+      const bootstrap = createBootstrapToken(now);
+      const session = completeBootstrap({
+        token: bootstrap.token,
+        password: "a sufficiently long password",
+        deviceName: "Browser",
+        rateKey: "proxy:api-token",
+        now,
+      });
+      const response = proxy(new NextRequest("http://relay.test/api/tasks", {
+        headers: { cookie: `relay_session=${session.token}` },
+      }));
+      expect(response.status).toBe(401);
+      await expect(response.json()).resolves.toMatchObject({ error: "API_TOKEN_REQUIRED" });
+    });
+
+    it("still rejects spoofed authority headers from a token holder", async () => {
+      const response = proxy(new NextRequest("http://relay.test/api/tasks", {
+        headers: { ...bearer, "x-relay-cell-id": "cell-b" },
+      }));
+      expect(response.status).toBe(400);
+      await expect(response.json()).resolves.toMatchObject({ error: "INGRESS_AUTHORITY_HEADER_SPOOF" });
+    });
+
+    it("still requires the TLS ingress in remote-authenticated", async () => {
+      process.env.RELAY_EXPOSURE_PROFILE = "remote-authenticated";
+      process.env.RELAY_PUBLIC_ORIGIN = "https://relay.example.test";
+      process.env.RELAY_INGRESS_TOKEN = "ingress-secret";
+      const direct = proxy(new NextRequest("http://127.0.0.1:3000/api/tasks", { headers: bearer }));
+      expect(direct.status).toBe(403);
+      await expect(direct.json()).resolves.toMatchObject({ error: "INGRESS_AUTH_REQUIRED" });
+
+      const viaIngress = proxy(new NextRequest("http://127.0.0.1:3000/api/tasks", {
+        headers: {
+          ...bearer,
+          "x-relay-ingress-token": "ingress-secret",
+          "x-forwarded-proto": "https",
+          "x-forwarded-host": "relay.example.test",
+        },
+      }));
+      expect(viaIngress.status).toBe(200);
+    });
+
+    it("applies the route prefix to the exemption and to the caller", () => {
+      process.env.RELAY_PUBLIC_ORIGIN = "http://relay.test/cells/cell-a";
+      process.env.RELAY_ROUTE_PREFIX = "/cells/cell-a";
+      expect(proxy(new NextRequest("http://relay.test/cells/cell-a/api/health/live")).status).toBe(200);
+      expect(proxy(new NextRequest("http://relay.test/cells/cell-a/api/tasks")).status).toBe(401);
+
+      const accepted = proxy(new NextRequest("http://relay.test/cells/cell-a/api/tasks", { headers: bearer }));
+      expect(accepted.status).toBe(200);
+      expect(accepted.headers.get("x-middleware-rewrite")).toBe("http://relay.test/api/tasks");
+
+      const outside = proxy(new NextRequest("http://relay.test/cells/cell-b/api/tasks", { headers: bearer }));
+      expect(outside.status).toBe(404);
+    });
+
+    it("refuses to run with a short token", async () => {
+      process.env.RELAY_EXPOSURE_PROFILE = "trusted-local";
+      process.env.RELAY_API_TOKEN = "short";
+      const response = proxy(new NextRequest("http://127.0.0.1:3000/api/health/ready"));
+      expect(response.status).toBe(503);
+      await expect(response.json()).resolves.toMatchObject({ error: "INGRESS_CONFIG_INVALID" });
+    });
   });
 });

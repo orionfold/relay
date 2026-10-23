@@ -5,11 +5,15 @@ import {
   AUTH_PAGE_HEADER,
   CELL_HEADER,
   SESSION_HEADER,
+  classifyApiTokenCall,
   classifyRoute,
   hasValidMutationOrigin,
+  isApiTokenExemptRoute,
   isUnsafeMethod,
   isSignedWebhookRoute,
+  matchesRoutePrefix,
   stripRoutePrefix,
+  type IngressConfig,
 } from "@/lib/host-ingress/policy";
 import { hashOpaqueSecret, secureEqual } from "@/lib/host-ingress/credentials";
 import { validateSession } from "@/lib/host-ingress/store";
@@ -23,7 +27,19 @@ export function proxy(request: NextRequest) {
     return reject(request, 503, "INGRESS_CONFIG_INVALID", message);
   }
 
-  if (config.profile === "trusted-local") return NextResponse.next();
+  const apiToken = checkApiToken(request, config);
+  if (apiToken === "missing" || apiToken === "invalid") {
+    const response = reject(request, 401, apiToken === "missing" ? "API_TOKEN_REQUIRED" : "API_TOKEN_INVALID");
+    response.headers.set("www-authenticate", 'Bearer realm="relay"');
+    return response;
+  }
+
+  if (config.profile === "trusted-local") {
+    if (apiToken !== "valid") return NextResponse.next();
+    const headers = new Headers(request.headers);
+    headers.delete("authorization");
+    return NextResponse.next({ request: { headers } });
+  }
 
   const internalToken = request.headers.get("x-relay-internal-auth");
   const expectedInternalToken = process.env.RELAY_INTERNAL_AUTH_TOKEN;
@@ -35,6 +51,7 @@ export function proxy(request: NextRequest) {
   ) {
     const headers = new Headers(request.headers);
     headers.delete("x-relay-internal-auth");
+    headers.delete("authorization");
     headers.set(CELL_HEADER, config.cellId);
     return securityHeaders(NextResponse.next({ request: { headers } }));
   }
@@ -51,17 +68,19 @@ export function proxy(request: NextRequest) {
     ? `${forwardedPrefix}${request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname}`
     : request.nextUrl.pathname;
 
-  const effectiveOrigin = resolveEffectiveOrigin(request, ingressAuthenticated);
-  const decision = classifyRoute({
-    config,
-    pathname: externalPathname,
-    effectiveOrigin,
-    headers: request.headers,
-  });
+  const decision = apiToken === "valid"
+    ? classifyApiTokenCall({ config, pathname: externalPathname, headers: request.headers })
+    : classifyRoute({
+        config,
+        pathname: externalPathname,
+        effectiveOrigin: resolveEffectiveOrigin(request, ingressAuthenticated),
+        headers: request.headers,
+      });
   if (decision.kind === "reject") return reject(request, decision.status, decision.code);
   if (decision.kind === "allow-local") return NextResponse.next();
 
   if (
+    apiToken !== "valid" &&
     isUnsafeMethod(request.method) &&
     config.publicOrigin &&
     !isSignedWebhookRoute(stripRoutePrefix(externalPathname, config.routePrefix))
@@ -72,6 +91,7 @@ export function proxy(request: NextRequest) {
   }
 
   const requestHeaders = new Headers(request.headers);
+  if (apiToken === "valid") requestHeaders.delete("authorization");
   requestHeaders.delete("x-relay-ingress-token");
   requestHeaders.delete("x-forwarded-user");
   requestHeaders.delete("x-forwarded-email");
@@ -110,6 +130,26 @@ export function proxy(request: NextRequest) {
         request: { headers: requestHeaders },
       });
   return securityHeaders(response);
+}
+
+type ApiTokenVerdict = "off" | "exempt" | "valid" | "missing" | "invalid";
+
+/**
+ * `RELAY_API_TOKEN` is an extra gate in front of every profile: once set, a
+ * request outside the exempt routes must carry `Authorization: Bearer <token>`
+ * whatever else it presents. The header is never read from a cookie or a query,
+ * so a browser cannot be made to send it.
+ */
+function checkApiToken(request: NextRequest, config: IngressConfig): ApiTokenVerdict {
+  if (!config.apiToken) return "off";
+  const pathname = request.nextUrl.pathname;
+  const routePath = matchesRoutePrefix(pathname, config.routePrefix)
+    ? stripRoutePrefix(pathname, config.routePrefix)
+    : pathname;
+  if (isApiTokenExemptRoute(routePath)) return "exempt";
+  const match = request.headers.get("authorization")?.match(/^Bearer[ \t]+(\S+)[ \t]*$/i);
+  if (!match) return "missing";
+  return secureEqual(match[1], config.apiToken) ? "valid" : "invalid";
 }
 
 function hasAuthenticatedIngress(request: NextRequest): boolean {

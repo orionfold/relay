@@ -35,6 +35,8 @@ export type IngressConfig = {
   cellId: string;
   publicOrigin?: URL;
   routePrefix: string;
+  /** When set, every request outside the exempt routes needs this bearer token. */
+  apiToken?: string;
 };
 
 export type RouteDecision =
@@ -70,10 +72,8 @@ export function classifyRoute(input: {
     return { kind: "reject", status: 503, code: "INGRESS_ORIGIN_REQUIRED" };
   }
 
-  for (const name of SPOOFABLE_AUTHORITY_HEADERS) {
-    if (input.headers.has(name)) {
-      return { kind: "reject", status: 400, code: "INGRESS_AUTHORITY_HEADER_SPOOF" };
-    }
+  if (hasSpoofedAuthorityHeader(input.headers)) {
+    return { kind: "reject", status: 400, code: "INGRESS_AUTHORITY_HEADER_SPOOF" };
   }
 
   if (normalizeOrigin(input.effectiveOrigin) !== normalizeOrigin(input.config.publicOrigin.origin)) {
@@ -87,6 +87,37 @@ export function classifyRoute(input: {
   return isPublicRoute(stripRoutePrefix(input.pathname, input.config.routePrefix))
     ? { kind: "allow-public" }
     : { kind: "require-session" };
+}
+
+/**
+ * A caller that presented the configured API token is a server, not a
+ * browser: it holds no session cookie and sends no Origin. The token stands in
+ * for both, so only the checks that do not depend on a browser still apply.
+ */
+export function classifyApiTokenCall(input: {
+  config: IngressConfig;
+  pathname: string;
+  headers: Headers;
+}): RouteDecision {
+  if (hasSpoofedAuthorityHeader(input.headers)) {
+    return { kind: "reject", status: 400, code: "INGRESS_AUTHORITY_HEADER_SPOOF" };
+  }
+  if (!matchesRoutePrefix(input.pathname, input.config.routePrefix)) {
+    return { kind: "reject", status: 404, code: "INGRESS_ROUTE_MISMATCH" };
+  }
+  return { kind: "allow-public" };
+}
+
+/**
+ * Health probes and the independently signed Slack webhook cannot carry the
+ * token, and neither needs it, so they stay open with the gate on.
+ */
+export function isApiTokenExemptRoute(pathname: string): boolean {
+  return pathname === "/api/health" || pathname.startsWith("/api/health/") || isSignedWebhookRoute(pathname);
+}
+
+function hasSpoofedAuthorityHeader(headers: Headers): boolean {
+  return SPOOFABLE_AUTHORITY_HEADERS.some((name) => headers.has(name));
 }
 
 export function matchesRoutePrefix(pathname: string, prefix: string): boolean {

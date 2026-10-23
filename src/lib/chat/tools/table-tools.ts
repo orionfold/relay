@@ -27,6 +27,7 @@ import {
 } from "@/lib/tables/import";
 import { createEnrichmentWorkflow } from "@/lib/tables/enrichment";
 import { getSelfBaseUrl } from "@/lib/http/self-base-url";
+import { getInternalAuthHeaders } from "@/lib/http/internal-auth";
 import type { ColumnDef } from "@/lib/tables/types";
 
 export function tableTools(ctx: ToolContext) {
@@ -748,7 +749,7 @@ Guidelines for schema inference:
       },
       async (args) => {
         try {
-          const res = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/charts`);
+          const res = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/charts`, { headers: getInternalAuthHeaders() });
           if (!res.ok) return err("Failed to list charts");
           return ok(await res.json());
         } catch (e) {
@@ -772,7 +773,7 @@ Guidelines for schema inference:
         try {
           const res = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/charts`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...getInternalAuthHeaders() },
             body: JSON.stringify({
               type: args.type,
               title: args.title,
@@ -805,7 +806,7 @@ Guidelines for schema inference:
         try {
           const res = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/charts/${args.chartId}`, {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...getInternalAuthHeaders() },
             body: JSON.stringify({
               title: args.title,
               type: args.type,
@@ -833,6 +834,7 @@ Guidelines for schema inference:
         try {
           const res = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/charts/${args.chartId}`, {
             method: "DELETE",
+            headers: getInternalAuthHeaders(),
           });
           if (!res.ok && res.status !== 204) return err("Failed to delete chart");
           return ok({ deleted: true, chartId: args.chartId });
@@ -852,14 +854,14 @@ Guidelines for schema inference:
       async (args) => {
         try {
           // Fetch chart config
-          const chartsRes = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/charts`);
+          const chartsRes = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/charts`, { headers: getInternalAuthHeaders() });
           if (!chartsRes.ok) return err("Failed to fetch charts");
           const charts = await chartsRes.json() as Array<{ id: string; name: string; config: { type: string; xColumn: string; yColumn?: string; aggregation?: string } }>;
           const chart = charts.find((c: { id: string }) => c.id === args.chartId);
           if (!chart) return err("Chart not found");
 
           // Fetch table rows
-          const rowsRes = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/rows`);
+          const rowsRes = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/rows`, { headers: getInternalAuthHeaders() });
           if (!rowsRes.ok) return err("Failed to fetch table rows");
           const rows = await rowsRes.json() as Array<{ data: string | Record<string, unknown> }>;
 
@@ -917,7 +919,7 @@ Guidelines for schema inference:
       },
       async (args) => {
         try {
-          const res = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/triggers`);
+          const res = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/triggers`, { headers: getInternalAuthHeaders() });
           if (!res.ok) return err("Failed to list triggers");
           return ok(await res.json());
         } catch (e) {
@@ -945,7 +947,7 @@ Guidelines for schema inference:
         try {
           const res = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/triggers`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...getInternalAuthHeaders() },
             body: JSON.stringify({
               name: args.name,
               triggerEvent: args.triggerEvent,
@@ -975,7 +977,7 @@ Guidelines for schema inference:
         try {
           const res = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/triggers/${args.triggerId}`, {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...getInternalAuthHeaders() },
             body: JSON.stringify({
               status: args.status,
               name: args.name,
@@ -1000,6 +1002,7 @@ Guidelines for schema inference:
         try {
           const res = await fetch(`${getBaseUrl()}/api/tables/${args.tableId}/triggers/${args.triggerId}`, {
             method: "DELETE",
+            headers: getInternalAuthHeaders(),
           });
           if (!res.ok) return err("Failed to delete trigger");
           return ok({ deleted: true });
@@ -1049,7 +1052,7 @@ Guidelines for schema inference:
         try {
           const res = await fetch(`${getBaseUrl()}/api/tables/templates`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...getInternalAuthHeaders() },
             body: JSON.stringify({
               tableId: args.tableId,
               name: args.name,

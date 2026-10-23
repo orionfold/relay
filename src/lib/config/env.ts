@@ -57,6 +57,15 @@ export function relayPublicOrigin(): string | undefined {
   return process.env.RELAY_PUBLIC_ORIGIN;
 }
 
+/**
+ * Optional shared secret every caller must present as
+ * `Authorization: Bearer <token>`, in every exposure profile. Unset or empty
+ * leaves the gate off.
+ */
+export function relayApiToken(): string | undefined {
+  return process.env.RELAY_API_TOKEN || undefined;
+}
+
 /** Optional server-owned URL prefix that an ingress maps to this Cell. */
 export function relayRoutePrefix(): string {
   const value = process.env.RELAY_ROUTE_PREFIX || "/";
